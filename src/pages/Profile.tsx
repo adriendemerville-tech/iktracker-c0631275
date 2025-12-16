@@ -1,18 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useTrips } from '@/hooks/useTrips';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { trips } = useTrips();
+
+  const monthlyKmData = useMemo(() => {
+    const now = new Date();
+    const months = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = date.toLocaleDateString('fr-FR', { month: 'short' });
+      months.push({
+        month: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+        year: date.getFullYear(),
+        monthIndex: date.getMonth(),
+        km: 0
+      });
+    }
+
+    trips.forEach(trip => {
+      const tripDate = new Date(trip.startTime);
+      const tripMonth = tripDate.getMonth();
+      const tripYear = tripDate.getFullYear();
+      
+      const monthData = months.find(m => m.monthIndex === tripMonth && m.year === tripYear);
+      if (monthData) {
+        monthData.km += trip.distance;
+      }
+    });
+
+    return months.map(m => ({ month: m.month, km: Math.round(m.km) }));
+  }, [trips]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -61,6 +92,34 @@ const Profile = () => {
                 Se connecter
               </Button>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Kilometers Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BarChart3 className="w-4 h-4" />
+              Kilomètres parcourus
+            </CardTitle>
+            <CardDescription>
+              Sur les 6 derniers mois
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyKmData} layout="vertical" margin={{ left: 10, right: 20 }}>
+                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="month" tick={{ fontSize: 12 }} width={40} />
+                  <Bar dataKey="km" radius={[0, 4, 4, 0]}>
+                    {monthlyKmData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill="hsl(25, 95%, 53%)" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
