@@ -20,7 +20,7 @@ const Profile = () => {
     const now = new Date();
     const months = [];
     
-    for (let i = 4; i >= 0; i--) {
+    for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthName = date.toLocaleDateString('fr-FR', { month: 'short' });
       months.push({
