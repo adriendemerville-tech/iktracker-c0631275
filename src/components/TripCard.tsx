@@ -1,15 +1,16 @@
-import { Trip } from '@/types/trip';
-import { MapPin, Clock, ArrowRight, Trash2 } from 'lucide-react';
+import { Trip, Vehicle } from '@/types/trip';
+import { MapPin, Clock, ArrowRight, Trash2, Car } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 
 interface TripCardProps {
   trip: Trip;
+  vehicle?: Vehicle;
   onDelete?: (id: string) => void;
   showDelete?: boolean;
 }
 
-export function TripCard({ trip, onDelete, showDelete = false }: TripCardProps) {
+export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCardProps) {
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -55,6 +56,17 @@ export function TripCard({ trip, onDelete, showDelete = false }: TripCardProps) 
           </Button>
         )}
       </div>
+
+      {vehicle && (
+        <div className="flex items-center gap-2 mb-3 text-sm">
+          <Car className="w-4 h-4 text-primary" />
+          <span className="font-medium">{vehicle.make} {vehicle.model}</span>
+          <span className="text-muted-foreground">• {vehicle.licensePlate}</span>
+          <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs">
+            {vehicle.fiscalPower} CV
+          </span>
+        </div>
+      )}
 
       <div className="flex items-center gap-3 mb-3">
         <div className="flex-1 flex items-center gap-2 min-w-0">

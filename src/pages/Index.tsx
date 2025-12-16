@@ -3,15 +3,44 @@ import { Link } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
+import { VehicleCard } from '@/components/VehicleCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
+import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
-import { FileText, Plus, Car, MapPin } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight } from 'lucide-react';
 
 const Index = () => {
-  const { trips, savedLocations, totalKm, totalIK, addTrip, addLocation } = useTrips();
+  const { 
+    trips, 
+    savedLocations, 
+    vehicles,
+    totalKm, 
+    totalIK, 
+    getTotalAnnualKm,
+    addTrip, 
+    addLocation,
+    addVehicle,
+    updateVehicle,
+    deleteVehicle,
+  } = useTrips();
+  
   const [showNewTrip, setShowNewTrip] = useState(false);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
 
   const recentTrips = trips.slice(0, 3);
+
+  const handleAddVehicle = () => {
+    setEditingVehicle(null);
+    setShowVehicleForm(true);
+  };
+
+  const handleEditVehicle = (vehicleId: string) => {
+    setEditingVehicle(vehicleId);
+    setShowVehicleForm(true);
+  };
+
+  const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,13 +67,51 @@ const Index = () => {
 
       {/* Main content */}
       <main className="max-w-lg mx-auto px-4 py-6 space-y-6 pb-32">
+        {/* Vehicles section */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Mes véhicules</h2>
+            <Button variant="ghost" size="sm" onClick={handleAddVehicle}>
+              <Plus className="w-4 h-4 mr-1" />
+              Ajouter
+            </Button>
+          </div>
+
+          {vehicles.length === 0 ? (
+            <div className="text-center py-8 bg-card rounded-2xl">
+              <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">Aucun véhicule enregistré</p>
+              <p className="text-sm text-muted-foreground mt-1 mb-4">
+                Ajoutez votre véhicule pour commencer
+              </p>
+              <Button onClick={handleAddVehicle}>
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter un véhicule
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {vehicles.map(vehicle => (
+                <VehicleCard
+                  key={vehicle.id}
+                  vehicle={vehicle}
+                  totalKm={getTotalAnnualKm(vehicle.id)}
+                  onEdit={() => handleEditVehicle(vehicle.id)}
+                  onDelete={() => deleteVehicle(vehicle.id)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Recent trips */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Derniers trajets</h2>
             {trips.length > 3 && (
-              <Link to="/report" className="text-sm text-primary font-medium">
+              <Link to="/report" className="text-sm text-primary font-medium flex items-center">
                 Voir tout
+                <ChevronRight className="w-4 h-4" />
               </Link>
             )}
           </div>
@@ -54,13 +121,19 @@ const Index = () => {
               <MapPin className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground">Aucun trajet enregistré</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Commencez par créer votre premier trajet
+                {vehicles.length === 0 
+                  ? "Ajoutez d'abord un véhicule" 
+                  : "Commencez par créer votre premier trajet"}
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               {recentTrips.map((trip) => (
-                <TripCard key={trip.id} trip={trip} />
+                <TripCard 
+                  key={trip.id} 
+                  trip={trip} 
+                  vehicle={getVehicle(trip.vehicleId)}
+                />
               ))}
             </div>
           )}
@@ -76,7 +149,12 @@ const Index = () => {
               Voir le relevé
             </Button>
           </Link>
-          <Button variant="gradient" size="lg" onClick={() => setShowNewTrip(true)}>
+          <Button 
+            variant="gradient" 
+            size="lg" 
+            onClick={() => setShowNewTrip(true)}
+            disabled={vehicles.length === 0}
+          >
             <Plus className="w-5 h-5" />
             Nouveau trajet
           </Button>
@@ -88,8 +166,25 @@ const Index = () => {
         open={showNewTrip}
         onOpenChange={setShowNewTrip}
         savedLocations={savedLocations}
+        vehicles={vehicles}
         onAddLocation={addLocation}
+        onAddVehicle={handleAddVehicle}
         onCreateTrip={addTrip}
+        getTotalAnnualKm={getTotalAnnualKm}
+      />
+
+      {/* Vehicle form */}
+      <VehicleForm
+        open={showVehicleForm}
+        onOpenChange={setShowVehicleForm}
+        editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
+        onSave={(vehicleData) => {
+          if (editingVehicle) {
+            updateVehicle(editingVehicle, vehicleData);
+          } else {
+            addVehicle(vehicleData);
+          }
+        }}
       />
     </div>
   );
