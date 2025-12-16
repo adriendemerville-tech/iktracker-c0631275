@@ -7,6 +7,7 @@ import { VehicleCard } from './VehicleCard';
 import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
+import { toast } from '@/components/ui/sonner';
 import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -107,17 +108,13 @@ export function NewTripSheet({
       endTime: new Date(),
     };
     setDraft(newDraft);
-    setStep('details');
 
     const resolveCoords = async (loc: Location): Promise<{ lat: number; lng: number } | null> => {
-      console.log('Resolving coords for:', loc.name, 'lat:', loc.lat, 'lng:', loc.lng, 'address:', loc.address);
       if (typeof loc.lat === 'number' && typeof loc.lng === 'number') {
         return { lat: loc.lat, lng: loc.lng };
       }
       if (loc.address) {
-        const coords = await geocodeAddress(loc.address);
-        console.log('Geocoded address result:', coords);
-        return coords;
+        return await geocodeAddress(loc.address);
       }
       return null;
     };
@@ -125,35 +122,44 @@ export function NewTripSheet({
     // Auto-calculate distance (route) if possible
     try {
       const start = draft.startLocation;
-      console.log('Start location:', start);
-      console.log('End location:', location);
-      
+
       if (start) {
-        const [startCoords, endCoords] = await Promise.all([
-          resolveCoords(start),
-          resolveCoords(location),
-        ]);
+        const sameAddress = !!start.address && !!location.address && start.address === location.address;
+        const sameCoords =
+          typeof start.lat === 'number' &&
+          typeof start.lng === 'number' &&
+          typeof location.lat === 'number' &&
+          typeof location.lng === 'number' &&
+          start.lat === location.lat &&
+          start.lng === location.lng;
 
-        console.log('Start coords:', startCoords);
-        console.log('End coords:', endCoords);
-
-        if (startCoords && endCoords) {
-          console.log('Calculating driving distance...');
-          const distance = await calculateDrivingDistance(
-            startCoords.lat,
-            startCoords.lng,
-            endCoords.lat,
-            endCoords.lng
-          );
-          console.log('Distance calculated:', distance);
-          setManualDistance(distance.toFixed(1));
+        if (sameAddress || sameCoords) {
+          toast.message("Départ et arrivée identiques", {
+            description: "Choisis une adresse d'arrivée différente pour calculer la distance.",
+          });
+          setManualDistance('0');
         } else {
-          console.warn('Missing coordinates for distance calculation');
+          const [startCoords, endCoords] = await Promise.all([
+            resolveCoords(start),
+            resolveCoords(location),
+          ]);
+
+          if (startCoords && endCoords) {
+            const distance = await calculateDrivingDistance(
+              startCoords.lat,
+              startCoords.lng,
+              endCoords.lat,
+              endCoords.lng
+            );
+            setManualDistance(distance.toFixed(1));
+          }
         }
       }
     } catch (error) {
       console.error('Error calculating distance:', error);
     }
+
+    setStep('details');
   };
 
   const handleConfirm = () => {
@@ -346,7 +352,10 @@ export function NewTripSheet({
                   value={manualDistance}
                   onChange={(e) => setManualDistance(e.target.value)}
                 />
-                {draft.startLocation?.lat && draft.endLocation?.lat ? (
+                {typeof draft.startLocation?.lat === 'number' &&
+                typeof draft.startLocation?.lng === 'number' &&
+                typeof draft.endLocation?.lat === 'number' &&
+                typeof draft.endLocation?.lng === 'number' ? (
                   <p className="text-xs text-accent">
                     ✓ Distance calculée automatiquement (modifiable)
                   </p>

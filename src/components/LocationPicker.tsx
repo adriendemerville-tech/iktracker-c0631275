@@ -5,7 +5,8 @@ import { Input } from './ui/input';
 import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Clock } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
-import { reverseGeocode } from '@/lib/geocoding';
+import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
+import { toast } from '@/components/ui/sonner';
 
 const RECENT_LOCATIONS_KEY = 'ik-recent-locations';
 const MAX_RECENT = 2;
@@ -107,7 +108,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
             
             // Create location WITHOUT saving to database
             const tempLocation: Location = {
-              id: `temp-${Date.now()}`,
+              id: `temp-${crypto.randomUUID()}`,
               name: cityName,
               address: place.formatted_address || '',
               lat,
@@ -227,6 +228,32 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
     };
   }, [editingLocation?.id]);
 
+  const handleSearchSubmit = async () => {
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    const coords = await geocodeAddress(query);
+    if (!coords) {
+      toast.error("Adresse introuvable");
+      return;
+    }
+
+    const geocodeResult = await reverseGeocode(coords.lat, coords.lng);
+    const tempLocation: Location = {
+      id: `temp-${crypto.randomUUID()}`,
+      name: geocodeResult?.city || query,
+      address: geocodeResult?.fullAddress || query,
+      lat: coords.lat,
+      lng: coords.lng,
+      type: 'other',
+    };
+
+    const updatedRecents = saveRecentLocation(tempLocation);
+    setRecentLocations(updatedRecents);
+    onSelect(tempLocation);
+    setSearchQuery('');
+  };
+
   const handleUseCurrentLocation = async () => {
     try {
       const coords = await getCurrentPosition();
@@ -240,7 +267,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       
       // Create location WITHOUT saving to database
       const tempLocation: Location = {
-        id: `temp-${Date.now()}`,
+        id: `temp-${crypto.randomUUID()}`,
         name: cityName,
         address: geocodeResult?.fullAddress || `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
         lat: coords.lat,
@@ -328,6 +355,12 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           placeholder="Rechercher une adresse..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSearchSubmit();
+            }
+          }}
           className="pl-10 h-12 text-base"
         />
       </div>
