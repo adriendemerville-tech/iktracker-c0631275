@@ -10,6 +10,33 @@ interface TripCardProps {
   showDelete?: boolean;
 }
 
+// Extract city name from address or location name
+const extractCityName = (location: { name: string; address?: string }): string => {
+  // If address exists, try to extract city from it
+  if (location.address) {
+    // French address format: "street, postal_code city, country"
+    // Try to match postal code (5 digits) followed by city name
+    const postalCityMatch = location.address.match(/\b(\d{5})\s+([^,]+)/);
+    if (postalCityMatch && postalCityMatch[2]) {
+      return postalCityMatch[2].trim();
+    }
+    
+    // If no postal code found, try to get the second part after comma
+    const parts = location.address.split(',');
+    if (parts.length >= 2) {
+      const cityPart = parts[1].trim();
+      // Remove postal code if present at the start
+      const cityWithoutPostal = cityPart.replace(/^\d{5}\s*/, '');
+      if (cityWithoutPostal) {
+        return cityWithoutPostal;
+      }
+    }
+  }
+  
+  // Fallback to location name
+  return location.name;
+};
+
 export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCardProps) {
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
@@ -35,6 +62,9 @@ export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCa
     };
     return colors[type] || colors.other;
   };
+
+  const startCityName = extractCityName(trip.startLocation);
+  const endCityName = extractCityName(trip.endLocation);
 
   return (
     <div className="bg-card rounded-xl p-4 shadow-sm border border-border/50 animate-fade-in">
@@ -71,12 +101,12 @@ export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCa
       <div className="flex items-center gap-3 mb-3">
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <MapPin className={cn("w-4 h-4 shrink-0", getLocationIcon(trip.startLocation.type))} />
-          <span className="font-medium truncate">{trip.startLocation.name}</span>
+          <span className="font-medium truncate">{startCityName}</span>
         </div>
         <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <MapPin className={cn("w-4 h-4 shrink-0", getLocationIcon(trip.endLocation.type))} />
-          <span className="font-medium truncate">{trip.endLocation.name}</span>
+          <span className="font-medium truncate">{endCityName}</span>
         </div>
       </div>
 
