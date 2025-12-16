@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
+import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
 import { VehicleCard } from '@/components/VehicleCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
+import { TourButton } from '@/components/TourButton';
+import { TourLogSheet } from '@/components/TourLogSheet';
 import { Button } from '@/components/ui/button';
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -29,7 +33,90 @@ const Index = () => {
   
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [showTourLog, setShowTourLog] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
+
+  const {
+    isActive: isTourActive,
+    isLoading: isTourLoading,
+    stops: tourStops,
+    startTour,
+    stopTour,
+    clearTour,
+  } = useTourTracker({
+    stopDuration: 60000, // 1 minute to detect a stop
+    trackingInterval: 10000, // Check every 10 seconds
+  });
+
+  const handleTourButtonClick = () => {
+    if (isTourActive) {
+      setShowTourLog(true);
+    } else if (tourStops.length > 0) {
+      setShowTourLog(true);
+    } else {
+      startTour();
+      toast.success("Tournée démarrée", {
+        description: "Les arrêts seront détectés automatiquement",
+      });
+    }
+  };
+
+  const handleConvertToTrips = async (stops: TourStop[]) => {
+    if (stops.length < 2 || vehicles.length === 0) {
+      toast.error("Impossible de créer les trajets", {
+        description: vehicles.length === 0 
+          ? "Ajoutez d'abord un véhicule" 
+          : "Il faut au moins 2 arrêts",
+      });
+      return;
+    }
+
+    // Create trips between consecutive stops
+    const vehicleId = vehicles[0].id; // Use first vehicle by default
+    let createdCount = 0;
+
+    for (let i = 0; i < stops.length - 1; i++) {
+      const start = stops[i];
+      const end = stops[i + 1];
+
+      try {
+        await addTrip({
+          vehicleId,
+          startLocation: {
+            id: start.id,
+            name: start.city || 'Position',
+            address: start.address,
+            lat: start.lat,
+            lng: start.lng,
+            type: 'other',
+          },
+          endLocation: {
+            id: end.id,
+            name: end.city || 'Position',
+            address: end.address,
+            lat: end.lat,
+            lng: end.lng,
+            type: 'other',
+          },
+          distance: 0, // Will need to calculate
+          purpose: 'Tournée',
+          startTime: start.timestamp,
+          endTime: end.timestamp,
+        });
+        createdCount++;
+      } catch (e) {
+        console.error('Failed to create trip:', e);
+      }
+    }
+
+    if (createdCount > 0) {
+      toast.success(`${createdCount} trajet${createdCount > 1 ? 's' : ''} créé${createdCount > 1 ? 's' : ''}`, {
+        description: "Les trajets ont été ajoutés à votre journal",
+      });
+      clearTour();
+      setShowTourLog(false);
+    }
+  };
 
   const recentTrips = trips.slice(0, 3);
 
@@ -151,6 +238,20 @@ const Index = () => {
         </section>
       </main>
 
+      {/* Tour button - floating above */}
+      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10">
+        <TourButton
+          isActive={isTourActive}
+          isLoading={isTourLoading}
+          onClick={handleTourButtonClick}
+        />
+        {isTourActive && tourStops.length > 0 && (
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-medium">
+            {tourStops.length}
+          </div>
+        )}
+      </div>
+
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
@@ -198,6 +299,19 @@ const Index = () => {
             addVehicle(vehicleData);
           }
         }}
+      />
+
+      {/* Tour log sheet */}
+      <TourLogSheet
+        open={showTourLog}
+        onOpenChange={setShowTourLog}
+        isActive={isTourActive}
+        isLoading={isTourLoading}
+        stops={tourStops}
+        onStart={startTour}
+        onStop={stopTour}
+        onClear={clearTour}
+        onConvertToTrips={handleConvertToTrips}
       />
     </div>
   );
