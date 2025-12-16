@@ -107,13 +107,17 @@ export function NewTripSheet({
       endTime: new Date(),
     };
     setDraft(newDraft);
+    setStep('details');
 
-    const resolveCoords = async (loc: Location) => {
+    const resolveCoords = async (loc: Location): Promise<{ lat: number; lng: number } | null> => {
+      console.log('Resolving coords for:', loc.name, 'lat:', loc.lat, 'lng:', loc.lng, 'address:', loc.address);
       if (typeof loc.lat === 'number' && typeof loc.lng === 'number') {
         return { lat: loc.lat, lng: loc.lng };
       }
       if (loc.address) {
-        return await geocodeAddress(loc.address);
+        const coords = await geocodeAddress(loc.address);
+        console.log('Geocoded address result:', coords);
+        return coords;
       }
       return null;
     };
@@ -121,27 +125,35 @@ export function NewTripSheet({
     // Auto-calculate distance (route) if possible
     try {
       const start = draft.startLocation;
+      console.log('Start location:', start);
+      console.log('End location:', location);
+      
       if (start) {
         const [startCoords, endCoords] = await Promise.all([
           resolveCoords(start),
           resolveCoords(location),
         ]);
 
+        console.log('Start coords:', startCoords);
+        console.log('End coords:', endCoords);
+
         if (startCoords && endCoords) {
+          console.log('Calculating driving distance...');
           const distance = await calculateDrivingDistance(
             startCoords.lat,
             startCoords.lng,
             endCoords.lat,
             endCoords.lng
           );
+          console.log('Distance calculated:', distance);
           setManualDistance(distance.toFixed(1));
+        } else {
+          console.warn('Missing coordinates for distance calculation');
         }
       }
     } catch (error) {
       console.error('Error calculating distance:', error);
     }
-
-    setStep('details');
   };
 
   const handleConfirm = () => {
