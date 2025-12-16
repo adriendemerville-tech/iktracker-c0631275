@@ -6,6 +6,7 @@ import { LocationPicker } from './LocationPicker';
 import { VehicleCard } from './VehicleCard';
 import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
+import { geocodeAddress } from '@/lib/geocoding';
 import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -106,27 +107,40 @@ export function NewTripSheet({
       endTime: new Date(),
     };
     setDraft(newDraft);
-    
-    // Auto-calculate distance if both locations have coordinates
-    if (
-      draft.startLocation?.lat &&
-      draft.startLocation?.lng &&
-      location.lat &&
-      location.lng
-    ) {
-      try {
-        const distance = await calculateDrivingDistance(
-          draft.startLocation.lat,
-          draft.startLocation.lng,
-          location.lat,
-          location.lng
-        );
-        setManualDistance(distance.toFixed(1));
-      } catch (error) {
-        console.error('Error calculating distance:', error);
+
+    const resolveCoords = async (loc: Location) => {
+      if (typeof loc.lat === 'number' && typeof loc.lng === 'number') {
+        return { lat: loc.lat, lng: loc.lng };
       }
+      if (loc.address) {
+        return await geocodeAddress(loc.address);
+      }
+      return null;
+    };
+
+    // Auto-calculate distance (route) if possible
+    try {
+      const start = draft.startLocation;
+      if (start) {
+        const [startCoords, endCoords] = await Promise.all([
+          resolveCoords(start),
+          resolveCoords(location),
+        ]);
+
+        if (startCoords && endCoords) {
+          const distance = await calculateDrivingDistance(
+            startCoords.lat,
+            startCoords.lng,
+            endCoords.lat,
+            endCoords.lng
+          );
+          setManualDistance(distance.toFixed(1));
+        }
+      }
+    } catch (error) {
+      console.error('Error calculating distance:', error);
     }
-    
+
     setStep('details');
   };
 

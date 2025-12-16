@@ -58,6 +58,33 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Geocodin
   });
 }
 
+// Geocode an address to coordinates (lat/lng)
+export async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  return new Promise((resolve) => {
+    if (!address?.trim()) {
+      resolve(null);
+      return;
+    }
+
+    if (typeof google === 'undefined' || !google.maps) {
+      console.warn('Google Maps not loaded');
+      resolve(null);
+      return;
+    }
+
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === 'OK' && results && results[0]?.geometry?.location) {
+        const loc = results[0].geometry.location;
+        resolve({ lat: loc.lat(), lng: loc.lng() });
+      } else {
+        console.warn('Geocoding failed:', status);
+        resolve(null);
+      }
+    });
+  });
+}
+
 // Extract city from an address string (fallback without API call)
 export function extractCityFromAddress(address: string): string {
   if (!address) return '';
