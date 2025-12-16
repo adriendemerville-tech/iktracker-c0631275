@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Trip, Location, Vehicle, calculateTotalAnnualIK } from '@/types/trip';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 const TRIPS_KEY = 'ik-tracker-trips';
 const LOCATIONS_KEY = 'ik-tracker-locations';
@@ -11,11 +13,80 @@ const defaultLocations: Location[] = [
 ];
 
 export function useTrips() {
+  const { user } = useAuth();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [savedLocations, setSavedLocations] = useState<Location[]>(defaultLocations);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // Load data from database for logged-in users
+  const loadFromDatabase = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      // Load vehicles
+      const { data: dbVehicles } = await supabase
+        .from('vehicles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (dbVehicles) {
+        setVehicles(dbVehicles.map(v => ({
+          id: v.id,
+          ownerFirstName: '',
+          ownerLastName: '',
+          licensePlate: '',
+          make: '',
+          model: v.name,
+          fiscalPower: v.fiscal_power,
+        })));
+      }
+
+      // Load locations
+      const { data: dbLocations } = await supabase
+        .from('locations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (dbLocations && dbLocations.length > 0) {
+        setSavedLocations(dbLocations.map(l => ({
+          id: l.id,
+          name: l.name,
+          address: l.address || '',
+          type: l.type as Location['type'],
+          lat: l.latitude || undefined,
+          lng: l.longitude || undefined,
+        })));
+      }
+
+      // Load trips
+      const { data: dbTrips } = await supabase
+        .from('trips')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (dbTrips) {
+        setTrips(dbTrips.map(t => ({
+          id: t.id,
+          vehicleId: t.vehicle_id,
+          startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
+          endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+          distance: t.distance,
+          purpose: t.purpose || '',
+          startTime: new Date(t.date),
+          endTime: new Date(t.date),
+          ikAmount: t.ik_amount,
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading from database:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  // Load from localStorage for non-logged users
+  const loadFromLocalStorage = useCallback(() => {
     const stored = localStorage.getItem(TRIPS_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -35,19 +106,109 @@ export function useTrips() {
     if (storedVehicles) {
       setVehicles(JSON.parse(storedVehicles));
     }
+    setLoading(false);
   }, []);
 
-  const saveTrips = (newTrips: Trip[]) => {
+  // Migrate localStorage data to database when user logs in
+  const migrateToDatabase = useCallback(async () => {
+    if (!user) return;
+
+    const localVehicles = localStorage.getItem(VEHICLES_KEY);
+    const localLocations = localStorage.getItem(LOCATIONS_KEY);
+    const localTrips = localStorage.getItem(TRIPS_KEY);
+
+    // Check if there's local data to migrate
+    if (!localVehicles && !localLocations && !localTrips) return;
+
+    try {
+      // Migrate vehicles
+      if (localVehicles) {
+        const vehiclesToMigrate: Vehicle[] = JSON.parse(localVehicles);
+        const vehicleIdMap = new Map<string, string>();
+
+        for (const v of vehiclesToMigrate) {
+          const { data } = await supabase
+            .from('vehicles')
+            .insert({
+              user_id: user.id,
+              name: v.model || v.make || 'Véhicule',
+              fiscal_power: v.fiscalPower,
+            })
+            .select()
+            .single();
+          
+          if (data) {
+            vehicleIdMap.set(v.id, data.id);
+          }
+        }
+
+        // Migrate locations
+        if (localLocations) {
+          const locationsToMigrate: Location[] = JSON.parse(localLocations);
+          for (const l of locationsToMigrate) {
+            if (l.id === '1' || l.id === '2') continue; // Skip defaults
+            await supabase.from('locations').insert({
+              user_id: user.id,
+              name: l.name,
+              address: l.address || null,
+              type: l.type,
+              latitude: l.lat || null,
+              longitude: l.lng || null,
+            });
+          }
+        }
+
+        // Migrate trips
+        if (localTrips) {
+          const tripsToMigrate: Trip[] = JSON.parse(localTrips);
+          for (const t of tripsToMigrate) {
+            const newVehicleId = vehicleIdMap.get(t.vehicleId);
+            if (newVehicleId) {
+              await supabase.from('trips').insert({
+                user_id: user.id,
+                vehicle_id: newVehicleId,
+                date: new Date(t.startTime).toISOString().split('T')[0],
+                start_location: t.startLocation.name,
+                end_location: t.endLocation.name,
+                distance: t.distance,
+                purpose: t.purpose || null,
+                round_trip: false,
+                ik_amount: t.ikAmount,
+              });
+            }
+          }
+        }
+
+        // Clear localStorage after migration
+        localStorage.removeItem(VEHICLES_KEY);
+        localStorage.removeItem(LOCATIONS_KEY);
+        localStorage.removeItem(TRIPS_KEY);
+      }
+    } catch (error) {
+      console.error('Migration error:', error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      migrateToDatabase().then(() => loadFromDatabase());
+    } else {
+      loadFromLocalStorage();
+    }
+  }, [user, loadFromDatabase, loadFromLocalStorage, migrateToDatabase]);
+
+  // Save functions
+  const saveTripsLocal = (newTrips: Trip[]) => {
     setTrips(newTrips);
     localStorage.setItem(TRIPS_KEY, JSON.stringify(newTrips));
   };
 
-  const saveLocations = (newLocations: Location[]) => {
+  const saveLocationsLocal = (newLocations: Location[]) => {
     setSavedLocations(newLocations);
     localStorage.setItem(LOCATIONS_KEY, JSON.stringify(newLocations));
   };
 
-  const saveVehicles = (newVehicles: Vehicle[]) => {
+  const saveVehiclesLocal = (newVehicles: Vehicle[]) => {
     setVehicles(newVehicles);
     localStorage.setItem(VEHICLES_KEY, JSON.stringify(newVehicles));
   };
@@ -60,7 +221,8 @@ export function useTrips() {
       .reduce((sum, t) => sum + t.distance, 0);
   };
 
-  const addTrip = (trip: Omit<Trip, 'id' | 'ikAmount'>) => {
+  // CRUD Operations
+  const addTrip = async (trip: Omit<Trip, 'id' | 'ikAmount'>) => {
     const vehicle = vehicles.find(v => v.id === trip.vehicleId);
     if (!vehicle) return null;
 
@@ -68,57 +230,181 @@ export function useTrips() {
     const ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
                      calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower);
 
-    const newTrip: Trip = {
-      ...trip,
-      id: crypto.randomUUID(),
-      ikAmount,
-    };
-    saveTrips([newTrip, ...trips]);
-    return newTrip;
+    if (user) {
+      const { data, error } = await supabase
+        .from('trips')
+        .insert({
+          user_id: user.id,
+          vehicle_id: trip.vehicleId,
+          date: new Date(trip.startTime).toISOString().split('T')[0],
+          start_location: trip.startLocation.name,
+          end_location: trip.endLocation.name,
+          distance: trip.distance,
+          purpose: trip.purpose || null,
+          round_trip: false,
+          ik_amount: ikAmount,
+        })
+        .select()
+        .single();
+
+      if (data) {
+        const newTrip: Trip = {
+          id: data.id,
+          vehicleId: data.vehicle_id,
+          startLocation: trip.startLocation,
+          endLocation: trip.endLocation,
+          distance: data.distance,
+          purpose: data.purpose || '',
+          startTime: new Date(data.date),
+          endTime: new Date(data.date),
+          ikAmount: data.ik_amount,
+        };
+        setTrips(prev => [newTrip, ...prev]);
+        return newTrip;
+      }
+      return null;
+    } else {
+      const newTrip: Trip = {
+        ...trip,
+        id: crypto.randomUUID(),
+        ikAmount,
+      };
+      saveTripsLocal([newTrip, ...trips]);
+      return newTrip;
+    }
   };
 
-  const deleteTrip = (id: string) => {
-    saveTrips(trips.filter(t => t.id !== id));
+  const deleteTrip = async (id: string) => {
+    if (user) {
+      await supabase.from('trips').delete().eq('id', id);
+      setTrips(prev => prev.filter(t => t.id !== id));
+    } else {
+      saveTripsLocal(trips.filter(t => t.id !== id));
+    }
   };
 
-  const addLocation = (location: Omit<Location, 'id'>) => {
-    const newLocation: Location = {
-      ...location,
-      id: crypto.randomUUID(),
-    };
-    saveLocations([...savedLocations, newLocation]);
-    return newLocation;
+  const addLocation = async (location: Omit<Location, 'id'>) => {
+    if (user) {
+      const { data } = await supabase
+        .from('locations')
+        .insert({
+          user_id: user.id,
+          name: location.name,
+          address: location.address || null,
+          type: location.type,
+          latitude: location.lat || null,
+          longitude: location.lng || null,
+        })
+        .select()
+        .single();
+
+      if (data) {
+        const newLocation: Location = {
+          id: data.id,
+          name: data.name,
+          address: data.address || '',
+          type: data.type as Location['type'],
+          lat: data.latitude || undefined,
+          lng: data.longitude || undefined,
+        };
+        setSavedLocations(prev => [...prev, newLocation]);
+        return newLocation;
+      }
+      return null;
+    } else {
+      const newLocation: Location = {
+        ...location,
+        id: crypto.randomUUID(),
+      };
+      saveLocationsLocal([...savedLocations, newLocation]);
+      return newLocation;
+    }
   };
 
-  const updateLocation = (id: string, updates: Partial<Location>) => {
-    saveLocations(savedLocations.map(l => l.id === id ? { ...l, ...updates } : l));
+  const updateLocation = async (id: string, updates: Partial<Location>) => {
+    if (user) {
+      await supabase
+        .from('locations')
+        .update({
+          name: updates.name,
+          address: updates.address || null,
+          type: updates.type,
+          latitude: updates.lat || null,
+          longitude: updates.lng || null,
+        })
+        .eq('id', id);
+      setSavedLocations(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+    } else {
+      saveLocationsLocal(savedLocations.map(l => l.id === id ? { ...l, ...updates } : l));
+    }
   };
 
-  const deleteLocation = (id: string) => {
-    saveLocations(savedLocations.filter(l => l.id !== id));
+  const deleteLocation = async (id: string) => {
+    if (user) {
+      await supabase.from('locations').delete().eq('id', id);
+      setSavedLocations(prev => prev.filter(l => l.id !== id));
+    } else {
+      saveLocationsLocal(savedLocations.filter(l => l.id !== id));
+    }
   };
 
-  const addVehicle = (vehicle: Omit<Vehicle, 'id'>) => {
-    const newVehicle: Vehicle = {
-      ...vehicle,
-      id: crypto.randomUUID(),
-    };
-    saveVehicles([...vehicles, newVehicle]);
-    return newVehicle;
+  const addVehicle = async (vehicle: Omit<Vehicle, 'id'>) => {
+    if (user) {
+      const { data } = await supabase
+        .from('vehicles')
+        .insert({
+          user_id: user.id,
+          name: vehicle.model || vehicle.make || 'Véhicule',
+          fiscal_power: vehicle.fiscalPower,
+        })
+        .select()
+        .single();
+
+      if (data) {
+        const newVehicle: Vehicle = {
+          ...vehicle,
+          id: data.id,
+        };
+        setVehicles(prev => [...prev, newVehicle]);
+        return newVehicle;
+      }
+      return null;
+    } else {
+      const newVehicle: Vehicle = {
+        ...vehicle,
+        id: crypto.randomUUID(),
+      };
+      saveVehiclesLocal([...vehicles, newVehicle]);
+      return newVehicle;
+    }
   };
 
-  const updateVehicle = (id: string, updates: Partial<Vehicle>) => {
-    saveVehicles(vehicles.map(v => v.id === id ? { ...v, ...updates } : v));
+  const updateVehicle = async (id: string, updates: Partial<Vehicle>) => {
+    if (user) {
+      await supabase
+        .from('vehicles')
+        .update({
+          name: updates.model || updates.make,
+          fiscal_power: updates.fiscalPower,
+        })
+        .eq('id', id);
+      setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
+    } else {
+      saveVehiclesLocal(vehicles.map(v => v.id === id ? { ...v, ...updates } : v));
+    }
   };
 
-  const deleteVehicle = (id: string) => {
-    saveVehicles(vehicles.filter(v => v.id !== id));
+  const deleteVehicle = async (id: string) => {
+    if (user) {
+      await supabase.from('vehicles').delete().eq('id', id);
+      setVehicles(prev => prev.filter(v => v.id !== id));
+    } else {
+      saveVehiclesLocal(vehicles.filter(v => v.id !== id));
+    }
   };
 
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
-  const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
 
-  // Recalculate total IK based on annual totals per vehicle
   const recalculatedTotalIK = () => {
     const vehicleKms = new Map<string, number>();
     trips.forEach(t => {
@@ -142,6 +428,7 @@ export function useTrips() {
     vehicles,
     totalKm,
     totalIK: recalculatedTotalIK(),
+    loading,
     getTotalAnnualKm,
     addTrip,
     deleteTrip,

@@ -14,7 +14,7 @@ interface NewTripSheetProps {
   onOpenChange: (open: boolean) => void;
   savedLocations: Location[];
   vehicles: Vehicle[];
-  onAddLocation: (location: Omit<Location, 'id'>) => Location;
+  onAddLocation: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
   onAddVehicle: () => void;
   onCreateTrip: (trip: {
     vehicleId: string;
