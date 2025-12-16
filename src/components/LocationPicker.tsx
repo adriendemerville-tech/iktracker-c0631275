@@ -93,7 +93,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         searchAutocompleteRef.current = new window.google.maps.places.Autocomplete(searchInputRef.current, {
           componentRestrictions: { country: 'fr' },
           fields: ['formatted_address', 'geometry', 'name'],
-          types: ['address'],
+          types: ['geocode'],
         });
 
         searchAutocompleteRef.current.addListener('place_changed', async () => {
@@ -161,7 +161,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       autocompleteRef.current = new window.google.maps.places.Autocomplete(addressInputRef.current, {
         componentRestrictions: { country: 'fr' },
         fields: ['formatted_address', 'geometry', 'name'],
-        types: ['address'],
+        types: ['geocode'],
       });
 
       autocompleteRef.current.addListener('place_changed', () => {
@@ -204,7 +204,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       editAutocompleteRef.current = new window.google.maps.places.Autocomplete(editAddressInputRef.current, {
         componentRestrictions: { country: 'fr' },
         fields: ['formatted_address', 'geometry', 'name'],
-        types: ['address'],
+        types: ['geocode'],
       });
 
       editAutocompleteRef.current.addListener('place_changed', () => {
