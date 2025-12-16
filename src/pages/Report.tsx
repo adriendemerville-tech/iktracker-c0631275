@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
-import { Trip, Vehicle, getIKBareme, IK_BAREME_2024 } from '@/types/trip';
+import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
 import { TripCard } from '@/components/TripCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
@@ -35,6 +35,67 @@ export default function Report() {
   }, {} as Record<string, Trip[]>);
 
   const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+
+  // Recalculate IK amounts based on chronological order and cumulative distance
+  // This ensures the barème tiers are correctly applied
+  const recalculatedTrips = useMemo(() => {
+    // Group trips by vehicle and year
+    const grouped = new Map<string, Trip[]>();
+    
+    trips.forEach(trip => {
+      const year = new Date(trip.startTime).getFullYear();
+      const key = `${trip.vehicleId}-${year}`;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(trip);
+    });
+
+    const result: (Trip & { recalculatedIK: number; cumulativeKm: number; appliedRate: number })[] = [];
+
+    grouped.forEach((vehicleTrips, key) => {
+      const vehicleId = key.split('-')[0];
+      const vehicle = getVehicle(vehicleId);
+      if (!vehicle) return;
+
+      // Sort chronologically
+      const sorted = [...vehicleTrips].sort(
+        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      );
+
+      let cumulativeKm = 0;
+
+      sorted.forEach(trip => {
+        const prevCumulativeKm = cumulativeKm;
+        cumulativeKm += trip.distance;
+
+        // Calculate marginal IK for this trip
+        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
+        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower);
+        const recalculatedIK = ikAfter - ikBefore;
+
+        // Determine applied rate based on cumulative km
+        const bareme = getIKBareme(vehicle.fiscalPower);
+        let appliedRate = bareme.upTo5000.rate;
+        if (cumulativeKm > 20000) {
+          appliedRate = bareme.over20000.rate;
+        } else if (cumulativeKm > 5000) {
+          appliedRate = bareme.from5001To20000.rate;
+        }
+
+        result.push({
+          ...trip,
+          recalculatedIK,
+          cumulativeKm,
+          appliedRate,
+        });
+      });
+    });
+
+    // Sort by date descending for display
+    return result.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+  }, [trips, vehicles]);
+
+  // Recalculated totals
+  const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
   
   const handleAddVehicle = () => {
     setEditingVehicle(null);
@@ -53,24 +114,19 @@ export default function Report() {
       'Lieu de départ',
       'Lieu d\'arrivée',
       'Distance (km)',
+      'Cumul annuel (km)',
       'Motif',
-      'Taux IK (€/km)',
+      'Taux appliqué (€/km)',
       'Montant IK (€)',
     ];
 
-    const rows = trips.map(t => {
+    // Sort chronologically for CSV export
+    const sortedTrips = [...recalculatedTrips].sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+
+    const rows = sortedTrips.map(t => {
       const vehicle = getVehicle(t.vehicleId);
-      const bareme = vehicle ? getIKBareme(vehicle.fiscalPower) : null;
-      const annualKm = trips
-        .filter(trip => trip.vehicleId === t.vehicleId && new Date(trip.startTime).getFullYear() === new Date(t.startTime).getFullYear())
-        .reduce((sum, trip) => sum + trip.distance, 0);
-      
-      let rate = 0;
-      if (bareme) {
-        if (annualKm <= 5000) rate = bareme.upTo5000.rate;
-        else if (annualKm <= 20000) rate = bareme.from5001To20000.rate;
-        else rate = bareme.over20000.rate;
-      }
 
       return [
         new Date(t.startTime).toLocaleDateString('fr-FR'),
@@ -83,14 +139,15 @@ export default function Report() {
         t.startLocation.name,
         t.endLocation.name,
         t.distance.toFixed(1),
+        t.cumulativeKm.toFixed(1),
         t.purpose,
-        rate.toFixed(3),
-        t.ikAmount.toFixed(2),
+        t.appliedRate.toFixed(3),
+        t.recalculatedIK.toFixed(2),
       ];
     });
 
     rows.push([]);
-    rows.push(['TOTAL', '', '', '', '', '', '', '', '', totalKm.toFixed(1), '', '', totalIK.toFixed(2)]);
+    rows.push(['TOTAL', '', '', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
     
     rows.push([]);
     rows.push(['Barème kilométrique fiscal 2024']);
@@ -127,10 +184,15 @@ export default function Report() {
     // Summary
     doc.setFontSize(12);
     doc.setTextColor(0);
-    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${totalIK.toFixed(2)} €`, 14, 40);
+    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 40);
+
+    // Sort chronologically for PDF
+    const sortedTrips = [...recalculatedTrips].sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
 
     // Trips table
-    const tableData = trips.map(t => {
+    const tableData = sortedTrips.map(t => {
       const vehicle = getVehicle(t.vehicleId);
       return [
         new Date(t.startTime).toLocaleDateString('fr-FR'),
@@ -138,19 +200,20 @@ export default function Report() {
         t.startLocation.name,
         t.endLocation.name,
         `${t.distance.toFixed(1)} km`,
+        `${t.cumulativeKm.toFixed(0)} km`,
         t.purpose || '-',
-        `${t.ikAmount.toFixed(2)} €`,
+        `${t.recalculatedIK.toFixed(2)} €`,
       ];
     });
 
     autoTable(doc, {
       startY: 48,
-      head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Distance', 'Motif', 'IK']],
+      head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Dist.', 'Cumul', 'Motif', 'IK']],
       body: tableData,
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 7, cellPadding: 1.5 },
       headStyles: { fillColor: [59, 130, 246] },
       alternateRowStyles: { fillColor: [245, 247, 250] },
-      foot: [['TOTAL', '', '', '', `${totalKm.toFixed(1)} km`, '', `${totalIK.toFixed(2)} €`]],
+      foot: [['TOTAL', '', '', '', `${totalKm.toFixed(1)} km`, '', '', `${recalculatedTotalIK.toFixed(2)} €`]],
       footStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold' },
     });
 
@@ -254,7 +317,7 @@ export default function Report() {
               <p className="text-xs text-muted-foreground">km</p>
             </div>
             <div>
-              <p className="counter-text text-2xl font-bold text-accent">{totalIK.toFixed(0)}€</p>
+              <p className="counter-text text-2xl font-bold text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
               <p className="text-xs text-muted-foreground">IK</p>
             </div>
           </div>
