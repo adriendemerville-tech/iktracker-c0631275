@@ -286,7 +286,7 @@ export function NewTripSheet({
               
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
-                Point de départ
+                Départ
               </h3>
               <LocationPicker
                 key="start-location"
@@ -314,7 +314,7 @@ export function NewTripSheet({
               
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-accent" />
-                Point d'arrivée
+                Arrivée
               </h3>
               <LocationPicker
                 key="end-location"
