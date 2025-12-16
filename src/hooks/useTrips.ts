@@ -323,17 +323,50 @@ export function useTrips() {
 
   const updateLocation = async (id: string, updates: Partial<Location>) => {
     if (user) {
-      await supabase
-        .from('locations')
-        .update({
-          name: updates.name,
-          address: updates.address || null,
-          type: updates.type,
-          latitude: updates.lat || null,
-          longitude: updates.lng || null,
-        })
-        .eq('id', id);
-      setSavedLocations(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+      // Check if this is a default location (not in database)
+      const isDefaultLocation = id === '1' || id === '2';
+      
+      if (isDefaultLocation) {
+        // Create new location in database instead of updating
+        const existingLocation = savedLocations.find(l => l.id === id);
+        const { data } = await supabase
+          .from('locations')
+          .insert({
+            user_id: user.id,
+            name: updates.name || existingLocation?.name || '',
+            address: updates.address || existingLocation?.address || null,
+            type: updates.type || existingLocation?.type || 'other',
+            latitude: updates.lat || existingLocation?.lat || null,
+            longitude: updates.lng || existingLocation?.lng || null,
+          })
+          .select()
+          .single();
+
+        if (data) {
+          // Replace the default location with the new DB location
+          setSavedLocations(prev => prev.map(l => l.id === id ? {
+            id: data.id,
+            name: data.name,
+            address: data.address || '',
+            type: data.type as Location['type'],
+            lat: data.latitude || undefined,
+            lng: data.longitude || undefined,
+          } : l));
+        }
+      } else {
+        // Normal update for DB locations
+        await supabase
+          .from('locations')
+          .update({
+            name: updates.name,
+            address: updates.address || null,
+            type: updates.type,
+            latitude: updates.lat || null,
+            longitude: updates.lng || null,
+          })
+          .eq('id', id);
+        setSavedLocations(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+      }
     } else {
       saveLocationsLocal(savedLocations.map(l => l.id === id ? { ...l, ...updates } : l));
     }
