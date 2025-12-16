@@ -109,10 +109,10 @@ const Profile = () => {
           <CardContent>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyKmData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                  <XAxis type="number" tick={{ fontSize: 12 }} />
-                  <YAxis type="category" dataKey="month" tick={{ fontSize: 12 }} width={40} />
-                  <Bar dataKey="km" radius={[0, 4, 4, 0]}>
+                <BarChart data={monthlyKmData} margin={{ left: -10, right: 10, bottom: 0 }}>
+                  <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis type="number" tick={{ fontSize: 12 }} width={40} />
+                  <Bar dataKey="km" radius={[4, 4, 0, 0]}>
                     {monthlyKmData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill="hsl(25, 95%, 53%)" />
                     ))}
