@@ -11,9 +11,18 @@ import { VehicleForm } from '@/components/VehicleForm';
 import { TourButton } from '@/components/TourButton';
 import { TourLogSheet } from '@/components/TourLogSheet';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-
 const Index = () => {
   const navigate = useNavigate();
   const { 
@@ -36,7 +45,7 @@ const Index = () => {
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [showTourLog, setShowTourLog] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
-
+  const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
@@ -213,7 +222,7 @@ const Index = () => {
                   vehicle={vehicle}
                   totalKm={getTotalAnnualKm(vehicle.id)}
                   onEdit={() => handleEditVehicle(vehicle.id)}
-                  onDelete={() => deleteVehicle(vehicle.id)}
+                  onDelete={() => setVehicleToDelete(vehicle.id)}
                 />
               ))}
             </div>
@@ -331,6 +340,33 @@ const Index = () => {
         onClear={clearTour}
         onConvertToTrips={handleConvertToTrips}
       />
+
+      {/* Delete vehicle confirmation */}
+      <AlertDialog open={!!vehicleToDelete} onOpenChange={(open) => !open && setVehicleToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Le véhicule sera définitivement supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (vehicleToDelete) {
+                  deleteVehicle(vehicleToDelete);
+                  setVehicleToDelete(null);
+                  toast.success("Véhicule supprimé");
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
