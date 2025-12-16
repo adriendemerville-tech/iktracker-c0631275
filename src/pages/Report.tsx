@@ -6,7 +6,11 @@ import { TripCard } from '@/components/TripCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, FileSpreadsheet, Plus, Home, UserCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import JSZip from 'jszip';
 
 export default function Report() {
   const navigate = useNavigate();
@@ -15,6 +19,7 @@ export default function Report() {
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
@@ -36,7 +41,7 @@ export default function Report() {
     setShowVehicleForm(true);
   };
 
-  const exportToCSV = () => {
+  const generateCSVContent = () => {
     const headers = [
       'Date',
       'Heure départ',
@@ -104,12 +109,115 @@ export default function Report() {
       ...rows.map(r => r.join(';')),
     ].join('\n');
 
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `releve-ik-${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+    return '\uFEFF' + csv; // BOM for Excel
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const dateStr = new Date().toLocaleDateString('fr-FR');
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text('Relevé des Indemnités Kilométriques', 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Généré le ${dateStr}`, 14, 28);
+    
+    // Summary
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${totalIK.toFixed(2)} €`, 14, 40);
+
+    // Trips table
+    const tableData = trips.map(t => {
+      const vehicle = getVehicle(t.vehicleId);
+      return [
+        new Date(t.startTime).toLocaleDateString('fr-FR'),
+        vehicle ? `${vehicle.make} ${vehicle.model}` : '-',
+        t.startLocation.name,
+        t.endLocation.name,
+        `${t.distance.toFixed(1)} km`,
+        t.purpose || '-',
+        `${t.ikAmount.toFixed(2)} €`,
+      ];
+    });
+
+    autoTable(doc, {
+      startY: 48,
+      head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Distance', 'Motif', 'IK']],
+      body: tableData,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [59, 130, 246] },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+      foot: [['TOTAL', '', '', '', `${totalKm.toFixed(1)} km`, '', `${totalIK.toFixed(2)} €`]],
+      footStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold' },
+    });
+
+    // Barème section
+    const finalY = (doc as any).lastAutoTable.finalY || 100;
+    
+    if (finalY < 240) {
+      doc.setFontSize(11);
+      doc.text('Barème kilométrique fiscal 2024', 14, finalY + 15);
+      
+      const baremeData = IK_BAREME_2024.map(b => [
+        b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`,
+        `${b.upTo5000.rate} €/km`,
+        `${b.from5001To20000.rate} €/km + ${b.from5001To20000.fixed} €`,
+        `${b.over20000.rate} €/km`,
+      ]);
+
+      autoTable(doc, {
+        startY: finalY + 20,
+        head: [['Puissance', '≤ 5000 km', '5001-20000 km', '> 20000 km']],
+        body: baremeData,
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [100, 116, 139] },
+      });
+    }
+
+    return doc.output('arraybuffer');
+  };
+
+  const exportZip = async () => {
+    if (trips.length === 0) {
+      toast.error("Aucun trajet à exporter");
+      return;
+    }
+
+    setIsExporting(true);
+    
+    try {
+      const zip = new JSZip();
+      const dateStr = new Date().toISOString().split('T')[0];
+      
+      // Add CSV
+      const csvContent = generateCSVContent();
+      zip.file(`releve-ik-${dateStr}.csv`, csvContent);
+      
+      // Add PDF
+      const pdfContent = generatePDF();
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfContent);
+      
+      // Generate ZIP
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      
+      // Download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `releve-ik-${dateStr}.zip`;
+      link.click();
+      
+      toast.success("Export réussi", {
+        description: "Le fichier ZIP contient le CSV et le PDF",
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error("Erreur lors de l'export");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -123,8 +231,8 @@ export default function Report() {
           </Link>
           <h1 className="text-lg font-semibold">Relevé des trajets</h1>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={exportToCSV} disabled={trips.length === 0}>
-              <FileSpreadsheet className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={exportZip} disabled={trips.length === 0 || isExporting}>
+              <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
               <UserCircle className="w-5 h-5" />
@@ -153,12 +261,12 @@ export default function Report() {
         </div>
 
         <div className="bg-muted/50 rounded-xl p-4 flex items-start gap-3">
-          <FileSpreadsheet className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          <Download className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <div className="text-sm">
             <p className="font-medium">Export comptable</p>
             <p className="text-muted-foreground">
-              Cliquez sur l'icône en haut à droite pour télécharger un fichier CSV complet 
-              avec toutes les informations nécessaires à votre comptable.
+              Cliquez sur l'icône en haut à droite pour télécharger un ZIP contenant 
+              le relevé en CSV et PDF pour votre comptable.
             </p>
           </div>
         </div>
