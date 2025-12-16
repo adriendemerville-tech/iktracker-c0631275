@@ -244,6 +244,7 @@ export function NewTripSheet({
                 Point de départ
               </h3>
               <LocationPicker
+                key="start-location"
                 savedLocations={savedLocations}
                 onSelect={handleSelectStart}
                 onAddNew={onAddLocation}
@@ -271,6 +272,7 @@ export function NewTripSheet({
                 Point d'arrivée
               </h3>
               <LocationPicker
+                key="end-location"
                 savedLocations={savedLocations}
                 onSelect={handleSelectEnd}
                 onAddNew={onAddLocation}
