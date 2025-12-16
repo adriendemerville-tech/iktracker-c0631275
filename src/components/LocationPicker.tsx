@@ -33,17 +33,71 @@ const typeLabels: Record<string, string> = {
 export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, onUpdate }: LocationPickerProps) {
   const [showNewForm, setShowNewForm] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newType, setNewType] = useState<Location['type']>('other');
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number } | null>(null);
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
   
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const editAddressInputRef = useRef<HTMLInputElement>(null);
+  const searchAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const editAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Initialize Google Places Autocomplete for search input
+  useEffect(() => {
+    if (!searchInputRef.current) return;
+    
+    const initSearchAutocomplete = () => {
+      if (!window.google?.maps?.places || !searchInputRef.current) return;
+
+      if (searchAutocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
+      }
+
+      searchAutocompleteRef.current = new window.google.maps.places.Autocomplete(searchInputRef.current, {
+        componentRestrictions: { country: 'fr' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['address'],
+      });
+
+      searchAutocompleteRef.current.addListener('place_changed', async () => {
+        const place = searchAutocompleteRef.current?.getPlace();
+        if (place?.geometry?.location) {
+          const newLocation: Omit<Location, 'id'> = {
+            name: place.name || place.formatted_address || 'Lieu',
+            address: place.formatted_address || '',
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+            type: 'other',
+          };
+          const result = onAddNew(newLocation);
+          const location = result instanceof Promise ? await result : result;
+          if (location) {
+            onSelect(location);
+          }
+          setSearchQuery('');
+        }
+      });
+    };
+
+    if (window.google?.maps?.places) {
+      initSearchAutocomplete();
+    } else {
+      const timer = setTimeout(initSearchAutocomplete, 500);
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      if (searchAutocompleteRef.current && window.google?.maps?.event) {
+        window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
+      }
+    };
+  }, [onAddNew, onSelect]);
 
   // Initialize Google Places Autocomplete for new location
   useEffect(() => {
@@ -211,6 +265,19 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
 
   return (
     <div className="space-y-4">
+      {/* Search input */}
+      <div className="relative">
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <Input
+          ref={searchInputRef}
+          placeholder="Rechercher une adresse..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 h-12 text-base"
+          autoFocus
+        />
+      </div>
+
       <Button
         variant="outline"
         className="w-full justify-start gap-3"
