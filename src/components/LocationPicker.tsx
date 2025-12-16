@@ -33,6 +33,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newType, setNewType] = useState<Location['type']>('other');
+  const [newCoords, setNewCoords] = useState<{ lat: number; lng: number } | null>(null);
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
 
   const handleUseCurrentLocation = async () => {
@@ -51,11 +52,22 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
     }
   };
 
+  const handleCaptureCoords = async () => {
+    try {
+      const coords = await getCurrentPosition();
+      setNewCoords(coords);
+    } catch (error) {
+      console.error('Geolocation error:', error);
+    }
+  };
+
   const handleAddNew = () => {
     if (!newName.trim()) return;
     const location = onAddNew({
       name: newName,
       address: newAddress,
+      lat: newCoords?.lat,
+      lng: newCoords?.lng,
       type: newType,
     });
     onSelect(location);
@@ -63,6 +75,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
     setNewName('');
     setNewAddress('');
     setNewType('other');
+    setNewCoords(null);
   };
 
   return (
@@ -119,6 +132,16 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
             value={newAddress}
             onChange={(e) => setNewAddress(e.target.value)}
           />
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start gap-2"
+            onClick={handleCaptureCoords}
+            disabled={geoLoading}
+          >
+            <Navigation className={cn("w-4 h-4", geoLoading && "animate-pulse", newCoords && "text-accent")} />
+            {geoLoading ? 'Localisation...' : newCoords ? `✓ Position GPS capturée` : 'Capturer ma position GPS ici'}
+          </Button>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(typeLabels) as Location['type'][]).map((type) => (
               <button
@@ -137,7 +160,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
             ))}
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setShowNewForm(false)} className="flex-1">
+            <Button variant="secondary" onClick={() => { setShowNewForm(false); setNewCoords(null); }} className="flex-1">
               Annuler
             </Button>
             <Button onClick={handleAddNew} className="flex-1" disabled={!newName.trim()}>
