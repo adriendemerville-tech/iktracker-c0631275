@@ -72,11 +72,29 @@ export function NewTripSheet({
   };
 
   const handleSelectEnd = (location: Location) => {
-    setDraft({
+    const newDraft = {
       ...draft,
       endLocation: location,
       endTime: new Date(),
-    });
+    };
+    setDraft(newDraft);
+    
+    // Auto-calculate distance if both locations have coordinates
+    if (
+      draft.startLocation?.lat &&
+      draft.startLocation?.lng &&
+      location.lat &&
+      location.lng
+    ) {
+      const distance = calculateDistance(
+        draft.startLocation.lat,
+        draft.startLocation.lng,
+        location.lat,
+        location.lng
+      );
+      setManualDistance(distance.toFixed(1));
+    }
+    
     setStep('details');
   };
 
@@ -279,9 +297,15 @@ export function NewTripSheet({
                   value={manualDistance}
                   onChange={(e) => setManualDistance(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Entrez la distance parcourue en kilomètres
-                </p>
+                {draft.startLocation?.lat && draft.endLocation?.lat ? (
+                  <p className="text-xs text-accent">
+                    ✓ Distance calculée automatiquement (modifiable)
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Ajoutez des coordonnées GPS aux lieux pour un calcul automatique
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
