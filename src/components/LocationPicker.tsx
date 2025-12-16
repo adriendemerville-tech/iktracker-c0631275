@@ -55,46 +55,52 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
     const initSearchAutocomplete = () => {
       if (!window.google?.maps?.places || !searchInputRef.current) return;
 
-      if (searchAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
-      }
-
-      searchAutocompleteRef.current = new window.google.maps.places.Autocomplete(searchInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['address'],
-      });
-
-      searchAutocompleteRef.current.addListener('place_changed', async () => {
-        const place = searchAutocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          const newLocation: Omit<Location, 'id'> = {
-            name: place.name || place.formatted_address || 'Lieu',
-            address: place.formatted_address || '',
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            type: 'other',
-          };
-          const result = onAddNew(newLocation);
-          const location = result instanceof Promise ? await result : result;
-          if (location) {
-            onSelect(location);
-          }
-          setSearchQuery('');
+      try {
+        if (searchAutocompleteRef.current) {
+          window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
         }
-      });
+
+        searchAutocompleteRef.current = new window.google.maps.places.Autocomplete(searchInputRef.current, {
+          componentRestrictions: { country: 'fr' },
+          fields: ['formatted_address', 'geometry', 'name'],
+          types: ['address'],
+        });
+
+        searchAutocompleteRef.current.addListener('place_changed', async () => {
+          const place = searchAutocompleteRef.current?.getPlace();
+          if (place?.geometry?.location) {
+            const newLocation: Omit<Location, 'id'> = {
+              name: place.name || place.formatted_address || 'Lieu',
+              address: place.formatted_address || '',
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng(),
+              type: 'other',
+            };
+            const result = onAddNew(newLocation);
+            const location = result instanceof Promise ? await result : result;
+            if (location) {
+              onSelect(location);
+            }
+            setSearchQuery('');
+          }
+        });
+      } catch (error) {
+        console.warn('Google Places Autocomplete not available:', error);
+      }
     };
 
-    if (window.google?.maps?.places) {
-      initSearchAutocomplete();
-    } else {
-      const timer = setTimeout(initSearchAutocomplete, 500);
-      return () => clearTimeout(timer);
-    }
-
+    const timer = setTimeout(() => {
+      if (window.google?.maps?.places) {
+        initSearchAutocomplete();
+      }
+    }, 300);
+    
     return () => {
+      clearTimeout(timer);
       if (searchAutocompleteRef.current && window.google?.maps?.event) {
-        window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
+        try {
+          window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
+        } catch (e) {}
       }
     };
   }, [onAddNew, onSelect]);
@@ -274,7 +280,6 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 h-12 text-base"
-          autoFocus
         />
       </div>
 
