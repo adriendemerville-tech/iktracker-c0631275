@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -116,6 +116,7 @@ const Profile = () => {
                     {monthlyKmData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill="hsl(25, 95%, 53%)" />
                     ))}
+                    <LabelList dataKey="km" position="insideTop" fill="white" fontSize={11} fontWeight={600} offset={4} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
