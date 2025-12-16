@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Location } from '@/types/trip';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, Loader2 } from 'lucide-react';
+import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Pencil } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +10,8 @@ interface LocationPickerProps {
   savedLocations: Location[];
   onSelect: (location: Location) => void;
   onAddNew: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
+  onDelete?: (id: string) => void;
+  onUpdate?: (id: string, updates: Partial<Location>) => void;
 }
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -28,8 +30,9 @@ const typeLabels: Record<string, string> = {
   other: 'Autre',
 };
 
-export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationPickerProps) {
+export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, onUpdate }: LocationPickerProps) {
   const [showNewForm, setShowNewForm] = useState(false);
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newType, setNewType] = useState<Location['type']>('other');
@@ -37,17 +40,18 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
   
   const addressInputRef = useRef<HTMLInputElement>(null);
+  const editAddressInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const editAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initialize Google Places Autocomplete
+  // Initialize Google Places Autocomplete for new location
   useEffect(() => {
     if (!showNewForm || !addressInputRef.current) return;
     
-    // Wait for Google Maps to be available
     const initAutocomplete = () => {
       if (!window.google?.maps?.places || !addressInputRef.current) return;
 
-      // Clean up existing autocomplete
       if (autocompleteRef.current) {
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
@@ -70,11 +74,9 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
       });
     };
 
-    // Check if Google Maps is already loaded
     if (window.google?.maps?.places) {
       initAutocomplete();
     } else {
-      // Wait a bit for the script to load
       const timer = setTimeout(initAutocomplete, 500);
       return () => clearTimeout(timer);
     }
@@ -85,6 +87,47 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
       }
     };
   }, [showNewForm]);
+
+  // Initialize Google Places Autocomplete for edit location
+  useEffect(() => {
+    if (!editingLocation || !editAddressInputRef.current) return;
+    
+    const initEditAutocomplete = () => {
+      if (!window.google?.maps?.places || !editAddressInputRef.current) return;
+
+      if (editAutocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(editAutocompleteRef.current);
+      }
+
+      editAutocompleteRef.current = new window.google.maps.places.Autocomplete(editAddressInputRef.current, {
+        componentRestrictions: { country: 'fr' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['address'],
+      });
+
+      editAutocompleteRef.current.addListener('place_changed', () => {
+        const place = editAutocompleteRef.current?.getPlace();
+        if (place?.geometry?.location) {
+          setEditingLocation(prev => prev ? {
+            ...prev,
+            address: place.formatted_address || place.name || '',
+            lat: place.geometry!.location!.lat(),
+            lng: place.geometry!.location!.lng(),
+          } : null);
+        }
+      });
+    };
+
+    if (window.google?.maps?.places) {
+      setTimeout(initEditAutocomplete, 100);
+    }
+
+    return () => {
+      if (editAutocompleteRef.current && window.google?.maps?.event) {
+        window.google.maps.event.clearInstanceListeners(editAutocompleteRef.current);
+      }
+    };
+  }, [editingLocation?.id]);
 
   const handleUseCurrentLocation = async () => {
     try {
@@ -134,6 +177,38 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
     setNewCoords(null);
   };
 
+  const handleLongPressStart = (location: Location) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setEditingLocation(location);
+    }, 500);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingLocation || !onUpdate) return;
+    onUpdate(editingLocation.id, {
+      name: editingLocation.name,
+      address: editingLocation.address,
+      lat: editingLocation.lat,
+      lng: editingLocation.lng,
+      type: editingLocation.type,
+    });
+    setEditingLocation(null);
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(id);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Button
@@ -148,29 +223,91 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
 
       <div className="space-y-2">
         <p className="text-sm font-medium text-muted-foreground">Lieux enregistrés</p>
+        <p className="text-xs text-muted-foreground">Appui long pour modifier</p>
         <div className="grid gap-2">
           {savedLocations.map((location) => (
-            <button
-              key={location.id}
-              onClick={() => onSelect(location)}
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left"
-            >
-              <span className="text-primary">{typeIcons[location.type]}</span>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">{location.name}</p>
-                {location.address && (
-                  <p className="text-sm text-muted-foreground truncate">{location.address}</p>
-                )}
-              </div>
-              {location.lat && location.lng && (
-                <MapPin className="w-3 h-3 text-accent shrink-0" />
+            <div key={location.id} className="relative group">
+              {editingLocation?.id === location.id ? (
+                <div className="space-y-3 p-4 bg-accent/10 rounded-xl border-2 border-accent animate-fade-in">
+                  <Input
+                    placeholder="Nom du lieu"
+                    value={editingLocation.name}
+                    onChange={(e) => setEditingLocation({ ...editingLocation, name: e.target.value })}
+                    autoFocus
+                  />
+                  <div className="relative">
+                    <Input
+                      ref={editAddressInputRef}
+                      placeholder="Adresse"
+                      value={editingLocation.address}
+                      onChange={(e) => setEditingLocation({ ...editingLocation, address: e.target.value })}
+                    />
+                    {editingLocation.lat && editingLocation.lng && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">✓ GPS</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {(Object.keys(typeLabels) as Location['type'][]).map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setEditingLocation({ ...editingLocation, type })}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+                          editingLocation.type === type
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                        )}
+                      >
+                        {typeIcons[type]}
+                        {typeLabels[type]}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="secondary" onClick={() => setEditingLocation(null)} className="flex-1">
+                      Annuler
+                    </Button>
+                    <Button onClick={handleSaveEdit} className="flex-1" disabled={!editingLocation.name.trim()}>
+                      Enregistrer
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => onSelect(location)}
+                  onMouseDown={() => handleLongPressStart(location)}
+                  onMouseUp={handleLongPressEnd}
+                  onMouseLeave={handleLongPressEnd}
+                  onTouchStart={() => handleLongPressStart(location)}
+                  onTouchEnd={handleLongPressEnd}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left w-full"
+                >
+                  <span className="text-primary">{typeIcons[location.type]}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{location.name}</p>
+                    {location.address && (
+                      <p className="text-sm text-muted-foreground truncate">{location.address}</p>
+                    )}
+                  </div>
+                  {location.lat && location.lng && (
+                    <MapPin className="w-3 h-3 text-accent shrink-0" />
+                  )}
+                </button>
               )}
-            </button>
+              {onDelete && editingLocation?.id !== location.id && (
+                <button
+                  onClick={(e) => handleDelete(e, location.id)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           ))}
         </div>
       </div>
 
-      {!showNewForm ? (
+      {!showNewForm && !editingLocation ? (
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-primary"
@@ -179,7 +316,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
           <Plus className="w-5 h-5" />
           Ajouter un nouveau lieu
         </Button>
-      ) : (
+      ) : !editingLocation && (
         <div className="space-y-3 p-4 bg-muted rounded-xl animate-fade-in">
           <Input
             placeholder="Nom du lieu"
