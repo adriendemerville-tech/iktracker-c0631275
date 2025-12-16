@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
 import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
+import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
 import { VehicleCard } from '@/components/VehicleCard';
@@ -71,6 +72,10 @@ const Index = () => {
       return;
     }
 
+    toast.info("Calcul des distances...", {
+      description: `${stops.length - 1} trajet(s) à créer`,
+    });
+
     // Create trips between consecutive stops
     const vehicleId = vehicles[0].id; // Use first vehicle by default
     let createdCount = 0;
@@ -78,6 +83,19 @@ const Index = () => {
     for (let i = 0; i < stops.length - 1; i++) {
       const start = stops[i];
       const end = stops[i + 1];
+
+      // Calculate driving distance
+      let distance = 0;
+      try {
+        distance = await calculateDrivingDistance(
+          start.lat,
+          start.lng,
+          end.lat,
+          end.lng
+        );
+      } catch (e) {
+        console.warn('Failed to calculate distance, using 0:', e);
+      }
 
       try {
         await addTrip({
@@ -98,7 +116,7 @@ const Index = () => {
             lng: end.lng,
             type: 'other',
           },
-          distance: 0, // Will need to calculate
+          distance,
           purpose: 'Tournée',
           startTime: start.timestamp,
           endTime: end.timestamp,
