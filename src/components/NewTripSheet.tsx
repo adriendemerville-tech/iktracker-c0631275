@@ -123,7 +123,7 @@ export function NewTripSheet({
   };
 
   const handleConfirm = () => {
-    if (!draft.vehicleId || !draft.startLocation || !draft.endLocation || !purpose.trim()) return;
+    if (!draft.vehicleId || !draft.startLocation || !draft.endLocation) return;
 
     let distance = parseFloat(manualDistance) || 0;
     
@@ -349,7 +349,6 @@ export function NewTripSheet({
                   variant="gradient"
                   className="flex-1"
                   onClick={handleConfirm}
-                  disabled={!purpose.trim() || !manualDistance}
                 >
                   Enregistrer
                 </Button>
