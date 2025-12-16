@@ -2,9 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Location } from '@/types/trip';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Pencil } from 'lucide-react';
+import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Clock } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
+
+const RECENT_LOCATIONS_KEY = 'ik-recent-locations';
+const MAX_RECENT = 2;
 
 interface LocationPickerProps {
   savedLocations: Location[];
@@ -30,10 +33,32 @@ const typeLabels: Record<string, string> = {
   other: 'Autre',
 };
 
+// Load recent locations from localStorage
+const loadRecentLocations = (): Location[] => {
+  try {
+    const stored = localStorage.getItem(RECENT_LOCATIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+// Save recent locations to localStorage
+const saveRecentLocation = (location: Location) => {
+  const recents = loadRecentLocations();
+  // Remove if already exists
+  const filtered = recents.filter(l => l.address !== location.address);
+  // Add to front and limit to MAX_RECENT
+  const updated = [location, ...filtered].slice(0, MAX_RECENT);
+  localStorage.setItem(RECENT_LOCATIONS_KEY, JSON.stringify(updated));
+  return updated;
+};
+
 export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, onUpdate }: LocationPickerProps) {
   const [showNewForm, setShowNewForm] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [recentLocations, setRecentLocations] = useState<Location[]>(loadRecentLocations());
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [newType, setNewType] = useState<Location['type']>('other');
@@ -66,21 +91,23 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           types: ['address'],
         });
 
-        searchAutocompleteRef.current.addListener('place_changed', async () => {
+        searchAutocompleteRef.current.addListener('place_changed', () => {
           const place = searchAutocompleteRef.current?.getPlace();
           if (place?.geometry?.location) {
-            const newLocation: Omit<Location, 'id'> = {
+            // Create location WITHOUT saving to database
+            const tempLocation: Location = {
+              id: `temp-${Date.now()}`,
               name: place.name || place.formatted_address || 'Lieu',
               address: place.formatted_address || '',
               lat: place.geometry.location.lat(),
               lng: place.geometry.location.lng(),
               type: 'other',
             };
-            const result = onAddNew(newLocation);
-            const location = result instanceof Promise ? await result : result;
-            if (location) {
-              onSelect(location);
-            }
+            // Save to recents
+            const updatedRecents = saveRecentLocation(tempLocation);
+            setRecentLocations(updatedRecents);
+            // Select directly without saving
+            onSelect(tempLocation);
             setSearchQuery('');
           }
         });
@@ -292,6 +319,36 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         <Navigation className={cn("w-5 h-5 text-primary", geoLoading && "animate-pulse")} />
         {geoLoading ? 'Localisation...' : 'Utiliser ma position actuelle'}
       </Button>
+
+      {/* Recent locations */}
+      {recentLocations.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            Récents
+          </p>
+          <div className="grid gap-2">
+            {recentLocations.map((location, index) => (
+              <button
+                key={`recent-${index}`}
+                onClick={() => onSelect(location)}
+                className="flex items-center gap-3 p-3 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors text-left w-full"
+              >
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{location.name}</p>
+                  {location.address && (
+                    <p className="text-sm text-muted-foreground truncate">{location.address}</p>
+                  )}
+                </div>
+                {location.lat && location.lng && (
+                  <MapPin className="w-3 h-3 text-accent shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <p className="text-sm font-medium text-muted-foreground">Lieux enregistrés</p>
