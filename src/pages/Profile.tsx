@@ -143,6 +143,9 @@ const Profile = () => {
                 Ajouter une carte
               </Button>
             </div>
+            <div className="mt-4 bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium text-center py-1.5 rounded-md">
+              Gratuit
+            </div>
           </CardContent>
         </Card>
 
@@ -161,6 +164,9 @@ const Profile = () => {
             <div className="text-center py-6 text-muted-foreground">
               <Receipt className="w-10 h-10 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Aucune facture disponible</p>
+            </div>
+            <div className="mt-4 bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium text-center py-1.5 rounded-md">
+              Gratuit
             </div>
           </CardContent>
         </Card>
