@@ -70,7 +70,7 @@ export function useGeolocation() {
   };
 }
 
-// Calculate distance between two points using Haversine formula
+// Calculate distance between two points using Haversine formula (fallback)
 export function calculateDistance(
   lat1: number,
   lng1: number,
@@ -90,4 +90,48 @@ export function calculateDistance(
 
 function toRad(deg: number): number {
   return deg * (Math.PI / 180);
+}
+
+// Calculate driving distance using Google Maps Distance Matrix API
+export function calculateDrivingDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): Promise<number> {
+  return new Promise((resolve, reject) => {
+    if (typeof google === 'undefined' || !google.maps) {
+      // Fallback to Haversine if Google Maps not loaded
+      console.warn('Google Maps not loaded, using straight-line distance');
+      resolve(calculateDistance(lat1, lng1, lat2, lng2));
+      return;
+    }
+
+    const service = new google.maps.DistanceMatrixService();
+    
+    service.getDistanceMatrix(
+      {
+        origins: [new google.maps.LatLng(lat1, lng1)],
+        destinations: [new google.maps.LatLng(lat2, lng2)],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      },
+      (response, status) => {
+        if (status === 'OK' && response) {
+          const result = response.rows[0]?.elements[0];
+          if (result?.status === 'OK' && result.distance) {
+            // Convert meters to kilometers
+            const distanceKm = result.distance.value / 1000;
+            resolve(distanceKm);
+          } else {
+            console.warn('Distance Matrix returned no result, using straight-line distance');
+            resolve(calculateDistance(lat1, lng1, lat2, lng2));
+          }
+        } else {
+          console.warn('Distance Matrix API error:', status, ', using straight-line distance');
+          resolve(calculateDistance(lat1, lng1, lat2, lng2));
+        }
+      }
+    );
+  });
 }

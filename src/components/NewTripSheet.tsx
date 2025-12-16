@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { LocationPicker } from './LocationPicker';
 import { VehicleCard } from './VehicleCard';
 import { Location, TripDraft, Vehicle } from '@/types/trip';
-import { calculateDistance } from '@/hooks/useGeolocation';
+import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -99,7 +99,7 @@ export function NewTripSheet({
     setStep('end');
   };
 
-  const handleSelectEnd = (location: Location) => {
+  const handleSelectEnd = async (location: Location) => {
     const newDraft = {
       ...draft,
       endLocation: location,
@@ -114,13 +114,17 @@ export function NewTripSheet({
       location.lat &&
       location.lng
     ) {
-      const distance = calculateDistance(
-        draft.startLocation.lat,
-        draft.startLocation.lng,
-        location.lat,
-        location.lng
-      );
-      setManualDistance(distance.toFixed(1));
+      try {
+        const distance = await calculateDrivingDistance(
+          draft.startLocation.lat,
+          draft.startLocation.lng,
+          location.lat,
+          location.lng
+        );
+        setManualDistance(distance.toFixed(1));
+      } catch (error) {
+        console.error('Error calculating distance:', error);
+      }
     }
     
     setStep('details');
@@ -129,22 +133,7 @@ export function NewTripSheet({
   const handleConfirm = () => {
     if (!draft.vehicleId || !draft.startLocation || !draft.endLocation) return;
 
-    let distance = parseFloat(manualDistance) || 0;
-    
-    if (
-      draft.startLocation.lat &&
-      draft.startLocation.lng &&
-      draft.endLocation.lat &&
-      draft.endLocation.lng &&
-      !manualDistance
-    ) {
-      distance = calculateDistance(
-        draft.startLocation.lat,
-        draft.startLocation.lng,
-        draft.endLocation.lat,
-        draft.endLocation.lng
-      );
-    }
+    const distance = parseFloat(manualDistance) || 0;
 
     onCreateTrip({
       vehicleId: draft.vehicleId,
