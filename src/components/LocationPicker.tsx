@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Location } from '@/types/trip';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned } from 'lucide-react';
+import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, Loader2 } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
 
@@ -34,7 +34,38 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
   const [newAddress, setNewAddress] = useState('');
   const [newType, setNewType] = useState<Location['type']>('other');
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
+
+  // Auto-geocode when address changes
+  useEffect(() => {
+    if (!newAddress || newAddress.length < 5) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setGeocoding(true);
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(newAddress)}&limit=1&countrycodes=fr`,
+          { headers: { 'Accept-Language': 'fr' } }
+        );
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setNewCoords({
+            lat: parseFloat(data[0].lat),
+            lng: parseFloat(data[0].lon),
+          });
+        }
+      } catch (error) {
+        console.error('Geocoding error:', error);
+      } finally {
+        setGeocoding(false);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [newAddress]);
 
   const handleUseCurrentLocation = async () => {
     try {
@@ -127,11 +158,19 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
           />
-          <Input
-            placeholder="Adresse (optionnel)"
-            value={newAddress}
-            onChange={(e) => setNewAddress(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              placeholder="Adresse (pour calcul distance auto)"
+              value={newAddress}
+              onChange={(e) => setNewAddress(e.target.value)}
+            />
+            {geocoding && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
+            )}
+            {!geocoding && newCoords && newAddress && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">✓ GPS</span>
+            )}
+          </div>
           <Button
             variant="outline"
             size="sm"
