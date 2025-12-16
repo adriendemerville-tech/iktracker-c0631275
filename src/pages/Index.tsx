@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
+import { useAuth } from '@/hooks/useAuth';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
 import { VehicleCard } from '@/components/VehicleCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
-import { FileText, Plus, Car, MapPin, ChevronRight } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, LogOut } from 'lucide-react';
 
 const Index = () => {
+  const { user, signOut } = useAuth();
   const { 
     trips, 
     savedLocations, 
@@ -51,10 +53,20 @@ const Index = () => {
             <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center">
               <Car className="w-5 h-5" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-xl font-bold">IK Tracker</h1>
               <p className="text-sm opacity-80">Indemnités Kilométriques</p>
             </div>
+            {user && (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={signOut}
+                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            )}
           </div>
 
           {/* Counters */}
