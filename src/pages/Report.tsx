@@ -1,12 +1,20 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
 import { Trip, Vehicle, getIKBareme, IK_BAREME_2024 } from '@/types/trip';
 import { TripCard } from '@/components/TripCard';
+import { NewTripSheet } from '@/components/NewTripSheet';
+import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, FileSpreadsheet } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, Calendar, FileSpreadsheet, Plus, Home, UserCircle } from 'lucide-react';
 
 export default function Report() {
-  const { trips, vehicles, deleteTrip } = useTrips();
+  const navigate = useNavigate();
+  const { trips, vehicles, savedLocations, deleteTrip, addTrip, addLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
+  
+  const [showNewTrip, setShowNewTrip] = useState(false);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
@@ -22,6 +30,11 @@ export default function Report() {
   }, {} as Record<string, Trip[]>);
 
   const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+  
+  const handleAddVehicle = () => {
+    setEditingVehicle(null);
+    setShowVehicleForm(true);
+  };
 
   const exportToCSV = () => {
     const headers = [
@@ -100,7 +113,7 @@ export default function Report() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Link to="/">
@@ -109,9 +122,14 @@ export default function Report() {
             </Button>
           </Link>
           <h1 className="text-lg font-semibold">Relevé des trajets</h1>
-          <Button variant="ghost" size="icon" onClick={exportToCSV} disabled={trips.length === 0}>
-            <FileSpreadsheet className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={exportToCSV} disabled={trips.length === 0}>
+              <FileSpreadsheet className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+              <UserCircle className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -184,6 +202,53 @@ export default function Report() {
           </div>
         </div>
       </main>
+
+      {/* Bottom action buttons */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
+        <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
+          <Link to="/">
+            <Button variant="secondary" size="lg" className="w-full">
+              <Home className="w-5 h-5" />
+              Accueil
+            </Button>
+          </Link>
+          <Button 
+            variant="gradient" 
+            size="lg" 
+            onClick={() => setShowNewTrip(true)}
+            disabled={vehicles.length === 0}
+          >
+            <Plus className="w-5 h-5" />
+            Nouveau trajet
+          </Button>
+        </div>
+      </div>
+
+      {/* New trip sheet */}
+      <NewTripSheet
+        open={showNewTrip}
+        onOpenChange={setShowNewTrip}
+        savedLocations={savedLocations}
+        vehicles={vehicles}
+        onAddLocation={addLocation}
+        onAddVehicle={handleAddVehicle}
+        onCreateTrip={addTrip}
+        getTotalAnnualKm={getTotalAnnualKm}
+      />
+
+      {/* Vehicle form */}
+      <VehicleForm
+        open={showVehicleForm}
+        onOpenChange={setShowVehicleForm}
+        editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
+        onSave={(vehicleData) => {
+          if (editingVehicle) {
+            updateVehicle(editingVehicle, vehicleData);
+          } else {
+            addVehicle(vehicleData);
+          }
+        }}
+      />
     </div>
   );
 }
