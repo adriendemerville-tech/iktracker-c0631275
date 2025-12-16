@@ -74,8 +74,11 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const editAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Use ref to always have latest onSelect callback (avoids stale closure issues)
+  const onSelectRef = useRef(onSelect);
+  onSelectRef.current = onSelect;
 
-  // Initialize Google Places Autocomplete for search input
   useEffect(() => {
     if (!searchInputRef.current) return;
     
@@ -118,8 +121,8 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
             // Save to recents
             const updatedRecents = saveRecentLocation(tempLocation);
             setRecentLocations(updatedRecents);
-            // Select directly without saving
-            onSelect(tempLocation);
+            // Select directly without saving - use ref to get latest callback
+            onSelectRef.current(tempLocation);
             setSearchQuery('');
           }
         });
@@ -142,7 +145,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         } catch (e) {}
       }
     };
-  }, [onAddNew, onSelect]);
+  }, [onAddNew]); // onSelect handled via ref to avoid stale closures
 
   // Initialize Google Places Autocomplete for new location
   useEffect(() => {
