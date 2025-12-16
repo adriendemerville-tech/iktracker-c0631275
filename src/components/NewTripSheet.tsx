@@ -86,6 +86,13 @@ export function NewTripSheet({
     setTimeout(resetForm, 300);
   };
 
+  const preventCloseOnGoogleAutocomplete = (event: any) => {
+    const target = event?.target as HTMLElement | null;
+    if (target?.closest?.('.pac-container')) {
+      event.preventDefault();
+    }
+  };
+
   const handleSelectVehicle = (vehicleId: string) => {
     lastSelectedVehicleId = vehicleId;
     setDraft({ ...draft, vehicleId });
@@ -192,7 +199,13 @@ export function NewTripSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+      <SheetContent
+        side="bottom"
+        className="h-[85vh] rounded-t-3xl"
+        onInteractOutside={preventCloseOnGoogleAutocomplete}
+        onPointerDownOutside={preventCloseOnGoogleAutocomplete}
+        onFocusOutside={preventCloseOnGoogleAutocomplete}
+      >
         <SheetHeader className="pb-4">
           <SheetTitle className="text-xl">Nouveau trajet</SheetTitle>
           
