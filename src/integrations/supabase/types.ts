@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      locations: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trips: {
+        Row: {
+          created_at: string
+          date: string
+          distance: number
+          end_location: string
+          id: string
+          ik_amount: number
+          purpose: string | null
+          round_trip: boolean
+          start_location: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          distance: number
+          end_location: string
+          id?: string
+          ik_amount?: number
+          purpose?: string | null
+          round_trip?: boolean
+          start_location: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          distance?: number
+          end_location?: string
+          id?: string
+          ik_amount?: number
+          purpose?: string | null
+          round_trip?: boolean
+          start_location?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trips_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          created_at: string
+          fiscal_power: number
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fiscal_power: number
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fiscal_power?: number
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

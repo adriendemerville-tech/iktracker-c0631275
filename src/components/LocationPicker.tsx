@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 interface LocationPickerProps {
   savedLocations: Location[];
   onSelect: (location: Location) => void;
-  onAddNew: (location: Omit<Location, 'id'>) => Location;
+  onAddNew: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
 }
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -70,14 +70,17 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
   const handleUseCurrentLocation = async () => {
     try {
       const coords = await getCurrentPosition();
-      const location = onAddNew({
+      const result = onAddNew({
         name: 'Position actuelle',
         address: `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
         lat: coords.lat,
         lng: coords.lng,
         type: 'other',
       });
-      onSelect(location);
+      const location = result instanceof Promise ? await result : result;
+      if (location) {
+        onSelect(location);
+      }
     } catch (error) {
       console.error('Geolocation error:', error);
     }
@@ -92,16 +95,19 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
     }
   };
 
-  const handleAddNew = () => {
+  const handleAddNew = async () => {
     if (!newName.trim()) return;
-    const location = onAddNew({
+    const result = onAddNew({
       name: newName,
       address: newAddress,
       lat: newCoords?.lat,
       lng: newCoords?.lng,
       type: newType,
     });
-    onSelect(location);
+    const location = result instanceof Promise ? await result : result;
+    if (location) {
+      onSelect(location);
+    }
     setShowNewForm(false);
     setNewName('');
     setNewAddress('');
