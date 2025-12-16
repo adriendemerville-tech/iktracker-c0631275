@@ -20,6 +20,8 @@ const Index = () => {
     getTotalAnnualKm,
     addTrip, 
     addLocation,
+    updateLocation,
+    deleteLocation,
     addVehicle,
     updateVehicle,
     deleteVehicle,
@@ -177,6 +179,8 @@ const Index = () => {
         savedLocations={savedLocations}
         vehicles={vehicles}
         onAddLocation={addLocation}
+        onDeleteLocation={deleteLocation}
+        onUpdateLocation={updateLocation}
         onAddVehicle={handleAddVehicle}
         onCreateTrip={addTrip}
         getTotalAnnualKm={getTotalAnnualKm}

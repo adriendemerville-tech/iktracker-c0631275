@@ -15,6 +15,8 @@ interface NewTripSheetProps {
   savedLocations: Location[];
   vehicles: Vehicle[];
   onAddLocation: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
+  onDeleteLocation?: (id: string) => void;
+  onUpdateLocation?: (id: string, updates: Partial<Location>) => void;
   onAddVehicle: () => void;
   onCreateTrip: (trip: {
     vehicleId: string;
@@ -39,6 +41,8 @@ export function NewTripSheet({
   savedLocations,
   vehicles,
   onAddLocation,
+  onDeleteLocation,
+  onUpdateLocation,
   onAddVehicle,
   onCreateTrip,
   getTotalAnnualKm,
@@ -254,6 +258,8 @@ export function NewTripSheet({
                 savedLocations={savedLocations}
                 onSelect={handleSelectStart}
                 onAddNew={onAddLocation}
+                onDelete={onDeleteLocation}
+                onUpdate={onUpdateLocation}
               />
               
               <Button variant="ghost" className="mt-4" onClick={() => setStep('vehicle')}>
@@ -279,6 +285,8 @@ export function NewTripSheet({
                 savedLocations={savedLocations}
                 onSelect={handleSelectEnd}
                 onAddNew={onAddLocation}
+                onDelete={onDeleteLocation}
+                onUpdate={onUpdateLocation}
               />
               
               <Button variant="ghost" className="mt-4" onClick={() => setStep('start')}>

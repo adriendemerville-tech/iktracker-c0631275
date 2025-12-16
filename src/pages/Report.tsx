@@ -10,7 +10,7 @@ import { ArrowLeft, Calendar, FileSpreadsheet, Plus, Home, UserCircle } from 'lu
 
 export default function Report() {
   const navigate = useNavigate();
-  const { trips, vehicles, savedLocations, deleteTrip, addTrip, addLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
+  const { trips, vehicles, savedLocations, deleteTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
   
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -231,6 +231,8 @@ export default function Report() {
         savedLocations={savedLocations}
         vehicles={vehicles}
         onAddLocation={addLocation}
+        onDeleteLocation={deleteLocation}
+        onUpdateLocation={updateLocation}
         onAddVehicle={handleAddVehicle}
         onCreateTrip={addTrip}
         getTotalAnnualKm={getTotalAnnualKm}
