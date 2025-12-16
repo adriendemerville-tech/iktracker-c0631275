@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
-import { useAuth } from '@/hooks/useAuth';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
 import { VehicleCard } from '@/components/VehicleCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
-import { FileText, Plus, Car, MapPin, ChevronRight, LogOut } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle } from 'lucide-react';
 
 const Index = () => {
-  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { 
     trips, 
     savedLocations, 
@@ -57,16 +56,14 @@ const Index = () => {
               <h1 className="text-xl font-bold">IK Tracker</h1>
               <p className="text-sm opacity-80">Indemnités Kilométriques</p>
             </div>
-            {user && (
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={signOut}
-                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              >
-                <LogOut className="w-5 h-5" />
-              </Button>
-            )}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate('/profile')}
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              <UserCircle className="w-6 h-6" />
+            </Button>
           </div>
 
           {/* Counters */}
