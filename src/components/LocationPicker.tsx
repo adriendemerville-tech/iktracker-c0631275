@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Location } from '@/types/trip';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -34,38 +34,57 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
   const [newAddress, setNewAddress] = useState('');
   const [newType, setNewType] = useState<Location['type']>('other');
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [geocoding, setGeocoding] = useState(false);
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
+  
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  // Auto-geocode when address changes
+  // Initialize Google Places Autocomplete
   useEffect(() => {
-    if (!newAddress || newAddress.length < 5) {
-      return;
-    }
+    if (!showNewForm || !addressInputRef.current) return;
+    
+    // Wait for Google Maps to be available
+    const initAutocomplete = () => {
+      if (!window.google?.maps?.places || !addressInputRef.current) return;
 
-    const timer = setTimeout(async () => {
-      setGeocoding(true);
-      try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(newAddress)}&limit=1&countrycodes=fr`,
-          { headers: { 'Accept-Language': 'fr' } }
-        );
-        const data = await response.json();
-        if (data && data.length > 0) {
+      // Clean up existing autocomplete
+      if (autocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(addressInputRef.current, {
+        componentRestrictions: { country: 'fr' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['address'],
+      });
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current?.getPlace();
+        if (place?.geometry?.location) {
+          setNewAddress(place.formatted_address || place.name || '');
           setNewCoords({
-            lat: parseFloat(data[0].lat),
-            lng: parseFloat(data[0].lon),
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
           });
         }
-      } catch (error) {
-        console.error('Geocoding error:', error);
-      } finally {
-        setGeocoding(false);
-      }
-    }, 800);
+      });
+    };
 
-    return () => clearTimeout(timer);
-  }, [newAddress]);
+    // Check if Google Maps is already loaded
+    if (window.google?.maps?.places) {
+      initAutocomplete();
+    } else {
+      // Wait a bit for the script to load
+      const timer = setTimeout(initAutocomplete, 500);
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      if (autocompleteRef.current && window.google?.maps?.event) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+    };
+  }, [showNewForm]);
 
   const handleUseCurrentLocation = async () => {
     try {
@@ -143,6 +162,9 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
                   <p className="text-sm text-muted-foreground truncate">{location.address}</p>
                 )}
               </div>
+              {location.lat && location.lng && (
+                <MapPin className="w-3 h-3 text-accent shrink-0" />
+              )}
             </button>
           ))}
         </div>
@@ -166,14 +188,13 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew }: LocationP
           />
           <div className="relative">
             <Input
-              placeholder="Adresse (pour calcul distance auto)"
+              ref={addressInputRef}
+              placeholder="Rechercher une adresse..."
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
+              className="pr-10"
             />
-            {geocoding && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
-            )}
-            {!geocoding && newCoords && newAddress && (
+            {newCoords && newAddress && (
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">✓ GPS</span>
             )}
           </div>
