@@ -2,6 +2,7 @@ import { Trip, Vehicle } from '@/types/trip';
 import { MapPin, Clock, ArrowRight, Trash2, Car } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { extractCityFromAddress } from '@/lib/geocoding';
 
 interface TripCardProps {
   trip: Trip;
@@ -10,29 +11,15 @@ interface TripCardProps {
   showDelete?: boolean;
 }
 
-// Extract city name from address or location name
-const extractCityName = (location: { name: string; address?: string }): string => {
-  // If address exists, try to extract city from it
+// Extract city name from location
+const getDisplayName = (location: { name: string; address?: string }): string => {
+  // If address exists and contains city info, extract it
   if (location.address) {
-    // French address format: "street, postal_code city, country"
-    // Try to match postal code (5 digits) followed by city name
-    const postalCityMatch = location.address.match(/\b(\d{5})\s+([^,]+)/);
-    if (postalCityMatch && postalCityMatch[2]) {
-      return postalCityMatch[2].trim();
-    }
-    
-    // If no postal code found, try to get the second part after comma
-    const parts = location.address.split(',');
-    if (parts.length >= 2) {
-      const cityPart = parts[1].trim();
-      // Remove postal code if present at the start
-      const cityWithoutPostal = cityPart.replace(/^\d{5}\s*/, '');
-      if (cityWithoutPostal) {
-        return cityWithoutPostal;
-      }
+    const city = extractCityFromAddress(location.address);
+    if (city && city !== location.address) {
+      return city;
     }
   }
-  
   // Fallback to location name
   return location.name;
 };
@@ -63,8 +50,8 @@ export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCa
     return colors[type] || colors.other;
   };
 
-  const startCityName = extractCityName(trip.startLocation);
-  const endCityName = extractCityName(trip.endLocation);
+  const startCityName = getDisplayName(trip.startLocation);
+  const endCityName = getDisplayName(trip.endLocation);
 
   return (
     <div className="bg-card rounded-xl p-4 shadow-sm border border-border/50 animate-fade-in">

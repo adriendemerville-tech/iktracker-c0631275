@@ -5,6 +5,7 @@ import { Input } from './ui/input';
 import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Clock } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
+import { reverseGeocode } from '@/lib/geocoding';
 
 const RECENT_LOCATIONS_KEY = 'ik-recent-locations';
 const MAX_RECENT = 2;
@@ -91,16 +92,26 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           types: ['address'],
         });
 
-        searchAutocompleteRef.current.addListener('place_changed', () => {
+        searchAutocompleteRef.current.addListener('place_changed', async () => {
           const place = searchAutocompleteRef.current?.getPlace();
           if (place?.geometry?.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            
+            // Use reverse geocoding to get the city name
+            let cityName = place.name || 'Lieu';
+            const geocodeResult = await reverseGeocode(lat, lng);
+            if (geocodeResult?.city) {
+              cityName = geocodeResult.city;
+            }
+            
             // Create location WITHOUT saving to database
             const tempLocation: Location = {
               id: `temp-${Date.now()}`,
-              name: place.name || place.formatted_address || 'Lieu',
+              name: cityName,
               address: place.formatted_address || '',
-              lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lng(),
+              lat,
+              lng,
               type: 'other',
             };
             // Save to recents
@@ -219,17 +230,28 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
   const handleUseCurrentLocation = async () => {
     try {
       const coords = await getCurrentPosition();
-      const result = onAddNew({
-        name: 'Position actuelle',
-        address: `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
+      
+      // Use reverse geocoding to get the city name
+      let cityName = 'Position actuelle';
+      const geocodeResult = await reverseGeocode(coords.lat, coords.lng);
+      if (geocodeResult?.city) {
+        cityName = geocodeResult.city;
+      }
+      
+      // Create location WITHOUT saving to database
+      const tempLocation: Location = {
+        id: `temp-${Date.now()}`,
+        name: cityName,
+        address: geocodeResult?.fullAddress || `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
         lat: coords.lat,
         lng: coords.lng,
         type: 'other',
-      });
-      const location = result instanceof Promise ? await result : result;
-      if (location) {
-        onSelect(location);
-      }
+      };
+      // Save to recents
+      const updatedRecents = saveRecentLocation(tempLocation);
+      setRecentLocations(updatedRecents);
+      // Select directly
+      onSelect(tempLocation);
     } catch (error) {
       console.error('Geolocation error:', error);
     }
