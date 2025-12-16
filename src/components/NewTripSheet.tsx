@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -30,6 +30,9 @@ interface NewTripSheetProps {
 
 type Step = 'vehicle' | 'start' | 'end' | 'details';
 
+// Store last selected vehicle ID
+let lastSelectedVehicleId: string | null = null;
+
 export function NewTripSheet({
   open,
   onOpenChange,
@@ -45,6 +48,26 @@ export function NewTripSheet({
   const [purpose, setPurpose] = useState('');
   const [manualDistance, setManualDistance] = useState('');
 
+  // Auto-select vehicle when opening
+  useEffect(() => {
+    if (open && vehicles.length > 0 && !draft.vehicleId) {
+      let vehicleToSelect: string | null = null;
+      
+      if (vehicles.length === 1) {
+        // Single vehicle: auto-select
+        vehicleToSelect = vehicles[0].id;
+      } else if (lastSelectedVehicleId && vehicles.find(v => v.id === lastSelectedVehicleId)) {
+        // Multiple vehicles: use last selected if still exists
+        vehicleToSelect = lastSelectedVehicleId;
+      }
+      
+      if (vehicleToSelect) {
+        setDraft(d => ({ ...d, vehicleId: vehicleToSelect }));
+        setStep('start');
+      }
+    }
+  }, [open, vehicles, draft.vehicleId]);
+
   const resetForm = () => {
     setStep('vehicle');
     setDraft({});
@@ -58,6 +81,7 @@ export function NewTripSheet({
   };
 
   const handleSelectVehicle = (vehicleId: string) => {
+    lastSelectedVehicleId = vehicleId;
     setDraft({ ...draft, vehicleId });
     setStep('start');
   };
