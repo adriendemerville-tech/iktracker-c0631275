@@ -1,9 +1,21 @@
+import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Terms = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Conditions Générales d\'Utilisation | IKtracker';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Consultez les CGU d\'IKtracker. Modalités d\'utilisation de l\'application de calcul d\'indemnités kilométriques pour professionnels indépendants.');
+    }
+    return () => {
+      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
