@@ -14,6 +14,7 @@ export const InstallBanner = () => {
   const [dismissed, setDismissed] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [platform, setPlatform] = useState<Platform>('other');
+  const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
     // Check if already dismissed today
@@ -37,29 +38,45 @@ export const InstallBanner = () => {
     const isMac = /Macintosh/.test(ua);
     const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
     const isChrome = /Chrome/.test(ua);
+    const isAndroid = /Android/.test(ua);
     
+    let detectedPlatform: Platform = 'other';
+    let supported = false;
+
     if (isIOS) {
-      setPlatform('ios');
+      detectedPlatform = 'ios';
+      supported = true; // iOS Safari always supports "Add to Home Screen"
     } else if (isMac && isSafari) {
-      setPlatform('macos-safari');
+      detectedPlatform = 'macos-safari';
+      supported = true; // macOS Safari supports "Add to Dock" (Sonoma+)
     } else if (isMac && isChrome) {
-      setPlatform('macos-chrome');
-    } else if (/Android/.test(ua)) {
-      setPlatform('android');
-    } else {
-      setPlatform('other');
+      detectedPlatform = 'macos-chrome';
+      supported = true; // Chrome supports PWA install
+    } else if (isAndroid) {
+      detectedPlatform = 'android';
+      supported = true; // Android Chrome supports PWA
+    } else if (isChrome) {
+      detectedPlatform = 'other';
+      supported = true; // Chrome on other platforms supports PWA
     }
+    // Firefox and other browsers without PWA support: supported stays false
+
+    setPlatform(detectedPlatform);
+    setIsSupported(supported);
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setIsSupported(true); // If this event fires, definitely supported
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Show banner after 3 seconds
+    // Show banner after 3 seconds only if supported
     const timer = setTimeout(() => {
-      setShowBanner(true);
+      if (supported) {
+        setShowBanner(true);
+      }
     }, 3000);
 
     return () => {
@@ -171,7 +188,7 @@ export const InstallBanner = () => {
     }
   };
 
-  if (!showBanner || dismissed) {
+  if (!showBanner || dismissed || !isSupported) {
     return null;
   }
 
