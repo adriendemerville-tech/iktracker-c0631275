@@ -9,7 +9,7 @@ import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
@@ -86,6 +86,7 @@ export function NewTripSheet({
   const [draft, setDraft] = useState<TripDraft>({});
   const [purpose, setPurpose] = useState('');
   const [manualDistance, setManualDistance] = useState('');
+  const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
   const [tripDate, setTripDate] = useState<Date>(new Date());
   const [roundTrip, setRoundTrip] = useState(false);
 
@@ -133,6 +134,7 @@ export function NewTripSheet({
     setDraft({});
     setPurpose('');
     setManualDistance('');
+    setCalculatedDistance(null);
     setTripDate(new Date());
     setRoundTrip(false);
   };
@@ -214,6 +216,7 @@ export function NewTripSheet({
               endCoords.lat,
               endCoords.lng
             );
+            setCalculatedDistance(distance);
             setManualDistance(distance.toFixed(1));
           }
         }
@@ -499,18 +502,39 @@ export function NewTripSheet({
                     setManualDistance(value);
                   }}
                 />
-                {typeof draft.startLocation?.lat === 'number' &&
-                typeof draft.startLocation?.lng === 'number' &&
-                typeof draft.endLocation?.lat === 'number' &&
-                typeof draft.endLocation?.lng === 'number' ? (
-                  <p className="text-xs text-accent">
-                    ✓ Distance calculée automatiquement (modifiable)
-                  </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    Ajoutez des coordonnées GPS aux lieux pour un calcul automatique
-                  </p>
-                )}
+                {(() => {
+                  const enteredDistance = parseFloat(manualDistance) || 0;
+                  // For round trip, compare with doubled calculated distance
+                  const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
+                  const tolerance = 0.15; // 15% tolerance
+                  const hasSignificantDiff = expectedDistance && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance;
+                  
+                  if (hasSignificantDiff && expectedDistance) {
+                    return (
+                      <p className="text-xs text-orange-500 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        Distance attendue : ~{expectedDistance.toFixed(1)} km (écart de {Math.abs(enteredDistance - expectedDistance).toFixed(1)} km)
+                      </p>
+                    );
+                  }
+                  
+                  if (typeof draft.startLocation?.lat === 'number' &&
+                      typeof draft.startLocation?.lng === 'number' &&
+                      typeof draft.endLocation?.lat === 'number' &&
+                      typeof draft.endLocation?.lng === 'number') {
+                    return (
+                      <p className="text-xs text-accent">
+                        ✓ Distance calculée automatiquement (modifiable)
+                      </p>
+                    );
+                  }
+                  
+                  return (
+                    <p className="text-xs text-muted-foreground">
+                      Ajoutez des coordonnées GPS aux lieux pour un calcul automatique
+                    </p>
+                  );
+                })()}
               </div>
 
               <div className="space-y-2">
