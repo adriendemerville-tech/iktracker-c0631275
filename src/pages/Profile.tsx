@@ -208,6 +208,18 @@ const Profile = () => {
           </CardContent>
         </Card>
 
+        {/* Logout Button */}
+        {user && (
+          <Button 
+            variant="outline" 
+            className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+            onClick={handleSignOut}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Déconnexion
+          </Button>
+        )}
+
         {/* App Info */}
         <div className="text-center text-xs text-muted-foreground pt-4">
           <p>IK Tracker v1.0</p>
