@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useTrips } from '@/hooks/useTrips';
 import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -27,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Truck, Download, Shield } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Truck, Download, Shield, MessageSquareMore } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -37,6 +39,21 @@ const Index = () => {
   const { preferences } = usePreferences();
   const { unreadResponsesCount } = useFeedback();
   const { isAdmin } = useAdmin();
+  
+  // Fetch pending feedbacks count for admins
+  const { data: pendingFeedbacksCount = 0 } = useQuery({
+    queryKey: ['pending-feedbacks-count'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('feedback')
+        .select('id', { count: 'exact' })
+        .is('response', null);
+      
+      if (error) return 0;
+      return data?.length || 0;
+    },
+    enabled: isAdmin,
+  });
   const { 
     trips, 
     savedLocations, 
@@ -482,14 +499,34 @@ ${IKTRACKER_MENTION}
               <p className="text-sm opacity-80">Indemnités Kilométriques</p>
             </div>
             {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => navigate('/admin')}
-                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              >
-                <Shield className="w-5 h-5" />
-              </Button>
+              <>
+                <div className="relative">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => navigate('/admin')}
+                    className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  >
+                    <MessageSquareMore className="w-5 h-5" />
+                  </Button>
+                  {pendingFeedbacksCount > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
+                    >
+                      {pendingFeedbacksCount}
+                    </Badge>
+                  )}
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => navigate('/admin?tab=users')}
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                >
+                  <Shield className="w-5 h-5" />
+                </Button>
+              </>
             )}
             <Button 
               variant="ghost" 
