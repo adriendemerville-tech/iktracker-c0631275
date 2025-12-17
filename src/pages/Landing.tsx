@@ -563,7 +563,7 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <img src="/logo-camion.png" alt="IkTracker" className="h-8 w-8" />
+              <img src="/favicon.png" alt="IkTracker" className="h-9 w-9 rounded-lg" />
               <span className="font-bold text-foreground">IkTracker</span>
             </div>
             <p className="text-sm text-muted-foreground text-center">
