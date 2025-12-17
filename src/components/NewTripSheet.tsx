@@ -516,7 +516,12 @@ export function NewTripSheet({
                   className={isBlinking ? 'animate-blink-orange' : ''}
                   value={manualDistance ? `${manualDistance} km` : ''}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                    let value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                    // Limite à 1 décimale max
+                    const parts = value.split('.');
+                    if (parts.length > 1) {
+                      value = parts[0] + '.' + parts[1].slice(0, 1);
+                    }
                     const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
                     const tolerance = 0.15;
 
