@@ -28,6 +28,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
+  const [distanceFromLastStop, setDistanceFromLastStop] = useState<number>(0); // in meters
 
   const watchIdRef = useRef<number | null>(null);
   const lastStopPositionRef = useRef<{ lat: number; lng: number } | null>(null);
@@ -101,6 +102,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     
     setStops((prev) => [...prev, newStop]);
     lastStopPositionRef.current = { lat, lng };
+    setDistanceFromLastStop(0); // Reset distance after adding a stop
   }, []);
 
   // Check position and create step if moved > 1km
@@ -128,12 +130,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           );
 
           console.log(`Distance from last stop: ${(distance / 1000).toFixed(2)} km`);
+          setDistanceFromLastStop(distance);
 
           // If moved more than threshold (1km), create a new step
           if (distance >= distanceThreshold) {
             console.log(`Distance threshold exceeded (${distanceThreshold}m), creating new step`);
             await addStop(lat, lng);
           }
+        } else {
+          setDistanceFromLastStop(0);
         }
       },
       (err) => {
@@ -220,6 +225,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                 longitude
               );
               
+              setDistanceFromLastStop(distance);
+              
               if (distance >= distanceThreshold) {
                 console.log(`Watch: Distance threshold exceeded, creating new step`);
                 await addStop(latitude, longitude);
@@ -299,6 +306,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     stops,
     currentPosition,
     permissionStatus,
+    distanceFromLastStop,
     startTour,
     stopTour,
     clearTour,
