@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["app-icon.png", "robots.txt"],
+      includeAssets: ["favicon.png", "robots.txt"],
       manifest: {
         name: "IkTracker - Indemnités Kilométriques",
         short_name: "IkTracker",
@@ -23,15 +23,15 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         display: "standalone",
         background_color: "#ffffff",
-        theme_color: "#ffffff",
+        theme_color: "#2661D9",
         icons: [
           {
-            src: "/logo-camion.png",
+            src: "/pwa-icon-192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/logo-camion-512.png",
+            src: "/pwa-icon-512.png",
             sizes: "512x512",
             type: "image/png",
           },
