@@ -118,10 +118,10 @@ const Profile = () => {
                     value={preferences.profession || ''} 
                     onValueChange={(value) => updatePreference('profession', value)}
                   >
-                    <SelectTrigger className="w-full mt-1 bg-muted/50 border-white/20">
+                    <SelectTrigger className="w-full mt-1 bg-secondary border-white/20">
                       <SelectValue placeholder="Sélectionnez votre secteur" />
                     </SelectTrigger>
-                    <SelectContent className="bg-muted/50 border border-white/20 max-h-[200px]">
+                    <SelectContent className="bg-secondary border border-white/20 max-h-[200px]">
                       {PROFESSIONS.map((profession) => (
                         <SelectItem key={profession} value={profession}>
                           {profession}
