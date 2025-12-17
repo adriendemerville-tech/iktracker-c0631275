@@ -38,6 +38,7 @@ export function CalendarConnections() {
   const [icsDialogOpen, setIcsDialogOpen] = useState(false);
   const [addingIcs, setAddingIcs] = useState(false);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
+  const [connectingOutlook, setConnectingOutlook] = useState(false);
 
   const googleConnection = getConnection('google');
   const outlookConnection = getConnection('outlook');
@@ -51,8 +52,15 @@ export function CalendarConnections() {
         setConnectingGoogle(false);
         refetch();
       } else if (event.data.type === 'google-auth-error') {
-        toast.error(`Erreur de connexion: ${event.data.error}`);
+        toast.error(`Erreur de connexion Google: ${event.data.error}`);
         setConnectingGoogle(false);
+      } else if (event.data.type === 'outlook-auth-success') {
+        toast.success('Outlook Calendar connecté');
+        setConnectingOutlook(false);
+        refetch();
+      } else if (event.data.type === 'outlook-auth-error') {
+        toast.error(`Erreur de connexion Outlook: ${event.data.error}`);
+        setConnectingOutlook(false);
       }
     };
 
@@ -105,8 +113,49 @@ export function CalendarConnections() {
     }
   };
 
-  const handleOutlookConnect = () => {
-    toast.info('Intégration Outlook bientôt disponible');
+  const handleOutlookConnect = async () => {
+    if (!user) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setConnectingOutlook(true);
+
+    try {
+      // Create state with user info
+      const state = btoa(JSON.stringify({
+        user_id: user.id,
+        redirect_url: window.location.href,
+      }));
+
+      // Get auth URL from edge function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/outlook-calendar-auth?action=authorize&state=${state}`,
+        { method: 'GET' }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get auth URL');
+      }
+
+      const result = await response.json();
+      
+      // Open OAuth popup
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      
+      window.open(
+        result.url,
+        'outlook-oauth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+    } catch (error) {
+      console.error('Error initiating Outlook OAuth:', error);
+      toast.error('Erreur lors de la connexion');
+      setConnectingOutlook(false);
+    }
   };
 
   const handleAddIcs = async () => {
@@ -219,8 +268,8 @@ export function CalendarConnections() {
               </Button>
             </div>
           ) : (
-            <Button variant="outline" size="sm" onClick={handleOutlookConnect}>
-              Connecter
+            <Button variant="outline" size="sm" onClick={handleOutlookConnect} disabled={connectingOutlook}>
+              {connectingOutlook ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connecter'}
             </Button>
           )}
         </div>
