@@ -148,7 +148,7 @@ export const InstallBanner = () => {
         return (
           <>
             <p className="text-sm text-foreground mb-2">
-              <span className="font-semibold">Pour installer IkTracker :</span>
+              <span className="font-semibold">Pour installer IKtracker :</span>
             </p>
             <p className="text-sm text-muted-foreground">
               Cliquez sur l'icône de partage{' '}
@@ -167,7 +167,7 @@ export const InstallBanner = () => {
         return (
           <>
             <p className="text-sm text-foreground mb-2">
-              <span className="font-semibold">Pour ajouter IkTracker :</span>
+              <span className="font-semibold">Pour ajouter IKtracker :</span>
             </p>
             <p className="text-sm text-muted-foreground">
               Cliquez sur le bouton <strong>Partager</strong>{' '}
@@ -189,7 +189,7 @@ export const InstallBanner = () => {
         return (
           <div className="text-left">
             <p className="text-sm font-semibold text-foreground mb-3">
-              Pour installer IkTracker :
+              Pour installer IKtracker :
             </p>
             <ol className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-start gap-2">
@@ -214,7 +214,7 @@ export const InstallBanner = () => {
         return (
           <>
             <p className="text-sm text-foreground mb-2">
-              <span className="font-semibold">Pour installer IkTracker :</span>
+              <span className="font-semibold">Pour installer IKtracker :</span>
             </p>
             <p className="text-sm text-muted-foreground">
               Cherchez l'icône d'installation dans la barre d'adresse de votre navigateur, ou dans le menu du navigateur.
@@ -263,7 +263,7 @@ export const InstallBanner = () => {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-foreground text-sm">Installez IkTracker</h3>
+              <h3 className="font-bold text-foreground text-sm">Installez IKtracker</h3>
               <p className="text-xs text-muted-foreground">
                 Accès direct et suivi simplifié
               </p>

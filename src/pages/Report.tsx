@@ -114,10 +114,10 @@ export default function Report() {
   };
 
   const IKTRACKER_URL = 'https://iktracker.lovable.app';
-  const IKTRACKER_MENTION = `Généré conformément à la législation par IkTracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
+  const IKTRACKER_MENTION = `Généré conformément à la législation par IKtracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
 
   const generateReadmeContent = () => {
-    return `=== IkTracker ===
+    return `=== IKtracker ===
 
 Application gratuite de suivi des indemnités kilométriques.
 
@@ -193,7 +193,7 @@ ${IKTRACKER_MENTION}
       ]);
     });
 
-    // Add IkTracker mention at the end
+    // Add IKtracker mention at the end
     rows.push([]);
     rows.push([IKTRACKER_MENTION]);
     rows.push([IKTRACKER_URL]);
@@ -221,7 +221,7 @@ ${IKTRACKER_MENTION}
     doc.setFontSize(24);
     doc.setTextColor(38, 97, 217);
     doc.setFont('helvetica', 'bold');
-    doc.text(`Relevé IkTracker au ${dateStr}`, 14, 20);
+    doc.text(`Relevé IKtracker au ${dateStr}`, 14, 20);
     
     // Summary line
     doc.setFontSize(11);
@@ -318,7 +318,7 @@ ${IKTRACKER_MENTION}
       
       // Add README
       const readmeContent = generateReadmeContent();
-      zip.file('LISEZ-MOI-IkTracker.txt', readmeContent);
+      zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
       
       // Add CSV
       const csvContent = generateCSVContent();

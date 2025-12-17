@@ -175,7 +175,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
             Votre avis compte
           </DialogTitle>
           <DialogDescription>
-            Partagez vos suggestions pour améliorer IkTracker
+            Partagez vos suggestions pour améliorer IKtracker
           </DialogDescription>
         </DialogHeader>
 

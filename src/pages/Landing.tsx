@@ -134,20 +134,20 @@ const Landing = () => {
 
   const faqItems = [
     {
-      question: "IkTracker est-il vraiment gratuit ?",
-      answer: "Oui, IkTracker est 100% gratuit pour tous les indépendants. Pas de version premium, pas de frais cachés. Notre objectif est de simplifier la vie des professionnels libéraux."
+      question: "IKtracker est-il vraiment gratuit ?",
+      answer: "Oui, IKtracker est 100% gratuit pour tous les indépendants. Pas de version premium, pas de frais cachés. Notre objectif est de simplifier la vie des professionnels libéraux."
     },
     {
       question: "Comment fonctionne la synchronisation avec mon calendrier ?",
-      answer: "IkTracker se connecte à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet. Vous n'avez plus qu'à valider !"
+      answer: "IKtracker se connecte à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet. Vous n'avez plus qu'à valider !"
     },
     {
       question: "Les distances calculées sont-elles fiables ?",
       answer: "Absolument. Nous utilisons l'API Google Maps pour calculer les distances réelles entre vos points de départ et d'arrivée. Les calculs sont précis au kilomètre près."
     },
     {
-      question: "Puis-je utiliser IkTracker sur mon téléphone ?",
-      answer: "Oui ! IkTracker est une Progressive Web App (PWA) optimisée pour mobile. Vous pouvez l'installer sur votre écran d'accueil et l'utiliser comme une application native."
+      question: "Puis-je utiliser IKtracker sur mon téléphone ?",
+      answer: "Oui ! IKtracker est une Progressive Web App (PWA) optimisée pour mobile. Vous pouvez l'installer sur votre écran d'accueil et l'utiliser comme une application native."
     },
     {
       question: "Comment exporter mes trajets pour mon comptable ?",
@@ -166,9 +166,9 @@ const Landing = () => {
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="banner">
         <nav className="container mx-auto px-4 py-4 flex items-center justify-between" aria-label="Navigation principale">
-          <Link to="/" className="flex items-center gap-2" aria-label="IkTracker - Accueil">
-            <img src="/favicon.png" alt="Logo IkTracker" className="h-9 w-9 rounded-full transition-transform duration-300 hover:scale-110" width="36" height="36" />
-            <span className="text-xl font-bold text-foreground">IkTracker</span>
+          <Link to="/" className="flex items-center gap-2" aria-label="IKtracker - Accueil">
+            <img src="/favicon.png" alt="Logo IKtracker" className="h-9 w-9 rounded-full transition-transform duration-300 hover:scale-110" width="36" height="36" />
+            <span className="text-xl font-bold text-foreground">IKtracker</span>
           </Link>
           {!loading && (
             user ? (
@@ -563,8 +563,8 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <img src="/favicon.png" alt="IkTracker" className="h-9 w-9 rounded-full transition-transform duration-300 hover:scale-110" />
-              <span className="font-bold text-foreground">IkTracker</span>
+              <img src="/favicon.png" alt="IKtracker" className="h-9 w-9 rounded-full transition-transform duration-300 hover:scale-110" />
+              <span className="font-bold text-foreground">IKtracker</span>
             </div>
             <p className="text-sm text-muted-foreground text-center">
               Outil <span className="font-semibold text-success">100% gratuit</span> pour les indépendants

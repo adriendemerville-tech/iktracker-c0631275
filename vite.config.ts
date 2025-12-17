@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "robots.txt", "pwa-icon-192.png", "pwa-icon-512.png"],
       manifest: {
-        name: "IkTracker - Indemnités Kilométriques",
-        short_name: "IkTracker",
+        name: "IKtracker - Indemnités Kilométriques",
+        short_name: "IKtracker",
         description: "Suivez vos indemnités kilométriques facilement",
         start_url: "/",
         scope: "/",
