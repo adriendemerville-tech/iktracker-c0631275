@@ -3,6 +3,7 @@ import { MapPin, ArrowRight, Trash2, Car, Pencil, Calendar, Truck } from 'lucide
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
+import { usePreferences } from '@/hooks/usePreferences';
 
 interface TripCardProps {
   trip: Trip;
@@ -23,10 +24,19 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
 };
 
 export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }: TripCardProps) {
+  const { preferences } = usePreferences();
+  
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: 'short',
+    });
+  };
+
+  const formatTime = (date: Date) => {
+    return new Date(date).toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -59,6 +69,11 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
           <Calendar className="w-3.5 h-3.5" />
           <span>{formatDate(trip.startTime)}</span>
+          {preferences.showTripTime && (
+            <span className="text-muted-foreground/70">
+              {formatTime(trip.startTime)}
+            </span>
+          )}
         </div>
         <span className="text-border ml-1 mr-3">|</span>
         <div className="flex-1 flex items-center gap-1.5 min-w-0">
