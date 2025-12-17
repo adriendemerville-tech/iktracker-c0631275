@@ -664,6 +664,170 @@ const Landing = () => {
               </div>
             </div>
           </AnimatedSection>
+
+          {/* Visualization 4 - PDF Export Preview */}
+          <AnimatedSection delay={600} className="mt-12">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-foreground">Export PDF professionnel</h3>
+              <p className="text-sm text-muted-foreground">Un relevé prêt pour votre comptable en un clic</p>
+            </div>
+            <div className="max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-5 gap-6 items-center">
+                {/* PDF Document Preview */}
+                <div className="md:col-span-3">
+                  <div 
+                    className="bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-200"
+                    style={{ 
+                      transform: 'perspective(1000px) rotateY(-5deg)',
+                      transformOrigin: 'center center'
+                    }}
+                  >
+                    {/* PDF Header */}
+                    <div className="bg-gray-100 px-4 py-2 flex items-center gap-2 border-b border-gray-200">
+                      <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-400" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                        <div className="w-3 h-3 rounded-full bg-green-400" />
+                      </div>
+                      <span className="text-xs text-gray-500 font-mono ml-2">releve-ik-2025-01.pdf</span>
+                    </div>
+                    
+                    {/* PDF Content */}
+                    <div className="p-6 bg-white text-gray-800">
+                      {/* PDF Title */}
+                      <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-primary">
+                        <div>
+                          <h4 className="text-lg font-bold text-primary">Relevé IKtracker</h4>
+                          <p className="text-xs text-gray-500">Janvier 2025</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">Généré le 31/01/2025</p>
+                          <p className="text-xs text-gray-400">Barème fiscal 2025</p>
+                        </div>
+                      </div>
+
+                      {/* Vehicle Info */}
+                      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div className="grid grid-cols-3 gap-4 text-xs">
+                          <div>
+                            <span className="text-gray-500">Véhicule</span>
+                            <p className="font-semibold text-gray-800">Peugeot 308</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Puissance fiscale</span>
+                            <p className="font-semibold text-gray-800">6 CV</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Immatriculation</span>
+                            <p className="font-semibold text-gray-800">AB-123-CD</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Mini Table */}
+                      <div className="mb-4">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="px-2 py-1.5 text-left font-semibold text-gray-600">Date</th>
+                              <th className="px-2 py-1.5 text-left font-semibold text-gray-600">Trajet</th>
+                              <th className="px-2 py-1.5 text-right font-semibold text-gray-600">Km</th>
+                              <th className="px-2 py-1.5 text-right font-semibold text-gray-600">IK</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { date: "15/01", trajet: "Paris → Versailles", km: "42", ik: "20,58 €" },
+                              { date: "14/01", trajet: "Paris → Saint-Denis", km: "28", ik: "13,72 €" },
+                              { date: "13/01", trajet: "Domicile → Paris 8e", km: "35", ik: "17,15 €" },
+                              { date: "12/01", trajet: "Paris → Créteil", km: "24", ik: "11,76 €" },
+                            ].map((row, i) => (
+                              <tr key={i} className="border-b border-gray-100">
+                                <td className="px-2 py-1.5 text-gray-600">{row.date}</td>
+                                <td className="px-2 py-1.5 text-gray-800">{row.trajet}</td>
+                                <td className="px-2 py-1.5 text-right text-gray-600">{row.km}</td>
+                                <td className="px-2 py-1.5 text-right font-medium text-gray-800">{row.ik}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      {/* Totals */}
+                      <div className="flex justify-end">
+                        <div className="bg-primary/10 rounded-lg p-3 text-right">
+                          <div className="text-xs text-gray-500 mb-1">Total du mois</div>
+                          <div className="text-lg font-bold text-primary">847 km • 412,50 €</div>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-4 pt-3 border-t border-gray-200 text-center">
+                        <p className="text-[10px] text-gray-400">
+                          Document généré par IKtracker • iktracker.lovable.app • Conforme au barème fiscal 2025
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Export Features */}
+                <div className="md:col-span-2 space-y-4">
+                  <div className="p-4 bg-card rounded-xl border border-border">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-destructive" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">Format PDF</div>
+                        <div className="text-xs text-muted-foreground">Professionnel et lisible</div>
+                      </div>
+                    </div>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        Entête avec vos informations
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        Tableau détaillé des trajets
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        Totaux automatiques
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-4 bg-card rounded-xl border border-border">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-success" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">Format CSV</div>
+                        <div className="text-xs text-muted-foreground">Compatible Excel</div>
+                      </div>
+                    </div>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        Import direct dans Excel
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        Données structurées
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        Prêt pour la comptabilité
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
