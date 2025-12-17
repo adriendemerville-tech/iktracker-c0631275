@@ -215,12 +215,13 @@ const Profile = () => {
               <Button 
                 variant="outline" 
                 size="sm"
+                className="h-7 text-xs px-2"
                 onClick={() => {
                   setEditingVehicle(null);
                   setVehicleFormOpen(true);
                 }}
               >
-                <Plus className="w-4 h-4 mr-1" />
+                <Plus className="w-3 h-3 mr-1" />
                 Ajouter
               </Button>
             </div>
