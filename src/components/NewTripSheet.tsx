@@ -17,34 +17,59 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
+// Normalize address for consistent caching
+const normalizeAddress = (address: string): string => {
+  return address.toLowerCase().trim().replace(/\s+/g, ' ');
+};
+
 // Cache functions for distance
 const getCachedDistance = async (startAddress: string, endAddress: string): Promise<number | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   
-  const { data } = await supabase
-    .from('distance_cache')
-    .select('distance')
-    .eq('user_id', user.id)
-    .eq('start_address', startAddress)
-    .eq('end_address', endAddress)
-    .maybeSingle();
+  const normalizedStart = normalizeAddress(startAddress);
+  const normalizedEnd = normalizeAddress(endAddress);
   
-  return data?.distance ?? null;
+  try {
+    const { data } = await supabase
+      .from('distance_cache')
+      .select('distance')
+      .eq('user_id', user.id)
+      .eq('start_address', normalizedStart)
+      .eq('end_address', normalizedEnd)
+      .maybeSingle();
+    
+    if (data?.distance) {
+      console.log('Cache hit for distance:', normalizedStart, '->', normalizedEnd);
+    }
+    
+    return data?.distance ?? null;
+  } catch (error) {
+    console.error('Error fetching cached distance:', error);
+    return null;
+  }
 };
 
 const saveCachedDistance = async (startAddress: string, endAddress: string, distance: number): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
   
-  await supabase
-    .from('distance_cache')
-    .upsert({
-      user_id: user.id,
-      start_address: startAddress,
-      end_address: endAddress,
-      distance
-    }, { onConflict: 'user_id,start_address,end_address' });
+  const normalizedStart = normalizeAddress(startAddress);
+  const normalizedEnd = normalizeAddress(endAddress);
+  
+  try {
+    await supabase
+      .from('distance_cache')
+      .upsert({
+        user_id: user.id,
+        start_address: normalizedStart,
+        end_address: normalizedEnd,
+        distance
+      }, { onConflict: 'user_id,start_address,end_address', ignoreDuplicates: true });
+    console.log('Distance cached:', normalizedStart, '->', normalizedEnd, distance, 'km');
+  } catch (error) {
+    console.error('Error caching distance:', error);
+  }
 };
 
 interface NewTripSheetProps {
