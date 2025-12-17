@@ -36,7 +36,12 @@ export function TourButton({
       } : undefined}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
-      <Truck className={cn("w-7 h-7", isLoading && "animate-bounce")} />
+      {/* Speed lines */}
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
+        <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
+        <span className="w-3 h-0.5 bg-current opacity-40 rounded-full -ml-0.5" />
+      </span>
+      <Truck className={cn("w-7 h-7 relative z-10", isLoading && "animate-bounce")} />
       
       {/* Stops count badge - top right */}
       {isActive && stopsCount > 0 && (
