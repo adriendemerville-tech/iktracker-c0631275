@@ -489,9 +489,9 @@ ${IKTRACKER_MENTION}
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/profile')}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 w-12 h-12"
             >
-              <UserCircle className="w-6 h-6" />
+              <UserCircle className="w-8 h-8" />
             </Button>
           </div>
 
