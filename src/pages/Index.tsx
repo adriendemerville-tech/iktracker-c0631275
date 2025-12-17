@@ -476,6 +476,15 @@ ${IKTRACKER_MENTION}
             <Button 
               variant="ghost" 
               size="icon"
+              onClick={exportZip}
+              disabled={trips.length === 0 || isExporting}
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
               onClick={() => navigate('/profile')}
               className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
             >
@@ -532,18 +541,6 @@ ${IKTRACKER_MENTION}
 
         {/* PWA Install Banner */}
         <InstallBanner />
-
-        {/* Download button */}
-        <Button 
-          variant="secondary" 
-          size="lg" 
-          className="w-full"
-          onClick={exportZip} 
-          disabled={trips.length === 0 || isExporting}
-        >
-          <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-          Télécharger le relevé pour votre comptable
-        </Button>
 
         {/* Recent trips */}
         <section>
