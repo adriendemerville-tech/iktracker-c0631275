@@ -173,11 +173,11 @@ export function TourLogSheet({
               {isActive ? (
                 <Button
                   variant="outline"
-                  size="default"
+                  size="sm"
                   onClick={onStop}
-                  className="flex-1 text-destructive border-destructive/50 hover:bg-destructive/10"
+                  className="text-destructive border-destructive/50 hover:bg-destructive/10"
                 >
-                  <Square className="w-3 h-3 mr-2" />
+                  <Square className="w-3 h-3 mr-1" />
                   Arrêter
                 </Button>
               ) : (
