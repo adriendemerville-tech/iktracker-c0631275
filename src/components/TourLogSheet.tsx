@@ -172,13 +172,13 @@ export function TourLogSheet({
 
               {isActive ? (
                 <Button
-                  variant="destructive"
-                  size="lg"
+                  variant="outline"
+                  size="default"
                   onClick={onStop}
-                  className="flex-1"
+                  className="flex-1 text-destructive border-destructive/50 hover:bg-destructive/10"
                 >
-                  <Square className="w-4 h-4 mr-2" />
-                  Arrêter la tournée
+                  <Square className="w-3 h-3 mr-2" />
+                  Arrêter
                 </Button>
               ) : (
                 <Button
