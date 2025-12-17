@@ -158,18 +158,6 @@ export function TourLogSheet({
             )}
 
             <div className={cn("flex gap-3", isActive && "justify-center")}>
-              {stops.length > 0 && !isActive && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={onClear}
-                  className="flex-1"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Effacer
-                </Button>
-              )}
-
               {isActive ? (
                 <Button
                   variant="outline"
