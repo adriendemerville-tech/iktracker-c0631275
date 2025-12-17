@@ -8,7 +8,11 @@ import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 interface NewTripSheetProps {
@@ -75,6 +79,7 @@ export function NewTripSheet({
   const [draft, setDraft] = useState<TripDraft>({});
   const [purpose, setPurpose] = useState('');
   const [manualDistance, setManualDistance] = useState('');
+  const [tripDate, setTripDate] = useState<Date>(new Date());
 
   const isEditing = !!editTrip;
 
@@ -90,6 +95,7 @@ export function NewTripSheet({
       });
       setPurpose(editTrip.purpose || '');
       setManualDistance(editTrip.distance.toString());
+      setTripDate(new Date(editTrip.startTime));
       setStep('details');
     }
   }, [open, editTrip]);
@@ -117,6 +123,7 @@ export function NewTripSheet({
     setDraft({});
     setPurpose('');
     setManualDistance('');
+    setTripDate(new Date());
   };
 
   const handleClose = () => {
@@ -211,14 +218,26 @@ export function NewTripSheet({
     if (!draft.vehicleId || !draft.startLocation || !draft.endLocation) return;
 
     const distance = parseFloat(manualDistance) || 0;
+    
+    // Preserve the time from draft but use the selected date
+    const startTime = draft.startTime || new Date();
+    const endTime = draft.endTime || new Date();
+    
+    // Combine tripDate with the original times
+    const finalStartTime = new Date(tripDate);
+    finalStartTime.setHours(startTime.getHours(), startTime.getMinutes(), startTime.getSeconds());
+    
+    const finalEndTime = new Date(tripDate);
+    finalEndTime.setHours(endTime.getHours(), endTime.getMinutes(), endTime.getSeconds());
+    
     const tripData = {
       vehicleId: draft.vehicleId,
       startLocation: draft.startLocation,
       endLocation: draft.endLocation,
       distance,
       purpose,
-      startTime: draft.startTime || new Date(),
-      endTime: draft.endTime || new Date(),
+      startTime: finalStartTime,
+      endTime: finalEndTime,
     };
 
     if (isEditing && editTrip && onUpdateTrip) {
@@ -397,6 +416,31 @@ export function NewTripSheet({
                     {draft.endTime?.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Date du trajet</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {format(tripDate, "EEEE d MMMM yyyy", { locale: fr })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={tripDate}
+                      onSelect={(date) => date && setTripDate(date)}
+                      initialFocus
+                      className="pointer-events-auto"
+                      locale={fr}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
