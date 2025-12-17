@@ -388,16 +388,16 @@ ${IKTRACKER_MENTION}
           </div>
         </div>
 
-        <div className="bg-muted/50 rounded-xl p-4 flex items-start gap-3">
-          <Download className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-medium">Export comptable</p>
-            <p className="text-muted-foreground">
-              Cliquez sur l'icône en haut à droite pour télécharger un ZIP contenant 
-              le relevé en CSV et PDF pour votre comptable.
-            </p>
-          </div>
-        </div>
+        <Button 
+          variant="secondary" 
+          size="lg" 
+          className="w-full"
+          onClick={exportZip} 
+          disabled={trips.length === 0 || isExporting}
+        >
+          <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+          Télécharger le relevé pour votre comptable
+        </Button>
 
         {Object.keys(groupedByMonth).length === 0 ? (
           <div className="text-center py-12">
