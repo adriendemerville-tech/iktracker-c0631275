@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react';
-import { MessageSquareHeart, Camera, X, Loader2, Send } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +15,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useFeedback } from '@/hooks/useFeedback';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const MAX_CHARS = 700;
 
@@ -25,6 +30,14 @@ export const FeedbackForm = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { feedbacks, unreadResponsesCount, markAllAsRead } = useFeedback();
+
+  // Mark all as read when dialog opens
+  useEffect(() => {
+    if (open && unreadResponsesCount > 0) {
+      markAllAsRead();
+    }
+  }, [open, unreadResponsesCount, markAllAsRead]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,7 +91,6 @@ export const FeedbackForm = () => {
     try {
       let imageUrl: string | null = null;
 
-      // Upload image if provided
       if (image) {
         const fileExt = image.name.split('.').pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
@@ -99,7 +111,6 @@ export const FeedbackForm = () => {
         imageUrl = urlData.publicUrl;
       }
 
-      // Insert feedback
       const { error: insertError } = await supabase
         .from('feedback')
         .insert({
@@ -118,11 +129,9 @@ export const FeedbackForm = () => {
         description: 'Votre retour nous aide à améliorer l\'application',
       });
 
-      // Reset form
       setMessage('');
       setImage(null);
       setImagePreview(null);
-      setOpen(false);
     } catch (error: any) {
       toast({
         title: 'Erreur',
@@ -135,16 +144,27 @@ export const FeedbackForm = () => {
   };
 
   const charsRemaining = MAX_CHARS - message.length;
+  const feedbacksWithResponses = feedbacks.filter(f => f.response);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
-          <MessageSquareHeart className="w-4 h-4 mr-2" />
-          Votre avis compte
-        </Button>
+        <div className="relative">
+          <Button variant="outline" className="w-full">
+            <MessageSquareHeart className="w-4 h-4 mr-2" />
+            Votre avis compte
+          </Button>
+          {unreadResponsesCount > 0 && (
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
+            >
+              {unreadResponsesCount}
+            </Badge>
+          )}
+        </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquareHeart className="w-5 h-5 text-primary" />
@@ -155,14 +175,50 @@ export const FeedbackForm = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
-          {/* Message textarea */}
+        <div className="flex-1 overflow-hidden flex flex-col gap-4 mt-4">
+          {/* Previous feedbacks with responses */}
+          {feedbacksWithResponses.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" />
+                Réponses ({feedbacksWithResponses.length})
+              </h4>
+              <ScrollArea className="h-[150px] rounded-md border p-3">
+                <div className="space-y-4">
+                  {feedbacksWithResponses.map((feedback) => (
+                    <div key={feedback.id} className="space-y-2">
+                      {/* User's message */}
+                      <div className="bg-muted/50 rounded-lg p-2">
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {format(new Date(feedback.created_at), 'dd MMM yyyy', { locale: fr })}
+                        </p>
+                        <p className="text-sm mt-1">{feedback.message}</p>
+                      </div>
+                      {/* Admin response */}
+                      <div className="bg-primary/10 rounded-lg p-2 ml-4 border-l-2 border-primary">
+                        <p className="text-xs text-primary font-medium">Réponse de l'équipe</p>
+                        <p className="text-sm mt-1">{feedback.response}</p>
+                        {feedback.responded_at && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(feedback.responded_at), 'dd MMM yyyy', { locale: fr })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
+
+          {/* New message form */}
           <div className="space-y-2">
             <Textarea
               placeholder="Décrivez votre retour d'expérience, une suggestion d'amélioration ou un bug rencontré..."
               value={message}
               onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
-              className="min-h-[150px] resize-none"
+              className="min-h-[120px] resize-none"
             />
             <p className={`text-xs text-right ${charsRemaining < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
               {charsRemaining} caractères restants
@@ -185,7 +241,7 @@ export const FeedbackForm = () => {
                 <img
                   src={imagePreview}
                   alt="Aperçu"
-                  className="max-h-32 rounded-lg border"
+                  className="max-h-24 rounded-lg border"
                 />
                 <button
                   type="button"
