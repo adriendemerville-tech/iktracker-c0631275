@@ -50,13 +50,14 @@ const Index = () => {
     isActive: isTourActive,
     isLoading: isTourLoading,
     stops: tourStops,
-    distanceFromLastStop,
+    totalDistanceKm,
     startTour,
     stopTour,
     clearTour,
   } = useTourTracker({
-    distanceThreshold: 1000, // 1 km to create a new step
-    trackingInterval: 10000, // Check every 10 seconds
+    stopDurationThreshold: 7 * 60, // 7 minutes to create a step
+    locationRadius: 100, // 100m = same location
+    trackingInterval: 30000, // Check every 30 seconds
   });
 
   const handleTourButtonClick = () => {
@@ -308,7 +309,7 @@ const Index = () => {
         <TourButton
           isActive={isTourActive}
           isLoading={isTourLoading}
-          distanceFromLastStop={distanceFromLastStop}
+          totalDistanceKm={totalDistanceKm}
           stopsCount={tourStops.length}
           onClick={handleTourButtonClick}
         />
@@ -326,8 +327,19 @@ const Index = () => {
           <Button 
             variant="gradient" 
             size="lg" 
-            onClick={() => setShowNewTrip(true)}
-            disabled={vehicles.length === 0}
+            onClick={() => {
+              if (vehicles.length === 0) {
+                toast.info("Ajoutez d'abord un véhicule", {
+                  description: "Un véhicule est nécessaire pour enregistrer les trajets",
+                  action: {
+                    label: "Ajouter",
+                    onClick: handleAddVehicle,
+                  },
+                });
+              } else {
+                setShowNewTrip(true);
+              }
+            }}
           >
             <Plus className="w-5 h-5" />
             Nouveau trajet

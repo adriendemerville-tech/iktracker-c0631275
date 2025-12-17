@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface TourButtonProps {
   isActive: boolean;
   isLoading?: boolean;
-  distanceFromLastStop?: number; // in meters
+  totalDistanceKm?: number; // Total distance in km (already in km, only increases)
   stopsCount?: number;
   onClick: () => void;
 }
@@ -12,12 +12,12 @@ interface TourButtonProps {
 export function TourButton({ 
   isActive, 
   isLoading, 
-  distanceFromLastStop = 0, 
+  totalDistanceKm = 0, 
   stopsCount = 0,
   onClick 
 }: TourButtonProps) {
-  // Format distance in km (rounded to unit)
-  const distanceKm = Math.round(distanceFromLastStop / 1000);
+  // Display distance rounded to 1 decimal
+  const displayDistance = Math.round(totalDistanceKm * 10) / 10;
 
   return (
     <button
@@ -46,11 +46,11 @@ export function TourButton({
       )}
       
       {/* Distance badge - bottom left */}
-      {isActive && distanceKm > 0 && (
+      {isActive && displayDistance > 0 && (
         <span 
           className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md"
         >
-          {distanceKm}
+          {displayDistance}
         </span>
       )}
     </button>
