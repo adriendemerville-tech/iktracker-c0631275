@@ -276,7 +276,7 @@ const Admin = () => {
             <Shield className="w-12 h-12 mx-auto text-destructive mb-4" />
             <h2 className="text-xl font-semibold mb-2">Accès restreint</h2>
             <p className="text-muted-foreground mb-4">Cette page est réservée aux administrateurs.</p>
-            <Button variant="outline" onClick={() => navigate('/')}>
+            <Button variant="outline" onClick={() => navigate('/app')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour à l'accueil
             </Button>
@@ -299,7 +299,7 @@ const Admin = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/app')}
               className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
             >
               <ArrowLeft className="w-5 h-5" />

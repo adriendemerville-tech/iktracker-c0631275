@@ -108,7 +108,7 @@ const Profile = () => {
       {/* Header */}
       <header className="bg-card border-b border-border px-4 py-4">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/app')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-semibold">Mon profil</h1>
