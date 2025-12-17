@@ -14,11 +14,14 @@ export const InstallBanner = () => {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Check if already dismissed
-    const wasDismissed = localStorage.getItem('pwa-install-dismissed');
-    if (wasDismissed) {
-      setDismissed(true);
-      return;
+    // Check if already dismissed today
+    const lastDismissed = localStorage.getItem('pwa-install-dismissed-date');
+    if (lastDismissed) {
+      const today = new Date().toDateString();
+      if (lastDismissed === today) {
+        setDismissed(true);
+        return;
+      }
     }
 
     // Check if already installed (standalone mode)
@@ -64,7 +67,7 @@ export const InstallBanner = () => {
     setShowBanner(false);
     setShowIOSHelp(false);
     setDismissed(true);
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    localStorage.setItem('pwa-install-dismissed-date', new Date().toDateString());
   };
 
   if (!showBanner || dismissed) {
