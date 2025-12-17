@@ -203,29 +203,30 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const dateStr = new Date().toLocaleDateString('fr-FR');
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const dateStr = new Date().toLocaleDateString('fr-FR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
     
-    // Header mention IkTracker
-    doc.setFontSize(8);
-    doc.setTextColor(100);
-    doc.text(IKTRACKER_MENTION, 14, 10);
-    doc.setTextColor(59, 130, 246);
-    doc.textWithLink(IKTRACKER_URL, 14, 14, { url: IKTRACKER_URL });
+    // Main title with logo blue color (#2661D9 = RGB 38, 97, 217)
+    doc.setFontSize(24);
+    doc.setTextColor(38, 97, 217);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Relevé IkTracker au ${dateStr}`, 14, 20);
     
-    // Title
-    doc.setFontSize(18);
-    doc.setTextColor(0);
-    doc.text('Relevé des Indemnités Kilométriques', 14, 28);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Généré le ${dateStr}`, 14, 36);
-    
-    // Summary
+    // Subtitle with summary
     doc.setFontSize(12);
-    doc.setTextColor(0);
-    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 48);
+    doc.setTextColor(100);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} € d'indemnités`, 14, 30);
+    
+    // IkTracker mention
+    doc.setFontSize(8);
+    doc.text(IKTRACKER_MENTION, 14, 38);
+    doc.setTextColor(59, 130, 246);
+    doc.textWithLink(IKTRACKER_URL, 14, 42, { url: IKTRACKER_URL });
 
     // Sort chronologically for PDF
     const sortedTrips = [...recalculatedTrips].sort(
@@ -243,7 +244,7 @@ ${IKTRACKER_MENTION}
       return acc;
     }, {} as Record<string, typeof sortedTrips>);
 
-    let currentY = 56;
+    let currentY = 52;
 
     // Generate table for each month
     Object.entries(tripsByMonth).forEach(([month, monthTrips]) => {
@@ -282,8 +283,8 @@ ${IKTRACKER_MENTION}
 
       currentY = (doc as any).lastAutoTable.finalY + 10;
 
-      // Add new page if needed
-      if (currentY > 250) {
+      // Add new page if needed (landscape height is ~190)
+      if (currentY > 170) {
         doc.addPage();
         currentY = 20;
       }
