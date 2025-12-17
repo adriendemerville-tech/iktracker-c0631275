@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { CalendarConnections } from '@/components/CalendarConnections';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -94,6 +95,9 @@ const Profile = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Calendar Connections */}
+        <CalendarConnections />
 
         {/* Kilometers Chart */}
         <Card>
