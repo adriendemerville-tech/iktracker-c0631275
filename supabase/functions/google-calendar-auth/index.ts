@@ -21,11 +21,24 @@ serve(async (req) => {
     const action = url.searchParams.get('action');
 
     console.log('Google Calendar Auth - Action:', action);
+    console.log('Google Calendar Auth - SUPABASE_URL:', SUPABASE_URL);
+    console.log('Google Calendar Auth - GOOGLE_CLIENT_ID exists:', !!GOOGLE_CLIENT_ID);
+    console.log('Google Calendar Auth - GOOGLE_CLIENT_SECRET exists:', !!GOOGLE_CLIENT_SECRET);
 
     // Generate OAuth URL
     if (action === 'authorize') {
+      if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+        console.error('Missing Google OAuth credentials');
+        return new Response(JSON.stringify({ error: 'Missing Google OAuth credentials' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
       const state = url.searchParams.get('state') || '';
+      
+      console.log('Google Calendar Auth - Redirect URI:', redirectUri);
       
       const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
       authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID!);
