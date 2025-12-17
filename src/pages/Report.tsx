@@ -19,6 +19,7 @@ export default function Report() {
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
+  const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
@@ -405,6 +406,9 @@ ${IKTRACKER_MENTION}
                       key={trip.id}
                       trip={trip}
                       vehicle={vehicle}
+                      onEdit={(t) => {
+                        toast.info("Modification", { description: "Fonctionnalité à venir" });
+                      }}
                       onDelete={deleteTrip}
                       showDelete
                     />
