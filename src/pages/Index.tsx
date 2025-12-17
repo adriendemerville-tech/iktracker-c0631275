@@ -50,6 +50,7 @@ const Index = () => {
     isActive: isTourActive,
     isLoading: isTourLoading,
     stops: tourStops,
+    distanceFromLastStop,
     startTour,
     stopTour,
     clearTour,
@@ -307,6 +308,7 @@ const Index = () => {
         <TourButton
           isActive={isTourActive}
           isLoading={isTourLoading}
+          distanceFromLastStop={distanceFromLastStop}
           onClick={handleTourButtonClick}
         />
         {isTourActive && tourStops.length > 0 && (
