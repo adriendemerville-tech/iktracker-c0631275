@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -90,6 +90,9 @@ export function NewTripSheet({
   const [isBlinking, setIsBlinking] = useState(false);
   const [tripDate, setTripDate] = useState<Date>(new Date());
   const [roundTrip, setRoundTrip] = useState(false);
+
+  const distanceInputRef = useRef<HTMLInputElement>(null);
+  const purposeInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!editTrip;
 
@@ -506,6 +509,7 @@ export function NewTripSheet({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Distance *</label>
                 <Input
+                  ref={distanceInputRef}
                   type="text"
                   inputMode="decimal"
                   placeholder="Ex: 25.5 km"
@@ -530,7 +534,6 @@ export function NewTripSheet({
                     const isOutOfRange = enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance;
 
                     if (isOutOfRange) {
-                      // Efface la saisie utilisateur et remplace par la distance API
                       setIsBlinking(false);
                       setManualDistance('');
                       window.requestAnimationFrame(() => {
@@ -542,6 +545,12 @@ export function NewTripSheet({
                     }
 
                     setManualDistance(value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      purposeInputRef.current?.focus();
+                    }
                   }}
                 />
                 {calculatedDistance ? (
@@ -565,9 +574,16 @@ export function NewTripSheet({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Motif du déplacement *</label>
                 <Input
+                  ref={purposeInputRef}
                   placeholder="Ex: Réunion client, Livraison..."
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleConfirm();
+                    }
+                  }}
                 />
               </div>
 
