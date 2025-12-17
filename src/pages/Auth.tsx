@@ -57,11 +57,10 @@ const Auth = () => {
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
     try {
+      // Let the backend use its configured Site URL for the final redirect.
+      // This avoids 403 errors caused by non-allowed redirectTo domains (e.g., preview URLs).
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        },
       });
       if (error) throw error;
     } catch (error: any) {
