@@ -164,17 +164,17 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/logo-camion.png" alt="IkTracker" className="h-8 w-8" />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="banner">
+        <nav className="container mx-auto px-4 py-4 flex items-center justify-between" aria-label="Navigation principale">
+          <Link to="/" className="flex items-center gap-2" aria-label="IkTracker - Accueil">
+            <img src="/logo-camion.png" alt="Logo IkTracker" className="h-8 w-8" width="32" height="32" />
             <span className="text-xl font-bold text-foreground">IkTracker</span>
-          </div>
+          </Link>
           {!loading && (
             user ? (
               <Link to="/app">
                 <Button variant="gradient" size="sm" className="group">
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  <LayoutDashboard className="h-4 w-4 mr-2" aria-hidden="true" />
                   Mon tableau de bord
                 </Button>
               </Link>
@@ -186,8 +186,10 @@ const Landing = () => {
               </a>
             )
           )}
-        </div>
-      </nav>
+        </nav>
+      </header>
+
+      <main>
 
       {/* Hero Section */}
       <section className="pt-28 pb-16 md:pt-32 md:pb-20 px-4 relative overflow-hidden">
@@ -554,9 +556,10 @@ const Landing = () => {
           </AnimatedSection>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-border">
+      <footer className="py-12 px-4 border-t border-border" role="contentinfo">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">

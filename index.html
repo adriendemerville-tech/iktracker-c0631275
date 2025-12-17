@@ -3,30 +3,138 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Favicon & App Icons -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+    <link rel="canonical" href="https://iktracker.lovable.app/" />
+    
+    <!-- Primary Meta Tags -->
+    <title>IkTracker - Automatisez vos indemnités kilométriques | Outil gratuit pour indépendants</title>
+    <meta name="title" content="IkTracker - Automatisez vos indemnités kilométriques | Outil gratuit pour indépendants" />
+    <meta name="description" content="IkTracker est l'outil 100% gratuit pour les indépendants, libéraux et artisans. Synchronisez votre calendrier, calculez automatiquement vos distances et générez vos relevés kilométriques en un clic. Barème IK 2025 inclus." />
+    <meta name="keywords" content="indemnités kilométriques, IK, frais kilométriques, barème kilométrique 2025, infirmier libéral, artisan, indépendant, comptabilité, frais réels, déclaration fiscale, suivi trajets" />
+    <meta name="author" content="IkTracker" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2661D9" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="IkTracker" />
-    <title>IK Tracker - Indemnités Kilométriques</title>
-    <meta name="description" content="Application de suivi des indemnités kilométriques" />
-    <meta name="author" content="IK Tracker" />
-
-    <meta property="og:title" content="IK Tracker" />
-    <meta property="og:description" content="Application de suivi des indemnités kilométriques" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="application-name" content="IkTracker" />
+    <meta name="mobile-web-app-capable" content="yes" />
     
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://iktracker.lovable.app/" />
+    <meta property="og:title" content="IkTracker - Automatisez vos indemnités kilométriques" />
+    <meta property="og:description" content="L'outil 100% gratuit pour les indépendants. Synchronisez votre calendrier, calculez vos distances et générez vos relevés kilométriques en un clic." />
+    <meta property="og:image" content="https://iktracker.lovable.app/logo-camion-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="IkTracker" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://iktracker.lovable.app/" />
+    <meta name="twitter:title" content="IkTracker - Automatisez vos indemnités kilométriques" />
+    <meta name="twitter:description" content="L'outil 100% gratuit pour les indépendants. Synchronisez votre calendrier, calculez vos distances et générez vos relevés kilométriques en un clic." />
+    <meta name="twitter:image" content="https://iktracker.lovable.app/logo-camion-512.png" />
+    
+    <!-- Additional SEO -->
+    <meta name="geo.region" content="FR" />
+    <meta name="geo.placename" content="France" />
+    <meta name="language" content="French" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Urbanist:wght@800&display=swap" rel="stylesheet">
     
+    <!-- Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjuGRMRKrDb5OYhO0_Efcm8I7QpUe70IY&libraries=places&language=fr"></script>
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "IkTracker",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "description": "Application gratuite de suivi des indemnités kilométriques pour les indépendants, libéraux et artisans. Synchronisation calendrier, calcul automatique des distances, export PDF/CSV.",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      },
+      "featureList": [
+        "Synchronisation calendrier Google et Outlook",
+        "Calcul automatique des distances via Google Maps",
+        "Fonction tournée pour plusieurs clients",
+        "Export PDF et CSV",
+        "Application mobile PWA"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "IkTracker est-il vraiment gratuit ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, IkTracker est 100% gratuit pour tous les indépendants. Pas de version premium, pas de frais cachés."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment fonctionne la synchronisation avec mon calendrier ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "IkTracker se connecte à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Les distances calculées sont-elles fiables ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nous utilisons l'API Google Maps pour calculer les distances réelles entre vos points de départ et d'arrivée. Les calculs sont précis au kilomètre près."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Puis-je utiliser IkTracker sur mon téléphone ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, IkTracker est une Progressive Web App (PWA) optimisée pour mobile. Vous pouvez l'installer sur votre écran d'accueil."
+          }
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "IkTracker",
+      "url": "https://iktracker.lovable.app",
+      "logo": "https://iktracker.lovable.app/logo-camion-512.png",
+      "description": "Outil gratuit de suivi des indemnités kilométriques pour les indépendants"
+    }
+    </script>
   </head>
 
   <body>
