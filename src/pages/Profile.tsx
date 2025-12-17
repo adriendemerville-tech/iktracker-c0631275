@@ -4,13 +4,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
 import { usePreferences } from '@/hooks/usePreferences';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -42,6 +43,7 @@ const Profile = () => {
   const { theme, toggleTheme } = useTheme();
   const { trips, vehicles, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { preferences, updatePreference } = usePreferences();
+  const { isAdmin } = useAdmin();
   
   const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -172,7 +174,27 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Kilometers Chart */}
+        {/* Admin Access */}
+        {isAdmin && (
+          <Card 
+            className="cursor-pointer hover:bg-accent/50 transition-colors border-primary/20"
+            onClick={() => navigate('/admin')}
+          >
+            <CardContent className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Administration</p>
+                  <p className="text-sm text-muted-foreground">Gérer les feedbacks et utilisateurs</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
