@@ -206,37 +206,63 @@ ${IKTRACKER_MENTION}
       year: 'numeric' 
     });
     
-    // ========== PAGE 1: Summary + Barème ==========
-    
     // Main title with logo blue color (#2661D9 = RGB 38, 97, 217)
     doc.setFontSize(24);
     doc.setTextColor(38, 97, 217);
     doc.setFont('helvetica', 'bold');
     doc.text(`Relevé IkTracker au ${dateStr}`, 14, 20);
     
-    // Subtitle with summary
-    doc.setFontSize(12);
-    doc.setTextColor(100);
+    // Summary line
+    doc.setFontSize(11);
+    doc.setTextColor(0);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} € d'indemnités`, 14, 30);
-    
-    // IkTracker mention
-    doc.setFontSize(8);
-    doc.text(IKTRACKER_MENTION, 14, 38);
-    doc.setTextColor(38, 97, 217);
-    doc.textWithLink(IKTRACKER_URL, 14, 42, { url: IKTRACKER_URL });
+    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 30);
 
-    // Total summary box
-    doc.setFontSize(14);
-    doc.setTextColor(34, 197, 94);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`TOTAL GÉNÉRAL: ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 55);
+    // Sort chronologically
+    const sortedTrips = [...recalculatedTrips].sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
 
-    // Barème section on page 1
+    // Create table data - all trips line by line
+    const tableData = sortedTrips.map(t => {
+      const vehicle = getVehicle(t.vehicleId);
+      const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `${vehicle.fiscalPower} CV` : '-';
+      return [
+        new Date(t.startTime).toLocaleDateString('fr-FR'),
+        vehicleName,
+        t.startLocation.name,
+        t.endLocation.name,
+        `${t.distance.toFixed(1)} km`,
+        t.purpose || '-',
+        `${t.recalculatedIK.toFixed(2)} €`,
+      ];
+    });
+
+    // Main trips table
+    autoTable(doc, {
+      startY: 38,
+      head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Distance', 'Motif', 'IK']],
+      body: tableData,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [38, 97, 217] },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+      foot: [['TOTAL', '', '', '', `${totalKm.toFixed(1)} km`, '', `${recalculatedTotalIK.toFixed(2)} €`]],
+      footStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold' },
+    });
+
+    let finalY = (doc as any).lastAutoTable.finalY + 15;
+
+    // Check if we need a new page for barème
+    if (finalY > 150) {
+      doc.addPage();
+      finalY = 20;
+    }
+
+    // Barème section
     doc.setFontSize(11);
     doc.setTextColor(0);
     doc.setFont('helvetica', 'bold');
-    doc.text('Barème kilométrique fiscal 2024', 14, 75);
+    doc.text('Barème kilométrique fiscal 2024', 14, finalY);
     
     const baremeData = IK_BAREME_2024.map(b => [
       b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`,
@@ -246,97 +272,14 @@ ${IKTRACKER_MENTION}
     ]);
 
     autoTable(doc, {
-      startY: 80,
+      startY: finalY + 5,
       head: [['Puissance', '≤ 5000 km', '5001-20000 km', '> 20000 km']],
       body: baremeData,
-      styles: { fontSize: 9, cellPadding: 3 },
+      styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [100, 116, 139] },
     });
 
-    // ========== PAGE 2+: Detailed trips ==========
-    
-    if (trips.length > 0) {
-      doc.addPage();
-      
-      // Page 2 title
-      doc.setFontSize(18);
-      doc.setTextColor(38, 97, 217);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Détail des trajets', 14, 20);
-
-      // Sort chronologically for PDF
-      const sortedTrips = [...recalculatedTrips].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-      );
-
-      // Group trips by month
-      const tripsByMonth = sortedTrips.reduce((acc, trip) => {
-        const month = new Date(trip.startTime).toLocaleDateString('fr-FR', {
-          month: 'long',
-          year: 'numeric',
-        });
-        if (!acc[month]) acc[month] = [];
-        acc[month].push(trip);
-        return acc;
-      }, {} as Record<string, typeof sortedTrips>);
-
-      let currentY = 30;
-
-      // Generate table for each month
-      Object.entries(tripsByMonth).forEach(([month, monthTrips]) => {
-        const monthKm = monthTrips.reduce((sum, t) => sum + t.distance, 0);
-        const monthIK = monthTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
-
-        // Month header
-        doc.setFontSize(11);
-        doc.setTextColor(38, 97, 217);
-        doc.setFont('helvetica', 'bold');
-        doc.text(month.charAt(0).toUpperCase() + month.slice(1), 14, currentY);
-        currentY += 6;
-
-        const tableData = monthTrips.map(t => {
-          const startTime = new Date(t.startTime);
-          const vehicle = getVehicle(t.vehicleId);
-          const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `${vehicle.fiscalPower} CV` : '-';
-          return [
-            startTime.toLocaleDateString('fr-FR'),
-            vehicleName,
-            t.startLocation.name,
-            t.endLocation.name,
-            t.purpose || '-',
-            `${t.distance.toFixed(1)} km`,
-            `${t.recalculatedIK.toFixed(2)} €`,
-          ];
-        });
-
-        autoTable(doc, {
-          startY: currentY,
-          head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Motif', 'Distance', 'IK']],
-          body: tableData,
-          styles: { fontSize: 8, cellPadding: 2 },
-          headStyles: { fillColor: [38, 97, 217] },
-          alternateRowStyles: { fillColor: [245, 247, 250] },
-          foot: [[`Sous-total`, '', '', '', '', `${monthKm.toFixed(1)} km`, `${monthIK.toFixed(2)} €`]],
-          footStyles: { fillColor: [148, 163, 184], textColor: 255, fontStyle: 'bold' },
-        });
-
-        currentY = (doc as any).lastAutoTable.finalY + 12;
-
-        // Add new page if needed (landscape height is ~190)
-        if (currentY > 160) {
-          doc.addPage();
-          currentY = 20;
-        }
-      });
-
-      // Final total on detail page
-      doc.setFontSize(12);
-      doc.setTextColor(34, 197, 94);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`TOTAL: ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, currentY + 5);
-    }
-
-    // Footer mention IkTracker on all pages
+    // Footer on all pages
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
