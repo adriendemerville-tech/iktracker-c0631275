@@ -11,6 +11,7 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Report from "./pages/Report";
 import Auth from "./pages/Auth";
+import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Privacy from "./pages/Privacy";
@@ -55,6 +56,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/signup" element={<Signup />} />
         <Route
           path="/app"
           element={
