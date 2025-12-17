@@ -290,6 +290,56 @@ export function useTrips() {
     }
   };
 
+  const updateTrip = async (id: string, updates: Partial<Omit<Trip, 'id'>>) => {
+    const existingTrip = trips.find(t => t.id === id);
+    if (!existingTrip) return null;
+
+    const vehicle = vehicles.find(v => v.id === (updates.vehicleId || existingTrip.vehicleId));
+    if (!vehicle) return null;
+
+    // Recalculate IK if distance changed
+    let ikAmount = existingTrip.ikAmount;
+    if (updates.distance !== undefined && updates.distance !== existingTrip.distance) {
+      const totalAnnualKm = getTotalAnnualKm(vehicle.id) - existingTrip.distance + updates.distance;
+      ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
+                 calculateTotalAnnualIK(totalAnnualKm - updates.distance, vehicle.fiscalPower);
+    }
+
+    if (user) {
+      const { error } = await supabase
+        .from('trips')
+        .update({
+          vehicle_id: updates.vehicleId || existingTrip.vehicleId,
+          date: updates.startTime ? new Date(updates.startTime).toISOString().split('T')[0] : undefined,
+          start_location: updates.startLocation?.name,
+          end_location: updates.endLocation?.name,
+          distance: updates.distance,
+          purpose: updates.purpose || null,
+          ik_amount: ikAmount,
+        })
+        .eq('id', id);
+
+      if (!error) {
+        const updatedTrip: Trip = {
+          ...existingTrip,
+          ...updates,
+          ikAmount,
+        };
+        setTrips(prev => prev.map(t => t.id === id ? updatedTrip : t));
+        return updatedTrip;
+      }
+      return null;
+    } else {
+      const updatedTrip: Trip = {
+        ...existingTrip,
+        ...updates,
+        ikAmount,
+      };
+      saveTripsLocal(trips.map(t => t.id === id ? updatedTrip : t));
+      return updatedTrip;
+    }
+  };
+
   const addLocation = async (location: Omit<Location, 'id'>) => {
     if (user) {
       const { data } = await supabase
@@ -483,6 +533,7 @@ export function useTrips() {
     loading,
     getTotalAnnualKm,
     addTrip,
+    updateTrip,
     deleteTrip,
     addLocation,
     updateLocation,
