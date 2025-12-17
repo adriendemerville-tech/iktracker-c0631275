@@ -210,95 +210,169 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF({ orientation: 'landscape' });
-    const dateStr = new Date().toLocaleDateString('fr-FR', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    });
-    
-    // Main title with logo blue color (#2661D9 = RGB 38, 97, 217)
-    doc.setFontSize(24);
+    const doc = new jsPDF({ orientation: 'portrait' });
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 14;
+    const dateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const generatedDate = new Date().toLocaleDateString('fr-FR');
+
+    // === HEADER SECTION ===
+    // Blue line at top
+    doc.setFillColor(38, 97, 217);
+    doc.rect(0, 0, pageWidth, 4, 'F');
+
+    // Title
+    doc.setFontSize(22);
     doc.setTextColor(38, 97, 217);
     doc.setFont('helvetica', 'bold');
-    doc.text(`Relevé IKtracker au ${dateStr}`, 14, 20);
-    
-    // Summary line
-    doc.setFontSize(11);
-    doc.setTextColor(0);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 30);
+    doc.text('Relevé IKtracker', margin, 20);
 
-    // Sort chronologically
+    // Subtitle
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont('helvetica', 'normal');
+    doc.text(dateStr, margin, 28);
+
+    // Generated date (right aligned)
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Généré le ${generatedDate}`, pageWidth - margin, 20, { align: 'right' });
+    doc.text('Barème fiscal 2025', pageWidth - margin, 26, { align: 'right' });
+
+    // === VEHICLE INFO BOX ===
+    const vehicle = vehicles.length > 0 ? vehicles[0] : null;
+    if (vehicle) {
+      doc.setFillColor(248, 249, 250);
+      doc.roundedRect(margin, 35, pageWidth - 2 * margin, 22, 3, 3, 'F');
+      
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Véhicule', margin + 8, 42);
+      doc.text('Puissance fiscale', margin + 60, 42);
+      doc.text('Immatriculation', margin + 110, 42);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      doc.setFont('helvetica', 'bold');
+      const vehicleName = `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`;
+      doc.text(vehicleName, margin + 8, 50);
+      doc.text(`${vehicle.fiscalPower} CV`, margin + 60, 50);
+      doc.text(vehicle.licensePlate || '-', margin + 110, 50);
+      
+      if (vehicle.ownerFirstName || vehicle.ownerLastName) {
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Propriétaire', margin + 155, 42);
+        doc.setFontSize(10);
+        doc.setTextColor(30, 30, 30);
+        doc.text(`${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim(), margin + 155, 50);
+      }
+    }
+
+    // === TRIPS TABLE ===
     const sortedTrips = [...recalculatedTrips].sort(
       (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
-
-    // Create table data - all trips line by line
     const tableData = sortedTrips.map(t => {
-      const vehicle = getVehicle(t.vehicleId);
-      const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `${vehicle.fiscalPower} CV` : '-';
       return [
         new Date(t.startTime).toLocaleDateString('fr-FR'),
-        vehicleName,
-        t.startLocation.name,
-        t.endLocation.name,
+        `${t.startLocation.name} → ${t.endLocation.name}`,
         `${t.distance.toFixed(1)} km`,
-        t.purpose || '-',
         `${t.recalculatedIK.toFixed(2)} €`,
       ];
     });
 
-    // Main trips table
     autoTable(doc, {
-      startY: 38,
-      head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Distance', 'Motif', 'IK']],
+      startY: vehicle ? 62 : 38,
+      head: [['Date', 'Trajet', 'Distance', 'Indemnité']],
       body: tableData,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [38, 97, 217] },
-      alternateRowStyles: { fillColor: [245, 247, 250] },
-      foot: [['TOTAL', '', '', '', `${totalKm.toFixed(1)} km`, '', `${recalculatedTotalIK.toFixed(2)} €`]],
-      footStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold' },
+      styles: { 
+        fontSize: 9, 
+        cellPadding: 4,
+        lineColor: [230, 230, 230],
+        lineWidth: 0.1,
+      },
+      headStyles: { 
+        fillColor: [248, 249, 250],
+        textColor: [100, 100, 100],
+        fontStyle: 'bold',
+        fontSize: 8,
+      },
+      bodyStyles: {
+        textColor: [30, 30, 30],
+      },
+      alternateRowStyles: { 
+        fillColor: [255, 255, 255] 
+      },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 'auto' },
+        2: { cellWidth: 25, halign: 'right' },
+        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' },
+      },
     });
 
-    let finalY = (doc as any).lastAutoTable.finalY + 15;
+    let currentY = (doc as any).lastAutoTable.finalY + 10;
 
-    // Check if we need a new page for barème
-    if (finalY > 150) {
-      doc.addPage();
-      finalY = 20;
+    // === TOTALS BOX ===
+    const totalsBoxWidth = 70;
+    const totalsBoxX = pageWidth - margin - totalsBoxWidth;
+    
+    // Light blue background for totals
+    doc.setFillColor(239, 246, 255);
+    doc.roundedRect(totalsBoxX, currentY, totalsBoxWidth, 28, 3, 3, 'F');
+    
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Total du mois', totalsBoxX + totalsBoxWidth / 2, currentY + 8, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.setTextColor(38, 97, 217);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${totalKm.toFixed(0)} km • ${recalculatedTotalIK.toFixed(2)} €`, totalsBoxX + totalsBoxWidth / 2, currentY + 20, { align: 'center' });
+
+    currentY += 40;
+
+    // === BARÈME SECTION (if fits on page) ===
+    if (currentY < pageHeight - 80) {
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Barème kilométrique fiscal 2025', margin, currentY);
+      
+      const baremeData = IK_BAREME_2024.map(b => [
+        b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`,
+        `${b.upTo5000.rate} €/km`,
+        `${b.from5001To20000.rate} €/km + ${b.from5001To20000.fixed} €`,
+        `${b.over20000.rate} €/km`,
+      ]);
+
+      autoTable(doc, {
+        startY: currentY + 5,
+        head: [['Puissance', '≤ 5 000 km', '5 001 - 20 000 km', '> 20 000 km']],
+        body: baremeData,
+        styles: { fontSize: 8, cellPadding: 3 },
+        headStyles: { fillColor: [100, 116, 139], textColor: 255 },
+        alternateRowStyles: { fillColor: [248, 249, 250] },
+      });
     }
 
-    // Barème section
-    doc.setFontSize(11);
-    doc.setTextColor(0);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Barème kilométrique fiscal 2024', 14, finalY);
-    
-    const baremeData = IK_BAREME_2024.map(b => [
-      b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`,
-      `${b.upTo5000.rate} €/km`,
-      `${b.from5001To20000.rate} €/km + ${b.from5001To20000.fixed} €`,
-      `${b.over20000.rate} €/km`,
-    ]);
-
-    autoTable(doc, {
-      startY: finalY + 5,
-      head: [['Puissance', '≤ 5000 km', '5001-20000 km', '> 20000 km']],
-      body: baremeData,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [100, 116, 139] },
-    });
-
-    // Footer on all pages
+    // === FOOTER ON ALL PAGES ===
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      const pageHeight = doc.internal.pageSize.height;
+      
+      // Footer line
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
+      
+      // Footer text
       doc.setFontSize(8);
-      doc.setTextColor(100);
+      doc.setTextColor(150, 150, 150);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${IKTRACKER_URL} - Page ${i}/${pageCount}`, 14, pageHeight - 10);
+      doc.text('Document généré par IKtracker • iktracker.lovable.app • Conforme au barème fiscal 2025', pageWidth / 2, pageHeight - 12, { align: 'center' });
+      doc.text(`Page ${i}/${pageCount}`, pageWidth - margin, pageHeight - 12, { align: 'right' });
     }
 
     return doc.output('arraybuffer');
