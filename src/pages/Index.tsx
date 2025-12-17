@@ -238,10 +238,10 @@ const Index = () => {
 
   // Export functions
   const IKTRACKER_URL = 'https://iktracker.lovable.app';
-  const IKTRACKER_MENTION = `Généré conformément à la législation par IkTracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
+  const IKTRACKER_MENTION = `Généré conformément à la législation par IKtracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
 
   const generateReadmeContent = () => {
-    return `=== IkTracker ===
+    return `=== IKtracker ===
 
 Application gratuite de suivi des indemnités kilométriques.
 
@@ -388,7 +388,7 @@ ${IKTRACKER_MENTION}
     doc.setFontSize(24);
     doc.setTextColor(38, 97, 217);
     doc.setFont('helvetica', 'bold');
-    doc.text(`Relevé IkTracker au ${dateStr}`, 14, 20);
+    doc.text(`Relevé IKtracker au ${dateStr}`, 14, 20);
 
     doc.setFontSize(11);
     doc.setTextColor(0);
@@ -463,7 +463,7 @@ ${IKTRACKER_MENTION}
     try {
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
-      zip.file('LISEZ-MOI-IkTracker.txt', generateReadmeContent());
+      zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());
       zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
       zip.file(`releve-ik-${dateStr}.pdf`, generatePDF());
 
