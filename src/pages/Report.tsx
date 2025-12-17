@@ -55,8 +55,7 @@ export default function Report() {
     grouped.forEach((vehicleTrips, key) => {
       const vehicleId = key.split('-')[0];
       const vehicle = getVehicle(vehicleId);
-      if (!vehicle) return;
-
+      
       // Sort chronologically
       const sorted = [...vehicleTrips].sort(
         (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
@@ -67,6 +66,17 @@ export default function Report() {
       sorted.forEach(trip => {
         const prevCumulativeKm = cumulativeKm;
         cumulativeKm += trip.distance;
+
+        // If vehicle not found, use default values
+        if (!vehicle) {
+          result.push({
+            ...trip,
+            recalculatedIK: trip.ikAmount,
+            cumulativeKm,
+            appliedRate: 0,
+          });
+          return;
+        }
 
         // Calculate marginal IK for this trip
         const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
