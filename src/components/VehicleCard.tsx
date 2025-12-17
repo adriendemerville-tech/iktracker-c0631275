@@ -46,12 +46,6 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
             <Car className="w-4 h-4" />
           </div>
           <span className="font-semibold truncate">{vehicle.make} {vehicle.model}</span>
-          {vehicle.licensePlate && (
-            <span className="text-xs text-muted-foreground font-mono hidden sm:inline">{vehicle.licensePlate}</span>
-          )}
-          {(vehicle.ownerFirstName || vehicle.ownerLastName) && (
-            <span className="text-xs text-muted-foreground hidden sm:inline">• {vehicle.ownerFirstName} {vehicle.ownerLastName}</span>
-          )}
           <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium shrink-0">
             {vehicle.fiscalPower} CV
           </span>
