@@ -15,21 +15,46 @@ export const InstallBanner = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [platform, setPlatform] = useState<Platform>('other');
   const [isSupported, setIsSupported] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  // Check if running in standalone mode (installed PWA)
+  const checkStandaloneMode = (): boolean => {
+    // Check display-mode media query
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      return true;
+    }
+    // Check iOS standalone mode
+    if ((navigator as any).standalone === true) {
+      return true;
+    }
+    // Check if launched from home screen on Android
+    if (window.matchMedia('(display-mode: fullscreen)').matches) {
+      return true;
+    }
+    return false;
+  };
 
   useEffect(() => {
-    // Check if already dismissed today
-    const lastDismissed = localStorage.getItem('pwa-install-dismissed-date');
-    if (lastDismissed) {
-      const today = new Date().toDateString();
-      if (lastDismissed === today) {
-        setDismissed(true);
-        return;
-      }
+    // Check if running in standalone mode - don't show banner if already installed
+    if (checkStandaloneMode()) {
+      setIsStandalone(true);
+      return;
     }
 
-    // Check if already installed (standalone mode)
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      return;
+    // Check if dismissed within the last 7 days
+    const dismissedTimestamp = localStorage.getItem('pwa-install-dismissed-timestamp');
+    if (dismissedTimestamp) {
+      const dismissedDate = new Date(parseInt(dismissedTimestamp, 10));
+      const now = new Date();
+      const daysDiff = (now.getTime() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
+      
+      if (daysDiff < 7) {
+        setDismissed(true);
+        return;
+      } else {
+        // Clear old dismissal
+        localStorage.removeItem('pwa-install-dismissed-timestamp');
+      }
     }
 
     // Detect platform
@@ -45,21 +70,20 @@ export const InstallBanner = () => {
 
     if (isIOS) {
       detectedPlatform = 'ios';
-      supported = true; // iOS Safari always supports "Add to Home Screen"
+      supported = true;
     } else if (isMac && isSafari) {
       detectedPlatform = 'macos-safari';
-      supported = true; // macOS Safari supports "Add to Dock" (Sonoma+)
+      supported = true;
     } else if (isMac && isChrome) {
       detectedPlatform = 'macos-chrome';
-      supported = true; // Chrome supports PWA install
+      supported = true;
     } else if (isAndroid) {
       detectedPlatform = 'android';
-      supported = true; // Android Chrome supports PWA
+      supported = true;
     } else if (isChrome) {
       detectedPlatform = 'other';
-      supported = true; // Chrome on other platforms supports PWA
+      supported = true;
     }
-    // Firefox and other browsers without PWA support: supported stays false
 
     setPlatform(detectedPlatform);
     setIsSupported(supported);
@@ -67,10 +91,20 @@ export const InstallBanner = () => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setIsSupported(true); // If this event fires, definitely supported
+      setIsSupported(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Listen for display mode changes (user installs the app)
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    const handleDisplayModeChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setIsStandalone(true);
+        setShowBanner(false);
+      }
+    };
+    mediaQuery.addEventListener('change', handleDisplayModeChange);
 
     // Show banner after 3 seconds only if supported
     const timer = setTimeout(() => {
@@ -81,6 +115,7 @@ export const InstallBanner = () => {
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      mediaQuery.removeEventListener('change', handleDisplayModeChange);
       clearTimeout(timer);
     };
   }, []);
@@ -103,7 +138,8 @@ export const InstallBanner = () => {
     setShowBanner(false);
     setShowHelp(false);
     setDismissed(true);
-    localStorage.setItem('pwa-install-dismissed-date', new Date().toDateString());
+    // Store timestamp for 7-day dismissal
+    localStorage.setItem('pwa-install-dismissed-timestamp', Date.now().toString());
   };
 
   const renderHelpContent = () => {
@@ -188,7 +224,8 @@ export const InstallBanner = () => {
     }
   };
 
-  if (!showBanner || dismissed || !isSupported) {
+  // Don't show if: already in standalone mode, dismissed, not supported, or banner hidden
+  if (isStandalone || !showBanner || dismissed || !isSupported) {
     return null;
   }
 
