@@ -26,10 +26,11 @@ export function TourButton({ isActive, isLoading, distanceFromLastStop = 0, onCl
         "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg relative",
         "focus:outline-none focus:ring-4 focus:ring-offset-2",
         isActive
-          ? "bg-accent text-accent-foreground focus:ring-accent/50 animate-pulse"
+          ? "bg-accent text-accent-foreground focus:ring-accent/50"
           : "bg-gradient-primary text-primary-foreground focus:ring-primary/50 hover:scale-105",
         isLoading && "opacity-70 cursor-wait"
       )}
+      style={isActive ? { animation: 'gentle-glow 3s ease-in-out infinite' } : undefined}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
       <Truck className={cn("w-7 h-7", isLoading && "animate-bounce")} />
