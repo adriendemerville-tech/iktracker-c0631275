@@ -67,6 +67,7 @@
     --shadow-md: 0 4px 6px -1px hsl(220 25% 10% / 0.07), 0 2px 4px -2px hsl(220 25% 10% / 0.05);
     --shadow-lg: 0 10px 15px -3px hsl(220 25% 10% / 0.08), 0 4px 6px -4px hsl(220 25% 10% / 0.05);
     --shadow-xl: 0 20px 25px -5px hsl(220 25% 10% / 0.1), 0 8px 10px -6px hsl(220 25% 10% / 0.05);
+    --warning-blink: 30 100% 50%;
     --shadow-glow: 0 0 20px hsl(220 70% 50% / 0.3);
 
     /* Typography */
@@ -221,3 +222,15 @@
   font-weight: 600;
 }
 
+@keyframes blink-orange {
+  0%, 100% {
+    color: hsl(var(--foreground));
+  }
+  25%, 75% {
+    color: hsl(var(--warning-blink));
+  }
+}
+
+.animate-blink-orange {
+  animation: blink-orange 0.6s ease-in-out;
+}
