@@ -14,7 +14,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { requiresAuth, loading } = useAuth();
+  const { user, requiresAuth, loading } = useAuth();
 
   if (loading) {
     return (
@@ -24,7 +24,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (requiresAuth) {
+  // Redirect to auth if user is logged out OR if auth is required
+  if (!user && requiresAuth) {
     return <Navigate to="/auth" replace />;
   }
 
