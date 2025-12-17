@@ -156,6 +156,8 @@ const Index = () => {
           type: 'other',
         },
         distance: totalDistance,
+        baseDistance: totalDistance,
+        roundTrip: false,
         purpose: 'Tournée',
         startTime: firstStop.timestamp,
         endTime: lastStop.timestamp,

@@ -73,6 +73,8 @@ export function useTrips() {
           startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
           endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
           distance: t.distance,
+          baseDistance: t.round_trip ? t.distance / 2 : t.distance,
+          roundTrip: t.round_trip,
           purpose: t.purpose || '',
           startTime: new Date(t.date),
           endTime: new Date(t.date),
@@ -93,6 +95,8 @@ export function useTrips() {
       const parsed = JSON.parse(stored);
       setTrips(parsed.map((t: any) => ({
         ...t,
+        baseDistance: t.baseDistance || t.distance,
+        roundTrip: t.roundTrip || false,
         startTime: new Date(t.startTime),
         endTime: new Date(t.endTime),
       })));
@@ -248,7 +252,7 @@ export function useTrips() {
           end_location: trip.endLocation.name,
           distance: trip.distance,
           purpose: trip.purpose || null,
-          round_trip: false,
+          round_trip: trip.roundTrip,
           ik_amount: ikAmount,
         })
         .select()
@@ -261,6 +265,8 @@ export function useTrips() {
           startLocation: trip.startLocation,
           endLocation: trip.endLocation,
           distance: data.distance,
+          baseDistance: trip.baseDistance,
+          roundTrip: trip.roundTrip,
           purpose: data.purpose || '',
           startTime: new Date(data.date),
           endTime: new Date(data.date),
@@ -314,6 +320,7 @@ export function useTrips() {
           start_location: updates.startLocation?.name,
           end_location: updates.endLocation?.name,
           distance: updates.distance,
+          round_trip: updates.roundTrip,
           purpose: updates.purpose || null,
           ik_amount: ikAmount,
         })
