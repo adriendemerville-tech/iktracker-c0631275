@@ -96,9 +96,6 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Calendar Connections */}
-        <CalendarConnections />
-
         {/* Kilometers Chart */}
         <Card>
           <CardHeader>
@@ -127,6 +124,9 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Calendar Connections */}
+        <CalendarConnections />
 
         {/* Payment Info */}
         <Card>
