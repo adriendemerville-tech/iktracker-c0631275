@@ -32,6 +32,11 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Force requiresAuth when user signs out
+        if (event === 'SIGNED_OUT') {
+          setRequiresAuth(true);
+        }
       }
     );
 
