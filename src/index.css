@@ -146,7 +146,18 @@
   }
 }
 
-/* Custom scrollbar */
+/* Gentle glow animation for tour button */
+@keyframes gentle-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px hsl(var(--accent) / 0.3);
+  }
+  50% {
+    opacity: 0.85;
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.5);
+  }
+}
+
 ::-webkit-scrollbar {
   width: 4px;
 }
