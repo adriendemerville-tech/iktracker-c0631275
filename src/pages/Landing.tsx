@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   TrendingUp
 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface AnimatedSectionProps {
   children: React.ReactNode;
@@ -76,6 +77,30 @@ const Landing = () => {
     { cv: "5 CV", jusqu5000: "0,636 €", de5001a20000: "0,357 €", plus20000: "0,427 €" },
     { cv: "6 CV", jusqu5000: "0,665 €", de5001a20000: "0,374 €", plus20000: "0,447 €" },
     { cv: "7 CV et plus", jusqu5000: "0,697 €", de5001a20000: "0,394 €", plus20000: "0,470 €" },
+  ];
+
+  const testimonials = [
+    {
+      name: "Marie Dupont",
+      role: "Infirmière libérale",
+      initials: "MD",
+      quote: "Je passais 2h chaque dimanche à refaire mes trajets. Maintenant, tout est automatique ! Mon comptable est ravi.",
+      color: "bg-primary"
+    },
+    {
+      name: "Thomas Bernard",
+      role: "Artisan plombier",
+      initials: "TB",
+      quote: "La fonction tournée est parfaite pour mes journées avec 6-7 clients. Je ne perds plus un seul kilomètre.",
+      color: "bg-accent"
+    },
+    {
+      name: "Sophie Martin",
+      role: "Consultante RH",
+      initials: "SM",
+      quote: "L'export PDF est impeccable. Mon expert-comptable m'a félicitée pour la clarté de mes relevés !",
+      color: "bg-success"
+    }
   ];
 
   const heroAnimation = useScrollAnimation({ threshold: 0.1 });
@@ -292,6 +317,54 @@ const Landing = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                     <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <AnimatedSection className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              <CheckCircle2 className="h-4 w-4" />
+              Ils nous font confiance
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Ce que disent nos utilisateurs
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Des centaines d'indépendants ont déjà simplifié leur gestion kilométrique
+            </p>
+          </AnimatedSection>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <AnimatedSection key={index} delay={index * 150}>
+                <Card className="bg-card border-border h-full">
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <div className="flex-1">
+                      <svg className="h-8 w-8 text-primary/20 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                      </svg>
+                      <p className="text-foreground mb-6 leading-relaxed">
+                        "{testimonial.quote}"
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 pt-4 border-t border-border">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback className={`${testimonial.color} text-primary-foreground text-sm font-semibold`}>
+                          {testimonial.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold text-foreground">{testimonial.name}</p>
+                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </AnimatedSection>
