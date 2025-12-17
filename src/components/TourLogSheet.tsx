@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { TourStop } from '@/hooks/useTourTracker';
-import { MapPin, Clock, Truck, Play, Square, Trash2 } from 'lucide-react';
+import { MapPin, Clock, Truck, Play, Square, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TourLogSheetProps {
@@ -14,6 +14,9 @@ interface TourLogSheetProps {
   onStop: () => void;
   onClear: () => void;
   onConvertToTrips?: (stops: TourStop[]) => void;
+  hasHistory?: boolean;
+  onShowHistory?: () => void;
+  isHistory?: boolean;
 }
 
 export function TourLogSheet({
@@ -26,6 +29,9 @@ export function TourLogSheet({
   onStop,
   onClear,
   onConvertToTrips,
+  hasHistory,
+  onShowHistory,
+  isHistory,
 }: TourLogSheetProps) {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -44,7 +50,7 @@ export function TourLogSheet({
         <SheetHeader className="pb-4">
           <SheetTitle className="text-xl flex items-center gap-2">
             <Truck className="w-6 h-6 text-primary" />
-            Journal de tournée
+            {isHistory ? 'Dernière tournée' : 'Journal de tournée'}
           </SheetTitle>
         </SheetHeader>
 
@@ -168,20 +174,33 @@ export function TourLogSheet({
                   <Square className="w-3 h-3 mr-1" />
                   Arrêter
                 </Button>
-              ) : (
-                stops.length === 0 && (
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    onClick={onStart}
-                    disabled={isLoading}
-                    className="flex-1"
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    {isLoading ? 'Démarrage...' : 'Nouvelle tournée'}
-                  </Button>
-                )
-              )}
+              ) : !isHistory ? (
+                <div className="flex gap-3 w-full">
+                  {stops.length === 0 && (
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      onClick={onStart}
+                      disabled={isLoading}
+                      className="flex-1"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      {isLoading ? 'Démarrage...' : 'Nouvelle tournée'}
+                    </Button>
+                  )}
+                  {hasHistory && onShowHistory && (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={onShowHistory}
+                      className="flex items-center gap-2"
+                    >
+                      <History className="w-4 h-4" />
+                      Historique
+                    </Button>
+                  )}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
