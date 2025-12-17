@@ -152,9 +152,8 @@ export function TourLogSheet({
               {isActive ? (
                 <Button
                   variant="destructive"
-                  size="lg"
+                  size="sm"
                   onClick={onFinish}
-                  className="flex-1"
                 >
                   <Square className="w-4 h-4 mr-2" />
                   Terminer
