@@ -514,27 +514,33 @@ export function NewTripSheet({
                   value={manualDistance ? `${manualDistance} km` : ''}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-                    const enteredDistance = parseFloat(value) || 0;
+                    setManualDistance(value);
+                  }}
+                  onBlur={() => {
+                    const enteredDistance = parseFloat(manualDistance) || 0;
                     const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
                     const tolerance = 0.15;
                     
+                    console.log('Distance validation:', { enteredDistance, expectedDistance, calculatedDistance, roundTrip });
+                    
                     if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
-                      // Auto-correct to API distance and trigger blink
+                      console.log('Correcting distance to:', expectedDistance.toFixed(1));
                       setManualDistance(expectedDistance.toFixed(1));
                       setIsBlinking(true);
                       setTimeout(() => setIsBlinking(false), 600);
-                    } else {
-                      setManualDistance(value);
                     }
                   }}
-                  onAnimationEnd={() => setIsBlinking(false)}
                 />
-                {typeof draft.startLocation?.lat === 'number' &&
+                {calculatedDistance ? (
+                  <p className="text-xs text-accent">
+                    ✓ Distance API : {(roundTrip ? calculatedDistance * 2 : calculatedDistance).toFixed(1)} km {roundTrip ? '(A/R)' : '(aller simple)'}
+                  </p>
+                ) : typeof draft.startLocation?.lat === 'number' &&
                 typeof draft.startLocation?.lng === 'number' &&
                 typeof draft.endLocation?.lat === 'number' &&
                 typeof draft.endLocation?.lng === 'number' ? (
-                  <p className="text-xs text-accent">
-                    ✓ Distance calculée automatiquement (modifiable)
+                  <p className="text-xs text-muted-foreground">
+                    Calcul de la distance en cours...
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
