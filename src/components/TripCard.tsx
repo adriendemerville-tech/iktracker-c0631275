@@ -1,5 +1,5 @@
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, Clock, ArrowRight, Trash2, Car } from 'lucide-react';
+import { MapPin, Clock, ArrowRight, Trash2, Car, Pencil } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -8,6 +8,7 @@ interface TripCardProps {
   trip: Trip;
   vehicle?: Vehicle;
   onDelete?: (id: string) => void;
+  onEdit?: (trip: Trip) => void;
   showDelete?: boolean;
 }
 
@@ -24,7 +25,7 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
   return location.name;
 };
 
-export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCardProps) {
+export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }: TripCardProps) {
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -62,14 +63,14 @@ export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCa
           <span>•</span>
           <span>{formatTime(trip.startTime)}</span>
         </div>
-        {showDelete && onDelete && (
+        {onEdit && (
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-            onClick={() => onDelete(trip.id)}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+            onClick={() => onEdit(trip)}
           >
-            <Trash2 className="w-4 h-4" />
+            <Pencil className="w-4 h-4" />
           </Button>
         )}
       </div>
@@ -100,10 +101,22 @@ export function TripCard({ trip, vehicle, onDelete, showDelete = false }: TripCa
       <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{trip.purpose}</p>
 
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
-        <span className="counter-text text-lg font-semibold">{trip.distance.toFixed(1)} km</span>
-        <span className="counter-text text-lg font-bold text-accent">
-          +{trip.ikAmount.toFixed(2)} €
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="counter-text text-lg font-semibold">{trip.distance.toFixed(1)} km</span>
+          <span className="counter-text text-lg font-bold text-accent">
+            +{trip.ikAmount.toFixed(2)} €
+          </span>
+        </div>
+        {showDelete && onDelete && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            onClick={() => onDelete(trip.id)}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
