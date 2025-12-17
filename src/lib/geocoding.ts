@@ -89,19 +89,46 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
 export function extractCityFromAddress(address: string): string {
   if (!address) return '';
   
+  // Common country names to filter out
+  const countries = ['France', 'Belgium', 'Belgique', 'Switzerland', 'Suisse', 'Luxembourg', 'Germany', 'Allemagne', 'Spain', 'Espagne', 'Italy', 'Italie', 'Netherlands', 'Pays-Bas'];
+  
   // French address format: "street, postal_code city, country"
   // Try to match postal code (5 digits) followed by city name
   const postalCityMatch = address.match(/\b(\d{5})\s+([^,]+)/);
   if (postalCityMatch && postalCityMatch[2]) {
-    return postalCityMatch[2].trim();
+    const city = postalCityMatch[2].trim();
+    // Make sure it's not a country
+    if (!countries.some(c => c.toLowerCase() === city.toLowerCase())) {
+      return city;
+    }
   }
   
-  // If no postal code found, try to get the second part after comma
-  const parts = address.split(',');
-  if (parts.length >= 2) {
-    const cityPart = parts[1].trim();
-    // Remove postal code if present at the start
-    const cityWithoutPostal = cityPart.replace(/^\d{5}\s*/, '');
+  // Split by comma and look for the city part
+  const parts = address.split(',').map(p => p.trim());
+  
+  // Filter out country names and find city with postal code
+  for (const part of parts) {
+    // Check if this part contains a postal code (5 digits)
+    const cityWithPostal = part.match(/^\d{5}\s+(.+)$/);
+    if (cityWithPostal && cityWithPostal[1]) {
+      const city = cityWithPostal[1].trim();
+      if (!countries.some(c => c.toLowerCase() === city.toLowerCase())) {
+        return city;
+      }
+    }
+  }
+  
+  // Try to find any part that's not a country and not a street
+  for (let i = parts.length - 2; i >= 0; i--) {
+    const part = parts[i].trim();
+    // Skip if it's a country
+    if (countries.some(c => c.toLowerCase() === part.toLowerCase())) continue;
+    // Skip if it's just a postal code
+    if (/^\d{5}$/.test(part)) continue;
+    // Skip if it looks like a street (contains numbers at the start)
+    if (/^\d+\s/.test(part)) continue;
+    // Remove postal code if present
+    const cityWithoutPostal = part.replace(/^\d{5}\s*/, '').trim();
     if (cityWithoutPostal) {
       return cityWithoutPostal;
     }
