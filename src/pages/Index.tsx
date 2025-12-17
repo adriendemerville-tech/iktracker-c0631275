@@ -71,12 +71,31 @@ const Index = () => {
     }
   };
 
+  const handleStopTour = () => {
+    stopTour();
+    // Prompt to create trips if we have enough stops
+    if (tourStops.length >= 2) {
+      toast.info("Tournée terminée", {
+        description: "Cliquez sur 'Créer les trajets' pour enregistrer vos déplacements",
+        duration: 5000,
+      });
+    }
+  };
+
   const handleConvertToTrips = async (stops: TourStop[]) => {
-    if (stops.length < 2 || vehicles.length === 0) {
+    console.log('handleConvertToTrips called with stops:', stops);
+    console.log('vehicles:', vehicles);
+    
+    if (stops.length < 2) {
       toast.error("Impossible de créer les trajets", {
-        description: vehicles.length === 0 
-          ? "Ajoutez d'abord un véhicule" 
-          : "Il faut au moins 2 arrêts",
+        description: "Il faut au moins 2 arrêts pour créer un trajet",
+      });
+      return;
+    }
+    
+    if (vehicles.length === 0) {
+      toast.error("Impossible de créer les trajets", {
+        description: "Ajoutez d'abord un véhicule",
       });
       return;
     }
@@ -86,12 +105,16 @@ const Index = () => {
     });
 
     // Create trips between consecutive stops
-    const vehicleId = vehicles[0].id; // Use first vehicle by default
+    const vehicleId = vehicles[0].id;
+    console.log('Using vehicle:', vehicleId);
     let createdCount = 0;
+    let errorCount = 0;
 
     for (let i = 0; i < stops.length - 1; i++) {
       const start = stops[i];
       const end = stops[i + 1];
+
+      console.log(`Creating trip ${i + 1}: ${start.city || start.address} -> ${end.city || end.address}`);
 
       // Calculate driving distance
       let distance = 0;
@@ -102,16 +125,17 @@ const Index = () => {
           end.lat,
           end.lng
         );
+        console.log(`Distance calculated: ${distance} km`);
       } catch (e) {
         console.warn('Failed to calculate distance, using 0:', e);
       }
 
       try {
-        await addTrip({
+        const result = await addTrip({
           vehicleId,
           startLocation: {
             id: start.id,
-            name: start.city || 'Position',
+            name: start.city || start.address || 'Position',
             address: start.address,
             lat: start.lat,
             lng: start.lng,
@@ -119,7 +143,7 @@ const Index = () => {
           },
           endLocation: {
             id: end.id,
-            name: end.city || 'Position',
+            name: end.city || end.address || 'Position',
             address: end.address,
             lat: end.lat,
             lng: end.lng,
@@ -130,11 +154,20 @@ const Index = () => {
           startTime: start.timestamp,
           endTime: end.timestamp,
         });
-        createdCount++;
+        console.log('Trip created:', result);
+        if (result) {
+          createdCount++;
+        } else {
+          errorCount++;
+          console.error('addTrip returned null');
+        }
       } catch (e) {
+        errorCount++;
         console.error('Failed to create trip:', e);
       }
     }
+
+    console.log(`Created ${createdCount} trips, ${errorCount} errors`);
 
     if (createdCount > 0) {
       toast.success(`${createdCount} trajet${createdCount > 1 ? 's' : ''} créé${createdCount > 1 ? 's' : ''}`, {
@@ -142,6 +175,10 @@ const Index = () => {
       });
       clearTour();
       setShowTourLog(false);
+    } else {
+      toast.error("Erreur lors de la création des trajets", {
+        description: "Vérifiez la console pour plus de détails",
+      });
     }
   };
 
@@ -336,7 +373,7 @@ const Index = () => {
         isLoading={isTourLoading}
         stops={tourStops}
         onStart={startTour}
-        onStop={stopTour}
+        onStop={handleStopTour}
         onClear={clearTour}
         onConvertToTrips={handleConvertToTrips}
       />
