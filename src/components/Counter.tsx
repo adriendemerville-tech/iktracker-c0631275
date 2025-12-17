@@ -17,7 +17,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   return (
     <div className={cn(
       "flex flex-col items-center p-6 rounded-2xl transition-all duration-300",
-      variant === 'default' && "bg-card shadow-md",
+      variant === 'default' && "bg-card text-card-foreground shadow-md",
       variant === 'accent' && "bg-gradient-accent text-accent-foreground shadow-lg"
     )}>
       <span className="text-xs uppercase tracking-wider opacity-70 mb-2">{label}</span>
