@@ -456,9 +456,15 @@ const Profile = () => {
 
         {/* App Info */}
         <div className="text-center text-xs text-muted-foreground pt-4 space-y-2">
-          <Link to="/privacy" className="hover:underline hover:text-foreground transition-colors">
-            Politique de confidentialité
-          </Link>
+          <div className="flex items-center justify-center gap-2">
+            <Link to="/terms" className="hover:underline hover:text-foreground transition-colors">
+              CGU
+            </Link>
+            <span>•</span>
+            <Link to="/privacy" className="hover:underline hover:text-foreground transition-colors">
+              Confidentialité
+            </Link>
+          </div>
           <p>Ik Tracker v1.0</p>
           <p>© 2024 - Tous droits réservés</p>
         </div>
