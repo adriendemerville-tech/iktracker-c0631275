@@ -27,6 +27,8 @@ interface NewTripSheetProps {
     startLocation: Location;
     endLocation: Location;
     distance: number;
+    baseDistance: number;
+    roundTrip: boolean;
     purpose: string;
     startTime: Date;
     endTime: Date;
@@ -41,6 +43,8 @@ interface NewTripSheetProps {
     startLocation: Location;
     endLocation: Location;
     distance: number;
+    baseDistance: number;
+    roundTrip: boolean;
     purpose: string;
     startTime: Date;
     endTime: Date;
@@ -50,6 +54,8 @@ interface NewTripSheetProps {
     startLocation: Location;
     endLocation: Location;
     distance: number;
+    baseDistance: number;
+    roundTrip: boolean;
     purpose: string;
     startTime: Date;
     endTime: Date;
@@ -96,7 +102,8 @@ export function NewTripSheet({
         endTime: new Date(editTrip.endTime),
       });
       setPurpose(editTrip.purpose || '');
-      setManualDistance(editTrip.distance.toString());
+      setManualDistance(editTrip.baseDistance.toString());
+      setRoundTrip(editTrip.roundTrip);
       setTripDate(new Date(editTrip.startTime));
       setStep('details');
     }
@@ -239,6 +246,8 @@ export function NewTripSheet({
       startLocation: draft.startLocation,
       endLocation: draft.endLocation,
       distance,
+      baseDistance,
+      roundTrip,
       purpose,
       startTime: finalStartTime,
       endTime: finalEndTime,

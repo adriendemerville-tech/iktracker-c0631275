@@ -23,7 +23,9 @@ export interface Trip {
   vehicleId: string;
   startLocation: Location;
   endLocation: Location;
-  distance: number; // in km
+  distance: number; // in km (total distance, doubled if round trip)
+  baseDistance: number; // single-way distance
+  roundTrip: boolean;
   purpose: string;
   startTime: Date;
   endTime: Date;
