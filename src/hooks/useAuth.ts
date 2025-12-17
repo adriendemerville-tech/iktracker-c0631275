@@ -61,10 +61,15 @@ export const useAuth = () => {
     setSession(null);
     setRequiresAuth(true);
 
+    // Force clear Supabase session from localStorage regardless of server response
+    // This fixes the issue where server returns 403 "session_not_found" but client keeps old session
+    const storageKey = `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID}-auth-token`;
+    localStorage.removeItem(storageKey);
+
     // Best-effort server sign-out (token revoke). Don't block UI indefinitely.
     try {
       const { error } = await Promise.race([
-        supabase.auth.signOut(),
+        supabase.auth.signOut({ scope: 'local' }), // Use 'local' scope to avoid server errors
         new Promise<{ error: Error }>((_, reject) =>
           setTimeout(() => reject(new Error('signOut_timeout')), 4000)
         ),
