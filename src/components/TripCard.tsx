@@ -1,5 +1,5 @@
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, Trash2, Car, Pencil, Calendar } from 'lucide-react';
+import { MapPin, ArrowRight, Trash2, Car, Pencil, Calendar, Truck } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -43,9 +43,17 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
 
   const startCityName = getDisplayName(trip.startLocation);
   const endCityName = getDisplayName(trip.endLocation);
+  const isTour = trip.purpose === 'Tournée';
 
   return (
-    <div className="bg-card rounded-xl p-3 shadow-sm border border-border/50 animate-fade-in">
+    <div className="bg-card rounded-xl p-3 shadow-sm border border-border/50 animate-fade-in relative">
+      {/* Tour icon badge */}
+      {isTour && (
+        <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-sm border border-border/50 flex items-center justify-center">
+          <Truck className="w-3.5 h-3.5 text-muted-foreground" />
+        </div>
+      )}
+
       {/* Ligne 1: Date | Départ → Arrivée | Bouton edit */}
       <div className="flex items-center gap-3 mb-2">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
