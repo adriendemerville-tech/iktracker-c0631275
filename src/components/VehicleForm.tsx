@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Vehicle } from '@/types/trip';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -19,15 +19,29 @@ interface VehicleFormProps {
 const COMMON_MAKES = ['Renault', 'Peugeot', 'Citroën', 'Volkswagen', 'BMW', 'Mercedes', 'Audi', 'Toyota', 'Ford', 'Fiat', 'Opel', 'Nissan', 'Hyundai', 'Kia', 'Dacia', 'Skoda', 'Seat'];
 
 export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: VehicleFormProps) {
-  const [firstName, setFirstName] = useState(editVehicle?.ownerFirstName || '');
-  const [lastName, setLastName] = useState(editVehicle?.ownerLastName || '');
-  const [licensePlate, setLicensePlate] = useState(editVehicle?.licensePlate || '');
-  const [make, setMake] = useState(editVehicle?.make || '');
-  const [model, setModel] = useState(editVehicle?.model || '');
-  const [fiscalPower, setFiscalPower] = useState(editVehicle?.fiscalPower?.toString() || '');
-  const [year, setYear] = useState(editVehicle?.year?.toString() || '');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [licensePlate, setLicensePlate] = useState('');
+  const [make, setMake] = useState('');
+  const [model, setModel] = useState('');
+  const [fiscalPower, setFiscalPower] = useState('');
+  const [year, setYear] = useState('');
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
+
+  // Sync form state when editVehicle changes or sheet opens
+  useEffect(() => {
+    if (open) {
+      setFirstName(editVehicle?.ownerFirstName || '');
+      setLastName(editVehicle?.ownerLastName || '');
+      setLicensePlate(editVehicle?.licensePlate || '');
+      setMake(editVehicle?.make || '');
+      setModel(editVehicle?.model || '');
+      setFiscalPower(editVehicle?.fiscalPower?.toString() || '');
+      setYear(editVehicle?.year?.toString() || '');
+      setLookupDone(false);
+    }
+  }, [open, editVehicle]);
 
   const formatLicensePlate = (value: string) => {
     // French format: AA-123-BB
@@ -96,15 +110,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       year: year ? parseInt(year) : undefined,
     });
 
-    // Reset form
-    setFirstName('');
-    setLastName('');
-    setLicensePlate('');
-    setMake('');
-    setModel('');
-    setFiscalPower('');
-    setYear('');
-    setLookupDone(false);
     onOpenChange(false);
   };
 
