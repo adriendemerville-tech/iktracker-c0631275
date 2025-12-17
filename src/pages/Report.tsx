@@ -352,7 +352,7 @@ ${IKTRACKER_MENTION}
     <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
-          <Link to="/">
+          <Link to="/app">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -446,7 +446,7 @@ ${IKTRACKER_MENTION}
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
-          <Link to="/">
+          <Link to="/app">
             <Button variant="secondary" size="lg" className="w-full">
               <Home className="w-5 h-5" />
               Accueil

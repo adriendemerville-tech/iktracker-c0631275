@@ -39,7 +39,7 @@ const Auth = () => {
           setShowOAuthSuccess(true);
           setCheckingAuth(false);
         } else {
-          navigate('/', { replace: true });
+        navigate('/app', { replace: true });
         }
       } else {
         setCheckingAuth(false);
@@ -56,7 +56,7 @@ const Auth = () => {
           setCheckingAuth(false);
         } else {
           toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
-          navigate('/', { replace: true });
+          navigate('/app', { replace: true });
         }
       }
     });
@@ -115,18 +115,18 @@ const Auth = () => {
         });
         if (error) throw error;
         toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
-        navigate('/');
+        navigate('/app');
       } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/app`,
           },
         });
         if (error) throw error;
         toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
-        navigate('/');
+        navigate('/app');
       } else if (mode === 'forgot-password') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth`,
@@ -223,7 +223,7 @@ const Auth = () => {
             <Button 
               className="w-full" 
               size="lg"
-              onClick={() => navigate('/', { replace: true })}
+              onClick={() => navigate('/app', { replace: true })}
             >
               Continuer sur l'app
             </Button>
