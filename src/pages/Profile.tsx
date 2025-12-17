@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
@@ -455,9 +455,12 @@ const Profile = () => {
         )}
 
         {/* App Info */}
-        <div className="text-center text-xs text-muted-foreground pt-4">
+        <div className="text-center text-xs text-muted-foreground pt-4 space-y-2">
+          <Link to="/privacy" className="hover:underline hover:text-foreground transition-colors">
+            Politique de confidentialité
+          </Link>
           <p>Ik Tracker v1.0</p>
-          <p className="mt-1">© 2024 - Tous droits réservés</p>
+          <p>© 2024 - Tous droits réservés</p>
         </div>
       </main>
     </div>
