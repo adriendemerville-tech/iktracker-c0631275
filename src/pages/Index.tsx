@@ -11,6 +11,7 @@ import { VehicleForm } from '@/components/VehicleForm';
 import { TourButton } from '@/components/TourButton';
 import { TourLogSheet } from '@/components/TourLogSheet';
 import { Button } from '@/components/ui/button';
+import { InstallBanner } from '@/components/InstallBanner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -267,6 +268,9 @@ const Index = () => {
             </div>
           )}
         </section>
+
+        {/* PWA Install Banner */}
+        <InstallBanner />
 
         {/* Recent trips */}
         <section>
