@@ -83,17 +83,25 @@ export function CalendarConnections() {
         redirect_url: window.location.href,
       }));
 
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${state}`;
+      console.log('Google OAuth - Calling:', apiUrl);
+
       // Get auth URL from edge function
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${state}`,
-        { method: 'GET' }
-      );
+      const response = await fetch(apiUrl, { method: 'GET' });
+      console.log('Google OAuth - Response status:', response.status);
 
       if (!response.ok) {
-        throw new Error('Failed to get auth URL');
+        const errorText = await response.text();
+        console.error('Google OAuth - Error response:', errorText);
+        throw new Error(`Failed to get auth URL: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('Google OAuth - Got URL:', result.url ? 'yes' : 'no');
+      
+      if (!result.url) {
+        throw new Error('No URL in response');
+      }
       
       // Open OAuth popup
       const width = 600;
@@ -108,7 +116,7 @@ export function CalendarConnections() {
       );
     } catch (error) {
       console.error('Error initiating Google OAuth:', error);
-      toast.error('Erreur lors de la connexion');
+      toast.error('Erreur lors de la connexion Google');
       setConnectingGoogle(false);
     }
   };
