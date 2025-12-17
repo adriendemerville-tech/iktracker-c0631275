@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
 import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
+import { useFeedback } from '@/hooks/useFeedback';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 import { Counter } from '@/components/Counter';
@@ -13,6 +14,7 @@ import { VehicleForm } from '@/components/VehicleForm';
 import { TourButton } from '@/components/TourButton';
 import { TourLogSheet } from '@/components/TourLogSheet';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { InstallBanner } from '@/components/InstallBanner';
 import {
   AlertDialog,
@@ -32,6 +34,7 @@ import JSZip from 'jszip';
 const Index = () => {
   const navigate = useNavigate();
   const { preferences } = usePreferences();
+  const { unreadResponsesCount } = useFeedback();
   const { 
     trips, 
     savedLocations, 
@@ -485,14 +488,24 @@ ${IKTRACKER_MENTION}
             >
               <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => navigate('/profile')}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 w-10 h-10"
-            >
-              <UserCircle className="w-20 h-20" />
-            </Button>
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/profile')}
+                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 w-10 h-10"
+              >
+                <UserCircle className="w-20 h-20" />
+              </Button>
+              {unreadResponsesCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
+                >
+                  {unreadResponsesCount}
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Counters */}

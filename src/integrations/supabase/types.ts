@@ -86,6 +86,9 @@ export type Database = {
           id: string
           image_url: string | null
           message: string
+          read_by_user: boolean | null
+          responded_at: string | null
+          response: string | null
           user_id: string
         }
         Insert: {
@@ -93,6 +96,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           message: string
+          read_by_user?: boolean | null
+          responded_at?: string | null
+          response?: string | null
           user_id: string
         }
         Update: {
@@ -100,6 +106,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           message?: string
+          read_by_user?: boolean | null
+          responded_at?: string | null
+          response?: string | null
           user_id?: string
         }
         Relationships: []
