@@ -21,7 +21,11 @@ import { fr } from 'date-fns/locale';
 
 const MAX_CHARS = 700;
 
-export const FeedbackForm = () => {
+interface FeedbackFormProps {
+  hasNotification?: boolean;
+}
+
+export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [image, setImage] = useState<File | null>(null);
@@ -154,12 +158,12 @@ export const FeedbackForm = () => {
             <MessageSquareHeart className="w-4 h-4 mr-2" />
             Votre avis compte
           </Button>
-          {unreadResponsesCount > 0 && (
+          {(unreadResponsesCount > 0 || hasNotification) && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
+              className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full animate-pulse"
             >
-              {unreadResponsesCount}
+              {unreadResponsesCount || '!'}
             </Badge>
           )}
         </div>
