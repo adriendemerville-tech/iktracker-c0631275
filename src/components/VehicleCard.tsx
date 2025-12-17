@@ -31,30 +31,39 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
     <div
       onClick={onSelect}
       className={cn(
-        "relative p-4 rounded-xl border-2 transition-all cursor-pointer",
+        "relative px-3 py-2 rounded-lg border-2 transition-all cursor-pointer",
         selected
           ? "border-primary bg-primary/5 shadow-md"
           : "border-border bg-card hover:border-primary/50"
       )}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <div className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center",
+            "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
             selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
           )}>
-            <Car className="w-5 h-5" />
+            <Car className="w-4 h-4" />
           </div>
-          <div>
-            <p className="font-semibold">{vehicle.make} {vehicle.model}</p>
-            <p className="text-sm text-muted-foreground font-mono">{vehicle.licensePlate}</p>
-          </div>
+          <span className="font-semibold truncate">{vehicle.make} {vehicle.model}</span>
+          {vehicle.licensePlate && (
+            <span className="text-xs text-muted-foreground font-mono hidden sm:inline">{vehicle.licensePlate}</span>
+          )}
+          {(vehicle.ownerFirstName || vehicle.ownerLastName) && (
+            <span className="text-xs text-muted-foreground hidden sm:inline">• {vehicle.ownerFirstName} {vehicle.ownerLastName}</span>
+          )}
+          <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium shrink-0">
+            {vehicle.fiscalPower} CV
+          </span>
+          <span className="text-muted-foreground text-xs shrink-0">
+            {getCurrentRate().toFixed(3)} €/km
+          </span>
         </div>
         
         {(onEdit || onDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -77,20 +86,6 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between text-sm">
-        <div>
-          <span className="font-medium">{vehicle.ownerFirstName} {vehicle.ownerLastName}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">
-            {vehicle.fiscalPower} CV
-          </span>
-          <span className="text-muted-foreground text-xs">
-            {getCurrentRate().toFixed(3)} €/km
-          </span>
-        </div>
       </div>
     </div>
   );
