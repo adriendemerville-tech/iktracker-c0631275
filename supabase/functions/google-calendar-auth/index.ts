@@ -1,0 +1,152 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID');
+const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const url = new URL(req.url);
+    const action = url.searchParams.get('action');
+
+    console.log('Google Calendar Auth - Action:', action);
+
+    // Generate OAuth URL
+    if (action === 'authorize') {
+      const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
+      const state = url.searchParams.get('state') || '';
+      
+      const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+      authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID!);
+      authUrl.searchParams.set('redirect_uri', redirectUri);
+      authUrl.searchParams.set('response_type', 'code');
+      authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events.readonly');
+      authUrl.searchParams.set('access_type', 'offline');
+      authUrl.searchParams.set('prompt', 'consent');
+      authUrl.searchParams.set('state', state);
+
+      console.log('Generated auth URL, redirecting...');
+
+      return new Response(JSON.stringify({ url: authUrl.toString() }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Handle OAuth callback
+    if (action === 'callback') {
+      const code = url.searchParams.get('code');
+      const state = url.searchParams.get('state');
+      const error = url.searchParams.get('error');
+
+      if (error) {
+        console.error('OAuth error:', error);
+        return new Response(`<html><body><script>window.opener.postMessage({type:'google-auth-error',error:'${error}'},'*');window.close();</script></body></html>`, {
+          headers: { 'Content-Type': 'text/html' },
+        });
+      }
+
+      if (!code || !state) {
+        return new Response('Missing code or state', { status: 400 });
+      }
+
+      // Parse state (contains user_id and redirect_url)
+      let stateData;
+      try {
+        stateData = JSON.parse(atob(state));
+      } catch {
+        return new Response('Invalid state', { status: 400 });
+      }
+
+      const { user_id, redirect_url } = stateData;
+      console.log('Callback received for user:', user_id);
+
+      // Exchange code for tokens
+      const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: GOOGLE_CLIENT_ID!,
+          client_secret: GOOGLE_CLIENT_SECRET!,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        }),
+      });
+
+      const tokens = await tokenResponse.json();
+      console.log('Token exchange response status:', tokenResponse.status);
+
+      if (!tokenResponse.ok) {
+        console.error('Token exchange failed:', tokens);
+        return new Response(`<html><body><script>window.opener.postMessage({type:'google-auth-error',error:'Token exchange failed'},'*');window.close();</script></body></html>`, {
+          headers: { 'Content-Type': 'text/html' },
+        });
+      }
+
+      // Save tokens to database
+      const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+
+      // Check if connection exists
+      const { data: existing } = await supabase
+        .from('calendar_connections')
+        .select('id')
+        .eq('user_id', user_id)
+        .eq('provider', 'google')
+        .single();
+
+      const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
+
+      if (existing) {
+        await supabase
+          .from('calendar_connections')
+          .update({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token || null,
+            token_expires_at: expiresAt,
+            is_active: true,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id);
+      } else {
+        await supabase
+          .from('calendar_connections')
+          .insert({
+            user_id,
+            provider: 'google',
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token || null,
+            token_expires_at: expiresAt,
+            is_active: true,
+          });
+      }
+
+      console.log('Calendar connection saved successfully');
+
+      // Redirect back to app
+      return new Response(`<html><body><script>window.opener.postMessage({type:'google-auth-success'},'*');window.close();</script></body></html>`, {
+        headers: { 'Content-Type': 'text/html' },
+      });
+    }
+
+    return new Response('Invalid action', { status: 400 });
+  } catch (error) {
+    console.error('Error in google-calendar-auth:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});

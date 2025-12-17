@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,8 +7,9 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar, Link2, Trash2, ExternalLink, Loader2 } from 'lucide-react';
 import { useCalendarConnections } from '@/hooks/useCalendarConnections';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
 // Google Calendar icon
 const GoogleCalendarIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -31,22 +32,86 @@ const OutlookIcon = () => (
 );
 
 export function CalendarConnections() {
-  const { connections, loading, addIcsConnection, removeConnection, toggleConnection, getConnection } = useCalendarConnections();
+  const { connections, loading, addIcsConnection, removeConnection, toggleConnection, getConnection, refetch } = useCalendarConnections();
+  const { user } = useAuth();
   const [icsUrl, setIcsUrl] = useState('');
   const [icsDialogOpen, setIcsDialogOpen] = useState(false);
   const [addingIcs, setAddingIcs] = useState(false);
+  const [connectingGoogle, setConnectingGoogle] = useState(false);
 
   const googleConnection = getConnection('google');
   const outlookConnection = getConnection('outlook');
   const icsConnection = getConnection('ics');
 
-  const handleGoogleConnect = () => {
-    // TODO: Implement OAuth flow
-    toast.info('Intégration Google Calendar bientôt disponible');
+  // Listen for OAuth callback messages
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'google-auth-success') {
+        toast.success('Google Calendar connecté');
+        setConnectingGoogle(false);
+        refetch();
+      } else if (event.data.type === 'google-auth-error') {
+        toast.error(`Erreur de connexion: ${event.data.error}`);
+        setConnectingGoogle(false);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [refetch]);
+
+  const handleGoogleConnect = async () => {
+    if (!user) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setConnectingGoogle(true);
+
+    try {
+      // Create state with user info
+      const state = btoa(JSON.stringify({
+        user_id: user.id,
+        redirect_url: window.location.href,
+      }));
+
+      // Get auth URL from edge function
+      const { data, error } = await supabase.functions.invoke('google-calendar-auth', {
+        body: {},
+        headers: {},
+      });
+
+      // Call with action=authorize
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${state}`,
+        { method: 'GET' }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get auth URL');
+      }
+
+      const result = await response.json();
+      
+      // Open OAuth popup
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      
+      window.open(
+        result.url,
+        'google-oauth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+    } catch (error) {
+      console.error('Error initiating Google OAuth:', error);
+      toast.error('Erreur lors de la connexion');
+      setConnectingGoogle(false);
+    }
   };
 
   const handleOutlookConnect = () => {
-    // TODO: Implement OAuth flow
     toast.info('Intégration Outlook bientôt disponible');
   };
 
@@ -125,8 +190,8 @@ export function CalendarConnections() {
               </Button>
             </div>
           ) : (
-            <Button variant="outline" size="sm" onClick={handleGoogleConnect}>
-              Connecter
+            <Button variant="outline" size="sm" onClick={handleGoogleConnect} disabled={connectingGoogle}>
+              {connectingGoogle ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connecter'}
             </Button>
           )}
         </div>
