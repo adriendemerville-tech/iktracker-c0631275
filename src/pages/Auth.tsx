@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Car, Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Car, Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle } from 'lucide-react';
 
 type AuthMode = 'login' | 'signup' | 'forgot-password' | 'reset-password';
+
+// Deployed domain - OAuth redirects here
+const DEPLOYED_DOMAIN = 'iktracker.lovable.app';
 
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('login');
@@ -18,15 +21,26 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showOAuthSuccess, setShowOAuthSuccess] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const isOnDeployedDomain = window.location.hostname === DEPLOYED_DOMAIN;
 
   // Check if user is already logged in and redirect to home
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate('/', { replace: true });
+        // If we're on deployed domain and there's a hash (OAuth callback), show success screen
+        const hasOAuthCallback = window.location.hash.includes('access_token') || 
+                                  window.location.hash.includes('refresh_token');
+        if (isOnDeployedDomain && hasOAuthCallback) {
+          setShowOAuthSuccess(true);
+          setCheckingAuth(false);
+        } else {
+          navigate('/', { replace: true });
+        }
       } else {
         setCheckingAuth(false);
       }
@@ -36,13 +50,19 @@ const Auth = () => {
     // Listen for auth state changes (e.g., after OAuth callback)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
-        navigate('/', { replace: true });
+        // If on deployed domain, show success screen instead of immediate redirect
+        if (isOnDeployedDomain) {
+          setShowOAuthSuccess(true);
+          setCheckingAuth(false);
+        } else {
+          toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
+          navigate('/', { replace: true });
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, isOnDeployedDomain]);
 
   // Check if we're in password reset mode (user clicked email link)
   useEffect(() => {
@@ -165,6 +185,39 @@ const Auth = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show OAuth success screen on deployed domain
+  if (showOAuthSuccess) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-green-500/10 rounded-full">
+                <CheckCircle className="w-8 h-8 text-green-500" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Connexion réussie !</CardTitle>
+            <CardDescription>
+              Vous êtes maintenant connecté à IK Tracker
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              className="w-full" 
+              size="lg"
+              onClick={() => navigate('/', { replace: true })}
+            >
+              Continuer sur l'app
+            </Button>
+            <p className="text-xs text-center text-muted-foreground">
+              Vous avez été redirigé sur {window.location.hostname}
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
