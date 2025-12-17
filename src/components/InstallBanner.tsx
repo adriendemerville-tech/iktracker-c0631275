@@ -6,12 +6,14 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+type Platform = 'ios' | 'macos-safari' | 'macos-chrome' | 'android' | 'other';
+
 export const InstallBanner = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [showIOSHelp, setShowIOSHelp] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [platform, setPlatform] = useState<Platform>('other');
 
   useEffect(() => {
     // Check if already dismissed today
@@ -29,8 +31,24 @@ export const InstallBanner = () => {
       return;
     }
 
-    const iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    setIsIOS(iosDevice);
+    // Detect platform
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isMac = /Macintosh/.test(ua);
+    const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
+    const isChrome = /Chrome/.test(ua);
+    
+    if (isIOS) {
+      setPlatform('ios');
+    } else if (isMac && isSafari) {
+      setPlatform('macos-safari');
+    } else if (isMac && isChrome) {
+      setPlatform('macos-chrome');
+    } else if (/Android/.test(ua)) {
+      setPlatform('android');
+    } else {
+      setPlatform('other');
+    }
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -58,16 +76,77 @@ export const InstallBanner = () => {
         setShowBanner(false);
       }
       setDeferredPrompt(null);
-    } else if (isIOS) {
-      setShowIOSHelp(true);
+    } else {
+      // Show platform-specific help
+      setShowHelp(true);
     }
   };
 
   const handleDismiss = () => {
     setShowBanner(false);
-    setShowIOSHelp(false);
+    setShowHelp(false);
     setDismissed(true);
     localStorage.setItem('pwa-install-dismissed-date', new Date().toDateString());
+  };
+
+  const renderHelpContent = () => {
+    switch (platform) {
+      case 'ios':
+        return (
+          <>
+            <p className="text-sm text-foreground mb-2">
+              <span className="font-semibold">Pour installer IkTracker :</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Cliquez sur l'icône de partage{' '}
+              <span className="inline-block w-5 h-5 align-middle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+              </span>{' '}
+              puis sur <strong>"Sur l'écran d'accueil"</strong>
+            </p>
+          </>
+        );
+      case 'macos-safari':
+        return (
+          <>
+            <p className="text-sm text-foreground mb-2">
+              <span className="font-semibold">Pour ajouter IkTracker au Dock :</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Dans Safari, cliquez sur <strong>Fichier</strong> → <strong>"Ajouter au Dock"</strong>
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              (macOS Sonoma ou ultérieur requis)
+            </p>
+          </>
+        );
+      case 'macos-chrome':
+        return (
+          <>
+            <p className="text-sm text-foreground mb-2">
+              <span className="font-semibold">Pour installer IkTracker :</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Cliquez sur l'icône <strong>⊕</strong> dans la barre d'adresse, ou allez dans le menu <strong>⋮</strong> → <strong>"Installer IkTracker"</strong>
+            </p>
+          </>
+        );
+      default:
+        return (
+          <>
+            <p className="text-sm text-foreground mb-2">
+              <span className="font-semibold">Pour installer IkTracker :</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Cherchez l'icône d'installation dans la barre d'adresse de votre navigateur, ou dans le menu du navigateur.
+            </p>
+          </>
+        );
+    }
   };
 
   if (!showBanner || dismissed) {
@@ -86,24 +165,11 @@ export const InstallBanner = () => {
           <X className="w-4 h-4" />
         </button>
 
-        {showIOSHelp ? (
+        {showHelp ? (
           <div className="flex flex-col items-center text-center py-2 px-4">
-            <p className="text-sm text-foreground mb-2">
-              <span className="font-semibold">Pour installer IkTracker :</span>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Cliquez sur l'icône de partage{' '}
-              <span className="inline-block w-5 h-5 align-middle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                  <polyline points="16 6 12 2 8 6" />
-                  <line x1="12" y1="2" x2="12" y2="15" />
-                </svg>
-              </span>{' '}
-              puis sur <strong>"Sur l'écran d'accueil"</strong>
-            </p>
+            {renderHelpContent()}
             <button
-              onClick={() => setShowIOSHelp(false)}
+              onClick={() => setShowHelp(false)}
               className="mt-3 text-sm text-[#2661D9] font-medium"
             >
               Compris
