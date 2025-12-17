@@ -5,6 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useFeedback } from '@/hooks/useFeedback';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -44,6 +45,7 @@ const Profile = () => {
   const { trips, vehicles, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { preferences, updatePreference } = usePreferences();
   const { isAdmin } = useAdmin();
+  const { unreadResponsesCount } = useFeedback();
   
   const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -173,6 +175,9 @@ const Profile = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Feedback Button - Shown at top when there are unread responses */}
+        {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
 
         {/* Kilometers Chart */}
         <Card>
@@ -413,8 +418,8 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Feedback Button */}
-        {user && <FeedbackForm />}
+        {/* Feedback Button - Normal position when no unread responses */}
+        {user && unreadResponsesCount === 0 && <FeedbackForm />}
 
         {/* Admin Access */}
         {isAdmin && (
