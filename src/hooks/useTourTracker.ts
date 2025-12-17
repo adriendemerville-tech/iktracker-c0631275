@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { reverseGeocode } from '@/lib/geocoding';
+import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 
 export interface TourStop {
   id: string;
@@ -12,14 +13,24 @@ export interface TourStop {
 }
 
 interface UseTourTrackerOptions {
-  distanceThreshold?: number; // meters - minimum distance to create a new step
+  stopDurationThreshold?: number; // seconds - minimum time at same location to create a stop
+  locationRadius?: number; // meters - radius to consider as "same location"
   trackingInterval?: number; // ms - how often to check position
+}
+
+interface PendingStop {
+  lat: number;
+  lng: number;
+  arrivalTime: Date;
+  address?: string;
+  city?: string;
 }
 
 export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const {
-    distanceThreshold = 1000, // 1 km - create a step when moved 1km
-    trackingInterval = 10000, // 10 seconds
+    stopDurationThreshold = 7 * 60, // 7 minutes in seconds
+    locationRadius = 100, // 100 meters - considered same location
+    trackingInterval = 30000, // 30 seconds
   } = options;
 
   const [isActive, setIsActive] = useState(false);
@@ -28,13 +39,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
-  const [distanceFromLastStop, setDistanceFromLastStop] = useState<number>(0); // in meters
+  const [totalDistanceKm, setTotalDistanceKm] = useState<number>(0); // Total accumulated distance (only increases)
 
   const watchIdRef = useRef<number | null>(null);
-  const lastStopPositionRef = useRef<{ lat: number; lng: number } | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingStopRef = useRef<PendingStop | null>(null);
+  const lastPositionRef = useRef<{ lat: number; lng: number } | null>(null);
+  const maxDistanceReachedRef = useRef<number>(0); // Track max distance to ensure it only increases
 
-  // Calculate distance between two points (Haversine formula)
+  // Calculate distance between two points (Haversine formula) - for determining if in same location
   const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
     const R = 6371e3; // Earth radius in meters
     const φ1 = (lat1 * Math.PI) / 180;
@@ -58,13 +71,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       return false;
     }
 
-    // Check permission API if available (modern browsers)
     if (navigator.permissions && navigator.permissions.query) {
       try {
         const result = await navigator.permissions.query({ name: 'geolocation' });
         setPermissionStatus(result.state as 'granted' | 'denied' | 'prompt');
         
-        // Listen for permission changes
         result.addEventListener('change', () => {
           setPermissionStatus(result.state as 'granted' | 'denied' | 'prompt');
         });
@@ -75,42 +86,48 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       }
     }
     
-    return true; // Will try geolocation directly
+    return true;
   }, []);
 
-  // Add a new stop
-  const addStop = useCallback(async (lat: number, lng: number) => {
+  // Add a confirmed stop
+  const addStop = useCallback(async (lat: number, lng: number, arrivalTime: Date, address?: string, city?: string) => {
     const newStop: TourStop = {
       id: crypto.randomUUID(),
-      timestamp: new Date(),
+      timestamp: arrivalTime,
       lat,
       lng,
+      address,
+      city,
     };
 
-    // Get address info
-    try {
-      const geocodeResult = await reverseGeocode(lat, lng);
-      if (geocodeResult) {
-        newStop.address = geocodeResult.fullAddress;
-        newStop.city = geocodeResult.city;
-      }
-    } catch (e) {
-      console.warn('Failed to geocode stop:', e);
-    }
-
-    console.log(`New stop added: ${newStop.city || newStop.address || 'Unknown'} (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    console.log(`New stop added: ${city || address || 'Unknown'} (${lat.toFixed(4)}, ${lng.toFixed(4)}) after 7+ minutes`);
     
     // Vibrate phone when new step is created (if supported)
     if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]); // Double vibration pattern
+      navigator.vibrate([100, 50, 100, 50, 100]); // Triple vibration pattern
     }
     
     setStops((prev) => [...prev, newStop]);
-    lastStopPositionRef.current = { lat, lng };
-    setDistanceFromLastStop(0); // Reset distance after adding a stop
   }, []);
 
-  // Check position and create step if moved > 1km
+  // Update total distance using Distance Matrix API
+  const updateTotalDistance = useCallback(async (fromLat: number, fromLng: number, toLat: number, toLng: number) => {
+    try {
+      const segmentDistance = await calculateDrivingDistance(fromLat, fromLng, toLat, toLng);
+      
+      setTotalDistanceKm((prev) => {
+        const newTotal = prev + segmentDistance;
+        // Ensure distance only increases
+        const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
+        maxDistanceReachedRef.current = maxDistance;
+        return maxDistance;
+      });
+    } catch (e) {
+      console.warn('Failed to calculate driving distance:', e);
+    }
+  }, []);
+
+  // Check position and manage stops based on 7-minute rule
   const checkPosition = useCallback(() => {
     if (!navigator.geolocation) {
       setError('Géolocalisation non supportée');
@@ -120,40 +137,102 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude: lat, longitude: lng } = position.coords;
+        const now = new Date();
+        
         console.log(`Position update: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
 
         setCurrentPosition({ lat, lng });
         setPermissionStatus('granted');
 
-        // Check distance from last stop
-        if (lastStopPositionRef.current) {
-          const distance = getDistance(
-            lastStopPositionRef.current.lat,
-            lastStopPositionRef.current.lng,
+        // Update total distance if we have a previous position
+        if (lastPositionRef.current) {
+          const distanceFromLast = getDistance(
+            lastPositionRef.current.lat,
+            lastPositionRef.current.lng,
+            lat,
+            lng
+          );
+          
+          // Only update distance if moved significantly (> 50m to avoid GPS jitter)
+          if (distanceFromLast > 50) {
+            await updateTotalDistance(
+              lastPositionRef.current.lat,
+              lastPositionRef.current.lng,
+              lat,
+              lng
+            );
+            lastPositionRef.current = { lat, lng };
+          }
+        } else {
+          lastPositionRef.current = { lat, lng };
+        }
+
+        // Check if we're at the same location as pending stop
+        if (pendingStopRef.current) {
+          const distanceFromPending = getDistance(
+            pendingStopRef.current.lat,
+            pendingStopRef.current.lng,
             lat,
             lng
           );
 
-          console.log(`Distance from last stop: ${(distance / 1000).toFixed(2)} km`);
-          setDistanceFromLastStop(distance);
-
-          // If moved more than threshold (1km), create a new step
-          if (distance >= distanceThreshold) {
-            console.log(`Distance threshold exceeded (${distanceThreshold}m), creating new step`);
-            await addStop(lat, lng);
+          if (distanceFromPending <= locationRadius) {
+            // Still at same location - check if 7 minutes have passed
+            const secondsAtLocation = (now.getTime() - pendingStopRef.current.arrivalTime.getTime()) / 1000;
+            
+            console.log(`Still at same location: ${secondsAtLocation.toFixed(0)}s / ${stopDurationThreshold}s`);
+            
+            if (secondsAtLocation >= stopDurationThreshold) {
+              // 7+ minutes at this location - create a stop
+              await addStop(
+                pendingStopRef.current.lat,
+                pendingStopRef.current.lng,
+                pendingStopRef.current.arrivalTime,
+                pendingStopRef.current.address,
+                pendingStopRef.current.city
+              );
+              pendingStopRef.current = null;
+            }
+          } else {
+            // Moved away - reset pending stop timer
+            console.log(`Moved away from pending stop location (${distanceFromPending.toFixed(0)}m)`);
+            pendingStopRef.current = null;
           }
-        } else {
-          setDistanceFromLastStop(0);
+        }
+
+        // Check if we should start tracking a new potential stop
+        // (if we're not already tracking one and we're potentially stopped)
+        if (!pendingStopRef.current) {
+          // Start a new pending stop
+          const pendingStop: PendingStop = {
+            lat,
+            lng,
+            arrivalTime: now,
+          };
+
+          // Get address info
+          try {
+            const geocodeResult = await reverseGeocode(lat, lng);
+            if (geocodeResult) {
+              pendingStop.address = geocodeResult.fullAddress;
+              pendingStop.city = geocodeResult.city;
+            }
+          } catch (e) {
+            console.warn('Failed to geocode position:', e);
+          }
+
+          pendingStopRef.current = pendingStop;
+          console.log(`Started tracking potential stop at: ${pendingStop.city || pendingStop.address || 'Unknown'}`);
         }
       },
       (err) => {
         console.error('Geolocation error:', err);
-        if (err.code === 1) { // PERMISSION_DENIED
+        if (err.code === 1) {
           setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
           setPermissionStatus('denied');
-        } else if (err.code === 2) { // POSITION_UNAVAILABLE
+        } else if (err.code === 2) {
           setError('Position indisponible. Vérifiez que le GPS est activé.');
-        } else if (err.code === 3) { // TIMEOUT
+        } else if (err.code === 3) {
           setError('Délai de géolocalisation dépassé. Réessayez.');
         } else {
           setError('Erreur de géolocalisation');
@@ -165,13 +244,16 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         maximumAge: 5000,
       }
     );
-  }, [distanceThreshold, addStop]);
+  }, [stopDurationThreshold, locationRadius, addStop, updateTotalDistance]);
 
   const startTour = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setStops([]);
-    lastStopPositionRef.current = null;
+    setTotalDistanceKm(0);
+    maxDistanceReachedRef.current = 0;
+    pendingStopRef.current = null;
+    lastPositionRef.current = null;
 
     // Check permission first
     const hasPermission = await checkPermission();
@@ -189,8 +271,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         
         setCurrentPosition({ lat, lng });
         setPermissionStatus('granted');
+        lastPositionRef.current = { lat, lng };
         
-        // Add starting point as first stop
+        // Add starting point as first stop immediately
         const startStop: TourStop = {
           id: crypto.randomUUID(),
           timestamp: new Date(),
@@ -209,7 +292,6 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         }
 
         setStops([startStop]);
-        lastStopPositionRef.current = { lat, lng };
         setIsActive(true);
         setIsLoading(false);
 
@@ -221,22 +303,6 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           async (pos) => {
             const { latitude, longitude } = pos.coords;
             setCurrentPosition({ lat: latitude, lng: longitude });
-            
-            if (lastStopPositionRef.current) {
-              const distance = getDistance(
-                lastStopPositionRef.current.lat,
-                lastStopPositionRef.current.lng,
-                latitude,
-                longitude
-              );
-              
-              setDistanceFromLastStop(distance);
-              
-              if (distance >= distanceThreshold) {
-                console.log(`Watch: Distance threshold exceeded, creating new step`);
-                await addStop(latitude, longitude);
-              }
-            }
           },
           (err) => {
             console.warn('Watch position error:', err);
@@ -245,8 +311,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             enableHighAccuracy: true,
             timeout: 15000,
             maximumAge: 10000,
-            distanceFilter: 100, // Only trigger when moved 100m (if supported)
-          } as PositionOptions
+          }
         );
       },
       (err) => {
@@ -266,7 +331,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         timeout: 20000,
       }
     );
-  }, [checkPosition, trackingInterval, checkPermission, permissionStatus, distanceThreshold, addStop]);
+  }, [checkPosition, trackingInterval, checkPermission, permissionStatus]);
 
   const stopTour = useCallback(() => {
     if (intervalRef.current) {
@@ -277,6 +342,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
+    pendingStopRef.current = null;
     setIsActive(false);
   }, []);
 
@@ -284,7 +350,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     stopTour();
     setStops([]);
     setCurrentPosition(null);
-    lastStopPositionRef.current = null;
+    setTotalDistanceKm(0);
+    maxDistanceReachedRef.current = 0;
+    lastPositionRef.current = null;
   }, [stopTour]);
 
   // Check permission on mount
@@ -311,7 +379,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     stops,
     currentPosition,
     permissionStatus,
-    distanceFromLastStop,
+    totalDistanceKm, // Changed from distanceFromLastStop to totalDistanceKm
     startTour,
     stopTour,
     clearTour,
