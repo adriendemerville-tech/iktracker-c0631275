@@ -174,27 +174,7 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Admin Access */}
-        {isAdmin && (
-          <Card 
-            className="cursor-pointer hover:bg-accent/50 transition-colors border-primary/20"
-            onClick={() => navigate('/admin')}
-          >
-            <CardContent className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Administration</p>
-                  <p className="text-sm text-muted-foreground">Gérer les feedbacks et utilisateurs</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </CardContent>
-          </Card>
-        )}
-
+        {/* Kilometers Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -435,6 +415,27 @@ const Profile = () => {
 
         {/* Feedback Button */}
         {user && <FeedbackForm />}
+
+        {/* Admin Access */}
+        {isAdmin && (
+          <Card 
+            className="cursor-pointer hover:bg-accent/50 transition-colors border-primary/20"
+            onClick={() => navigate('/admin')}
+          >
+            <CardContent className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Administration</p>
+                  <p className="text-sm text-muted-foreground">Gérer les feedbacks et utilisateurs</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Logout Button */}
         {user && (
