@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ['DM Sans', 'system-ui', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
+        urbanist: ['Urbanist', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
