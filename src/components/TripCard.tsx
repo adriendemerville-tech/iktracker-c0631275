@@ -52,7 +52,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
           <Calendar className="w-3.5 h-3.5" />
           <span>{formatDate(trip.startTime)}</span>
         </div>
-        <span className="text-border">|</span>
+        <span className="text-border mx-1">|</span>
         <div className="flex-1 flex items-center gap-1.5 min-w-0">
           <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.startLocation.type))} />
           <span className="font-medium text-sm truncate">{startCityName}</span>
@@ -82,7 +82,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
           </span>
           {trip.purpose && (
             <>
-              <span className="text-border">|</span>
+              <span className="text-border mx-2">|</span>
               <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
             </>
           )}
