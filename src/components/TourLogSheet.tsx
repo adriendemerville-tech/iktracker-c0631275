@@ -155,7 +155,7 @@ export function TourLogSheet({
                     variant="outline"
                     size="sm"
                     onClick={onFinish}
-                    className="border-destructive text-destructive hover:bg-destructive/10"
+                    className="border-destructive text-destructive hover:bg-destructive/10 rounded-md border"
                   >
                     <Square className="w-4 h-4 mr-2" />
                     Terminer
