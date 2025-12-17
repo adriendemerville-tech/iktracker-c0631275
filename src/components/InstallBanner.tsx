@@ -134,17 +134,28 @@ export const InstallBanner = () => {
         );
       case 'macos-chrome':
         return (
-          <>
-            <p className="text-sm text-foreground mb-2">
-              <span className="font-semibold">Pour ajouter IkTracker :</span>
+          <div className="text-left">
+            <p className="text-sm font-semibold text-foreground mb-3">
+              Pour installer IkTracker :
             </p>
-            <p className="text-sm text-muted-foreground">
-              Menu <strong>⋮</strong> → <strong>"Enregistrer et partager"</strong> → <strong>"Créer un raccourci..."</strong>
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
+            <ol className="text-sm text-muted-foreground space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-foreground">1.</span>
+                <span>Cliquez sur <strong>⋮</strong> en haut à droite</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-foreground">2.</span>
+                <span><strong>"Caster, enregistrer et partager"</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-foreground">3.</span>
+                <span><strong>"Créer un raccourci..."</strong></span>
+              </li>
+            </ol>
+            <p className="text-xs text-muted-foreground mt-3 italic">
               Cochez "Ouvrir dans une fenêtre" pour une expérience app
             </p>
-          </>
+          </div>
         );
       default:
         return (
