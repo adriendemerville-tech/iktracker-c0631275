@@ -370,7 +370,7 @@ ${IKTRACKER_MENTION}
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-6">
-        <div className="bg-card rounded-2xl p-5 shadow-md">
+        <div className="bg-card rounded-md p-5 shadow-md">
           <h2 className="text-sm font-medium text-muted-foreground mb-4">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
@@ -430,7 +430,7 @@ ${IKTRACKER_MENTION}
           ))
         )}
 
-        <div className="bg-card rounded-xl p-4 space-y-3">
+        <div className="bg-card rounded-md p-4 space-y-3">
           <h3 className="text-sm font-medium">Barème IK 2024</h3>
           <div className="text-xs text-muted-foreground space-y-1">
             {IK_BAREME_2024.map(b => (

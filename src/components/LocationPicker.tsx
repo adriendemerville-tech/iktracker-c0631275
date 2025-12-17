@@ -415,7 +415,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           {savedLocations.map((location) => (
             <div key={location.id} className="relative group">
               {editingLocation?.id === location.id ? (
-                <div className="space-y-3 p-4 bg-accent/10 rounded-xl border-2 border-accent animate-fade-in">
+                <div className="space-y-3 p-4 bg-accent/10 rounded-md border-2 border-accent animate-fade-in">
                   <Input
                     placeholder="Nom du lieu"
                     value={editingLocation.name}
@@ -504,7 +504,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           Ajouter un nouveau lieu
         </Button>
       ) : !editingLocation && (
-        <div className="space-y-3 p-4 bg-muted rounded-xl animate-fade-in">
+        <div className="space-y-3 p-4 bg-muted rounded-md animate-fade-in">
           <Input
             placeholder="Nom du lieu"
             value={newName}

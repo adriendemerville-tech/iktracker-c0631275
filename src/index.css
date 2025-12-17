@@ -49,7 +49,7 @@
     --input: 220 15% 90%;
     --ring: 220 70% 50%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
 
     /* Custom tokens */
     --success: 160 60% 45%;

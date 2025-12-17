@@ -68,7 +68,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
     <>
       <div 
         className={cn(
-          "bg-card rounded-xl p-3 shadow-sm border border-border/50 animate-fade-in relative",
+          "bg-card rounded-md p-3 shadow-sm border border-border/50 animate-fade-in relative",
           isTour && "cursor-pointer hover:bg-muted/50 transition-colors"
         )}
         onClick={handleCardClick}
