@@ -522,39 +522,24 @@ export function NewTripSheet({
                     if (parts.length > 1) {
                       value = parts[0] + '.' + parts[1].slice(0, 1);
                     }
-                    const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
-                    const tolerance = 0.15;
-
-                    if (!expectedDistance) {
-                      setManualDistance(value);
-                      return;
-                    }
-
-                    if (!value) {
-                      setManualDistance('');
-                      return;
-                    }
-
-                    const enteredDistance = parseFloat(value) || 0;
-                    const isOutOfRange = enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance;
-
-                    if (isOutOfRange) {
-                      setIsBlinking(false);
-                      setManualDistance('');
-                      window.requestAnimationFrame(() => {
-                        setManualDistance(expectedDistance.toFixed(1));
-                        setIsBlinking(true);
-                      });
-                      window.setTimeout(() => setIsBlinking(false), 650);
-                      return;
-                    }
-
                     setManualDistance(value);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      purposeInputRef.current?.focus();
+                      
+                      // Validation de la distance au moment de Entrée
+                      const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
+                      const enteredDistance = parseFloat(manualDistance) || 0;
+                      const tolerance = 0.15;
+                      
+                      if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
+                        setManualDistance(expectedDistance.toFixed(1));
+                        setIsBlinking(true);
+                        setTimeout(() => setIsBlinking(false), 650);
+                      } else {
+                        purposeInputRef.current?.focus();
+                      }
                     }
                   }}
                 />
