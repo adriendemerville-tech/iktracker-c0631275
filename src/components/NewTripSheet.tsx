@@ -15,6 +15,37 @@ import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+
+// Cache functions for distance
+const getCachedDistance = async (startAddress: string, endAddress: string): Promise<number | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  
+  const { data } = await supabase
+    .from('distance_cache')
+    .select('distance')
+    .eq('user_id', user.id)
+    .eq('start_address', startAddress)
+    .eq('end_address', endAddress)
+    .maybeSingle();
+  
+  return data?.distance ?? null;
+};
+
+const saveCachedDistance = async (startAddress: string, endAddress: string, distance: number): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  
+  await supabase
+    .from('distance_cache')
+    .upsert({
+      user_id: user.id,
+      start_address: startAddress,
+      end_address: endAddress,
+      distance
+    }, { onConflict: 'user_id,start_address,end_address' });
+};
 
 interface NewTripSheetProps {
   open: boolean;
@@ -113,17 +144,36 @@ export function NewTripSheet({
       setTripDate(new Date(editTrip.startTime));
       setStep('details');
       
-      // Recalculate distance from API if coordinates are available
+      // Recalculate distance from cache or API if coordinates are available
       const start = editTrip.startLocation;
       const end = editTrip.endLocation;
-      if (typeof start?.lat === 'number' && typeof start?.lng === 'number' &&
-          typeof end?.lat === 'number' && typeof end?.lng === 'number') {
-        calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng)
-          .then((distance) => {
-            setCalculatedDistance(distance);
-          })
-          .catch((err) => console.error('Error recalculating distance:', err));
-      }
+      const startAddr = start?.address || start?.name;
+      const endAddr = end?.address || end?.name;
+      
+      const fetchDistance = async () => {
+        // Check cache first
+        if (startAddr && endAddr) {
+          const cached = await getCachedDistance(startAddr, endAddr);
+          if (cached !== null) {
+            setCalculatedDistance(cached);
+            return;
+          }
+        }
+        
+        // Fall back to API
+        if (typeof start?.lat === 'number' && typeof start?.lng === 'number' &&
+            typeof end?.lat === 'number' && typeof end?.lng === 'number') {
+          const distance = await calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng);
+          setCalculatedDistance(distance);
+          
+          // Save to cache
+          if (startAddr && endAddr) {
+            saveCachedDistance(startAddr, endAddr, distance);
+          }
+        }
+      };
+      
+      fetchDistance().catch((err) => console.error('Error fetching distance:', err));
     }
   }, [open, editTrip]);
 
@@ -220,6 +270,20 @@ export function NewTripSheet({
           });
           setManualDistance('0');
         } else {
+          const startAddr = start.address || start.name;
+          const endAddr = location.address || location.name;
+          
+          // Check cache first
+          if (startAddr && endAddr) {
+            const cachedDistance = await getCachedDistance(startAddr, endAddr);
+            if (cachedDistance !== null) {
+              setCalculatedDistance(cachedDistance);
+              setManualDistance(cachedDistance.toFixed(1));
+              setStep('details');
+              return;
+            }
+          }
+
           const [startCoords, endCoords] = await Promise.all([
             resolveCoords(start),
             resolveCoords(location),
@@ -234,6 +298,11 @@ export function NewTripSheet({
             );
             setCalculatedDistance(distance);
             setManualDistance(distance.toFixed(1));
+            
+            // Save to cache
+            if (startAddr && endAddr) {
+              saveCachedDistance(startAddr, endAddr, distance);
+            }
           }
         }
       }
