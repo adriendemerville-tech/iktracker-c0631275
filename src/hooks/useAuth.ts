@@ -56,7 +56,15 @@ export const useAuth = () => {
   }, [sessionCount, user]);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Sign out error:', error);
+      throw error;
+    }
+    // Clear local state immediately
+    setUser(null);
+    setSession(null);
+    setRequiresAuth(true);
   };
 
   return {
