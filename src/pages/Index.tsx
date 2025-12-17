@@ -491,7 +491,7 @@ ${IKTRACKER_MENTION}
               onClick={() => navigate('/profile')}
               className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 w-10 h-10"
             >
-              <UserCircle className="w-10 h-10" />
+              <UserCircle className="w-20 h-20" />
             </Button>
           </div>
 
