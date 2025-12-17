@@ -121,7 +121,7 @@ const Profile = () => {
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Sélectionnez votre secteur" />
                     </SelectTrigger>
-                    <SelectContent className="bg-popover">
+                    <SelectContent className="bg-popover border border-white/20">
                       {PROFESSIONS.map((profession) => (
                         <SelectItem key={profession} value={profession}>
                           {profession}
