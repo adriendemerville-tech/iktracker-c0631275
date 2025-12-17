@@ -37,8 +37,8 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
           : "border-border bg-card hover:border-primary/50"
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0 w-2/3">
           <div className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
             selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
@@ -57,7 +57,7 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
           </span>
         </div>
         
-        <span className="text-muted-foreground text-xs shrink-0 ml-auto">
+        <span className="text-muted-foreground text-xs shrink-0">
           {getCurrentRate().toFixed(3)} €/km
         </span>
         
