@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Report from "./pages/Report";
@@ -15,7 +17,15 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, requiresAuth, loading } = useAuth();
@@ -49,7 +59,9 @@ const AppContent = () => {
           path="/app"
           element={
             <ProtectedRoute>
-              <Index />
+              <QueryErrorBoundary>
+                <Index />
+              </QueryErrorBoundary>
             </ProtectedRoute>
           }
         />
@@ -57,7 +69,9 @@ const AppContent = () => {
           path="/report"
           element={
             <ProtectedRoute>
-              <Report />
+              <QueryErrorBoundary>
+                <Report />
+              </QueryErrorBoundary>
             </ProtectedRoute>
           }
         />
@@ -65,7 +79,9 @@ const AppContent = () => {
           path="/profile"
           element={
             <ProtectedRoute>
-              <Profile />
+              <QueryErrorBoundary>
+                <Profile />
+              </QueryErrorBoundary>
             </ProtectedRoute>
           }
         />
@@ -73,7 +89,9 @@ const AppContent = () => {
           path="/admin"
           element={
             <ProtectedRoute>
-              <Admin />
+              <QueryErrorBoundary>
+                <Admin />
+              </QueryErrorBoundary>
             </ProtectedRoute>
           }
         />
@@ -88,9 +106,11 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AppContent />
+      <ErrorBoundary>
+        <Toaster />
+        <Sonner />
+        <AppContent />
+      </ErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
 );
