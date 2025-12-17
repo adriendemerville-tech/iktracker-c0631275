@@ -472,80 +472,193 @@ const Landing = () => {
             ))}
           </div>
 
-          {/* App Visualization - Trip Report Mockup */}
-          <AnimatedSection delay={300}>
-            <div className="relative">
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-                  <LayoutDashboard className="h-4 w-4" />
-                  Aperçu de l'application
-                </div>
-                <h3 className="text-2xl font-bold text-foreground">Votre relevé de trajets en un coup d'œil</h3>
+          {/* App Visualizations Grid */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            {/* Visualization 1 - Trip Report Mockup */}
+            <AnimatedSection delay={300}>
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-foreground">Relevé de trajets</h3>
+                <p className="text-sm text-muted-foreground">Visualisez tous vos déplacements</p>
               </div>
-              
-              {/* App Mockup */}
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-card rounded-2xl border border-border shadow-2xl overflow-hidden">
-                  {/* App Header */}
-                  <div className="bg-primary/5 px-6 py-4 border-b border-border flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <img src="/favicon.png" alt="IKtracker" className="h-8 w-8 rounded-full" />
-                      <span className="font-bold text-foreground">IKtracker</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      Janvier 2025
-                    </div>
+              <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
+                {/* Stats Bar */}
+                <div className="grid grid-cols-3 gap-2 p-4 bg-muted/30 border-b border-border">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-primary">847 km</div>
+                    <div className="text-xs text-muted-foreground">Distance</div>
                   </div>
-                  
-                  {/* Stats Bar */}
-                  <div className="grid grid-cols-3 gap-4 p-6 bg-muted/30 border-b border-border">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">847 km</div>
-                      <div className="text-sm text-muted-foreground">Distance totale</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-success">412,50 €</div>
-                      <div className="text-sm text-muted-foreground">Indemnités</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-foreground">23</div>
-                      <div className="text-sm text-muted-foreground">Trajets</div>
-                    </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-success">412 €</div>
+                    <div className="text-xs text-muted-foreground">Indemnités</div>
                   </div>
-                  
-                  {/* Trip List */}
-                  <div className="divide-y divide-border">
-                    {[
-                      { date: "15 Jan", from: "Paris 15e", to: "Versailles", km: 42, amount: "20,58 €", purpose: "Rendez-vous client" },
-                      { date: "14 Jan", from: "Paris 15e", to: "Saint-Denis", km: 28, amount: "13,72 €", purpose: "Visite chantier" },
-                      { date: "13 Jan", from: "Domicile", to: "Paris 8e", km: 35, amount: "17,15 €", purpose: "Réunion projet" },
-                    ].map((trip, i) => (
-                      <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className="text-sm font-medium text-muted-foreground w-16">{trip.date}</div>
-                          <div>
-                            <div className="flex items-center gap-2 text-foreground font-medium">
-                              <MapPin className="h-3.5 w-3.5 text-primary" />
-                              {trip.from} → {trip.to}
-                            </div>
-                            <div className="text-sm text-muted-foreground">{trip.purpose}</div>
-                          </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-foreground">23</div>
+                    <div className="text-xs text-muted-foreground">Trajets</div>
+                  </div>
+                </div>
+                
+                {/* Trip List */}
+                <div className="divide-y divide-border">
+                  {[
+                    { date: "15 Jan", from: "Paris 15e", to: "Versailles", km: 42, amount: "20,58 €" },
+                    { date: "14 Jan", from: "Paris 15e", to: "Saint-Denis", km: 28, amount: "13,72 €" },
+                    { date: "13 Jan", from: "Domicile", to: "Paris 8e", km: 35, amount: "17,15 €" },
+                  ].map((trip, i) => (
+                    <div key={i} className="px-4 py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="text-xs font-medium text-muted-foreground w-12">{trip.date}</div>
+                        <div className="flex items-center gap-1.5 text-sm text-foreground">
+                          <MapPin className="h-3 w-3 text-primary" />
+                          {trip.from} → {trip.to}
                         </div>
-                        <div className="text-right">
-                          <div className="font-semibold text-foreground">{trip.km} km</div>
-                          <div className="text-sm text-success font-medium">{trip.amount}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-foreground">{trip.km} km</div>
+                        <div className="text-xs text-success">{trip.amount}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Export Button */}
+                <div className="p-3 bg-muted/30 border-t border-border flex justify-center">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium">
+                    <FileText className="h-3.5 w-3.5" />
+                    Exporter PDF / CSV
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+
+            {/* Visualization 2 - Tour/Tournée Feature */}
+            <AnimatedSection delay={400}>
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-foreground">Mode Tournée</h3>
+                <p className="text-sm text-muted-foreground">Enchaînez plusieurs clients</p>
+              </div>
+              <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
+                {/* Tour Header */}
+                <div className="p-4 bg-accent/10 border-b border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
+                      <span className="font-semibold text-foreground text-sm">Tournée en cours</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Depuis 09:15</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-card rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-primary">127 km</div>
+                      <div className="text-xs text-muted-foreground">Parcourus</div>
+                    </div>
+                    <div className="bg-card rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-accent">5</div>
+                      <div className="text-xs text-muted-foreground">Arrêts</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Stops Timeline */}
+                <div className="p-4">
+                  <div className="space-y-3">
+                    {[
+                      { time: "09:15", place: "Domicile", status: "done" },
+                      { time: "09:45", place: "M. Dupont - Paris 12e", status: "done" },
+                      { time: "10:30", place: "Mme Martin - Vincennes", status: "done" },
+                      { time: "11:15", place: "M. Bernard - Montreuil", status: "current" },
+                    ].map((stop, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full ${stop.status === 'current' ? 'bg-accent ring-4 ring-accent/20' : 'bg-success'}`} />
+                          {i < 3 && <div className="w-0.5 h-6 bg-border" />}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-foreground">{stop.place}</div>
+                          <div className="text-xs text-muted-foreground">{stop.time}</div>
+                        </div>
+                        {stop.status === 'done' && <CheckCircle2 className="h-4 w-4 text-success" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
+
+          {/* Visualization 3 - Calendar Sync Full Width */}
+          <AnimatedSection delay={500}>
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-foreground">Synchronisation Calendrier</h3>
+              <p className="text-sm text-muted-foreground">Vos rendez-vous deviennent des trajets automatiquement</p>
+            </div>
+            <div className="max-w-4xl mx-auto bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
+              <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+                {/* Calendar Side */}
+                <div className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-[#4285F4] flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Google Calendar</div>
+                      <div className="text-xs text-success flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                        Connecté
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { time: "09:00", title: "RDV M. Dupont", location: "15 rue de Paris, 75012" },
+                      { time: "11:00", title: "Visite Mme Martin", location: "8 av. Victor Hugo, Vincennes" },
+                      { time: "14:00", title: "Chantier Bernard", location: "22 rue Raspail, Montreuil" },
+                    ].map((event, i) => (
+                      <div key={i} className="p-3 bg-muted/50 rounded-lg border-l-4 border-[#4285F4]">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                          <Clock className="h-3 w-3" />
+                          {event.time}
+                        </div>
+                        <div className="text-sm font-medium text-foreground">{event.title}</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <MapPin className="h-3 w-3" />
+                          {event.location}
                         </div>
                       </div>
                     ))}
                   </div>
-                  
-                  {/* Export Button */}
-                  <div className="p-4 bg-muted/30 border-t border-border flex justify-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
-                      <FileText className="h-4 w-4" />
-                      Exporter PDF / CSV
-                    </div>
+                </div>
+                
+                {/* Arrow & Result Side */}
+                <div className="p-6 bg-muted/20">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ArrowRight className="h-5 w-5 text-primary" />
+                    <span className="font-semibold text-foreground text-sm">Trajets générés</span>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { from: "Domicile", to: "Paris 12e", km: 12, ik: "5,88 €" },
+                      { from: "Paris 12e", to: "Vincennes", km: 8, ik: "3,92 €" },
+                      { from: "Vincennes", to: "Montreuil", km: 5, ik: "2,45 €" },
+                    ].map((trip, i) => (
+                      <div key={i} className="p-3 bg-card rounded-lg border border-border">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Route className="h-4 w-4 text-primary" />
+                            <span className="text-foreground">{trip.from}</span>
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-foreground">{trip.to}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between mt-2 text-xs">
+                          <span className="text-muted-foreground">{trip.km} km</span>
+                          <span className="font-semibold text-success">{trip.ik}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 p-3 bg-success/10 rounded-lg text-center">
+                    <div className="text-lg font-bold text-success">12,25 €</div>
+                    <div className="text-xs text-muted-foreground">Total automatique</div>
                   </div>
                 </div>
               </div>
