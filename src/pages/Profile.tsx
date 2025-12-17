@@ -428,7 +428,7 @@ const Profile = () => {
 
         {/* App Info */}
         <div className="text-center text-xs text-muted-foreground pt-4">
-          <p>IK Tracker v1.0</p>
+          <p>Ik Tracker v1.0</p>
           <p className="mt-1">© 2024 - Tous droits réservés</p>
         </div>
       </main>
