@@ -20,7 +20,7 @@ const PROFESSIONS = [
   "Indépendants",
   "Santé et Médical",
   "Immobilier",
-  "Bâtiment et Travaux Publics",
+  "Bâtiment et Entretiens",
   "Services à la personne",
   "Maintenance et SAV",
   "Commerce et Distribution",
