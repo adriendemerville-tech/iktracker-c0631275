@@ -167,7 +167,7 @@ const Landing = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="banner">
         <nav className="container mx-auto px-4 py-4 flex items-center justify-between" aria-label="Navigation principale">
           <Link to="/" className="flex items-center gap-2" aria-label="IkTracker - Accueil">
-            <img src="/favicon.png" alt="Logo IkTracker" className="h-9 w-9 rounded-full" width="36" height="36" />
+            <img src="/favicon.png" alt="Logo IkTracker" className="h-9 w-9 rounded-full transition-transform duration-300 hover:scale-110" width="36" height="36" />
             <span className="text-xl font-bold text-foreground">IkTracker</span>
           </Link>
           {!loading && (
@@ -563,7 +563,7 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <img src="/favicon.png" alt="IkTracker" className="h-9 w-9 rounded-full" />
+              <img src="/favicon.png" alt="IkTracker" className="h-9 w-9 rounded-full transition-transform duration-300 hover:scale-110" />
               <span className="font-bold text-foreground">IkTracker</span>
             </div>
             <p className="text-sm text-muted-foreground text-center">
