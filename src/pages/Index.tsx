@@ -136,13 +136,24 @@ const Index = () => {
 
     console.log(`Total distance: ${totalDistance} km`);
 
+    // Convert TourStop[] to TourStopData[] for storage
+    const tourStopsData = stops.map(stop => ({
+      id: stop.id,
+      timestamp: stop.timestamp.toISOString(),
+      lat: stop.lat,
+      lng: stop.lng,
+      address: stop.address,
+      city: stop.city,
+      duration: stop.duration,
+    }));
+
     try {
       const result = await addTrip({
         vehicleId,
         startLocation: {
           id: firstStop.id,
           name: firstStop.city || firstStop.address || 'Position',
-          address: firstStop.address,
+          address: firstStop.address || '',
           lat: firstStop.lat,
           lng: firstStop.lng,
           type: 'other',
@@ -150,7 +161,7 @@ const Index = () => {
         endLocation: {
           id: lastStop.id,
           name: lastStop.city || lastStop.address || 'Position',
-          address: lastStop.address,
+          address: lastStop.address || '',
           lat: lastStop.lat,
           lng: lastStop.lng,
           type: 'other',
@@ -161,13 +172,14 @@ const Index = () => {
         purpose: 'Tournée',
         startTime: firstStop.timestamp,
         endTime: lastStop.timestamp,
+        tourStops: tourStopsData,
       });
       
       console.log('Tour trip created:', result);
       
       if (result) {
         toast.success("Tournée enregistrée", {
-          description: `${totalDistance.toFixed(1)} km - ${firstStop.city || 'Départ'} → ${lastStop.city || 'Arrivée'}`,
+          description: `${totalDistance.toFixed(1)} km - ${stops.length} étapes`,
         });
         clearTour();
         setShowTourLog(false);

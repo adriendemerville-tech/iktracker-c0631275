@@ -150,6 +150,7 @@ export type Database = {
           round_trip: boolean
           source: string | null
           start_location: string
+          tour_stops: Json | null
           user_id: string
           vehicle_id: string
         }
@@ -165,6 +166,7 @@ export type Database = {
           round_trip?: boolean
           source?: string | null
           start_location: string
+          tour_stops?: Json | null
           user_id: string
           vehicle_id: string
         }
@@ -180,6 +182,7 @@ export type Database = {
           round_trip?: boolean
           source?: string | null
           start_location?: string
+          tour_stops?: Json | null
           user_id?: string
           vehicle_id?: string
         }
