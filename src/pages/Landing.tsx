@@ -180,8 +180,8 @@ const Landing = () => {
               </Link>
             ) : (
               <a href="#auth-section">
-                <Button variant="outline" size="sm">
-                  Se connecter
+                <Button variant="gradient" size="sm">
+                  S'inscrire
                 </Button>
               </a>
             )
