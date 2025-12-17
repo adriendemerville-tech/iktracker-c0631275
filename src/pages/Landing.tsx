@@ -1,7 +1,11 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { AuthForm } from "@/components/AuthForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 import { 
@@ -14,7 +18,8 @@ import {
   ArrowRight,
   CheckCircle2,
   TrendingUp,
-  HelpCircle
+  HelpCircle,
+  LayoutDashboard
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -45,6 +50,28 @@ const AnimatedSection = ({ children, className, delay = 0 }: AnimatedSectionProp
 };
 
 const Landing = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/app');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   const features = [
     {
       icon: Calendar,
@@ -128,7 +155,7 @@ const Landing = () => {
     },
     {
       question: "Mes données sont-elles sécurisées ?",
-      answer: "Vos données sont stockées de manière sécurisée et chiffrée. Nous ne partageons jamais vos informations avec des tiers. Vous pouvez supprimer votre compte et vos données à tout moment."
+      answer: "Vos données sont stockées de manière sécurisée et chiffrées. Nous ne partageons jamais vos informations avec des tiers. Vous pouvez supprimer votre compte et vos données à tout moment."
     }
   ];
 
@@ -143,85 +170,139 @@ const Landing = () => {
             <img src="/logo-camion.png" alt="IkTracker" className="h-8 w-8" />
             <span className="text-xl font-bold text-foreground">IkTracker</span>
           </div>
-          <Link to="/auth">
-            <Button variant="outline" size="sm">
-              Se connecter
-            </Button>
-          </Link>
+          {!loading && (
+            user ? (
+              <Link to="/app">
+                <Button variant="gradient" size="sm" className="group">
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Mon tableau de bord
+                </Button>
+              </Link>
+            ) : (
+              <a href="#auth-section">
+                <Button variant="outline" size="sm">
+                  Se connecter
+                </Button>
+              </a>
+            )
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
+      <section className="pt-28 pb-16 md:pt-32 md:pb-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div 
           ref={heroAnimation.ref}
           className={cn(
-            "container mx-auto text-center relative z-10 transition-all duration-700 ease-out",
+            "container mx-auto relative z-10 transition-all duration-700 ease-out",
             heroAnimation.isVisible 
               ? "opacity-100 translate-y-0" 
               : "opacity-0 translate-y-8"
           )}
         >
-          <div 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
-            style={{ transitionDelay: '100ms' }}
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            100% Gratuit pour les indépendants
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text content */}
+            <div className="text-center lg:text-left">
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
+                style={{ transitionDelay: '100ms' }}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                100% Gratuit pour les indépendants
+              </div>
+              <h1 
+                className={cn(
+                  "text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 transition-all duration-700 ease-out",
+                  heroAnimation.isVisible 
+                    ? "opacity-100 translate-y-0" 
+                    : "opacity-0 translate-y-8"
+                )}
+                style={{ transitionDelay: '200ms' }}
+              >
+                Automatisez vos{" "}
+                <span className="text-gradient">indemnités kilométriques</span>{" "}
+                en un clic
+              </h1>
+              <p 
+                className={cn(
+                  "text-lg md:text-xl text-muted-foreground mb-8 transition-all duration-700 ease-out",
+                  heroAnimation.isVisible 
+                    ? "opacity-100 translate-y-0" 
+                    : "opacity-0 translate-y-8"
+                )}
+                style={{ transitionDelay: '300ms' }}
+              >
+                L'outil gratuit pour transformer vos rendez-vous en relevés comptables. 
+                Fini les heures perdues sur Excel.
+              </p>
+              
+              {/* Show dashboard button if logged in (on mobile) */}
+              {user && (
+                <div className="lg:hidden mb-8">
+                  <Link to="/app">
+                    <Button size="xl" variant="gradient" className="w-full sm:w-auto group">
+                      <LayoutDashboard className="h-5 w-5 mr-2" />
+                      Accéder à mon tableau de bord
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  Pas de carte bancaire
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  Installation en 2 min
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  Export PDF/CSV
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Auth form or Dashboard button */}
+            <div 
+              id="auth-section"
+              className={cn(
+                "transition-all duration-700 ease-out",
+                heroAnimation.isVisible 
+                  ? "opacity-100 translate-y-0" 
+                  : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: '400ms' }}
+            >
+              {!loading && (
+                user ? (
+                  <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
+                    <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-success" />
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      Bienvenue, {user.email?.split('@')[0]} !
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      Vous êtes connecté. Accédez à votre tableau de bord pour gérer vos trajets.
+                    </p>
+                    <Link to="/app">
+                      <Button size="lg" variant="gradient" className="w-full group">
+                        <LayoutDashboard className="h-5 w-5 mr-2" />
+                        Accéder à mon tableau de bord
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <AuthForm />
+                )
+              )}
+            </div>
           </div>
-          <h1 
-            className={cn(
-              "text-4xl md:text-6xl font-extrabold text-foreground leading-tight mb-6 max-w-4xl mx-auto transition-all duration-700 ease-out",
-              heroAnimation.isVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-            style={{ transitionDelay: '200ms' }}
-          >
-            Automatisez vos{" "}
-            <span className="text-gradient">indemnités kilométriques</span>{" "}
-            en un clic
-          </h1>
-          <p 
-            className={cn(
-              "text-xl text-muted-foreground max-w-2xl mx-auto mb-10 transition-all duration-700 ease-out",
-              heroAnimation.isVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-            style={{ transitionDelay: '300ms' }}
-          >
-            L'outil gratuit pour transformer vos rendez-vous en relevés comptables. 
-            Fini les heures perdues sur Excel.
-          </p>
-          <div 
-            className={cn(
-              "flex flex-col sm:flex-row gap-4 justify-center transition-all duration-700 ease-out",
-              heroAnimation.isVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-            style={{ transitionDelay: '400ms' }}
-          >
-            <Link to="/auth">
-              <Button size="xl" variant="gradient" className="w-full sm:w-auto group">
-                Démarrer gratuitement
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-          <p 
-            className={cn(
-              "text-sm text-muted-foreground mt-4 transition-all duration-700 ease-out",
-              heroAnimation.isVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-            style={{ transitionDelay: '500ms' }}
-          >
-            Pas de carte bancaire requise • Installation en 2 minutes
-          </p>
         </div>
       </section>
 
@@ -452,12 +533,22 @@ const Landing = () => {
                 <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
                   Rejoignez les centaines d'indépendants qui ont déjà automatisé leurs IK
                 </p>
-                <Link to="/auth">
-                  <Button size="xl" variant="secondary" className="group">
-                    Créer mon compte gratuit
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to="/app">
+                    <Button size="xl" variant="secondary" className="group">
+                      <LayoutDashboard className="h-5 w-5 mr-2" />
+                      Accéder à mon tableau de bord
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <a href="#auth-section">
+                    <Button size="xl" variant="secondary" className="group">
+                      Créer mon compte gratuit
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </a>
+                )}
               </div>
             </div>
           </AnimatedSection>
