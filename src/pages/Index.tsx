@@ -61,7 +61,7 @@ const Index = () => {
     clearTour,
   } = useTourTracker({
     stopDurationThreshold: preferences.stopDetectionMinutes * 60,
-    locationRadius: 100, // 100m = same location
+    locationRadius: preferences.locationRadiusMeters,
     trackingInterval: 30000, // Check every 30 seconds
   });
 
