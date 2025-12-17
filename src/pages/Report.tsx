@@ -232,29 +232,29 @@ ${IKTRACKER_MENTION}
       (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
 
-    // Trips table
+    // Trips detail table
     const tableData = sortedTrips.map(t => {
       const vehicle = getVehicle(t.vehicleId);
+      const startTime = new Date(t.startTime);
       return [
-        new Date(t.startTime).toLocaleDateString('fr-FR'),
-        vehicle ? `${vehicle.make} ${vehicle.model}` : '-',
+        startTime.toLocaleDateString('fr-FR'),
+        startTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
         t.startLocation.name,
         t.endLocation.name,
-        `${t.distance.toFixed(1)} km`,
-        `${t.cumulativeKm.toFixed(0)} km`,
         t.purpose || '-',
+        `${t.distance.toFixed(1)} km`,
         `${t.recalculatedIK.toFixed(2)} €`,
       ];
     });
 
     autoTable(doc, {
       startY: 56,
-      head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Dist.', 'Cumul', 'Motif', 'IK']],
+      head: [['Date', 'Heure', 'Départ', 'Arrivée', 'Motif', 'Km', 'IK']],
       body: tableData,
       styles: { fontSize: 7, cellPadding: 1.5 },
       headStyles: { fillColor: [59, 130, 246] },
       alternateRowStyles: { fillColor: [245, 247, 250] },
-      foot: [['TOTAL', '', '', '', `${totalKm.toFixed(1)} km`, '', '', `${recalculatedTotalIK.toFixed(2)} €`]],
+      foot: [['TOTAL', '', '', '', '', `${totalKm.toFixed(1)} km`, `${recalculatedTotalIK.toFixed(2)} €`]],
       footStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold' },
     });
 
