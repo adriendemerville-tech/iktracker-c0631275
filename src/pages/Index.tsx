@@ -45,8 +45,10 @@ const Index = () => {
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [showTourLog, setShowTourLog] = useState(false);
+  const [showTourHistory, setShowTourHistory] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
+  const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
@@ -75,14 +77,16 @@ const Index = () => {
   };
 
   const handleStopTour = () => {
-    stopTour();
-    // Prompt to create trips if we have enough stops
+    // Save tour to history before clearing
     if (tourStops.length >= 2) {
-      toast.info("Tournée terminée", {
-        description: "Cliquez sur 'Créer les trajets' pour enregistrer vos déplacements",
-        duration: 5000,
-      });
+      setLastTour([...tourStops]);
     }
+    stopTour();
+    clearTour();
+    setShowTourLog(false);
+    toast.info("Tournée terminée", {
+      description: "Consultez l'historique pour enregistrer",
+    });
   };
 
   const handleConvertToTrips = async (stops: TourStop[]) => {
@@ -380,6 +384,29 @@ const Index = () => {
         onStop={handleStopTour}
         onClear={clearTour}
         onConvertToTrips={handleConvertToTrips}
+        hasHistory={!!lastTour}
+        onShowHistory={() => {
+          setShowTourLog(false);
+          setShowTourHistory(true);
+        }}
+      />
+
+      {/* Tour history sheet */}
+      <TourLogSheet
+        open={showTourHistory}
+        onOpenChange={setShowTourHistory}
+        isActive={false}
+        isLoading={false}
+        stops={lastTour || []}
+        onStart={() => {}}
+        onStop={() => {}}
+        onClear={() => setLastTour(null)}
+        onConvertToTrips={(stops) => {
+          handleConvertToTrips(stops);
+          setLastTour(null);
+          setShowTourHistory(false);
+        }}
+        isHistory
       />
 
       {/* Delete vehicle confirmation */}
