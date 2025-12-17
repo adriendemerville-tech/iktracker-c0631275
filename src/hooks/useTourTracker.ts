@@ -100,6 +100,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
     console.log(`New stop added: ${newStop.city || newStop.address || 'Unknown'} (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
     
+    // Vibrate phone when new step is created (if supported)
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100]); // Double vibration pattern
+    }
+    
     setStops((prev) => [...prev, newStop]);
     lastStopPositionRef.current = { lat, lng };
     setDistanceFromLastStop(0); // Reset distance after adding a stop
