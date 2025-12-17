@@ -102,6 +102,31 @@ export default function Report() {
     setShowVehicleForm(true);
   };
 
+  const IKTRACKER_URL = 'https://iktracker.lovable.app';
+  const IKTRACKER_MENTION = `Généré conformément à la législation par IkTracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
+
+  const generateReadmeContent = () => {
+    return `=== IkTracker ===
+
+Application gratuite de suivi des indemnités kilométriques.
+
+But : Simplifier le suivi et le calcul de vos indemnités kilométriques professionnelles conformément au barème fiscal en vigueur.
+
+Fonctionnalités :
+- Enregistrement des trajets professionnels
+- Calcul automatique des indemnités selon le barème fiscal
+- Génération de relevés PDF et CSV pour votre comptable
+- Suivi en temps réel avec la fonction "Tournée"
+
+C'est 100% GRATUIT !
+
+Lien : ${IKTRACKER_URL}
+
+---
+${IKTRACKER_MENTION}
+`;
+  };
+
   const generateCSVContent = () => {
     const headers = [
       'Date',
@@ -112,7 +137,7 @@ export default function Report() {
       'Immatriculation',
       'Puissance fiscale (CV)',
       'Lieu de départ',
-      'Lieu d\'arrivée',
+      "Lieu d'arrivée",
       'Distance (km)',
       'Cumul annuel (km)',
       'Motif',
@@ -151,7 +176,7 @@ export default function Report() {
     
     rows.push([]);
     rows.push(['Barème kilométrique fiscal 2024']);
-    rows.push(['CV', 'Jusqu\'à 5000 km', '5001 à 20000 km', 'Au-delà de 20000 km']);
+    rows.push(['CV', "Jusqu'à 5000 km", '5001 à 20000 km', 'Au-delà de 20000 km']);
     IK_BAREME_2024.forEach(b => {
       rows.push([
         b.cv === '7+' ? '7 CV et plus' : `${b.cv} CV`,
@@ -161,7 +186,15 @@ export default function Report() {
       ]);
     });
 
+    // Add IkTracker mention at the end
+    rows.push([]);
+    rows.push([IKTRACKER_MENTION]);
+    rows.push([IKTRACKER_URL]);
+
     const csv = [
+      // Header mention
+      IKTRACKER_MENTION,
+      '',
       headers.join(';'),
       ...rows.map(r => r.join(';')),
     ].join('\n');
@@ -173,18 +206,26 @@ export default function Report() {
     const doc = new jsPDF();
     const dateStr = new Date().toLocaleDateString('fr-FR');
     
+    // Header mention IkTracker
+    doc.setFontSize(8);
+    doc.setTextColor(100);
+    doc.text(IKTRACKER_MENTION, 14, 10);
+    doc.setTextColor(59, 130, 246);
+    doc.textWithLink(IKTRACKER_URL, 14, 14, { url: IKTRACKER_URL });
+    
     // Title
     doc.setFontSize(18);
-    doc.text('Relevé des Indemnités Kilométriques', 14, 20);
+    doc.setTextColor(0);
+    doc.text('Relevé des Indemnités Kilométriques', 14, 28);
     
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Généré le ${dateStr}`, 14, 28);
+    doc.text(`Généré le ${dateStr}`, 14, 36);
     
     // Summary
     doc.setFontSize(12);
     doc.setTextColor(0);
-    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 40);
+    doc.text(`Total: ${trips.length} trajets | ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, 48);
 
     // Sort chronologically for PDF
     const sortedTrips = [...recalculatedTrips].sort(
@@ -207,7 +248,7 @@ export default function Report() {
     });
 
     autoTable(doc, {
-      startY: 48,
+      startY: 56,
       head: [['Date', 'Véhicule', 'Départ', 'Arrivée', 'Dist.', 'Cumul', 'Motif', 'IK']],
       body: tableData,
       styles: { fontSize: 7, cellPadding: 1.5 },
@@ -218,10 +259,11 @@ export default function Report() {
     });
 
     // Barème section
-    const finalY = (doc as any).lastAutoTable.finalY || 100;
+    let finalY = (doc as any).lastAutoTable.finalY || 100;
     
-    if (finalY < 240) {
+    if (finalY < 230) {
       doc.setFontSize(11);
+      doc.setTextColor(0);
       doc.text('Barème kilométrique fiscal 2024', 14, finalY + 15);
       
       const baremeData = IK_BAREME_2024.map(b => [
@@ -238,7 +280,17 @@ export default function Report() {
         styles: { fontSize: 7, cellPadding: 1.5 },
         headStyles: { fillColor: [100, 116, 139] },
       });
+      
+      finalY = (doc as any).lastAutoTable.finalY || finalY + 60;
     }
+
+    // Footer mention IkTracker
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setFontSize(8);
+    doc.setTextColor(100);
+    doc.text(IKTRACKER_MENTION, 14, pageHeight - 15);
+    doc.setTextColor(59, 130, 246);
+    doc.textWithLink(IKTRACKER_URL, 14, pageHeight - 10, { url: IKTRACKER_URL });
 
     return doc.output('arraybuffer');
   };
@@ -254,6 +306,10 @@ export default function Report() {
     try {
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
+      
+      // Add README
+      const readmeContent = generateReadmeContent();
+      zip.file('LISEZ-MOI-IkTracker.txt', readmeContent);
       
       // Add CSV
       const csvContent = generateCSVContent();
