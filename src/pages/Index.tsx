@@ -83,13 +83,20 @@ const Index = () => {
     }
   };
 
-  const handleStopTour = () => {
-    // Just stop tracking, keep the stops visible so user can save
+  const handleFinishTour = async () => {
+    // Stop tracking
     stopTour();
-    // Keep the sheet open so user can click "Enregistrer la tournée"
-    toast.info("Tournée terminée", {
-      description: "Cliquez sur 'Enregistrer' pour sauvegarder",
-    });
+    
+    // Automatically save the tour if we have enough stops
+    if (tourStops.length >= 2) {
+      await handleConvertToTrips(tourStops);
+    } else {
+      toast.error("Tournée trop courte", {
+        description: "Il faut au moins 2 arrêts pour enregistrer une tournée",
+      });
+      clearTour();
+      setShowTourLog(false);
+    }
   };
 
   const handleConvertToTrips = async (stops: TourStop[]) => {
@@ -653,9 +660,8 @@ ${IKTRACKER_MENTION}
         isLoading={isTourLoading}
         stops={tourStops}
         onStart={startTour}
-        onStop={handleStopTour}
+        onFinish={handleFinishTour}
         onClear={clearTour}
-        onConvertToTrips={handleConvertToTrips}
         hasHistory={!!lastTour}
         onShowHistory={() => {
           setShowTourLog(false);
@@ -671,13 +677,8 @@ ${IKTRACKER_MENTION}
         isLoading={false}
         stops={lastTour || []}
         onStart={() => {}}
-        onStop={() => {}}
+        onFinish={() => {}}
         onClear={() => setLastTour(null)}
-        onConvertToTrips={(stops) => {
-          handleConvertToTrips(stops);
-          setLastTour(null);
-          setShowTourHistory(false);
-        }}
         isHistory
       />
 
