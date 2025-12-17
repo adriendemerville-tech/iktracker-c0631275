@@ -64,15 +64,29 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast, isOnDeployedDomain]);
 
-  // Check if we're in password reset mode (user clicked email link)
+  // Check if we're in password reset mode or have OAuth error
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get('type');
+    const error = hashParams.get('error');
+    const errorDescription = hashParams.get('error_description');
     
     if (type === 'recovery') {
       setMode('reset-password');
     }
-  }, []);
+    
+    // Show OAuth errors from URL hash
+    if (error) {
+      toast({ 
+        title: 'Erreur OAuth', 
+        description: errorDescription || error, 
+        variant: 'destructive' 
+      });
+      console.error('OAuth error:', error, errorDescription);
+      // Clear the hash to prevent re-showing error
+      window.location.hash = '';
+    }
+  }, [toast]);
 
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
