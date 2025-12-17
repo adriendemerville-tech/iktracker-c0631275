@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { AuthForm } from "@/components/AuthForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
+import { PWAPromoSection } from "@/components/PWAPromoSection";
 import { 
   Calendar, 
   MapPin, 
@@ -950,6 +951,11 @@ const Landing = () => {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* PWA Promo Section */}
+      <AnimatedSection>
+        <PWAPromoSection />
+      </AnimatedSection>
       </main>
 
       {/* Footer */}
