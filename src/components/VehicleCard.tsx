@@ -31,7 +31,7 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
     <div
       onClick={onSelect}
       className={cn(
-        "relative px-3 py-2 rounded-lg border-2 transition-all cursor-pointer",
+        "relative px-3 py-3 rounded-lg border-2 transition-all cursor-pointer",
         selected
           ? "border-primary bg-primary/5 shadow-md"
           : "border-border bg-card hover:border-primary/50"
