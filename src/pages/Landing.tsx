@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 import { 
@@ -12,7 +13,8 @@ import {
   Clock, 
   ArrowRight,
   CheckCircle2,
-  TrendingUp
+  TrendingUp,
+  HelpCircle
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -100,6 +102,33 @@ const Landing = () => {
       initials: "SM",
       quote: "L'export PDF est impeccable. Mon expert-comptable m'a félicitée pour la clarté de mes relevés !",
       color: "bg-success"
+    }
+  ];
+
+  const faqItems = [
+    {
+      question: "IkTracker est-il vraiment gratuit ?",
+      answer: "Oui, IkTracker est 100% gratuit pour tous les indépendants. Pas de version premium, pas de frais cachés. Notre objectif est de simplifier la vie des professionnels libéraux."
+    },
+    {
+      question: "Comment fonctionne la synchronisation avec mon calendrier ?",
+      answer: "IkTracker se connecte à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet. Vous n'avez plus qu'à valider !"
+    },
+    {
+      question: "Les distances calculées sont-elles fiables ?",
+      answer: "Absolument. Nous utilisons l'API Google Maps pour calculer les distances réelles entre vos points de départ et d'arrivée. Les calculs sont précis au kilomètre près."
+    },
+    {
+      question: "Puis-je utiliser IkTracker sur mon téléphone ?",
+      answer: "Oui ! IkTracker est une Progressive Web App (PWA) optimisée pour mobile. Vous pouvez l'installer sur votre écran d'accueil et l'utiliser comme une application native."
+    },
+    {
+      question: "Comment exporter mes trajets pour mon comptable ?",
+      answer: "En un clic, générez un relevé PDF ou CSV de vos trajets. Le document inclut toutes les informations nécessaires : dates, adresses, distances et montants calculés selon le barème fiscal."
+    },
+    {
+      question: "Mes données sont-elles sécurisées ?",
+      answer: "Vos données sont stockées de manière sécurisée et chiffrée. Nous ne partageons jamais vos informations avec des tiers. Vous pouvez supprimer votre compte et vos données à tout moment."
     }
   ];
 
@@ -370,6 +399,43 @@ const Landing = () => {
               </AnimatedSection>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-muted/50">
+        <div className="container mx-auto max-w-3xl">
+          <AnimatedSection className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              <HelpCircle className="h-4 w-4" />
+              FAQ
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Questions fréquentes
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Tout ce que vous devez savoir sur IkTracker
+            </p>
+          </AnimatedSection>
+
+          <AnimatedSection delay={200}>
+            <Accordion type="single" collapsible className="w-full space-y-3">
+              {faqItems.map((item, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`item-${index}`}
+                  className="bg-card border border-border rounded-xl px-6 data-[state=open]:shadow-md transition-shadow"
+                >
+                  <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline py-5">
+                    {item.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </AnimatedSection>
         </div>
       </section>
 
