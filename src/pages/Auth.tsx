@@ -15,7 +15,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -29,11 +29,11 @@ const Auth = () => {
     }
   }, []);
 
-  const handleOAuthLogin = async (provider: 'google' | 'azure') => {
-    setOauthLoading(provider);
+  const handleOAuthLogin = async () => {
+    setOauthLoading('google');
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`,
         },
@@ -149,14 +149,14 @@ const Auth = () => {
           <CardDescription>{getDescription()}</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* OAuth buttons - shown for login and signup */}
+          {/* OAuth button - shown for login and signup */}
           {(mode === 'login' || mode === 'signup') && (
             <div className="space-y-3 mb-6">
               <Button
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => handleOAuthLogin('google')}
+                onClick={handleOAuthLogin}
                 disabled={oauthLoading !== null}
               >
                 {oauthLoading === 'google' ? (
@@ -182,26 +182,6 @@ const Auth = () => {
                   </svg>
                 )}
                 {mode === 'login' ? 'Se connecter avec Google' : 'S\'inscrire avec Google'}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => handleOAuthLogin('azure')}
-                disabled={oauthLoading !== null}
-              >
-                {oauthLoading === 'azure' ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <svg className="w-4 h-4 mr-2" viewBox="0 0 23 23">
-                    <path fill="#f35325" d="M1 1h10v10H1z" />
-                    <path fill="#81bc06" d="M12 1h10v10H12z" />
-                    <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                    <path fill="#ffba08" d="M12 12h10v10H12z" />
-                  </svg>
-                )}
-                {mode === 'login' ? 'Se connecter avec Microsoft' : 'S\'inscrire avec Microsoft'}
               </Button>
 
               <div className="relative my-4">
