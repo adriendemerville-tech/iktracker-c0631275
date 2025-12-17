@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
+import { FeedbackForm } from '@/components/FeedbackForm';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -207,6 +208,9 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Feedback Button */}
+        {user && <FeedbackForm />}
 
         {/* Logout Button */}
         {user && (
