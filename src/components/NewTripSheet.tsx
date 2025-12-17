@@ -102,7 +102,8 @@ export function NewTripSheet({
         endTime: new Date(editTrip.endTime),
       });
       setPurpose(editTrip.purpose || '');
-      setManualDistance(editTrip.baseDistance.toString());
+      // Show total distance in input (already doubled if round trip)
+      setManualDistance(editTrip.distance.toString());
       setRoundTrip(editTrip.roundTrip);
       setTripDate(new Date(editTrip.startTime));
       setStep('details');
@@ -227,8 +228,8 @@ export function NewTripSheet({
   const handleConfirm = () => {
     if (!draft.vehicleId || !draft.startLocation || !draft.endLocation) return;
 
-    const baseDistance = parseFloat(manualDistance) || 0;
-    const distance = roundTrip ? baseDistance * 2 : baseDistance;
+    const distance = parseFloat(manualDistance) || 0;
+    const baseDistance = roundTrip ? distance / 2 : distance;
     
     // Preserve the time from draft but use the selected date
     const startTime = draft.startTime || new Date();
@@ -440,16 +441,23 @@ export function NewTripSheet({
                   <div>
                     <p className="font-medium">Aller-retour</p>
                     <p className="text-xs text-muted-foreground">
-                      {roundTrip 
-                        ? `Distance totale : ${((parseFloat(manualDistance) || 0) * 2).toFixed(1)} km`
-                        : 'Double la distance parcourue'
-                      }
+                      Double la distance parcourue
                     </p>
                   </div>
                 </div>
                 <Switch 
                   checked={roundTrip} 
-                  onCheckedChange={setRoundTrip}
+                  onCheckedChange={(checked) => {
+                    const currentDistance = parseFloat(manualDistance) || 0;
+                    if (checked && !roundTrip) {
+                      // Turning ON: double the distance
+                      setManualDistance((currentDistance * 2).toFixed(1));
+                    } else if (!checked && roundTrip) {
+                      // Turning OFF: halve the distance
+                      setManualDistance((currentDistance / 2).toFixed(1));
+                    }
+                    setRoundTrip(checked);
+                  }}
                   className="focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
@@ -480,14 +488,20 @@ export function NewTripSheet({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Distance (km) *</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="Ex: 25.5"
-                  value={manualDistance}
-                  onChange={(e) => setManualDistance(e.target.value)}
-                />
+                <label className="text-sm font-medium">Distance *</label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 25.5"
+                    value={manualDistance}
+                    onChange={(e) => setManualDistance(e.target.value)}
+                    className="pr-12"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    km
+                  </span>
+                </div>
                 {typeof draft.startLocation?.lat === 'number' &&
                 typeof draft.startLocation?.lng === 'number' &&
                 typeof draft.endLocation?.lat === 'number' &&
