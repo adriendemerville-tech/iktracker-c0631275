@@ -423,8 +423,8 @@ export function NewTripSheet({
               </div>
 
               <div className={cn(
-                "flex items-center justify-between p-4 rounded-xl border-2 transition-colors",
-                roundTrip ? "bg-primary/5 border-primary" : "bg-muted border-transparent"
+                "flex items-center justify-between p-4 rounded-xl transition-colors",
+                roundTrip ? "bg-primary/5 border-2 border-primary" : "bg-muted"
               )}>
                 <div className="flex items-center gap-3">
                   <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
