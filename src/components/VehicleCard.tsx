@@ -81,7 +81,6 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
 
       <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between text-sm">
         <div>
-          <span className="text-muted-foreground">Propriétaire: </span>
           <span className="font-medium">{vehicle.ownerFirstName} {vehicle.ownerLastName}</span>
         </div>
         <div className="flex items-center gap-2">
