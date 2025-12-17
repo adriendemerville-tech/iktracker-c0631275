@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_connections: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          ics_url: string | null
+          id: string
+          is_active: boolean
+          provider: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          ics_url?: string | null
+          id?: string
+          is_active?: boolean
+          provider: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          ics_url?: string | null
+          id?: string
+          is_active?: boolean
+          provider?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string | null
@@ -49,6 +88,7 @@ export type Database = {
       }
       trips: {
         Row: {
+          calendar_event_id: string | null
           created_at: string
           date: string
           distance: number
@@ -57,11 +97,13 @@ export type Database = {
           ik_amount: number
           purpose: string | null
           round_trip: boolean
+          source: string | null
           start_location: string
           user_id: string
           vehicle_id: string
         }
         Insert: {
+          calendar_event_id?: string | null
           created_at?: string
           date: string
           distance: number
@@ -70,11 +112,13 @@ export type Database = {
           ik_amount?: number
           purpose?: string | null
           round_trip?: boolean
+          source?: string | null
           start_location: string
           user_id: string
           vehicle_id: string
         }
         Update: {
+          calendar_event_id?: string | null
           created_at?: string
           date?: string
           distance?: number
@@ -83,6 +127,7 @@ export type Database = {
           ik_amount?: number
           purpose?: string | null
           round_trip?: boolean
+          source?: string | null
           start_location?: string
           user_id?: string
           vehicle_id?: string
