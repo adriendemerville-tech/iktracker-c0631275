@@ -16,7 +16,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
 
   return (
     <div className={cn(
-      "flex flex-col items-center p-4 rounded-xl transition-all duration-300",
+      "flex flex-col items-center p-4 rounded-md transition-all duration-300",
       variant === 'default' && "bg-card text-card-foreground shadow-md",
       variant === 'accent' && "bg-gradient-accent text-accent-foreground shadow-lg"
     )}>

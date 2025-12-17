@@ -56,7 +56,7 @@ export function TourLogSheet({
           {/* Status banner */}
           <div
             className={cn(
-              "p-4 rounded-xl flex items-center gap-3",
+              "p-4 rounded-md flex items-center gap-3",
               isActive
                 ? "bg-accent/20 border border-accent"
                 : "bg-muted"

@@ -497,7 +497,7 @@ export function NewTripSheet({
 
           {step === 'details' && (
             <div className="animate-fade-in space-y-6">
-              <div className="p-4 bg-muted rounded-xl">
+              <div className="p-4 bg-muted rounded-md">
                 <div className="flex items-center gap-3 text-sm mb-2">
                   <Car className="w-4 h-4 text-primary" />
                   <span className="font-medium">{selectedVehicle?.make} {selectedVehicle?.model}</span>
@@ -521,7 +521,7 @@ export function NewTripSheet({
               </div>
 
               <div className={cn(
-                "flex items-center justify-between p-4 rounded-xl transition-colors outline-none ring-0",
+                "flex items-center justify-between p-4 rounded-md transition-colors outline-none ring-0",
                 roundTrip ? "bg-primary/5 border-2 border-primary" : "bg-muted border-0"
               )}>
                 <div className="flex items-center gap-3">

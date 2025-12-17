@@ -516,7 +516,7 @@ ${IKTRACKER_MENTION}
           </div>
 
           {vehicles.length === 0 ? (
-            <div className="text-center py-8 bg-card rounded-2xl">
+            <div className="text-center py-8 bg-card rounded-md">
               <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground">Aucun véhicule enregistré</p>
               <p className="text-sm text-muted-foreground mt-1 mb-4">
@@ -558,7 +558,7 @@ ${IKTRACKER_MENTION}
           </div>
 
           {recentTrips.length === 0 ? (
-            <div className="text-center py-12 bg-card rounded-2xl">
+            <div className="text-center py-12 bg-card rounded-md">
               <MapPin className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground">Aucun trajet enregistré</p>
               <p className="text-sm text-muted-foreground mt-1">
