@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 export interface Preferences {
   showTripTime: boolean;
   stopDetectionMinutes: number;
+  locationRadiusMeters: number;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -10,6 +11,7 @@ const PREFERENCES_KEY = 'ik-tracker-preferences';
 const defaultPreferences: Preferences = {
   showTripTime: true,
   stopDetectionMinutes: 7,
+  locationRadiusMeters: 100,
 };
 
 export function usePreferences() {

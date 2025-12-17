@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -253,6 +253,32 @@ const Profile = () => {
                 />
                 <span className="text-sm font-medium w-16 text-right">
                   {preferences.stopDetectionMinutes} min
+                </span>
+              </div>
+            </div>
+
+            {/* Location Radius */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <MapPin className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <Label>Rayon de détection</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Distance pour considérer un même lieu
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 pl-8">
+                <Slider
+                  value={[preferences.locationRadiusMeters]}
+                  onValueChange={([value]) => updatePreference('locationRadiusMeters', value)}
+                  min={50}
+                  max={300}
+                  step={25}
+                  className="flex-1"
+                />
+                <span className="text-sm font-medium w-16 text-right">
+                  {preferences.locationRadiusMeters} m
                 </span>
               </div>
             </div>
