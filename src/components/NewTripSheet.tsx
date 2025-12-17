@@ -489,19 +489,16 @@ export function NewTripSheet({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Distance *</label>
-                <div className="relative">
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="Ex: 25.5"
-                    value={manualDistance}
-                    onChange={(e) => setManualDistance(e.target.value)}
-                    className="pr-12"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                    km
-                  </span>
-                </div>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="Ex: 25.5 km"
+                  value={manualDistance ? `${manualDistance} km` : ''}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                    setManualDistance(value);
+                  }}
+                />
                 {typeof draft.startLocation?.lat === 'number' &&
                 typeof draft.startLocation?.lng === 'number' &&
                 typeof draft.endLocation?.lat === 'number' &&
