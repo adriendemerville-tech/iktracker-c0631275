@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Smartphone, 
@@ -7,7 +8,8 @@ import {
   Bell,
   CheckCircle2,
   Share,
-  Plus
+  Plus,
+  ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +91,7 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                   <Download className="h-4 w-4 text-primary" />
                   Comment installer ?
                 </h4>
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid sm:grid-cols-2 gap-3 mb-4">
                   {installSteps.map((step, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm">
                       <span className="font-medium text-foreground">{step.os} :</span>
@@ -101,6 +103,12 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                     </div>
                   ))}
                 </div>
+                <Link to="/install">
+                  <Button variant="outline" size="sm" className="w-full group">
+                    Voir le guide complet
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </div>
 
