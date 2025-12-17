@@ -53,6 +53,33 @@ export type Database = {
         }
         Relationships: []
       }
+      distance_cache: {
+        Row: {
+          created_at: string
+          distance: number
+          end_address: string
+          id: string
+          start_address: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          distance: number
+          end_address: string
+          id?: string
+          start_address: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          distance?: number
+          end_address?: string
+          id?: string
+          start_address?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
