@@ -130,8 +130,6 @@ ${IKTRACKER_MENTION}
   const generateCSVContent = () => {
     const headers = [
       'Date',
-      'Heure départ',
-      'Heure arrivée',
       'Propriétaire',
       'Véhicule',
       'Immatriculation',
@@ -155,8 +153,6 @@ ${IKTRACKER_MENTION}
 
       return [
         new Date(t.startTime).toLocaleDateString('fr-FR'),
-        new Date(t.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        new Date(t.endTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
         vehicle ? `${vehicle.ownerFirstName} ${vehicle.ownerLastName}` : '',
         vehicle ? `${vehicle.make} ${vehicle.model}` : '',
         vehicle?.licensePlate || '',
@@ -172,7 +168,7 @@ ${IKTRACKER_MENTION}
     });
 
     rows.push([]);
-    rows.push(['TOTAL', '', '', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
+    rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
     
     rows.push([]);
     rows.push(['Barème kilométrique fiscal 2024']);
@@ -261,7 +257,6 @@ ${IKTRACKER_MENTION}
         const startTime = new Date(t.startTime);
         return [
           startTime.toLocaleDateString('fr-FR'),
-          startTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
           t.startLocation.name,
           t.endLocation.name,
           t.purpose || '-',
@@ -272,12 +267,12 @@ ${IKTRACKER_MENTION}
 
       autoTable(doc, {
         startY: currentY,
-        head: [['Date', 'Heure', 'Départ', 'Arrivée', 'Motif', 'Km', 'IK']],
+        head: [['Date', 'Départ', 'Arrivée', 'Motif', 'Km', 'IK']],
         body: tableData,
-        styles: { fontSize: 7, cellPadding: 1.5 },
-        headStyles: { fillColor: [59, 130, 246] },
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [38, 97, 217] },
         alternateRowStyles: { fillColor: [245, 247, 250] },
-        foot: [[`Sous-total ${month}`, '', '', '', '', `${monthKm.toFixed(1)} km`, `${monthIK.toFixed(2)} €`]],
+        foot: [[`Sous-total ${month}`, '', '', '', `${monthKm.toFixed(1)} km`, `${monthIK.toFixed(2)} €`]],
         footStyles: { fillColor: [148, 163, 184], textColor: 255, fontStyle: 'bold' },
       });
 
