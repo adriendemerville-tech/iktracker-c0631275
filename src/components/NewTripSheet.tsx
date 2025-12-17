@@ -109,6 +109,19 @@ export function NewTripSheet({
       setRoundTrip(editTrip.roundTrip);
       setTripDate(new Date(editTrip.startTime));
       setStep('details');
+      
+      // Recalculate distance from API if coordinates are available
+      const start = editTrip.startLocation;
+      const end = editTrip.endLocation;
+      if (typeof start?.lat === 'number' && typeof start?.lng === 'number' &&
+          typeof end?.lat === 'number' && typeof end?.lng === 'number') {
+        calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng)
+          .then((distance) => {
+            setCalculatedDistance(distance);
+            console.log('Recalculated distance from API:', distance, 'km (one-way)');
+          })
+          .catch((err) => console.error('Error recalculating distance:', err));
+      }
     }
   }, [open, editTrip]);
 
