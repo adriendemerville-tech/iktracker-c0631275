@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trip, Location, Vehicle, calculateTotalAnnualIK } from '@/types/trip';
+import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from '@/types/trip';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -79,6 +79,7 @@ export function useTrips() {
           startTime: new Date(t.date),
           endTime: new Date(t.date),
           ikAmount: t.ik_amount,
+          tourStops: (t as any).tour_stops as TourStopData[] | undefined,
         })));
       }
     } catch (error) {
@@ -99,6 +100,7 @@ export function useTrips() {
         roundTrip: t.roundTrip || false,
         startTime: new Date(t.startTime),
         endTime: new Date(t.endTime),
+        tourStops: t.tourStops || undefined,
       })));
     }
 
@@ -254,7 +256,8 @@ export function useTrips() {
           purpose: trip.purpose || null,
           round_trip: trip.roundTrip,
           ik_amount: ikAmount,
-        })
+          tour_stops: trip.tourStops || null,
+        } as any)
         .select()
         .single();
 
@@ -271,6 +274,7 @@ export function useTrips() {
           startTime: new Date(data.date),
           endTime: new Date(data.date),
           ikAmount: data.ik_amount,
+          tourStops: (data as any).tour_stops as TourStopData[] | undefined,
         };
         setTrips(prev => [newTrip, ...prev]);
         return newTrip;
@@ -281,6 +285,7 @@ export function useTrips() {
         ...trip,
         id: crypto.randomUUID(),
         ikAmount,
+        tourStops: trip.tourStops,
       };
       saveTripsLocal([newTrip, ...trips]);
       return newTrip;

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, Trash2, Car, Pencil, Calendar, Truck } from 'lucide-react';
+import { MapPin, ArrowRight, Trash2, Car, Pencil, Calendar, Truck, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
 import { usePreferences } from '@/hooks/usePreferences';
+import { TourDetailSheet } from './TourDetailSheet';
 
 interface TripCardProps {
   trip: Trip;
@@ -25,6 +27,7 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
 
 export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }: TripCardProps) {
   const { preferences } = usePreferences();
+  const [showTourDetail, setShowTourDetail] = useState(false);
   
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
@@ -53,84 +56,130 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
 
   const startCityName = getDisplayName(trip.startLocation);
   const endCityName = getDisplayName(trip.endLocation);
-  const isTour = trip.purpose === 'Tournée';
+  const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length > 0;
+
+  const handleCardClick = () => {
+    if (isTour) {
+      setShowTourDetail(true);
+    }
+  };
 
   return (
-    <div className="bg-card rounded-xl p-3 shadow-sm border border-border/50 animate-fade-in relative">
-      {/* Tour icon badge */}
-      {isTour && (
-        <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-sm border border-border/50 flex items-center justify-center">
-          <Truck className="w-3.5 h-3.5 text-muted-foreground" />
-        </div>
-      )}
+    <>
+      <div 
+        className={cn(
+          "bg-card rounded-xl p-3 shadow-sm border border-border/50 animate-fade-in relative",
+          isTour && "cursor-pointer hover:bg-muted/50 transition-colors"
+        )}
+        onClick={handleCardClick}
+      >
+        {/* Tour icon badge */}
+        {isTour && (
+          <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-sm border border-border/50 flex items-center justify-center">
+            <Truck className="w-3.5 h-3.5 text-primary" />
+          </div>
+        )}
 
-      {/* Ligne 1: Date | Départ → Arrivée | Bouton edit */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-          <Calendar className="w-3.5 h-3.5" />
-          <span>{formatDate(trip.startTime)}</span>
-          {preferences.showTripTime && (
-            <span className="text-muted-foreground/70">
-              {formatTime(trip.startTime)}
+        {/* Ligne 1: Date | Tournée ou Départ → Arrivée | Bouton edit */}
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{formatDate(trip.startTime)}</span>
+            {preferences.showTripTime && (
+              <span className="text-muted-foreground/70">
+                {formatTime(trip.startTime)}
+              </span>
+            )}
+          </div>
+          <span className="text-border ml-1 mr-3">|</span>
+          
+          {isTour ? (
+            // Tour display: "Tournée (X étapes)"
+            <div className="flex-1 flex items-center gap-2 min-w-0">
+              <Truck className="w-4 h-4 text-primary shrink-0" />
+              <span className="font-medium text-sm">Tournée</span>
+              <span className="text-xs text-muted-foreground">
+                ({trip.tourStops!.length} étapes)
+              </span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto shrink-0" />
+            </div>
+          ) : (
+            // Regular trip display: Départ → Arrivée
+            <div className="flex-1 flex items-center gap-1.5 min-w-0">
+              <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.startLocation.type))} />
+              <span className="font-medium text-sm truncate">{startCityName}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.endLocation.type))} />
+              <span className="font-medium text-sm truncate">{endCityName}</span>
+            </div>
+          )}
+          
+          {onEdit && !isTour && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-primary shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(trip);
+              }}
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Ligne 2: Véhicule + CV | Motif (hidden for tours since purpose is "Tournée") */}
+        {vehicle && (
+          <div className="flex items-center gap-2 mb-2 text-xs">
+            <Car className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span className="font-medium">{vehicle.make} {vehicle.model}</span>
+            <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+              {vehicle.fiscalPower} CV
             </span>
+            {trip.purpose && !isTour && (
+              <>
+                <span className="text-border ml-2 mr-6">|</span>
+                <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Ligne 3: Distance + IK + Bouton supprimer */}
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <div className="flex items-center gap-3">
+            <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
+            <span className="counter-text text-sm font-bold text-accent">
+              +{trip.ikAmount.toFixed(2)} €
+            </span>
+          </div>
+          {showDelete && onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(trip.id);
+              }}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
           )}
         </div>
-        <span className="text-border ml-1 mr-3">|</span>
-        <div className="flex-1 flex items-center gap-1.5 min-w-0">
-          <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.startLocation.type))} />
-          <span className="font-medium text-sm truncate">{startCityName}</span>
-          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-          <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.endLocation.type))} />
-          <span className="font-medium text-sm truncate">{endCityName}</span>
-        </div>
-        {onEdit && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground hover:text-primary shrink-0"
-            onClick={() => onEdit(trip)}
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </Button>
-        )}
       </div>
 
-      {/* Ligne 2: Véhicule + CV | Motif */}
-      {vehicle && (
-        <div className="flex items-center gap-2 mb-2 text-xs">
-          <Car className="w-3.5 h-3.5 text-primary shrink-0" />
-          <span className="font-medium">{vehicle.make} {vehicle.model}</span>
-          <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-            {vehicle.fiscalPower} CV
-          </span>
-          {trip.purpose && (
-            <>
-              <span className="text-border ml-2 mr-6">|</span>
-              <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
-            </>
-          )}
-        </div>
+      {/* Tour detail sheet */}
+      {isTour && (
+        <TourDetailSheet
+          open={showTourDetail}
+          onOpenChange={setShowTourDetail}
+          stops={trip.tourStops!}
+          totalDistance={trip.distance}
+          date={trip.startTime}
+        />
       )}
-
-      {/* Ligne 3: Distance + IK + Bouton supprimer */}
-      <div className="flex items-center justify-between pt-2 border-t border-border/50">
-        <div className="flex items-center gap-3">
-          <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
-          <span className="counter-text text-sm font-bold text-accent">
-            +{trip.ikAmount.toFixed(2)} €
-          </span>
-        </div>
-        {showDelete && onDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-            onClick={() => onDelete(trip.id)}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </Button>
-        )}
-      </div>
-    </div>
+    </>
   );
 }

@@ -18,6 +18,16 @@ export interface Vehicle {
   year?: number;
 }
 
+export interface TourStopData {
+  id: string;
+  timestamp: string;
+  lat: number;
+  lng: number;
+  address?: string;
+  city?: string;
+  duration?: number;
+}
+
 export interface Trip {
   id: string;
   vehicleId: string;
@@ -30,6 +40,7 @@ export interface Trip {
   startTime: Date;
   endTime: Date;
   ikAmount: number; // calculated IK in euros
+  tourStops?: TourStopData[]; // For tours: array of intermediate stops
 }
 
 export interface TripDraft {
