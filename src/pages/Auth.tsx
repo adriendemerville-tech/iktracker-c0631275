@@ -16,8 +16,32 @@ const Auth = () => {
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already logged in and redirect to home
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/', { replace: true });
+      } else {
+        setCheckingAuth(false);
+      }
+    };
+    checkAuth();
+
+    // Listen for auth state changes (e.g., after OAuth callback)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
+        navigate('/', { replace: true });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
 
   // Check if we're in password reset mode (user clicked email link)
   useEffect(() => {
@@ -135,6 +159,15 @@ const Auth = () => {
       case 'reset-password': return 'Modifier le mot de passe';
     }
   };
+
+  // Show loading while checking auth
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
