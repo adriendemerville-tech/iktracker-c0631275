@@ -90,98 +90,85 @@ const Index = () => {
     console.log('vehicles:', vehicles);
     
     if (stops.length < 2) {
-      toast.error("Impossible de créer les trajets", {
+      toast.error("Impossible de créer le trajet", {
         description: "Il faut au moins 2 arrêts pour créer un trajet",
       });
       return;
     }
     
     if (vehicles.length === 0) {
-      toast.error("Impossible de créer les trajets", {
+      toast.error("Impossible de créer le trajet", {
         description: "Ajoutez d'abord un véhicule",
       });
       return;
     }
 
-    toast.info("Calcul des distances...", {
-      description: `${stops.length - 1} trajet(s) à créer`,
-    });
+    toast.info("Calcul de la distance totale...");
 
-    // Create trips between consecutive stops
+    // Get first and last stops
+    const firstStop = stops[0];
+    const lastStop = stops[stops.length - 1];
     const vehicleId = vehicles[0].id;
-    console.log('Using vehicle:', vehicleId);
-    let createdCount = 0;
-    let errorCount = 0;
 
+    // Calculate total distance between all consecutive stops
+    let totalDistance = 0;
     for (let i = 0; i < stops.length - 1; i++) {
       const start = stops[i];
       const end = stops[i + 1];
-
-      console.log(`Creating trip ${i + 1}: ${start.city || start.address} -> ${end.city || end.address}`);
-
-      // Calculate driving distance
-      let distance = 0;
       try {
-        distance = await calculateDrivingDistance(
+        const distance = await calculateDrivingDistance(
           start.lat,
           start.lng,
           end.lat,
           end.lng
         );
-        console.log(`Distance calculated: ${distance} km`);
+        totalDistance += distance;
       } catch (e) {
-        console.warn('Failed to calculate distance, using 0:', e);
-      }
-
-      try {
-        const result = await addTrip({
-          vehicleId,
-          startLocation: {
-            id: start.id,
-            name: start.city || start.address || 'Position',
-            address: start.address,
-            lat: start.lat,
-            lng: start.lng,
-            type: 'other',
-          },
-          endLocation: {
-            id: end.id,
-            name: end.city || end.address || 'Position',
-            address: end.address,
-            lat: end.lat,
-            lng: end.lng,
-            type: 'other',
-          },
-          distance,
-          purpose: 'Tournée',
-          startTime: start.timestamp,
-          endTime: end.timestamp,
-        });
-        console.log('Trip created:', result);
-        if (result) {
-          createdCount++;
-        } else {
-          errorCount++;
-          console.error('addTrip returned null');
-        }
-      } catch (e) {
-        errorCount++;
-        console.error('Failed to create trip:', e);
+        console.warn('Failed to calculate distance segment:', e);
       }
     }
 
-    console.log(`Created ${createdCount} trips, ${errorCount} errors`);
+    console.log(`Total distance: ${totalDistance} km`);
 
-    if (createdCount > 0) {
-      toast.success(`${createdCount} trajet${createdCount > 1 ? 's' : ''} créé${createdCount > 1 ? 's' : ''}`, {
-        description: "Les trajets ont été ajoutés à votre journal",
+    try {
+      const result = await addTrip({
+        vehicleId,
+        startLocation: {
+          id: firstStop.id,
+          name: firstStop.city || firstStop.address || 'Position',
+          address: firstStop.address,
+          lat: firstStop.lat,
+          lng: firstStop.lng,
+          type: 'other',
+        },
+        endLocation: {
+          id: lastStop.id,
+          name: lastStop.city || lastStop.address || 'Position',
+          address: lastStop.address,
+          lat: lastStop.lat,
+          lng: lastStop.lng,
+          type: 'other',
+        },
+        distance: totalDistance,
+        purpose: 'Tournée',
+        startTime: firstStop.timestamp,
+        endTime: lastStop.timestamp,
       });
-      clearTour();
-      setShowTourLog(false);
-    } else {
-      toast.error("Erreur lors de la création des trajets", {
-        description: "Vérifiez la console pour plus de détails",
-      });
+      
+      console.log('Tour trip created:', result);
+      
+      if (result) {
+        toast.success("Tournée enregistrée", {
+          description: `${totalDistance.toFixed(1)} km - ${firstStop.city || 'Départ'} → ${lastStop.city || 'Arrivée'}`,
+        });
+        clearTour();
+        setShowTourLog(false);
+      } else {
+        toast.error("Erreur lors de l'enregistrement");
+      }
+    } catch (e) {
+      console.error('Failed to create tour trip:', e);
+      toast.error("Erreur lors de l'enregistrement de la tournée");
     }
   };
 
