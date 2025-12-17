@@ -646,15 +646,17 @@ ${IKTRACKER_MENTION}
                 </Button>
               </>
             )}
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={exportZip}
-              disabled={trips.length === 0 || isExporting}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-            >
-              <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-            </Button>
+            {!isAdmin && (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={exportZip}
+                disabled={trips.length === 0 || isExporting}
+                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+              </Button>
+            )}
             <div className="relative">
               <Button 
                 variant="ghost" 
