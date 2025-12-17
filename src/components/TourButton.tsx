@@ -5,18 +5,19 @@ interface TourButtonProps {
   isActive: boolean;
   isLoading?: boolean;
   distanceFromLastStop?: number; // in meters
+  stopsCount?: number;
   onClick: () => void;
 }
 
-export function TourButton({ isActive, isLoading, distanceFromLastStop = 0, onClick }: TourButtonProps) {
-  // Format distance for display
-  const formatDistance = (meters: number): string => {
-    if (meters < 100) return '';
-    if (meters < 1000) return `${Math.round(meters)}m`;
-    return `${(meters / 1000).toFixed(1)}km`;
-  };
-
-  const distanceText = formatDistance(distanceFromLastStop);
+export function TourButton({ 
+  isActive, 
+  isLoading, 
+  distanceFromLastStop = 0, 
+  stopsCount = 0,
+  onClick 
+}: TourButtonProps) {
+  // Format distance in km (rounded to unit)
+  const distanceKm = Math.round(distanceFromLastStop / 1000);
 
   return (
     <button
@@ -30,18 +31,26 @@ export function TourButton({ isActive, isLoading, distanceFromLastStop = 0, onCl
           : "bg-gradient-primary text-primary-foreground focus:ring-primary/50 hover:scale-105",
         isLoading && "opacity-70 cursor-wait"
       )}
-      style={isActive ? { animation: 'gentle-glow 3s ease-in-out infinite' } : undefined}
+      style={isActive ? { 
+        animation: 'orange-border-glow 2s ease-in-out infinite',
+      } : undefined}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
       <Truck className={cn("w-7 h-7", isLoading && "animate-bounce")} />
       
-      {/* Distance indicator - only show when active and distance > 100m */}
-      {isActive && distanceText && (
+      {/* Stops count badge - top right */}
+      {isActive && stopsCount > 0 && (
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold shadow-md">
+          {stopsCount}
+        </span>
+      )}
+      
+      {/* Distance badge - bottom left */}
+      {isActive && distanceKm > 0 && (
         <span 
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-bold text-yellow-400 animate-pulse whitespace-nowrap"
-          style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}
+          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md"
         >
-          {distanceText}
+          {distanceKm}
         </span>
       )}
     </button>
