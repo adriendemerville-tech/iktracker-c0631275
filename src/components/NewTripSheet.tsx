@@ -423,8 +423,8 @@ export function NewTripSheet({
               </div>
 
               <div className={cn(
-                "flex items-center justify-between p-4 rounded-xl transition-colors",
-                roundTrip ? "bg-primary/5 border-2 border-primary" : "bg-muted"
+                "flex items-center justify-between p-4 rounded-xl transition-colors outline-none ring-0",
+                roundTrip ? "bg-primary/5 border-2 border-primary" : "bg-muted border-0"
               )}>
                 <div className="flex items-center gap-3">
                   <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
@@ -441,6 +441,7 @@ export function NewTripSheet({
                 <Switch 
                   checked={roundTrip} 
                   onCheckedChange={setRoundTrip}
+                  className="focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
 
