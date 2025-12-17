@@ -11,9 +11,8 @@ interface TourLogSheetProps {
   isLoading: boolean;
   stops: TourStop[];
   onStart: () => void;
-  onStop: () => void;
+  onFinish: () => void;
   onClear: () => void;
-  onConvertToTrips?: (stops: TourStop[]) => void;
   hasHistory?: boolean;
   onShowHistory?: () => void;
   isHistory?: boolean;
@@ -26,9 +25,8 @@ export function TourLogSheet({
   isLoading,
   stops,
   onStart,
-  onStop,
+  onFinish,
   onClear,
-  onConvertToTrips,
   hasHistory,
   onShowHistory,
   isHistory,
@@ -150,32 +148,19 @@ export function TourLogSheet({
         {/* Actions */}
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t">
           <div className="flex flex-col gap-3">
-            {/* Primary action: Save tour button - most prominent when tour is finished with stops */}
-            {stops.length >= 2 && !isActive && onConvertToTrips && (
-              <Button
-                variant="gradient"
-                size="lg"
-                onClick={() => onConvertToTrips(stops)}
-                className="w-full animate-pulse"
-              >
-                <Truck className="w-5 h-5 mr-2" />
-                Enregistrer la tournée
-              </Button>
-            )}
-
-            <div className={cn("flex gap-3", isActive && "justify-center")}>
+            <div className="flex gap-3 w-full">
               {isActive ? (
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onStop}
-                  className="text-destructive border-destructive/50 hover:bg-destructive/10"
+                  variant="destructive"
+                  size="lg"
+                  onClick={onFinish}
+                  className="flex-1"
                 >
-                  <Square className="w-3 h-3 mr-1" />
-                  Arrêter
+                  <Square className="w-4 h-4 mr-2" />
+                  Terminer et enregistrer
                 </Button>
               ) : !isHistory ? (
-                <div className="flex gap-3 w-full">
+                <>
                   {stops.length === 0 && (
                     <Button
                       variant="secondary"
@@ -199,7 +184,7 @@ export function TourLogSheet({
                       Historique
                     </Button>
                   )}
-                </div>
+                </>
               ) : null}
             </div>
           </div>
