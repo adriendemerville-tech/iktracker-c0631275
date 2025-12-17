@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { PWAPromoSection } from '@/components/PWAPromoSection';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -272,6 +273,9 @@ const Signup = () => {
             <Link to="/privacy" className="underline hover:text-foreground">politique de confidentialité</Link>.
           </p>
         </div>
+
+        {/* PWA Promo Section */}
+        <PWAPromoSection compact className="mt-12" />
       </main>
     </div>
   );
