@@ -150,14 +150,17 @@ export function TourLogSheet({
           <div className="flex flex-col gap-3">
             <div className="flex gap-3 w-full">
               {isActive ? (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={onFinish}
-                >
-                  <Square className="w-4 h-4 mr-2" />
-                  Terminer
-                </Button>
+                <div className="flex justify-center w-full">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onFinish}
+                    className="border-destructive text-destructive hover:bg-destructive/10"
+                  >
+                    <Square className="w-4 h-4 mr-2" />
+                    Terminer
+                  </Button>
+                </div>
               ) : !isHistory ? (
                 <>
                   {stops.length === 0 && (
