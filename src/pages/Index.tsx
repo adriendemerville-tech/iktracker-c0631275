@@ -351,13 +351,27 @@ ${IKTRACKER_MENTION}
     return '\uFEFF' + csv;
   };
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const doc = new jsPDF({ orientation: 'portrait' });
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 14;
     const dateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     const generatedDate = new Date().toLocaleDateString('fr-FR');
+
+    // Load logo
+    let logoBase64: string | null = null;
+    try {
+      const response = await fetch('/favicon.png');
+      const blob = await response.blob();
+      logoBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.warn('Could not load logo for PDF');
+    }
 
     // Recalculate for PDF
     const grouped = new Map<string, typeof trips>();
@@ -394,23 +408,31 @@ ${IKTRACKER_MENTION}
     doc.setFillColor(38, 97, 217);
     doc.rect(0, 0, pageWidth, 4, 'F');
 
-    // Title
+    // Add logo if available
+    const logoSize = 12;
+    const titleX = logoBase64 ? margin + logoSize + 4 : margin;
+    
+    if (logoBase64) {
+      doc.addImage(logoBase64, 'PNG', margin, 10, logoSize, logoSize);
+    }
+
+    // Title (adjusted position based on logo)
     doc.setFontSize(22);
     doc.setTextColor(38, 97, 217);
     doc.setFont('helvetica', 'bold');
-    doc.text('Relevé IKtracker', margin, 20);
+    doc.text('Relevé IKtracker', titleX, 18);
 
     // Subtitle
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
     doc.setFont('helvetica', 'normal');
-    doc.text(dateStr, margin, 28);
+    doc.text(dateStr, titleX, 26);
 
     // Generated date (right aligned)
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
-    doc.text(`Généré le ${generatedDate}`, pageWidth - margin, 20, { align: 'right' });
-    doc.text('Barème fiscal 2025', pageWidth - margin, 26, { align: 'right' });
+    doc.text(`Généré le ${generatedDate}`, pageWidth - margin, 18, { align: 'right' });
+    doc.text('Barème fiscal 2025', pageWidth - margin, 24, { align: 'right' });
 
     // === VEHICLE INFO BOX ===
     const vehicle = vehicles.length > 0 ? vehicles[0] : null;
@@ -561,7 +583,7 @@ ${IKTRACKER_MENTION}
       const dateStr = new Date().toISOString().split('T')[0];
       zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());
       zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
-      zip.file(`releve-ik-${dateStr}.pdf`, generatePDF());
+      zip.file(`releve-ik-${dateStr}.pdf`, await generatePDF());
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const link = document.createElement('a');
