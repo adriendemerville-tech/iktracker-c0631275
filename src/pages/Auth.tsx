@@ -11,6 +11,17 @@ import { Car, Lock, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
 const DEPLOYED_DOMAIN = 'iktracker.lovable.app';
 
 const Auth = () => {
+  // SEO meta tags
+  useEffect(() => {
+    document.title = 'Connexion | IKtracker';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques. Inscription gratuite.');
+    }
+    return () => {
+      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
+    };
+  }, []);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

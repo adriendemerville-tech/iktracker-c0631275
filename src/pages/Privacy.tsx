@@ -1,9 +1,21 @@
+import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Privacy = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Politique de confidentialité | IKtracker';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD, droits d\'accès et sécurité de vos informations de trajets professionnels.');
+    }
+    return () => {
+      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
