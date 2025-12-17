@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Switch } from './ui/switch';
 import { LocationPicker } from './LocationPicker';
 import { VehicleCard } from './VehicleCard';
 import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
@@ -80,6 +81,7 @@ export function NewTripSheet({
   const [purpose, setPurpose] = useState('');
   const [manualDistance, setManualDistance] = useState('');
   const [tripDate, setTripDate] = useState<Date>(new Date());
+  const [roundTrip, setRoundTrip] = useState(false);
 
   const isEditing = !!editTrip;
 
@@ -124,6 +126,7 @@ export function NewTripSheet({
     setPurpose('');
     setManualDistance('');
     setTripDate(new Date());
+    setRoundTrip(false);
   };
 
   const handleClose = () => {
@@ -217,7 +220,8 @@ export function NewTripSheet({
   const handleConfirm = () => {
     if (!draft.vehicleId || !draft.startLocation || !draft.endLocation) return;
 
-    const distance = parseFloat(manualDistance) || 0;
+    const baseDistance = parseFloat(manualDistance) || 0;
+    const distance = roundTrip ? baseDistance * 2 : baseDistance;
     
     // Preserve the time from draft but use the selected date
     const startTime = draft.startTime || new Date();
@@ -464,6 +468,25 @@ export function NewTripSheet({
                     Ajoutez des coordonnées GPS aux lieux pour un calcul automatique
                   </p>
                 )}
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
+                <div className="flex items-center gap-3">
+                  <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
+                  <div>
+                    <p className="font-medium">Aller-retour</p>
+                    <p className="text-xs text-muted-foreground">
+                      {roundTrip 
+                        ? `Distance totale : ${((parseFloat(manualDistance) || 0) * 2).toFixed(1)} km`
+                        : 'Double la distance parcourue'
+                      }
+                    </p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={roundTrip} 
+                  onCheckedChange={setRoundTrip}
+                />
               </div>
 
               <div className="space-y-2">
