@@ -118,7 +118,6 @@ export function NewTripSheet({
         calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng)
           .then((distance) => {
             setCalculatedDistance(distance);
-            console.log('Recalculated distance from API:', distance, 'km (one-way)');
           })
           .catch((err) => console.error('Error recalculating distance:', err));
       }
@@ -514,26 +513,40 @@ export function NewTripSheet({
                   value={manualDistance ? `${manualDistance} km` : ''}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-                    setManualDistance(value);
-                  }}
-                  onBlur={() => {
-                    const enteredDistance = parseFloat(manualDistance) || 0;
                     const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
                     const tolerance = 0.15;
-                    
-                    console.log('Distance validation:', { enteredDistance, expectedDistance, calculatedDistance, roundTrip });
-                    
-                    if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
-                      console.log('Correcting distance to:', expectedDistance.toFixed(1));
-                      setManualDistance(expectedDistance.toFixed(1));
-                      setIsBlinking(true);
-                      setTimeout(() => setIsBlinking(false), 600);
+
+                    if (!expectedDistance) {
+                      setManualDistance(value);
+                      return;
                     }
+
+                    if (!value) {
+                      setManualDistance('');
+                      return;
+                    }
+
+                    const enteredDistance = parseFloat(value) || 0;
+                    const isOutOfRange = enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance;
+
+                    if (isOutOfRange) {
+                      // Efface la saisie utilisateur et remplace par la distance API
+                      setIsBlinking(false);
+                      setManualDistance('');
+                      window.requestAnimationFrame(() => {
+                        setManualDistance(expectedDistance.toFixed(1));
+                        setIsBlinking(true);
+                      });
+                      window.setTimeout(() => setIsBlinking(false), 650);
+                      return;
+                    }
+
+                    setManualDistance(value);
                   }}
                 />
                 {calculatedDistance ? (
                   <p className="text-xs text-accent">
-                    ✓ Distance API : {(roundTrip ? calculatedDistance * 2 : calculatedDistance).toFixed(1)} km {roundTrip ? '(A/R)' : '(aller simple)'}
+                    ✓ Calcul automatique (modifiable)
                   </p>
                 ) : typeof draft.startLocation?.lat === 'number' &&
                 typeof draft.startLocation?.lng === 'number' &&
