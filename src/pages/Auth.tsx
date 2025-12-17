@@ -186,24 +186,24 @@ const Auth = () => {
               </div>
             )}
 
-            {/* Forgot password link - shown in login mode */}
-            {mode === 'login' && (
-              <div className="text-right">
-                <button
-                  type="button"
-                  onClick={() => setMode('forgot-password')}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Mot de passe oublié ?
-                </button>
-              </div>
-            )}
-
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {getButtonText()}
             </Button>
           </form>
+
+          {/* Forgot password link - shown in login mode, under the form */}
+          {mode === 'login' && (
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => setMode('forgot-password')}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+          )}
 
           {/* Back button for forgot-password mode */}
           {mode === 'forgot-password' && (
