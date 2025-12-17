@@ -76,12 +76,6 @@ export function CalendarConnections() {
       }));
 
       // Get auth URL from edge function
-      const { data, error } = await supabase.functions.invoke('google-calendar-auth', {
-        body: {},
-        headers: {},
-      });
-
-      // Call with action=authorize
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${state}`,
         { method: 'GET' }
