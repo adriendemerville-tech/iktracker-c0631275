@@ -10,10 +10,13 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
+import { VehicleCard } from '@/components/VehicleCard';
+import { VehicleForm } from '@/components/VehicleForm';
+import { Vehicle } from '@/types/trip';
 
 const PROFESSIONS = [
   "Banque et assurance",
@@ -37,8 +40,11 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { trips } = useTrips();
+  const { trips, vehicles, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { preferences, updatePreference } = usePreferences();
+  
+  const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
@@ -72,6 +78,25 @@ const Profile = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth', { replace: true });
+  };
+
+  const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>) => {
+    if (editingVehicle) {
+      updateVehicle(editingVehicle.id, vehicleData);
+    } else {
+      addVehicle(vehicleData);
+    }
+    setEditingVehicle(null);
+    setVehicleFormOpen(false);
+  };
+
+  const handleEditVehicle = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setVehicleFormOpen(true);
+  };
+
+  const handleDeleteVehicle = (vehicleId: string) => {
+    deleteVehicle(vehicleId);
   };
 
   return (
@@ -179,7 +204,60 @@ const Profile = () => {
         {/* Calendar Connections */}
         <CalendarConnections />
 
-        {/* Payment Info */}
+        {/* Vehicles */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Car className="w-4 h-4" />
+                Mes véhicules
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setEditingVehicle(null);
+                  setVehicleFormOpen(true);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Ajouter
+              </Button>
+            </div>
+            <CardDescription>
+              Gérez vos véhicules pour le calcul des IK
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {vehicles.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucun véhicule enregistré</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {vehicles.map((vehicle) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    totalKm={getTotalAnnualKm(vehicle.id)}
+                    selected={false}
+                    onEdit={() => handleEditVehicle(vehicle)}
+                    onDelete={() => handleDeleteVehicle(vehicle.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <VehicleForm
+          open={vehicleFormOpen}
+          onOpenChange={setVehicleFormOpen}
+          onSave={handleSaveVehicle}
+          editVehicle={editingVehicle || undefined}
+        />
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
