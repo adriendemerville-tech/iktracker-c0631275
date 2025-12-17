@@ -38,7 +38,7 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
             selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
@@ -55,10 +55,11 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
           <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium shrink-0">
             {vehicle.fiscalPower} CV
           </span>
-          <span className="text-muted-foreground text-xs shrink-0">
-            {getCurrentRate().toFixed(3)} €/km
-          </span>
         </div>
+        
+        <span className="text-muted-foreground text-xs shrink-0 ml-auto">
+          {getCurrentRate().toFixed(3)} €/km
+        </span>
         
         {(onEdit || onDelete) && (
           <DropdownMenu>
