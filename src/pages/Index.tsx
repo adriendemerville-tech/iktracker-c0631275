@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Truck } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 const Index = () => {
   const navigate = useNavigate();
@@ -205,8 +205,11 @@ const Index = () => {
       <header className="bg-gradient-primary text-primary-foreground px-4 pt-12 pb-8 rounded-b-[2rem]">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center">
-              <Car className="w-5 h-5" />
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: '#2661D9' }}
+            >
+              <Truck className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
               <h1 className="text-xl font-bold">IK Tracker</h1>
