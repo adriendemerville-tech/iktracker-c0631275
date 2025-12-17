@@ -14,7 +14,7 @@ import JSZip from 'jszip';
 
 export default function Report() {
   const navigate = useNavigate();
-  const { trips, vehicles, savedLocations, deleteTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
+  const { trips, vehicles, savedLocations, deleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
   
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -407,7 +407,8 @@ ${IKTRACKER_MENTION}
                       trip={trip}
                       vehicle={vehicle}
                       onEdit={(t) => {
-                        toast.info("Modification", { description: "Fonctionnalité à venir" });
+                        setEditingTrip(t);
+                        setShowNewTrip(true);
                       }}
                       onDelete={deleteTrip}
                       showDelete
@@ -456,14 +457,19 @@ ${IKTRACKER_MENTION}
       {/* New trip sheet */}
       <NewTripSheet
         open={showNewTrip}
-        onOpenChange={setShowNewTrip}
+        onOpenChange={(open) => {
+          setShowNewTrip(open);
+          if (!open) setEditingTrip(null);
+        }}
         savedLocations={savedLocations}
         vehicles={vehicles}
+        editTrip={editingTrip}
         onAddLocation={addLocation}
         onDeleteLocation={deleteLocation}
         onUpdateLocation={updateLocation}
         onAddVehicle={handleAddVehicle}
         onCreateTrip={addTrip}
+        onUpdateTrip={updateTrip}
         getTotalAnnualKm={getTotalAnnualKm}
       />
 

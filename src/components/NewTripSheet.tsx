@@ -16,11 +16,31 @@ interface NewTripSheetProps {
   onOpenChange: (open: boolean) => void;
   savedLocations: Location[];
   vehicles: Vehicle[];
+  editTrip?: {
+    id: string;
+    vehicleId: string;
+    startLocation: Location;
+    endLocation: Location;
+    distance: number;
+    purpose: string;
+    startTime: Date;
+    endTime: Date;
+    ikAmount: number;
+  } | null;
   onAddLocation: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
   onDeleteLocation?: (id: string) => void;
   onUpdateLocation?: (id: string, updates: Partial<Location>) => void;
   onAddVehicle: () => void;
   onCreateTrip: (trip: {
+    vehicleId: string;
+    startLocation: Location;
+    endLocation: Location;
+    distance: number;
+    purpose: string;
+    startTime: Date;
+    endTime: Date;
+  }) => void;
+  onUpdateTrip?: (id: string, trip: {
     vehicleId: string;
     startLocation: Location;
     endLocation: Location;
@@ -42,11 +62,13 @@ export function NewTripSheet({
   onOpenChange,
   savedLocations,
   vehicles,
+  editTrip,
   onAddLocation,
   onDeleteLocation,
   onUpdateLocation,
   onAddVehicle,
   onCreateTrip,
+  onUpdateTrip,
   getTotalAnnualKm,
 }: NewTripSheetProps) {
   const [step, setStep] = useState<Step>('vehicle');
@@ -54,16 +76,32 @@ export function NewTripSheet({
   const [purpose, setPurpose] = useState('');
   const [manualDistance, setManualDistance] = useState('');
 
-  // Auto-select vehicle when opening
+  const isEditing = !!editTrip;
+
+  // Initialize form with edit data
   useEffect(() => {
-    if (open && vehicles.length > 0 && !draft.vehicleId) {
+    if (open && editTrip) {
+      setDraft({
+        vehicleId: editTrip.vehicleId,
+        startLocation: editTrip.startLocation,
+        endLocation: editTrip.endLocation,
+        startTime: new Date(editTrip.startTime),
+        endTime: new Date(editTrip.endTime),
+      });
+      setPurpose(editTrip.purpose || '');
+      setManualDistance(editTrip.distance.toString());
+      setStep('details');
+    }
+  }, [open, editTrip]);
+
+  // Auto-select vehicle when opening (only for new trips)
+  useEffect(() => {
+    if (open && !editTrip && vehicles.length > 0 && !draft.vehicleId) {
       let vehicleToSelect: string | null = null;
       
       if (vehicles.length === 1) {
-        // Single vehicle: auto-select
         vehicleToSelect = vehicles[0].id;
       } else if (lastSelectedVehicleId && vehicles.find(v => v.id === lastSelectedVehicleId)) {
-        // Multiple vehicles: use last selected if still exists
         vehicleToSelect = lastSelectedVehicleId;
       }
       
@@ -72,7 +110,7 @@ export function NewTripSheet({
         setStep('start');
       }
     }
-  }, [open, vehicles, draft.vehicleId]);
+  }, [open, editTrip, vehicles, draft.vehicleId]);
 
   const resetForm = () => {
     setStep('vehicle');
@@ -173,8 +211,7 @@ export function NewTripSheet({
     if (!draft.vehicleId || !draft.startLocation || !draft.endLocation) return;
 
     const distance = parseFloat(manualDistance) || 0;
-
-    onCreateTrip({
+    const tripData = {
       vehicleId: draft.vehicleId,
       startLocation: draft.startLocation,
       endLocation: draft.endLocation,
@@ -182,7 +219,13 @@ export function NewTripSheet({
       purpose,
       startTime: draft.startTime || new Date(),
       endTime: draft.endTime || new Date(),
-    });
+    };
+
+    if (isEditing && editTrip && onUpdateTrip) {
+      onUpdateTrip(editTrip.id, tripData);
+    } else {
+      onCreateTrip(tripData);
+    }
 
     handleClose();
   };
@@ -207,7 +250,7 @@ export function NewTripSheet({
         onFocusOutside={preventCloseOnGoogleAutocomplete}
       >
         <SheetHeader className="pb-4">
-          <SheetTitle className="text-xl">Nouveau trajet</SheetTitle>
+          <SheetTitle className="text-xl">{isEditing ? 'Modifier le trajet' : 'Nouveau trajet'}</SheetTitle>
           
           <div className="flex items-center justify-center gap-2 pt-2">
             {steps.map((s, i) => (
@@ -389,15 +432,15 @@ export function NewTripSheet({
               </div>
 
               <div className="flex gap-3">
-                <Button variant="secondary" className="flex-1" onClick={() => setStep('end')}>
-                  ← Retour
+                <Button variant="secondary" className="flex-1" onClick={() => isEditing ? handleClose() : setStep('end')}>
+                  {isEditing ? 'Annuler' : '← Retour'}
                 </Button>
                 <Button
                   variant="gradient"
                   className="flex-1"
                   onClick={handleConfirm}
                 >
-                  Enregistrer
+                  {isEditing ? 'Modifier' : 'Enregistrer'}
                 </Button>
               </div>
             </div>
