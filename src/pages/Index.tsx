@@ -473,7 +473,7 @@ ${IKTRACKER_MENTION}
               <Truck className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold dark:text-white">IK Tracker</h1>
+              <h1 className="text-2xl font-extrabold dark:text-white">IK Tracker</h1>
               <p className="text-sm opacity-80">Indemnités Kilométriques</p>
             </div>
             <Button 
