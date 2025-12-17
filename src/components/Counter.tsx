@@ -16,16 +16,16 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
 
   return (
     <div className={cn(
-      "flex flex-col items-center p-6 rounded-2xl transition-all duration-300",
+      "flex flex-col items-center p-4 rounded-xl transition-all duration-300",
       variant === 'default' && "bg-card text-card-foreground shadow-md",
       variant === 'accent' && "bg-gradient-accent text-accent-foreground shadow-lg"
     )}>
-      <span className="text-xs uppercase tracking-wider opacity-70 mb-2">{label}</span>
+      <span className="text-[10px] uppercase tracking-wider opacity-70 mb-1">{label}</span>
       <div className="flex items-baseline gap-1">
-        <span className="counter-text text-4xl font-bold animate-counter-up">
+        <span className="counter-text text-2xl font-bold animate-counter-up">
           {formattedValue}
         </span>
-        <span className="text-lg font-medium opacity-80">{unit}</span>
+        <span className="text-sm font-medium opacity-80">{unit}</span>
       </div>
     </div>
   );
