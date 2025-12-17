@@ -232,34 +232,69 @@ ${IKTRACKER_MENTION}
       (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
 
-    // Trips detail table
-    const tableData = sortedTrips.map(t => {
-      const vehicle = getVehicle(t.vehicleId);
-      const startTime = new Date(t.startTime);
-      return [
-        startTime.toLocaleDateString('fr-FR'),
-        startTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        t.startLocation.name,
-        t.endLocation.name,
-        t.purpose || '-',
-        `${t.distance.toFixed(1)} km`,
-        `${t.recalculatedIK.toFixed(2)} €`,
-      ];
+    // Group trips by month
+    const tripsByMonth = sortedTrips.reduce((acc, trip) => {
+      const month = new Date(trip.startTime).toLocaleDateString('fr-FR', {
+        month: 'long',
+        year: 'numeric',
+      });
+      if (!acc[month]) acc[month] = [];
+      acc[month].push(trip);
+      return acc;
+    }, {} as Record<string, typeof sortedTrips>);
+
+    let currentY = 56;
+
+    // Generate table for each month
+    Object.entries(tripsByMonth).forEach(([month, monthTrips]) => {
+      const monthKm = monthTrips.reduce((sum, t) => sum + t.distance, 0);
+      const monthIK = monthTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
+
+      // Month header
+      doc.setFontSize(11);
+      doc.setTextColor(59, 130, 246);
+      doc.text(month.charAt(0).toUpperCase() + month.slice(1), 14, currentY);
+      currentY += 5;
+
+      const tableData = monthTrips.map(t => {
+        const startTime = new Date(t.startTime);
+        return [
+          startTime.toLocaleDateString('fr-FR'),
+          startTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          t.startLocation.name,
+          t.endLocation.name,
+          t.purpose || '-',
+          `${t.distance.toFixed(1)} km`,
+          `${t.recalculatedIK.toFixed(2)} €`,
+        ];
+      });
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [['Date', 'Heure', 'Départ', 'Arrivée', 'Motif', 'Km', 'IK']],
+        body: tableData,
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [59, 130, 246] },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
+        foot: [[`Sous-total ${month}`, '', '', '', '', `${monthKm.toFixed(1)} km`, `${monthIK.toFixed(2)} €`]],
+        footStyles: { fillColor: [148, 163, 184], textColor: 255, fontStyle: 'bold' },
+      });
+
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+
+      // Add new page if needed
+      if (currentY > 250) {
+        doc.addPage();
+        currentY = 20;
+      }
     });
 
-    autoTable(doc, {
-      startY: 56,
-      head: [['Date', 'Heure', 'Départ', 'Arrivée', 'Motif', 'Km', 'IK']],
-      body: tableData,
-      styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [59, 130, 246] },
-      alternateRowStyles: { fillColor: [245, 247, 250] },
-      foot: [['TOTAL', '', '', '', '', `${totalKm.toFixed(1)} km`, `${recalculatedTotalIK.toFixed(2)} €`]],
-      footStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold' },
-    });
+    // Total summary
+    doc.setFontSize(12);
+    doc.setTextColor(34, 197, 94);
+    doc.text(`TOTAL GÉNÉRAL: ${totalKm.toFixed(1)} km | ${recalculatedTotalIK.toFixed(2)} €`, 14, currentY);
 
-    // Barème section
-    let finalY = (doc as any).lastAutoTable.finalY || 100;
+    let finalY = currentY + 10;
     
     if (finalY < 230) {
       doc.setFontSize(11);
