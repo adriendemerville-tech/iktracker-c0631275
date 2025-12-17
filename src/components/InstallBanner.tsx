@@ -136,10 +136,13 @@ export const InstallBanner = () => {
         return (
           <>
             <p className="text-sm text-foreground mb-2">
-              <span className="font-semibold">Pour installer IkTracker :</span>
+              <span className="font-semibold">Pour ajouter IkTracker :</span>
             </p>
             <p className="text-sm text-muted-foreground">
-              Cliquez sur l'icône <strong>⊕</strong> dans la barre d'adresse, ou allez dans le menu <strong>⋮</strong> → <strong>"Installer IkTracker"</strong>
+              Menu <strong>⋮</strong> → <strong>"Enregistrer et partager"</strong> → <strong>"Créer un raccourci..."</strong>
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Cochez "Ouvrir dans une fenêtre" pour une expérience app
             </p>
           </>
         );
