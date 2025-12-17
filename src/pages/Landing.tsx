@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { cn } from "@/lib/utils";
 import { 
   Calendar, 
   MapPin, 
@@ -12,6 +14,32 @@ import {
   CheckCircle2,
   TrendingUp
 } from "lucide-react";
+
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}
+
+const AnimatedSection = ({ children, className, delay = 0 }: AnimatedSectionProps) => {
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
+  
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "transition-all duration-700 ease-out",
+        isVisible 
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 translate-y-8",
+        className
+      )}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const Landing = () => {
   const features = [
@@ -50,8 +78,10 @@ const Landing = () => {
     { cv: "7 CV et plus", jusqu5000: "0,697 €", de5001a20000: "0,394 €", plus20000: "0,470 €" },
   ];
 
+  const heroAnimation = useScrollAnimation({ threshold: 0.1 });
+
   return (
-    <div className="min-h-screen bg-background font-display">
+    <div className="min-h-screen bg-background font-display overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -70,21 +100,56 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="container mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+        <div 
+          ref={heroAnimation.ref}
+          className={cn(
+            "container mx-auto text-center relative z-10 transition-all duration-700 ease-out",
+            heroAnimation.isVisible 
+              ? "opacity-100 translate-y-0" 
+              : "opacity-0 translate-y-8"
+          )}
+        >
+          <div 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
+            style={{ transitionDelay: '100ms' }}
+          >
             <CheckCircle2 className="h-4 w-4" />
             100% Gratuit pour les indépendants
           </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-foreground leading-tight mb-6 max-w-4xl mx-auto">
+          <h1 
+            className={cn(
+              "text-4xl md:text-6xl font-extrabold text-foreground leading-tight mb-6 max-w-4xl mx-auto transition-all duration-700 ease-out",
+              heroAnimation.isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            )}
+            style={{ transitionDelay: '200ms' }}
+          >
             Automatisez vos{" "}
             <span className="text-gradient">indemnités kilométriques</span>{" "}
             en un clic
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+          <p 
+            className={cn(
+              "text-xl text-muted-foreground max-w-2xl mx-auto mb-10 transition-all duration-700 ease-out",
+              heroAnimation.isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            )}
+            style={{ transitionDelay: '300ms' }}
+          >
             L'outil gratuit pour transformer vos rendez-vous en relevés comptables. 
             Fini les heures perdues sur Excel.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div 
+            className={cn(
+              "flex flex-col sm:flex-row gap-4 justify-center transition-all duration-700 ease-out",
+              heroAnimation.isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            )}
+            style={{ transitionDelay: '400ms' }}
+          >
             <Link to="/auth">
               <Button size="xl" variant="gradient" className="w-full sm:w-auto group">
                 Démarrer gratuitement
@@ -92,7 +157,15 @@ const Landing = () => {
               </Button>
             </Link>
           </div>
-          <p className="text-sm text-muted-foreground mt-4">
+          <p 
+            className={cn(
+              "text-sm text-muted-foreground mt-4 transition-all duration-700 ease-out",
+              heroAnimation.isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            )}
+            style={{ transitionDelay: '500ms' }}
+          >
             Pas de carte bancaire requise • Installation en 2 minutes
           </p>
         </div>
@@ -102,7 +175,7 @@ const Landing = () => {
       <section className="py-20 px-4 bg-muted/50">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <AnimatedSection>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive text-sm font-medium mb-4">
                 <Clock className="h-4 w-4" />
                 Le problème
@@ -130,19 +203,21 @@ const Landing = () => {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <div className="text-center">
-                <div className="text-6xl font-bold text-primary mb-2">48h</div>
-                <p className="text-muted-foreground">économisées par an en moyenne</p>
-              </div>
-              <div className="mt-8 pt-8 border-t border-border">
-                <div className="flex items-center justify-center gap-2 text-success">
-                  <TrendingUp className="h-5 w-5" />
-                  <span className="font-semibold">IkTracker élimine cette charge mentale</span>
+            </AnimatedSection>
+            <AnimatedSection delay={200}>
+              <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
+                <div className="text-center">
+                  <div className="text-6xl font-bold text-primary mb-2">48h</div>
+                  <p className="text-muted-foreground">économisées par an en moyenne</p>
+                </div>
+                <div className="mt-8 pt-8 border-t border-border">
+                  <div className="flex items-center justify-center gap-2 text-success">
+                    <TrendingUp className="h-5 w-5" />
+                    <span className="font-semibold">IkTracker élimine cette charge mentale</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
@@ -150,7 +225,7 @@ const Landing = () => {
       {/* IK Barème Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
+          <AnimatedSection className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
               <FileText className="h-4 w-4" />
               Barème fiscal 2025
@@ -163,59 +238,63 @@ const Landing = () => {
               Déclarer vos trajets réels permet d'optimiser votre fiscalité. 
               Plus vous roulez, plus vous économisez sur vos impôts.
             </p>
-          </div>
+          </AnimatedSection>
 
-          <div className="overflow-x-auto">
-            <table className="w-full bg-card rounded-xl border border-border overflow-hidden">
-              <thead>
-                <tr className="bg-muted">
-                  <th className="px-6 py-4 text-left font-semibold text-foreground">Puissance fiscale</th>
-                  <th className="px-6 py-4 text-center font-semibold text-foreground">Jusqu'à 5 000 km</th>
-                  <th className="px-6 py-4 text-center font-semibold text-foreground">De 5 001 à 20 000 km</th>
-                  <th className="px-6 py-4 text-center font-semibold text-foreground">Plus de 20 000 km</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ikBareme.map((row, index) => (
-                  <tr key={index} className="border-t border-border hover:bg-muted/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-foreground">{row.cv}</td>
-                    <td className="px-6 py-4 text-center text-muted-foreground">{row.jusqu5000}</td>
-                    <td className="px-6 py-4 text-center text-muted-foreground">{row.de5001a20000}</td>
-                    <td className="px-6 py-4 text-center text-muted-foreground">{row.plus20000}</td>
+          <AnimatedSection delay={200}>
+            <div className="overflow-x-auto">
+              <table className="w-full bg-card rounded-xl border border-border overflow-hidden">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="px-6 py-4 text-left font-semibold text-foreground">Puissance fiscale</th>
+                    <th className="px-6 py-4 text-center font-semibold text-foreground">Jusqu'à 5 000 km</th>
+                    <th className="px-6 py-4 text-center font-semibold text-foreground">De 5 001 à 20 000 km</th>
+                    <th className="px-6 py-4 text-center font-semibold text-foreground">Plus de 20 000 km</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-sm text-muted-foreground text-center mt-4">
-            * Barème kilométrique 2025 pour les voitures. Source : impots.gouv.fr
-          </p>
+                </thead>
+                <tbody>
+                  {ikBareme.map((row, index) => (
+                    <tr key={index} className="border-t border-border hover:bg-muted/50 transition-colors">
+                      <td className="px-6 py-4 font-medium text-foreground">{row.cv}</td>
+                      <td className="px-6 py-4 text-center text-muted-foreground">{row.jusqu5000}</td>
+                      <td className="px-6 py-4 text-center text-muted-foreground">{row.de5001a20000}</td>
+                      <td className="px-6 py-4 text-center text-muted-foreground">{row.plus20000}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              * Barème kilométrique 2025 pour les voitures. Source : impots.gouv.fr
+            </p>
+          </AnimatedSection>
         </div>
       </section>
 
       {/* Features Section */}
       <section className="py-20 px-4 bg-muted/50">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
+          <AnimatedSection className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Tout ce dont vous avez besoin
             </h2>
             <p className="text-lg text-muted-foreground">
               Des fonctionnalités pensées pour les indépendants, libéraux et artisans
             </p>
-          </div>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-card border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-6">
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <AnimatedSection key={index} delay={index * 100}>
+                <Card className="bg-card border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                  <CardContent className="p-6">
+                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                      <feature.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -224,23 +303,25 @@ const Landing = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto">
-          <div className="bg-gradient-primary rounded-3xl p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                Prêt à simplifier votre comptabilité ?
-              </h2>
-              <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-                Rejoignez les centaines d'indépendants qui ont déjà automatisé leurs IK
-              </p>
-              <Link to="/auth">
-                <Button size="xl" variant="secondary" className="group">
-                  Créer mon compte gratuit
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+          <AnimatedSection>
+            <div className="bg-gradient-primary rounded-3xl p-12 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
+              <div className="relative z-10">
+                <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+                  Prêt à simplifier votre comptabilité ?
+                </h2>
+                <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
+                  Rejoignez les centaines d'indépendants qui ont déjà automatisé leurs IK
+                </p>
+                <Link to="/auth">
+                  <Button size="xl" variant="secondary" className="group">
+                    Créer mon compte gratuit
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </section>
 
