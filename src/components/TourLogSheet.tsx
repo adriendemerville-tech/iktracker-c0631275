@@ -157,7 +157,7 @@ export function TourLogSheet({
                   className="flex-1"
                 >
                   <Square className="w-4 h-4 mr-2" />
-                  Terminer et enregistrer
+                  Terminer
                 </Button>
               ) : !isHistory ? (
                 <>
