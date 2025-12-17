@@ -84,15 +84,11 @@ const Index = () => {
   };
 
   const handleStopTour = () => {
-    // Save tour to history before clearing
-    if (tourStops.length >= 2) {
-      setLastTour([...tourStops]);
-    }
+    // Just stop tracking, keep the stops visible so user can save
     stopTour();
-    clearTour();
-    setShowTourLog(false);
+    // Keep the sheet open so user can click "Enregistrer la tournée"
     toast.info("Tournée terminée", {
-      description: "Consultez l'historique pour enregistrer",
+      description: "Cliquez sur 'Enregistrer' pour sauvegarder",
     });
   };
 
