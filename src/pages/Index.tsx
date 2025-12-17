@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
 import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
+import { usePreferences } from '@/hooks/usePreferences';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
@@ -26,6 +27,7 @@ import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Truck } from 'lu
 import { toast } from '@/components/ui/sonner';
 const Index = () => {
   const navigate = useNavigate();
+  const { preferences } = usePreferences();
   const { 
     trips, 
     savedLocations, 
@@ -58,7 +60,7 @@ const Index = () => {
     stopTour,
     clearTour,
   } = useTourTracker({
-    stopDurationThreshold: 7 * 60, // 7 minutes to create a step
+    stopDurationThreshold: preferences.stopDetectionMinutes * 60,
     locationRadius: 100, // 100m = same location
     trackingInterval: 30000, // Check every 30 seconds
   });

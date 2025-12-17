@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
+import { usePreferences } from '@/hooks/usePreferences';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3 } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -17,6 +19,7 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { trips } = useTrips();
+  const { preferences, updatePreference } = usePreferences();
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
@@ -188,7 +191,8 @@ const Profile = () => {
               Préférences
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {/* Dark Mode */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {theme === 'dark' ? (
@@ -205,6 +209,52 @@ const Profile = () => {
                 checked={theme === 'dark'}
                 onCheckedChange={toggleTheme}
               />
+            </div>
+
+            {/* Show Trip Time */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <Label htmlFor="show-time" className="cursor-pointer">
+                    Afficher l'heure des trajets
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Visible sur les cartes de trajet
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="show-time"
+                checked={preferences.showTripTime}
+                onCheckedChange={(checked) => updatePreference('showTripTime', checked)}
+              />
+            </div>
+
+            {/* Stop Detection Interval */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Timer className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <Label>Détection des étapes</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Durée d'arrêt pour créer une étape
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 pl-8">
+                <Slider
+                  value={[preferences.stopDetectionMinutes]}
+                  onValueChange={([value]) => updatePreference('stopDetectionMinutes', value)}
+                  min={1}
+                  max={15}
+                  step={1}
+                  className="flex-1"
+                />
+                <span className="text-sm font-medium w-16 text-right">
+                  {preferences.stopDetectionMinutes} min
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
