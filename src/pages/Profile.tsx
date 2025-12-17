@@ -47,8 +47,13 @@ const Profile = () => {
   }, [trips]);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
+    try {
+      await signOut();
+      // Force reload to clear all state
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (
