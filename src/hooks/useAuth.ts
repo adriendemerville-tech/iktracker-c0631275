@@ -56,15 +56,25 @@ export const useAuth = () => {
   }, [sessionCount, user]);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Sign out error:', error);
-      throw error;
-    }
-    // Clear local state immediately
+    // Optimistic local sign-out (instant UX, avoids Safari hanging)
     setUser(null);
     setSession(null);
     setRequiresAuth(true);
+
+    // Best-effort server sign-out (token revoke). Don't block UI indefinitely.
+    try {
+      const { error } = await Promise.race([
+        supabase.auth.signOut(),
+        new Promise<{ error: Error }>((_, reject) =>
+          setTimeout(() => reject(new Error('signOut_timeout')), 4000)
+        ),
+      ]);
+      if (error) {
+        console.warn('Sign out error:', error);
+      }
+    } catch (error) {
+      console.warn('Sign out warning:', error);
+    }
   };
 
   return {
