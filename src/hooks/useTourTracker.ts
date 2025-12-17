@@ -12,15 +12,13 @@ export interface TourStop {
 }
 
 interface UseTourTrackerOptions {
-  stopThreshold?: number; // meters - distance threshold to consider as stopped
-  stopDuration?: number; // ms - how long to wait before registering a stop
+  distanceThreshold?: number; // meters - minimum distance to create a new step
   trackingInterval?: number; // ms - how often to check position
 }
 
 export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const {
-    stopThreshold = 50, // 50 meters
-    stopDuration = 60000, // 1 minute
+    distanceThreshold = 1000, // 1 km - create a step when moved 1km
     trackingInterval = 10000, // 10 seconds
   } = options;
 
@@ -29,10 +27,10 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
 
   const watchIdRef = useRef<number | null>(null);
-  const lastPositionRef = useRef<{ lat: number; lng: number; timestamp: number } | null>(null);
-  const stoppedSinceRef = useRef<number | null>(null);
+  const lastStopPositionRef = useRef<{ lat: number; lng: number } | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate distance between two points (Haversine formula)
@@ -51,25 +49,36 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     return R * c;
   };
 
-  const addStop = useCallback(async (lat: number, lng: number) => {
-    // Check if we already have a stop very close to this one
-    const existingStop = stops.find(
-      (s) => getDistance(s.lat, s.lng, lat, lng) < stopThreshold
-    );
-
-    if (existingStop) {
-      // Update duration of existing stop
-      setStops((prev) =>
-        prev.map((s) =>
-          s.id === existingStop.id
-            ? { ...s, duration: (s.duration || 0) + stopDuration / 1000 }
-            : s
-        )
-      );
-      return;
+  // Check geolocation permission status
+  const checkPermission = useCallback(async () => {
+    if (!navigator.geolocation) {
+      setError('Géolocalisation non supportée sur cet appareil');
+      setPermissionStatus('denied');
+      return false;
     }
 
-    // Create new stop
+    // Check permission API if available (modern browsers)
+    if (navigator.permissions && navigator.permissions.query) {
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' });
+        setPermissionStatus(result.state as 'granted' | 'denied' | 'prompt');
+        
+        // Listen for permission changes
+        result.addEventListener('change', () => {
+          setPermissionStatus(result.state as 'granted' | 'denied' | 'prompt');
+        });
+        
+        return result.state !== 'denied';
+      } catch (e) {
+        console.log('Permission API not fully supported, will try geolocation directly');
+      }
+    }
+    
+    return true; // Will try geolocation directly
+  }, []);
+
+  // Add a new stop
+  const addStop = useCallback(async (lat: number, lng: number) => {
     const newStop: TourStop = {
       id: crypto.randomUUID(),
       timestamp: new Date(),
@@ -88,9 +97,13 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       console.warn('Failed to geocode stop:', e);
     }
 
+    console.log(`New stop added: ${newStop.city || newStop.address || 'Unknown'} (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    
     setStops((prev) => [...prev, newStop]);
-  }, [stops, stopThreshold, stopDuration]);
+    lastStopPositionRef.current = { lat, lng };
+  }, []);
 
+  // Check position and create step if moved > 1km
   const checkPosition = useCallback(() => {
     if (!navigator.geolocation) {
       setError('Géolocalisation non supportée');
@@ -100,60 +113,72 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude: lat, longitude: lng } = position.coords;
-        const now = Date.now();
+        console.log(`Position update: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
 
         setCurrentPosition({ lat, lng });
+        setPermissionStatus('granted');
 
-        if (lastPositionRef.current) {
+        // Check distance from last stop
+        if (lastStopPositionRef.current) {
           const distance = getDistance(
-            lastPositionRef.current.lat,
-            lastPositionRef.current.lng,
+            lastStopPositionRef.current.lat,
+            lastStopPositionRef.current.lng,
             lat,
             lng
           );
 
-          if (distance < stopThreshold) {
-            // User hasn't moved much
-            if (!stoppedSinceRef.current) {
-              stoppedSinceRef.current = now;
-            } else if (now - stoppedSinceRef.current >= stopDuration) {
-              // User has been stopped long enough, register a stop
-              await addStop(lat, lng);
-              stoppedSinceRef.current = now; // Reset to avoid duplicates
-            }
-          } else {
-            // User is moving
-            stoppedSinceRef.current = null;
+          console.log(`Distance from last stop: ${(distance / 1000).toFixed(2)} km`);
+
+          // If moved more than threshold (1km), create a new step
+          if (distance >= distanceThreshold) {
+            console.log(`Distance threshold exceeded (${distanceThreshold}m), creating new step`);
+            await addStop(lat, lng);
           }
         }
-
-        lastPositionRef.current = { lat, lng, timestamp: now };
       },
       (err) => {
         console.error('Geolocation error:', err);
-        setError('Erreur de géolocalisation');
+        if (err.code === 1) { // PERMISSION_DENIED
+          setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
+          setPermissionStatus('denied');
+        } else if (err.code === 2) { // POSITION_UNAVAILABLE
+          setError('Position indisponible. Vérifiez que le GPS est activé.');
+        } else if (err.code === 3) { // TIMEOUT
+          setError('Délai de géolocalisation dépassé. Réessayez.');
+        } else {
+          setError('Erreur de géolocalisation');
+        }
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 15000,
         maximumAge: 5000,
       }
     );
-  }, [stopThreshold, stopDuration, addStop]);
+  }, [distanceThreshold, addStop]);
 
-  const startTour = useCallback(() => {
+  const startTour = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setStops([]);
-    lastPositionRef.current = null;
-    stoppedSinceRef.current = null;
+    lastStopPositionRef.current = null;
+
+    // Check permission first
+    const hasPermission = await checkPermission();
+    if (!hasPermission && permissionStatus === 'denied') {
+      setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres.');
+      setIsLoading(false);
+      return;
+    }
 
     // Get initial position
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude: lat, longitude: lng } = position.coords;
+        console.log(`Tour started at: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+        
         setCurrentPosition({ lat, lng });
-        lastPositionRef.current = { lat, lng, timestamp: Date.now() };
+        setPermissionStatus('granted');
         
         // Add starting point as first stop
         const startStop: TourStop = {
@@ -174,23 +199,62 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         }
 
         setStops([startStop]);
+        lastStopPositionRef.current = { lat, lng };
         setIsActive(true);
         setIsLoading(false);
 
         // Start periodic position checking
         intervalRef.current = setInterval(checkPosition, trackingInterval);
+        
+        // Also use watchPosition for more responsive tracking
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            setCurrentPosition({ lat: latitude, lng: longitude });
+            
+            if (lastStopPositionRef.current) {
+              const distance = getDistance(
+                lastStopPositionRef.current.lat,
+                lastStopPositionRef.current.lng,
+                latitude,
+                longitude
+              );
+              
+              if (distance >= distanceThreshold) {
+                console.log(`Watch: Distance threshold exceeded, creating new step`);
+                await addStop(latitude, longitude);
+              }
+            }
+          },
+          (err) => {
+            console.warn('Watch position error:', err);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 10000,
+            distanceFilter: 100, // Only trigger when moved 100m (if supported)
+          } as PositionOptions
+        );
       },
       (err) => {
         console.error('Geolocation error:', err);
-        setError('Impossible de démarrer la tournée');
+        if (err.code === 1) {
+          setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
+          setPermissionStatus('denied');
+        } else if (err.code === 2) {
+          setError('Position indisponible. Vérifiez que le GPS est activé.');
+        } else {
+          setError('Impossible de démarrer la tournée. Vérifiez vos paramètres de localisation.');
+        }
         setIsLoading(false);
       },
       {
         enableHighAccuracy: true,
-        timeout: 15000,
+        timeout: 20000,
       }
     );
-  }, [checkPosition, trackingInterval]);
+  }, [checkPosition, trackingInterval, checkPermission, permissionStatus, distanceThreshold, addStop]);
 
   const stopTour = useCallback(() => {
     if (intervalRef.current) {
@@ -208,9 +272,13 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     stopTour();
     setStops([]);
     setCurrentPosition(null);
-    lastPositionRef.current = null;
-    stoppedSinceRef.current = null;
+    lastStopPositionRef.current = null;
   }, [stopTour]);
+
+  // Check permission on mount
+  useEffect(() => {
+    checkPermission();
+  }, [checkPermission]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -230,6 +298,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     error,
     stops,
     currentPosition,
+    permissionStatus,
     startTour,
     stopTour,
     clearTour,

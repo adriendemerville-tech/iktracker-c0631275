@@ -54,7 +54,7 @@ const Index = () => {
     stopTour,
     clearTour,
   } = useTourTracker({
-    stopDuration: 60000, // 1 minute to detect a stop
+    distanceThreshold: 1000, // 1 km to create a new step
     trackingInterval: 10000, // Check every 10 seconds
   });
 
