@@ -342,15 +342,42 @@ const Landing = () => {
               </ul>
             </AnimatedSection>
             <AnimatedSection delay={200}>
-              <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-                <div className="text-center">
-                  <div className="text-6xl font-bold text-primary mb-2">48h</div>
-                  <p className="text-muted-foreground">économisées par an en moyenne</p>
+              <div className="relative">
+                {/* Styled Excel Sheet in Perspective */}
+                <div className="absolute inset-0 transform rotate-3 -translate-y-4 translate-x-4 opacity-20">
+                  <div className="bg-card rounded-xl border border-border p-4 shadow-xl" style={{ transform: 'perspective(800px) rotateY(-8deg) rotateX(5deg)' }}>
+                    {/* Excel Header */}
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                      <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                      <div className="w-3 h-3 rounded-full bg-warning/60" />
+                      <div className="w-3 h-3 rounded-full bg-success/60" />
+                      <span className="ml-2 text-xs text-muted-foreground font-mono">trajets_2025.xlsx</span>
+                    </div>
+                    {/* Excel Grid */}
+                    <div className="grid grid-cols-5 gap-px bg-border">
+                      {['A', 'B', 'C', 'D', 'E'].map((col) => (
+                        <div key={col} className="bg-muted px-2 py-1 text-xs font-mono text-muted-foreground text-center">{col}</div>
+                      ))}
+                      {Array.from({ length: 20 }).map((_, i) => (
+                        <div key={i} className="bg-card px-2 py-1.5 text-xs font-mono text-muted-foreground/50 truncate">
+                          {i % 5 === 0 ? '12/01' : i % 5 === 1 ? 'Paris...' : i % 5 === 2 ? 'Lyon...' : i % 5 === 3 ? '465 km' : '0,55€'}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-8 pt-8 border-t border-border">
-                  <div className="flex items-center justify-center gap-2 text-success">
-                    <TrendingUp className="h-5 w-5" />
-                    <span className="font-semibold">IkTracker élimine cette charge mentale</span>
+                
+                {/* Main Card */}
+                <div className="relative bg-card rounded-2xl p-8 shadow-lg border border-border">
+                  <div className="text-center">
+                    <div className="text-6xl font-bold text-primary mb-2">48h</div>
+                    <p className="text-muted-foreground">économisées par an en moyenne</p>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-border">
+                    <div className="flex items-center justify-center gap-2 text-success">
+                      <TrendingUp className="h-5 w-5" />
+                      <span className="font-semibold">IKtracker élimine cette charge mentale</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -419,7 +446,7 @@ const Landing = () => {
             </p>
           </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {features.map((feature, index) => (
               <AnimatedSection key={index} delay={index * 100}>
                 <Card className="bg-card border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
@@ -434,6 +461,86 @@ const Landing = () => {
               </AnimatedSection>
             ))}
           </div>
+
+          {/* App Visualization - Trip Report Mockup */}
+          <AnimatedSection delay={300}>
+            <div className="relative">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Aperçu de l'application
+                </div>
+                <h3 className="text-2xl font-bold text-foreground">Votre relevé de trajets en un coup d'œil</h3>
+              </div>
+              
+              {/* App Mockup */}
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-card rounded-2xl border border-border shadow-2xl overflow-hidden">
+                  {/* App Header */}
+                  <div className="bg-primary/5 px-6 py-4 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img src="/favicon.png" alt="IKtracker" className="h-8 w-8 rounded-full" />
+                      <span className="font-bold text-foreground">IKtracker</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      Janvier 2025
+                    </div>
+                  </div>
+                  
+                  {/* Stats Bar */}
+                  <div className="grid grid-cols-3 gap-4 p-6 bg-muted/30 border-b border-border">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-primary">847 km</div>
+                      <div className="text-sm text-muted-foreground">Distance totale</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-success">412,50 €</div>
+                      <div className="text-sm text-muted-foreground">Indemnités</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-foreground">23</div>
+                      <div className="text-sm text-muted-foreground">Trajets</div>
+                    </div>
+                  </div>
+                  
+                  {/* Trip List */}
+                  <div className="divide-y divide-border">
+                    {[
+                      { date: "15 Jan", from: "Paris 15e", to: "Versailles", km: 42, amount: "20,58 €", purpose: "Rendez-vous client" },
+                      { date: "14 Jan", from: "Paris 15e", to: "Saint-Denis", km: 28, amount: "13,72 €", purpose: "Visite chantier" },
+                      { date: "13 Jan", from: "Domicile", to: "Paris 8e", km: 35, amount: "17,15 €", purpose: "Réunion projet" },
+                    ].map((trip, i) => (
+                      <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="text-sm font-medium text-muted-foreground w-16">{trip.date}</div>
+                          <div>
+                            <div className="flex items-center gap-2 text-foreground font-medium">
+                              <MapPin className="h-3.5 w-3.5 text-primary" />
+                              {trip.from} → {trip.to}
+                            </div>
+                            <div className="text-sm text-muted-foreground">{trip.purpose}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-foreground">{trip.km} km</div>
+                          <div className="text-sm text-success font-medium">{trip.amount}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Export Button */}
+                  <div className="p-4 bg-muted/30 border-t border-border flex justify-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+                      <FileText className="h-4 w-4" />
+                      Exporter PDF / CSV
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
@@ -497,7 +604,7 @@ const Landing = () => {
               Questions fréquentes
             </h2>
             <p className="text-lg text-muted-foreground">
-              Tout ce que vous devez savoir sur IkTracker
+              Tout ce que vous devez savoir sur IKtracker
             </p>
           </AnimatedSection>
 
@@ -582,10 +689,10 @@ const Landing = () => {
           {/* Social Share Section */}
           <div className="mt-8 pt-8 border-t border-border">
             <div className="flex flex-col items-center gap-4">
-              <p className="text-sm text-muted-foreground">Partagez IkTracker avec vos collègues</p>
+              <p className="text-sm text-muted-foreground">Partagez IKtracker avec vos collègues</p>
               <div className="flex items-center gap-3">
                 <a
-                  href="https://twitter.com/intent/tweet?text=Découvrez%20IkTracker%20-%20L'outil%20gratuit%20pour%20calculer%20et%20suivre%20vos%20indemnités%20kilométriques%20!&url=https://iktracker.lovable.app"
+                  href="https://twitter.com/intent/tweet?text=Découvrez%20IKtracker%20-%20L'outil%20gratuit%20pour%20calculer%20et%20suivre%20vos%20indemnités%20kilométriques%20!&url=https://iktracker.lovable.app"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all hover:scale-110"
@@ -596,7 +703,7 @@ const Landing = () => {
                   </svg>
                 </a>
                 <a
-                  href="https://www.linkedin.com/shareArticle?mini=true&url=https://iktracker.lovable.app&title=IkTracker&summary=L'outil%20gratuit%20pour%20calculer%20et%20suivre%20vos%20indemnités%20kilométriques"
+                  href="https://www.linkedin.com/shareArticle?mini=true&url=https://iktracker.lovable.app&title=IKtracker&summary=L'outil%20gratuit%20pour%20calculer%20et%20suivre%20vos%20indemnités%20kilométriques"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all hover:scale-110"
@@ -623,7 +730,7 @@ const Landing = () => {
           
           <div className="mt-8 pt-8 border-t border-border text-center">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} IkTracker. Tous droits réservés.
+              © {new Date().getFullYear()} IKtracker. Tous droits réservés.
             </p>
           </div>
         </div>
