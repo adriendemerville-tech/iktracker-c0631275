@@ -16,21 +16,21 @@ import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
 
 const PROFESSIONS = [
-  "Banque et Assurance",
+  "Banque et assurance",
   "Indépendants",
-  "Santé et Médical",
+  "Santé et médical",
   "Immobilier",
-  "Bâtiment et Entretiens",
+  "Bâtiment et entretiens",
   "Services à la personne",
   "Maintenance et SAV",
-  "Commerce et Distribution",
-  "Audit et Expertise comptable",
-  "Événementiel et Spectacle",
-  "Transport et Logistique",
-  "Agriculture et Agroalimentaire",
-  "Conseil et Stratégie",
-  "Éducation et Formation",
-  "Environnement et Énergie",
+  "Commerce et distribution",
+  "Audit et expertise comptable",
+  "Événementiel et spectacle",
+  "Transport et logistique",
+  "Agriculture et agroalimentaire",
+  "Conseil et stratégie",
+  "Éducation et formation",
+  "Environnement et énergie",
 ];
 
 const Profile = () => {
