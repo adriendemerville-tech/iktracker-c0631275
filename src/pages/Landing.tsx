@@ -343,24 +343,30 @@ const Landing = () => {
             </AnimatedSection>
             <AnimatedSection delay={200}>
               <div className="relative">
-                {/* Styled Excel Sheet in Perspective */}
-                <div className="absolute inset-0 transform rotate-3 -translate-y-4 translate-x-4 opacity-20">
-                  <div className="bg-card rounded-xl border border-border p-4 shadow-xl" style={{ transform: 'perspective(800px) rotateY(-8deg) rotateX(5deg)' }}>
+                {/* Styled Excel Sheet in Perspective - Background */}
+                <div className="absolute -top-8 -right-8 w-[120%] h-[120%] opacity-40 pointer-events-none hidden md:block">
+                  <div 
+                    className="bg-card rounded-xl border border-border p-4 shadow-2xl"
+                    style={{ 
+                      transform: 'perspective(1000px) rotateY(-12deg) rotateX(8deg) translateZ(-50px)',
+                      transformOrigin: 'center center'
+                    }}
+                  >
                     {/* Excel Header */}
                     <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                      <div className="w-3 h-3 rounded-full bg-destructive/60" />
-                      <div className="w-3 h-3 rounded-full bg-warning/60" />
-                      <div className="w-3 h-3 rounded-full bg-success/60" />
+                      <div className="w-3 h-3 rounded-full bg-destructive" />
+                      <div className="w-3 h-3 rounded-full bg-warning" />
+                      <div className="w-3 h-3 rounded-full bg-success" />
                       <span className="ml-2 text-xs text-muted-foreground font-mono">trajets_2025.xlsx</span>
                     </div>
                     {/* Excel Grid */}
-                    <div className="grid grid-cols-5 gap-px bg-border">
+                    <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden">
                       {['A', 'B', 'C', 'D', 'E'].map((col) => (
-                        <div key={col} className="bg-muted px-2 py-1 text-xs font-mono text-muted-foreground text-center">{col}</div>
+                        <div key={col} className="bg-muted px-3 py-1.5 text-xs font-mono text-muted-foreground text-center font-semibold">{col}</div>
                       ))}
-                      {Array.from({ length: 20 }).map((_, i) => (
-                        <div key={i} className="bg-card px-2 py-1.5 text-xs font-mono text-muted-foreground/50 truncate">
-                          {i % 5 === 0 ? '12/01' : i % 5 === 1 ? 'Paris...' : i % 5 === 2 ? 'Lyon...' : i % 5 === 3 ? '465 km' : '0,55€'}
+                      {Array.from({ length: 25 }).map((_, i) => (
+                        <div key={i} className="bg-card px-3 py-2 text-xs font-mono text-foreground/70 truncate border-t border-border/50">
+                          {i % 5 === 0 ? '12/01' : i % 5 === 1 ? 'Paris 15e' : i % 5 === 2 ? 'Versailles' : i % 5 === 3 ? '42 km' : '20,58€'}
                         </div>
                       ))}
                     </div>
@@ -368,7 +374,7 @@ const Landing = () => {
                 </div>
                 
                 {/* Main Card */}
-                <div className="relative bg-card rounded-2xl p-8 shadow-lg border border-border">
+                <div className="relative bg-card rounded-2xl p-8 shadow-lg border border-border z-10">
                   <div className="text-center">
                     <div className="text-6xl font-bold text-primary mb-2">48h</div>
                     <p className="text-muted-foreground">économisées par an en moyenne</p>
