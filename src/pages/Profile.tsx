@@ -9,10 +9,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
+
+const PROFESSIONS = [
+  "Banque et Assurance",
+  "Indépendants",
+  "Santé et Médical",
+  "Immobilier",
+  "Bâtiment et Travaux Publics",
+  "Services à la personne",
+  "Maintenance et SAV",
+  "Commerce et Distribution",
+  "Audit et Expertise comptable",
+  "Événementiel et Spectacle",
+  "Transport et Logistique",
+  "Agriculture et Agroalimentaire",
+  "Conseil et Stratégie",
+  "Éducation et Formation",
+  "Environnement et Énergie",
+];
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -86,6 +105,34 @@ const Profile = () => {
                 <p className="font-medium">{user?.email || 'Non connecté'}</p>
               </div>
             </div>
+            
+            {/* Profession Dropdown */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Briefcase className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Profession (optionnel)</p>
+                  <Select 
+                    value={preferences.profession || ''} 
+                    onValueChange={(value) => updatePreference('profession', value)}
+                  >
+                    <SelectTrigger className="w-full mt-1">
+                      <SelectValue placeholder="Sélectionnez votre secteur" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover">
+                      {PROFESSIONS.map((profession) => (
+                        <SelectItem key={profession} value={profession}>
+                          {profession}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
             {user && (
               <Button variant="outline" className="w-full" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />

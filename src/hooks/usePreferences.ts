@@ -4,6 +4,7 @@ export interface Preferences {
   showTripTime: boolean;
   stopDetectionMinutes: number;
   locationRadiusMeters: number;
+  profession: string;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -12,6 +13,7 @@ const defaultPreferences: Preferences = {
   showTripTime: true,
   stopDetectionMinutes: 7,
   locationRadiusMeters: 100,
+  profession: '',
 };
 
 export function usePreferences() {
