@@ -147,25 +147,43 @@ export type Database = {
           created_at: string
           fiscal_power: number
           id: string
+          license_plate: string | null
+          make: string | null
+          model: string | null
           name: string
+          owner_first_name: string | null
+          owner_last_name: string | null
           updated_at: string
           user_id: string
+          year: number | null
         }
         Insert: {
           created_at?: string
           fiscal_power: number
           id?: string
+          license_plate?: string | null
+          make?: string | null
+          model?: string | null
           name: string
+          owner_first_name?: string | null
+          owner_last_name?: string | null
           updated_at?: string
           user_id: string
+          year?: number | null
         }
         Update: {
           created_at?: string
           fiscal_power?: number
           id?: string
+          license_plate?: string | null
+          make?: string | null
+          model?: string | null
           name?: string
+          owner_first_name?: string | null
+          owner_last_name?: string | null
           updated_at?: string
           user_id?: string
+          year?: number | null
         }
         Relationships: []
       }
