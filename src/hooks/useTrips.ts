@@ -33,12 +33,13 @@ export function useTrips() {
       if (dbVehicles) {
         setVehicles(dbVehicles.map(v => ({
           id: v.id,
-          ownerFirstName: '',
-          ownerLastName: '',
-          licensePlate: '',
-          make: '',
-          model: v.name,
+          ownerFirstName: (v as any).owner_first_name || '',
+          ownerLastName: (v as any).owner_last_name || '',
+          licensePlate: (v as any).license_plate || '',
+          make: (v as any).make || '',
+          model: (v as any).model || v.name,
           fiscalPower: v.fiscal_power,
+          year: (v as any).year || undefined,
         })));
       }
 
@@ -131,9 +132,15 @@ export function useTrips() {
             .from('vehicles')
             .insert({
               user_id: user.id,
-              name: v.model || v.make || 'Véhicule',
+              name: `${v.make} ${v.model}`.trim() || 'Véhicule',
               fiscal_power: v.fiscalPower,
-            })
+              owner_first_name: v.ownerFirstName,
+              owner_last_name: v.ownerLastName,
+              license_plate: v.licensePlate,
+              make: v.make,
+              model: v.model,
+              year: v.year || null,
+            } as any)
             .select()
             .single();
           
@@ -387,9 +394,15 @@ export function useTrips() {
         .from('vehicles')
         .insert({
           user_id: user.id,
-          name: vehicle.model || vehicle.make || 'Véhicule',
+          name: `${vehicle.make} ${vehicle.model}`.trim() || 'Véhicule',
           fiscal_power: vehicle.fiscalPower,
-        })
+          owner_first_name: vehicle.ownerFirstName,
+          owner_last_name: vehicle.ownerLastName,
+          license_plate: vehicle.licensePlate,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year || null,
+        } as any)
         .select()
         .single();
 
@@ -417,9 +430,15 @@ export function useTrips() {
       await supabase
         .from('vehicles')
         .update({
-          name: updates.model || updates.make,
+          name: `${updates.make || ''} ${updates.model || ''}`.trim() || undefined,
           fiscal_power: updates.fiscalPower,
-        })
+          owner_first_name: updates.ownerFirstName,
+          owner_last_name: updates.ownerLastName,
+          license_plate: updates.licensePlate,
+          make: updates.make,
+          model: updates.model,
+          year: updates.year || null,
+        } as any)
         .eq('id', id);
       setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
     } else {
