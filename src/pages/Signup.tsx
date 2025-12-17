@@ -5,6 +5,42 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import confetti from 'canvas-confetti';
+
+const fireConfetti = () => {
+  // First burst
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+
+  // Side bursts
+  setTimeout(() => {
+    confetti({
+      particleCount: 50,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 }
+    });
+    confetti({
+      particleCount: 50,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 }
+    });
+  }, 150);
+
+  // Final celebration
+  setTimeout(() => {
+    confetti({
+      particleCount: 100,
+      spread: 100,
+      origin: { y: 0.6 },
+      colors: ['#2661D9', '#10b981', '#f59e0b', '#ec4899']
+    });
+  }, 300);
+};
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -40,8 +76,9 @@ const Signup = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        toast({ title: 'Compte créé avec succès !', description: 'Bienvenue sur IKtracker !' });
-        navigate('/app', { replace: true });
+        fireConfetti();
+        toast({ title: 'Compte créé avec succès ! 🎉', description: 'Bienvenue sur IKtracker !' });
+        setTimeout(() => navigate('/app', { replace: true }), 800);
       }
     });
 
@@ -74,8 +111,9 @@ const Signup = () => {
         },
       });
       if (error) throw error;
-      toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
-      navigate('/app');
+      fireConfetti();
+      toast({ title: 'Inscription réussie 🎉', description: 'Vous pouvez maintenant utiliser l\'application.' });
+      setTimeout(() => navigate('/app'), 800);
     } catch (error: any) {
       let message = error.message;
       if (error.message.includes('User already registered')) {
