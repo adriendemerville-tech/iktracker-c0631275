@@ -422,6 +422,28 @@ export function NewTripSheet({
                 </div>
               </div>
 
+              <div className={cn(
+                "flex items-center justify-between p-4 rounded-xl border-2 transition-colors",
+                roundTrip ? "bg-primary/5 border-primary" : "bg-muted border-transparent"
+              )}>
+                <div className="flex items-center gap-3">
+                  <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
+                  <div>
+                    <p className="font-medium">Aller-retour</p>
+                    <p className="text-xs text-muted-foreground">
+                      {roundTrip 
+                        ? `Distance totale : ${((parseFloat(manualDistance) || 0) * 2).toFixed(1)} km`
+                        : 'Double la distance parcourue'
+                      }
+                    </p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={roundTrip} 
+                  onCheckedChange={setRoundTrip}
+                />
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Date du trajet</label>
                 <Popover>
@@ -468,25 +490,6 @@ export function NewTripSheet({
                     Ajoutez des coordonnées GPS aux lieux pour un calcul automatique
                   </p>
                 )}
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
-                <div className="flex items-center gap-3">
-                  <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
-                  <div>
-                    <p className="font-medium">Aller-retour</p>
-                    <p className="text-xs text-muted-foreground">
-                      {roundTrip 
-                        ? `Distance totale : ${((parseFloat(manualDistance) || 0) * 2).toFixed(1)} km`
-                        : 'Double la distance parcourue'
-                      }
-                    </p>
-                  </div>
-                </div>
-                <Switch 
-                  checked={roundTrip} 
-                  onCheckedChange={setRoundTrip}
-                />
               </div>
 
               <div className="space-y-2">
