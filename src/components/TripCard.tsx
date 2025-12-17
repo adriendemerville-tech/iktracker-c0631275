@@ -46,12 +46,13 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
 
   return (
     <div className="bg-card rounded-xl p-3 shadow-sm border border-border/50 animate-fade-in">
-      {/* Ligne 1: Date + Départ → Arrivée + Bouton edit */}
-      <div className="flex items-center gap-2 mb-2">
+      {/* Ligne 1: Date | Départ → Arrivée | Bouton edit */}
+      <div className="flex items-center gap-3 mb-2">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
           <Calendar className="w-3.5 h-3.5" />
           <span>{formatDate(trip.startTime)}</span>
         </div>
+        <span className="text-border">|</span>
         <div className="flex-1 flex items-center gap-1.5 min-w-0">
           <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.startLocation.type))} />
           <span className="font-medium text-sm truncate">{startCityName}</span>
@@ -71,7 +72,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
         )}
       </div>
 
-      {/* Ligne 2: Véhicule + Motif */}
+      {/* Ligne 2: Véhicule + CV | Motif */}
       {vehicle && (
         <div className="flex items-center gap-2 mb-2 text-xs">
           <Car className="w-3.5 h-3.5 text-primary shrink-0" />
@@ -81,8 +82,8 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
           </span>
           {trip.purpose && (
             <>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground truncate">{trip.purpose}</span>
+              <span className="text-border">|</span>
+              <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
             </>
           )}
         </div>
