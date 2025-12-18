@@ -700,7 +700,7 @@ ${IKTRACKER_MENTION}
         <div className="max-w-lg mx-auto relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1">
-              <h1 className="text-[27px] font-extrabold font-urbanist text-white">Ik Tracker</h1>
+              <h1 className="text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
               <p className="text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
             </div>
             {isAdmin && (

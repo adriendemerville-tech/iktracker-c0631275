@@ -680,7 +680,7 @@ const Profile = () => {
               Confidentialité
             </Link>
           </div>
-          <p>Ik Tracker V3.2</p>
+          <p>IKtracker V3.2</p>
           <p>© 2024 - Tous droits réservés</p>
         </div>
       </main>
