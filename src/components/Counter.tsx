@@ -13,11 +13,13 @@ interface CounterProps {
 function AnimatedDigit({ 
   digit, 
   delay = 0,
-  duration = 800 
+  duration = 800,
+  variant = 'default'
 }: { 
   digit: string; 
   delay?: number;
   duration?: number;
+  variant?: 'default' | 'accent';
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -82,7 +84,8 @@ function AnimatedDigit({
     <span 
       className={cn(
         "inline-block tabular-nums transition-all duration-150",
-        isAnimating && "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]"
+        isAnimating && variant === 'accent' && "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]",
+        isAnimating && variant === 'default' && "text-blue-200 drop-shadow-[0_0_8px_rgba(147,197,253,0.6)]"
       )}
     >
       {displayDigit}
@@ -132,19 +135,15 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
             variant === 'default' ? "text-white" : "text-emerald-400"
           )}
         >
-          {variant === 'accent' ? (
-            // Animated counter for money
-            digits.map((digit, index) => (
-              <AnimatedDigit 
-                key={`${key}-${index}`}
-                digit={digit} 
-                delay={getDelay(index, digits.length)}
-                duration={600}
-              />
-            ))
-          ) : (
-            formattedValue
-          )}
+          {digits.map((digit, index) => (
+            <AnimatedDigit 
+              key={`${key}-${index}`}
+              digit={digit} 
+              delay={getDelay(index, digits.length)}
+              duration={600}
+              variant={variant}
+            />
+          ))}
         </span>
         <span className="text-sm font-urbanist font-semibold text-white/70">{unit}</span>
       </div>
