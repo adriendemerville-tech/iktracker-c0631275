@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, RotateCcw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -144,7 +144,7 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { trips, vehicles, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
-  const { preferences, updatePreference } = usePreferences();
+  const { preferences, updatePreference, resetCounters } = usePreferences();
   const { isAdmin } = useAdmin();
   const { unreadResponsesCount } = useFeedback();
   
@@ -458,6 +458,22 @@ const Profile = () => {
                       Tous les trajets seront enregistrés
                     </p>
                   )}
+                </div>
+
+                {/* Reset Counters */}
+                <div className="pt-2 border-t border-border">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={resetCounters}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Réinitialiser les compteurs
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                    Relance l'animation des compteurs
+                  </p>
                 </div>
               </div>
             </div>
