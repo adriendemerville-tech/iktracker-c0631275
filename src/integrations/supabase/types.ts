@@ -287,6 +287,15 @@ export type Database = {
           day: string
         }[]
       }
+      get_top_users: {
+        Args: { limit_count?: number; sort_by?: string }
+        Returns: {
+          total_ik: number
+          total_km: number
+          total_trips: number
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

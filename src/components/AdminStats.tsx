@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   LineChart, 
   Line, 
@@ -25,13 +26,16 @@ import {
   Activity,
   TrendingUp,
   Calendar,
-  Download,
   FileText,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Trophy,
+  ArrowUp,
+  ArrowDown,
+  Minus
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -42,7 +46,15 @@ interface AdminStatsData {
   total_ik: number;
 }
 
+interface TopUser {
+  user_id: string;
+  total_trips: number;
+  total_km: number;
+  total_ik: number;
+}
+
 type PeriodFilter = 'week' | 'month' | 'year' | 'all';
+type TopUserSort = 'trips' | 'km' | 'ik';
 
 const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getStartDate: () => Date }> = {
   week: { 
@@ -70,6 +82,7 @@ const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getS
 export function AdminStats() {
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [period, setPeriod] = useState<PeriodFilter>('month');
+  const [topUserSort, setTopUserSort] = useState<TopUserSort>('trips');
 
   // Track presence for simultaneous visits
   useEffect(() => {
@@ -174,6 +187,20 @@ export function AdminStats() {
         day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
         count: Number(d.count),
       }));
+    },
+    refetchInterval: 60000,
+  });
+
+  // Fetch top users
+  const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
+    queryKey: ['admin-top-users', topUserSort],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_top_users', { 
+        sort_by: topUserSort, 
+        limit_count: 10 
+      });
+      if (error) throw error;
+      return data as unknown as TopUser[];
     },
     refetchInterval: 60000,
   });
@@ -580,6 +607,76 @@ export function AdminStats() {
                 />
               </LineChart>
             </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Top users table */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              Top 10 utilisateurs
+            </CardTitle>
+            <ToggleGroup 
+              type="single" 
+              value={topUserSort} 
+              onValueChange={(value) => value && setTopUserSort(value as TopUserSort)}
+              className="bg-muted/50 p-1 rounded-lg"
+            >
+              <ToggleGroupItem value="trips" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                Trajets
+              </ToggleGroupItem>
+              <ToggleGroupItem value="km" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                Km
+              </ToggleGroupItem>
+              <ToggleGroupItem value="ik" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                IK
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {topUsersLoading ? (
+            <Skeleton className="h-[300px] w-full" />
+          ) : topUsers.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">Aucun utilisateur trouvé</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>ID Utilisateur</TableHead>
+                    <TableHead className="text-right">Trajets</TableHead>
+                    <TableHead className="text-right">Distance</TableHead>
+                    <TableHead className="text-right">IK</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {topUsers.map((user, index) => (
+                    <TableRow key={user.user_id}>
+                      <TableCell className="font-medium">
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {user.user_id.slice(0, 8)}...
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatNumber(user.total_trips)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatKm(user.total_km)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(user.total_ik)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
