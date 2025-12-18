@@ -415,7 +415,21 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           {savedLocations.map((location) => (
             <div key={location.id} className="relative group w-full">
               {editingLocation?.id === location.id ? (
-                <div className="space-y-3 p-4 bg-accent/10 rounded-md border-2 border-accent animate-fade-in w-full">
+                <div className="space-y-3 p-4 bg-accent/10 rounded-md border-2 border-accent animate-fade-in w-full relative">
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        // Delete and close edit mode
+                        handleDelete(e, editingLocation.id);
+                        setEditingLocation(null);
+                      }}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md"
+                      aria-label="Supprimer ce lieu"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                   <Input
                     placeholder="Nom du lieu"
                     value={editingLocation.name}
