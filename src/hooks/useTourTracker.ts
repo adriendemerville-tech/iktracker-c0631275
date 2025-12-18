@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { reverseGeocode } from '@/lib/geocoding';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { useWakeLock } from '@/hooks/useWakeLock';
+import { playNotificationSound } from '@/lib/sounds';
 
 export interface TourStop {
   id: string;
@@ -105,6 +106,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     };
 
     console.log(`New stop added: ${city || address || 'Unknown'} (${lat.toFixed(4)}, ${lng.toFixed(4)}) after 7+ minutes`);
+    
+    // Play notification sound
+    playNotificationSound('subtle');
     
     // Vibrate phone when new step is created (if supported)
     if (navigator.vibrate) {
