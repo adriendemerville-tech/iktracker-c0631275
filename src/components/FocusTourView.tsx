@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Signal, Sun } from 'lucide-react';
+import { Signal, Sun, Moon } from 'lucide-react';
+import { useNightMode } from '@/hooks/useNightMode';
 
 interface FocusTourViewProps {
   isActive: boolean;
@@ -20,6 +21,7 @@ export function FocusTourView({
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
+  const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
 
   // Update time every second
   useEffect(() => {
@@ -66,7 +68,10 @@ export function FocusTourView({
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-between py-12 px-6">
       {/* GPS Signal indicator */}
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {isNightMode && (
+          <Moon className="w-4 h-4 text-indigo-400" />
+        )}
         <Signal className="w-4 h-4 text-green-500" />
       </div>
 
@@ -96,14 +101,26 @@ export function FocusTourView({
       {/* CENTER: Tour button with pulse animation */}
       <div className="flex flex-col items-center gap-6">
         <div className="relative">
-          {/* Pulse animation rings */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 animate-pulse-glow opacity-40 scale-110" />
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 animate-pulse-glow-delayed opacity-30 scale-125" />
+          {/* Pulse animation rings - indigo at night, blue during day */}
+          <div className={`absolute inset-0 rounded-full animate-pulse-glow opacity-40 scale-110 ${
+            isNightMode 
+              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600' 
+              : 'bg-gradient-to-br from-blue-500 to-blue-600'
+          }`} />
+          <div className={`absolute inset-0 rounded-full animate-pulse-glow-delayed opacity-30 scale-125 ${
+            isNightMode 
+              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600' 
+              : 'bg-gradient-to-br from-blue-500 to-blue-600'
+          }`} />
           
-          {/* Main button */}
+          {/* Main button - indigo at night, blue during day */}
           <button
             onClick={onStop}
-            className="relative w-40 h-40 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 flex items-center justify-center shadow-2xl shadow-blue-500/30 transition-transform active:scale-95"
+            className={`relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95 ${
+              isNightMode 
+                ? 'bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 shadow-indigo-500/30' 
+                : 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-blue-500/30'
+            }`}
           >
             <span className="font-urbanist text-lg font-bold text-white tracking-wider">
               ARRÊTER
@@ -112,7 +129,7 @@ export function FocusTourView({
         </div>
         
         <span className="text-gray-500 text-sm font-urbanist">
-          Tournée en cours
+          {isNightMode ? 'Mode nuit actif' : 'Tournée en cours'}
         </span>
       </div>
 
