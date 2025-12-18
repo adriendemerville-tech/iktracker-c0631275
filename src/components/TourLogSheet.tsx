@@ -42,8 +42,8 @@ export function TourLogSheet({
     return `${Math.round(seconds / 3600)}h`;
   };
 
-  // Compact view when active (just to stop)
-  const isCompactView = isActive && stops.length <= 3;
+  // Show full list if multiple stops
+  const showFullList = stops.length > 1;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -51,7 +51,7 @@ export function TourLogSheet({
         side="bottom" 
         className={cn(
           "rounded-t-2xl mx-auto max-w-md left-1/2 -translate-x-1/2",
-          isCompactView ? "h-auto pb-6" : "h-[60vh]"
+          showFullList ? "h-[55vh]" : "h-auto pb-6"
         )}
       >
         <SheetHeader className="pb-3">
@@ -59,30 +59,41 @@ export function TourLogSheet({
             <Truck className="w-5 h-5 text-primary" />
             {isHistory ? 'Dernière tournée' : 'Tournée'}
             {isActive && (
-              <span className="ml-auto flex items-center gap-1.5 text-sm font-normal text-accent">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <span 
+                className="ml-auto flex items-center gap-1.5 text-sm font-medium text-green-500"
+                style={{ textShadow: '0 0 8px rgba(34, 197, 94, 0.5)' }}
+              >
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
                 En cours
               </span>
             )}
           </SheetTitle>
         </SheetHeader>
 
-        {/* Stops summary for compact view */}
-        {isCompactView && stops.length > 0 && (
-          <div className="mb-4 p-3 bg-muted/50 rounded-lg">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {stops.length} étape{stops.length > 1 ? 's' : ''} détectée{stops.length > 1 ? 's' : ''}
-              </span>
-              <span className="font-medium">
-                Depuis {formatTime(stops[0].timestamp)}
-              </span>
+        {/* Single stop - compact centered view */}
+        {!showFullList && stops.length === 1 && (
+          <div className="mb-4 flex flex-col items-center text-center">
+            <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mb-2 shadow-md">
+              <MapPin className="w-5 h-5" />
             </div>
+            <p className="text-sm font-medium">{stops[0].city || 'Point de départ'}</p>
+            <p className="text-xs text-muted-foreground">
+              Démarré à {formatTime(stops[0].timestamp)}
+            </p>
+          </div>
+        )}
+
+        {/* No stops yet */}
+        {stops.length === 0 && isActive && (
+          <div className="mb-4 p-3 bg-muted/50 rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">
+              En attente de la première position...
+            </p>
           </div>
         )}
 
         {/* Full stops list for non-compact view */}
-        {!isCompactView && (
+        {showFullList && (
           <div className="space-y-3 overflow-y-auto h-[calc(100%-7rem)] pb-4">
             {stops.length > 0 ? (
               <div className="space-y-2">
@@ -153,7 +164,7 @@ export function TourLogSheet({
         {/* Actions */}
         <div className={cn(
           "flex gap-2",
-          !isCompactView && "absolute bottom-0 left-0 right-0 p-4 bg-background border-t"
+          showFullList && "absolute bottom-0 left-0 right-0 p-4 bg-background border-t"
         )}>
           {isActive ? (
             <Button
