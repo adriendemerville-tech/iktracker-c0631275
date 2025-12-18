@@ -1,7 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function MarketingFooter() {
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
+
+  const handleLinkClick = (href: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(href);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const links = {
     product: [
@@ -23,8 +30,8 @@ export function MarketingFooter() {
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="IKtracker" className="h-10 w-10" />
+            <Link to="/" onClick={handleLinkClick('/')} className="flex items-center gap-2 mb-4">
+              <img src="/logo.png" alt="IKtracker" className="h-10 w-10" loading="lazy" />
               <span className="text-xl font-bold text-foreground">IKtracker</span>
             </Link>
             <p className="text-muted-foreground mb-4 max-w-sm">
@@ -45,6 +52,7 @@ export function MarketingFooter() {
                 <li key={link.href}>
                   <Link 
                     to={link.href}
+                    onClick={handleLinkClick(link.href)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
@@ -62,6 +70,7 @@ export function MarketingFooter() {
                 <li key={link.href}>
                   <Link 
                     to={link.href}
+                    onClick={handleLinkClick(link.href)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
@@ -78,10 +87,18 @@ export function MarketingFooter() {
             © {currentYear} IKtracker. Application gratuite de gestion des indemnités kilométriques pour indépendants en France.
           </p>
           <div className="flex items-center gap-6 text-sm">
-            <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link 
+              to="/privacy" 
+              onClick={handleLinkClick('/privacy')}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
               Confidentialité
             </Link>
-            <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link 
+              to="/terms" 
+              onClick={handleLinkClick('/terms')}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
               CGU
             </Link>
           </div>
