@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import Landing from "./pages/Landing";
@@ -50,8 +51,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppContent = () => {
-  // Initialize theme
+  // Initialize theme and online status detection
   useTheme();
+  useOnlineStatus();
   
   return (
     <BrowserRouter>
