@@ -215,6 +215,16 @@ const Index = () => {
 
     console.log(`Total distance: ${totalDistance} km, isTour: ${isTour}`);
 
+    // Filter: don't save if less than 1km
+    if (totalDistance < 1) {
+      toast.info("Trajet non enregistré", {
+        description: "Distance inférieure à 1 km",
+      });
+      clearTour();
+      setShowTourLog(false);
+      return;
+    }
+
     // Convert TourStop[] to TourStopData[] for storage (only for tours)
     const tourStopsData = isTour ? stops.map(stop => ({
       id: stop.id,
