@@ -9,7 +9,7 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - slot machine effect with fast spin then slow down
+// Animated digit component - slot machine effect cycling only within valid range
 function AnimatedDigit({ 
   digit, 
   delay = 0,
@@ -42,8 +42,10 @@ function AnimatedDigit({
       return () => clearTimeout(timeoutId);
     }
 
-    // Spin through many cycles (0-9) before landing on target
-    const totalSpins = 40; // Number of digit changes before settling
+    // Number of full cycles through the valid range (0 to target)
+    const numCycles = 8;
+    // Total steps = cycles * (target + 1) to end exactly on target
+    const totalSteps = numCycles * (target + 1);
     let lastDisplayed = -1;
 
     const animate = (timestamp: number) => {
@@ -64,33 +66,11 @@ function AnimatedDigit({
       // Ease-out exponential for dramatic slowdown at the end
       const easeOut = 1 - Math.pow(1 - progress, 4);
       
-      // Calculate which "spin" we're on (0 to totalSpins)
-      const currentSpin = Math.floor(totalSpins * easeOut);
+      // Calculate current step and cycle within 0 to target range
+      const currentStep = Math.floor(totalSteps * easeOut);
+      const displayValue = currentStep % (target + 1);
       
-      // During most of the animation, cycle through 0-9
-      // At the end, settle on target
-      let displayValue: number;
-      if (progress < 0.85) {
-        // Fast spinning phase - cycle through all digits
-        displayValue = currentSpin % 10;
-      } else {
-        // Settling phase - approach target
-        const settleProgress = (progress - 0.85) / 0.15;
-        const settleEase = 1 - Math.pow(1 - settleProgress, 2);
-        const lastSpinDigit = (Math.floor(totalSpins * 0.85) % 10);
-        
-        // Count from last spin digit to target
-        if (lastSpinDigit <= target) {
-          displayValue = Math.round(lastSpinDigit + (target - lastSpinDigit) * settleEase);
-        } else {
-          // Wrap around through 0
-          const stepsToTarget = (10 - lastSpinDigit) + target;
-          const currentStep = Math.round(stepsToTarget * settleEase);
-          displayValue = (lastSpinDigit + currentStep) % 10;
-        }
-      }
-      
-      // Only update if digit changed (performance + visual smoothness)
+      // Only update if digit changed
       if (displayValue !== lastDisplayed) {
         setDisplayDigit(displayValue.toString());
         lastDisplayed = displayValue;
