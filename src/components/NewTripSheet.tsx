@@ -611,7 +611,7 @@ export function NewTripSheet({
                 <div className="mb-4 p-3 bg-muted rounded-lg flex items-center gap-3">
                   <Car className="w-4 h-4 text-primary" />
                   <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
-                  <span className="text-muted-foreground">({selectedVehicle.licensePlate})</span>
+                  {selectedVehicle.licensePlate && <span className="text-muted-foreground">({selectedVehicle.licensePlate})</span>}
                 </div>
               )}
               
