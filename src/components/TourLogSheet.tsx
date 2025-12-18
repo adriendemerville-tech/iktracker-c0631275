@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { TourStop } from '@/hooks/useTourTracker';
-import { MapPin, Clock, Truck, Play, History, Timer, Navigation } from 'lucide-react';
+import { MapPin, Clock, Car, Play, History, Timer, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TourLogSheetProps {
@@ -89,11 +89,11 @@ export function TourLogSheet({
       >
         <SheetHeader className="pb-4 pt-2">
           <SheetTitle className="text-base flex items-center gap-2">
-            <Truck className="w-5 h-5 text-primary" />
+            <Car className="w-5 h-5 text-primary" />
             {isHistory ? 'Dernière tournée' : 'Tournée'}
             {isActive && (
-              <span className="ml-auto flex items-center gap-1.5 text-sm font-medium text-green-500 animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="ml-3 flex items-center gap-1.5 text-base font-medium text-green-500 animate-[pulse_3s_ease-in-out_infinite]">
+                <span className="w-2 h-2 rounded-full bg-green-500 opacity-80" />
                 En cours
               </span>
             )}
@@ -197,7 +197,7 @@ export function TourLogSheet({
               </div>
             ) : (
               <div className="text-center py-8">
-                <Truck className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+                <Car className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">Aucune étape pour le moment</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {isActive
