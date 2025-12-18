@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, Trash2, Car, Pencil, Calendar, Truck, ChevronRight } from 'lucide-react';
+import { MapPin, ArrowRight, X, Car, Pencil, Calendar, Truck, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -164,7 +164,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
                 onDelete(trip.id);
               }}
             >
-              <Trash2 className="w-2.5 h-2.5" />
+              <X className="w-2.5 h-2.5" />
             </Button>
           )}
         </div>

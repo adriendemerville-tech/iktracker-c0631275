@@ -1,5 +1,5 @@
 import { Vehicle, getIKBareme } from '@/types/trip';
-import { Car, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { Car, Edit2, X, MoreVertical } from 'lucide-react';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -75,7 +75,7 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
                     onClick={(e) => { e.stopPropagation(); onDelete(); }}
                     className="text-destructive"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    <X className="w-4 h-4 mr-2" />
                     Supprimer
                   </DropdownMenuItem>
                 )}
