@@ -45,14 +45,10 @@ export default function Report() {
 
   const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
 
-  // Filter trips that are tours (have valid tourStops with at least 2 stops)
+  // Filter trips that are tours (have tourStops)
   const pastTours = useMemo(() => {
-    return trips.filter(trip => 
-      trip.tourStops && 
-      Array.isArray(trip.tourStops) && 
-      trip.tourStops.length >= 2 &&
-      trip.tourStops.every(stop => stop && stop.id)
-    ).sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+    return trips.filter(trip => trip.tourStops && trip.tourStops.length > 0)
+      .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [trips]);
 
   const selectedTour = pastTours.find(t => t.id === selectedTourId);
@@ -604,28 +600,32 @@ ${IKTRACKER_URL}`
         </div>
 
         {/* Past Tours Dropdown */}
-        {pastTours.length > 0 && (
-          <div className="bg-card rounded-md shadow-md overflow-hidden">
-            <button
-              onClick={() => setShowToursDropdown(!showToursDropdown)}
-              className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Truck className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium">Tournées passées</p>
-                  <p className="text-sm text-muted-foreground">{pastTours.length} tournée{pastTours.length > 1 ? 's' : ''}</p>
-                </div>
+        <div className="bg-card rounded-md shadow-md overflow-hidden">
+          <button
+            onClick={() => setShowToursDropdown(!showToursDropdown)}
+            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <Truck className="w-5 h-5 text-primary" />
               </div>
-              <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showToursDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            
-            <div className={`grid transition-all duration-300 ease-out ${showToursDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-              <div className="overflow-hidden">
-                <div className="border-t border-border p-3 space-y-2 max-h-60 overflow-y-auto">
-                  {pastTours.map(tour => (
+              <div className="text-left">
+                <p className="font-medium">Tournées passées</p>
+                <p className="text-sm text-muted-foreground">
+                  {pastTours.length > 0 
+                    ? `${pastTours.length} tournée${pastTours.length > 1 ? 's' : ''}` 
+                    : 'Aucune tournée'}
+                </p>
+              </div>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showToursDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <div className={`grid transition-all duration-300 ease-out ${showToursDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+            <div className="overflow-hidden">
+              <div className="border-t border-border p-3 space-y-2 max-h-60 overflow-y-auto">
+                {pastTours.length > 0 ? (
+                  pastTours.map(tour => (
                     <button
                       key={tour.id}
                       onClick={() => setSelectedTourId(selectedTourId === tour.id ? null : tour.id)}
@@ -645,12 +645,18 @@ ${IKTRACKER_URL}`
                         <span className="text-sm font-medium text-accent">{tour.ikAmount.toFixed(2)}€</span>
                       </div>
                     </button>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <Truck className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">Aucune tournée enregistrée</p>
+                    <p className="text-xs mt-1">Démarrez une tournée depuis l'accueil</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Selected Tour Details */}
         {selectedTour && selectedTour.tourStops && (
