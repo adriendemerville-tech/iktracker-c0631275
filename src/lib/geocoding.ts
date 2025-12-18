@@ -136,3 +136,25 @@ export function extractCityFromAddress(address: string): string {
   
   return address;
 }
+
+// Remove country from address string for display purposes
+export function removeCountryFromAddress(address: string): string {
+  if (!address) return '';
+  
+  // Common country names to remove (case insensitive)
+  const countries = [
+    'France', 'Belgium', 'Belgique', 'Switzerland', 'Suisse', 'Luxembourg',
+    'Germany', 'Allemagne', 'Spain', 'Espagne', 'Italy', 'Italie', 
+    'Netherlands', 'Pays-Bas', 'United Kingdom', 'Royaume-Uni', 'UK',
+    'Portugal', 'Austria', 'Autriche', 'Monaco'
+  ];
+  
+  // Split by comma and filter out country names
+  const parts = address.split(',').map(p => p.trim());
+  const filteredParts = parts.filter(part => {
+    const normalizedPart = part.toLowerCase().trim();
+    return !countries.some(c => c.toLowerCase() === normalizedPart);
+  });
+  
+  return filteredParts.join(', ').trim();
+}

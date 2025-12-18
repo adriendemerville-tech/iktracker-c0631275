@@ -5,7 +5,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { MapPin, Clock, Truck, ArrowRight } from 'lucide-react';
+import { MapPin, Clock, Truck } from 'lucide-react';
+import { removeCountryFromAddress } from '@/lib/geocoding';
 
 interface TourDetailSheetProps {
   open: boolean;
@@ -95,11 +96,11 @@ export function TourDetailSheet({ open, onOpenChange, stops, totalDistance, date
                           {label}
                         </p>
                         <p className="font-semibold text-foreground truncate">
-                          {stop.city || stop.address || 'Position'}
+                          {stop.city || (stop.address ? removeCountryFromAddress(stop.address) : 'Position')}
                         </p>
                         {stop.address && stop.city && (
                           <p className="text-xs text-muted-foreground truncate mt-0.5">
-                            {stop.address}
+                            {removeCountryFromAddress(stop.address)}
                           </p>
                         )}
                       </div>

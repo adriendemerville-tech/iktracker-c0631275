@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { TourStop } from '@/hooks/useTourTracker';
 import { MapPin, Clock, Car, Play, History, Timer, Navigation, Sun, BatteryWarning } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { removeCountryFromAddress } from '@/lib/geocoding';
 
 interface TourLogSheetProps {
   open: boolean;
@@ -191,7 +192,7 @@ export function TourLogSheet({
                             </p>
                             {stop.address && (
                               <p className="text-xs text-muted-foreground truncate">
-                                {stop.address}
+                                {removeCountryFromAddress(stop.address)}
                               </p>
                             )}
                           </div>

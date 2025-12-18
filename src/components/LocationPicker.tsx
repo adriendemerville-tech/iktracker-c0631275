@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Clock } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
-import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
+import { geocodeAddress, reverseGeocode, removeCountryFromAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
 
 const RECENT_LOCATIONS_KEY = 'ik-recent-locations';
@@ -478,7 +478,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                   <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="font-medium truncate">{location.name}</p>
                     {location.address && (
-                      <p className="text-sm text-muted-foreground truncate">{location.address}</p>
+                      <p className="text-sm text-muted-foreground truncate">{removeCountryFromAddress(location.address)}</p>
                     )}
                   </div>
                   {location.lat && location.lng && (

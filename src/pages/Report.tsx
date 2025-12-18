@@ -8,6 +8,7 @@ import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
+import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -712,7 +713,7 @@ ${IKTRACKER_URL}`
                       <MapPin className="w-3 h-3" />
                     </div>
                     <div className="flex-1 min-w-0 pb-2">
-                      <p className="font-medium text-sm truncate">{stop.city || stop.address || 'Position'}</p>
+                      <p className="font-medium text-sm truncate">{stop.city || (stop.address ? removeCountryFromAddress(stop.address) : 'Position')}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatTime(stop.timestamp)}
