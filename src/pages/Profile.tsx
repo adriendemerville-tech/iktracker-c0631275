@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, RotateCcw } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -144,7 +144,7 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { trips, vehicles, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
-  const { preferences, updatePreference, resetCounters } = usePreferences();
+  const { preferences, updatePreference } = usePreferences();
   const { isAdmin } = useAdmin();
   const { unreadResponsesCount } = useFeedback();
   
@@ -152,20 +152,6 @@ const Profile = () => {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [showPreferencesDropdown, setShowPreferencesDropdown] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
-
-  // Check if counters are at zero (reset date exists and no trips after it)
-  const countersAreZero = useMemo(() => {
-    if (!preferences.counterResetDate) return false;
-    const resetDate = new Date(preferences.counterResetDate);
-    return !trips.some(t => new Date(t.startTime) >= resetDate);
-  }, [preferences.counterResetDate, trips]);
-
-  const handleResetCounters = () => {
-    setIsResetting(true);
-    resetCounters();
-    setTimeout(() => setIsResetting(false), 600);
-  };
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
@@ -474,21 +460,6 @@ const Profile = () => {
                   )}
                 </div>
 
-                {/* Reset Counters */}
-                <div className="pt-2 border-t border-border flex flex-col items-center">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="font-normal"
-                    onClick={handleResetCounters}
-                  >
-                    <RotateCcw className={`w-4 h-4 mr-2 transition-transform duration-500 ${isResetting ? 'animate-[spin_0.6s_linear_reverse]' : ''}`} />
-                    Réinitialiser les compteurs
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {countersAreZero ? "Les compteurs sont désormais à zéro" : "Remettre les compteurs à 0"}
-                  </p>
-                </div>
               </div>
             </div>
           </div>
