@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -51,6 +51,7 @@ const Profile = () => {
   const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
+  const [showPreferencesDropdown, setShowPreferencesDropdown] = useState(false);
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
@@ -216,6 +217,122 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Preferences Dropdown */}
+        <div className="bg-card rounded-md shadow-md overflow-hidden">
+          <button
+            onClick={() => setShowPreferencesDropdown(!showPreferencesDropdown)}
+            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <Settings className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium">Préférences</p>
+                <p className="text-sm text-muted-foreground">Personnaliser l'application</p>
+              </div>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showPreferencesDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <div className={`grid transition-all duration-300 ease-out ${showPreferencesDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+            <div className="overflow-hidden">
+              <div className="border-t border-border p-4 space-y-6">
+                {/* Dark Mode */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {theme === 'dark' ? (
+                      <Moon className="w-5 h-5 text-muted-foreground" />
+                    ) : (
+                      <Sun className="w-5 h-5 text-muted-foreground" />
+                    )}
+                    <Label htmlFor="dark-mode" className="cursor-pointer">
+                      Mode sombre
+                    </Label>
+                  </div>
+                  <Switch
+                    id="dark-mode"
+                    checked={theme === 'dark'}
+                    onCheckedChange={toggleTheme}
+                  />
+                </div>
+
+                {/* Show Trip Time */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label htmlFor="show-time" className="cursor-pointer">
+                        Afficher l'heure des trajets
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Visible sur les cartes de trajet
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="show-time"
+                    checked={preferences.showTripTime}
+                    onCheckedChange={(checked) => updatePreference('showTripTime', checked)}
+                  />
+                </div>
+
+                {/* Stop Detection Interval */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Timer className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Détection des étapes</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Durée d'arrêt pour créer une étape
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 pl-8">
+                    <Slider
+                      value={[preferences.stopDetectionMinutes]}
+                      onValueChange={([value]) => updatePreference('stopDetectionMinutes', value)}
+                      min={1}
+                      max={15}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-medium w-16 text-right">
+                      {preferences.stopDetectionMinutes} min
+                    </span>
+                  </div>
+                </div>
+
+                {/* Location Radius */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Rayon de détection</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Distance pour considérer un même lieu
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 pl-8">
+                    <Slider
+                      value={[preferences.locationRadiusMeters]}
+                      onValueChange={([value]) => updatePreference('locationRadiusMeters', value)}
+                      min={50}
+                      max={300}
+                      step={25}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-medium w-16 text-right">
+                      {preferences.locationRadiusMeters} m
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Feedback Button - Shown at top when there are unread responses */}
         {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
 
@@ -334,107 +451,6 @@ const Profile = () => {
 
         {/* Invoices - Hidden while app is free */}
 
-        {/* Preferences */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Settings className="w-4 h-4" />
-              Préférences
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Dark Mode */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {theme === 'dark' ? (
-                  <Moon className="w-5 h-5 text-muted-foreground" />
-                ) : (
-                  <Sun className="w-5 h-5 text-muted-foreground" />
-                )}
-                <Label htmlFor="dark-mode" className="cursor-pointer">
-                  Mode sombre
-                </Label>
-              </div>
-              <Switch
-                id="dark-mode"
-                checked={theme === 'dark'}
-                onCheckedChange={toggleTheme}
-              />
-            </div>
-
-            {/* Show Trip Time */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <Label htmlFor="show-time" className="cursor-pointer">
-                    Afficher l'heure des trajets
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Visible sur les cartes de trajet
-                  </p>
-                </div>
-              </div>
-              <Switch
-                id="show-time"
-                checked={preferences.showTripTime}
-                onCheckedChange={(checked) => updatePreference('showTripTime', checked)}
-              />
-            </div>
-
-            {/* Stop Detection Interval */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Timer className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <Label>Détection des étapes</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Durée d'arrêt pour créer une étape
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 pl-8">
-                <Slider
-                  value={[preferences.stopDetectionMinutes]}
-                  onValueChange={([value]) => updatePreference('stopDetectionMinutes', value)}
-                  min={1}
-                  max={15}
-                  step={1}
-                  className="flex-1"
-                />
-                <span className="text-sm font-medium w-16 text-right">
-                  {preferences.stopDetectionMinutes} min
-                </span>
-              </div>
-            </div>
-
-            {/* Location Radius */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <Label>Rayon de détection</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Distance pour considérer un même lieu
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 pl-8">
-                <Slider
-                  value={[preferences.locationRadiusMeters]}
-                  onValueChange={([value]) => updatePreference('locationRadiusMeters', value)}
-                  min={50}
-                  max={300}
-                  step={25}
-                  className="flex-1"
-                />
-                <span className="text-sm font-medium w-16 text-right">
-                  {preferences.locationRadiusMeters} m
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Feedback Button - Normal position when no unread responses */}
         {user && unreadResponsesCount === 0 && <FeedbackForm />}
