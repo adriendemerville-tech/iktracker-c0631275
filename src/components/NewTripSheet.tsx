@@ -531,7 +531,7 @@ export function NewTripSheet({
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="h-[85vh] rounded-t-3xl max-w-[76%] mx-auto left-[12%] right-[12%]"
+        className="h-[85vh] rounded-t-3xl max-w-[82%] mx-auto left-[9%] right-[9%]"
         onInteractOutside={preventCloseOnGoogleAutocomplete}
         onPointerDownOutside={preventCloseOnGoogleAutocomplete}
         onFocusOutside={preventCloseOnGoogleAutocomplete}
