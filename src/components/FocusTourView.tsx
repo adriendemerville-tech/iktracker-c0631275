@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Signal, Sun, Moon } from 'lucide-react';
+import { Signal, Sun, Moon, Car } from 'lucide-react';
 import { useNightMode } from '@/hooks/useNightMode';
 
 interface FocusTourViewProps {
@@ -98,35 +98,38 @@ export function FocusTourView({
         </span>
       </div>
 
-      {/* CENTER: Tour button with pulse animation */}
+      {/* CENTER: Tour button with exact TourButton active design */}
       <div className="flex flex-col items-center gap-6">
-        <div className="relative">
-          {/* Pulse animation rings - indigo at night, blue during day */}
-          <div className={`absolute inset-0 rounded-full animate-pulse-glow opacity-40 scale-110 ${
-            isNightMode 
-              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600' 
-              : 'bg-gradient-to-br from-blue-500 to-blue-600'
-          }`} />
-          <div className={`absolute inset-0 rounded-full animate-pulse-glow-delayed opacity-30 scale-125 ${
-            isNightMode 
-              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600' 
-              : 'bg-gradient-to-br from-blue-500 to-blue-600'
-          }`} />
-          
-          {/* Main button - indigo at night, blue during day */}
-          <button
-            onClick={onStop}
-            className={`relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95 ${
-              isNightMode 
-                ? 'bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 shadow-indigo-500/30' 
-                : 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-blue-500/30'
-            }`}
+        <button
+          onClick={onStop}
+          className="relative w-40 h-40 rounded-full flex items-center justify-center bg-gradient-primary text-orange-500 shadow-2xl transition-transform active:scale-95"
+          aria-label="Arrêter la tournée"
+        >
+          {/* Rotating gradient border */}
+          <span 
+            className="absolute inset-[-4px] rounded-full overflow-hidden"
+            style={{
+              background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
+              animation: 'rotate-gradient 3s linear infinite',
+            }}
           >
-            <span className="font-urbanist text-lg font-bold text-white tracking-wider">
-              ARRÊTER
-            </span>
-          </button>
-        </div>
+            <span className="absolute inset-[4px] rounded-full bg-gradient-primary" />
+          </span>
+          
+          {/* Speed lines behind the car */}
+          <span className="absolute left-8 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+            <span className="w-5 h-1 bg-current opacity-60 rounded-full" />
+            <span className="w-7 h-1 bg-current opacity-40 rounded-full -ml-1" />
+          </span>
+          
+          {/* Car icon with driving animation */}
+          <Car 
+            className="w-16 h-16 relative z-10"
+            style={{
+              animation: 'car-drive 0.3s ease-in-out infinite',
+            }}
+          />
+        </button>
         
         <span className="text-gray-500 text-sm font-urbanist">
           {isNightMode ? 'Mode nuit actif' : 'Tournée en cours'}
