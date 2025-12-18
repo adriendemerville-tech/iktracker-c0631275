@@ -250,7 +250,7 @@ ${IKTRACKER_MENTION}
     // Load logo
     let logoBase64: string | null = null;
     try {
-      const response = await fetch('/logo.png');
+      const response = await fetch('/logo-iktracker.png');
       const blob = await response.blob();
       logoBase64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();

@@ -49,7 +49,7 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <img 
-            src="/logo.png" 
+            src="/logo-iktracker.png" 
             alt="IKtracker" 
             className="w-8 h-8 rounded-lg" 
             loading="lazy"
