@@ -109,9 +109,6 @@ const Index = () => {
   };
 
   const handleFinishTour = async () => {
-    // Stop tracking
-    stopTour();
-    
     // Save the tour/trip based on number of stops
     if (tourStops.length >= 1) {
       await handleConvertToTrips(tourStops);
@@ -119,8 +116,12 @@ const Index = () => {
       toast.error("Aucune étape détectée", {
         description: "Impossible d'enregistrer le trajet",
       });
-      clearTour();
+      // Close sheet first, then stop tour after animation
       setShowTourLog(false);
+      setTimeout(() => {
+        stopTour();
+        clearTour();
+      }, 300);
     }
   };
 
@@ -272,8 +273,12 @@ const Index = () => {
         toast.success(`${label} enregistré`, {
           description: `${totalDistance.toFixed(1)} km${isTour ? ` - ${stops.length} étapes` : ''}`,
         });
-        clearTour();
+        // Close sheet first, then stop tour after animation
         setShowTourLog(false);
+        setTimeout(() => {
+          stopTour();
+          clearTour();
+        }, 300);
       } else {
         toast.error("Erreur lors de l'enregistrement");
       }
