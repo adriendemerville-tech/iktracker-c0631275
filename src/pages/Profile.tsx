@@ -30,14 +30,14 @@ const KM_BAR_ANIMATION_STAGGER_MS = 60;
 // Animated counter label for bar chart
 const AnimatedLabel = (props: any) => {
   const { x, y, width, height, value } = props;
-  const [displayValue, setDisplayValue] = useState(0);
+  const [displayValue, setDisplayValue] = useState<number | null>(null);
   const animationRef = useRef<number>();
   const startTimeRef = useRef<number | null>(null);
 
   // Ensure the counter renders from 0 on the very first paint (no "starts at 7")
   useLayoutEffect(() => {
     if (!value || value === 0) return;
-    setDisplayValue(0);
+    setDisplayValue(null);
     startTimeRef.current = null;
   }, [value]);
 
@@ -53,7 +53,7 @@ const AnimatedLabel = (props: any) => {
       const elapsed = timestamp - startTimeRef.current - startDelay;
 
       if (elapsed < 0) {
-        setDisplayValue(0);
+        // Don't show anything during delay
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
@@ -73,7 +73,7 @@ const AnimatedLabel = (props: any) => {
     };
   }, [value]);
 
-  if (!value || value === 0) return null;
+  if (!value || value === 0 || displayValue === null) return null;
 
   return (
     <text
