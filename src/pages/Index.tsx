@@ -668,6 +668,7 @@ ${IKTRACKER_MENTION}
         style={{
           background: `
             radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 40% at 90% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 50%),
             linear-gradient(180deg, #0F172A 0%, #1E293B 100%)
           `
         }}
