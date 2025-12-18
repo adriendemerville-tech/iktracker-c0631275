@@ -663,7 +663,7 @@ ${IKTRACKER_MENTION}
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-gradient-primary text-primary-foreground px-4 pt-12 pb-8 rounded-b-[2rem]">
+      <header className="bg-gradient-primary text-primary-foreground px-4 pt-8 pb-8 rounded-b-[2rem]">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div 
