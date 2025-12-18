@@ -32,7 +32,8 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
-  Download
+  Download,
+  Share2
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -52,6 +53,12 @@ interface DownloadStatsData {
   unique_users: number;
   avg_clicks_per_user: number;
   pct_users_clicked: number;
+}
+
+interface ShareStatsData {
+  total_shares: number;
+  unique_sharers: number;
+  pct_users_shared: number;
 }
 
 interface TopUser {
@@ -245,7 +252,33 @@ export function AdminStats() {
     refetchInterval: 60000,
   });
 
-  // Fetch recent signups
+  // Fetch share stats
+  const { data: shareStats, isLoading: shareStatsLoading } = useQuery({
+    queryKey: ['admin-share-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_share_stats');
+      if (error) throw error;
+      return data as unknown as ShareStatsData;
+    },
+    refetchInterval: 60000,
+  });
+
+  // Fetch shares by day with period filter
+  const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
+    queryKey: ['admin-shares-by-day', period],
+    queryFn: async () => {
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_shares_by_day', { days_back: daysBack });
+      if (error) throw error;
+      return (data as unknown as { day: string; count: number }[]).map(d => ({
+        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
+        count: Number(d.count),
+      }));
+    },
+    refetchInterval: 60000,
+  });
+
+
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
     queryKey: ['admin-recent-signups'],
     queryFn: async () => {
@@ -672,6 +705,85 @@ export function AdminStats() {
                     strokeWidth={2}
                     dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 2 }}
                     activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Share Stats */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-primary" />
+            Partages de l'application
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {shareStatsLoading ? (
+            <div className="grid grid-cols-3 gap-4">
+              <Skeleton className="h-16" />
+              <Skeleton className="h-16" />
+              <Skeleton className="h-16" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
+                <p className="text-xs text-muted-foreground">Partages totaux</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-blue-500">{shareStats?.unique_sharers || 0}</p>
+                <p className="text-xs text-muted-foreground">Partageurs uniques</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-green-500">{shareStats?.pct_users_shared || 0}%</p>
+                <p className="text-xs text-muted-foreground">Utilisateurs ayant partagé</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Shares chart with period filter */}
+          <div>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution {getPeriodLabel()}</h4>
+            {sharesLoading ? (
+              <Skeleton className="h-[180px] w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={sharesByDay}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="day" 
+                    tick={{ fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                    }}
+                    labelStyle={{ fontWeight: 'bold' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    name="Partages"
+                    stroke="hsl(142, 71%, 45%)" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(142, 71%, 45%)', strokeWidth: 0, r: 2 }}
+                    activeDot={{ r: 4, stroke: 'hsl(142, 71%, 45%)', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

@@ -164,6 +164,30 @@ export type Database = {
         }
         Relationships: []
       }
+      share_events: {
+        Row: {
+          id: string
+          shared_at: string
+          total_ik: number | null
+          total_km: number | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          shared_at?: string
+          total_ik?: number | null
+          total_km?: number | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          shared_at?: string
+          total_ik?: number | null
+          total_km?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           calendar_event_id: string | null
@@ -339,6 +363,14 @@ export type Database = {
         }[]
       }
       get_registrations_by_day: {
+        Args: { days_back?: number }
+        Returns: {
+          count: number
+          day: string
+        }[]
+      }
+      get_share_stats: { Args: never; Returns: Json }
+      get_shares_by_day: {
         Args: { days_back?: number }
         Returns: {
           count: number
