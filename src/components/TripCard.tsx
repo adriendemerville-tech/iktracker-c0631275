@@ -134,7 +134,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
           <div className="flex items-center gap-2 mb-2 text-xs">
             <Car className="w-3.5 h-3.5 text-primary shrink-0" />
             <span className="font-medium">{vehicle.make} {vehicle.model}</span>
-            <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">
               {vehicle.fiscalPower} CV
             </span>
             {trip.purpose && !isTour && (
