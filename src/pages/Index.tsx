@@ -699,11 +699,6 @@ ${IKTRACKER_MENTION}
         />
         <div className="max-w-lg mx-auto relative z-10">
           <div className="flex items-center gap-3 mb-6">
-            <div 
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500/20 backdrop-blur-sm border border-blue-400/30"
-            >
-              <Car className="w-5 h-5 text-blue-400" />
-            </div>
             <div className="flex-1">
               <h1 className="text-[27px] font-extrabold font-urbanist text-white">Ik Tracker</h1>
               <p className="text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
