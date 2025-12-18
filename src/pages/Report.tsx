@@ -7,7 +7,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send, Truck, ChevronDown, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send, Truck, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -29,6 +29,7 @@ export default function Report() {
   const [isEditingAccountantEmail, setIsEditingAccountantEmail] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [showToursDropdown, setShowToursDropdown] = useState(false);
+  const [showBaremeDropdown, setShowBaremeDropdown] = useState(false);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
@@ -753,15 +754,36 @@ ${IKTRACKER_URL}`
           ))
         )}
 
-        <div className="bg-card rounded-md p-4 space-y-3">
-          <h3 className="text-sm font-medium">Barème IK 2025</h3>
-          <div className="text-xs text-muted-foreground space-y-1">
-            {IK_BAREME_2024.map(b => (
-              <div key={b.cv} className="flex justify-between">
-                <span>{b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`}</span>
-                <span>{b.upTo5000.rate} €/km (≤5000km)</span>
+        <div className="bg-card rounded-md shadow-md overflow-hidden">
+          <button
+            onClick={() => setShowBaremeDropdown(!showBaremeDropdown)}
+            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <Calculator className="w-5 h-5 text-primary" />
               </div>
-            ))}
+              <div className="text-left">
+                <p className="font-medium">Barème IK 2025</p>
+                <p className="text-sm text-muted-foreground">Indemnités kilométriques</p>
+              </div>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showBaremeDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <div className={`grid transition-all duration-300 ease-out ${showBaremeDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+            <div className="overflow-hidden">
+              <div className="border-t border-border p-4">
+                <div className="text-xs text-muted-foreground space-y-1">
+                  {IK_BAREME_2024.map(b => (
+                    <div key={b.cv} className="flex justify-between">
+                      <span>{b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`}</span>
+                      <span>{b.upTo5000.rate} €/km (≤5000km)</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
