@@ -970,6 +970,12 @@ const Landing = () => {
               Outil <span className="font-semibold text-success">100% gratuit</span> pour les indépendants
             </p>
             <div className="flex items-center gap-6">
+              <Link to="/expert-comptable" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Expert-Comptable
+              </Link>
+              <Link to="/install" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Installation
+              </Link>
               <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Confidentialité
               </Link>
