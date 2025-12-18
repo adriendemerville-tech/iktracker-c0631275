@@ -118,7 +118,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-primary shrink-0"
+              className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-transparent shrink-0"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(trip);
