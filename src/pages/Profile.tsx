@@ -465,7 +465,7 @@ const Profile = () => {
 
         {/* Kilometers Chart */}
         <Card>
-          <CardHeader className="flex flex-row items-start justify-between">
+          <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2 text-base">
                 <BarChart3 className="w-4 h-4" />
@@ -476,15 +476,15 @@ const Profile = () => {
               </CardDescription>
             </div>
             {/* Animated car */}
-            <div className="flex flex-col items-center gap-0">
+            <div className="flex flex-col items-center gap-0 -mt-1">
               <div className="animate-car-bounce relative">
                 <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
                 {/* Animated wheels overlay */}
-                <div className="absolute bottom-[5px] left-[5px] w-[6px] h-[6px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-                <div className="absolute bottom-[5px] right-[5px] w-[6px] h-[6px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+                <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+                <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
               </div>
               {/* Road with wave */}
-              <div className="w-12 h-[3px] bg-muted-foreground/40 rounded-full -mt-1 animate-road-wave" />
+              <div className="w-8 h-[2px] bg-muted-foreground/40 rounded-full -mt-1.5 animate-road-wave" />
             </div>
           </CardHeader>
           <CardContent>
