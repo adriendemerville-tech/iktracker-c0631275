@@ -83,7 +83,7 @@ export function TourLogSheet({
       <SheetContent 
         side="bottom" 
         className={cn(
-          "rounded-t-2xl w-[44%] max-w-lg left-1/2 -translate-x-1/2",
+          "rounded-t-2xl w-[90%] sm:w-[70%] md:w-[50%] lg:w-[44%] max-w-lg left-1/2 -translate-x-1/2",
           showFullList ? "h-[55vh]" : "h-auto pb-6"
         )}
       >

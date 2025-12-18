@@ -220,7 +220,7 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border px-4 py-4">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/app')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -228,7 +228,7 @@ const Profile = () => {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
+      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-5">
         {/* Account Info Button */}
         <Card 
           className="cursor-pointer hover:bg-accent/50 transition-colors"
@@ -495,7 +495,7 @@ const Profile = () => {
           <CardContent>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyKmData} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={40}>
+                <BarChart data={monthlyKmData} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={32}>
                   <defs>
                     <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
                       <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.15" />
