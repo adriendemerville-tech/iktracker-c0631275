@@ -531,7 +531,7 @@ export function NewTripSheet({
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="h-[85vh] rounded-t-3xl max-w-[82%] mx-auto left-[9%] right-[9%]"
+        className="h-[85vh] rounded-t-3xl w-full sm:max-w-[90%] md:max-w-[82%] mx-auto sm:left-[5%] sm:right-[5%] md:left-[9%] md:right-[9%]"
         onInteractOutside={preventCloseOnGoogleAutocomplete}
         onPointerDownOutside={preventCloseOnGoogleAutocomplete}
         onFocusOutside={preventCloseOnGoogleAutocomplete}
@@ -688,31 +688,31 @@ export function NewTripSheet({
 
               {/* Navigation Assistée - Waze & Maps Buttons */}
               {draft.endLocation && (draft.endLocation.address || draft.endLocation.name) && (
-                <div className="flex gap-12 justify-center">
+                <div className="flex gap-3 sm:gap-6 md:gap-12 justify-center flex-wrap">
                   <button
                     onClick={handleNavigateWithWaze}
                     disabled={isNavigating}
-                    className="flex items-center justify-center gap-3 px-6 py-3 
+                    className="flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 
                       bg-primary/5 hover:bg-primary/10 border border-primary/20 
                       rounded-xl transition-all duration-200 
-                      font-urbanist font-medium text-primary text-lg
+                      font-urbanist font-medium text-primary text-base sm:text-lg
                       disabled:opacity-50 disabled:cursor-not-allowed
-                      group"
+                      group flex-1 min-w-[120px] max-w-[160px]"
                   >
-                    <WazeIcon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
+                    <WazeIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary group-hover:scale-110 transition-transform" />
                     <span>Waze</span>
                   </button>
                   <button
                     onClick={handleNavigateWithMaps}
                     disabled={isNavigating}
-                    className="flex items-center justify-center gap-3 px-6 py-3 
+                    className="flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 
                       bg-primary/5 hover:bg-primary/10 border border-primary/20 
                       rounded-xl transition-all duration-200 
-                      font-urbanist font-medium text-primary text-lg
+                      font-urbanist font-medium text-primary text-base sm:text-lg
                       disabled:opacity-50 disabled:cursor-not-allowed
-                      group"
+                      group flex-1 min-w-[120px] max-w-[160px]"
                   >
-                    <Map className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
+                    <Map className="w-5 h-5 sm:w-6 sm:h-6 text-primary group-hover:scale-110 transition-transform" />
                     <span>Maps</span>
                   </button>
                 </div>
@@ -844,13 +844,13 @@ export function NewTripSheet({
                 />
               </div>
 
-              <div className="flex gap-40 justify-center">
-                <Button variant="secondary" className="px-7 py-3 h-12 text-lg" onClick={() => isEditing ? handleClose() : setStep('end')}>
+              <div className="flex gap-4 sm:gap-8 md:gap-16 justify-center flex-wrap">
+                <Button variant="secondary" className="px-4 sm:px-7 py-2.5 sm:py-3 h-10 sm:h-12 text-base sm:text-lg flex-1 min-w-[100px] max-w-[160px]" onClick={() => isEditing ? handleClose() : setStep('end')}>
                   {isEditing ? 'Annuler' : '← Retour'}
                 </Button>
                 <Button
                   variant="gradient"
-                  className="px-7 py-3 h-12 text-lg"
+                  className="px-4 sm:px-7 py-2.5 sm:py-3 h-10 sm:h-12 text-base sm:text-lg flex-1 min-w-[100px] max-w-[160px]"
                   onClick={handleConfirm}
                 >
                   {isEditing ? 'Modifier' : 'Enregistrer'}
