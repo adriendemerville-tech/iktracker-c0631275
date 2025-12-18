@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,6 +10,37 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [sessionCount, setSessionCount] = useState(1);
   const [requiresAuth, setRequiresAuth] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Silent session refresh - attempts to get a new session using refresh token
+  const silentRefresh = useCallback(async () => {
+    if (isRefreshing) return null;
+    
+    setIsRefreshing(true);
+    try {
+      console.log('[Auth] Attempting silent session refresh...');
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.warn('[Auth] Silent refresh failed:', error.message);
+        return null;
+      }
+      
+      if (data.session) {
+        console.log('[Auth] Session refreshed successfully');
+        setSession(data.session);
+        setUser(data.session.user);
+        return data.session;
+      }
+      
+      return null;
+    } catch (err) {
+      console.warn('[Auth] Silent refresh error:', err);
+      return null;
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing]);
 
   useEffect(() => {
     // Track session count
@@ -37,15 +68,62 @@ export const useAuth = () => {
         if (event === 'SIGNED_OUT') {
           setRequiresAuth(true);
         }
+        
+        // Handle token refresh events
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('[Auth] Token refreshed via auth state change');
+        }
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // THEN check for existing session and attempt silent refresh if needed
+    const initializeSession = async () => {
+      try {
+        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.warn('[Auth] Error getting session:', error.message);
+          // Try silent refresh if there's an error (session might be expired)
+          await silentRefresh();
+          setLoading(false);
+          return;
+        }
+        
+        if (existingSession) {
+          // Check if session is about to expire (within 5 minutes)
+          const expiresAt = existingSession.expires_at;
+          if (expiresAt) {
+            const expiresAtMs = expiresAt * 1000;
+            const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+            
+            if (expiresAtMs < fiveMinutesFromNow) {
+              console.log('[Auth] Session expiring soon, refreshing...');
+              await silentRefresh();
+            } else {
+              setSession(existingSession);
+              setUser(existingSession.user);
+            }
+          } else {
+            setSession(existingSession);
+            setUser(existingSession.user);
+          }
+        } else {
+          // No session exists, try silent refresh in case there's a refresh token
+          const refreshed = await silentRefresh();
+          if (!refreshed) {
+            setSession(null);
+            setUser(null);
+          }
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('[Auth] Session initialization error:', err);
+        setLoading(false);
+      }
+    };
+
+    initializeSession();
 
     return () => subscription.unsubscribe();
   }, []);
@@ -88,6 +166,8 @@ export const useAuth = () => {
     loading,
     sessionCount,
     requiresAuth,
+    isRefreshing,
     signOut,
+    silentRefresh,
   };
 };
