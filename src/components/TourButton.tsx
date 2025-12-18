@@ -28,7 +28,7 @@ export function TourButton({
         "focus:outline-none focus:ring-4 focus:ring-offset-2",
         isActive
           ? "bg-accent text-orange-500 focus:ring-accent/50"
-          : "bg-white text-muted-foreground focus:ring-primary/50 hover:scale-105",
+          : "bg-white text-primary focus:ring-primary/50 hover:scale-105",
         isLoading && "opacity-70 cursor-wait"
       )}
       style={isActive ? { 
