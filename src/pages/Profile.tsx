@@ -31,8 +31,8 @@ const AnimatedLabel = (props: any) => {
   
   useEffect(() => {
     const startTime = Date.now();
-    const duration = 800;
-    const startDelay = 400; // Start after bar animation begins
+    const duration = 1200;
+    const startDelay = 500; // Start after bar animation begins
     
     const animate = () => {
       const elapsed = Date.now() - startTime - startDelay;
@@ -442,7 +442,7 @@ const Profile = () => {
                     filter="url(#barShadow)"
                     isAnimationActive={true}
                     animationBegin={200}
-                    animationDuration={800}
+                    animationDuration={1500}
                     animationEasing="ease-out"
                   >
                     {monthlyKmData.map((_, index) => {
