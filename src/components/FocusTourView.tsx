@@ -130,9 +130,9 @@ export function FocusTourView({
 
       {/* Low battery warning - centered between button and counters */}
       {lowBattery && (
-        <div className="bg-orange-500/20 border border-orange-500/40 rounded-lg px-3 py-1.5 flex items-center gap-2">
-          <BatteryLow className="w-4 h-4 text-orange-400" />
-          <span className="text-orange-400 text-xs font-urbanist">
+        <div className="bg-orange-500/20 border border-orange-500/40 rounded-xl px-5 py-2.5 flex items-center gap-3">
+          <BatteryLow className="w-6 h-6 text-orange-400" />
+          <span className="text-orange-400 text-base font-urbanist">
             Batterie faible - rechargez
           </span>
         </div>
