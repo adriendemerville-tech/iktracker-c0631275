@@ -578,8 +578,8 @@ ${IKTRACKER_URL}`
         </div>
 
         <div className="space-y-3">
-          {/* Show email input only if not sent yet or editing */}
-          {(!preferences.hasSentToAccountant || isEditingAccountantEmail || !preferences.accountantEmail) ? (
+          {/* Show email input only if not sent yet */}
+          {(!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <Input
@@ -590,15 +590,6 @@ ${IKTRACKER_URL}`
                 className="flex-1"
               />
             </div>
-          ) : (
-            <button
-              onClick={() => setIsEditingAccountantEmail(true)}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
-            >
-              <Mail className="w-4 h-4" />
-              <span className="truncate">{preferences.accountantEmail}</span>
-              <Pencil className="w-3 h-3 ml-auto flex-shrink-0" />
-            </button>
           )}
           <Button 
             variant="secondary" 
