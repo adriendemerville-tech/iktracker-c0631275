@@ -142,7 +142,7 @@ const Auth = () => {
             </div>
             <CardTitle className="text-2xl">Connexion réussie !</CardTitle>
             <CardDescription>
-              Vous êtes maintenant connecté à IK Tracker
+              Vous êtes maintenant connecté à IKtracker
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

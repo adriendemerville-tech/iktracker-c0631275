@@ -33,7 +33,7 @@ const Privacy = () => {
           <section>
             <h2 className="text-lg font-semibold text-foreground">1. Introduction</h2>
             <p className="text-muted-foreground">
-              Ik Tracker s'engage à protéger la vie privée de ses utilisateurs. Cette politique de confidentialité 
+              IKtracker s'engage à protéger la vie privée de ses utilisateurs. Cette politique de confidentialité 
               explique comment nous collectons, utilisons et protégeons vos informations personnelles.
             </p>
           </section>

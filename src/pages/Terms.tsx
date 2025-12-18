@@ -34,7 +34,7 @@ const Terms = () => {
             <h2 className="text-lg font-semibold text-foreground">1. Objet</h2>
             <p className="text-muted-foreground">
               Les présentes Conditions Générales d'Utilisation (CGU) ont pour objet de définir les modalités 
-              d'accès et d'utilisation de l'application Ik Tracker, dédiée au suivi et au calcul des 
+              d'accès et d'utilisation de l'application IKtracker, dédiée au suivi et au calcul des 
               indemnités kilométriques.
             </p>
           </section>
@@ -50,14 +50,14 @@ const Terms = () => {
           <section>
             <h2 className="text-lg font-semibold text-foreground">3. Accès au service</h2>
             <p className="text-muted-foreground">
-              L'accès à Ik Tracker nécessite la création d'un compte utilisateur. L'utilisateur s'engage à 
+              L'accès à IKtracker nécessite la création d'un compte utilisateur. L'utilisateur s'engage à 
               fournir des informations exactes et à maintenir la confidentialité de ses identifiants de connexion.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-foreground">4. Description du service</h2>
-            <p className="text-muted-foreground">Ik Tracker permet de :</p>
+            <p className="text-muted-foreground">IKtracker permet de :</p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-1">
               <li>Enregistrer et gérer vos trajets professionnels</li>
               <li>Calculer automatiquement les indemnités kilométriques selon le barème fiscal</li>
@@ -81,7 +81,7 @@ const Terms = () => {
           <section>
             <h2 className="text-lg font-semibold text-foreground">6. Responsabilité</h2>
             <p className="text-muted-foreground">
-              Ik Tracker fournit un outil d'aide au calcul des indemnités kilométriques. L'utilisateur reste 
+              IKtracker fournit un outil d'aide au calcul des indemnités kilométriques. L'utilisateur reste 
               seul responsable de la véracité des informations saisies et de la conformité de ses déclarations 
               fiscales. L'application ne saurait se substituer aux conseils d'un professionnel comptable ou fiscal.
             </p>
