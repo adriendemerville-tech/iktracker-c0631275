@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, X, Car, Pencil, Calendar, Truck, ChevronRight } from 'lucide-react';
+import { MapPin, ArrowRight, X, Car, Pencil, Truck, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -83,7 +83,6 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
         {/* Ligne 1: Date | Tournée ou Départ → Arrivée | Bouton edit */}
         <div className="flex items-center gap-3 mb-2">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-            <Calendar className="w-3.5 h-3.5" />
             <span>{formatDate(trip.startTime)}</span>
             {preferences.showTripTime && (
               <span className="text-muted-foreground/70">
