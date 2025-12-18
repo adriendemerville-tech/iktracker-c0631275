@@ -565,7 +565,7 @@ export function NewTripSheet({
           </div>
         </SheetHeader>
 
-        <div className="overflow-y-auto h-full pb-24 pr-2">
+        <div className="overflow-y-auto h-full pb-24 pr-6">
           {step === 'vehicle' && (
             <div className="animate-fade-in space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
