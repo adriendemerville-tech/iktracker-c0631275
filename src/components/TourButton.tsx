@@ -1,4 +1,4 @@
-import { Truck } from 'lucide-react';
+import { Car } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TourButtonProps {
@@ -49,7 +49,7 @@ export function TourButton({
         <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-muted-foreground/40 rounded-full" />
       )}
       
-      <Truck className={cn("w-7 h-7 relative z-10", isLoading && "animate-bounce")} />
+      <Car className={cn("w-7 h-7 relative z-10", isLoading && "animate-bounce")} />
       
       {/* Stops count badge - top right */}
       {isActive && stopsCount > 0 && (
