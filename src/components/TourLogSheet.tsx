@@ -91,12 +91,6 @@ export function TourLogSheet({
           <SheetTitle className="text-base flex items-center gap-2">
             <Car className="w-5 h-5 text-primary" />
             {isHistory ? 'Dernière tournée' : 'Tournée'}
-            {isActive && (
-              <span className="ml-3 flex items-center gap-1.5 text-base font-medium text-green-500 animate-[pulse_3s_ease-in-out_infinite]">
-                <span className="w-2 h-2 rounded-full bg-green-500 opacity-80" />
-                En cours
-              </span>
-            )}
           </SheetTitle>
         </SheetHeader>
 
