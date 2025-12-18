@@ -793,7 +793,7 @@ ${IKTRACKER_URL}`
         <div className="max-w-lg mx-auto flex justify-center">
           <Button 
             variant="gradient" 
-            size="default"
+            size="lg"
             onClick={() => setShowNewTrip(true)}
             disabled={vehicles.length === 0}
           >
