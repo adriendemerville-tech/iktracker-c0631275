@@ -13,4 +13,8 @@ Allow: /
 User-agent: *
 Allow: /
 
+# Sitemap dynamique via edge function (recommandé)
+Sitemap: https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap
+
+# Sitemap statique de secours
 Sitemap: https://iktracker.fr/sitemap.xml
