@@ -338,8 +338,8 @@ const Landing = () => {
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 to-transparent rounded-[2rem] blur-2xl" />
               
               {/* Main PDF Document */}
-              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100" style={{ aspectRatio: '0.75' }}>
-                {/* Header bar - iOS style */}
+              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col" style={{ aspectRatio: '0.7' }}>
+                {/* Header bar with logo */}
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -351,15 +351,13 @@ const Landing = () => {
                         <p className="text-xs text-gray-500">Décembre 2025</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400">IKtracker</p>
-                    </div>
+                    <img src="/logo.png" alt="IKtracker" className="h-6 opacity-60" />
                   </div>
                 </div>
                 
                 {/* Document content */}
-                <div className="p-6 space-y-5">
-                  {/* Summary cards - iOS cards style */}
+                <div className="p-6 space-y-5 flex-1">
+                  {/* Summary cards */}
                   <div className="grid grid-cols-2 gap-3">
                     <div 
                       className="bg-gray-50 rounded-xl p-4 transition-all duration-500"
@@ -385,7 +383,7 @@ const Landing = () => {
                     </div>
                   </div>
                   
-                  {/* Vehicle info - iOS list style */}
+                  {/* Vehicle info */}
                   <div 
                     className="bg-gray-50 rounded-xl p-4 transition-all duration-500"
                     style={{ 
@@ -405,7 +403,7 @@ const Landing = () => {
                     </div>
                   </div>
                   
-                  {/* Trip list preview - iOS style */}
+                  {/* Trip list preview */}
                   <div 
                     className="space-y-2 transition-all duration-500"
                     style={{ 
@@ -437,7 +435,7 @@ const Landing = () => {
                     ))}
                   </div>
                   
-                  {/* Footer - Total */}
+                  {/* Total */}
                   <div 
                     className="flex items-center justify-between pt-3 border-t border-gray-100 transition-all duration-500"
                     style={{ 
@@ -448,6 +446,24 @@ const Landing = () => {
                   >
                     <span className="text-sm text-gray-500">Total à déclarer</span>
                     <span className="text-xl font-bold text-primary">687,50 €</span>
+                  </div>
+                </div>
+                
+                {/* Footer with logo and marketing */}
+                <div 
+                  className="bg-gray-50 px-6 py-4 border-t border-gray-100 transition-all duration-500"
+                  style={{ 
+                    transitionDelay: pdfVisible ? '550ms' : '0ms',
+                    opacity: pdfVisible ? 1 : 0
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <img src="/logo.png" alt="IKtracker" className="h-5 opacity-50" />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Simplifiez vos IK • <span className="text-primary">iktracker.fr</span>
+                    </p>
                   </div>
                 </div>
               </div>
