@@ -600,7 +600,7 @@ ${IKTRACKER_URL}`
           </div>
         </div>
 
-        <div className="space-y-3 flex flex-col items-center">
+        <div className="space-y-2 flex flex-col items-center -my-1">
           {/* Show email input only if not sent yet */}
           {(!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
             <div className="flex items-center gap-2 w-full">
