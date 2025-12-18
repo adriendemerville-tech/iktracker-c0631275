@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -658,6 +658,33 @@ const Profile = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Share Button */}
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={async () => {
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: 'IKtracker',
+                  text: 'Découvrez IKtracker, l\'application de suivi des frais kilométriques !',
+                  url: window.location.origin,
+                });
+              } catch (error) {
+                // User cancelled or error
+              }
+            } else {
+              // Fallback: copy to clipboard
+              navigator.clipboard.writeText(window.location.origin);
+              const { toast } = await import('@/components/ui/sonner');
+              toast.success('Lien copié !');
+            }
+          }}
+        >
+          <Share2 className="w-4 h-4 mr-2" />
+          Partager l'application
+        </Button>
 
         {/* Logout Button */}
         {user && (
