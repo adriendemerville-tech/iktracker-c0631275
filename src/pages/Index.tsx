@@ -666,13 +666,23 @@ ${IKTRACKER_MENTION}
       <header 
         className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"
         style={{
-          background: `
-            radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-            radial-gradient(ellipse 60% 40% at 90% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 50%),
-            linear-gradient(180deg, #0F172A 0%, #1E293B 100%)
-          `
+          background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 100%)'
         }}
       >
+        {/* Animated gradient - top left */}
+        <div 
+          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite]"
+          style={{
+            background: 'radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)'
+          }}
+        />
+        {/* Animated gradient - bottom right */}
+        <div 
+          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s]"
+          style={{
+            background: 'radial-gradient(ellipse 60% 40% at 90% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 50%)'
+          }}
+        />
         {/* Noise texture overlay */}
         <div 
           className="absolute inset-0 opacity-[0.035] pointer-events-none"

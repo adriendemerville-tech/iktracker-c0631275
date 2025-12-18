@@ -319,3 +319,13 @@
 .animate-road-wave {
   animation: road-wave 1.2s ease-in-out infinite;
 }
+
+/* Subtle gradient pulse animation */
+@keyframes pulse-gradient {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
