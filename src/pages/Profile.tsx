@@ -441,9 +441,9 @@ const Profile = () => {
                     radius={[20, 20, 0, 0]} 
                     filter="url(#barShadow)"
                     isAnimationActive={true}
-                    animationBegin={200}
-                    animationDuration={1500}
-                    animationEasing="ease-out"
+                    animationBegin={0}
+                    animationDuration={2000}
+                    animationEasing="linear"
                   >
                     {monthlyKmData.map((_, index) => {
                       const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
