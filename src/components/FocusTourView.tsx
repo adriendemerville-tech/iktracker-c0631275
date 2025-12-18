@@ -105,28 +105,29 @@ export function FocusTourView({
           className="relative w-40 h-40 rounded-full flex items-center justify-center bg-gradient-primary text-orange-500 shadow-2xl transition-transform active:scale-95"
           aria-label="Arrêter la tournée"
         >
-          {/* Rotating gradient border */}
+          {/* Rotating gradient border - 30% wider */}
           <span 
-            className="absolute inset-[-4px] rounded-full overflow-hidden"
+            className="absolute inset-[-6px] rounded-full overflow-hidden"
             style={{
               background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-              animation: 'rotate-gradient 3s linear infinite',
+              animation: 'rotate-gradient 2s linear infinite',
             }}
           >
-            <span className="absolute inset-[4px] rounded-full bg-gradient-primary" />
+            <span className="absolute inset-[6px] rounded-full bg-gradient-primary" />
           </span>
           
-          {/* Speed lines behind the car */}
-          <span className="absolute left-8 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
-            <span className="w-5 h-1 bg-current opacity-60 rounded-full" />
-            <span className="w-7 h-1 bg-current opacity-40 rounded-full -ml-1" />
+          {/* Speed lines behind the car - 50% bigger */}
+          <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+            <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
+            <span className="w-10 h-1.5 bg-current opacity-40 rounded-full -ml-1" />
+            <span className="w-5 h-1.5 bg-current opacity-50 rounded-full" />
           </span>
           
-          {/* Car icon with driving animation */}
+          {/* Car icon with driving animation - 50% bigger */}
           <Car 
-            className="w-16 h-16 relative z-10"
+            className="w-24 h-24 relative z-10"
             style={{
-              animation: 'car-drive 0.3s ease-in-out infinite',
+              animation: 'car-drive 0.2s ease-in-out infinite',
             }}
           />
         </button>
