@@ -466,7 +466,7 @@ const Profile = () => {
         {/* Kilometers Chart */}
         <Card className="relative">
           {/* Animated car - at header level, above December bar */}
-          <div className="absolute top-4 right-6 flex flex-col items-center gap-0 z-10">
+          <div className="absolute top-4 right-[26px] flex flex-col items-center gap-0 z-10">
             <div className="animate-car-bounce relative">
               <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
               {/* Animated wheels overlay */}
