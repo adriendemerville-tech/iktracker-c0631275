@@ -215,10 +215,10 @@ const Index = () => {
 
     console.log(`Total distance: ${totalDistance} km, isTour: ${isTour}`);
 
-    // Filter: don't save if less than 1km
-    if (totalDistance < 1) {
+    // Filter: don't save if below minimum distance
+    if (preferences.minDistanceKm > 0 && totalDistance < preferences.minDistanceKm) {
       toast.info("Trajet non enregistré", {
-        description: "Distance inférieure à 1 km",
+        description: `Distance inférieure à ${preferences.minDistanceKm} km`,
       });
       clearTour();
       setShowTourLog(false);

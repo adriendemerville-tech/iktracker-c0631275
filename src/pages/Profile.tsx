@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -320,6 +320,32 @@ const Profile = () => {
                     />
                     <span className="text-sm font-medium w-16 text-right">
                       {preferences.locationRadiusMeters} m
+                    </span>
+                  </div>
+                </div>
+
+                {/* Minimum Distance */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Route className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Distance minimum</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Seuil pour enregistrer un trajet
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 pl-8">
+                    <Slider
+                      value={[preferences.minDistanceKm]}
+                      onValueChange={([value]) => updatePreference('minDistanceKm', value)}
+                      min={0}
+                      max={5}
+                      step={0.5}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-medium w-16 text-right">
+                      {preferences.minDistanceKm} km
                     </span>
                   </div>
                 </div>
