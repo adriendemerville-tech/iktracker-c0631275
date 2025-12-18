@@ -17,7 +17,7 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
   useEffect(() => {
     const timer = setInterval(() => {
       setStopsCount(prev => (prev % 4) + 1);
-    }, 2000);
+    }, 2500);
     return () => clearInterval(timer);
   }, []);
 
