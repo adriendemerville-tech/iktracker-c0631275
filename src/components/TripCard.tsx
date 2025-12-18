@@ -133,12 +133,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
           )}
         </div>
 
-        {/* Ligne 2: Motif only (vehicle info hidden, visible only in edit mode) */}
-        {trip.purpose && !isTour && (
-          <div className="flex items-center gap-2 mb-2 text-xs">
-            <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
-          </div>
-        )}
+        {/* Motif masqué dans l'aperçu - visible uniquement en mode édition */}
 
         {/* Ligne 3: Distance + IK + Bouton supprimer */}
         <div className="flex items-center justify-between pt-2">
