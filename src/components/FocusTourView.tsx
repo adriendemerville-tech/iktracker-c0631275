@@ -158,7 +158,7 @@ export function FocusTourView({
             {stopsCount}
           </span>
           <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest font-bold">
-            ÉTAPES
+            {stopsCount === 1 ? 'ÉTAPE' : 'ÉTAPES'}
           </span>
         </div>
       </div>
