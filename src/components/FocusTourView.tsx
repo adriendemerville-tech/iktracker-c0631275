@@ -157,7 +157,7 @@ export function FocusTourView({
           <span className="font-urbanist text-5xl font-bold text-primary tabular-nums">
             {stopsCount}
           </span>
-          <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest">
+          <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest font-bold">
             ÉTAPES
           </span>
         </div>
