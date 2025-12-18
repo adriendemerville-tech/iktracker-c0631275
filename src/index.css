@@ -320,18 +320,14 @@
   animation: road-wave 1.2s ease-in-out infinite;
 }
 
-/* Subtle gradient pulse + wave animation */
+/* Subtle gradient breathing animation */
 @keyframes pulse-gradient {
-  0% {
+  0%, 100% {
     opacity: 1;
-    transform: translateX(-5%);
+    transform: scale(1);
   }
   50% {
-    opacity: 0.6;
-    transform: translateX(5%);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(-5%);
+    opacity: 0.5;
+    transform: scale(1.15);
   }
 }
