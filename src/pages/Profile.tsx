@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,43 +21,47 @@ import { FeedbackForm } from '@/components/FeedbackForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Vehicle } from '@/types/trip';
-import { useCallback, useRef } from 'react';
+
+// Chart animation settings
+const KM_BAR_ANIMATION_DURATION_MS = 6000;
+const KM_BAR_ANIMATION_DELAY_MS = 150;
+const KM_BAR_ANIMATION_STAGGER_MS = 60;
 
 // Animated counter label for bar chart
 const AnimatedLabel = (props: any) => {
   const { x, y, width, height, value } = props;
   const [displayValue, setDisplayValue] = useState(0);
   const animationRef = useRef<number>();
-  
+
   useEffect(() => {
     const startTime = Date.now();
-    const duration = 1200;
-    const startDelay = 500; // Start after bar animation begins
-    
+    const duration = 2600;
+    const startDelay = 1200;
+
     const animate = () => {
       const elapsed = Date.now() - startTime - startDelay;
       if (elapsed < 0) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
-      
+
       const progress = Math.min(elapsed / duration, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
       setDisplayValue(Math.round(value * easeOut));
-      
+
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       }
     };
-    
+
     animationRef.current = requestAnimationFrame(animate);
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, [value]);
-  
+
   if (!value || value === 0) return null;
-  
+
   return (
     <text
       x={x + width / 2}
@@ -72,6 +76,38 @@ const AnimatedLabel = (props: any) => {
     </text>
   );
 };
+
+// Custom bar shape with "mushroom" push-up animation + oval top
+const KmBarShape = (props: any) => {
+  const { x, y, width, height, fill, index } = props;
+  if (!height || height <= 0) return null;
+
+  const rx = Math.min(width / 2, 22);
+  const ry = Math.min(14, height);
+
+  const d = [
+    `M ${x} ${y + ry}`,
+    `A ${rx} ${ry} 0 0 1 ${x + rx} ${y}`,
+    `L ${x + width - rx} ${y}`,
+    `A ${rx} ${ry} 0 0 1 ${x + width} ${y + ry}`,
+    `L ${x + width} ${y + height}`,
+    `L ${x} ${y + height}`,
+    'Z',
+  ].join(' ');
+
+  const delay = KM_BAR_ANIMATION_DELAY_MS + (Number(index) || 0) * KM_BAR_ANIMATION_STAGGER_MS;
+
+  return (
+    <path
+      d={d}
+      fill={fill}
+      filter="url(#barShadow)"
+      className="km-bar-grow"
+      style={{ animationDuration: `${KM_BAR_ANIMATION_DURATION_MS}ms`, animationDelay: `${delay}ms` }}
+    />
+  );
+};
+
 const PROFESSIONS = [
   "Banque et assurance",
   "Indépendants",
@@ -437,13 +473,8 @@ const Profile = () => {
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis type="number" hide />
                   <Bar 
-                    dataKey="km" 
-                    radius={[20, 20, 0, 0]} 
-                    filter="url(#barShadow)"
-                    isAnimationActive={true}
-                    animationBegin={0}
-                    animationDuration={20000}
-                    animationEasing="linear"
+                    dataKey="km"
+                    shape={<KmBarShape />}
                   >
                     {monthlyKmData.map((_, index) => {
                       const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
