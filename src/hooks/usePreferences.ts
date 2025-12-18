@@ -6,6 +6,7 @@ export interface Preferences {
   showTripTime: boolean;
   stopDetectionMinutes: number;
   locationRadiusMeters: number;
+  minDistanceKm: number;
   profession: string;
   accountantEmail: string;
   hasSentToAccountant: boolean;
@@ -17,6 +18,7 @@ const defaultPreferences: Preferences = {
   showTripTime: true,
   stopDetectionMinutes: 7,
   locationRadiusMeters: 100,
+  minDistanceKm: 1,
   profession: '',
   accountantEmail: '',
   hasSentToAccountant: false,
