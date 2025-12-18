@@ -476,15 +476,15 @@ const Profile = () => {
               </CardDescription>
             </div>
             {/* Animated car */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center gap-0">
               <div className="animate-car-bounce relative">
                 <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
-                {/* Animated wheels */}
-                <div className="absolute bottom-1 left-1 w-1.5 h-1.5 rounded-full border border-primary animate-wheel-spin" />
-                <div className="absolute bottom-1 right-1.5 w-1.5 h-1.5 rounded-full border border-primary animate-wheel-spin" />
+                {/* Animated wheels overlay */}
+                <div className="absolute bottom-[5px] left-[5px] w-[6px] h-[6px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+                <div className="absolute bottom-[5px] right-[5px] w-[6px] h-[6px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
               </div>
-              {/* Road */}
-              <div className="w-10 h-0.5 bg-muted-foreground/50 rounded-full" />
+              {/* Road with wave */}
+              <div className="w-12 h-[3px] bg-muted-foreground/40 rounded-full -mt-1 animate-road-wave" />
             </div>
           </CardHeader>
           <CardContent>
