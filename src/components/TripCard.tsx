@@ -158,13 +158,13 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              className="h-5 w-5 text-muted-foreground hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(trip.id);
               }}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-2.5 h-2.5" />
             </Button>
           )}
         </div>
