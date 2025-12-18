@@ -116,11 +116,10 @@ export function TourLogSheet({
               )}
             </div>
             
-            {/* Wake Lock indicator */}
+            {/* Wake Lock indicator - icon only */}
             {wakeLockActive && (
-              <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg text-xs">
-                <Sun className="w-3.5 h-3.5" />
-                <span>Mode conduite actif : écran éveillé</span>
+              <div className="flex items-center justify-center">
+                <Sun className="w-4 h-4 text-amber-500" />
               </div>
             )}
             
