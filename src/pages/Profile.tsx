@@ -381,11 +381,12 @@ const Profile = () => {
                 <BarChart data={monthlyKmData} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={40}>
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis type="number" hide />
-                  <Bar dataKey="km" radius={[8, 8, 0, 0]}>
-                    {monthlyKmData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={`hsl(${(index * 47 + 200) % 360}, 70%, 55%)`} />
-                    ))}
-                    <LabelList dataKey="km" position="center" fill="white" fontSize={11} fontWeight={700} />
+                  <Bar dataKey="km" radius={[6, 6, 0, 0]}>
+                    {monthlyKmData.map((_, index) => {
+                      const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
+                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                    })}
+                    <LabelList dataKey="km" position="center" fill="white" fontSize={13} fontWeight={700} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
