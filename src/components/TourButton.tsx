@@ -54,13 +54,14 @@ export function TourButton({
         </span>
       )}
       
-      {/* Speed lines - fade in/out based on active state */}
+      {/* Speed lines - fade in/out based on active state, animated with car */}
       <span className={cn(
-        "absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 transition-opacity duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)] z-10",
-        isActive && !isLoading ? "opacity-100" : "opacity-0"
+        "absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 transition-opacity duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)] z-10",
+        isActive && !isLoading ? "opacity-100 animate-speed-lines" : "opacity-0"
       )}>
-        <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
-        <span className="w-3 h-0.5 bg-current opacity-40 rounded-full -ml-0.5" />
+        <span className="w-2 h-0.5 bg-current opacity-70 rounded-full" />
+        <span className="w-3 h-0.5 bg-current opacity-50 rounded-full -ml-0.5" />
+        <span className="w-2.5 h-0.5 bg-current opacity-60 rounded-full -ml-1" />
       </span>
       
       {/* Dot in front when inactive */}
