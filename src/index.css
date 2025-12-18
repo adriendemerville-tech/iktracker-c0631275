@@ -188,6 +188,16 @@
   }
 }
 
+/* Gradient scroll animation for text */
+@keyframes gradient-scroll {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
 /* Car driving animation - very subtle shake */
 @keyframes car-drive {
   0%, 100% {
