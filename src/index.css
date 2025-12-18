@@ -427,22 +427,23 @@
 
 /* Road line passing under car every 6 seconds */
 @keyframes road-line {
-  0%, 85% {
-    transform: translateX(50px);
+  0% {
+    transform: translateX(30px);
     opacity: 0;
   }
-  88% {
+  80% {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  85% {
     opacity: 1;
   }
-  94% {
-    transform: translateX(0);
+  92% {
+    transform: translateX(-5px);
     opacity: 1;
-  }
-  97% {
-    opacity: 0.8;
   }
   100% {
-    transform: translateX(-30px);
+    transform: translateX(-40px);
     opacity: 0;
   }
 }

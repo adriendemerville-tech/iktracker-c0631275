@@ -473,18 +473,18 @@ const Profile = () => {
         {/* Kilometers Chart */}
         <Card className="relative">
           {/* Animated car - at header level, above December bar */}
-          <div className="absolute top-4 right-[40px] flex flex-col items-center gap-0 z-10 overflow-hidden">
+          <div className="absolute top-4 right-[40px] flex flex-col items-center gap-0 z-10">
             <div className="animate-car-bounce relative" style={{ filter: 'drop-shadow(0 0 4px hsl(220 70% 50% / 0.35))' }}>
               <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
               {/* Animated wheels overlay */}
               <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
               <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
             </div>
-            {/* Road with wave */}
-            <div className="relative w-12 -mt-1.5 overflow-visible">
+            {/* Road with passing line */}
+            <div className="relative w-12 -mt-1.5">
               <div className="w-full h-[2px] bg-muted-foreground/40 rounded-full animate-road-wave" />
               {/* Passing road line every 6 seconds */}
-              <div className="absolute top-[-1px] left-0 w-4 h-[4px] bg-muted-foreground rounded-full animate-road-line" />
+              <div className="absolute top-[-1px] w-5 h-[4px] bg-muted-foreground rounded-full animate-road-line" />
             </div>
           </div>
           <CardHeader>
