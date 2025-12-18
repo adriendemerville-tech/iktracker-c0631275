@@ -224,6 +224,20 @@ export function AdminStats() {
     refetchInterval: 60000,
   });
 
+  // Fetch download clicks by day
+  const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
+    queryKey: ['admin-download-clicks-by-day'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: 30 });
+      if (error) throw error;
+      return (data as unknown as { day: string; count: number }[]).map(d => ({
+        day: format(new Date(d.day), 'dd/MM', { locale: fr }),
+        count: Number(d.count),
+      }));
+    },
+    refetchInterval: 60000,
+  });
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
@@ -526,7 +540,7 @@ export function AdminStats() {
             Téléchargement de l'application
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {downloadStatsLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Skeleton className="h-16" />
@@ -554,6 +568,51 @@ export function AdminStats() {
               </div>
             </div>
           )}
+          
+          {/* Download clicks chart - 30 days */}
+          <div>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution sur 30 jours</h4>
+            {downloadClicksLoading ? (
+              <Skeleton className="h-[180px] w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={downloadClicksByDay}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="day" 
+                    tick={{ fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                    }}
+                    labelStyle={{ fontWeight: 'bold' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    name="Clics"
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 2 }}
+                    activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </CardContent>
       </Card>
 
