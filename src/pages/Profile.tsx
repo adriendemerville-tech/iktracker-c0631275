@@ -379,9 +379,14 @@ const Profile = () => {
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyKmData} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={40}>
+                  <defs>
+                    <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.15" />
+                    </filter>
+                  </defs>
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis type="number" hide />
-                  <Bar dataKey="km" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="km" radius={[20, 20, 0, 0]} filter="url(#barShadow)">
                     {monthlyKmData.map((_, index) => {
                       const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
