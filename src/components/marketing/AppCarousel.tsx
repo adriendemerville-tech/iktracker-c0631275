@@ -24,19 +24,9 @@ const defaultSlides: CarouselSlide[] = [
     screen: 'dashboard'
   },
   {
-    title: "Nouveau trajet",
-    description: "Ajoutez un trajet en quelques secondes avec calcul automatique des distances.",
-    screen: 'newTrip'
-  },
-  {
     title: "Mode Tournée",
     description: "Enregistrez plusieurs arrêts en un seul trajet avec le GPS en temps réel.",
     screen: 'tour'
-  },
-  {
-    title: "Sync Calendrier",
-    description: "Importez vos rendez-vous Google ou Outlook automatiquement.",
-    screen: 'calendar'
   }
 ];
 
