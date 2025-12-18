@@ -872,7 +872,7 @@ ${IKTRACKER_MENTION}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
           <Link to="/report">
-            <Button variant="secondary" size="lg" className="w-full animate-cta-pulse" style={{ animationDelay: '1.25s' }}>
+            <Button variant="secondary" size="lg" className="w-full shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)]">
               <FileText className="w-5 h-5" />
               Voir le relevé
             </Button>
@@ -880,7 +880,7 @@ ${IKTRACKER_MENTION}
           <Button 
             variant="gradient" 
             size="lg"
-            className="animate-cta-pulse"
+            className="animate-cta-pulse shadow-[0_4px_8px_-2px_rgba(0,0,0,0.2)]"
             onClick={() => {
               if (vehicles.length === 0) {
                 toast.info("Ajoutez d'abord un véhicule", {
