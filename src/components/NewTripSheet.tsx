@@ -844,7 +844,7 @@ export function NewTripSheet({
                 />
               </div>
 
-              <div className="flex gap-20 justify-center">
+              <div className="flex gap-40 justify-center">
                 <Button variant="secondary" className="px-7 py-3 h-12 text-lg" onClick={() => isEditing ? handleClose() : setStep('end')}>
                   {isEditing ? 'Annuler' : '← Retour'}
                 </Button>
