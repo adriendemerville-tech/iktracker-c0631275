@@ -9,7 +9,7 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - realistic odometer effect (only counts UP)
+// Animated digit component - slot machine effect with fast spin then slow down
 function AnimatedDigit({ 
   digit, 
   delay = 0,
@@ -42,6 +42,10 @@ function AnimatedDigit({
       return () => clearTimeout(timeoutId);
     }
 
+    // Spin through many cycles (0-9) before landing on target
+    const totalSpins = 40; // Number of digit changes before settling
+    let lastDisplayed = -1;
+
     const animate = (timestamp: number) => {
       if (startTimeRef.current === null) {
         startTimeRef.current = timestamp;
@@ -56,12 +60,41 @@ function AnimatedDigit({
       }
       
       const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic for smooth deceleration at the end
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      // Count from 0 up to target - never go back down
-      const currentValue = Math.min(Math.round(target * easeOut), target);
       
-      setDisplayDigit(currentValue.toString());
+      // Ease-out exponential for dramatic slowdown at the end
+      const easeOut = 1 - Math.pow(1 - progress, 4);
+      
+      // Calculate which "spin" we're on (0 to totalSpins)
+      const currentSpin = Math.floor(totalSpins * easeOut);
+      
+      // During most of the animation, cycle through 0-9
+      // At the end, settle on target
+      let displayValue: number;
+      if (progress < 0.85) {
+        // Fast spinning phase - cycle through all digits
+        displayValue = currentSpin % 10;
+      } else {
+        // Settling phase - approach target
+        const settleProgress = (progress - 0.85) / 0.15;
+        const settleEase = 1 - Math.pow(1 - settleProgress, 2);
+        const lastSpinDigit = (Math.floor(totalSpins * 0.85) % 10);
+        
+        // Count from last spin digit to target
+        if (lastSpinDigit <= target) {
+          displayValue = Math.round(lastSpinDigit + (target - lastSpinDigit) * settleEase);
+        } else {
+          // Wrap around through 0
+          const stepsToTarget = (10 - lastSpinDigit) + target;
+          const currentStep = Math.round(stepsToTarget * settleEase);
+          displayValue = (lastSpinDigit + currentStep) % 10;
+        }
+      }
+      
+      // Only update if digit changed (performance + visual smoothness)
+      if (displayValue !== lastDisplayed) {
+        setDisplayDigit(displayValue.toString());
+        lastDisplayed = displayValue;
+      }
       
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
@@ -87,7 +120,7 @@ function AnimatedDigit({
   return (
     <span 
       className={cn(
-        "inline-block tabular-nums transition-all duration-150",
+        "inline-block tabular-nums transition-all duration-75",
         isAnimating && variant === 'accent' && "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]",
         isAnimating && variant === 'default' && "text-blue-200 drop-shadow-[0_0_8px_rgba(147,197,253,0.6)]"
       )}
@@ -118,7 +151,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   const getDelay = (index: number, totalLength: number) => {
     // Reverse index so rightmost digits animate first
     const reverseIndex = totalLength - 1 - index;
-    return reverseIndex * 90; // 90ms delay between each position
+    return reverseIndex * 150; // 150ms delay between each position
   };
 
   const digits = formattedValue.split('');
@@ -144,7 +177,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
               key={`${key}-${index}`}
               digit={digit} 
               delay={getDelay(index, digits.length)}
-              duration={variant === 'default' ? 7200 : 3200}
+              duration={variant === 'default' ? 2500 : 1500}
               variant={variant}
             />
           ))}
