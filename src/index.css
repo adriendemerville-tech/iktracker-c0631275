@@ -58,8 +58,8 @@
     --warning-foreground: 0 0% 100%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(230 60% 55%) 0%, hsl(270 50% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(230 50% 50%) 0%, hsl(265 45% 55%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(220 75% 35%) 0%, hsl(240 65% 28%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 60% 30%) 0%, hsl(230 55% 22%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(160 60% 45%) 0%, hsl(180 50% 40%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 20% 98%) 100%);
 
@@ -108,8 +108,8 @@
     --success: 160 60% 50%;
     --warning: 38 92% 55%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(230 60% 55%) 0%, hsl(270 50% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(230 50% 50%) 0%, hsl(265 45% 55%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(220 70% 40%) 0%, hsl(240 60% 32%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 55% 25%) 0%, hsl(230 50% 18%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(160 60% 50%) 0%, hsl(180 50% 45%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(220 25% 12%) 0%, hsl(220 25% 10%) 100%);
 
