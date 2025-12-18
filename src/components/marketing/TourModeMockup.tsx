@@ -40,10 +40,10 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
     }
   }, [stopsCount]);
 
-  // Animate km counter
+  // Animate km counter slowly
   useEffect(() => {
     const targetKm = stopsCount * 15.5; // Approximate km per stop
-    const duration = 500;
+    const duration = 1500; // Slower animation
     const startValue = displayedKm;
     const startTime = Date.now();
 
@@ -84,7 +84,7 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
           </div>
           
           {/* Focus Tour View Content */}
-          <div className="w-full h-full flex flex-col items-center justify-between py-10 px-4">
+          <div className="w-full h-full flex flex-col items-center py-10 px-4">
             {/* Top indicators */}
             <div className="w-full flex justify-between items-center px-2">
               <div className="flex items-center gap-1">
@@ -97,14 +97,14 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
             </div>
 
             {/* Time */}
-            <div className="flex flex-col items-center mt-2">
+            <div className="flex flex-col items-center mt-4">
               <span className="font-urbanist text-4xl font-bold text-zinc-400 tracking-tight">
                 15:37
               </span>
             </div>
 
-            {/* Central button */}
-            <div className="flex flex-col items-center gap-3">
+            {/* Central button - absolutely centered */}
+            <div className="flex-1 flex flex-col items-center justify-center">
               <div className="relative w-28 h-28 rounded-full flex items-center justify-center">
                 {/* Rotating gradient border */}
                 <span 
@@ -133,22 +133,22 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
                 />
               </div>
               
-              <span className="text-zinc-500 text-xs font-urbanist">
+              <span className="text-zinc-500 text-xs font-urbanist mt-3">
                 Mode nuit actif
               </span>
             </div>
 
             {/* Bottom counters */}
-            <div className="flex items-end justify-center gap-10 w-full mt-auto">
+            <div className="flex items-end justify-center gap-10 w-full pb-4">
               {/* KM Counter */}
               <div className="flex flex-col items-center">
                 <span 
                   className={cn(
-                    "font-urbanist text-3xl font-bold text-zinc-400 tabular-nums transition-all duration-500 ease-out",
+                    "font-urbanist text-3xl font-bold text-zinc-400 tabular-nums transition-all duration-700 ease-out",
                     isKmPulsing && "scale-110 text-zinc-300"
                   )}
                 >
-                  62.0
+                  {displayedKm.toFixed(1)}
                 </span>
                 <span className="font-urbanist text-xs text-zinc-500 uppercase tracking-widest">
                   KM
