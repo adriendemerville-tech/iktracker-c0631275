@@ -45,10 +45,14 @@ export default function Report() {
 
   const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
 
-  // Filter trips that are tours (have tourStops)
+  // Filter trips that are tours (have valid tourStops with at least 2 stops)
   const pastTours = useMemo(() => {
-    return trips.filter(trip => trip.tourStops && trip.tourStops.length > 0)
-      .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+    return trips.filter(trip => 
+      trip.tourStops && 
+      Array.isArray(trip.tourStops) && 
+      trip.tourStops.length >= 2 &&
+      trip.tourStops.every(stop => stop && stop.id)
+    ).sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [trips]);
 
   const selectedTour = pastTours.find(t => t.id === selectedTourId);
