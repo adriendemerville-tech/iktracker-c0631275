@@ -81,16 +81,6 @@ export function FocusTourView({
           <Sun className="w-4 h-4 text-yellow-400" />
         </div>
       )}
-
-      {/* Low battery warning */}
-      {lowBattery && (
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-orange-500/20 border border-orange-500/40 rounded-lg px-3 py-1.5">
-          <span className="text-orange-400 text-xs font-urbanist">
-            Batterie faible - Branchez sur l'allume-cigare
-          </span>
-        </div>
-      )}
-
       {/* TOP: Current time */}
       <div className="flex flex-col items-center">
         <span className="font-urbanist text-6xl font-bold text-gray-400 tracking-tight">
@@ -131,6 +121,15 @@ export function FocusTourView({
             }}
           />
         </button>
+        
+        {/* Low battery warning - now below button */}
+        {lowBattery && (
+          <div className="bg-orange-500/20 border border-orange-500/40 rounded-lg px-3 py-1.5">
+            <span className="text-orange-400 text-xs font-urbanist">
+              Batterie faible - Branchez sur l'allume-cigare
+            </span>
+          </div>
+        )}
         
         <span className="text-gray-500 text-sm font-urbanist">
           {isNightMode ? 'Mode nuit actif' : 'Tournée en cours'}
