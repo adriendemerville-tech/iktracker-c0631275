@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Signal, Sun, Moon, Car } from 'lucide-react';
+import { Signal, Sun, Moon, Car, BatteryLow } from 'lucide-react';
 import { useNightMode } from '@/hooks/useNightMode';
 
 interface FocusTourViewProps {
@@ -130,7 +130,8 @@ export function FocusTourView({
 
       {/* Low battery warning - centered between button and counters */}
       {lowBattery && (
-        <div className="bg-orange-500/20 border border-orange-500/40 rounded-lg px-3 py-1.5">
+        <div className="bg-orange-500/20 border border-orange-500/40 rounded-lg px-3 py-1.5 flex items-center gap-2">
+          <BatteryLow className="w-4 h-4 text-orange-400" />
           <span className="text-orange-400 text-xs font-urbanist">
             Batterie faible - rechargez
           </span>
