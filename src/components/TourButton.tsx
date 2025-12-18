@@ -24,10 +24,11 @@ export function TourButton({
       onClick={onClick}
       disabled={isLoading}
       className={cn(
-        "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg relative",
+        "w-16 h-16 rounded-full flex items-center justify-center shadow-lg relative",
         "focus:outline-none focus:ring-4 focus:ring-offset-2",
+        "transition-all duration-700 ease-out",
         isActive
-          ? "bg-gradient-primary text-orange-500 focus:ring-accent/50"
+          ? "bg-gradient-primary text-orange-500 focus:ring-accent/50 scale-100"
           : "bg-gradient-primary text-white focus:ring-primary/50 hover:scale-105 animate-cta-pulse shadow-[0_4px_8px_-2px_rgba(0,0,0,0.2)]",
         isLoading && "opacity-70 cursor-wait"
       )}
