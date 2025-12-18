@@ -6,7 +6,8 @@ import { TripCard } from '@/components/TripCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -15,6 +16,7 @@ import JSZip from 'jszip';
 export default function Report() {
   const navigate = useNavigate();
   const { trips, vehicles, savedLocations, deleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
+  const { user } = useAuth();
   
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -444,6 +446,84 @@ ${IKTRACKER_MENTION}
     }
   };
 
+  const sendToAccountant = async () => {
+    if (trips.length === 0) {
+      toast.error("Aucun trajet à exporter");
+      return;
+    }
+
+    setIsExporting(true);
+    
+    try {
+      const zip = new JSZip();
+      const dateStr = new Date().toISOString().split('T')[0];
+      
+      // Add README
+      const readmeContent = generateReadmeContent();
+      zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
+      
+      // Add CSV
+      const csvContent = generateCSVContent();
+      zip.file(`releve-ik-${dateStr}.csv`, csvContent);
+      
+      // Add PDF
+      const pdfContent = await generatePDF();
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfContent);
+      
+      // Generate ZIP and download
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `releve-ik-${dateStr}.zip`;
+      link.click();
+
+      // Get user identity for signature
+      const vehicle = vehicles.length > 0 ? vehicles[0] : null;
+      const ownerName = vehicle && (vehicle.ownerFirstName || vehicle.ownerLastName) 
+        ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
+        : user?.email?.split('@')[0] || 'Votre client';
+
+      // Compose email
+      const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
+      const body = encodeURIComponent(
+`Bonjour,
+
+Veuillez trouver ci-joint mon relevé des indemnités kilométriques pour la période en cours.
+
+Ce relevé comprend :
+- Le détail de mes ${trips.length} trajets professionnels
+- Le total des kilomètres parcourus : ${totalKm.toFixed(0)} km
+- Le montant total des indemnités : ${recalculatedTotalIK.toFixed(2)} €
+
+Le fichier ZIP contient un PDF récapitulatif ainsi qu'un fichier CSV pour import dans votre logiciel comptable.
+
+Je reste à votre disposition pour toute question.
+
+Cordialement,
+${ownerName}
+
+---
+Document généré via IKtracker
+${IKTRACKER_URL}`
+      );
+
+      // Open mailto after a short delay to ensure download started
+      setTimeout(() => {
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+      }, 500);
+
+      toast.success("Fichier téléchargé", {
+        description: "Joignez-le à l'email qui va s'ouvrir",
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error("Erreur lors de l'export");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
@@ -488,11 +568,11 @@ ${IKTRACKER_MENTION}
           variant="secondary" 
           size="lg" 
           className="w-full"
-          onClick={exportZip} 
+          onClick={sendToAccountant} 
           disabled={trips.length === 0 || isExporting}
         >
-          <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-          Télécharger le relevé pour votre comptable
+          <Mail className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+          Envoyer le relevé à mon comptable
         </Button>
 
         {Object.keys(groupedByMonth).length === 0 ? (
