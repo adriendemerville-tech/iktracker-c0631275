@@ -673,7 +673,7 @@ const Profile = () => {
           className="w-full"
           onClick={async () => {
             const shareText = totalStats.totalKm > 0 
-              ? `J'ai parcouru ${totalStats.totalKm} km et récupéré ${totalStats.totalIk}€ d'indemnités avec IKtracker ! 🚗💰 Rejoins-moi !`
+              ? `J'ai parcouru ${totalStats.totalKm} km et récupéré ${totalStats.totalIk}€ d'indemnités avec IKtracker 🚗💰 Rejoins-moi !`
               : "Découvrez IKtracker, l'application de suivi des frais kilométriques !";
             
             // Log share event
