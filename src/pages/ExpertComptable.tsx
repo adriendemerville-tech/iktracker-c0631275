@@ -42,11 +42,9 @@ const ExpertComptable = () => {
               Pour Experts-Comptables
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Simplifiez les
+              Simplifiez <span className="text-2xl md:text-3xl font-medium text-muted-foreground">gratuitement</span> les
               <br />
               <span className="text-primary">déclarations IK</span>
-              <br />
-              <span className="text-2xl md:text-3xl font-medium text-muted-foreground">gratuitement</span>
             </h1>
             <p className="text-xl text-muted-foreground">
               Exports standardisés. Calcul automatique. Gain de temps garanti.
