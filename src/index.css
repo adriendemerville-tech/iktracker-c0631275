@@ -432,14 +432,14 @@
     opacity: 0;
   }
   88% {
-    opacity: 0.8;
+    opacity: 1;
   }
   94% {
     transform: translateX(0);
-    opacity: 0.6;
+    opacity: 1;
   }
   97% {
-    opacity: 0.4;
+    opacity: 0.8;
   }
   100% {
     transform: translateX(-30px);
