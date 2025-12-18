@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
 import { MapPin, ArrowRight, X, Car, Pencil, Truck, ChevronRight, Calendar } from 'lucide-react';
 import { Button } from './ui/button';
@@ -25,7 +25,7 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
   return location.name;
 };
 
-export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }: TripCardProps) {
+export const TripCard = memo(function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }: TripCardProps) {
   const { preferences } = usePreferences();
   const [showTourDetail, setShowTourDetail] = useState(false);
   
@@ -171,4 +171,4 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
       )}
     </>
   );
-}
+});

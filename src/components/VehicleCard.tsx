@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Vehicle, getIKBareme } from '@/types/trip';
 import { Car, Edit2, X, MoreVertical } from 'lucide-react';
 import { Button } from './ui/button';
@@ -18,7 +19,7 @@ interface VehicleCardProps {
   totalKm?: number;
 }
 
-export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, totalKm }: VehicleCardProps) {
+export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, totalKm }: VehicleCardProps) {
   const bareme = getIKBareme(vehicle.fiscalPower);
   
   const getCurrentRate = () => {
@@ -86,4 +87,4 @@ export function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, tot
       </div>
     </div>
   );
-}
+});
