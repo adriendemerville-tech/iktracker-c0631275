@@ -101,19 +101,21 @@ export function TourLogSheet({
         {/* Stats bar when active */}
         {isActive && stops.length > 0 && (
           <div className="mb-4 space-y-2">
-            <div className="flex items-center justify-center gap-6 py-2 px-3 bg-muted/50 rounded-lg">
-              {elapsedTime && (
-                <div className="flex items-center gap-1.5 text-sm">
-                  <Timer className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium">{elapsedTime}</span>
-                </div>
-              )}
-              {totalDistanceKm > 0 && (
-                <div className="flex items-center gap-1.5 text-sm">
-                  <Navigation className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium">{totalDistanceKm.toFixed(1)} km</span>
-                </div>
-              )}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-6 py-2 px-4 bg-muted/50 rounded-lg">
+                {elapsedTime && (
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Timer className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">{elapsedTime}</span>
+                  </div>
+                )}
+                {totalDistanceKm > 0 && (
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Navigation className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">{totalDistanceKm.toFixed(1)} km</span>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Wake Lock indicator - icon only */}
