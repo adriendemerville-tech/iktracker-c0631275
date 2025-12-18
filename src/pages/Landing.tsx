@@ -265,6 +265,65 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* PDF Report Section */}
+      <section className="py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
+                <FileText className="h-4 w-4" />
+                Export
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold">Rapport PDF professionnel</h2>
+              <p className="text-lg text-muted-foreground">
+                Générez un relevé complet de vos trajets conforme au barème fiscal, prêt à envoyer à votre comptable.
+              </p>
+              <ul className="space-y-3">
+                {["Format PDF ou Excel", "Barème fiscal 2025", "Envoi direct par email"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/expert-comptable">
+                <Button variant="outline" className="gap-2">
+                  En savoir plus
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="relative">
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium">releve-ik-2025.pdf</p>
+                    <p className="text-sm text-muted-foreground">Document PDF • 156 Ko</p>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between py-2 border-b border-border">
+                    <span className="text-muted-foreground">Total km</span>
+                    <span className="font-medium">1 247 km</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-border">
+                    <span className="text-muted-foreground">Indemnités</span>
+                    <span className="font-medium text-primary">687,50 €</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-muted-foreground">Trajets</span>
+                    <span className="font-medium">23 trajets</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center space-y-8">

@@ -147,6 +147,74 @@ const ExpertComptable = () => {
         </div>
       </section>
 
+      {/* PDF Report Demo */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="relative order-2 lg:order-1">
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-md mx-auto">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <FileSpreadsheet className="h-6 w-6 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">releve-ik-decembre-2025.pdf</p>
+                    <p className="text-sm text-muted-foreground">Document PDF conforme</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-3 border-b border-border">
+                    <span className="text-muted-foreground">Véhicule</span>
+                    <span className="font-medium">Renault Clio • 5 CV</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-border">
+                    <span className="text-muted-foreground">Distance totale</span>
+                    <span className="font-medium">2 458 km</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-border">
+                    <span className="text-muted-foreground">Indemnités calculées</span>
+                    <span className="font-bold text-primary text-lg">1 352,90 €</span>
+                  </div>
+                  <div className="flex justify-between py-3">
+                    <span className="text-muted-foreground">Barème appliqué</span>
+                    <span className="font-medium">Fiscal 2025</span>
+                  </div>
+                </div>
+                <div className="mt-6 flex gap-2">
+                  <div className="flex-1 py-2 px-3 rounded-lg bg-primary/10 text-primary text-center text-sm font-medium">
+                    <Download className="h-4 w-4 inline mr-2" />
+                    PDF
+                  </div>
+                  <div className="flex-1 py-2 px-3 rounded-lg bg-green-500/10 text-green-600 text-center text-sm font-medium">
+                    <FileSpreadsheet className="h-4 w-4 inline mr-2" />
+                    Excel
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-6 order-1 lg:order-2">
+              <h2 className="text-3xl font-bold">Exports professionnels</h2>
+              <p className="text-lg text-muted-foreground">
+                Vos clients génèrent des relevés conformes au barème fiscal, prêts pour la comptabilité.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  "PDF avec tableau détaillé",
+                  "Excel pour intégration comptable",
+                  "Envoi direct par email",
+                  "Historique complet conservé"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Steps */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
