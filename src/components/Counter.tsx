@@ -16,16 +16,20 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
 
   return (
     <div className={cn(
-      "flex flex-col items-center p-4 rounded-md transition-all duration-300",
-      variant === 'default' && "bg-card text-card-foreground shadow-md",
-      variant === 'accent' && "bg-gradient-accent text-accent-foreground shadow-lg"
+      "flex flex-col items-center p-5 rounded-xl transition-all duration-300",
+      "bg-white/5 backdrop-blur-xl border border-white/10",
+      "shadow-[0_8px_32px_rgba(0,0,0,0.12)]",
+      variant === 'accent' && "border-emerald-500/20"
     )}>
-      <span className="text-[10px] uppercase tracking-wider opacity-70 mb-1">{label}</span>
-      <div className="flex items-baseline gap-1">
-        <span className="counter-text text-2xl font-bold animate-counter-up">
+      <span className="text-[10px] uppercase tracking-wider text-white/60 mb-2 font-urbanist font-medium">{label}</span>
+      <div className="flex items-baseline gap-1.5">
+        <span className={cn(
+          "text-3xl font-urbanist font-extrabold tabular-nums tracking-tight",
+          variant === 'default' ? "text-white" : "text-emerald-400"
+        )}>
           {formattedValue}
         </span>
-        <span className="text-sm font-medium opacity-80">{unit}</span>
+        <span className="text-sm font-urbanist font-semibold text-white/70">{unit}</span>
       </div>
     </div>
   );

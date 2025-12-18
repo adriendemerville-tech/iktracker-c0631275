@@ -661,20 +661,35 @@ ${IKTRACKER_MENTION}
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-gradient-primary text-primary-foreground px-4 pt-8 pb-8 rounded-b-[2rem]">
-        <div className="max-w-lg mx-auto">
+    <div className="min-h-screen bg-background font-urbanist">
+      {/* Header - Fintech Dark */}
+      <header 
+        className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+            linear-gradient(180deg, #0F172A 0%, #1E293B 100%)
+          `
+        }}
+      >
+        {/* Subtle grid pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}
+        />
+        
+        <div className="max-w-lg mx-auto relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <div 
-              className="w-10 h-10 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: '#2661D9' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500/20 backdrop-blur-sm border border-blue-400/30"
             >
-              <Truck className="w-5 h-5 text-white" />
+              <Truck className="w-5 h-5 text-blue-400" />
             </div>
             <div className="flex-1">
-              <h1 className="text-[27px] font-extrabold font-urbanist dark:text-white">Ik Tracker</h1>
-              <p className="text-sm opacity-80">Indemnités Kilométriques</p>
+              <h1 className="text-[27px] font-extrabold font-urbanist text-white">Ik Tracker</h1>
+              <p className="text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
             </div>
             {isAdmin && (
               <>
@@ -682,7 +697,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={() => navigate('/admin?tab=stats')}
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  className="text-white/70 hover:text-white hover:bg-white/10"
                   title="Dashboard statistiques"
                 >
                   <BarChart3 className="w-5 h-5" />
@@ -692,7 +707,7 @@ ${IKTRACKER_MENTION}
                     variant="ghost" 
                     size="icon"
                     onClick={() => navigate('/admin')}
-                    className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                    className="text-white/70 hover:text-white hover:bg-white/10"
                   >
                     <MessageSquareMore className="w-5 h-5" />
                   </Button>
@@ -709,7 +724,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={() => navigate('/admin?tab=users')}
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  className="text-white/70 hover:text-white hover:bg-white/10"
                 >
                   <Shield className="w-5 h-5" />
                 </Button>
@@ -721,7 +736,7 @@ ${IKTRACKER_MENTION}
                 size="icon"
                 onClick={exportZip}
                 disabled={trips.length === 0 || isExporting}
-                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                className="text-white/70 hover:text-white hover:bg-white/10"
               >
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
@@ -731,7 +746,7 @@ ${IKTRACKER_MENTION}
                 variant="ghost" 
                 size="icon"
                 onClick={() => navigate('/profile')}
-                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 w-10 h-10"
+                className="text-white/70 hover:text-white hover:bg-white/10 w-10 h-10"
               >
                 <UserCircle className="w-20 h-20" />
               </Button>
@@ -746,7 +761,7 @@ ${IKTRACKER_MENTION}
             </div>
           </div>
 
-          {/* Counters */}
+          {/* KPI Cards - Glassmorphism */}
           <div className="grid grid-cols-2 gap-4">
             <Counter value={totalKm} label="Distance totale" unit="km" />
             <Counter value={totalIK} label="Indemnités" unit="€" variant="accent" decimals={2} />
