@@ -30,13 +30,13 @@ const Install = () => {
 
   useEffect(() => {
     // SEO meta tags
-    document.title = "Installer IKtracker | Guide d'installation PWA";
+    document.title = "Installer IKtracker facilement | Guide d'installation PWA facile";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', "Guide complet pour installer IKtracker sur votre téléphone ou navigateur. Instructions pas à pas pour iPhone, Android, Chrome, Firefox, Safari et Edge.");
+      metaDescription.setAttribute('content', "Guide facile et complet pour installer IKtracker sur votre téléphone ou navigateur. Instructions faciles pas à pas pour iPhone, Android, Chrome, Firefox, Safari et Edge. Installation facile en 2 minutes.");
     }
     return () => {
-      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
+      document.title = 'IKtracker - Calcul automatique et facile des indemnités kilométriques';
     };
   }, []);
 
@@ -74,23 +74,23 @@ const Install = () => {
   const benefits = [
     {
       icon: Zap,
-      title: "Accès instantané",
-      description: "Lancez IKtracker en un clic depuis votre écran d'accueil"
+      title: "Accès instantané et facile",
+      description: "Lancez facilement IKtracker en un clic depuis votre écran d'accueil"
     },
     {
       icon: Wifi,
-      title: "Mode hors-ligne",
-      description: "Consultez vos trajets même sans connexion internet"
+      title: "Mode hors-ligne facile",
+      description: "Consultez facilement vos trajets même sans connexion internet"
     },
     {
       icon: Bell,
-      title: "Notifications",
-      description: "Recevez des alertes pour vos nouveaux rendez-vous"
+      title: "Notifications faciles",
+      description: "Recevez facilement des alertes pour vos nouveaux rendez-vous"
     },
     {
       icon: Download,
-      title: "Pas de téléchargement",
-      description: "Aucune installation via l'App Store ou Google Play nécessaire"
+      title: "Installation facile",
+      description: "Aucune installation compliquée via l'App Store ou Google Play nécessaire"
     }
   ];
 
@@ -280,26 +280,26 @@ const Install = () => {
 
       <main className="container mx-auto px-4 py-8 md:py-12">
         {/* Hero */}
-        <div className="text-center mb-12">
+        <section className="text-center mb-12" aria-labelledby="install-heading">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Download className="h-4 w-4" />
-            Installation gratuite
+            <Download className="h-4 w-4" aria-hidden="true" />
+            Installation gratuite et facile
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Installez <span className="text-gradient">IKtracker</span> sur votre appareil
+          <h1 id="install-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Installez <span className="text-gradient">IKtracker</span> facilement sur votre appareil
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            IKtracker est une application web progressive (PWA). Installez-la comme une vraie app, sans passer par les stores !
+            IKtracker est une application web progressive (PWA) facile à installer. Installez-la facilement comme une vraie app, sans passer par les stores ! Installation facile en 2 minutes.
           </p>
-        </div>
+        </section>
 
         {/* Quick install button (if available) */}
         {deferredPrompt && !isInstalled && (
           <div className="mb-12">
             <Card className="bg-gradient-primary border-0 text-primary-foreground max-w-xl mx-auto">
               <CardContent className="p-6 text-center">
-                <h3 className="text-xl font-bold mb-2">Installation rapide disponible !</h3>
-                <p className="mb-4 opacity-90">Cliquez sur le bouton ci-dessous pour installer IKtracker immédiatement.</p>
+                <h3 className="text-xl font-bold mb-2">Installation facile et rapide disponible !</h3>
+                <p className="mb-4 opacity-90">Cliquez sur le bouton ci-dessous pour installer facilement IKtracker immédiatement.</p>
                 <Button 
                   variant="secondary" 
                   size="lg" 
