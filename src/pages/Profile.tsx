@@ -261,14 +261,9 @@ const Profile = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="show-time" className="cursor-pointer">
-                        Afficher l'heure des trajets
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Visible sur les cartes de trajet
-                      </p>
-                    </div>
+                    <Label htmlFor="show-time" className="cursor-pointer">
+                      Afficher l'heure des trajets
+                    </Label>
                   </div>
                   <Switch
                     id="show-time"
