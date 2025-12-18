@@ -9,7 +9,7 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - realistic odometer effect
+// Animated digit component - realistic odometer effect (only counts UP)
 function AnimatedDigit({ 
   digit, 
   delay = 0,
@@ -42,11 +42,6 @@ function AnimatedDigit({
       return () => clearTimeout(timeoutId);
     }
 
-    // Count from 0 to target, repeating the sequence multiple times for effect
-    // E.g., for target 3: 0,1,2,3,0,1,2,3,0,1,2,3 (3 full cycles)
-    const cycles = variant === 'default' ? 3 : 2;
-    const totalSteps = target * cycles;
-
     const animate = (timestamp: number) => {
       if (startTimeRef.current === null) {
         startTimeRef.current = timestamp;
@@ -61,13 +56,12 @@ function AnimatedDigit({
       }
       
       const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic for smooth deceleration
+      // Ease-out cubic for smooth deceleration at the end
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentStep = Math.round(totalSteps * easeOut);
+      // Count from 0 up to target - never go back down
+      const currentValue = Math.min(Math.round(target * easeOut), target);
       
-      // Cycle within 0 to target range
-      const displayValue = currentStep % (target + 1);
-      setDisplayDigit(displayValue.toString());
+      setDisplayDigit(currentValue.toString());
       
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
@@ -124,7 +118,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   const getDelay = (index: number, totalLength: number) => {
     // Reverse index so rightmost digits animate first
     const reverseIndex = totalLength - 1 - index;
-    return reverseIndex * 120; // 120ms delay between each position
+    return reverseIndex * 180; // 180ms delay between each position
   };
 
   const digits = formattedValue.split('');
@@ -150,7 +144,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
               key={`${key}-${index}`}
               digit={digit} 
               delay={getDelay(index, digits.length)}
-              duration={variant === 'default' ? 1200 : 600}
+              duration={variant === 'default' ? 1800 : 800}
               variant={variant}
             />
           ))}
