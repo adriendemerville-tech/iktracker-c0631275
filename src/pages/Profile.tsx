@@ -137,60 +137,64 @@ const Profile = () => {
         </Card>
 
         {/* Account Info Details (Collapsible) */}
-        {showAccountInfo && (
-          <Card className="border-t-0 -mt-2 pt-0">
-            <CardContent className="space-y-4 pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{user?.email || 'Non connecté'}</p>
-                </div>
-              </div>
-              
-              {/* Profession Dropdown */}
-              <div className="space-y-2">
+        <div 
+          className={`grid transition-all duration-300 ease-out ${showAccountInfo ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+        >
+          <div className="overflow-hidden">
+            <Card className="border-t-0 -mt-2 pt-0">
+              <CardContent className="space-y-4 pt-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 text-primary" />
+                    <Mail className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">Profession (optionnel)</p>
-                    <Select 
-                      value={preferences.profession || ''} 
-                      onValueChange={(value) => updatePreference('profession', value)}
-                    >
-                      <SelectTrigger className="w-full mt-1 bg-background border border-input">
-                        <SelectValue placeholder="Sélectionnez votre secteur" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border border-input max-h-[200px]">
-                        {PROFESSIONS.map((profession) => (
-                          <SelectItem key={profession} value={profession}>
-                            {profession}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{user?.email || 'Non connecté'}</p>
                   </div>
                 </div>
-              </div>
+                
+                {/* Profession Dropdown */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground">Profession (optionnel)</p>
+                      <Select 
+                        value={preferences.profession || ''} 
+                        onValueChange={(value) => updatePreference('profession', value)}
+                      >
+                        <SelectTrigger className="w-full mt-1 bg-background border border-input">
+                          <SelectValue placeholder="Sélectionnez votre secteur" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border border-input max-h-[200px]">
+                          {PROFESSIONS.map((profession) => (
+                            <SelectItem key={profession} value={profession}>
+                              {profession}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
 
-              {user && (
-                <Button variant="outline" className="w-full" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Se déconnecter
-                </Button>
-              )}
-              {!user && (
-                <Button className="w-full" onClick={() => navigate('/auth')}>
-                  Se connecter
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                {user && (
+                  <Button variant="outline" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Se déconnecter
+                  </Button>
+                )}
+                {!user && (
+                  <Button className="w-full" onClick={() => navigate('/auth')}>
+                    Se connecter
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Feedback Button - Shown at top when there are unread responses */}
         {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
