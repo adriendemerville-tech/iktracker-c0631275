@@ -518,20 +518,8 @@ const ExpertComptable = () => {
                 </p>
               </AnimatedSection>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 <AnimatedSection>
-                  <Card className="h-full">
-                    <CardContent className="p-6">
-                      <Shield className="h-8 w-8 text-primary mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">Hébergement européen</h3>
-                      <p className="text-muted-foreground">
-                        Toutes les données sont hébergées en Europe sur des serveurs sécurisés. 
-                        Conformité totale avec le RGPD.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </AnimatedSection>
-                <AnimatedSection delay={100}>
                   <Card className="h-full">
                     <CardContent className="p-6">
                       <Lock className="h-8 w-8 text-primary mb-4" />
@@ -543,7 +531,7 @@ const ExpertComptable = () => {
                     </CardContent>
                   </Card>
                 </AnimatedSection>
-                <AnimatedSection delay={200}>
+                <AnimatedSection delay={100}>
                   <Card className="h-full">
                     <CardContent className="p-6">
                       <Users className="h-8 w-8 text-primary mb-4" />
@@ -555,7 +543,7 @@ const ExpertComptable = () => {
                     </CardContent>
                   </Card>
                 </AnimatedSection>
-                <AnimatedSection delay={300}>
+                <AnimatedSection delay={200}>
                   <Card className="h-full">
                     <CardContent className="p-6">
                       <Building2 className="h-8 w-8 text-primary mb-4" />
