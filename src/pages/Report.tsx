@@ -599,10 +599,10 @@ ${IKTRACKER_URL}`
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 flex flex-col items-center">
           {/* Show email input only if not sent yet */}
           {(!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full">
               <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <Input
                 type="email"
@@ -616,7 +616,7 @@ ${IKTRACKER_URL}`
           <Button 
             variant="secondary" 
             size="lg" 
-            className="w-full max-w-xs mx-auto"
+            className="max-w-sm w-full"
             onClick={sendToAccountant} 
             disabled={trips.length === 0 || isExporting}
           >
