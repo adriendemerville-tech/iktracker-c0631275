@@ -461,18 +461,17 @@ const Profile = () => {
                 </div>
 
                 {/* Reset Counters */}
-                <div className="pt-2 border-t border-border">
+                <div className="pt-2 border-t border-border flex flex-col items-center">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="w-full"
                     onClick={resetCounters}
                   >
                     <RotateCcw className="w-4 h-4 mr-2" />
                     Réinitialiser les compteurs
                   </Button>
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
-                    Relance l'animation des compteurs
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Remettre les compteurs à 0
                   </p>
                 </div>
               </div>
