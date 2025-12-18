@@ -375,7 +375,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         disabled={geoLoading}
       >
         <Navigation className={cn("w-5 h-5 text-primary", geoLoading && "animate-pulse")} />
-        {geoLoading ? 'Localisation...' : 'Utiliser ma position actuelle'}
+        {geoLoading ? 'Localisation...' : 'Utiliser ma position'}
       </Button>
 
       {/* Recent locations */}
