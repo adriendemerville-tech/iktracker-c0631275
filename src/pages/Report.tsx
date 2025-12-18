@@ -210,7 +210,7 @@ ${IKTRACKER_MENTION}
     rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
     
     rows.push([]);
-    rows.push(['Barème kilométrique fiscal 2024']);
+    rows.push(['Barème kilométrique fiscal 2025']);
     rows.push(['CV', "Jusqu'à 5000 km", '5001 à 20000 km', 'Au-delà de 20000 km']);
     IK_BAREME_2024.forEach(b => {
       rows.push([
@@ -754,7 +754,7 @@ ${IKTRACKER_URL}`
         )}
 
         <div className="bg-card rounded-md p-4 space-y-3">
-          <h3 className="text-sm font-medium">Barème IK 2024</h3>
+          <h3 className="text-sm font-medium">Barème IK 2025</h3>
           <div className="text-xs text-muted-foreground space-y-1">
             {IK_BAREME_2024.map(b => (
               <div key={b.cv} className="flex justify-between">
