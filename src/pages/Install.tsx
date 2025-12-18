@@ -528,10 +528,18 @@ const Install = () => {
 
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border mt-12">
-        <div className="container mx-auto text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} IKtracker. Tous droits réservés.
-          </p>
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} IKtracker. Tous droits réservés.
+            </p>
+            <nav className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+              <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
+              <Link to="/expert-comptable" className="hover:text-foreground transition-colors">Expert-Comptable</Link>
+              <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
+              <Link to="/terms" className="hover:text-foreground transition-colors">CGU</Link>
+            </nav>
+          </div>
         </div>
       </footer>
     </div>
