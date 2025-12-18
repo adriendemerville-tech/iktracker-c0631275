@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
 import { 
   LineChart, 
   Line, 
@@ -20,10 +21,15 @@ import {
   Navigation, 
   Activity,
   TrendingUp,
-  Calendar
+  Calendar,
+  Download,
+  FileText,
+  FileSpreadsheet
 } from 'lucide-react';
-import { format, subDays, subMonths, subYears, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
+import { format, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface AdminStatsData {
   total_users: number;
@@ -163,30 +169,130 @@ export function AdminStats() {
     }
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text('Statistiques Admin', pageWidth / 2, 20, { align: 'center' });
+    
+    // Period info
+    doc.setFontSize(12);
+    doc.text(`Période: ${periodConfig[period].label} (${dateRange.start_date} - ${dateRange.end_date})`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(`Exporté le: ${format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}`, pageWidth / 2, 38, { align: 'center' });
+
+    // Stats table
+    autoTable(doc, {
+      startY: 50,
+      head: [['Métrique', 'Valeur']],
+      body: [
+        ['Utilisateurs', formatNumber(stats?.total_users || 0)],
+        ['Trajets', formatNumber(stats?.total_trips || 0)],
+        ['Total IK', formatCurrency(stats?.total_ik || 0)],
+        ['Distance totale', formatKm(stats?.total_km || 0)],
+        ['Visites simultanées (actuel)', onlineUsers.toString()],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+
+    // Registrations table
+    if (registrations.length > 0) {
+      const finalY = (doc as any).lastAutoTable?.finalY || 100;
+      doc.setFontSize(14);
+      doc.text('Nouveaux inscrits par jour', 14, finalY + 15);
+      
+      autoTable(doc, {
+        startY: finalY + 20,
+        head: [['Date', 'Nombre']],
+        body: registrations.map(r => [r.day, r.count.toString()]),
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] },
+      });
+    }
+
+    doc.save(`stats-admin-${period}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  };
+
+  const exportToCSV = () => {
+    // Stats CSV
+    const statsRows = [
+      ['Métrique', 'Valeur'],
+      ['Période', periodConfig[period].label],
+      ['Date début', dateRange.start_date],
+      ['Date fin', dateRange.end_date],
+      ['Utilisateurs', stats?.total_users || 0],
+      ['Trajets', stats?.total_trips || 0],
+      ['Total IK (€)', stats?.total_ik || 0],
+      ['Distance totale (km)', stats?.total_km || 0],
+      ['Visites simultanées', onlineUsers],
+      [''],
+      ['Nouveaux inscrits par jour'],
+      ['Date', 'Nombre'],
+      ...registrations.map(r => [r.day, r.count]),
+    ];
+
+    const csvContent = statsRows.map(row => 
+      Array.isArray(row) ? row.join(';') : row
+    ).join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `stats-admin-${period}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
   return (
     <div className="space-y-4">
-      {/* Period filter */}
+      {/* Period filter and export buttons */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="w-4 h-4" />
           <span>Période :</span>
         </div>
-        <ToggleGroup 
-          type="single" 
-          value={period} 
-          onValueChange={(value) => value && setPeriod(value as PeriodFilter)}
-          className="bg-muted/50 p-1 rounded-lg"
-        >
-          {Object.entries(periodConfig).map(([key, config]) => (
-            <ToggleGroupItem 
-              key={key} 
-              value={key}
-              className="px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+        <div className="flex items-center gap-2 flex-wrap">
+          <ToggleGroup 
+            type="single" 
+            value={period} 
+            onValueChange={(value) => value && setPeriod(value as PeriodFilter)}
+            className="bg-muted/50 p-1 rounded-lg"
+          >
+            {Object.entries(periodConfig).map(([key, config]) => (
+              <ToggleGroupItem 
+                key={key} 
+                value={key}
+                className="px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              >
+                {config.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <div className="flex items-center gap-1 ml-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={exportToPDF}
+              disabled={statsLoading}
+              className="gap-1.5"
             >
-              {config.label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+              <FileText className="w-4 h-4" />
+              PDF
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={exportToCSV}
+              disabled={statsLoading}
+              className="gap-1.5"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              CSV
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Real-time and main stats */}
