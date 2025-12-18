@@ -719,7 +719,7 @@ export function NewTripSheet({
               )}
 
               <div className={cn(
-                "flex items-center justify-between p-4 rounded-md transition-colors outline-none ring-0",
+                "flex items-center justify-between p-4 rounded-md transition-colors outline-none ring-0 w-[85%] mx-auto",
                 roundTrip ? "bg-primary/5 border-2 border-primary" : "bg-muted border-0"
               )}>
                 <div className="flex items-center gap-3">
