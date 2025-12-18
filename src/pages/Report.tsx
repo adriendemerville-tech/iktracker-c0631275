@@ -616,7 +616,7 @@ ${IKTRACKER_URL}`
           <Button 
             variant="secondary" 
             size="lg" 
-            className="w-full"
+            className="w-full max-w-xs mx-auto"
             onClick={sendToAccountant} 
             disabled={trips.length === 0 || isExporting}
           >
