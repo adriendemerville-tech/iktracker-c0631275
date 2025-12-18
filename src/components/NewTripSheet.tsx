@@ -817,7 +817,7 @@ export function NewTripSheet({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Motif du déplacement *</label>
+                <label className="text-sm font-medium">Motif *</label>
                 <Input
                   ref={purposeInputRef}
                   placeholder="Ex: Réunion client, Livraison..."
