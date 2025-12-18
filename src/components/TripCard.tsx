@@ -133,20 +133,10 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
           )}
         </div>
 
-        {/* Ligne 2: Véhicule + CV | Motif (hidden for tours since purpose is "Tournée") */}
-        {vehicle && (
+        {/* Ligne 2: Motif only (vehicle info hidden, visible only in edit mode) */}
+        {trip.purpose && !isTour && (
           <div className="flex items-center gap-2 mb-2 text-xs">
-            <Car className="w-3.5 h-3.5 text-primary shrink-0" />
-            <span className="font-medium">{vehicle.make} {vehicle.model}</span>
-            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">
-              {vehicle.fiscalPower} CV
-            </span>
-            {trip.purpose && !isTour && (
-              <>
-                <span className="ml-2 mr-6"></span>
-                <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
-              </>
-            )}
+            <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
           </div>
         )}
 
