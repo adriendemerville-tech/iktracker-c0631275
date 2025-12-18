@@ -256,3 +256,46 @@
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
 }
+
+/* Animated car - oscillation */
+@keyframes car-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-car-bounce {
+  animation: car-bounce 0.8s ease-in-out infinite;
+}
+
+/* Animated wheels - spin */
+@keyframes wheel-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-wheel-spin {
+  animation: wheel-spin 0.5s linear infinite;
+  border-style: dashed;
+}
+
+/* Road dashes animation */
+@keyframes road-dash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-road-dash {
+  animation: road-dash 0.8s ease-in-out infinite;
+}

@@ -465,14 +465,33 @@ const Profile = () => {
 
         {/* Kilometers Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <BarChart3 className="w-4 h-4" />
-              Kilomètres parcourus
-            </CardTitle>
-            <CardDescription>
-              Sur les 6 derniers mois
-            </CardDescription>
+          <CardHeader className="flex flex-row items-start justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <BarChart3 className="w-4 h-4" />
+                Kilomètres parcourus
+              </CardTitle>
+              <CardDescription>
+                Sur les 6 derniers mois
+              </CardDescription>
+            </div>
+            {/* Animated car */}
+            <div className="flex flex-col items-center">
+              <div className="animate-car-bounce relative">
+                <img src="/logo-camion.png" alt="" className="w-10 h-10 object-contain" />
+                {/* Animated wheels */}
+                <div className="absolute bottom-0.5 left-1.5 w-2 h-2 rounded-full border-2 border-muted-foreground/50 animate-wheel-spin" />
+                <div className="absolute bottom-0.5 right-1.5 w-2 h-2 rounded-full border-2 border-muted-foreground/50 animate-wheel-spin" />
+              </div>
+              {/* Road */}
+              <div className="w-14 h-1 bg-muted-foreground/30 rounded-full mt-0.5">
+                <div className="w-full h-full flex items-center justify-around">
+                  <div className="w-1.5 h-0.5 bg-amber-400 rounded-full animate-road-dash" />
+                  <div className="w-1.5 h-0.5 bg-amber-400 rounded-full animate-road-dash" style={{ animationDelay: '0.3s' }} />
+                  <div className="w-1.5 h-0.5 bg-amber-400 rounded-full animate-road-dash" style={{ animationDelay: '0.6s' }} />
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-48">
