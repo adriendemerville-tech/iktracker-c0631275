@@ -224,14 +224,15 @@ export function AdminStats() {
     refetchInterval: 60000,
   });
 
-  // Fetch download clicks by day
+  // Fetch download clicks by day with period filter
   const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
-    queryKey: ['admin-download-clicks-by-day'],
+    queryKey: ['admin-download-clicks-by-day', period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: 30 });
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: daysBack });
       if (error) throw error;
       return (data as unknown as { day: string; count: number }[]).map(d => ({
-        day: format(new Date(d.day), 'dd/MM', { locale: fr }),
+        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
         count: Number(d.count),
       }));
     },
@@ -569,9 +570,9 @@ export function AdminStats() {
             </div>
           )}
           
-          {/* Download clicks chart - 30 days */}
+          {/* Download clicks chart with period filter */}
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution sur 30 jours</h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution {getPeriodLabel()}</h4>
             {downloadClicksLoading ? (
               <Skeleton className="h-[180px] w-full" />
             ) : (
