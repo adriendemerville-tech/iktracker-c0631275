@@ -945,6 +945,7 @@ ${IKTRACKER_MENTION}
         isActive={isTourActive}
         isLoading={isTourLoading}
         stops={tourStops}
+        totalDistanceKm={totalDistanceKm}
         onStart={startTour}
         onFinish={handleFinishTour}
         onClear={clearTour}

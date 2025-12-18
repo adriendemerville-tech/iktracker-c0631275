@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { TourStop } from '@/hooks/useTourTracker';
-import { MapPin, Clock, Truck, Play, Square, History } from 'lucide-react';
+import { MapPin, Clock, Truck, Play, History, Timer, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TourLogSheetProps {
@@ -10,6 +11,7 @@ interface TourLogSheetProps {
   isActive: boolean;
   isLoading: boolean;
   stops: TourStop[];
+  totalDistanceKm?: number;
   onStart: () => void;
   onFinish: () => void;
   onClear: () => void;
@@ -24,6 +26,7 @@ export function TourLogSheet({
   isActive,
   isLoading,
   stops,
+  totalDistanceKm = 0,
   onStart,
   onFinish,
   onClear,
@@ -31,6 +34,36 @@ export function TourLogSheet({
   onShowHistory,
   isHistory,
 }: TourLogSheetProps) {
+  const [elapsedTime, setElapsedTime] = useState('');
+
+  // Calculate elapsed time
+  useEffect(() => {
+    if (!isActive || stops.length === 0) {
+      setElapsedTime('');
+      return;
+    }
+
+    const startTime = stops[0].timestamp;
+    
+    const updateElapsed = () => {
+      const now = new Date();
+      const diffMs = now.getTime() - startTime.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const hours = Math.floor(diffMins / 60);
+      const mins = diffMins % 60;
+      
+      if (hours > 0) {
+        setElapsedTime(`${hours}h${mins.toString().padStart(2, '0')}`);
+      } else {
+        setElapsedTime(`${mins} min`);
+      }
+    };
+
+    updateElapsed();
+    const interval = setInterval(updateElapsed, 60000);
+    return () => clearInterval(interval);
+  }, [isActive, stops]);
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
@@ -54,21 +87,36 @@ export function TourLogSheet({
           showFullList ? "h-[55vh]" : "h-auto pb-6"
         )}
       >
-        <SheetHeader className="pb-3">
+        <SheetHeader className="pb-4 pt-2">
           <SheetTitle className="text-base flex items-center gap-2">
             <Truck className="w-5 h-5 text-primary" />
             {isHistory ? 'Dernière tournée' : 'Tournée'}
             {isActive && (
-              <span 
-                className="ml-auto flex items-center gap-1.5 text-sm font-medium text-green-500"
-                style={{ textShadow: '0 0 8px rgba(34, 197, 94, 0.5)' }}
-              >
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
+              <span className="ml-auto flex items-center gap-1.5 text-sm font-medium text-green-500 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
                 En cours
               </span>
             )}
           </SheetTitle>
         </SheetHeader>
+
+        {/* Stats bar when active */}
+        {isActive && stops.length > 0 && (
+          <div className="mb-4 flex items-center justify-center gap-6 py-2 px-3 bg-muted/50 rounded-lg">
+            {elapsedTime && (
+              <div className="flex items-center gap-1.5 text-sm">
+                <Timer className="w-4 h-4 text-muted-foreground" />
+                <span className="font-medium">{elapsedTime}</span>
+              </div>
+            )}
+            {totalDistanceKm > 0 && (
+              <div className="flex items-center gap-1.5 text-sm">
+                <Navigation className="w-4 h-4 text-muted-foreground" />
+                <span className="font-medium">{totalDistanceKm.toFixed(1)} km</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Single stop - compact centered view */}
         {!showFullList && stops.length === 1 && (
@@ -163,18 +211,17 @@ export function TourLogSheet({
 
         {/* Actions */}
         <div className={cn(
-          "flex gap-2",
+          "flex justify-center gap-2",
           showFullList && "absolute bottom-0 left-0 right-0 p-4 bg-background border-t"
         )}>
           {isActive ? (
             <Button
-              variant="outline"
+              variant="destructive"
               size="default"
               onClick={onFinish}
-              className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
             >
-              <Square className="w-4 h-4 mr-2" />
-              Terminer la tournée
+              <span className="w-3 h-3 bg-white rounded-sm mr-2" />
+              Terminer
             </Button>
           ) : !isHistory ? (
             <>
