@@ -7,7 +7,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send, Truck, ChevronDown, MapPin, Clock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -27,6 +27,8 @@ export default function Report() {
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isEditingAccountantEmail, setIsEditingAccountantEmail] = useState(false);
+  const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
+  const [showToursDropdown, setShowToursDropdown] = useState(false);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
@@ -42,6 +44,26 @@ export default function Report() {
   }, {} as Record<string, Trip[]>);
 
   const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+
+  // Filter trips that are tours (have tourStops)
+  const pastTours = useMemo(() => {
+    return trips.filter(trip => trip.tourStops && trip.tourStops.length > 0)
+      .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+  }, [trips]);
+
+  const selectedTour = pastTours.find(t => t.id === selectedTourId);
+
+  const formatTourDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+  };
+
+  const formatTime = (timestamp: string) => {
+    return new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  };
 
   // Recalculate IK amounts based on chronological order and cumulative distance
   // This ensures the barème tiers are correctly applied
@@ -576,6 +598,96 @@ ${IKTRACKER_URL}`
             </div>
           </div>
         </div>
+
+        {/* Past Tours Dropdown */}
+        {pastTours.length > 0 && (
+          <div className="bg-card rounded-md shadow-md overflow-hidden">
+            <button
+              onClick={() => setShowToursDropdown(!showToursDropdown)}
+              className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Truck className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium">Tournées passées</p>
+                  <p className="text-sm text-muted-foreground">{pastTours.length} tournée{pastTours.length > 1 ? 's' : ''}</p>
+                </div>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showToursDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            <div className={`grid transition-all duration-300 ease-out ${showToursDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="overflow-hidden">
+                <div className="border-t border-border p-3 space-y-2 max-h-60 overflow-y-auto">
+                  {pastTours.map(tour => (
+                    <button
+                      key={tour.id}
+                      onClick={() => setSelectedTourId(selectedTourId === tour.id ? null : tour.id)}
+                      className={`w-full p-3 rounded-md text-left transition-colors ${
+                        selectedTourId === tour.id 
+                          ? 'bg-primary/10 border border-primary/30' 
+                          : 'bg-muted/50 hover:bg-muted'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-sm">{formatTourDate(tour.startTime)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {tour.tourStops?.length} étape{(tour.tourStops?.length || 0) > 1 ? 's' : ''} • {tour.distance.toFixed(1)} km
+                          </p>
+                        </div>
+                        <span className="text-sm font-medium text-accent">{tour.ikAmount.toFixed(2)}€</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Selected Tour Details */}
+        {selectedTour && selectedTour.tourStops && (
+          <div className="bg-card rounded-md p-4 shadow-md animate-fade-in">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Détail de la tournée du {formatTourDate(selectedTour.startTime)}
+            </h3>
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-3 top-4 bottom-4 w-0.5 bg-border" />
+              
+              <div className="space-y-3">
+                {selectedTour.tourStops.map((stop, index) => (
+                  <div key={stop.id} className="relative flex gap-3 items-start">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center z-10 shrink-0 ${
+                      index === 0 
+                        ? 'bg-primary text-primary-foreground' 
+                        : index === selectedTour.tourStops!.length - 1
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-secondary text-secondary-foreground'
+                    }`}>
+                      <MapPin className="w-3 h-3" />
+                    </div>
+                    <div className="flex-1 min-w-0 pb-2">
+                      <p className="font-medium text-sm truncate">{stop.city || stop.address || 'Position'}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {formatTime(stop.timestamp)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-border flex justify-between text-sm">
+              <span className="text-muted-foreground">Total</span>
+              <span className="font-medium">{selectedTour.distance.toFixed(1)} km • {selectedTour.ikAmount.toFixed(2)}€</span>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-3">
           {/* Show email input only if not sent yet */}
