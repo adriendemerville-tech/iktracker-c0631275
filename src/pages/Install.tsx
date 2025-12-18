@@ -326,31 +326,36 @@ const Install = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/favicon.png" alt="IKtracker" className="h-9 w-9 rounded-full" />
-            <span className="text-xl font-bold text-foreground">IKtracker</span>
+            <img src="/favicon.png" alt="IKtracker" className="h-8 w-8 md:h-9 md:w-9 rounded-full" />
+            <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
           </Link>
-          <Link to="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/expert-comptable" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Expert-Comptable
+            </Link>
+            <Link to="/">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Retour</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 md:py-12">
+      <main className="container mx-auto px-4 py-6 md:py-12">
         {/* Hero */}
-        <section className="text-center mb-12" aria-labelledby="install-heading">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Download className="h-4 w-4" aria-hidden="true" />
+        <section className="text-center mb-8 md:mb-12" aria-labelledby="install-heading">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4">
+            <Download className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
             Installation gratuite et facile
           </div>
-          <h1 id="install-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <h1 id="install-heading" className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 px-2">
             Installez <span className="text-gradient">IKtracker</span> facilement sur votre appareil
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
             IKtracker est une application web progressive (PWA) facile à installer. Installez-la facilement comme une vraie app, sans passer par les stores ! Installation facile en 2 minutes.
           </p>
         </section>
@@ -390,15 +395,15 @@ const Install = () => {
         )}
 
         {/* Benefits */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 md:mb-12">
           {benefits.map((benefit, index) => (
             <Card key={index} className="border-border">
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <benefit.icon className="h-6 w-6 text-primary" />
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                  <benefit.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <h4 className="font-semibold text-foreground mb-1">{benefit.title}</h4>
-                <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">{benefit.title}</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground">{benefit.description}</p>
               </CardContent>
             </Card>
           ))}
@@ -406,13 +411,13 @@ const Install = () => {
 
         {/* Installation guides */}
         <Tabs defaultValue="mobile" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-            <TabsTrigger value="mobile" className="gap-2">
-              <Smartphone className="h-4 w-4" />
+          <TabsList className="grid w-full max-w-xs sm:max-w-md mx-auto grid-cols-2 mb-6 md:mb-8">
+            <TabsTrigger value="mobile" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Smartphone className="h-3 w-3 sm:h-4 sm:w-4" />
               Mobile
             </TabsTrigger>
-            <TabsTrigger value="desktop" className="gap-2">
-              <Monitor className="h-4 w-4" />
+            <TabsTrigger value="desktop" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
               Ordinateur
             </TabsTrigger>
           </TabsList>

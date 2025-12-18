@@ -167,29 +167,30 @@ const Landing = () => {
     <div className="min-h-screen bg-background font-display overflow-x-hidden">
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="banner">
-        <nav className="container mx-auto px-4 py-4 flex items-center justify-between" aria-label="Navigation principale">
+        <nav className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between" aria-label="Navigation principale">
           <Link to="/" className="flex items-center gap-2" aria-label="IKtracker - Accueil">
-            <img src="/logo.png" alt="Logo IKtracker" className="h-9 w-9 transition-transform duration-300 hover:scale-110" width="36" height="36" />
-            <span className="text-xl font-bold text-foreground">IKtracker</span>
+            <img src="/logo.png" alt="Logo IKtracker" className="h-8 w-8 md:h-9 md:w-9 transition-transform duration-300 hover:scale-110" width="36" height="36" />
+            <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link to="/expert-comptable" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/expert-comptable" className="hidden md:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
               Expert-Comptable
             </Link>
-            <Link to="/install" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/install" className="hidden md:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
               Installation
             </Link>
             {!loading && (
               user ? (
                 <Link to="/app">
-                  <Button variant="gradient" size="sm" className="group">
-                    <LayoutDashboard className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Mon tableau de bord
+                  <Button variant="gradient" size="sm" className="group text-xs sm:text-sm">
+                    <LayoutDashboard className="h-4 w-4 mr-1 sm:mr-2" aria-hidden="true" />
+                    <span className="hidden sm:inline">Mon tableau de bord</span>
+                    <span className="sm:hidden">Dashboard</span>
                   </Button>
                 </Link>
               ) : (
                 <a href="#auth-section">
-                  <Button variant="gradient" size="sm">
+                  <Button variant="gradient" size="sm" className="text-xs sm:text-sm">
                     S'inscrire
                   </Button>
                 </a>
@@ -225,7 +226,7 @@ const Landing = () => {
               </div>
               <h1 
                 className={cn(
-                  "text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 transition-all duration-700 ease-out",
+                  "text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 transition-all duration-700 ease-out",
                   heroAnimation.isVisible 
                     ? "opacity-100 translate-y-0" 
                     : "opacity-0 translate-y-8"
@@ -238,7 +239,7 @@ const Landing = () => {
               </h1>
               <p 
                 className={cn(
-                  "text-lg md:text-xl text-muted-foreground mb-8 transition-all duration-700 ease-out",
+                  "text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 transition-all duration-700 ease-out",
                   heroAnimation.isVisible 
                     ? "opacity-100 translate-y-0" 
                     : "opacity-0 translate-y-8"
@@ -262,32 +263,32 @@ const Landing = () => {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+              <div className="flex flex-wrap gap-3 sm:gap-6 justify-center lg:justify-start text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
                   Pas de carte bancaire
                 </div>
-                <div className="flex items-center gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
+                <div className="flex items-center gap-1 sm:gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" aria-hidden="true" />
                   Installation en 2 min
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
                   Export PDF/CSV
                 </div>
               </div>
 
               {/* CTA Expert-Comptable */}
-              <div className="mt-8 pt-6 border-t border-border/50">
+              <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border/50">
                 <Link to="/expert-comptable">
                   <Button 
-                    size="lg" 
+                    size="default"
                     variant="outline" 
-                    className="w-full sm:w-auto group border-primary/30 hover:border-primary hover:bg-primary/5"
+                    className="w-full sm:w-auto group border-primary/30 hover:border-primary hover:bg-primary/5 text-sm sm:text-base"
                   >
-                    <Building2 className="h-5 w-5 mr-2 text-primary" />
+                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
                     Je suis expert-comptable
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </div>
@@ -993,7 +994,7 @@ const Landing = () => {
             <p className="text-sm text-muted-foreground text-center">
               Outil <span className="font-semibold text-success">100% gratuit</span> pour les indépendants
             </p>
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6">
               <Link to="/expert-comptable" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Expert-Comptable
               </Link>
