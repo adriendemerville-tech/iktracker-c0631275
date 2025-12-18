@@ -3,8 +3,12 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
+import { AppCarousel } from "@/components/marketing/AppCarousel";
+import { TourModeDemo } from "@/components/marketing/TourModeDemo";
 import { 
-  ArrowLeft, 
   Smartphone, 
   Monitor, 
   Share, 
@@ -16,7 +20,8 @@ import {
   Zap,
   Bell,
   Chrome,
-  Globe
+  Globe,
+  ArrowRight
 } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -29,524 +34,206 @@ const Install = () => {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Page title
-    document.title = "Installer IKtracker facilement | Guide d'installation PWA gratuit";
+    document.title = "Installer IKtracker | Guide PWA gratuit";
     
-    // Meta description
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', "Guide facile et complet pour installer IKtracker sur votre téléphone ou navigateur. Instructions faciles pas à pas pour iPhone, Android, Chrome, Firefox, Safari et Edge. Installation facile en 2 minutes sans App Store.");
-    }
-
-    // Canonical URL
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) {
-      canonical.setAttribute('href', 'https://iktracker.fr/install');
-    }
-
-    // Open Graph tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    const ogDescription = document.querySelector('meta[property="og:description"]');
-    const ogUrl = document.querySelector('meta[property="og:url"]');
-    if (ogTitle) ogTitle.setAttribute('content', "Installer IKtracker facilement | Guide PWA");
-    if (ogDescription) ogDescription.setAttribute('content', "Guide facile pour installer IKtracker sur iPhone, Android et ordinateur. Installation en 2 minutes sans App Store.");
-    if (ogUrl) ogUrl.setAttribute('content', 'https://iktracker.fr/install');
-
-    // Twitter tags
-    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
-    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
-    if (twitterTitle) twitterTitle.setAttribute('content', "Installer IKtracker facilement | Guide PWA");
-    if (twitterDescription) twitterDescription.setAttribute('content', "Guide facile pour installer IKtracker sur iPhone, Android et ordinateur.");
-
-    // Add JSON-LD structured data
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'install-jsonld';
-    script.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "HowTo",
-      "name": "Comment installer IKtracker facilement",
-      "description": "Guide facile pas à pas pour installer l'application IKtracker sur votre appareil mobile ou ordinateur",
-      "url": "https://iktracker.fr/install",
-      "inLanguage": "fr-FR",
-      "totalTime": "PT2M",
-      "estimatedCost": {
-        "@type": "MonetaryAmount",
-        "currency": "EUR",
-        "value": "0"
-      },
-      "step": [
-        {
-          "@type": "HowToStep",
-          "name": "Ouvrir le navigateur",
-          "text": "Ouvrez Safari sur iPhone/iPad ou Chrome sur Android"
-        },
-        {
-          "@type": "HowToStep",
-          "name": "Accéder à IKtracker",
-          "text": "Allez sur iktracker.fr"
-        },
-        {
-          "@type": "HowToStep",
-          "name": "Ajouter à l'écran d'accueil",
-          "text": "Utilisez le menu Partager puis 'Sur l'écran d'accueil' sur iOS, ou le menu puis 'Installer l'application' sur Android"
-        }
-      ]
-    });
-    document.head.appendChild(script);
-
-    return () => {
-      document.title = 'IKtracker - Calcul automatique et facile des indemnités kilométriques';
-      const jsonld = document.getElementById('install-jsonld');
-      if (jsonld) jsonld.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
     }
 
-    // Capture the install prompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-    }
+    if (outcome === 'accepted') setIsInstalled(true);
     setDeferredPrompt(null);
   };
 
-  const benefits = [
-    {
-      icon: Zap,
-      title: "Accès instantané et facile",
-      description: "Lancez facilement IKtracker en un clic depuis votre écran d'accueil"
-    },
-    {
-      icon: Wifi,
-      title: "Mode hors-ligne facile",
-      description: "Consultez facilement vos trajets même sans connexion internet"
-    },
-    {
-      icon: Bell,
-      title: "Notifications faciles",
-      description: "Recevez facilement des alertes pour vos nouveaux rendez-vous"
-    },
-    {
-      icon: Download,
-      title: "Installation facile",
-      description: "Aucune installation compliquée via l'App Store ou Google Play nécessaire"
-    }
-  ];
-
-  const mobileGuides = [
-    {
-      id: 'iphone',
-      name: 'iPhone / iPad',
-      browser: 'Safari',
-      icon: '🍎',
-      steps: [
-        {
-          step: 1,
-          title: "Ouvrez Safari",
-          description: "Assurez-vous d'utiliser Safari (le navigateur par défaut). L'installation ne fonctionne pas avec Chrome ou Firefox sur iOS.",
-          tip: "Safari est obligatoire sur iPhone/iPad"
-        },
-        {
-          step: 2,
-          title: "Allez sur iktracker.fr",
-          description: "Tapez iktracker.fr dans la barre d'adresse et attendez que la page charge complètement."
-        },
-        {
-          step: 3,
-          title: "Appuyez sur le bouton Partager",
-          description: "En bas de l'écran (ou en haut sur iPad), appuyez sur l'icône de partage (carré avec une flèche vers le haut).",
-          icon: Share
-        },
-        {
-          step: 4,
-          title: "Faites défiler et sélectionnez \"Sur l'écran d'accueil\"",
-          description: "Dans le menu qui apparaît, faites défiler vers le bas et appuyez sur \"Sur l'écran d'accueil\".",
-          icon: Plus
-        },
-        {
-          step: 5,
-          title: "Confirmez l'ajout",
-          description: "Vérifiez le nom (IKtracker) et appuyez sur \"Ajouter\" en haut à droite. L'icône apparaîtra sur votre écran d'accueil !"
-        }
-      ]
-    },
-    {
-      id: 'android',
-      name: 'Android',
-      browser: 'Chrome',
-      icon: '🤖',
-      steps: [
-        {
-          step: 1,
-          title: "Ouvrez Chrome",
-          description: "Utilisez Google Chrome pour la meilleure expérience. Firefox et Samsung Internet fonctionnent aussi.",
-          tip: "Chrome recommandé"
-        },
-        {
-          step: 2,
-          title: "Allez sur iktracker.fr",
-          description: "Tapez iktracker.fr dans la barre d'adresse et attendez que la page charge."
-        },
-        {
-          step: 3,
-          title: "Appuyez sur le menu ⋮",
-          description: "En haut à droite de Chrome, appuyez sur les trois points verticaux pour ouvrir le menu.",
-          icon: MoreVertical
-        },
-        {
-          step: 4,
-          title: "Sélectionnez \"Installer l'application\"",
-          description: "Dans le menu, cherchez \"Installer l'application\" ou \"Ajouter à l'écran d'accueil\" et appuyez dessus.",
-          icon: Download
-        },
-        {
-          step: 5,
-          title: "Confirmez l'installation",
-          description: "Appuyez sur \"Installer\" dans la popup. L'application sera ajoutée à votre écran d'accueil et au tiroir d'applications !"
-        }
-      ]
-    }
-  ];
-
-  const desktopGuides = [
-    {
-      id: 'chrome',
-      name: 'Google Chrome',
-      icon: Chrome,
-      color: 'text-[#4285F4]',
-      steps: [
-        {
-          step: 1,
-          title: "Ouvrez Chrome et allez sur iktracker.fr"
-        },
-        {
-          step: 2,
-          title: "Cliquez sur l'icône d'installation",
-          description: "Dans la barre d'adresse, à droite, cliquez sur l'icône avec un écran et une flèche (ou un + dans un carré)."
-        },
-        {
-          step: 3,
-          title: "Cliquez sur \"Installer\"",
-          description: "Dans la popup qui apparaît, cliquez sur \"Installer\". IKtracker s'ouvrira dans sa propre fenêtre."
-        }
-      ],
-      alternative: "Vous pouvez aussi cliquer sur le menu ⋮ → \"Installer IKtracker...\""
-    },
-    {
-      id: 'edge',
-      name: 'Microsoft Edge',
-      icon: Globe,
-      color: 'text-[#0078D4]',
-      steps: [
-        {
-          step: 1,
-          title: "Ouvrez Edge et allez sur iktracker.fr"
-        },
-        {
-          step: 2,
-          title: "Cliquez sur l'icône d'installation",
-          description: "Dans la barre d'adresse, cliquez sur l'icône avec un + dans un carré."
-        },
-        {
-          step: 3,
-          title: "Cliquez sur \"Installer\"",
-          description: "Confirmez l'installation. L'app sera ajoutée à votre menu Démarrer Windows."
-        }
-      ],
-      alternative: "Menu ⋯ → \"Applications\" → \"Installer ce site en tant qu'application\""
-    },
-    {
-      id: 'firefox',
-      name: 'Mozilla Firefox',
-      icon: Globe,
-      color: 'text-[#FF7139]',
-      steps: [
-        {
-          step: 1,
-          title: "Firefox ne supporte pas nativement les PWA",
-          description: "Firefox n'offre pas d'option d'installation native pour les applications web progressives sur ordinateur."
-        },
-        {
-          step: 2,
-          title: "Alternative : utilisez Chrome ou Edge",
-          description: "Pour installer IKtracker comme application, nous vous recommandons d'utiliser Chrome ou Edge."
-        }
-      ],
-      alternative: "Vous pouvez toujours ajouter IKtracker à vos favoris pour un accès rapide."
-    },
-    {
-      id: 'safari-mac',
-      name: 'Safari (Mac)',
-      icon: Globe,
-      color: 'text-[#006CFF]',
-      steps: [
-        {
-          step: 1,
-          title: "Ouvrez Safari et allez sur iktracker.fr"
-        },
-        {
-          step: 2,
-          title: "Menu Fichier → \"Ajouter au Dock\"",
-          description: "Dans la barre de menu, cliquez sur Fichier puis \"Ajouter au Dock\"."
-        },
-        {
-          step: 3,
-          title: "L'icône apparaît dans votre Dock",
-          description: "IKtracker sera accessible directement depuis votre Dock Mac."
-        }
-      ],
-      alternative: "Disponible sur macOS Sonoma (14) et versions ultérieures."
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/favicon.png" alt="IKtracker" className="h-8 w-8 md:h-9 md:w-9 rounded-full" />
-            <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Link to="/expert-comptable" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Expert-Comptable
-            </Link>
-            <Link to="/">
-              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
-                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Retour</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <title>Installer IKtracker - Application PWA gratuite</title>
+      <meta name="description" content="Installez IKtracker sur votre smartphone iOS ou Android en 2 minutes." />
+      
+      <MarketingNav />
 
-      <main className="container mx-auto px-4 py-6 md:py-12">
-        {/* Hero */}
-        <section className="text-center mb-8 md:mb-12" aria-labelledby="install-heading">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4">
-            <Download className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
-            Installation gratuite et facile
-          </div>
-          <h1 id="install-heading" className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 px-2">
-            Installez <span className="text-gradient">IKtracker</span> facilement sur votre appareil
-          </h1>
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            IKtracker est une application web progressive (PWA) facile à installer. Installez-la facilement comme une vraie app, sans passer par les stores ! Installation facile en 2 minutes.
-          </p>
-        </section>
-
-        {/* Quick install button (if available) */}
-        {deferredPrompt && !isInstalled && (
-          <div className="mb-12">
-            <Card className="bg-gradient-primary border-0 text-primary-foreground max-w-xl mx-auto">
-              <CardContent className="p-6 text-center">
-                <h3 className="text-xl font-bold mb-2">Installation facile et rapide disponible !</h3>
-                <p className="mb-4 opacity-90">Cliquez sur le bouton ci-dessous pour installer facilement IKtracker immédiatement.</p>
-                <Button 
-                  variant="secondary" 
-                  size="lg" 
-                  onClick={handleInstallClick}
-                  className="group"
-                >
-                  <Download className="h-5 w-5 mr-2" />
+      {/* Hero */}
+      <section className="pt-24 pb-16 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" />
+        <div className="container mx-auto relative">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                <Smartphone className="h-4 w-4" />
+                Application PWA
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                Installez en
+                <br />
+                <span className="text-primary">30 secondes</span>
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Aucun store requis. Directement sur votre écran d'accueil.
+              </p>
+              
+              {deferredPrompt && !isInstalled && (
+                <Button size="lg" variant="gradient" onClick={handleInstallClick} className="gap-2">
+                  <Download className="h-5 w-5" />
                   Installer maintenant
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Already installed */}
-        {isInstalled && (
-          <div className="mb-12">
-            <Card className="bg-success/10 border-success/20 max-w-xl mx-auto">
-              <CardContent className="p-6 text-center">
-                <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-3" />
-                <h3 className="text-xl font-bold text-foreground mb-2">IKtracker est déjà installé !</h3>
-                <p className="text-muted-foreground">Vous pouvez lancer l'application depuis votre écran d'accueil ou menu Démarrer.</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Benefits */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 md:mb-12">
-          {benefits.map((benefit, index) => (
-            <Card key={index} className="border-border">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                  <benefit.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              )}
+              
+              {isInstalled && (
+                <div className="flex items-center gap-2 text-success">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span className="font-medium">IKtracker est installé !</span>
                 </div>
-                <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">{benefit.title}</h4>
-                <p className="text-xs sm:text-sm text-muted-foreground">{benefit.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Installation guides */}
-        <Tabs defaultValue="mobile" className="w-full">
-          <TabsList className="grid w-full max-w-xs sm:max-w-md mx-auto grid-cols-2 mb-6 md:mb-8">
-            <TabsTrigger value="mobile" className="gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Smartphone className="h-3 w-3 sm:h-4 sm:w-4" />
-              Mobile
-            </TabsTrigger>
-            <TabsTrigger value="desktop" className="gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
-              Ordinateur
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Mobile guides */}
-          <TabsContent value="mobile">
-            <div className="grid md:grid-cols-2 gap-6">
-              {mobileGuides.map((guide) => (
-                <Card key={guide.id} className="border-border overflow-hidden">
-                  <CardHeader className="bg-muted/50">
-                    <CardTitle className="flex items-center gap-3">
-                      <span className="text-3xl">{guide.icon}</span>
-                      <div>
-                        <div className="text-xl">{guide.name}</div>
-                        <div className="text-sm font-normal text-muted-foreground">via {guide.browser}</div>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <ol className="space-y-4">
-                      {guide.steps.map((step) => (
-                        <li key={step.step} className="flex gap-4">
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
-                            {step.step}
-                          </div>
-                          <div className="flex-1 pt-1">
-                            <div className="font-semibold text-foreground flex items-center gap-2">
-                              {step.title}
-                              {step.icon && <step.icon className="h-4 w-4 text-primary" />}
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">{step.description}</p>
-                            {step.tip && (
-                              <span className="inline-block mt-2 text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
-                                💡 {step.tip}
-                              </span>
-                            )}
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                  </CardContent>
-                </Card>
-              ))}
+              )}
             </div>
-          </TabsContent>
-
-          {/* Desktop guides */}
-          <TabsContent value="desktop">
-            <div className="grid md:grid-cols-2 gap-6">
-              {desktopGuides.map((guide) => (
-                <Card key={guide.id} className="border-border overflow-hidden">
-                  <CardHeader className="bg-muted/50">
-                    <CardTitle className="flex items-center gap-3">
-                      <guide.icon className={`h-8 w-8 ${guide.color}`} />
-                      <div className="text-xl">{guide.name}</div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <ol className="space-y-4">
-                      {guide.steps.map((step) => (
-                        <li key={step.step} className="flex gap-4">
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
-                            {step.step}
-                          </div>
-                          <div className="flex-1 pt-1">
-                            <div className="font-semibold text-foreground">{step.title}</div>
-                            {step.description && (
-                              <p className="text-sm text-muted-foreground mt-1">{step.description}</p>
-                            )}
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                    {guide.alternative && (
-                      <div className="mt-4 pt-4 border-t border-border">
-                        <p className="text-sm text-muted-foreground">
-                          <span className="font-medium text-foreground">Alternative : </span>
-                          {guide.alternative}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="animate-scale-in">
+              <AnimatedPhoneMockup screen="dashboard" />
             </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* CTA */}
-        <div className="mt-12 text-center">
-          <Card className="bg-muted/50 border-border max-w-2xl mx-auto">
-            <CardContent className="p-8">
-              <h3 className="text-xl font-bold text-foreground mb-2">Besoin d'aide ?</h3>
-              <p className="text-muted-foreground mb-4">
-                Si vous rencontrez des difficultés lors de l'installation, n'hésitez pas à nous contacter.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Link to="/signup">
-                  <Button variant="gradient">
-                    Créer mon compte gratuit
-                  </Button>
-                </Link>
-                <Link to="/">
-                  <Button variant="outline">
-                    Retour à l'accueil
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="py-8 px-4 border-t border-border mt-12">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} IKtracker. Tous droits réservés.
-            </p>
-            <nav className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
-              <Link to="/expert-comptable" className="hover:text-foreground transition-colors">Expert-Comptable</Link>
-              <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
-              <Link to="/terms" className="hover:text-foreground transition-colors">CGU</Link>
-            </nav>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Benefits */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: Zap, title: "Accès instantané" },
+              { icon: Wifi, title: "Mode hors-ligne" },
+              { icon: Bell, title: "Notifications" },
+              { icon: Download, title: "Sans App Store" },
+            ].map((item, i) => (
+              <Card key={i} className="border-border animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
+                <CardContent className="p-4 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <item.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h4 className="font-semibold">{item.title}</h4>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Installation Steps */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Comment installer</h2>
+          
+          <Tabs defaultValue="iphone" className="w-full max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="iphone" className="gap-2">
+                🍎 iPhone / iPad
+              </TabsTrigger>
+              <TabsTrigger value="android" className="gap-2">
+                🤖 Android
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="iphone">
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  {[
+                    { icon: Globe, text: "Ouvrez Safari (obligatoire sur iOS)" },
+                    { icon: Share, text: "Appuyez sur le bouton Partager" },
+                    { icon: Plus, text: "Sélectionnez 'Sur l'écran d'accueil'" },
+                    { icon: CheckCircle2, text: "Confirmez l'ajout" },
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
+                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
+                        {i + 1}
+                      </div>
+                      <step.icon className="h-5 w-5 text-primary shrink-0" />
+                      <span className="font-medium">{step.text}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="android">
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  {[
+                    { icon: Chrome, text: "Ouvrez Chrome" },
+                    { icon: MoreVertical, text: "Appuyez sur le menu ⋮" },
+                    { icon: Download, text: "Sélectionnez 'Installer l'application'" },
+                    { icon: CheckCircle2, text: "Confirmez l'installation" },
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
+                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
+                        {i + 1}
+                      </div>
+                      <step.icon className="h-5 w-5 text-primary shrink-0" />
+                      <span className="font-medium">{step.text}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* App Preview Carousel */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 space-y-4">
+            <h2 className="text-3xl font-bold">Aperçu de l'application</h2>
+            <p className="text-muted-foreground">Une expérience native sur votre mobile</p>
+          </div>
+          <AppCarousel />
+        </div>
+      </section>
+
+      {/* Tour Mode Demo */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold">Découvrez le Mode Tournée</h2>
+              <p className="text-lg text-muted-foreground">
+                Enregistrez plusieurs arrêts en un seul trajet avec le suivi GPS en temps réel.
+              </p>
+              <Link to="/mode-tournee">
+                <Button variant="outline" className="gap-2">
+                  En savoir plus
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <TourModeDemo />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 text-center space-y-6">
+          <h2 className="text-3xl font-bold">Prêt à installer ?</h2>
+          <p className="text-lg opacity-90">Ouvrez cette page sur votre mobile et suivez les instructions.</p>
+          <Link to="/signup">
+            <Button size="lg" variant="secondary" className="gap-2">
+              Créer mon compte
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      <MarketingFooter />
     </div>
   );
 };

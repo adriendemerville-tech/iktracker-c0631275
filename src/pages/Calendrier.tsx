@@ -261,7 +261,7 @@ export default function Calendrier() {
             </AnimatedSection>
 
             <AnimatedSection>
-              <AppCarousel slides={carouselSlides} className="max-w-5xl mx-auto" />
+              <AppCarousel className="max-w-5xl mx-auto" />
             </AnimatedSection>
           </div>
         </section>

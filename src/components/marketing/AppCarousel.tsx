@@ -2,21 +2,45 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AnimatedPhoneMockup } from './AnimatedPhoneMockup';
 
 interface CarouselSlide {
   title: string;
   description: string;
-  mockup: React.ReactNode;
+  screen: 'dashboard' | 'newTrip' | 'tour' | 'calendar';
 }
 
 interface AppCarouselProps {
-  slides: CarouselSlide[];
+  slides?: CarouselSlide[];
   autoPlay?: boolean;
   interval?: number;
   className?: string;
 }
 
-export function AppCarousel({ slides, autoPlay = true, interval = 5000, className }: AppCarouselProps) {
+const defaultSlides: CarouselSlide[] = [
+  {
+    title: "Tableau de bord",
+    description: "Visualisez vos kilomètres et indemnités du mois en un coup d'œil.",
+    screen: 'dashboard'
+  },
+  {
+    title: "Nouveau trajet",
+    description: "Ajoutez un trajet en quelques secondes avec calcul automatique des distances.",
+    screen: 'newTrip'
+  },
+  {
+    title: "Mode Tournée",
+    description: "Enregistrez plusieurs arrêts en un seul trajet avec le GPS en temps réel.",
+    screen: 'tour'
+  },
+  {
+    title: "Sync Calendrier",
+    description: "Importez vos rendez-vous Google ou Outlook automatiquement.",
+    screen: 'calendar'
+  }
+];
+
+export function AppCarousel({ slides = defaultSlides, autoPlay = true, interval = 5000, className }: AppCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -53,20 +77,20 @@ export function AppCarousel({ slides, autoPlay = true, interval = 5000, classNam
             key={index}
             className="min-w-full px-4"
           >
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
+              {/* Mockup */}
+              <div className="flex justify-center">
+                <AnimatedPhoneMockup screen={slide.screen} />
+              </div>
+              
               {/* Text Content */}
-              <div className="text-center md:text-left order-2 md:order-1">
+              <div className="text-center md:text-left">
                 <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                   {slide.title}
                 </h3>
                 <p className="text-muted-foreground text-lg">
                   {slide.description}
                 </p>
-              </div>
-              
-              {/* Mockup */}
-              <div className="order-1 md:order-2 flex justify-center">
-                {slide.mockup}
               </div>
             </div>
           </div>
