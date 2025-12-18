@@ -201,13 +201,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Download App Button */}
-                <Link to="/install">
-                  <Button variant="outline" className="w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Télécharger l'application
-                  </Button>
-                </Link>
 
                 {user && (
                   <Button variant="outline" className="w-full" onClick={handleSignOut}>
@@ -485,6 +478,14 @@ const Profile = () => {
 
         {/* Invoices - Hidden while app is free */}
 
+
+        {/* Download App Button */}
+        <Link to="/install">
+          <Button variant="outline" className="w-full">
+            <Download className="w-4 h-4 mr-2" />
+            Télécharger l'application
+          </Button>
+        </Link>
 
         {/* Feedback Button - Normal position when no unread responses */}
         {user && unreadResponsesCount === 0 && <FeedbackForm />}
