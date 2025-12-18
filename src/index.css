@@ -302,21 +302,21 @@
 /* Animated car - oscillation */
 @keyframes car-bounce {
   0%, 100% {
-    transform: translateY(0) rotate(-2deg);
+    transform: translateY(0) rotate(-4deg) translateX(0);
   }
   25% {
-    transform: translateY(-6px) rotate(0deg);
+    transform: translateY(-12px) rotate(0deg) translateX(2px);
   }
   50% {
-    transform: translateY(-8px) rotate(2deg);
+    transform: translateY(-16px) rotate(4deg) translateX(4px);
   }
   75% {
-    transform: translateY(-4px) rotate(0deg);
+    transform: translateY(-8px) rotate(0deg) translateX(2px);
   }
 }
 
 .animate-car-bounce {
-  animation: car-bounce 0.5s ease-in-out infinite;
+  animation: car-bounce 0.4s ease-in-out infinite;
 }
 
 /* Speed lines animation - synced with car */
