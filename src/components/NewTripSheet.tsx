@@ -688,7 +688,7 @@ export function NewTripSheet({
 
               {/* Navigation Assistée - Waze & Maps Buttons */}
               {draft.endLocation && (draft.endLocation.address || draft.endLocation.name) && (
-                <div className="flex gap-4 justify-center">
+                <div className="flex gap-12 justify-center">
                   <button
                     onClick={handleNavigateWithWaze}
                     disabled={isNavigating}
