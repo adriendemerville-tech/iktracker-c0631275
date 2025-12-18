@@ -484,7 +484,7 @@ const Profile = () => {
             <div className="relative w-12 -mt-1.5 overflow-visible">
               <div className="w-full h-[2px] bg-muted-foreground/40 rounded-full animate-road-wave" />
               {/* Passing road line every 6 seconds */}
-              <div className="absolute top-[-1px] left-0 w-4 h-[4px] bg-muted-foreground/60 rounded-full animate-road-line" />
+              <div className="absolute top-[-1px] left-0 w-4 h-[4px] bg-muted-foreground rounded-full animate-road-line" />
             </div>
           </div>
           <CardHeader>
