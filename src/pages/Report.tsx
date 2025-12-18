@@ -7,7 +7,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -607,7 +607,7 @@ ${IKTRACKER_URL}`
             onClick={sendToAccountant} 
             disabled={trips.length === 0 || isExporting}
           >
-            <Mail className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+            <Send className={`w-5 h-5 text-primary ${isExporting ? 'animate-bounce' : ''}`} />
             Envoyer le relevé à mon comptable
           </Button>
         </div>
