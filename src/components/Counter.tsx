@@ -9,17 +9,19 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - counts up to target
+// Animated digit component - smooth odometer effect
 function AnimatedDigit({ 
   digit, 
   delay = 0,
-  duration = 1500 
+  duration = 800 
 }: { 
   digit: string; 
   delay?: number;
   duration?: number;
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
+  const animationRef = useRef<number>();
+  const startTimeRef = useRef<number | null>(null);
   
   useEffect(() => {
     // Skip animation for non-numeric characters
@@ -30,33 +32,41 @@ function AnimatedDigit({
 
     const target = parseInt(digit) || 0;
     
-    // If target is 0, just show 0
     if (target === 0) {
       const timeoutId = setTimeout(() => setDisplayDigit('0'), delay);
       return () => clearTimeout(timeoutId);
     }
-    
-    // Count from 0 up to target value
-    const stepDuration = duration / target;
-    let current = 0;
-    
-    const timeoutId = setTimeout(() => {
-      const interval = setInterval(() => {
-        current++;
-        setDisplayDigit(current.toString());
-        
-        if (current >= target) {
-          clearInterval(interval);
-        }
-      }, stepDuration);
+
+    const animate = (timestamp: number) => {
+      if (startTimeRef.current === null) startTimeRef.current = timestamp;
       
-      return () => clearInterval(interval);
-    }, delay);
+      const elapsed = timestamp - startTimeRef.current - delay;
+      
+      if (elapsed < 0) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic for smooth deceleration
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const currentValue = Math.round(target * easeOut);
+      
+      setDisplayDigit(currentValue.toString());
+      
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
     
-    return () => clearTimeout(timeoutId);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      startTimeRef.current = null;
+    };
   }, [digit, delay, duration]);
 
-  // Non-numeric characters (comma, space)
   if (digit === ',' || digit === ' ' || digit === '.') {
     return <span>{digit}</span>;
   }
@@ -89,8 +99,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   const getDelay = (index: number, totalLength: number) => {
     // Reverse index so rightmost digits animate first
     const reverseIndex = totalLength - 1 - index;
-    // Skip non-numeric characters in delay calculation
-    return reverseIndex * 350; // 350ms delay between each position
+    return reverseIndex * 120; // 120ms delay between each position
   };
 
   const digits = formattedValue.split('');
@@ -118,7 +127,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
                 key={`${key}-${index}`}
                 digit={digit} 
                 delay={getDelay(index, digits.length)}
-                duration={2000}
+                duration={600}
               />
             ))
           ) : (
