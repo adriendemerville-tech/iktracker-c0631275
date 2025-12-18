@@ -47,15 +47,37 @@ export default defineConfig(({ mode }) => ({
             purpose: "maskable",
           },
         ],
+        shortcuts: [
+          {
+            name: "Nouveau trajet",
+            short_name: "Trajet",
+            description: "Ajouter un nouveau trajet",
+            url: "/?action=new-trip",
+            icons: [{ src: "/pwa-icon-192.png", sizes: "192x192" }],
+          },
+          {
+            name: "Mes rapports",
+            short_name: "Rapports",
+            description: "Voir mes rapports kilométriques",
+            url: "/report",
+            icons: [{ src: "/pwa-icon-192.png", sizes: "192x192" }],
+          },
+        ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,woff,ttf,json}"],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/api/, /^\/functions/],
         runtimeCaching: [
+          // Google Fonts stylesheets
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "google-fonts-cache",
+              cacheName: "google-fonts-stylesheets",
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
@@ -65,17 +87,89 @@ export default defineConfig(({ mode }) => ({
               },
             },
           },
+          // Google Fonts webfonts
           {
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "gstatic-fonts-cache",
+              cacheName: "google-fonts-webfonts",
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
               },
               cacheableResponse: {
                 statuses: [0, 200],
+              },
+            },
+          },
+          // Google Maps API - NetworkFirst for freshness
+          {
+            urlPattern: /^https:\/\/maps\.googleapis\.com\/.*/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "google-maps-api",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+              },
+              networkTimeoutSeconds: 10,
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Google Maps tiles - CacheFirst for performance
+          {
+            urlPattern: /^https:\/\/.*\.google\.com\/.*maps.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-maps-tiles",
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Supabase API - NetworkFirst with offline fallback
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "supabase-api",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
+              },
+              networkTimeoutSeconds: 10,
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Images - StaleWhileRevalidate for balance
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "images-cache",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
+          },
+          // Static assets - CacheFirst
+          {
+            urlPattern: /\.(?:js|css|woff2|woff|ttf)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "static-assets",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
             },
           },
