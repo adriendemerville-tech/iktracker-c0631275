@@ -679,22 +679,6 @@ ${IKTRACKER_MENTION}
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
           }}
         />
-        
-        {/* Glassmorphism decorative element - bottom right */}
-        <div 
-          className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%)',
-            filter: 'blur(40px)'
-          }}
-        />
-        <div 
-          className="absolute bottom-4 right-4 w-32 h-32 rounded-full pointer-events-none backdrop-blur-sm"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-            border: '1px solid rgba(255,255,255,0.08)'
-          }}
-        />
         <div className="max-w-lg mx-auto relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <div 
