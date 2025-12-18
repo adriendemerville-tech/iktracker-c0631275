@@ -790,11 +790,10 @@ ${IKTRACKER_URL}`
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto flex justify-center">
           <Button 
             variant="gradient" 
-            size="lg" 
-            className="w-full"
+            size="default"
             onClick={() => setShowNewTrip(true)}
             disabled={vehicles.length === 0}
           >
