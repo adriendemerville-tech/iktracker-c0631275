@@ -226,7 +226,7 @@ const Profile = () => {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
         {/* Account Info Button */}
         <Card 
           className="cursor-pointer hover:bg-accent/50 transition-colors"
@@ -346,7 +346,7 @@ const Profile = () => {
           
           <div className={`grid transition-all duration-300 ease-out ${showPreferencesDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
             <div className="overflow-hidden">
-              <div className="border-t border-border p-4 space-y-6">
+              <div className="border-t border-border p-4 space-y-5">
                 {/* Dark Mode */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -610,7 +610,7 @@ const Profile = () => {
         {/* Download App Button */}
         <Button 
           variant="outline" 
-          className="w-full mt-4"
+          className="w-full"
           onClick={async () => {
             // Track click if user is logged in
             if (user) {
@@ -664,7 +664,7 @@ const Profile = () => {
         )}
 
         {/* App Info */}
-        <div className="text-center text-xs text-muted-foreground pt-4 space-y-2">
+        <div className="text-center text-xs text-muted-foreground pt-2 space-y-2">
           <div className="flex items-center justify-center gap-2">
             <Link to="/terms" className="hover:underline hover:text-foreground transition-colors">
               CGU
