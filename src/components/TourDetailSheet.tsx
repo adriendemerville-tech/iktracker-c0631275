@@ -5,7 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { MapPin, Clock, Truck } from 'lucide-react';
+import { MapPin, Clock, Truck, ArrowRight } from 'lucide-react';
 
 interface TourDetailSheetProps {
   open: boolean;
@@ -52,6 +52,21 @@ export function TourDetailSheet({ open, onOpenChange, stops, totalDistance, date
             </div>
           </div>
         </SheetHeader>
+
+        {/* Departure and arrival cities */}
+        {stops.length > 0 && (
+          <div className="flex items-center justify-center gap-3 py-3 border-b border-border bg-muted/30">
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span className="font-medium text-sm">{stops[0]?.city || stops[0]?.address || 'Départ'}</span>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-accent" />
+              <span className="font-medium text-sm">{stops[stops.length - 1]?.city || stops[stops.length - 1]?.address || 'Arrivée'}</span>
+            </div>
+          </div>
+        )}
 
         <div className="py-4 overflow-y-auto max-h-[calc(85vh-120px)]">
           <div className="space-y-0">
