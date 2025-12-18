@@ -688,31 +688,31 @@ export function NewTripSheet({
 
               {/* Navigation Assistée - Waze & Maps Buttons */}
               {draft.endLocation && (draft.endLocation.address || draft.endLocation.name) && (
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-4 justify-center">
                   <button
                     onClick={handleNavigateWithWaze}
                     disabled={isNavigating}
-                    className="flex items-center justify-center gap-2.5 px-5 py-2.5 
+                    className="flex items-center justify-center gap-3 px-6 py-3 
                       bg-primary/5 hover:bg-primary/10 border border-primary/20 
                       rounded-xl transition-all duration-200 
-                      font-urbanist font-medium text-primary text-base
+                      font-urbanist font-medium text-primary text-lg
                       disabled:opacity-50 disabled:cursor-not-allowed
                       group"
                   >
-                    <WazeIcon className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                    <WazeIcon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
                     <span>Waze</span>
                   </button>
                   <button
                     onClick={handleNavigateWithMaps}
                     disabled={isNavigating}
-                    className="flex items-center justify-center gap-2.5 px-5 py-2.5 
+                    className="flex items-center justify-center gap-3 px-6 py-3 
                       bg-primary/5 hover:bg-primary/10 border border-primary/20 
                       rounded-xl transition-all duration-200 
-                      font-urbanist font-medium text-primary text-base
+                      font-urbanist font-medium text-primary text-lg
                       disabled:opacity-50 disabled:cursor-not-allowed
                       group"
                   >
-                    <Map className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                    <Map className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
                     <span>Maps</span>
                   </button>
                 </div>
@@ -844,13 +844,13 @@ export function NewTripSheet({
                 />
               </div>
 
-              <div className="flex gap-3 justify-center">
-                <Button variant="secondary" className="px-6 py-2.5 h-11 text-base" onClick={() => isEditing ? handleClose() : setStep('end')}>
+              <div className="flex gap-4 justify-center">
+                <Button variant="secondary" className="px-7 py-3 h-12 text-lg" onClick={() => isEditing ? handleClose() : setStep('end')}>
                   {isEditing ? 'Annuler' : '← Retour'}
                 </Button>
                 <Button
                   variant="gradient"
-                  className="px-6 py-2.5 h-11 text-base"
+                  className="px-7 py-3 h-12 text-lg"
                   onClick={handleConfirm}
                 >
                   {isEditing ? 'Modifier' : 'Enregistrer'}
