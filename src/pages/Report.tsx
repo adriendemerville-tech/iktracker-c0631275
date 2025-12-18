@@ -629,7 +629,14 @@ ${IKTRACKER_URL}`
         {/* Past Tours Dropdown */}
         <div className="bg-card rounded-md shadow-md overflow-hidden">
           <button
-            onClick={() => setShowToursDropdown(!showToursDropdown)}
+            onClick={() => {
+              const willClose = showToursDropdown;
+              setShowToursDropdown(!showToursDropdown);
+              // Reset selected tour when closing the dropdown
+              if (willClose) {
+                setSelectedTourId(null);
+              }
+            }}
             className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
           >
             <div className="flex items-center gap-3">
