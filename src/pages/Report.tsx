@@ -599,6 +599,32 @@ ${IKTRACKER_URL}`
           </div>
         </div>
 
+        <div className="space-y-3">
+          {/* Show email input only if not sent yet */}
+          {(!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <Input
+                type="email"
+                placeholder="Email de votre comptable"
+                value={preferences.accountantEmail}
+                onChange={(e) => updatePreference('accountantEmail', e.target.value)}
+                className="flex-1"
+              />
+            </div>
+          )}
+          <Button 
+            variant="secondary" 
+            size="lg" 
+            className="w-full"
+            onClick={sendToAccountant} 
+            disabled={trips.length === 0 || isExporting}
+          >
+            <Send className={`w-5 h-5 text-primary ${isExporting ? 'animate-bounce' : ''}`} />
+            Envoyer le relevé à mon comptable
+          </Button>
+        </div>
+
         {/* Past Tours Dropdown */}
         <div className="bg-card rounded-md shadow-md overflow-hidden">
           <button
@@ -695,31 +721,6 @@ ${IKTRACKER_URL}`
           </div>
         )}
 
-        <div className="space-y-3">
-          {/* Show email input only if not sent yet */}
-          {(!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
-            <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <Input
-                type="email"
-                placeholder="Email de votre comptable"
-                value={preferences.accountantEmail}
-                onChange={(e) => updatePreference('accountantEmail', e.target.value)}
-                className="flex-1"
-              />
-            </div>
-          )}
-          <Button 
-            variant="secondary" 
-            size="lg" 
-            className="w-full"
-            onClick={sendToAccountant} 
-            disabled={trips.length === 0 || isExporting}
-          >
-            <Send className={`w-5 h-5 text-primary ${isExporting ? 'animate-bounce' : ''}`} />
-            Envoyer le relevé à mon comptable
-          </Button>
-        </div>
 
         {Object.keys(groupedByMonth).length === 0 ? (
           <div className="text-center py-12">
