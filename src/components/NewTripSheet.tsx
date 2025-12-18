@@ -844,13 +844,10 @@ export function NewTripSheet({
                 />
               </div>
 
-              <div className="flex gap-4 sm:gap-8 md:gap-16 justify-center flex-wrap">
-                <Button variant="secondary" className="px-4 sm:px-7 py-2.5 sm:py-3 h-10 sm:h-12 text-base sm:text-lg flex-1 min-w-[100px] max-w-[160px]" onClick={() => isEditing ? handleClose() : setStep('end')}>
-                  {isEditing ? 'Annuler' : '← Retour'}
-                </Button>
+              <div className="flex justify-center">
                 <Button
                   variant="gradient"
-                  className="px-4 sm:px-7 py-2.5 sm:py-3 h-10 sm:h-12 text-base sm:text-lg flex-1 min-w-[100px] max-w-[160px]"
+                  className="px-8 sm:px-12 py-2.5 sm:py-3 h-10 sm:h-12 text-base sm:text-lg"
                   onClick={handleConfirm}
                 >
                   {isEditing ? 'Modifier' : 'Enregistrer'}
