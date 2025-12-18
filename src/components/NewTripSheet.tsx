@@ -809,11 +809,7 @@ export function NewTripSheet({
                   <p className="text-xs text-muted-foreground">
                     Calcul de la distance en cours...
                   </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    Ajoutez des coordonnées GPS aux lieux pour un calcul automatique
-                  </p>
-                )}
+                ) : null}
               </div>
 
               <div className="space-y-2">
