@@ -171,22 +171,30 @@ const Landing = () => {
             <img src="/logo.png" alt="Logo IKtracker" className="h-9 w-9 transition-transform duration-300 hover:scale-110" width="36" height="36" />
             <span className="text-xl font-bold text-foreground">IKtracker</span>
           </Link>
-          {!loading && (
-            user ? (
-              <Link to="/app">
-                <Button variant="gradient" size="sm" className="group">
-                  <LayoutDashboard className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Mon tableau de bord
-                </Button>
-              </Link>
-            ) : (
-              <a href="#auth-section">
-                <Button variant="gradient" size="sm">
-                  S'inscrire
-                </Button>
-              </a>
-            )
-          )}
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link to="/expert-comptable" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Expert-Comptable
+            </Link>
+            <Link to="/install" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Installation
+            </Link>
+            {!loading && (
+              user ? (
+                <Link to="/app">
+                  <Button variant="gradient" size="sm" className="group">
+                    <LayoutDashboard className="h-4 w-4 mr-2" aria-hidden="true" />
+                    Mon tableau de bord
+                  </Button>
+                </Link>
+              ) : (
+                <a href="#auth-section">
+                  <Button variant="gradient" size="sm">
+                    S'inscrire
+                  </Button>
+                </a>
+              )
+            )}
+          </div>
         </nav>
       </header>
 
@@ -236,7 +244,7 @@ const Landing = () => {
                 )}
                 style={{ transitionDelay: '300ms' }}
               >
-                L'outil gratuit et facile pour transformer vos rendez-vous en relevés comptables. 
+                Le logiciel français gratuit et facile pour transformer vos rendez-vous en relevés comptables. 
                 Fini les heures perdues sur Excel. Prise en main facile et immédiate.
               </p>
               
