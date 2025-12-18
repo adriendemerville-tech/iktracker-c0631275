@@ -62,7 +62,8 @@ const Index = () => {
     totalKm, 
     totalIK, 
     getTotalAnnualKm,
-    addTrip, 
+    addTrip,
+    deleteTrip,
     addLocation,
     updateLocation,
     deleteLocation,
@@ -850,6 +851,8 @@ ${IKTRACKER_MENTION}
                   key={trip.id} 
                   trip={trip} 
                   vehicle={getVehicle(trip.vehicleId)}
+                  showDelete
+                  onDelete={deleteTrip}
                 />
               ))}
             </div>
