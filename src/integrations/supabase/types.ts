@@ -276,7 +276,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_admin_stats: { Args: never; Returns: Json }
+      get_admin_stats: {
+        Args: { end_date?: string; start_date?: string }
+        Returns: Json
+      }
       get_registrations_by_day: {
         Args: { days_back?: number }
         Returns: {

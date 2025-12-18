@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { 
   LineChart, 
   Line, 
@@ -18,9 +19,10 @@ import {
   Euro, 
   Navigation, 
   Activity,
-  TrendingUp
+  TrendingUp,
+  Calendar
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, subDays, subMonths, subYears, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 interface AdminStatsData {
@@ -30,13 +32,34 @@ interface AdminStatsData {
   total_ik: number;
 }
 
-interface RegistrationDay {
-  day: string;
-  count: number;
-}
+type PeriodFilter = 'week' | 'month' | 'year' | 'all';
+
+const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getStartDate: () => Date }> = {
+  week: { 
+    label: 'Semaine', 
+    daysBack: 7,
+    getStartDate: () => startOfWeek(new Date(), { weekStartsOn: 1 })
+  },
+  month: { 
+    label: 'Mois', 
+    daysBack: 30,
+    getStartDate: () => startOfMonth(new Date())
+  },
+  year: { 
+    label: 'Année', 
+    daysBack: 365,
+    getStartDate: () => startOfYear(new Date())
+  },
+  all: { 
+    label: 'Tout', 
+    daysBack: 3650,
+    getStartDate: () => new Date('2020-01-01')
+  },
+};
 
 export function AdminStats() {
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const [period, setPeriod] = useState<PeriodFilter>('month');
 
   // Track presence for simultaneous visits
   useEffect(() => {
@@ -67,29 +90,46 @@ export function AdminStats() {
     };
   }, []);
 
-  // Fetch admin stats
+  // Get date range based on period
+  const getDateRange = () => {
+    const config = periodConfig[period];
+    const startDate = config.getStartDate();
+    const endDate = new Date();
+    return {
+      start_date: format(startDate, 'yyyy-MM-dd'),
+      end_date: format(endDate, 'yyyy-MM-dd'),
+    };
+  };
+
+  const dateRange = getDateRange();
+
+  // Fetch admin stats with period filter
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin-stats'],
+    queryKey: ['admin-stats', period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_admin_stats');
+      const { data, error } = await supabase.rpc('get_admin_stats', {
+        start_date: dateRange.start_date,
+        end_date: dateRange.end_date,
+      });
       if (error) throw error;
       return data as unknown as AdminStatsData;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
-  // Fetch registrations by day
+  // Fetch registrations by day with period filter
   const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
-    queryKey: ['admin-registrations'],
+    queryKey: ['admin-registrations', period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_registrations_by_day', { days_back: 30 });
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_registrations_by_day', { days_back: daysBack });
       if (error) throw error;
       return (data as unknown as { day: string; count: number }[]).map(d => ({
-        day: format(new Date(d.day), 'dd/MM', { locale: fr }),
+        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
         count: Number(d.count),
       }));
     },
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 60000,
   });
 
   const formatNumber = (num: number) => {
@@ -114,8 +154,41 @@ export function AdminStats() {
     }).format(num) + ' km';
   };
 
+  const getPeriodLabel = () => {
+    switch (period) {
+      case 'week': return 'cette semaine';
+      case 'month': return 'ce mois';
+      case 'year': return 'cette année';
+      case 'all': return 'au total';
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Period filter */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="w-4 h-4" />
+          <span>Période :</span>
+        </div>
+        <ToggleGroup 
+          type="single" 
+          value={period} 
+          onValueChange={(value) => value && setPeriod(value as PeriodFilter)}
+          className="bg-muted/50 p-1 rounded-lg"
+        >
+          {Object.entries(periodConfig).map(([key, config]) => (
+            <ToggleGroupItem 
+              key={key} 
+              value={key}
+              className="px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+            >
+              {config.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </div>
+
       {/* Real-time and main stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Online users - real-time */}
@@ -145,7 +218,7 @@ export function AdminStats() {
             ) : (
               <>
                 <p className="text-2xl font-bold">{formatNumber(stats?.total_users || 0)}</p>
-                <p className="text-xs text-muted-foreground">inscrits actifs</p>
+                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
               </>
             )}
           </CardContent>
@@ -163,7 +236,7 @@ export function AdminStats() {
             ) : (
               <>
                 <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
-                <p className="text-xs text-muted-foreground">trajets créés</p>
+                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
               </>
             )}
           </CardContent>
@@ -181,7 +254,7 @@ export function AdminStats() {
             ) : (
               <>
                 <p className="text-2xl font-bold">{formatCurrency(stats?.total_ik || 0)}</p>
-                <p className="text-xs text-muted-foreground">indemnités</p>
+                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
               </>
             )}
           </CardContent>
@@ -199,7 +272,7 @@ export function AdminStats() {
             ) : (
               <>
                 <p className="text-2xl font-bold">{formatKm(stats?.total_km || 0)}</p>
-                <p className="text-xs text-muted-foreground">parcourus</p>
+                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
               </>
             )}
           </CardContent>
@@ -211,7 +284,7 @@ export function AdminStats() {
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            Nouveaux inscrits (30 derniers jours)
+            Nouveaux inscrits ({periodConfig[period].label.toLowerCase()})
           </CardTitle>
         </CardHeader>
         <CardContent>
