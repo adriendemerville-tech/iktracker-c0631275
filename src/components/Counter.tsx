@@ -13,16 +13,22 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   const [displayValue, setDisplayValue] = useState(0);
   const animationRef = useRef<number>();
   const startTimeRef = useRef<number | null>(null);
-  const prevValueRef = useRef(value);
+  const prevValueRef = useRef<number | null>(null);
+  const isFirstRender = useRef(true);
   
   const duration = variant === 'default' ? 2000 : 1200;
 
   useEffect(() => {
-    const startValue = 0;
+    // On first render, animate from 0
+    // On subsequent renders, animate from previous value
+    const startValue = isFirstRender.current ? 0 : (prevValueRef.current ?? 0);
     const endValue = value;
+    
+    isFirstRender.current = false;
     
     if (endValue === startValue) {
       setDisplayValue(endValue);
+      prevValueRef.current = endValue;
       return;
     }
 
@@ -34,10 +40,12 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
       }
       
       const elapsed = timestamp - startTimeRef.current;
-      const progress = Math.min(elapsed / duration, 1);
+      // Shorter duration when updating from previous value
+      const animDuration = startValue === 0 ? duration : 800;
+      const progress = Math.min(elapsed / animDuration, 1);
       
       // Ease-out exponential for dramatic slowdown at the end
-      const easeOut = 1 - Math.pow(1 - progress, 5);
+      const easeOut = 1 - Math.pow(1 - progress, startValue === 0 ? 5 : 3);
       
       const current = startValue + (endValue - startValue) * easeOut;
       setDisplayValue(current);
@@ -46,6 +54,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
         animationRef.current = requestAnimationFrame(animate);
       } else {
         setDisplayValue(endValue);
+        prevValueRef.current = endValue;
       }
     };
 
