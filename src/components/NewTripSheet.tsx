@@ -531,31 +531,32 @@ export function NewTripSheet({
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="h-[85vh] rounded-t-3xl w-full sm:max-w-[90%] md:max-w-[82%] mx-auto sm:left-[5%] sm:right-[5%] md:left-[9%] md:right-[9%]"
+        className="h-[85vh] rounded-t-3xl w-full max-w-[95vw] sm:max-w-[90%] md:max-w-[82%] mx-auto overflow-x-hidden"
         onInteractOutside={preventCloseOnGoogleAutocomplete}
         onPointerDownOutside={preventCloseOnGoogleAutocomplete}
         onFocusOutside={preventCloseOnGoogleAutocomplete}
       >
-        <SheetHeader className="pb-4">
+        <SheetHeader className="pb-4 px-2">
           <SheetTitle className="text-xl">{isEditing ? 'Modifier le trajet' : 'Nouveau trajet'}</SheetTitle>
           
-          <div className="flex items-center justify-center gap-2 pt-2">
+          {/* Stepper - responsive sizing */}
+          <div className="flex items-center justify-center gap-1 sm:gap-2 pt-2 overflow-hidden">
             {steps.map((s, i) => (
               <div key={s.key} className="flex items-center">
                 <div
                   className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300",
+                    "flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all duration-300 shrink-0",
                     i < currentStepIndex && "bg-accent text-accent-foreground",
                     i === currentStepIndex && "bg-primary text-primary-foreground",
                     i > currentStepIndex && "bg-muted text-muted-foreground"
                   )}
                 >
-                  {i < currentStepIndex ? <Check className="w-4 h-4" /> : s.icon}
+                  {i < currentStepIndex ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : s.icon}
                 </div>
                 {i < steps.length - 1 && (
                   <div
                     className={cn(
-                      "w-6 h-0.5 mx-1 transition-colors",
+                      "w-4 sm:w-6 h-0.5 mx-0.5 sm:mx-1 transition-colors shrink-0",
                       i < currentStepIndex ? "bg-accent" : "bg-muted"
                     )}
                   />
@@ -565,7 +566,7 @@ export function NewTripSheet({
           </div>
         </SheetHeader>
 
-        <div className="overflow-y-auto h-full pb-24 px-1">
+        <div className="overflow-y-auto overflow-x-hidden h-full pb-24 px-3 sm:px-4">
           {step === 'vehicle' && (
             <div className="animate-fade-in space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
