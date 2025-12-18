@@ -59,7 +59,7 @@
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(230 85% 58%) 0%, hsl(265 70% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(220 15% 94%) 0%, hsl(220 20% 88%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 30% 45%) 0%, hsl(220 35% 35%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(160 60% 45%) 0%, hsl(180 50% 40%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 20% 98%) 100%);
 
