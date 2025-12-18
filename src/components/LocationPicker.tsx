@@ -385,7 +385,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
             <Clock className="w-4 h-4" />
             Récents
           </p>
-          <div className="grid gap-2">
+          <div className="grid gap-2 max-w-[70%]">
             {recentLocations.map((location, index) => (
               <button
                 key={`recent-${index}`}
