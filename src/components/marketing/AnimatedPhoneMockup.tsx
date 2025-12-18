@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { cn } from '@/lib/utils';
 import { MapPin, Calendar, Plus, CheckCircle2, ArrowRight, Navigation } from 'lucide-react';
 
@@ -48,7 +48,13 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
     <div className="p-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="IKtracker" className="w-8 h-8 rounded-lg" />
+          <img 
+            src="/logo.png" 
+            alt="IKtracker" 
+            className="w-8 h-8 rounded-lg" 
+            loading="lazy"
+            decoding="async"
+          />
           <span className="font-bold text-foreground">IKtracker</span>
         </div>
         <div className="w-8 h-8 rounded-full bg-primary/20" />
@@ -267,9 +273,11 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
         </div>
       </div>
 
-      {/* Decorative elements */}
+      {/* Decorative elements - using CSS instead of images */}
       <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full blur-2xl animate-pulse" />
       <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
     </div>
   );
 }
+
+export const MemoizedAnimatedPhoneMockup = memo(AnimatedPhoneMockup);
