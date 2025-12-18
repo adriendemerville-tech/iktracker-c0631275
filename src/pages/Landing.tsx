@@ -76,28 +76,28 @@ const Landing = () => {
   const features = [
     {
       icon: Calendar,
-      title: "Suivi des trajets",
-      description: "Synchronisation automatique avec votre calendrier professionnel (Google, Outlook)."
+      title: "Suivi facile des trajets",
+      description: "Synchronisation automatique et facile avec votre calendrier professionnel (Google, Outlook)."
     },
     {
       icon: MapPin,
       title: "Détection automatisée",
-      description: "Calcul de distance précis via Google Maps API. Plus besoin de noter vos km."
+      description: "Calcul de distance précis et facile via Google Maps API. Plus besoin de noter vos km."
     },
     {
       icon: Route,
       title: "Fonction Tournée",
-      description: "Optimisé pour les infirmiers et artisans enchaînant plusieurs clients dans la journée."
+      description: "Utilisation facile, optimisée pour les infirmiers et artisans enchaînant plusieurs clients."
     },
     {
       icon: FileText,
-      title: "Export Comptable",
-      description: "Génération d'un relevé PDF/CSV prêt pour votre expert-comptable en un clic."
+      title: "Export Comptable Facile",
+      description: "Génération facile d'un relevé PDF/CSV prêt pour votre expert-comptable en un clic."
     },
     {
       icon: Smartphone,
       title: "Mobile First",
-      description: "Une expérience fluide sur smartphone, installable comme une application native."
+      description: "Une expérience fluide et facile sur smartphone, installable comme une application native."
     }
   ];
 
@@ -135,28 +135,28 @@ const Landing = () => {
 
   const faqItems = [
     {
-      question: "IKtracker est-il vraiment gratuit ?",
-      answer: "Oui, IKtracker est 100% gratuit pour tous les indépendants. Pas de version premium, pas de frais cachés. Notre objectif est de simplifier la vie des professionnels libéraux."
+      question: "IKtracker est-il vraiment gratuit et facile à utiliser ?",
+      answer: "Oui, IKtracker est 100% gratuit et facile à utiliser pour tous les indépendants. Pas de version premium, pas de frais cachés. Notre objectif est de simplifier la vie des professionnels libéraux avec un outil facile et intuitif."
     },
     {
-      question: "Comment fonctionne la synchronisation avec mon calendrier ?",
-      answer: "IKtracker se connecte à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet. Vous n'avez plus qu'à valider !"
+      question: "La synchronisation avec mon calendrier est-elle facile ?",
+      answer: "Oui, c'est très facile ! IKtracker se connecte facilement à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet. Vous n'avez plus qu'à valider !"
     },
     {
       question: "Les distances calculées sont-elles fiables ?",
-      answer: "Absolument. Nous utilisons l'API Google Maps pour calculer les distances réelles entre vos points de départ et d'arrivée. Les calculs sont précis au kilomètre près."
+      answer: "Absolument. Nous utilisons l'API Google Maps pour calculer facilement les distances réelles entre vos points de départ et d'arrivée. Les calculs sont précis au kilomètre près."
     },
     {
-      question: "Puis-je utiliser IKtracker sur mon téléphone ?",
-      answer: "Oui ! IKtracker est une Progressive Web App (PWA) optimisée pour mobile. Vous pouvez l'installer sur votre écran d'accueil et l'utiliser comme une application native."
+      question: "L'utilisation sur téléphone est-elle facile ?",
+      answer: "Oui, c'est ultra facile ! IKtracker est une Progressive Web App (PWA) optimisée pour mobile. L'installation est facile : ajoutez-la à votre écran d'accueil et utilisez-la comme une application native."
     },
     {
-      question: "Comment exporter mes trajets pour mon comptable ?",
-      answer: "En un clic, générez un relevé PDF ou CSV de vos trajets. Le document inclut toutes les informations nécessaires : dates, adresses, distances et montants calculés selon le barème fiscal."
+      question: "L'export pour mon comptable est-il facile ?",
+      answer: "Très facile ! En un clic, générez un relevé PDF ou CSV de vos trajets. Le document inclut toutes les informations nécessaires : dates, adresses, distances et montants calculés selon le barème fiscal."
     },
     {
       question: "Mes données sont-elles sécurisées ?",
-      answer: "Vos données sont stockées de manière sécurisée et chiffrées. Nous ne partageons jamais vos informations avec des tiers. Vous pouvez supprimer votre compte et vos données à tout moment."
+      answer: "Vos données sont stockées de manière sécurisée et chiffrées. Nous ne partageons jamais vos informations avec des tiers. Vous pouvez facilement supprimer votre compte et vos données à tout moment."
     }
   ];
 
@@ -225,7 +225,7 @@ const Landing = () => {
               >
                 Automatisez vos{" "}
                 <span className="text-gradient">indemnités kilométriques</span>{" "}
-                en un clic
+                facilement en un clic
               </h1>
               <p 
                 className={cn(
@@ -236,8 +236,8 @@ const Landing = () => {
                 )}
                 style={{ transitionDelay: '300ms' }}
               >
-                L'outil gratuit pour transformer vos rendez-vous en relevés comptables. 
-                Fini les heures perdues sur Excel.
+                L'outil gratuit et facile pour transformer vos rendez-vous en relevés comptables. 
+                Fini les heures perdues sur Excel. Prise en main facile et immédiate.
               </p>
               
               {/* Show dashboard button if logged in (on mobile) */}
@@ -258,8 +258,8 @@ const Landing = () => {
                   <CheckCircle2 className="h-4 w-4 text-success" />
                   Pas de carte bancaire
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+                <div className="flex items-center gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                   Installation en 2 min
                 </div>
                 <div className="flex items-center gap-2">
