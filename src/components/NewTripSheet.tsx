@@ -717,12 +717,7 @@ export function NewTripSheet({
               )}>
                 <div className="flex items-center gap-3">
                   <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
-                  <div>
-                    <p className="font-medium">Aller-retour</p>
-                    <p className="text-xs text-muted-foreground">
-                      Double la distance parcourue
-                    </p>
-                  </div>
+                  <p className="font-medium">Aller-retour</p>
                 </div>
                 <Switch 
                   checked={roundTrip} 
