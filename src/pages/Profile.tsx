@@ -465,6 +465,7 @@ const Profile = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
+                    className="font-normal"
                     onClick={resetCounters}
                   >
                     <RotateCcw className="w-4 h-4 mr-2" />
