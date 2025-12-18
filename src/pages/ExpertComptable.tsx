@@ -49,6 +49,9 @@ const AnimatedSection = ({ children, className, delay = 0 }: AnimatedSectionProp
 
 const ExpertComptable = () => {
   useEffect(() => {
+    // Scroll to top on mount
+    window.scrollTo(0, 0);
+    
     // Page title optimisée SEO
     document.title = "IKtracker pour Expert-Comptable | Outil gratuit de gestion des IK en France";
     

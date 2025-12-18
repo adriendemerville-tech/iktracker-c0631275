@@ -20,7 +20,8 @@ import {
   CheckCircle2,
   TrendingUp,
   HelpCircle,
-  LayoutDashboard
+  LayoutDashboard,
+  Building2
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -274,6 +275,21 @@ const Landing = () => {
                   <CheckCircle2 className="h-4 w-4 text-success" />
                   Export PDF/CSV
                 </div>
+              </div>
+
+              {/* CTA Expert-Comptable */}
+              <div className="mt-8 pt-6 border-t border-border/50">
+                <Link to="/expert-comptable">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="w-full sm:w-auto group border-primary/30 hover:border-primary hover:bg-primary/5"
+                  >
+                    <Building2 className="h-5 w-5 mr-2 text-primary" />
+                    Je suis expert-comptable
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </div>
 
