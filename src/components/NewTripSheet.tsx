@@ -9,7 +9,8 @@ import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation } from 'lucide-react';
+import { WazeIcon } from './icons/WazeIcon';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
@@ -146,6 +147,7 @@ export function NewTripSheet({
   const [isBlinking, setIsBlinking] = useState(false);
   const [tripDate, setTripDate] = useState<Date>(new Date());
   const [roundTrip, setRoundTrip] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const distanceInputRef = useRef<HTMLInputElement>(null);
   const purposeInputRef = useRef<HTMLInputElement>(null);
@@ -219,6 +221,52 @@ export function NewTripSheet({
       }
     }
   }, [open, editTrip, vehicles, draft.vehicleId]);
+
+  // Restore draft from localStorage when opening (if not editing)
+  useEffect(() => {
+    if (open && !editTrip) {
+      const savedDraft = localStorage.getItem('iktracker_trip_draft');
+      if (savedDraft) {
+        try {
+          const draftData = JSON.parse(savedDraft);
+          // Only restore if saved within last 24 hours
+          const savedAt = new Date(draftData.savedAt);
+          const hoursSinceSaved = (Date.now() - savedAt.getTime()) / (1000 * 60 * 60);
+          
+          if (hoursSinceSaved < 24) {
+            setDraft({
+              vehicleId: draftData.vehicleId,
+              startLocation: draftData.startLocation,
+              endLocation: draftData.endLocation,
+              startTime: draftData.startTime ? new Date(draftData.startTime) : undefined,
+              endTime: draftData.endTime ? new Date(draftData.endTime) : undefined,
+            });
+            setPurpose(draftData.purpose || '');
+            setManualDistance(draftData.manualDistance || '');
+            setRoundTrip(draftData.roundTrip || false);
+            setTripDate(draftData.tripDate ? new Date(draftData.tripDate) : new Date());
+            
+            // Go to details step if we have enough data
+            if (draftData.vehicleId && draftData.startLocation && draftData.endLocation) {
+              setStep('details');
+              toast.info("Brouillon restauré", {
+                description: "Votre trajet précédent a été restauré.",
+              });
+            }
+            
+            // Clear the draft after restoring
+            localStorage.removeItem('iktracker_trip_draft');
+          } else {
+            // Draft too old, remove it
+            localStorage.removeItem('iktracker_trip_draft');
+          }
+        } catch (e) {
+          console.error('Error restoring draft:', e);
+          localStorage.removeItem('iktracker_trip_draft');
+        }
+      }
+    }
+  }, [open, editTrip]);
 
   const resetForm = () => {
     setStep('vehicle');
@@ -374,6 +422,70 @@ export function NewTripSheet({
     }
 
     handleClose();
+  };
+
+  // Navigate with Waze - saves draft before opening
+  const handleNavigateWithWaze = async () => {
+    if (!draft.endLocation) return;
+    
+    setIsNavigating(true);
+    
+    try {
+      // Get the destination address
+      const destinationAddress = draft.endLocation.address || draft.endLocation.name;
+      
+      if (!destinationAddress) {
+        toast.error("Adresse de destination manquante");
+        setIsNavigating(false);
+        return;
+      }
+      
+      // Save draft to localStorage before navigating
+      const draftData = {
+        vehicleId: draft.vehicleId,
+        startLocation: draft.startLocation,
+        endLocation: draft.endLocation,
+        startTime: draft.startTime?.toISOString(),
+        endTime: draft.endTime?.toISOString(),
+        purpose,
+        manualDistance,
+        roundTrip,
+        tripDate: tripDate.toISOString(),
+        savedAt: new Date().toISOString(),
+      };
+      
+      localStorage.setItem('iktracker_trip_draft', JSON.stringify(draftData));
+      
+      // Encode the address for URL
+      const encodedAddress = encodeURIComponent(destinationAddress);
+      
+      // Open Waze with deep link
+      const wazeUrl = `waze://?q=${encodedAddress}&navigate=yes`;
+      
+      // Fallback to web version if app is not installed
+      const webFallbackUrl = `https://www.waze.com/ul?q=${encodedAddress}&navigate=yes`;
+      
+      // Try to open Waze app first
+      const startTime = Date.now();
+      window.location.href = wazeUrl;
+      
+      // If Waze app doesn't open within 2 seconds, open web version
+      setTimeout(() => {
+        if (Date.now() - startTime < 2500) {
+          window.open(webFallbackUrl, '_blank');
+        }
+      }, 2000);
+      
+      toast.success("Brouillon sauvegardé", {
+        description: "Votre trajet sera conservé à votre retour.",
+      });
+      
+    } catch (error) {
+      console.error('Error navigating with Waze:', error);
+      toast.error("Erreur lors de l'ouverture de Waze");
+    } finally {
+      setIsNavigating(false);
+    }
   };
 
   const steps: { key: Step; label: string; icon: React.ReactNode }[] = [
@@ -544,6 +656,24 @@ export function NewTripSheet({
                   </span>
                 </div>
               </div>
+
+              {/* Navigation Assistée - Waze Button */}
+              {draft.endLocation && (draft.endLocation.address || draft.endLocation.name) && (
+                <button
+                  onClick={handleNavigateWithWaze}
+                  disabled={isNavigating}
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 
+                    bg-primary/5 hover:bg-primary/10 border border-primary/20 
+                    rounded-xl transition-all duration-200 
+                    font-urbanist font-medium text-primary
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    group"
+                >
+                  <WazeIcon className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                  <span>{isNavigating ? 'Ouverture...' : "S'y rendre avec Waze"}</span>
+                  <Navigation className="w-4 h-4 text-primary/60 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              )}
 
               <div className={cn(
                 "flex items-center justify-between p-4 rounded-md transition-colors outline-none ring-0",
