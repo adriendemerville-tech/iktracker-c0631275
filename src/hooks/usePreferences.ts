@@ -10,6 +10,7 @@ export interface Preferences {
   profession: string;
   accountantEmail: string;
   hasSentToAccountant: boolean;
+  counterResetKey: number;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -22,6 +23,7 @@ const defaultPreferences: Preferences = {
   profession: '',
   accountantEmail: '',
   hasSentToAccountant: false,
+  counterResetKey: 0,
 };
 
 export function usePreferences() {
@@ -119,9 +121,14 @@ export function usePreferences() {
     }
   };
 
+  const resetCounters = useCallback(() => {
+    setPreferences(prev => ({ ...prev, counterResetKey: prev.counterResetKey + 1 }));
+  }, []);
+
   return {
     preferences,
     updatePreference,
+    resetCounters,
     isLoading,
   };
 }
