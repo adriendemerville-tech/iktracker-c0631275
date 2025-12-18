@@ -98,6 +98,8 @@ const Index = () => {
     stops: tourStops,
     totalDistanceKm,
     currentPosition,
+    wakeLockActive,
+    lowBattery,
     startTour,
     stopTour,
     clearTour,
@@ -962,6 +964,8 @@ ${IKTRACKER_MENTION}
         isLoading={isTourLoading}
         stops={tourStops}
         totalDistanceKm={totalDistanceKm}
+        wakeLockActive={wakeLockActive}
+        lowBattery={lowBattery}
         onStart={startTour}
         onFinish={handleFinishTour}
         onClear={clearTour}

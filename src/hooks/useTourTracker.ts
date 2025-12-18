@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { reverseGeocode } from '@/lib/geocoding';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
+import { useWakeLock } from '@/hooks/useWakeLock';
 
 export interface TourStop {
   id: string;
@@ -40,6 +41,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const [error, setError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
   const [totalDistanceKm, setTotalDistanceKm] = useState<number>(0); // Total accumulated distance (only increases)
+
+  // Wake Lock integration
+  const wakeLock = useWakeLock();
 
   const watchIdRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -295,6 +299,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         setIsActive(true);
         setIsLoading(false);
 
+        // Request wake lock to keep screen on
+        await wakeLock.request();
+
         // Start periodic position checking
         intervalRef.current = setInterval(checkPosition, trackingInterval);
         
@@ -333,7 +340,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     );
   }, [checkPosition, trackingInterval, checkPermission, permissionStatus]);
 
-  const stopTour = useCallback(() => {
+  const stopTour = useCallback(async () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -344,7 +351,10 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     }
     pendingStopRef.current = null;
     setIsActive(false);
-  }, []);
+    
+    // Release wake lock
+    await wakeLock.release();
+  }, [wakeLock]);
 
   const clearTour = useCallback(() => {
     stopTour();
@@ -379,7 +389,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     stops,
     currentPosition,
     permissionStatus,
-    totalDistanceKm, // Changed from distanceFromLastStop to totalDistanceKm
+    totalDistanceKm,
+    wakeLockActive: wakeLock.isActive,
+    lowBattery: wakeLock.lowBattery,
     startTour,
     stopTour,
     clearTour,

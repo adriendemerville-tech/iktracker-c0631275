@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { TourStop } from '@/hooks/useTourTracker';
-import { MapPin, Clock, Car, Play, History, Timer, Navigation } from 'lucide-react';
+import { MapPin, Clock, Car, Play, History, Timer, Navigation, Sun, BatteryWarning } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TourLogSheetProps {
@@ -12,6 +12,8 @@ interface TourLogSheetProps {
   isLoading: boolean;
   stops: TourStop[];
   totalDistanceKm?: number;
+  wakeLockActive?: boolean;
+  lowBattery?: boolean;
   onStart: () => void;
   onFinish: () => void;
   onClear: () => void;
@@ -27,6 +29,8 @@ export function TourLogSheet({
   isLoading,
   stops,
   totalDistanceKm = 0,
+  wakeLockActive = false,
+  lowBattery = false,
   onStart,
   onFinish,
   onClear,
@@ -96,17 +100,35 @@ export function TourLogSheet({
 
         {/* Stats bar when active */}
         {isActive && stops.length > 0 && (
-          <div className="mb-4 flex items-center justify-center gap-6 py-2 px-3 bg-muted/50 rounded-lg">
-            {elapsedTime && (
-              <div className="flex items-center gap-1.5 text-sm">
-                <Timer className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium">{elapsedTime}</span>
+          <div className="mb-4 space-y-2">
+            <div className="flex items-center justify-center gap-6 py-2 px-3 bg-muted/50 rounded-lg">
+              {elapsedTime && (
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Timer className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-medium">{elapsedTime}</span>
+                </div>
+              )}
+              {totalDistanceKm > 0 && (
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Navigation className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-medium">{totalDistanceKm.toFixed(1)} km</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Wake Lock indicator */}
+            {wakeLockActive && (
+              <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg text-xs">
+                <Sun className="w-3.5 h-3.5" />
+                <span>Mode conduite actif : écran éveillé</span>
               </div>
             )}
-            {totalDistanceKm > 0 && (
-              <div className="flex items-center gap-1.5 text-sm">
-                <Navigation className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium">{totalDistanceKm.toFixed(1)} km</span>
+            
+            {/* Low battery warning */}
+            {lowBattery && (
+              <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-destructive/10 text-destructive rounded-lg text-xs">
+                <BatteryWarning className="w-3.5 h-3.5" />
+                <span>Batterie faible - branchez votre téléphone</span>
               </div>
             )}
           </div>
