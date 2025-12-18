@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -200,6 +200,14 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Download App Button */}
+                <Link to="/install">
+                  <Button variant="outline" className="w-full">
+                    <Download className="w-4 h-4 mr-2" />
+                    Télécharger l'application
+                  </Button>
+                </Link>
 
                 {user && (
                   <Button variant="outline" className="w-full" onClick={handleSignOut}>
