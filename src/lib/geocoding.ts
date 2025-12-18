@@ -1,5 +1,13 @@
 // Reverse geocoding utility using Google Maps Geocoding API
 
+// Common country names to filter/remove (shared across functions)
+const COUNTRY_NAMES = [
+  'France', 'Belgium', 'Belgique', 'Switzerland', 'Suisse', 'Luxembourg',
+  'Germany', 'Allemagne', 'Spain', 'Espagne', 'Italy', 'Italie',
+  'Netherlands', 'Pays-Bas', 'United Kingdom', 'Royaume-Uni', 'UK',
+  'Portugal', 'Austria', 'Autriche', 'Monaco'
+];
+
 export interface GeocodingResult {
   city: string;
   postalCode?: string;
@@ -89,8 +97,7 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
 export function extractCityFromAddress(address: string): string {
   if (!address) return '';
   
-  // Common country names to filter out
-  const countries = ['France', 'Belgium', 'Belgique', 'Switzerland', 'Suisse', 'Luxembourg', 'Germany', 'Allemagne', 'Spain', 'Espagne', 'Italy', 'Italie', 'Netherlands', 'Pays-Bas'];
+  // Use shared country list
   
   // French address format: "street, postal_code city, country"
   // Try to match postal code (5 digits) followed by city name
@@ -98,7 +105,7 @@ export function extractCityFromAddress(address: string): string {
   if (postalCityMatch && postalCityMatch[2]) {
     const city = postalCityMatch[2].trim();
     // Make sure it's not a country
-    if (!countries.some(c => c.toLowerCase() === city.toLowerCase())) {
+    if (!COUNTRY_NAMES.some(c => c.toLowerCase() === city.toLowerCase())) {
       return city;
     }
   }
@@ -112,7 +119,7 @@ export function extractCityFromAddress(address: string): string {
     const cityWithPostal = part.match(/^\d{5}\s+(.+)$/);
     if (cityWithPostal && cityWithPostal[1]) {
       const city = cityWithPostal[1].trim();
-      if (!countries.some(c => c.toLowerCase() === city.toLowerCase())) {
+      if (!COUNTRY_NAMES.some(c => c.toLowerCase() === city.toLowerCase())) {
         return city;
       }
     }
@@ -122,7 +129,7 @@ export function extractCityFromAddress(address: string): string {
   for (let i = parts.length - 2; i >= 0; i--) {
     const part = parts[i].trim();
     // Skip if it's a country
-    if (countries.some(c => c.toLowerCase() === part.toLowerCase())) continue;
+    if (COUNTRY_NAMES.some(c => c.toLowerCase() === part.toLowerCase())) continue;
     // Skip if it's just a postal code
     if (/^\d{5}$/.test(part)) continue;
     // Skip if it looks like a street (contains numbers at the start)
@@ -141,19 +148,13 @@ export function extractCityFromAddress(address: string): string {
 export function removeCountryFromAddress(address: string): string {
   if (!address) return '';
   
-  // Common country names to remove (case insensitive)
-  const countries = [
-    'France', 'Belgium', 'Belgique', 'Switzerland', 'Suisse', 'Luxembourg',
-    'Germany', 'Allemagne', 'Spain', 'Espagne', 'Italy', 'Italie', 
-    'Netherlands', 'Pays-Bas', 'United Kingdom', 'Royaume-Uni', 'UK',
-    'Portugal', 'Austria', 'Autriche', 'Monaco'
-  ];
+  // Use shared country list
   
   // Split by comma and filter out country names
   const parts = address.split(',').map(p => p.trim());
   const filteredParts = parts.filter(part => {
     const normalizedPart = part.toLowerCase().trim();
-    return !countries.some(c => c.toLowerCase() === normalizedPart);
+    return !COUNTRY_NAMES.some(c => c.toLowerCase() === normalizedPart);
   });
   
   return filteredParts.join(', ').trim();
