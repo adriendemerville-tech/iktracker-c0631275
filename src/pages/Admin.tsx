@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -54,6 +54,7 @@ interface UserWithRole {
 
 const Admin = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const { toast } = useToast();
@@ -62,7 +63,7 @@ const Admin = () => {
   const [responseText, setResponseText] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [newAdminId, setNewAdminId] = useState('');
-  const [activeTab, setActiveTab] = useState('stats');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'stats');
 
   // Fetch feedbacks
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({

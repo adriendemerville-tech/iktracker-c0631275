@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Truck, Download, Shield, MessageSquareMore } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Truck, Download, Shield, MessageSquareMore, BarChart3 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -618,6 +618,15 @@ ${IKTRACKER_MENTION}
             </div>
             {isAdmin && (
               <>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => navigate('/admin?tab=stats')}
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  title="Dashboard statistiques"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                </Button>
                 <div className="relative">
                   <Button 
                     variant="ghost" 
