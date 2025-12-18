@@ -272,6 +272,7 @@ const Index = () => {
         const label = isTour ? 'Tournée' : 'Trajet';
         toast.success(`${label} enregistré`, {
           description: `${totalDistance.toFixed(1)} km${isTour ? ` - ${stops.length} étapes` : ''}`,
+          duration: 2500,
         });
         // Close sheet first, wait for it to fully disappear, then stop tour
         setShowTourLog(false);
