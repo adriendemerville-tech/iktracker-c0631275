@@ -6,8 +6,10 @@ import { TripCard } from '@/components/TripCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -17,6 +19,7 @@ export default function Report() {
   const navigate = useNavigate();
   const { trips, vehicles, savedLocations, deleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
+  const { preferences, updatePreference } = usePreferences();
   
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -510,7 +513,10 @@ ${IKTRACKER_URL}`
 
       // Open mailto after a short delay to ensure download started
       setTimeout(() => {
-        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        const mailto = preferences.accountantEmail 
+          ? `mailto:${encodeURIComponent(preferences.accountantEmail)}?subject=${subject}&body=${body}`
+          : `mailto:?subject=${subject}&body=${body}`;
+        window.location.href = mailto;
       }, 500);
 
       toast.success("Fichier téléchargé", {
@@ -564,16 +570,28 @@ ${IKTRACKER_URL}`
           </div>
         </div>
 
-        <Button 
-          variant="secondary" 
-          size="lg" 
-          className="w-full"
-          onClick={sendToAccountant} 
-          disabled={trips.length === 0 || isExporting}
-        >
-          <Mail className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-          Envoyer le relevé à mon comptable
-        </Button>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <Input
+              type="email"
+              placeholder="Email de votre comptable"
+              value={preferences.accountantEmail}
+              onChange={(e) => updatePreference('accountantEmail', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+          <Button 
+            variant="secondary" 
+            size="lg" 
+            className="w-full"
+            onClick={sendToAccountant} 
+            disabled={trips.length === 0 || isExporting}
+          >
+            <Mail className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+            Envoyer le relevé à mon comptable
+          </Button>
+        </div>
 
         {Object.keys(groupedByMonth).length === 0 ? (
           <div className="text-center py-12">
