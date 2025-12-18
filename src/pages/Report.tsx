@@ -618,7 +618,7 @@ ${IKTRACKER_URL}`
           <Button 
             variant="outline" 
             size="lg" 
-            className="max-w-sm w-full bg-white dark:bg-white text-primary hover:bg-white/90 dark:hover:bg-white/90 border-0 shadow-md"
+            className="max-w-sm w-full bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
             onClick={sendToAccountant} 
             disabled={trips.length === 0 || isExporting}
           >
