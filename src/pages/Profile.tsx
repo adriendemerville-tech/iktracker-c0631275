@@ -382,7 +382,7 @@ const Profile = () => {
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis type="number" hide />
                   <Bar dataKey="km" radius={[16, 16, 0, 0]} fill="hsl(25, 95%, 53%)">
-                    <LabelList dataKey="km" position="insideTop" fill="white" fontSize={11} fontWeight={600} offset={4} />
+                    <LabelList dataKey="km" position="center" fill="white" fontSize={11} fontWeight={700} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
