@@ -57,7 +57,10 @@ export function TourButton({
         <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full" />
       )}
       
-      <Car className={cn("w-7 h-7 relative z-10", isLoading && "opacity-50")} />
+      <Car className={cn(
+        "w-7 h-7 relative z-10 transition-colors duration-700 ease-out",
+        isLoading && "opacity-50"
+      )} />
       
       {/* Stops count badge - top right */}
       {isActive && stopsCount > 0 && (
