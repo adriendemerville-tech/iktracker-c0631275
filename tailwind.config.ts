@@ -96,6 +96,14 @@ export default {
           from: { transform: "translateY(100%)", opacity: "0" },
           to: { transform: "translateY(0)", opacity: "1" },
         },
+        "pulse-glow": {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.4" },
+          "50%": { transform: "scale(1.15)", opacity: "0.2" },
+        },
+        "pulse-glow-delayed": {
+          "0%, 100%": { transform: "scale(1.1)", opacity: "0.3" },
+          "50%": { transform: "scale(1.25)", opacity: "0.1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +113,8 @@ export default {
         "slide-up": "slide-up 0.4s ease-out",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
         "counter-up": "counter-up 0.5s ease-out",
+        "pulse-glow": "pulse-glow 2.5s ease-in-out infinite",
+        "pulse-glow-delayed": "pulse-glow-delayed 2.5s ease-in-out infinite 0.5s",
       },
       boxShadow: {
         'glow': 'var(--shadow-glow)',

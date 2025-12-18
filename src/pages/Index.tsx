@@ -18,6 +18,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { TourButton } from '@/components/TourButton';
 import { TourLogSheet } from '@/components/TourLogSheet';
+import { FocusTourView } from '@/components/FocusTourView';
 import { GeolocationBanner } from '@/components/GeolocationBanner';
 import { GeolocationTutorialModal } from '@/components/GeolocationTutorialModal';
 import { Button } from '@/components/ui/button';
@@ -682,7 +683,18 @@ ${IKTRACKER_MENTION}
   };
 
   return (
-    <div className="min-h-screen bg-background font-urbanist">
+    <>
+      {/* Focus Tour View - Full screen immersive mode */}
+      <FocusTourView
+        isActive={isTourActive}
+        totalDistanceKm={totalDistanceKm}
+        stopsCount={tourStops.length}
+        wakeLockActive={wakeLockActive}
+        lowBattery={lowBattery}
+        onStop={() => setShowTourLog(true)}
+      />
+
+      <div className="min-h-screen bg-background font-urbanist">
       {/* Header - Fintech Dark */}
       <header 
         className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"
@@ -1023,6 +1035,8 @@ ${IKTRACKER_MENTION}
         isGpsDisabled={isGpsDisabled}
       />
     </div>
+    </>
+
   );
 };
 
