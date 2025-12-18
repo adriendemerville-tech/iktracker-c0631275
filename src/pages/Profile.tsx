@@ -152,6 +152,20 @@ const Profile = () => {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [showPreferencesDropdown, setShowPreferencesDropdown] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+
+  // Check if counters are at zero (reset date exists and no trips after it)
+  const countersAreZero = useMemo(() => {
+    if (!preferences.counterResetDate) return false;
+    const resetDate = new Date(preferences.counterResetDate);
+    return !trips.some(t => new Date(t.startTime) >= resetDate);
+  }, [preferences.counterResetDate, trips]);
+
+  const handleResetCounters = () => {
+    setIsResetting(true);
+    resetCounters();
+    setTimeout(() => setIsResetting(false), 600);
+  };
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
@@ -466,13 +480,13 @@ const Profile = () => {
                     variant="outline" 
                     size="sm" 
                     className="font-normal"
-                    onClick={resetCounters}
+                    onClick={handleResetCounters}
                   >
-                    <RotateCcw className="w-4 h-4 mr-2" />
+                    <RotateCcw className={`w-4 h-4 mr-2 transition-transform duration-500 ${isResetting ? 'animate-spin' : ''}`} />
                     Réinitialiser les compteurs
                   </Button>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Remettre les compteurs à 0
+                    {countersAreZero ? "Les compteurs sont désormais à zéro" : "Remettre les compteurs à 0"}
                   </p>
                 </div>
               </div>
