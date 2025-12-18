@@ -481,14 +481,6 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                   )}
                 </button>
               )}
-              {onDelete && editingLocation?.id !== location.id && (
-                <button
-                  onClick={(e) => handleDelete(e, location.id)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
             </div>
           ))}
         </div>
