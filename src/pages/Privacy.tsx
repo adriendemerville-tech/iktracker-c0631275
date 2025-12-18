@@ -7,13 +7,62 @@ const Privacy = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Politique de confidentialité | IKtracker';
+    // Page title
+    document.title = 'Politique de confidentialité | IKtracker - Protection des données RGPD';
+    
+    // Meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD, droits d\'accès et sécurité de vos informations de trajets professionnels.');
+      metaDescription.setAttribute('content', 'Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD, droits d\'accès, rectification et suppression. Sécurité de vos informations de trajets professionnels garantie.');
     }
+
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute('href', 'https://iktracker.fr/privacy');
+    }
+
+    // Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogTitle) ogTitle.setAttribute('content', 'Politique de confidentialité | IKtracker');
+    if (ogDescription) ogDescription.setAttribute('content', 'Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD et sécurité garantie.');
+    if (ogUrl) ogUrl.setAttribute('content', 'https://iktracker.fr/privacy');
+
+    // Twitter tags
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', 'Politique de confidentialité | IKtracker');
+    if (twitterDescription) twitterDescription.setAttribute('content', 'Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD et sécurité garantie.');
+
+    // Add JSON-LD structured data
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'privacy-jsonld';
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Politique de confidentialité IKtracker",
+      "description": "Politique de confidentialité et protection des données personnelles de l'application IKtracker",
+      "url": "https://iktracker.fr/privacy",
+      "inLanguage": "fr-FR",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "IKtracker",
+        "url": "https://iktracker.fr"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Protection des données personnelles RGPD"
+      }
+    });
+    document.head.appendChild(script);
+
     return () => {
-      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
+      document.title = 'IKtracker - Calcul automatique et facile des indemnités kilométriques';
+      const jsonld = document.getElementById('privacy-jsonld');
+      if (jsonld) jsonld.remove();
     };
   }, []);
 

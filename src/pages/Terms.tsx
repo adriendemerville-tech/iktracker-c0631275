@@ -7,13 +7,62 @@ const Terms = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Conditions Générales d\'Utilisation | IKtracker';
+    // Page title
+    document.title = 'Conditions Générales d\'Utilisation | IKtracker - CGU Application';
+    
+    // Meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Consultez les CGU d\'IKtracker. Modalités d\'utilisation de l\'application de calcul d\'indemnités kilométriques pour professionnels indépendants.');
+      metaDescription.setAttribute('content', 'Consultez les CGU d\'IKtracker. Modalités d\'utilisation, responsabilités et droits pour l\'application gratuite de calcul d\'indemnités kilométriques pour professionnels indépendants.');
     }
+
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute('href', 'https://iktracker.fr/terms');
+    }
+
+    // Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogTitle) ogTitle.setAttribute('content', 'Conditions Générales d\'Utilisation | IKtracker');
+    if (ogDescription) ogDescription.setAttribute('content', 'Consultez les CGU d\'IKtracker. Modalités d\'utilisation de l\'application gratuite de calcul d\'indemnités kilométriques.');
+    if (ogUrl) ogUrl.setAttribute('content', 'https://iktracker.fr/terms');
+
+    // Twitter tags
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', 'Conditions Générales d\'Utilisation | IKtracker');
+    if (twitterDescription) twitterDescription.setAttribute('content', 'Consultez les CGU d\'IKtracker. Modalités d\'utilisation de l\'application gratuite.');
+
+    // Add JSON-LD structured data
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'terms-jsonld';
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Conditions Générales d'Utilisation IKtracker",
+      "description": "Conditions générales d'utilisation de l'application IKtracker pour le calcul des indemnités kilométriques",
+      "url": "https://iktracker.fr/terms",
+      "inLanguage": "fr-FR",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "IKtracker",
+        "url": "https://iktracker.fr"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Conditions générales d'utilisation"
+      }
+    });
+    document.head.appendChild(script);
+
     return () => {
-      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
+      document.title = 'IKtracker - Calcul automatique et facile des indemnités kilométriques';
+      const jsonld = document.getElementById('terms-jsonld');
+      if (jsonld) jsonld.remove();
     };
   }, []);
 

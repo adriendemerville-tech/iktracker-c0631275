@@ -29,14 +29,76 @@ const Install = () => {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // SEO meta tags
-    document.title = "Installer IKtracker facilement | Guide d'installation PWA facile";
+    // Page title
+    document.title = "Installer IKtracker facilement | Guide d'installation PWA gratuit";
+    
+    // Meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', "Guide facile et complet pour installer IKtracker sur votre téléphone ou navigateur. Instructions faciles pas à pas pour iPhone, Android, Chrome, Firefox, Safari et Edge. Installation facile en 2 minutes.");
+      metaDescription.setAttribute('content', "Guide facile et complet pour installer IKtracker sur votre téléphone ou navigateur. Instructions faciles pas à pas pour iPhone, Android, Chrome, Firefox, Safari et Edge. Installation facile en 2 minutes sans App Store.");
     }
+
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      canonical.setAttribute('href', 'https://iktracker.fr/install');
+    }
+
+    // Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogTitle) ogTitle.setAttribute('content', "Installer IKtracker facilement | Guide PWA");
+    if (ogDescription) ogDescription.setAttribute('content', "Guide facile pour installer IKtracker sur iPhone, Android et ordinateur. Installation en 2 minutes sans App Store.");
+    if (ogUrl) ogUrl.setAttribute('content', 'https://iktracker.fr/install');
+
+    // Twitter tags
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', "Installer IKtracker facilement | Guide PWA");
+    if (twitterDescription) twitterDescription.setAttribute('content', "Guide facile pour installer IKtracker sur iPhone, Android et ordinateur.");
+
+    // Add JSON-LD structured data
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'install-jsonld';
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Comment installer IKtracker facilement",
+      "description": "Guide facile pas à pas pour installer l'application IKtracker sur votre appareil mobile ou ordinateur",
+      "url": "https://iktracker.fr/install",
+      "inLanguage": "fr-FR",
+      "totalTime": "PT2M",
+      "estimatedCost": {
+        "@type": "MonetaryAmount",
+        "currency": "EUR",
+        "value": "0"
+      },
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Ouvrir le navigateur",
+          "text": "Ouvrez Safari sur iPhone/iPad ou Chrome sur Android"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Accéder à IKtracker",
+          "text": "Allez sur iktracker.fr"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Ajouter à l'écran d'accueil",
+          "text": "Utilisez le menu Partager puis 'Sur l'écran d'accueil' sur iOS, ou le menu puis 'Installer l'application' sur Android"
+        }
+      ]
+    });
+    document.head.appendChild(script);
+
     return () => {
       document.title = 'IKtracker - Calcul automatique et facile des indemnités kilométriques';
+      const jsonld = document.getElementById('install-jsonld');
+      if (jsonld) jsonld.remove();
     };
   }, []);
 
