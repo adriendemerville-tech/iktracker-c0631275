@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AnimatedPhoneMockup } from './AnimatedPhoneMockup';
+import { MemoizedAnimatedPhoneMockup } from './AnimatedPhoneMockup';
 
 interface CarouselSlide {
   title: string;
@@ -40,7 +40,7 @@ const defaultSlides: CarouselSlide[] = [
   }
 ];
 
-export function AppCarousel({ slides = defaultSlides, autoPlay = true, interval = 5000, className }: AppCarouselProps) {
+function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interval = 5000, className }: AppCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -53,17 +53,17 @@ export function AppCarousel({ slides = defaultSlides, autoPlay = true, interval 
     return () => clearInterval(timer);
   }, [autoPlay, interval, slides.length]);
 
-  const goToSlide = (index: number) => {
+  const goToSlide = useCallback((index: number) => {
     setCurrentIndex(index);
-  };
+  }, []);
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+  }, [slides.length]);
 
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
-  };
+  }, [slides.length]);
 
   return (
     <div className={cn("relative w-full overflow-hidden", className)}>
@@ -78,9 +78,11 @@ export function AppCarousel({ slides = defaultSlides, autoPlay = true, interval 
             className="min-w-full px-4"
           >
             <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
-              {/* Mockup */}
+              {/* Mockup - only render current and adjacent slides for performance */}
               <div className="flex justify-center">
-                <AnimatedPhoneMockup screen={slide.screen} />
+                {Math.abs(currentIndex - index) <= 1 && (
+                  <MemoizedAnimatedPhoneMockup screen={slide.screen} />
+                )}
               </div>
               
               {/* Text Content */}
@@ -133,3 +135,5 @@ export function AppCarousel({ slides = defaultSlides, autoPlay = true, interval 
     </div>
   );
 }
+
+export const AppCarousel = memo(AppCarouselComponent);
