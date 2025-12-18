@@ -141,7 +141,7 @@ export function FocusTourView({
       <div className="flex items-end justify-center gap-16 w-full">
         {/* KM Counter */}
         <div className="flex flex-col items-center">
-          <span className="font-urbanist text-5xl font-bold text-white tabular-nums">
+          <span className="font-urbanist text-5xl font-bold text-gray-400 tabular-nums">
             {displayedKm.toFixed(1)}
           </span>
           <span className="font-urbanist text-sm text-gray-500 mt-1 uppercase tracking-widest">
