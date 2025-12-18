@@ -10,7 +10,7 @@ export interface Preferences {
   profession: string;
   accountantEmail: string;
   hasSentToAccountant: boolean;
-  counterResetKey: number;
+  counterResetDate: string | null; // ISO date string
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -23,7 +23,7 @@ const defaultPreferences: Preferences = {
   profession: '',
   accountantEmail: '',
   hasSentToAccountant: false,
-  counterResetKey: 0,
+  counterResetDate: null,
 };
 
 export function usePreferences() {
@@ -122,7 +122,7 @@ export function usePreferences() {
   };
 
   const resetCounters = useCallback(() => {
-    setPreferences(prev => ({ ...prev, counterResetKey: prev.counterResetKey + 1 }));
+    setPreferences(prev => ({ ...prev, counterResetDate: new Date().toISOString() }));
   }, []);
 
   return {

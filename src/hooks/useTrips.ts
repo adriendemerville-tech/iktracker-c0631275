@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from '@/types/trip';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { usePreferences } from './usePreferences';
 
 const TRIPS_KEY = 'ik-tracker-trips';
 const LOCATIONS_KEY = 'ik-tracker-locations';
@@ -14,6 +15,7 @@ const defaultLocations: Location[] = [
 
 export function useTrips() {
   const { user } = useAuth();
+  const { preferences } = usePreferences();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [savedLocations, setSavedLocations] = useState<Location[]>(defaultLocations);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -517,11 +519,18 @@ export function useTrips() {
     }
   };
 
-  const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
+  // Filter trips based on counter reset date
+  const filteredTrips = useMemo(() => {
+    if (!preferences.counterResetDate) return trips;
+    const resetDate = new Date(preferences.counterResetDate);
+    return trips.filter(t => new Date(t.startTime) >= resetDate);
+  }, [trips, preferences.counterResetDate]);
+
+  const totalKm = filteredTrips.reduce((sum, t) => sum + t.distance, 0);
 
   const recalculatedTotalIK = () => {
     const vehicleKms = new Map<string, number>();
-    trips.forEach(t => {
+    filteredTrips.forEach(t => {
       const current = vehicleKms.get(t.vehicleId) || 0;
       vehicleKms.set(t.vehicleId, current + t.distance);
     });
