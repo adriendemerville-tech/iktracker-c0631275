@@ -9,19 +9,17 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - smooth odometer effect
+// Animated digit component - realistic odometer effect
 function AnimatedDigit({ 
   digit, 
   delay = 0,
   duration = 800,
-  variant = 'default',
-  rolls = 2 // Number of full 0-9 cycles before landing on target
+  variant = 'default'
 }: { 
   digit: string; 
   delay?: number;
   duration?: number;
   variant?: 'default' | 'accent';
-  rolls?: number;
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -37,13 +35,17 @@ function AnimatedDigit({
 
     const target = parseInt(digit) || 0;
     
-    if (target === 0 && rolls === 0) {
-      const timeoutId = setTimeout(() => setDisplayDigit('0'), delay);
+    if (target === 0) {
+      const timeoutId = setTimeout(() => {
+        setDisplayDigit('0');
+      }, delay);
       return () => clearTimeout(timeoutId);
     }
 
-    // Total steps: rolls * 10 (full cycles) + target (final position)
-    const totalSteps = rolls * 10 + target;
+    // Count from 0 to target, repeating the sequence multiple times for effect
+    // E.g., for target 3: 0,1,2,3,0,1,2,3,0,1,2,3 (3 full cycles)
+    const cycles = variant === 'default' ? 3 : 2;
+    const totalSteps = target * cycles;
 
     const animate = (timestamp: number) => {
       if (startTimeRef.current === null) {
@@ -63,8 +65,9 @@ function AnimatedDigit({
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const currentStep = Math.round(totalSteps * easeOut);
       
-      // Display modulo 10 to cycle through 0-9
-      setDisplayDigit((currentStep % 10).toString());
+      // Cycle within 0 to target range
+      const displayValue = currentStep % (target + 1);
+      setDisplayDigit(displayValue.toString());
       
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
@@ -81,7 +84,7 @@ function AnimatedDigit({
       startTimeRef.current = null;
       setIsAnimating(false);
     };
-  }, [digit, delay, duration, rolls]);
+  }, [digit, delay, duration, variant]);
 
   if (digit === ',' || digit === ' ' || digit === '.') {
     return <span>{digit}</span>;
@@ -149,7 +152,6 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
               delay={getDelay(index, digits.length)}
               duration={variant === 'default' ? 1200 : 600}
               variant={variant}
-              rolls={variant === 'default' ? 3 : 1}
             />
           ))}
         </span>
