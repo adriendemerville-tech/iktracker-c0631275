@@ -529,7 +529,7 @@ export function useTrips() {
 
   const totalKm = filteredTrips.reduce((sum, t) => sum + t.distance, 0);
 
-  const recalculatedTotalIK = () => {
+  const recalculatedTotalIK = useMemo(() => {
     const vehicleKms = new Map<string, number>();
     filteredTrips.forEach(t => {
       const current = vehicleKms.get(t.vehicleId) || 0;
@@ -544,14 +544,14 @@ export function useTrips() {
       }
     });
     return total;
-  };
+  }, [filteredTrips, vehicles]);
 
   return {
     trips,
     savedLocations,
     vehicles,
     totalKm,
-    totalIK: recalculatedTotalIK(),
+    totalIK: recalculatedTotalIK,
     loading,
     getTotalAnnualKm,
     addTrip,
