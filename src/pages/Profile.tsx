@@ -477,18 +477,39 @@ const Profile = () => {
             </div>
             {/* Animated car */}
             <div className="flex flex-col items-center">
-              <div className="animate-car-bounce relative">
-                <img src="/logo-camion.png" alt="" className="w-10 h-10 object-contain" />
-                {/* Animated wheels */}
-                <div className="absolute bottom-0.5 left-1.5 w-2 h-2 rounded-full border-2 border-muted-foreground/50 animate-wheel-spin" />
-                <div className="absolute bottom-0.5 right-1.5 w-2 h-2 rounded-full border-2 border-muted-foreground/50 animate-wheel-spin" />
+              <div className="animate-car-bounce">
+                <svg width="48" height="28" viewBox="0 0 48 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Car body */}
+                  <path d="M6 18C6 16 8 14 10 14H14L18 8H32L38 14H40C42 14 44 16 44 18V22H6V18Z" fill="#3B82F6" />
+                  {/* Roof */}
+                  <path d="M14 14L18 8H32L38 14H14Z" fill="#60A5FA" />
+                  {/* Windows */}
+                  <path d="M16 13L19 9H24V13H16Z" fill="#BFDBFE" />
+                  <path d="M26 13V9H31L34 13H26Z" fill="#BFDBFE" />
+                  {/* Headlights */}
+                  <rect x="42" y="16" width="3" height="2" rx="0.5" fill="#FDE047" />
+                  <rect x="3" y="16" width="3" height="2" rx="0.5" fill="#FCA5A5" />
+                  {/* Wheels with spinning animation */}
+                  <g className="animate-wheel-spin origin-center" style={{ transformOrigin: '12px 24px' }}>
+                    <circle cx="12" cy="24" r="4" fill="#1E293B" />
+                    <circle cx="12" cy="24" r="2" fill="#64748B" />
+                    <line x1="12" y1="20" x2="12" y2="22" stroke="#94A3B8" strokeWidth="1" />
+                    <line x1="12" y1="26" x2="12" y2="28" stroke="#94A3B8" strokeWidth="1" />
+                  </g>
+                  <g className="animate-wheel-spin origin-center" style={{ transformOrigin: '36px 24px' }}>
+                    <circle cx="36" cy="24" r="4" fill="#1E293B" />
+                    <circle cx="36" cy="24" r="2" fill="#64748B" />
+                    <line x1="36" y1="20" x2="36" y2="22" stroke="#94A3B8" strokeWidth="1" />
+                    <line x1="36" y1="26" x2="36" y2="28" stroke="#94A3B8" strokeWidth="1" />
+                  </g>
+                </svg>
               </div>
               {/* Road */}
-              <div className="w-14 h-1 bg-muted-foreground/30 rounded-full mt-0.5">
+              <div className="w-14 h-1.5 bg-muted-foreground/40 rounded-full -mt-1">
                 <div className="w-full h-full flex items-center justify-around">
-                  <div className="w-1.5 h-0.5 bg-amber-400 rounded-full animate-road-dash" />
-                  <div className="w-1.5 h-0.5 bg-amber-400 rounded-full animate-road-dash" style={{ animationDelay: '0.3s' }} />
-                  <div className="w-1.5 h-0.5 bg-amber-400 rounded-full animate-road-dash" style={{ animationDelay: '0.6s' }} />
+                  <div className="w-2 h-0.5 bg-amber-400 rounded-full animate-road-dash" />
+                  <div className="w-2 h-0.5 bg-amber-400 rounded-full animate-road-dash" style={{ animationDelay: '0.3s' }} />
+                  <div className="w-2 h-0.5 bg-amber-400 rounded-full animate-road-dash" style={{ animationDelay: '0.6s' }} />
                 </div>
               </div>
             </div>
