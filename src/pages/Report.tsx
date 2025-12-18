@@ -7,7 +7,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send, Truck, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -634,7 +634,7 @@ ${IKTRACKER_URL}`
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Truck className="w-5 h-5 text-primary" />
+                <Car className="w-5 h-5 text-primary" />
               </div>
               <div className="text-left">
                 <p className="font-medium">Tournées passées</p>
@@ -671,7 +671,7 @@ ${IKTRACKER_URL}`
                   ))
                 ) : (
                   <div className="text-center py-6 text-muted-foreground">
-                    <Truck className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <Car className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Aucune tournée enregistrée</p>
                     <p className="text-xs mt-1">Démarrez une tournée depuis l'accueil</p>
                   </div>
