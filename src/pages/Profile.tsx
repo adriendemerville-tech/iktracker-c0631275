@@ -182,6 +182,14 @@ const Profile = () => {
     return months.map(m => ({ month: m.month, km: Math.round(m.km) }));
   }, [trips]);
 
+  // Calculate dynamic Y-axis max with minimum threshold for visual balance
+  const chartMaxKm = useMemo(() => {
+    const maxKm = Math.max(...monthlyKmData.map(d => d.km), 0);
+    const minCeiling = 200; // Minimum ceiling to prevent bars from being too tall with small values
+    const padding = 1.2; // 20% padding above max value
+    return Math.max(Math.ceil(maxKm * padding / 50) * 50, minCeiling);
+  }, [monthlyKmData]);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth', { replace: true });
@@ -495,7 +503,7 @@ const Profile = () => {
                     </filter>
                   </defs>
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis type="number" hide />
+                  <YAxis type="number" hide domain={[0, chartMaxKm]} />
                   <Bar 
                     dataKey="km"
                     shape={<KmBarShape />}
