@@ -164,7 +164,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
                 onDelete(trip.id);
               }}
             >
-              <X className="w-1.5 h-1.5" />
+              <X className="w-1 h-1" />
             </Button>
           )}
         </div>
