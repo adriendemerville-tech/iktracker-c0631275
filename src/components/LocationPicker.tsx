@@ -378,6 +378,30 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         {geoLoading ? 'Localisation...' : 'Utiliser ma position'}
       </Button>
 
+      {/* Recent locations */}
+      {recentLocations.length > 0 && (
+        <div className="flex flex-col gap-2 w-full">
+          {recentLocations.map((location, index) => (
+            <button
+              key={`recent-${index}`}
+              onClick={() => onSelect(location)}
+              className="flex items-center gap-3 p-3 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors text-left w-full min-w-0"
+            >
+              <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <p className="font-medium truncate">{location.name}</p>
+                {location.address && (
+                  <p className="text-sm text-muted-foreground truncate">{location.address}</p>
+                )}
+              </div>
+              {location.lat && location.lng && (
+                <MapPin className="w-3 h-3 text-accent shrink-0" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="space-y-2 w-full">
         <p className="text-sm font-medium text-muted-foreground">Lieux enregistrés</p>
         <p className="text-xs text-muted-foreground">Appui long pour modifier</p>
