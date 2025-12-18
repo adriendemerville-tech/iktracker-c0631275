@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Button } from './ui/button';
 import { TourStop } from '@/hooks/useTourTracker';
-import { MapPin, Clock, Play, History, Timer, Navigation, Route } from 'lucide-react';
+import { MapPin, Clock, Car, Play, History, Timer, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TourLogSheetProps {
@@ -88,7 +88,8 @@ export function TourLogSheet({
         )}
       >
         <SheetHeader className="pb-4 pt-2">
-          <SheetTitle className="text-base">
+          <SheetTitle className="text-base flex items-center gap-2">
+            <Car className="w-5 h-5 text-primary" />
             {isHistory ? 'Dernière tournée' : 'Tournée'}
           </SheetTitle>
         </SheetHeader>
@@ -114,6 +115,9 @@ export function TourLogSheet({
         {/* Single stop - compact centered view */}
         {!showFullList && stops.length === 1 && (
           <div className="mb-4 flex flex-col items-center text-center">
+            <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mb-2 shadow-md">
+              <MapPin className="w-5 h-5" />
+            </div>
             <p className="text-sm font-medium">{stops[0].city || 'Point de départ'}</p>
             <p className="text-xs text-muted-foreground">
               Démarré à {formatTime(stops[0].timestamp)}
@@ -187,7 +191,7 @@ export function TourLogSheet({
               </div>
             ) : (
               <div className="text-center py-8">
-                <Route className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+                <Car className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">Aucune étape pour le moment</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {isActive
