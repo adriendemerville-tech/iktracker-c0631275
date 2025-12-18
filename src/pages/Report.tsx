@@ -615,13 +615,13 @@ ${IKTRACKER_URL}`
             </div>
           )}
           <Button 
-            variant="secondary" 
+            variant="outline" 
             size="lg" 
-            className="max-w-sm w-full"
+            className="max-w-sm w-full bg-white dark:bg-white text-primary hover:bg-white/90 dark:hover:bg-white/90 border-0 shadow-md"
             onClick={sendToAccountant} 
             disabled={trips.length === 0 || isExporting}
           >
-            <Send className={`w-5 h-5 text-primary ${isExporting ? 'animate-bounce' : ''}`} />
+            <Send className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
             Envoyer le relevé à mon comptable
           </Button>
         </div>
