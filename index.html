@@ -65,17 +65,32 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "IKtracker",
-      "alternateName": "IK Tracker - Indemnités Kilométriques Facile",
+      "alternateName": ["IK Tracker", "Indemnités Kilométriques Tracker", "IK Tracker Facile"],
       "applicationCategory": "BusinessApplication",
       "applicationSubCategory": "Comptabilité et Finance",
       "operatingSystem": "Web, iOS, Android",
       "offers": {
         "@type": "Offer",
-        "price": "0",
+        "price": "0.00",
         "priceCurrency": "EUR",
-        "availability": "https://schema.org/InStock"
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2025-12-31"
       },
-      "description": "Application gratuite et facile de suivi des indemnités kilométriques pour les indépendants, libéraux et artisans. Synchronisation facile du calendrier, calcul automatique des distances, export PDF/CSV facile. Prise en main facile et immédiate.",
+      "author": {
+        "@type": "Organization",
+        "name": "IKtracker",
+        "url": "https://iktracker.fr"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "IKtracker",
+        "url": "https://iktracker.fr",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://iktracker.fr/logo-camion-512.png"
+        }
+      },
+      "description": "Solution SaaS intelligente et facile pour le calcul et la gestion des indemnités kilométriques. Automatisation via Google Calendar et Outlook, export conforme PDF/CSV pour la comptabilité. Application gratuite pour indépendants, libéraux et artisans.",
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
@@ -84,13 +99,15 @@
         "worstRating": "1"
       },
       "featureList": [
-        "Synchronisation facile calendrier Google et Outlook",
         "Calcul automatique et facile des distances via Google Maps",
-        "Fonction tournée facile pour plusieurs clients",
-        "Export PDF et CSV facile",
+        "Synchronisation facile calendrier Google Calendar et Outlook",
+        "Gestion de flotte de véhicules avec puissance fiscale",
+        "Exports PDF et CSV pour experts-comptables",
+        "Barème kilométrique officiel 2025 à jour",
+        "Fonction tournée pour infirmiers et artisans",
         "Application mobile PWA facile à installer",
         "Interface intuitive et prise en main facile",
-        "Barème IK 2025 intégré"
+        "Mode hors-ligne disponible"
       ],
       "screenshot": "https://iktracker.fr/logo-camion-512.png",
       "softwareVersion": "1.0",
@@ -99,7 +116,9 @@
       "installUrl": "https://iktracker.fr/install",
       "permissions": "Accès au calendrier (optionnel)",
       "storageRequirements": "Moins de 5 MB",
-      "memoryRequirements": "Aucune configuration requise"
+      "memoryRequirements": "Aucune configuration requise",
+      "inLanguage": "fr-FR",
+      "isAccessibleForFree": true
     }
     </script>
     <script type="application/ld+json">
