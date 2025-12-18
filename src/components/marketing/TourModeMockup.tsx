@@ -10,6 +10,7 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
   const [stopsCount, setStopsCount] = useState(1);
   const [displayedKm, setDisplayedKm] = useState(0);
   const [isPulsing, setIsPulsing] = useState(false);
+  const [isKmPulsing, setIsKmPulsing] = useState(false);
   const prevStopsRef = useRef(stopsCount);
   
   // Animate stops count with pulse
@@ -26,6 +27,15 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
       setIsPulsing(true);
       const timeout = setTimeout(() => setIsPulsing(false), 300);
       prevStopsRef.current = stopsCount;
+      return () => clearTimeout(timeout);
+    }
+  }, [stopsCount]);
+
+  // Trigger km pulse when stops change
+  useEffect(() => {
+    if (stopsCount !== prevStopsRef.current) {
+      setIsKmPulsing(true);
+      const timeout = setTimeout(() => setIsKmPulsing(false), 600);
       return () => clearTimeout(timeout);
     }
   }, [stopsCount]);
@@ -132,7 +142,12 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
             <div className="flex items-end justify-center gap-10 w-full mt-auto">
               {/* KM Counter */}
               <div className="flex flex-col items-center">
-                <span className="font-urbanist text-3xl font-bold text-zinc-400 tabular-nums">
+                <span 
+                  className={cn(
+                    "font-urbanist text-3xl font-bold text-zinc-400 tabular-nums transition-all duration-500 ease-out",
+                    isKmPulsing && "scale-110 text-zinc-300"
+                  )}
+                >
                   62.0
                 </span>
                 <span className="font-urbanist text-xs text-zinc-500 uppercase tracking-widest">
