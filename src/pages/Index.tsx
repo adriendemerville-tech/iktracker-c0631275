@@ -7,6 +7,7 @@ import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useGeolocationPermission } from '@/hooks/useGeolocationPermission';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { reverseGeocode } from '@/lib/geocoding';
 import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
@@ -17,6 +18,8 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { TourButton } from '@/components/TourButton';
 import { TourLogSheet } from '@/components/TourLogSheet';
+import { GeolocationBanner } from '@/components/GeolocationBanner';
+import { GeolocationTutorialModal } from '@/components/GeolocationTutorialModal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { InstallBanner } from '@/components/InstallBanner';
@@ -40,6 +43,15 @@ const Index = () => {
   const { preferences } = usePreferences();
   const { unreadResponsesCount } = useFeedback();
   const { isAdmin } = useAdmin();
+  const {
+    showBanner: showGeoBanner,
+    showTutorialModal,
+    isGpsDisabled,
+    isLoading: geoPermissionLoading,
+    requestPermission,
+    dismissBanner,
+    closeTutorialModal,
+  } = useGeolocationPermission();
   
   // Fetch pending feedbacks count for admins
   const { data: pendingFeedbacksCount = 0 } = useQuery({
@@ -783,6 +795,15 @@ ${IKTRACKER_MENTION}
 
       {/* Main content */}
       <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-4 space-y-5 pb-32">
+        {/* Geolocation Banner */}
+        {showGeoBanner && (
+          <GeolocationBanner
+            onActivate={requestPermission}
+            onDismiss={dismissBanner}
+            isLoading={geoPermissionLoading}
+          />
+        )}
+
         {/* Vehicles section */}
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -990,6 +1011,13 @@ ${IKTRACKER_MENTION}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Geolocation Tutorial Modal */}
+      <GeolocationTutorialModal
+        open={showTutorialModal}
+        onClose={closeTutorialModal}
+        isGpsDisabled={isGpsDisabled}
+      />
     </div>
   );
 };
