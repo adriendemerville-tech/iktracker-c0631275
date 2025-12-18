@@ -19,6 +19,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Install from "./pages/Install";
 import ExpertComptable from "./pages/ExpertComptable";
+import ModeTournee from "./pages/ModeTournee";
+import Calendrier from "./pages/Calendrier";
 import Offline from "./pages/Offline";
 import NotFound from "./pages/NotFound";
 
@@ -106,6 +108,8 @@ const AppContent = () => {
         <Route path="/terms" element={<Terms />} />
         <Route path="/install" element={<Install />} />
         <Route path="/expert-comptable" element={<ExpertComptable />} />
+        <Route path="/mode-tournee" element={<ModeTournee />} />
+        <Route path="/calendrier" element={<Calendrier />} />
         <Route path="/offline" element={<Offline />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

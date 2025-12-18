@@ -3,53 +3,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AuthForm } from "@/components/AuthForm";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { cn } from "@/lib/utils";
-import { PWAPromoSection } from "@/components/PWAPromoSection";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
+import { AppCarousel } from "@/components/marketing/AppCarousel";
+import { TourModeDemo } from "@/components/marketing/TourModeDemo";
+import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
 import { 
-  Calendar, 
-  MapPin, 
-  Route, 
-  FileText, 
-  Smartphone, 
-  Clock, 
   ArrowRight,
   CheckCircle2,
-  TrendingUp,
-  HelpCircle,
   LayoutDashboard,
-  Building2
+  Car,
+  Calculator,
+  MapPin,
+  Calendar,
+  Route,
+  FileText,
+  Check,
+  Star
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-interface AnimatedSectionProps {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}
-
-const AnimatedSection = ({ children, className, delay = 0 }: AnimatedSectionProps) => {
-  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
-  
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "transition-all duration-700 ease-out",
-        isVisible 
-          ? "opacity-100 translate-y-0" 
-          : "opacity-0 translate-y-8",
-        className
-      )}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-};
 
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -57,13 +30,11 @@ const Landing = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       if (event === 'SIGNED_IN' && session) {
@@ -74,237 +45,57 @@ const Landing = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const features = [
-    {
-      icon: Calendar,
-      title: "Suivi facile des trajets",
-      description: "Synchronisation automatique et facile avec votre calendrier professionnel (Google, Outlook)."
-    },
-    {
-      icon: MapPin,
-      title: "Détection automatisée",
-      description: "Calcul de distance précis et facile via Google Maps API. Plus besoin de noter vos km."
-    },
-    {
-      icon: Route,
-      title: "Fonction Tournée",
-      description: "Utilisation facile, optimisée pour les infirmiers et artisans enchaînant plusieurs clients."
-    },
-    {
-      icon: FileText,
-      title: "Export Comptable Facile",
-      description: "Génération facile d'un relevé PDF/CSV prêt pour votre expert-comptable en un clic."
-    },
-    {
-      icon: Smartphone,
-      title: "Mobile First",
-      description: "Une expérience fluide et facile sur smartphone, installable comme une application native."
-    }
-  ];
-
-  const ikBareme = [
-    { cv: "3 CV et moins", jusqu5000: "0,529 €", de5001a20000: "0,316 €", plus20000: "0,370 €" },
-    { cv: "4 CV", jusqu5000: "0,606 €", de5001a20000: "0,340 €", plus20000: "0,407 €" },
-    { cv: "5 CV", jusqu5000: "0,636 €", de5001a20000: "0,357 €", plus20000: "0,427 €" },
-    { cv: "6 CV", jusqu5000: "0,665 €", de5001a20000: "0,374 €", plus20000: "0,447 €" },
-    { cv: "7 CV et plus", jusqu5000: "0,697 €", de5001a20000: "0,394 €", plus20000: "0,470 €" },
-  ];
-
-  const testimonials = [
-    {
-      name: "Marie Dupont",
-      role: "Infirmière libérale",
-      initials: "MD",
-      quote: "Je passais 2h chaque dimanche à refaire mes trajets. Maintenant, tout est automatique ! Mon comptable est ravi.",
-      color: "bg-primary"
-    },
-    {
-      name: "Thomas Bernard",
-      role: "Artisan plombier",
-      initials: "TB",
-      quote: "La fonction tournée est parfaite pour mes journées avec 6-7 clients. Je ne perds plus un seul kilomètre.",
-      color: "bg-accent"
-    },
-    {
-      name: "Sophie Martin",
-      role: "Consultante RH",
-      initials: "SM",
-      quote: "L'export PDF est impeccable. Mon expert-comptable m'a félicitée pour la clarté de mes relevés !",
-      color: "bg-success"
-    }
-  ];
-
-  const faqItems = [
-    {
-      question: "IKtracker est-il vraiment gratuit et facile à utiliser ?",
-      answer: "Oui, IKtracker est 100% gratuit et facile à utiliser pour tous les indépendants. Pas de version premium, pas de frais cachés. Notre objectif est de simplifier la vie des professionnels libéraux avec un outil facile et intuitif."
-    },
-    {
-      question: "La synchronisation avec mon calendrier est-elle facile ?",
-      answer: "Oui, c'est très facile ! IKtracker se connecte facilement à votre calendrier Google ou Outlook. Chaque rendez-vous avec une adresse est automatiquement détecté et converti en trajet. Vous n'avez plus qu'à valider !"
-    },
-    {
-      question: "Les distances calculées sont-elles fiables ?",
-      answer: "Absolument. Nous utilisons l'API Google Maps pour calculer facilement les distances réelles entre vos points de départ et d'arrivée. Les calculs sont précis au kilomètre près."
-    },
-    {
-      question: "L'utilisation sur téléphone est-elle facile ?",
-      answer: "Oui, c'est ultra facile ! IKtracker est une Progressive Web App (PWA) optimisée pour mobile. L'installation est facile : ajoutez-la à votre écran d'accueil et utilisez-la comme une application native."
-    },
-    {
-      question: "L'export pour mon comptable est-il facile ?",
-      answer: "Très facile ! En un clic, générez un relevé PDF ou CSV de vos trajets. Le document inclut toutes les informations nécessaires : dates, adresses, distances et montants calculés selon le barème fiscal."
-    },
-    {
-      question: "Mes données sont-elles sécurisées ?",
-      answer: "Vos données sont stockées de manière sécurisée et chiffrées. Nous ne partageons jamais vos informations avec des tiers. Vous pouvez facilement supprimer votre compte et vos données à tout moment."
-    }
-  ];
-
-  const heroAnimation = useScrollAnimation({ threshold: 0.1 });
-
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden">
-      {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="banner">
-        <nav className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between" aria-label="Navigation principale">
-          <Link to="/" className="flex items-center gap-2" aria-label="IKtracker - Accueil">
-            <img src="/logo.png" alt="Logo IKtracker" className="h-8 w-8 md:h-9 md:w-9 transition-transform duration-300 hover:scale-110" width="36" height="36" />
-            <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link to="/expert-comptable" className="hidden md:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Expert-Comptable
-            </Link>
-            <Link to="/install" className="hidden md:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Installation
-            </Link>
-            {!loading && (
-              user ? (
-                <Link to="/app">
-                  <Button variant="gradient" size="sm" className="group text-xs sm:text-sm">
-                    <LayoutDashboard className="h-4 w-4 mr-1 sm:mr-2" aria-hidden="true" />
-                    <span className="hidden sm:inline">Mon tableau de bord</span>
-                    <span className="sm:hidden">Dashboard</span>
-                  </Button>
-                </Link>
-              ) : (
-                <a href="#auth-section">
-                  <Button variant="gradient" size="sm" className="text-xs sm:text-sm">
-                    S'inscrire
-                  </Button>
-                </a>
-              )
-            )}
-          </div>
-        </nav>
-      </header>
-
-      <main>
+      <title>IKtracker - Suivi kilométrique automatique et indemnités IK</title>
+      <meta name="description" content="Automatisez vos indemnités kilométriques. Application gratuite pour freelances et indépendants. Calcul IK selon barème fiscal 2024." />
+      
+      <MarketingNav />
 
       {/* Hero Section */}
-      <section className="pt-28 pb-16 md:pt-32 md:pb-20 px-4 relative overflow-hidden">
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div 
-          ref={heroAnimation.ref}
-          className={cn(
-            "container mx-auto relative z-10 transition-all duration-700 ease-out",
-            heroAnimation.isVisible 
-              ? "opacity-100 translate-y-0" 
-              : "opacity-0 translate-y-8"
-          )}
-        >
+        <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text content */}
-            <div className="text-center lg:text-left">
-              <div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
-                style={{ transitionDelay: '100ms' }}
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                100% Gratuit pour les indépendants
+            <div className="text-center lg:text-left animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Star className="h-4 w-4" />
+                100% Gratuit
               </div>
-              <h1 
-                className={cn(
-                  "text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 transition-all duration-700 ease-out",
-                  heroAnimation.isVisible 
-                    ? "opacity-100 translate-y-0" 
-                    : "opacity-0 translate-y-8"
-                )}
-                style={{ transitionDelay: '200ms' }}
-              >
-                Automatisez vos{" "}
-                <span className="text-gradient">indemnités kilométriques</span>{" "}
-                facilement en un clic
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
+                Vos trajets pro.
+                <br />
+                <span className="text-gradient">Automatiquement.</span>
               </h1>
-              <p 
-                className={cn(
-                  "text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 transition-all duration-700 ease-out",
-                  heroAnimation.isVisible 
-                    ? "opacity-100 translate-y-0" 
-                    : "opacity-0 translate-y-8"
-                )}
-                style={{ transitionDelay: '300ms' }}
-              >
-                Le logiciel français gratuit et facile pour transformer vos rendez-vous en relevés comptables. 
-                Fini les heures perdues sur Excel. Prise en main facile et immédiate.
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
+                Enregistrez, calculez et exportez vos indemnités kilométriques en quelques clics.
               </p>
               
-              {/* Show dashboard button if logged in (on mobile) */}
               {user && (
                 <div className="lg:hidden mb-8">
                   <Link to="/app">
-                    <Button size="xl" variant="gradient" className="w-full sm:w-auto group">
+                    <Button size="lg" variant="gradient" className="w-full sm:w-auto group">
                       <LayoutDashboard className="h-5 w-5 mr-2" />
-                      Accéder à mon tableau de bord
+                      Mon tableau de bord
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-3 sm:gap-6 justify-center lg:justify-start text-xs sm:text-sm text-muted-foreground">
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
-                  Pas de carte bancaire
-                </div>
-                <div className="flex items-center gap-1 sm:gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" aria-hidden="true" />
-                  Installation en 2 min
-                </div>
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
-                  Export PDF/CSV
-                </div>
-              </div>
-
-              {/* CTA Expert-Comptable */}
-              <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border/50">
-                <Link to="/expert-comptable">
-                  <Button 
-                    size="default"
-                    variant="outline" 
-                    className="w-full sm:w-auto group border-primary/30 hover:border-primary hover:bg-primary/5 text-sm sm:text-base"
-                  >
-                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
-                    Je suis expert-comptable
-                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-muted-foreground">
+                {["Sans carte bancaire", "Installation 2 min", "Export PDF/CSV"].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    {item}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Right: Auth form or Dashboard button */}
-            <div 
-              id="auth-section"
-              className={cn(
-                "transition-all duration-700 ease-out",
-                heroAnimation.isVisible 
-                  ? "opacity-100 translate-y-0" 
-                  : "opacity-0 translate-y-8"
-              )}
-              style={{ transitionDelay: '400ms' }}
-            >
+            {/* Right: Auth form or Phone mockup */}
+            <div id="auth-section" className="animate-scale-in">
               {!loading && (
                 user ? (
                   <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
@@ -312,15 +103,15 @@ const Landing = () => {
                       <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-2">
-                      Bienvenue, {user.email?.split('@')[0]} !
+                      Bienvenue !
                     </h3>
                     <p className="text-muted-foreground mb-6">
-                      Vous êtes connecté. Accédez à votre tableau de bord pour gérer vos trajets.
+                      Accédez à votre tableau de bord pour gérer vos trajets.
                     </p>
                     <Link to="/app">
                       <Button size="lg" variant="gradient" className="w-full group">
                         <LayoutDashboard className="h-5 w-5 mr-2" />
-                        Accéder à mon tableau de bord
+                        Tableau de bord
                         <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
@@ -334,731 +125,163 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Pain Point Section */}
-      <section className="py-20 px-4 bg-muted/50">
+      {/* App Screenshots Carousel */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 space-y-4">
+            <h2 className="text-3xl md:text-4xl font-bold">Découvrez l'application</h2>
+            <p className="text-muted-foreground text-lg">Interface simple et intuitive</p>
+          </div>
+          <AppCarousel />
+        </div>
+      </section>
+
+      {/* Features Grid - Icons only */}
+      <section className="py-24 px-4">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <AnimatedSection>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive text-sm font-medium mb-4">
-                <Clock className="h-4 w-4" />
-                Le problème
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold">Tout ce dont vous avez besoin</h2>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            {[
+              { icon: Car, title: "Multi-véhicules" },
+              { icon: Calculator, title: "Calcul IK auto" },
+              { icon: MapPin, title: "GPS intégré" },
+              { icon: Calendar, title: "Sync calendriers" },
+              { icon: FileText, title: "Export PDF/CSV" },
+            ].map((feature, i) => (
+              <div 
+                key={i}
+                className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 text-center animate-fade-in"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-4 group-hover:scale-110 transition-transform">
+                  <feature.icon className="h-7 w-7" />
+                </div>
+                <h3 className="font-semibold">{feature.title}</h3>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Arrêtez de perdre{" "}
-                <span className="text-destructive">4h par mois</span>{" "}
-                sur Excel
-              </h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                Vous êtes infirmier, artisan ou consultant ? Vous passez vos dimanches soirs à 
-                reconstituer votre historique de trajets, à chercher les adresses de vos clients 
-                et à calculer les distances...
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Phone Mockup Demo */}
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="order-2 lg:order-1">
+              <AnimatedPhoneMockup />
+            </div>
+            <div className="space-y-6 order-1 lg:order-2">
+              <h2 className="text-3xl md:text-4xl font-bold">Une app mobile complète</h2>
+              <p className="text-lg text-muted-foreground">
+                Installez IKtracker sur votre téléphone et enregistrez vos trajets en déplacement.
               </p>
               <ul className="space-y-3">
-                {[
-                  "Recherche des adresses dans votre agenda",
-                  "Calcul manuel des distances sur Google Maps",
-                  "Saisie fastidieuse dans un tableau Excel",
-                  "Risque d'erreurs et d'oublis"
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3 text-muted-foreground">
-                    <div className="h-2 w-2 rounded-full bg-destructive" />
-                    {item}
+                {["Fonctionne hors-ligne", "Notifications rappels", "GPS temps réel"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
-            </AnimatedSection>
-            <AnimatedSection delay={200}>
-              <div className="relative overflow-visible">
-                {/* Styled Excel Sheet in Perspective - Full Width Background */}
-                <div 
-                  className="absolute -top-16 -left-8 -right-8 opacity-30 pointer-events-none"
-                  style={{ 
-                    transform: 'perspective(600px) rotateX(25deg) rotateZ(-3deg)',
-                    transformOrigin: 'center top'
-                  }}
-                >
-                  <div className="bg-card rounded-xl border-2 border-border p-6 shadow-2xl mx-auto max-w-3xl">
-                    {/* Excel Header */}
-                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
-                      <div className="w-4 h-4 rounded-full bg-destructive" />
-                      <div className="w-4 h-4 rounded-full bg-warning" />
-                      <div className="w-4 h-4 rounded-full bg-success" />
-                      <span className="ml-3 text-sm text-muted-foreground font-mono font-medium">trajets_2025.xlsx</span>
-                    </div>
-                    {/* Excel Grid */}
-                    <div className="grid grid-cols-6 gap-px bg-border rounded-lg overflow-hidden">
-                      {['', 'A', 'B', 'C', 'D', 'E'].map((col, idx) => (
-                        <div key={col + idx} className="bg-muted px-4 py-2 text-sm font-mono text-muted-foreground text-center font-bold">{col}</div>
-                      ))}
-                      {Array.from({ length: 30 }).map((_, i) => {
-                        const row = Math.floor(i / 6) + 1;
-                        const col = i % 6;
-                        return (
-                          <div key={i} className="bg-card px-4 py-2.5 text-sm font-mono text-foreground/60 truncate border-t border-border/30">
-                            {col === 0 ? row : col === 1 ? '15/01' : col === 2 ? 'Paris 15e' : col === 3 ? 'Versailles' : col === 4 ? '42 km' : '20,58 €'}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Main Card */}
-                <div className="relative bg-card rounded-2xl p-8 shadow-lg border border-border z-10 mt-32">
-                  <div className="text-center">
-                    <div className="text-6xl font-bold text-primary mb-2">48h</div>
-                    <p className="text-muted-foreground">économisées par an en moyenne</p>
-                  </div>
-                  <div className="mt-8 pt-8 border-t border-border">
-                    <div className="flex items-center justify-center gap-2 text-success">
-                      <TrendingUp className="h-5 w-5" />
-                      <span className="font-semibold">IKtracker élimine cette charge mentale</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
+              <Link to="/install">
+                <Button variant="outline" className="gap-2">
+                  Guide d'installation
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* IK Barème Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto">
-          <AnimatedSection className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
-              <FileText className="h-4 w-4" />
-              Barème fiscal 2025
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Tout comprendre au barème des{" "}
-              <span className="text-gradient">indemnités kilométriques</span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Déclarer vos trajets réels permet d'optimiser votre fiscalité. 
-              Plus vous roulez, plus vous économisez sur vos impôts.
-            </p>
-          </AnimatedSection>
-
-          <AnimatedSection delay={200}>
-            <div className="overflow-x-auto">
-              <table className="w-full bg-card rounded-xl border border-border overflow-hidden">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="px-6 py-4 text-left font-semibold text-foreground">Puissance fiscale</th>
-                    <th className="px-6 py-4 text-center font-semibold text-foreground">Jusqu'à 5 000 km</th>
-                    <th className="px-6 py-4 text-center font-semibold text-foreground">De 5 001 à 20 000 km</th>
-                    <th className="px-6 py-4 text-center font-semibold text-foreground">Plus de 20 000 km</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ikBareme.map((row, index) => (
-                    <tr key={index} className="border-t border-border hover:bg-muted/50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-foreground">{row.cv}</td>
-                      <td className="px-6 py-4 text-center text-muted-foreground">{row.jusqu5000}</td>
-                      <td className="px-6 py-4 text-center text-muted-foreground">{row.de5001a20000}</td>
-                      <td className="px-6 py-4 text-center text-muted-foreground">{row.plus20000}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-sm text-muted-foreground text-center mt-4">
-              * Barème kilométrique 2025 pour les voitures. Source : impots.gouv.fr
-            </p>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-4 bg-muted/50">
-        <div className="container mx-auto">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Tout ce dont vous avez besoin
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Des fonctionnalités pensées pour les indépendants, libéraux et artisans
-            </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-            {features.map((feature, index) => (
-              <AnimatedSection key={index} delay={index * 100}>
-                <Card className="bg-card border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
-                  <CardContent className="p-6">
-                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                      <feature.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
-          </div>
-
-          {/* App Visualizations Grid */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* Visualization 1 - Trip Report Mockup */}
-            <AnimatedSection delay={300}>
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-foreground">Relevé de trajets</h3>
-                <p className="text-sm text-muted-foreground">Visualisez tous vos déplacements</p>
+      {/* Tour Mode Demo */}
+      <section className="py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
+                <Route className="h-4 w-4" />
+                Nouveau
               </div>
-              <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-                {/* Stats Bar */}
-                <div className="grid grid-cols-3 gap-2 p-4 bg-muted/30 border-b border-border">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-primary">847 km</div>
-                    <div className="text-xs text-muted-foreground">Distance</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-success">412 €</div>
-                    <div className="text-xs text-muted-foreground">Indemnités</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-foreground">23</div>
-                    <div className="text-xs text-muted-foreground">Trajets</div>
-                  </div>
-                </div>
-                
-                {/* Trip List */}
-                <div className="divide-y divide-border">
-                  {[
-                    { date: "15 Jan", from: "Paris 15e", to: "Versailles", km: 42, amount: "20,58 €" },
-                    { date: "14 Jan", from: "Paris 15e", to: "Saint-Denis", km: 28, amount: "13,72 €" },
-                    { date: "13 Jan", from: "Domicile", to: "Paris 8e", km: 35, amount: "17,15 €" },
-                  ].map((trip, i) => (
-                    <div key={i} className="px-4 py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="text-xs font-medium text-muted-foreground w-12">{trip.date}</div>
-                        <div className="flex items-center gap-1.5 text-sm text-foreground">
-                          <MapPin className="h-3 w-3 text-primary" />
-                          {trip.from} → {trip.to}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold text-foreground">{trip.km} km</div>
-                        <div className="text-xs text-success">{trip.amount}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Export Button */}
-                <div className="p-3 bg-muted/30 border-t border-border flex justify-center">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium">
-                    <FileText className="h-3.5 w-3.5" />
-                    Exporter PDF / CSV
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
-
-            {/* Visualization 2 - Tour/Tournée Feature */}
-            <AnimatedSection delay={400}>
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-foreground">Mode Tournée</h3>
-                <p className="text-sm text-muted-foreground">Enchaînez plusieurs clients</p>
-              </div>
-              <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-                {/* Tour Header */}
-                <div className="p-4 bg-accent/10 border-b border-border">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
-                      <span className="font-semibold text-foreground text-sm">Tournée en cours</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">Depuis 09:15</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-card rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-primary">127 km</div>
-                      <div className="text-xs text-muted-foreground">Parcourus</div>
-                    </div>
-                    <div className="bg-card rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-accent">5</div>
-                      <div className="text-xs text-muted-foreground">Arrêts</div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Stops Timeline */}
-                <div className="p-4">
-                  <div className="space-y-3">
-                    {[
-                      { time: "09:15", place: "Domicile", status: "done" },
-                      { time: "09:45", place: "M. Dupont - Paris 12e", status: "done" },
-                      { time: "10:30", place: "Mme Martin - Vincennes", status: "done" },
-                      { time: "11:15", place: "M. Bernard - Montreuil", status: "current" },
-                    ].map((stop, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className={`w-3 h-3 rounded-full ${stop.status === 'current' ? 'bg-accent ring-4 ring-accent/20' : 'bg-success'}`} />
-                          {i < 3 && <div className="w-0.5 h-6 bg-border" />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-foreground">{stop.place}</div>
-                          <div className="text-xs text-muted-foreground">{stop.time}</div>
-                        </div>
-                        {stop.status === 'done' && <CheckCircle2 className="h-4 w-4 text-success" />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
-          </div>
-
-          {/* Visualization 3 - Calendar Sync Full Width */}
-          <AnimatedSection delay={500}>
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-foreground">Synchronisation Calendrier</h3>
-              <p className="text-sm text-muted-foreground">Vos rendez-vous deviennent des trajets automatiquement</p>
+              <h2 className="text-3xl md:text-4xl font-bold">Mode Tournée</h2>
+              <p className="text-lg text-muted-foreground">
+                Plusieurs arrêts, un seul enregistrement. Parfait pour les commerciaux et livreurs.
+              </p>
+              <ul className="space-y-3">
+                {["GPS en temps réel", "Arrêts illimités", "Calcul automatique"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/mode-tournee">
+                <Button variant="outline" className="gap-2">
+                  En savoir plus
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
-            <div className="max-w-4xl mx-auto bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-              <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
-                {/* Calendar Side */}
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-[#4285F4] flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">Google Calendar</div>
-                      <div className="text-xs text-success flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-success" />
-                        Connecté
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {[
-                      { time: "09:00", title: "RDV M. Dupont", location: "15 rue de Paris, 75012" },
-                      { time: "11:00", title: "Visite Mme Martin", location: "8 av. Victor Hugo, Vincennes" },
-                      { time: "14:00", title: "Chantier Bernard", location: "22 rue Raspail, Montreuil" },
-                    ].map((event, i) => (
-                      <div key={i} className="p-3 bg-muted/50 rounded-lg border-l-4 border-[#4285F4]">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                          <Clock className="h-3 w-3" />
-                          {event.time}
-                        </div>
-                        <div className="text-sm font-medium text-foreground">{event.title}</div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {event.location}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Arrow & Result Side */}
-                <div className="p-6 bg-muted/20">
-                  <div className="flex items-center gap-2 mb-4">
-                    <ArrowRight className="h-5 w-5 text-primary" />
-                    <span className="font-semibold text-foreground text-sm">Trajets générés</span>
-                  </div>
-                  <div className="space-y-2">
-                    {[
-                      { from: "Domicile", to: "Paris 12e", km: 12, ik: "5,88 €" },
-                      { from: "Paris 12e", to: "Vincennes", km: 8, ik: "3,92 €" },
-                      { from: "Vincennes", to: "Montreuil", km: 5, ik: "2,45 €" },
-                    ].map((trip, i) => (
-                      <div key={i} className="p-3 bg-card rounded-lg border border-border">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm">
-                            <Route className="h-4 w-4 text-primary" />
-                            <span className="text-foreground">{trip.from}</span>
-                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-foreground">{trip.to}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between mt-2 text-xs">
-                          <span className="text-muted-foreground">{trip.km} km</span>
-                          <span className="font-semibold text-success">{trip.ik}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 p-3 bg-success/10 rounded-lg text-center">
-                    <div className="text-lg font-bold text-success">12,25 €</div>
-                    <div className="text-xs text-muted-foreground">Total automatique</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </AnimatedSection>
-
-          {/* Visualization 4 - PDF Export Preview */}
-          <AnimatedSection delay={600} className="mt-12">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-foreground">Export PDF professionnel</h3>
-              <p className="text-sm text-muted-foreground">Un relevé prêt pour votre comptable en un clic</p>
-            </div>
-            <div className="max-w-5xl mx-auto">
-              <div className="grid md:grid-cols-5 gap-6 items-center">
-                {/* PDF Document Preview */}
-                <div className="md:col-span-3">
-                  <div 
-                    className="bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-200"
-                    style={{ 
-                      transform: 'perspective(1000px) rotateY(-5deg)',
-                      transformOrigin: 'center center'
-                    }}
-                  >
-                    {/* PDF Header */}
-                    <div className="bg-gray-100 px-4 py-2 flex items-center gap-2 border-b border-gray-200">
-                      <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-400" />
-                        <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                        <div className="w-3 h-3 rounded-full bg-green-400" />
-                      </div>
-                      <span className="text-xs text-gray-500 font-mono ml-2">releve-ik-2025-01.pdf</span>
-                    </div>
-                    
-                    {/* PDF Content */}
-                    <div className="p-6 bg-white text-gray-800">
-                      {/* PDF Title */}
-                      <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-primary">
-                        <div>
-                          <h4 className="text-lg font-bold text-primary">Relevé IKtracker</h4>
-                          <p className="text-xs text-gray-500">Janvier 2025</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-gray-500">Généré le 31/01/2025</p>
-                          <p className="text-xs text-gray-400">Barème fiscal 2025</p>
-                        </div>
-                      </div>
-
-                      {/* Vehicle Info */}
-                      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                        <div className="grid grid-cols-3 gap-4 text-xs">
-                          <div>
-                            <span className="text-gray-500">Véhicule</span>
-                            <p className="font-semibold text-gray-800">Peugeot 308</p>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Puissance fiscale</span>
-                            <p className="font-semibold text-gray-800">6 CV</p>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Immatriculation</span>
-                            <p className="font-semibold text-gray-800">AB-123-CD</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Mini Table */}
-                      <div className="mb-4">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-600">Date</th>
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-600">Trajet</th>
-                              <th className="px-2 py-1.5 text-right font-semibold text-gray-600">Km</th>
-                              <th className="px-2 py-1.5 text-right font-semibold text-gray-600">IK</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {[
-                              { date: "15/01", trajet: "Paris → Versailles", km: "42", ik: "20,58 €" },
-                              { date: "14/01", trajet: "Paris → Saint-Denis", km: "28", ik: "13,72 €" },
-                              { date: "13/01", trajet: "Domicile → Paris 8e", km: "35", ik: "17,15 €" },
-                              { date: "12/01", trajet: "Paris → Créteil", km: "24", ik: "11,76 €" },
-                            ].map((row, i) => (
-                              <tr key={i} className="border-b border-gray-100">
-                                <td className="px-2 py-1.5 text-gray-600">{row.date}</td>
-                                <td className="px-2 py-1.5 text-gray-800">{row.trajet}</td>
-                                <td className="px-2 py-1.5 text-right text-gray-600">{row.km}</td>
-                                <td className="px-2 py-1.5 text-right font-medium text-gray-800">{row.ik}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      
-                      {/* Totals */}
-                      <div className="flex justify-end">
-                        <div className="bg-primary/10 rounded-lg p-3 text-right">
-                          <div className="text-xs text-gray-500 mb-1">Total du mois</div>
-                          <div className="text-lg font-bold text-primary">847 km • 412,50 €</div>
-                        </div>
-                      </div>
-
-                      {/* Footer */}
-                      <div className="mt-4 pt-3 border-t border-gray-200 text-center">
-                        <p className="text-[10px] text-gray-400">
-                          Document généré par IKtracker • iktracker.lovable.app • Conforme au barème fiscal 2025
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Export Features */}
-                <div className="md:col-span-2 space-y-4">
-                  <div className="p-4 bg-card rounded-xl border border-border">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-destructive" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-foreground">Format PDF</div>
-                        <div className="text-xs text-muted-foreground">Professionnel et lisible</div>
-                      </div>
-                    </div>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        Entête avec vos informations
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        Tableau détaillé des trajets
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        Totaux automatiques
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="p-4 bg-card rounded-xl border border-border">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-success" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-foreground">Format CSV</div>
-                        <div className="text-xs text-muted-foreground">Compatible Excel</div>
-                      </div>
-                    </div>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        Import direct dans Excel
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        Données structurées
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        Prêt pour la comptabilité
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto">
-          <AnimatedSection className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-              <CheckCircle2 className="h-4 w-4" />
-              Ils nous font confiance
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Ce que disent nos utilisateurs
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Des centaines d'indépendants ont déjà simplifié leur gestion kilométrique
-            </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <AnimatedSection key={index} delay={index * 150}>
-                <Card className="bg-card border-border h-full">
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <div className="flex-1">
-                      <svg className="h-8 w-8 text-primary/20 mb-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                      </svg>
-                      <p className="text-foreground mb-6 leading-relaxed">
-                        "{testimonial.quote}"
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 pt-4 border-t border-border">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className={`${testimonial.color} text-primary-foreground text-sm font-semibold`}>
-                          {testimonial.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold text-foreground">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
+            <TourModeDemo />
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-20 px-4 bg-muted/50">
-        <div className="container mx-auto max-w-3xl">
-          <AnimatedSection className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-              <HelpCircle className="h-4 w-4" />
-              FAQ
+      {/* Calendar Sync Demo */}
+      <section className="py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="order-2 lg:order-1">
+              <CalendarSyncDemo />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Questions fréquentes
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Tout ce que vous devez savoir sur IKtracker
-            </p>
-          </AnimatedSection>
-
-          <AnimatedSection delay={200}>
-            <Accordion type="single" collapsible className="w-full space-y-3">
-              {faqItems.map((item, index) => (
-                <AccordionItem 
-                  key={index} 
-                  value={`item-${index}`}
-                  className="bg-card border border-border rounded-xl px-6 data-[state=open]:shadow-md transition-shadow"
-                >
-                  <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline py-5">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </AnimatedSection>
+            <div className="space-y-6 order-1 lg:order-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
+                <Calendar className="h-4 w-4" />
+                Intégration
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold">Sync Calendriers</h2>
+              <p className="text-lg text-muted-foreground">
+                Importez vos rendez-vous et transformez-les en trajets automatiquement.
+              </p>
+              <ul className="space-y-3">
+                {["Google Calendar", "Microsoft Outlook", "Import en un clic"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/calendrier">
+                <Button variant="outline" className="gap-2">
+                  En savoir plus
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto">
-          <AnimatedSection>
-            <div className="bg-gradient-primary rounded-3xl p-12 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
-              <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                  Prêt à simplifier votre comptabilité ?
-                </h2>
-                <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-                  Rejoignez les centaines d'indépendants qui ont déjà automatisé leurs IK
-                </p>
-                {user ? (
-                  <Link to="/app">
-                    <Button size="xl" variant="secondary" className="group">
-                      <LayoutDashboard className="h-5 w-5 mr-2" />
-                      Accéder à mon tableau de bord
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/signup">
-                    <Button size="xl" variant="secondary" className="group">
-                      Créer mon compte gratuit
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            </div>
-          </AnimatedSection>
+      <section className="py-24 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 text-center space-y-8">
+          <h2 className="text-3xl md:text-4xl font-bold">Prêt à simplifier vos trajets ?</h2>
+          <p className="text-xl opacity-90 max-w-2xl mx-auto">
+            Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
+          </p>
+          <Link to="/signup">
+            <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6">
+              Créer mon compte gratuit
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </section>
 
-      {/* PWA Promo Section */}
-      <AnimatedSection>
-        <PWAPromoSection />
-      </AnimatedSection>
-      </main>
-
-      {/* Footer */}
-      <footer className="py-12 px-4 border-t border-border" role="contentinfo">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="IKtracker" className="h-9 w-9 transition-transform duration-300 hover:scale-110" />
-              <span className="font-bold text-foreground">IKtracker</span>
-            </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Outil <span className="font-semibold text-success">100% gratuit</span> pour les indépendants
-            </p>
-            <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6">
-              <Link to="/expert-comptable" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Expert-Comptable
-              </Link>
-              <Link to="/install" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Installation
-              </Link>
-              <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Confidentialité
-              </Link>
-              <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                CGU
-              </Link>
-            </div>
-          </div>
-          
-          {/* Social Share Section */}
-          <div className="mt-8 pt-8 border-t border-border">
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-sm text-muted-foreground">Partagez IKtracker avec vos collègues</p>
-              <div className="flex items-center gap-3">
-                <a
-                  href="https://twitter.com/intent/tweet?text=Découvrez%20IKtracker%20-%20L'outil%20gratuit%20pour%20calculer%20et%20suivre%20vos%20indemnités%20kilométriques%20!&url=https://iktracker.lovable.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all hover:scale-110"
-                  aria-label="Partager sur Twitter"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.linkedin.com/shareArticle?mini=true&url=https://iktracker.lovable.app&title=IKtracker&summary=L'outil%20gratuit%20pour%20calculer%20et%20suivre%20vos%20indemnités%20kilométriques"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all hover:scale-110"
-                  aria-label="Partager sur LinkedIn"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.facebook.com/sharer/sharer.php?u=https://iktracker.lovable.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all hover:scale-110"
-                  aria-label="Partager sur Facebook"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-8 border-t border-border text-center">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} IKtracker. Tous droits réservés.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   );
 };
