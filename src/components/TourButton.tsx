@@ -26,7 +26,7 @@ export function TourButton({
       className={cn(
         "w-16 h-16 rounded-full flex items-center justify-center relative",
         "focus:outline-none focus:ring-4 focus:ring-offset-2",
-        "transition-all duration-[4000ms] ease-[cubic-bezier(0.4,0,0.1,1)]",
+        "transition-all duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)]",
         isActive
           ? "bg-gradient-primary text-orange-500 focus:ring-accent/50 scale-100"
           : "bg-gradient-primary text-white focus:ring-primary/50 hover:scale-105 animate-cta-pulse shadow-[0_0_16px_2px_rgba(59,130,246,0.35)]",
@@ -56,7 +56,7 @@ export function TourButton({
       
       {/* Speed lines - fade in/out based on active state */}
       <span className={cn(
-        "absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 transition-opacity duration-[4000ms] ease-[cubic-bezier(0.4,0,0.1,1)] z-10",
+        "absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 transition-opacity duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)] z-10",
         isActive && !isLoading ? "opacity-100" : "opacity-0"
       )}>
         <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
@@ -71,7 +71,7 @@ export function TourButton({
       {/* Car icon with driving animation when active */}
       <Car 
         className={cn(
-          "w-7 h-7 relative z-10 transition-colors duration-[4000ms] ease-[cubic-bezier(0.4,0,0.1,1)]",
+          "w-7 h-7 relative z-10 transition-colors duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)]",
           isLoading && "opacity-50"
         )}
         style={isActive && !isLoading ? {
