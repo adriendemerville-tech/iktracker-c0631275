@@ -302,15 +302,15 @@
 /* Animated car - oscillation */
 @keyframes car-bounce {
   0%, 100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(-1deg);
   }
   50% {
-    transform: translateY(-2px);
+    transform: translateY(-5px) rotate(1deg);
   }
 }
 
 .animate-car-bounce {
-  animation: car-bounce 0.8s ease-in-out infinite;
+  animation: car-bounce 0.6s ease-in-out infinite;
 }
 
 /* Animated wheels - spin */
