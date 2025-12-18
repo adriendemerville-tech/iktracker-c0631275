@@ -225,7 +225,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background cursor-default">
       {/* Header */}
       <header className="bg-card border-b border-border px-4 py-4">
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">

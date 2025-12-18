@@ -123,7 +123,7 @@ const Auth = () => {
   // Show loading while checking auth
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center cursor-default">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -132,7 +132,7 @@ const Auth = () => {
   // Show OAuth success screen on deployed domain
   if (showOAuthSuccess) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 cursor-default">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -165,7 +165,7 @@ const Auth = () => {
   // Password reset form
   if (isResetPassword) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 cursor-default">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -211,7 +211,7 @@ const Auth = () => {
 
   // Default: redirect to landing (handled in useEffect)
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center cursor-default">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );

@@ -295,7 +295,7 @@ const Admin = () => {
   const adminCount = userRoles.length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background cursor-default">
       {/* Header */}
       <header className="bg-gradient-primary text-primary-foreground px-4 pt-12 pb-6 rounded-b-[2rem]">
         <div className="max-w-4xl mx-auto">
