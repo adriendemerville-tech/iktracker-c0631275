@@ -28,25 +28,35 @@ export function TourButton({
         "focus:outline-none focus:ring-4 focus:ring-offset-2",
         "transition-all duration-1000 ease-in-out",
         isActive
-          ? "bg-gradient-primary text-orange-500 focus:ring-accent/50 scale-100 shadow-[0_0_20px_4px_rgba(249,115,22,0.4)]"
+          ? "bg-gradient-primary text-orange-500 focus:ring-accent/50 scale-100"
           : "bg-gradient-primary text-white focus:ring-primary/50 hover:scale-105 animate-cta-pulse shadow-[0_0_16px_2px_rgba(59,130,246,0.35)]",
         isLoading && "opacity-70 cursor-wait"
       )}
-      style={isActive ? { 
-        animation: 'orange-border-glow 2s ease-in-out infinite',
-      } : undefined}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
+      {/* Rotating gradient border - only when active */}
+      {isActive && (
+        <span 
+          className="absolute inset-[-3px] rounded-full overflow-hidden"
+          style={{
+            background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
+            animation: 'rotate-gradient 3s linear infinite',
+          }}
+        >
+          <span className="absolute inset-[3px] rounded-full bg-gradient-primary" />
+        </span>
+      )}
+      
       {/* Loading spinner - minimal ring */}
       {isLoading && (
-        <span className="absolute inset-0 flex items-center justify-center">
+        <span className="absolute inset-0 flex items-center justify-center z-20">
           <span className="w-14 h-14 rounded-full border-2 border-transparent border-t-primary animate-[spin_0.5s_linear_infinite]" />
         </span>
       )}
       
       {/* Speed lines - fade in/out based on active state */}
       <span className={cn(
-        "absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 transition-opacity duration-1000 ease-in-out",
+        "absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 transition-opacity duration-1000 ease-in-out z-10",
         isActive && !isLoading ? "opacity-100" : "opacity-0"
       )}>
         <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
@@ -58,14 +68,20 @@ export function TourButton({
         <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full" />
       )}
       
-      <Car className={cn(
-        "w-7 h-7 relative z-10 transition-colors duration-1000 ease-in-out",
-        isLoading && "opacity-50"
-      )} />
+      {/* Car icon with driving animation when active */}
+      <Car 
+        className={cn(
+          "w-7 h-7 relative z-10 transition-colors duration-1000 ease-in-out",
+          isLoading && "opacity-50"
+        )}
+        style={isActive && !isLoading ? {
+          animation: 'car-drive 0.3s ease-in-out infinite',
+        } : undefined}
+      />
       
       {/* Stops count badge - top right */}
       {isActive && stopsCount > 0 && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold shadow-md">
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold shadow-md z-20">
           {stopsCount}
         </span>
       )}
@@ -73,7 +89,7 @@ export function TourButton({
       {/* Distance badge - bottom left */}
       {isActive && displayDistance > 0 && (
         <span 
-          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md"
+          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md z-20"
         >
           {displayDistance}
         </span>
