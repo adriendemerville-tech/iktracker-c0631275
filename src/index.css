@@ -427,28 +427,28 @@
 
 /* Road line passing under car every 6 seconds */
 @keyframes road-line {
-  0%, 90% {
-    transform: translateX(40px);
+  0%, 85% {
+    transform: translateX(50px);
     opacity: 0;
   }
-  92% {
+  88% {
+    opacity: 0.8;
+  }
+  94% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  97% {
     opacity: 0.4;
   }
-  95% {
-    transform: translateX(0);
-    opacity: 0.3;
-  }
-  98% {
-    opacity: 0.2;
-  }
   100% {
-    transform: translateX(-20px);
+    transform: translateX(-30px);
     opacity: 0;
   }
 }
 
 .animate-road-line {
-  animation: road-line 6s linear infinite;
+  animation: road-line 6s ease-out infinite;
 }
 
 /* Subtle gradient breathing animation */
