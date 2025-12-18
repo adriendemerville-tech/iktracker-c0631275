@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 
 const ExpertComptable = () => {
+  const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
+  
   return (
     <div className="min-h-screen bg-background">
       <title>Export comptable - IKtracker pour experts-comptables</title>
@@ -151,8 +154,11 @@ const ExpertComptable = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative order-2 lg:order-1">
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-md mx-auto">
+            <div 
+              ref={pdfRef}
+              className={`relative order-2 lg:order-1 transition-all duration-700 ${pdfVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            >
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-md mx-auto hover:shadow-2xl transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
                     <FileSpreadsheet className="h-6 w-6 text-red-500" />
@@ -163,29 +169,39 @@ const ExpertComptable = () => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground">Véhicule</span>
-                    <span className="font-medium">Renault Clio • 5 CV</span>
-                  </div>
-                  <div className="flex justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground">Distance totale</span>
-                    <span className="font-medium">2 458 km</span>
-                  </div>
-                  <div className="flex justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground">Indemnités calculées</span>
-                    <span className="font-bold text-primary text-lg">1 352,90 €</span>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <span className="text-muted-foreground">Barème appliqué</span>
-                    <span className="font-medium">Fiscal 2025</span>
-                  </div>
+                  {[
+                    { label: "Véhicule", value: "Renault Clio • 5 CV", delay: 100 },
+                    { label: "Distance totale", value: "2 458 km", delay: 200 },
+                    { label: "Indemnités calculées", value: "1 352,90 €", delay: 300, highlight: true, large: true },
+                    { label: "Barème appliqué", value: "Fiscal 2025", delay: 400, noBorder: true }
+                  ].map((item, i) => (
+                    <div 
+                      key={i}
+                      className={`flex justify-between py-3 ${!item.noBorder ? 'border-b border-border' : ''} transition-all duration-500`}
+                      style={{ 
+                        transitionDelay: pdfVisible ? `${item.delay}ms` : '0ms',
+                        opacity: pdfVisible ? 1 : 0,
+                        transform: pdfVisible ? 'translateX(0)' : 'translateX(-10px)'
+                      }}
+                    >
+                      <span className="text-muted-foreground">{item.label}</span>
+                      <span className={`font-medium ${item.highlight ? 'font-bold text-primary' : ''} ${item.large ? 'text-lg' : ''}`}>{item.value}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="mt-6 flex gap-2">
-                  <div className="flex-1 py-2 px-3 rounded-lg bg-primary/10 text-primary text-center text-sm font-medium">
+                <div 
+                  className="mt-6 flex gap-2 transition-all duration-500"
+                  style={{ 
+                    transitionDelay: pdfVisible ? '500ms' : '0ms',
+                    opacity: pdfVisible ? 1 : 0,
+                    transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
+                  }}
+                >
+                  <div className="flex-1 py-2 px-3 rounded-lg bg-primary/10 text-primary text-center text-sm font-medium hover:bg-primary/20 transition-colors cursor-pointer">
                     <Download className="h-4 w-4 inline mr-2" />
                     PDF
                   </div>
-                  <div className="flex-1 py-2 px-3 rounded-lg bg-green-500/10 text-green-600 text-center text-sm font-medium">
+                  <div className="flex-1 py-2 px-3 rounded-lg bg-green-500/10 text-green-600 text-center text-sm font-medium hover:bg-green-500/20 transition-colors cursor-pointer">
                     <FileSpreadsheet className="h-4 w-4 inline mr-2" />
                     Excel
                   </div>

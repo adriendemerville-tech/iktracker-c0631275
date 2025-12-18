@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -28,6 +29,7 @@ const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -293,8 +295,11 @@ const Landing = () => {
                 </Button>
               </Link>
             </div>
-            <div className="relative">
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl">
+            <div 
+              ref={pdfRef}
+              className={`relative transition-all duration-700 ${pdfVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            >
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
                     <FileText className="h-5 w-5 text-red-500" />
@@ -305,18 +310,24 @@ const Landing = () => {
                   </div>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between py-2 border-b border-border">
-                    <span className="text-muted-foreground">Total km</span>
-                    <span className="font-medium">1 247 km</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-border">
-                    <span className="text-muted-foreground">Indemnités</span>
-                    <span className="font-medium text-primary">687,50 €</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Trajets</span>
-                    <span className="font-medium">23 trajets</span>
-                  </div>
+                  {[
+                    { label: "Total km", value: "1 247 km", delay: 100 },
+                    { label: "Indemnités", value: "687,50 €", delay: 200, highlight: true },
+                    { label: "Trajets", value: "23 trajets", delay: 300 }
+                  ].map((item, i) => (
+                    <div 
+                      key={i}
+                      className={`flex justify-between py-2 ${i < 2 ? 'border-b border-border' : ''} transition-all duration-500`}
+                      style={{ 
+                        transitionDelay: pdfVisible ? `${item.delay}ms` : '0ms',
+                        opacity: pdfVisible ? 1 : 0,
+                        transform: pdfVisible ? 'translateX(0)' : 'translateX(-10px)'
+                      }}
+                    >
+                      <span className="text-muted-foreground">{item.label}</span>
+                      <span className={`font-medium ${item.highlight ? 'text-primary' : ''}`}>{item.value}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
