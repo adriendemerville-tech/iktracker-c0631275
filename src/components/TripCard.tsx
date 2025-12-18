@@ -91,7 +91,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
               </span>
             )}
           </div>
-          <span className="text-border ml-1 mr-3">|</span>
+          
           
           {isTour ? (
             // Tour display: "Tournée (X étapes)"
@@ -139,7 +139,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
             </span>
             {trip.purpose && !isTour && (
               <>
-                <span className="text-border ml-2 mr-6">|</span>
+                <span className="ml-2 mr-6"></span>
                 <span className="text-muted-foreground truncate flex-1">{trip.purpose}</span>
               </>
             )}
@@ -147,7 +147,7 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
         )}
 
         {/* Ligne 3: Distance + IK + Bouton supprimer */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+        <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-3">
             <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
             <span className="counter-text text-sm font-bold text-accent">
