@@ -143,7 +143,7 @@ const Index = () => {
       return;
     }
 
-    toast.info("Calcul de la distance...");
+    
 
     const firstStop = stops[0];
     const vehicleId = vehicles[0].id;
