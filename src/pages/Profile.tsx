@@ -110,11 +110,13 @@ const KmBarShape = (props: any) => {
 
   const delay = KM_BAR_ANIMATION_DELAY_MS + (Number(index) || 0) * KM_BAR_ANIMATION_STAGGER_MS;
 
+  const isLastBar = index === 5;
+  
   return (
     <path
       d={d}
       fill={fill}
-      filter="url(#barShadow)"
+      filter={isLastBar ? "url(#barGlow)" : "url(#barShadow)"}
       className="km-bar-grow"
       style={{ animationDuration: `${KM_BAR_ANIMATION_DURATION_MS}ms`, animationDelay: `${delay}ms` }}
     />
@@ -472,7 +474,7 @@ const Profile = () => {
         <Card className="relative">
           {/* Animated car - at header level, above December bar */}
           <div className="absolute top-4 right-[40px] flex flex-col items-center gap-0 z-10">
-            <div className="animate-car-bounce relative">
+            <div className="animate-car-bounce relative" style={{ filter: 'drop-shadow(0 0 8px hsl(220 70% 50% / 0.5))' }}>
               <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
               {/* Animated wheels overlay */}
               <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
@@ -497,6 +499,13 @@ const Profile = () => {
                   <defs>
                     <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
                       <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.15" />
+                    </filter>
+                    <filter id="barGlow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
                     </filter>
                   </defs>
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
