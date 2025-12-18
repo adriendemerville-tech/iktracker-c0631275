@@ -586,16 +586,16 @@ ${IKTRACKER_URL}`
           <h2 className="text-sm font-medium text-muted-foreground mb-3">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="counter-text text-2xl font-bold">{trips.length}</p>
-              <p className="text-xs text-muted-foreground">trajets</p>
+              <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
+              <p className="text-xs font-urbanist font-semibold text-muted-foreground">trajets</p>
             </div>
             <div>
-              <p className="counter-text text-2xl font-bold">{totalKm.toFixed(0)}</p>
-              <p className="text-xs text-muted-foreground">km</p>
+              <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{totalKm.toFixed(0)}</p>
+              <p className="text-xs font-urbanist font-semibold text-muted-foreground">km</p>
             </div>
             <div>
-              <p className="counter-text text-2xl font-bold text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
-              <p className="text-xs text-muted-foreground">IK</p>
+              <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
+              <p className="text-xs font-urbanist font-semibold text-muted-foreground">IK</p>
             </div>
           </div>
         </div>
