@@ -192,6 +192,14 @@ const Profile = () => {
     return Math.max(Math.ceil(maxKm * padding / 50) * 50, minCeiling);
   }, [monthlyKmData]);
 
+  // Calculate total stats for sharing
+  const totalStats = useMemo(() => {
+    const totalKm = Math.round(trips.reduce((sum, trip) => sum + trip.distance, 0));
+    const totalIk = trips.reduce((sum, trip) => sum + trip.ikAmount, 0).toFixed(2);
+    const tripCount = trips.length;
+    return { totalKm, totalIk, tripCount };
+  }, [trips]);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth', { replace: true });
@@ -664,11 +672,15 @@ const Profile = () => {
           variant="outline" 
           className="w-full"
           onClick={async () => {
+            const shareText = totalStats.totalKm > 0 
+              ? `J'ai parcouru ${totalStats.totalKm} km et récupéré ${totalStats.totalIk}€ d'indemnités avec IKtracker ! 🚗💰 Rejoins-moi !`
+              : "Découvrez IKtracker, l'application de suivi des frais kilométriques !";
+            
             if (navigator.share) {
               try {
                 await navigator.share({
                   title: 'IKtracker',
-                  text: 'Découvrez IKtracker, l\'application de suivi des frais kilométriques !',
+                  text: shareText,
                   url: window.location.origin,
                 });
               } catch (error) {
@@ -676,7 +688,7 @@ const Profile = () => {
               }
             } else {
               // Fallback: copy to clipboard
-              navigator.clipboard.writeText(window.location.origin);
+              navigator.clipboard.writeText(`${shareText} ${window.location.origin}`);
               const { toast } = await import('@/components/ui/sonner');
               toast.success('Lien copié !');
             }
