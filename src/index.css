@@ -6,11 +6,15 @@
 
 @layer base {
   * {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Allow text selection on marketing pages */
+  .select-text, .select-text * {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
   }
 
   input, textarea, [contenteditable="true"] {
