@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Car, Signal, Moon, Sun } from 'lucide-react';
 
@@ -9,14 +9,26 @@ interface TourModeMockupProps {
 export function TourModeMockup({ className }: TourModeMockupProps) {
   const [stopsCount, setStopsCount] = useState(1);
   const [displayedKm, setDisplayedKm] = useState(0);
+  const [isPulsing, setIsPulsing] = useState(false);
+  const prevStopsRef = useRef(stopsCount);
   
-  // Animate stops count
+  // Animate stops count with pulse
   useEffect(() => {
     const timer = setInterval(() => {
       setStopsCount(prev => (prev % 4) + 1);
     }, 2000);
     return () => clearInterval(timer);
   }, []);
+
+  // Trigger pulse when stops change
+  useEffect(() => {
+    if (stopsCount !== prevStopsRef.current) {
+      setIsPulsing(true);
+      const timeout = setTimeout(() => setIsPulsing(false), 300);
+      prevStopsRef.current = stopsCount;
+      return () => clearTimeout(timeout);
+    }
+  }, [stopsCount]);
 
   // Animate km counter
   useEffect(() => {
@@ -134,7 +146,10 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
               {/* Stops Counter */}
               <div className="flex flex-col items-center">
                 <span 
-                  className="font-urbanist text-3xl font-bold tabular-nums bg-clip-text text-transparent"
+                  className={cn(
+                    "font-urbanist text-3xl font-bold tabular-nums bg-clip-text text-transparent transition-transform duration-300",
+                    isPulsing && "scale-125"
+                  )}
                   style={{
                     backgroundImage: 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
                     backgroundSize: '100% 300%',
