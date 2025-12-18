@@ -153,7 +153,7 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
         {/* Trips side */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <img src="/logo-iktracker.png" alt="IKtracker" className="w-8 h-8 rounded-lg" />
+            <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="w-8 h-8 rounded-lg" />
             <span className="font-medium text-foreground">IKtracker</span>
           </div>
 
