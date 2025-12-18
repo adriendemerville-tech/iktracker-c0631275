@@ -178,6 +178,32 @@
   }
 }
 
+/* Rotating gradient border for active tour button */
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Car driving animation - subtle shake */
+@keyframes car-drive {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(0.5px) rotate(0.5deg);
+  }
+  50% {
+    transform: translateX(-0.5px) rotate(-0.3deg);
+  }
+  75% {
+    transform: translateX(0.3px) rotate(0.3deg);
+  }
+}
+
 ::-webkit-scrollbar {
   width: 4px;
 }
