@@ -29,7 +29,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img 
-              src="/logo.png" 
+              src="/logo-iktracker.png" 
               alt="IKtracker" 
               className="h-8 w-8 md:h-9 md:w-9 transition-transform duration-300 hover:scale-110" 
             />

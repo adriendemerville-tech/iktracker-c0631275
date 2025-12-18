@@ -177,7 +177,7 @@ const ExpertComptable = () => {
                         <p className="text-xs text-gray-500">Décembre 2025</p>
                       </div>
                     </div>
-                    <img src="/logo.png" alt="IKtracker" className="h-6 opacity-60" />
+                    <img src="/logo-iktracker.png" alt="IKtracker" className="h-6 opacity-60" />
                   </div>
                 </div>
                 
@@ -285,7 +285,7 @@ const ExpertComptable = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <img src="/logo.png" alt="IKtracker" className="h-5 opacity-50" />
+                      <img src="/logo-iktracker.png" alt="IKtracker" className="h-5 opacity-50" />
                     </div>
                     <p className="text-xs text-gray-400">
                       Simplifiez vos IK • <span className="text-primary">iktracker.fr</span>
