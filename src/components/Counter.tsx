@@ -20,6 +20,7 @@ function AnimatedDigit({
   duration?: number;
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
+  const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef<number>();
   const startTimeRef = useRef<number | null>(null);
   
@@ -38,7 +39,10 @@ function AnimatedDigit({
     }
 
     const animate = (timestamp: number) => {
-      if (startTimeRef.current === null) startTimeRef.current = timestamp;
+      if (startTimeRef.current === null) {
+        startTimeRef.current = timestamp;
+        setIsAnimating(true);
+      }
       
       const elapsed = timestamp - startTimeRef.current - delay;
       
@@ -56,6 +60,8 @@ function AnimatedDigit({
       
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
+      } else {
+        setIsAnimating(false);
       }
     };
 
@@ -64,6 +70,7 @@ function AnimatedDigit({
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       startTimeRef.current = null;
+      setIsAnimating(false);
     };
   }, [digit, delay, duration]);
 
@@ -72,7 +79,12 @@ function AnimatedDigit({
   }
 
   return (
-    <span className="inline-block tabular-nums">
+    <span 
+      className={cn(
+        "inline-block tabular-nums transition-all duration-150",
+        isAnimating && "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]"
+      )}
+    >
       {displayDigit}
     </span>
   );
