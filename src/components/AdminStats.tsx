@@ -8,11 +8,14 @@ import { Button } from '@/components/ui/button';
 import { 
   LineChart, 
   Line, 
+  BarChart,
+  Bar,
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  Legend
 } from 'recharts';
 import { 
   Users, 
@@ -26,8 +29,9 @@ import {
   FileText,
   FileSpreadsheet
 } from 'lucide-react';
-import { format, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
+import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -97,10 +101,29 @@ export function AdminStats() {
   }, []);
 
   // Get date range based on period
-  const getDateRange = () => {
+  const getDateRange = (isPrevious = false) => {
     const config = periodConfig[period];
-    const startDate = config.getStartDate();
-    const endDate = new Date();
+    let startDate = config.getStartDate();
+    let endDate = new Date();
+    
+    if (isPrevious && period !== 'all') {
+      // Calculate previous period
+      switch (period) {
+        case 'week':
+          endDate = subDays(startDate, 1);
+          startDate = subWeeks(startDate, 1);
+          break;
+        case 'month':
+          endDate = subDays(startDate, 1);
+          startDate = subMonths(startDate, 1);
+          break;
+        case 'year':
+          endDate = subDays(startDate, 1);
+          startDate = subYears(startDate, 1);
+          break;
+      }
+    }
+    
     return {
       start_date: format(startDate, 'yyyy-MM-dd'),
       end_date: format(endDate, 'yyyy-MM-dd'),
@@ -108,6 +131,7 @@ export function AdminStats() {
   };
 
   const dateRange = getDateRange();
+  const prevDateRange = getDateRange(true);
 
   // Fetch admin stats with period filter
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -120,6 +144,22 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as AdminStatsData;
     },
+    refetchInterval: 30000,
+  });
+
+  // Fetch previous period stats for comparison
+  const { data: prevStats, isLoading: prevStatsLoading } = useQuery({
+    queryKey: ['admin-stats-prev', period],
+    queryFn: async () => {
+      if (period === 'all') return null;
+      const { data, error } = await supabase.rpc('get_admin_stats', {
+        start_date: prevDateRange.start_date,
+        end_date: prevDateRange.end_date,
+      });
+      if (error) throw error;
+      return data as unknown as AdminStatsData;
+    },
+    enabled: period !== 'all',
     refetchInterval: 30000,
   });
 
@@ -167,6 +207,53 @@ export function AdminStats() {
       case 'year': return 'cette année';
       case 'all': return 'au total';
     }
+  };
+
+  const getPrevPeriodLabel = () => {
+    switch (period) {
+      case 'week': return 'semaine précédente';
+      case 'month': return 'mois précédent';
+      case 'year': return 'année précédente';
+      case 'all': return '';
+    }
+  };
+
+  // Calculate percentage change
+  const getChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  // Comparison chart data
+  const comparisonData = period !== 'all' && stats && prevStats ? [
+    { 
+      name: 'Utilisateurs', 
+      current: stats.total_users, 
+      previous: prevStats.total_users,
+    },
+    { 
+      name: 'Trajets', 
+      current: stats.total_trips, 
+      previous: prevStats.total_trips,
+    },
+    { 
+      name: 'IK (€)', 
+      current: Math.round(stats.total_ik), 
+      previous: Math.round(prevStats.total_ik),
+    },
+    { 
+      name: 'Distance (km)', 
+      current: Math.round(stats.total_km), 
+      previous: Math.round(prevStats.total_km),
+    },
+  ] : [];
+
+  // Change indicator component
+  const ChangeIndicator = ({ current, previous }: { current: number; previous: number }) => {
+    const change = getChange(current, previous);
+    if (change === 0) return <Minus className="w-3 h-3 text-muted-foreground" />;
+    if (change > 0) return <ArrowUp className="w-3 h-3 text-green-500" />;
+    return <ArrowDown className="w-3 h-3 text-red-500" />;
   };
 
   const exportToPDF = () => {
@@ -384,6 +471,66 @@ export function AdminStats() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Comparison chart */}
+      {period !== 'all' && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Comparaison : {periodConfig[period].label} actuel vs {getPrevPeriodLabel()}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {statsLoading || prevStatsLoading ? (
+              <Skeleton className="h-[250px] w-full" />
+            ) : comparisonData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={comparisonData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <YAxis 
+                    type="category" 
+                    dataKey="name" 
+                    tick={{ fontSize: 11 }} 
+                    tickLine={false} 
+                    axisLine={false}
+                    width={100}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                    }}
+                    formatter={(value: number, name: string) => [
+                      new Intl.NumberFormat('fr-FR').format(value),
+                      name === 'current' ? periodConfig[period].label : getPrevPeriodLabel()
+                    ]}
+                  />
+                  <Legend 
+                    formatter={(value) => value === 'current' ? periodConfig[period].label : getPrevPeriodLabel()}
+                  />
+                  <Bar 
+                    dataKey="current" 
+                    fill="hsl(var(--primary))" 
+                    radius={[0, 4, 4, 0]}
+                    name="current"
+                  />
+                  <Bar 
+                    dataKey="previous" 
+                    fill="hsl(var(--muted-foreground))" 
+                    radius={[0, 4, 4, 0]}
+                    opacity={0.5}
+                    name="previous"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : null}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Registrations chart */}
       <Card>
