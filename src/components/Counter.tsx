@@ -9,7 +9,7 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - rolls through numbers
+// Animated digit component - counts up to target
 function AnimatedDigit({ 
   digit, 
   delay = 0,
@@ -20,8 +20,6 @@ function AnimatedDigit({
   duration?: number;
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const targetDigit = digit === ',' || digit === ' ' ? digit : parseInt(digit) || 0;
   
   useEffect(() => {
     // Skip animation for non-numeric characters
@@ -31,22 +29,24 @@ function AnimatedDigit({
     }
 
     const target = parseInt(digit) || 0;
+    
+    // If target is 0, just show 0
+    if (target === 0) {
+      const timeoutId = setTimeout(() => setDisplayDigit('0'), delay);
+      return () => clearTimeout(timeoutId);
+    }
+    
+    // Count from 0 up to target value
+    const stepDuration = duration / target;
     let current = 0;
-    const steps = target + 10; // Roll through more numbers for effect
-    const stepDuration = duration / steps;
     
     const timeoutId = setTimeout(() => {
-      setIsAnimating(true);
-      
       const interval = setInterval(() => {
         current++;
-        if (current >= steps) {
-          setDisplayDigit(target.toString());
-          setIsAnimating(false);
+        setDisplayDigit(current.toString());
+        
+        if (current >= target) {
           clearInterval(interval);
-        } else {
-          // Show rolling numbers, cycling 0-9
-          setDisplayDigit((current % 10).toString());
         }
       }, stepDuration);
       
@@ -62,12 +62,7 @@ function AnimatedDigit({
   }
 
   return (
-    <span 
-      className={cn(
-        "inline-block transition-transform",
-        isAnimating && "animate-pulse"
-      )}
-    >
+    <span className="inline-block tabular-nums">
       {displayDigit}
     </span>
   );
