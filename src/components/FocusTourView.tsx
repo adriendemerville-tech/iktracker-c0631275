@@ -152,17 +152,12 @@ export function FocusTourView({
         {/* Separator */}
         <div className="h-12 w-px bg-gray-800" />
 
-        {/* Stops Counter - blue like the button with white outline */}
+        {/* Stops Counter - blue number, white label */}
         <div className="flex flex-col items-center">
-          <span 
-            className="font-urbanist text-5xl font-bold text-primary tabular-nums"
-            style={{
-              textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff',
-            }}
-          >
+          <span className="font-urbanist text-5xl font-bold text-primary tabular-nums">
             {stopsCount}
           </span>
-          <span className="font-urbanist text-sm text-primary/60 mt-1 uppercase tracking-widest">
+          <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest">
             ÉTAPES
           </span>
         </div>
