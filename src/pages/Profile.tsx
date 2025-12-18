@@ -464,7 +464,18 @@ const Profile = () => {
         {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
 
         {/* Kilometers Chart */}
-        <Card>
+        <Card className="relative">
+          {/* Animated car - at header level, above December bar */}
+          <div className="absolute top-4 right-6 flex flex-col items-center gap-0 z-10">
+            <div className="animate-car-bounce relative">
+              <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
+              {/* Animated wheels overlay */}
+              <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+              <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+            </div>
+            {/* Road with wave */}
+            <div className="w-8 h-[2px] bg-muted-foreground/40 rounded-full -mt-1.5 animate-road-wave" />
+          </div>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <BarChart3 className="w-4 h-4" />
@@ -475,18 +486,7 @@ const Profile = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-48 relative">
-              {/* Animated car - positioned above last bar */}
-              <div className="absolute -top-2 right-3 flex flex-col items-center gap-0 z-10">
-                <div className="animate-car-bounce relative">
-                  <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
-                  {/* Animated wheels overlay */}
-                  <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-                  <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-                </div>
-                {/* Road with wave */}
-                <div className="w-8 h-[2px] bg-muted-foreground/40 rounded-full -mt-1.5 animate-road-wave" />
-              </div>
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyKmData} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={40}>
                   <defs>
