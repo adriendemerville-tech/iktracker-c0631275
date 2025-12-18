@@ -21,7 +21,57 @@ import { FeedbackForm } from '@/components/FeedbackForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Vehicle } from '@/types/trip';
+import { useCallback, useRef } from 'react';
 
+// Animated counter label for bar chart
+const AnimatedLabel = (props: any) => {
+  const { x, y, width, height, value } = props;
+  const [displayValue, setDisplayValue] = useState(0);
+  const animationRef = useRef<number>();
+  
+  useEffect(() => {
+    const startTime = Date.now();
+    const duration = 800;
+    const startDelay = 400; // Start after bar animation begins
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime - startDelay;
+      if (elapsed < 0) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      setDisplayValue(Math.round(value * easeOut));
+      
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+    
+    animationRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [value]);
+  
+  if (!value || value === 0) return null;
+  
+  return (
+    <text
+      x={x + width / 2}
+      y={y + height / 2}
+      fill="white"
+      textAnchor="middle"
+      dominantBaseline="middle"
+      fontSize={13}
+      fontWeight={700}
+    >
+      {displayValue}
+    </text>
+  );
+};
 const PROFESSIONS = [
   "Banque et assurance",
   "Indépendants",
@@ -399,7 +449,7 @@ const Profile = () => {
                       const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                     })}
-                    <LabelList dataKey="km" position="center" fill="white" fontSize={13} fontWeight={700} />
+                    <LabelList dataKey="km" content={<AnimatedLabel />} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
