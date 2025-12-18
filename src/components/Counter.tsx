@@ -14,12 +14,14 @@ function AnimatedDigit({
   digit, 
   delay = 0,
   duration = 800,
-  variant = 'default'
+  variant = 'default',
+  rolls = 2 // Number of full 0-9 cycles before landing on target
 }: { 
   digit: string; 
   delay?: number;
   duration?: number;
   variant?: 'default' | 'accent';
+  rolls?: number;
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -35,10 +37,13 @@ function AnimatedDigit({
 
     const target = parseInt(digit) || 0;
     
-    if (target === 0) {
+    if (target === 0 && rolls === 0) {
       const timeoutId = setTimeout(() => setDisplayDigit('0'), delay);
       return () => clearTimeout(timeoutId);
     }
+
+    // Total steps: rolls * 10 (full cycles) + target (final position)
+    const totalSteps = rolls * 10 + target;
 
     const animate = (timestamp: number) => {
       if (startTimeRef.current === null) {
@@ -56,13 +61,15 @@ function AnimatedDigit({
       const progress = Math.min(elapsed / duration, 1);
       // Ease-out cubic for smooth deceleration
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentValue = Math.round(target * easeOut);
+      const currentStep = Math.round(totalSteps * easeOut);
       
-      setDisplayDigit(currentValue.toString());
+      // Display modulo 10 to cycle through 0-9
+      setDisplayDigit((currentStep % 10).toString());
       
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
+        setDisplayDigit(target.toString());
         setIsAnimating(false);
       }
     };
@@ -74,7 +81,7 @@ function AnimatedDigit({
       startTimeRef.current = null;
       setIsAnimating(false);
     };
-  }, [digit, delay, duration]);
+  }, [digit, delay, duration, rolls]);
 
   if (digit === ',' || digit === ' ' || digit === '.') {
     return <span>{digit}</span>;
@@ -140,8 +147,9 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
               key={`${key}-${index}`}
               digit={digit} 
               delay={getDelay(index, digits.length)}
-              duration={600}
+              duration={variant === 'default' ? 1200 : 600}
               variant={variant}
+              rolls={variant === 'default' ? 3 : 1}
             />
           ))}
         </span>
