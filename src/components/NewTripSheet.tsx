@@ -10,7 +10,7 @@ import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
 import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map, X } from 'lucide-react';
-import { WazeIcon } from './icons/WazeIcon';
+import wazeLogo from '@/assets/waze-logo.png';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
@@ -692,7 +692,7 @@ export function NewTripSheet({
                       disabled:opacity-50 disabled:cursor-not-allowed
                       group flex-1 min-w-[120px] max-w-[160px]"
                   >
-                    <WazeIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary group-hover:scale-110 transition-transform" />
+                    <img src={wazeLogo} alt="Waze" className="w-6 h-6 sm:w-7 sm:h-7 rounded group-hover:scale-110 transition-transform" />
                     <span>Waze</span>
                   </button>
                   <button
