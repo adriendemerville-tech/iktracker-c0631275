@@ -159,7 +159,7 @@ export function FocusTourView({
             style={{
               backgroundImage: 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
               backgroundSize: '100% 300%',
-              animation: 'gradient-scroll 2s linear infinite',
+              animation: 'gradient-scroll 4s linear infinite',
             }}
           >
             {stopsCount}
