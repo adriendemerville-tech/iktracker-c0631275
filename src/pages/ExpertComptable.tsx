@@ -17,7 +17,9 @@ import {
   Euro,
   Briefcase,
   MapPin,
-  Users
+  Users,
+  Car,
+  FileText
 } from "lucide-react";
 
 const ExpertComptable = () => {
@@ -156,56 +158,153 @@ const ExpertComptable = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div 
               ref={pdfRef}
-              className={`relative order-2 lg:order-1 transition-all duration-700 ${pdfVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`relative order-2 lg:order-1 transition-all duration-700 ${pdfVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}
             >
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-md mx-auto hover:shadow-2xl transition-shadow duration-300">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
-                    <FileSpreadsheet className="h-6 w-6 text-red-500" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">releve-ik-decembre-2025.pdf</p>
-                    <p className="text-sm text-muted-foreground">Document PDF conforme</p>
+              {/* Subtle shadow backdrop */}
+              <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 to-transparent rounded-[2rem] blur-2xl" />
+              
+              {/* Main PDF Document - iOS Style */}
+              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-w-md mx-auto" style={{ aspectRatio: '0.7' }}>
+                {/* Header bar with logo */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Relevé IK</p>
+                        <p className="text-xs text-gray-500">Décembre 2025</p>
+                      </div>
+                    </div>
+                    <img src="/logo.png" alt="IKtracker" className="h-6 opacity-60" />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  {[
-                    { label: "Véhicule", value: "Renault Clio • 5 CV", delay: 100 },
-                    { label: "Distance totale", value: "2 458 km", delay: 200 },
-                    { label: "Indemnités calculées", value: "1 352,90 €", delay: 300, highlight: true, large: true },
-                    { label: "Barème appliqué", value: "Fiscal 2025", delay: 400, noBorder: true }
-                  ].map((item, i) => (
+                
+                {/* Document content */}
+                <div className="p-6 space-y-5 flex-1">
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-2 gap-3">
                     <div 
-                      key={i}
-                      className={`flex justify-between py-3 ${!item.noBorder ? 'border-b border-border' : ''} transition-all duration-500`}
+                      className="bg-gray-50 rounded-xl p-4 transition-all duration-500"
                       style={{ 
-                        transitionDelay: pdfVisible ? `${item.delay}ms` : '0ms',
+                        transitionDelay: pdfVisible ? '100ms' : '0ms',
                         opacity: pdfVisible ? 1 : 0,
-                        transform: pdfVisible ? 'translateX(0)' : 'translateX(-10px)'
+                        transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
                       }}
                     >
-                      <span className="text-muted-foreground">{item.label}</span>
-                      <span className={`font-medium ${item.highlight ? 'font-bold text-primary' : ''} ${item.large ? 'text-lg' : ''}`}>{item.value}</span>
+                      <p className="text-xs text-gray-500 mb-1">Distance totale</p>
+                      <p className="text-lg font-bold text-gray-900">2 458 km</p>
                     </div>
-                  ))}
+                    <div 
+                      className="bg-primary/5 rounded-xl p-4 transition-all duration-500"
+                      style={{ 
+                        transitionDelay: pdfVisible ? '200ms' : '0ms',
+                        opacity: pdfVisible ? 1 : 0,
+                        transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
+                      }}
+                    >
+                      <p className="text-xs text-gray-500 mb-1">Indemnités</p>
+                      <p className="text-lg font-bold text-primary">1 352,90 €</p>
+                    </div>
+                  </div>
+                  
+                  {/* Vehicle info */}
+                  <div 
+                    className="bg-gray-50 rounded-xl p-4 transition-all duration-500"
+                    style={{ 
+                      transitionDelay: pdfVisible ? '300ms' : '0ms',
+                      opacity: pdfVisible ? 1 : 0,
+                      transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                        <Car className="h-5 w-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Renault Clio</p>
+                        <p className="text-xs text-gray-500">5 CV fiscaux • CD-456-EF</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Trip list preview */}
+                  <div 
+                    className="space-y-2 transition-all duration-500"
+                    style={{ 
+                      transitionDelay: pdfVisible ? '400ms' : '0ms',
+                      opacity: pdfVisible ? 1 : 0,
+                      transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
+                    }}
+                  >
+                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide px-1">Derniers trajets</p>
+                    {[
+                      { date: "20 déc", from: "Bordeaux", to: "Toulouse", km: "245 km" },
+                      { date: "17 déc", from: "Toulouse", to: "Montpellier", km: "242 km" },
+                      { date: "14 déc", from: "Montpellier", to: "Nîmes", km: "58 km" }
+                    ].map((trip, i) => (
+                      <div 
+                        key={i} 
+                        className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-100"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-gray-400 w-12">{trip.date}</span>
+                          <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                            <span>{trip.from}</span>
+                            <ArrowRight className="h-3 w-3 text-gray-400" />
+                            <span>{trip.to}</span>
+                          </div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">{trip.km}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Total */}
+                  <div 
+                    className="flex items-center justify-between pt-3 border-t border-gray-100 transition-all duration-500"
+                    style={{ 
+                      transitionDelay: pdfVisible ? '500ms' : '0ms',
+                      opacity: pdfVisible ? 1 : 0,
+                      transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
+                    }}
+                  >
+                    <span className="text-sm text-gray-500">Total à déclarer</span>
+                    <span className="text-xl font-bold text-primary">1 352,90 €</span>
+                  </div>
                 </div>
+                
+                {/* Footer with logo and marketing */}
                 <div 
-                  className="mt-6 flex gap-2 transition-all duration-500"
+                  className="bg-gray-50 px-6 py-4 border-t border-gray-100 transition-all duration-500"
                   style={{ 
-                    transitionDelay: pdfVisible ? '500ms' : '0ms',
-                    opacity: pdfVisible ? 1 : 0,
-                    transform: pdfVisible ? 'translateY(0)' : 'translateY(10px)'
+                    transitionDelay: pdfVisible ? '550ms' : '0ms',
+                    opacity: pdfVisible ? 1 : 0
                   }}
                 >
-                  <div className="flex-1 py-2 px-3 rounded-lg bg-primary/10 text-primary text-center text-sm font-medium hover:bg-primary/20 transition-colors cursor-pointer">
-                    <Download className="h-4 w-4 inline mr-2" />
-                    PDF
-                  </div>
-                  <div className="flex-1 py-2 px-3 rounded-lg bg-green-500/10 text-green-600 text-center text-sm font-medium hover:bg-green-500/20 transition-colors cursor-pointer">
-                    <FileSpreadsheet className="h-4 w-4 inline mr-2" />
-                    Excel
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <img src="/logo.png" alt="IKtracker" className="h-5 opacity-50" />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Simplifiez vos IK • <span className="text-primary">iktracker.fr</span>
+                    </p>
                   </div>
                 </div>
+              </div>
+              
+              {/* Floating badge */}
+              <div 
+                className="absolute -bottom-3 -right-3 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium transition-all duration-500"
+                style={{ 
+                  transitionDelay: pdfVisible ? '600ms' : '0ms',
+                  opacity: pdfVisible ? 1 : 0,
+                  transform: pdfVisible ? 'scale(1)' : 'scale(0.8)'
+                }}
+              >
+                <Check className="h-4 w-4" />
+                Conforme fiscal
               </div>
             </div>
             <div className="space-y-6 order-1 lg:order-2">
