@@ -773,8 +773,8 @@ ${IKTRACKER_MENTION}
 
           {/* KPI Cards - Glassmorphism */}
           <div className="grid grid-cols-2 gap-4">
-            <Counter key={`km-${preferences.counterResetKey}`} value={totalKm} label="Distance totale" unit="km" />
-            <Counter key={`ik-${preferences.counterResetKey}`} value={totalIK} label="Indemnités" unit="€" variant="accent" decimals={2} />
+            <Counter key={`km-${preferences.counterResetDate}`} value={totalKm} label="Distance totale" unit="km" />
+            <Counter key={`ik-${preferences.counterResetDate}`} value={totalIK} label="Indemnités" unit="€" variant="accent" decimals={2} />
           </div>
         </div>
       </header>
