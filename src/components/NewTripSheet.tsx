@@ -9,7 +9,7 @@ import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map, X } from 'lucide-react';
 import { WazeIcon } from './icons/WazeIcon';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
@@ -279,8 +279,9 @@ export function NewTripSheet({
   };
 
   const handleClose = () => {
+    // Always reset form immediately when closing
+    resetForm();
     onOpenChange(false);
-    setTimeout(resetForm, 300);
   };
 
   const preventCloseOnGoogleAutocomplete = (event: any) => {
@@ -656,8 +657,15 @@ export function NewTripSheet({
 
           {step === 'details' && (
             <div className="animate-fade-in space-y-6">
-              <div className="p-4 bg-muted rounded-md">
-                <div className="flex items-center gap-3 text-sm mb-2">
+              <div className="p-4 bg-muted rounded-md relative">
+                <button
+                  onClick={handleClose}
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-background/80 hover:bg-background flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Fermer et réinitialiser"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+                <div className="flex items-center gap-3 text-sm mb-2 pr-6">
                   <Car className="w-4 h-4 text-primary" />
                   <span className="font-medium">{selectedVehicle?.make} {selectedVehicle?.model}</span>
                   <span className="text-muted-foreground">• {selectedVehicle?.fiscalPower} CV</span>
