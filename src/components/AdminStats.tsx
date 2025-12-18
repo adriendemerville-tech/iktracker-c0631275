@@ -660,13 +660,13 @@ export function AdminStats() {
                   <Bar 
                     dataKey="current" 
                     fill="hsl(var(--primary))" 
-                    radius={[0, 4, 4, 0]}
+                    radius={[0, 12, 12, 0]}
                     name="current"
                   />
                   <Bar 
                     dataKey="previous" 
                     fill="hsl(var(--muted-foreground))" 
-                    radius={[0, 4, 4, 0]}
+                    radius={[0, 12, 12, 0]}
                     opacity={0.5}
                     name="previous"
                   />
