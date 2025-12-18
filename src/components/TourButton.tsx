@@ -36,8 +36,15 @@ export function TourButton({
       } : undefined}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
+      {/* Loading spinner - minimal ring */}
+      {isLoading && (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span className="w-12 h-12 rounded-full border-2 border-current/20 border-t-current animate-spin" />
+        </span>
+      )}
+      
       {/* Speed lines - only visible when active */}
-      {isActive && (
+      {isActive && !isLoading && (
         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
           <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
           <span className="w-3 h-0.5 bg-current opacity-40 rounded-full -ml-0.5" />
@@ -45,11 +52,11 @@ export function TourButton({
       )}
       
       {/* Dot in front when inactive */}
-      {!isActive && (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+      {!isActive && !isLoading && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full" />
       )}
       
-      <Car className={cn("w-7 h-7 relative z-10", isLoading && "animate-bounce")} />
+      <Car className={cn("w-7 h-7 relative z-10", isLoading && "opacity-50")} />
       
       {/* Stops count badge - top right */}
       {isActive && stopsCount > 0 && (
