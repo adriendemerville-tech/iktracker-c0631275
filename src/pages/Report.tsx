@@ -581,8 +581,8 @@ ${IKTRACKER_URL}`
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-6">
-        <div className="bg-card rounded-md p-5 shadow-md">
-          <h2 className="text-sm font-medium text-muted-foreground mb-4">Récapitulatif</h2>
+        <div className="bg-card rounded-md p-4 shadow-md">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="counter-text text-2xl font-bold">{trips.length}</p>
