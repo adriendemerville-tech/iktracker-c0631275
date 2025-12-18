@@ -247,11 +247,8 @@ const Profile = () => {
         </Card>
 
         {/* Account Info Details (Collapsible) */}
-        <div 
-          className={`grid transition-all duration-300 ease-out -mt-5 ${showAccountInfo ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-        >
-          <div className="overflow-hidden">
-            <Card className="border-t-0 rounded-t-none">
+        {showAccountInfo && (
+          <Card className="border-t-0 rounded-t-none -mt-5">
               <CardContent className="space-y-4 pt-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
@@ -323,8 +320,7 @@ const Profile = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
-        </div>
+        )}
 
         {/* Preferences Dropdown */}
         <div className="bg-card rounded-md shadow-md overflow-hidden">
