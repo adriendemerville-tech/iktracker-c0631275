@@ -612,9 +612,7 @@ ${IKTRACKER_URL}`
               <div className="text-left">
                 <p className="font-medium">Tournées passées</p>
                 <p className="text-sm text-muted-foreground">
-                  {pastTours.length > 0 
-                    ? `${pastTours.length} tournée${pastTours.length > 1 ? 's' : ''}` 
-                    : 'Aucune tournée'}
+                  {pastTours.length} tournée{pastTours.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -624,25 +622,33 @@ ${IKTRACKER_URL}`
           <div className={`grid transition-all duration-300 ease-out ${showToursDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
             <div className="overflow-hidden">
               <div className="border-t border-border p-3 space-y-2 max-h-60 overflow-y-auto">
-                {pastTours.map(tour => (
-                  <button
-                    key={tour.id}
-                    onClick={() => setSelectedTourId(selectedTourId === tour.id ? null : tour.id)}
-                    className={`w-full p-3 rounded-md text-left transition-colors ${
-                      selectedTourId === tour.id ? 'bg-primary/10 border border-primary/30' : 'hover:bg-accent/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{tour.tourStops?.length || 0} arrêts</span>
-                        <span className="text-muted-foreground">•</span>
-                        <span className="text-sm text-muted-foreground">{formatTourDate(tour.startTime)}</span>
+                {pastTours.length > 0 ? (
+                  pastTours.map(tour => (
+                    <button
+                      key={tour.id}
+                      onClick={() => setSelectedTourId(selectedTourId === tour.id ? null : tour.id)}
+                      className={`w-full p-3 rounded-md text-left transition-colors ${
+                        selectedTourId === tour.id ? 'bg-primary/10 border border-primary/30' : 'hover:bg-accent/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium">{tour.tourStops?.length || 0} arrêts</span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-sm text-muted-foreground">{formatTourDate(tour.startTime)}</span>
+                        </div>
+                        <span className="text-sm font-medium text-accent">{tour.ikAmount.toFixed(2)}€</span>
                       </div>
-                      <span className="text-sm font-medium text-accent">{tour.ikAmount.toFixed(2)}€</span>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <Truck className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">Aucune tournée enregistrée</p>
+                    <p className="text-xs mt-1">Démarrez une tournée depuis l'accueil</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
