@@ -337,3 +337,30 @@
     transform: scale(1.15);
   }
 }
+
+/* Subtle CTA pulse animation */
+@keyframes cta-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 6px -1px hsl(220 70% 50% / 0.15), 0 2px 4px -2px hsl(220 70% 50% / 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 12px -1px hsl(220 70% 50% / 0.3), 0 2px 8px -2px hsl(220 70% 50% / 0.2);
+  }
+}
+
+.animate-cta-pulse {
+  animation: cta-pulse 2.5s ease-in-out infinite;
+}
+
+.dark .animate-cta-pulse {
+  animation-name: cta-pulse-dark;
+}
+
+@keyframes cta-pulse-dark {
+  0%, 100% {
+    box-shadow: 0 4px 6px -1px hsl(220 70% 60% / 0.15), 0 2px 4px -2px hsl(220 70% 60% / 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 14px -1px hsl(220 70% 60% / 0.35), 0 2px 10px -2px hsl(220 70% 60% / 0.25);
+  }
+}

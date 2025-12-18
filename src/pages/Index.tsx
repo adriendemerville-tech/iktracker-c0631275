@@ -879,7 +879,8 @@ ${IKTRACKER_MENTION}
           </Link>
           <Button 
             variant="gradient" 
-            size="lg" 
+            size="lg"
+            className="animate-cta-pulse"
             onClick={() => {
               if (vehicles.length === 0) {
                 toast.info("Ajoutez d'abord un véhicule", {
