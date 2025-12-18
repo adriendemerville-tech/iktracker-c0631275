@@ -480,7 +480,7 @@ const Profile = () => {
 
 
         {/* Download App Button */}
-        <Link to="/install">
+        <Link to="/install" className="mt-4 block">
           <Button variant="outline" className="w-full">
             <Download className="w-4 h-4 mr-2" />
             Télécharger l'application
