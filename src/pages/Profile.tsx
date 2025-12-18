@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
@@ -480,12 +481,24 @@ const Profile = () => {
 
 
         {/* Download App Button */}
-        <Link to="/install" className="mt-4 block">
-          <Button variant="outline" className="w-full">
-            <Download className="w-4 h-4 mr-2" />
-            Télécharger l'application
-          </Button>
-        </Link>
+        <Button 
+          variant="outline" 
+          className="w-full mt-4"
+          onClick={async () => {
+            // Track click if user is logged in
+            if (user) {
+              try {
+                await supabase.from('download_clicks').insert({ user_id: user.id });
+              } catch (e) {
+                console.warn('Failed to track download click:', e);
+              }
+            }
+            navigate('/install');
+          }}
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Télécharger l'application
+        </Button>
 
         {/* Feedback Button - Normal position when no unread responses */}
         {user && unreadResponsesCount === 0 && <FeedbackForm />}

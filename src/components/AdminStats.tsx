@@ -31,7 +31,8 @@ import {
   Trophy,
   ArrowUp,
   ArrowDown,
-  Minus
+  Minus,
+  Download
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -44,6 +45,13 @@ interface AdminStatsData {
   total_trips: number;
   total_km: number;
   total_ik: number;
+}
+
+interface DownloadStatsData {
+  total_clicks: number;
+  unique_users: number;
+  avg_clicks_per_user: number;
+  pct_users_clicked: number;
 }
 
 interface TopUser {
@@ -201,6 +209,17 @@ export function AdminStats() {
       });
       if (error) throw error;
       return data as unknown as TopUser[];
+    },
+    refetchInterval: 60000,
+  });
+
+  // Fetch download stats
+  const { data: downloadStats, isLoading: downloadStatsLoading } = useQuery({
+    queryKey: ['admin-download-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_download_stats');
+      if (error) throw error;
+      return data as unknown as DownloadStatsData;
     },
     refetchInterval: 60000,
   });
@@ -498,6 +517,45 @@ export function AdminStats() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Download App Stats */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Download className="w-5 h-5 text-primary" />
+            Téléchargement de l'application
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {downloadStatsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Skeleton className="h-16" />
+              <Skeleton className="h-16" />
+              <Skeleton className="h-16" />
+              <Skeleton className="h-16" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-primary">{downloadStats?.total_clicks || 0}</p>
+                <p className="text-xs text-muted-foreground">Clics totaux</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-blue-500">{downloadStats?.unique_users || 0}</p>
+                <p className="text-xs text-muted-foreground">Utilisateurs uniques</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-amber-500">{downloadStats?.avg_clicks_per_user || 0}</p>
+                <p className="text-xs text-muted-foreground">Clics/utilisateur</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-green-500">{downloadStats?.pct_users_clicked || 0}%</p>
+                <p className="text-xs text-muted-foreground">Utilisateurs ayant cliqué</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Comparison chart */}
       {period !== 'all' && (

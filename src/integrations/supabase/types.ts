@@ -80,6 +80,24 @@ export type Database = {
         }
         Relationships: []
       }
+      download_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
@@ -304,6 +322,7 @@ export type Database = {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
       }
+      get_download_stats: { Args: never; Returns: Json }
       get_registrations_by_day: {
         Args: { days_back?: number }
         Returns: {
