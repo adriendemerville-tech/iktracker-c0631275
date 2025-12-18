@@ -349,9 +349,9 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full overflow-x-hidden">
       {/* Search input */}
-      <div className="relative">
+      <div className="relative w-full">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
           ref={searchInputRef}
@@ -364,7 +364,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
               handleSearchSubmit();
             }
           }}
-          className="pl-10 h-12 text-base"
+          className="pl-10 h-12 text-base w-full"
         />
       </div>
 
@@ -374,26 +374,26 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         onClick={handleUseCurrentLocation}
         disabled={geoLoading}
       >
-        <Navigation className={cn("w-5 h-5 text-primary", geoLoading && "animate-pulse")} />
+        <Navigation className={cn("w-5 h-5 text-primary shrink-0", geoLoading && "animate-pulse")} />
         {geoLoading ? 'Localisation...' : 'Utiliser ma position'}
       </Button>
 
       {/* Recent locations */}
       {recentLocations.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4 shrink-0" />
             Récents
           </p>
-          <div className="grid gap-2 w-[95%]">
+          <div className="flex flex-col gap-2 w-full">
             {recentLocations.map((location, index) => (
               <button
                 key={`recent-${index}`}
                 onClick={() => onSelect(location)}
-                className="flex items-center gap-3 p-3 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors text-left w-full"
+                className="flex items-center gap-3 p-3 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors text-left w-full min-w-0"
               >
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <div className="flex-1 min-w-0">
+                <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="font-medium truncate">{location.name}</p>
                   {location.address && (
                     <p className="text-sm text-muted-foreground truncate">{location.address}</p>
@@ -408,14 +408,14 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         </div>
       )}
 
-      <div className="space-y-2">
+      <div className="space-y-2 w-full">
         <p className="text-sm font-medium text-muted-foreground">Lieux enregistrés</p>
         <p className="text-xs text-muted-foreground">Appui long pour modifier</p>
-        <div className="grid gap-2 w-[95%]">
+        <div className="flex flex-col gap-2 w-full">
           {savedLocations.map((location) => (
-            <div key={location.id} className="relative group">
+            <div key={location.id} className="relative group w-full">
               {editingLocation?.id === location.id ? (
-                <div className="space-y-3 p-4 bg-accent/10 rounded-md border-2 border-accent animate-fade-in">
+                <div className="space-y-3 p-4 bg-accent/10 rounded-md border-2 border-accent animate-fade-in w-full">
                   <Input
                     placeholder="Nom du lieu"
                     value={editingLocation.name}
@@ -467,10 +467,10 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                   onMouseLeave={handleLongPressEnd}
                   onTouchStart={() => handleLongPressStart(location)}
                   onTouchEnd={handleLongPressEnd}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left w-full"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left w-full min-w-0"
                 >
-                  <span className="text-primary">{typeIcons[location.type]}</span>
-                  <div className="flex-1 min-w-0">
+                  <span className="text-primary shrink-0">{typeIcons[location.type]}</span>
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="font-medium truncate">{location.name}</p>
                     {location.address && (
                       <p className="text-sm text-muted-foreground truncate">{location.address}</p>
