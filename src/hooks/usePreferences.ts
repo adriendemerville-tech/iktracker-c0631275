@@ -8,6 +8,7 @@ export interface Preferences {
   locationRadiusMeters: number;
   profession: string;
   accountantEmail: string;
+  hasSentToAccountant: boolean;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -18,6 +19,7 @@ const defaultPreferences: Preferences = {
   locationRadiusMeters: 100,
   profession: '',
   accountantEmail: '',
+  hasSentToAccountant: false,
 };
 
 export function usePreferences() {
