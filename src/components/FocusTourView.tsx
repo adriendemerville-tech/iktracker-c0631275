@@ -133,7 +133,7 @@ export function FocusTourView({
         <div className="bg-orange-500/20 border border-orange-500/40 rounded-xl px-5 py-2.5 flex items-center gap-3">
           <BatteryLow className="w-6 h-6 text-orange-400" />
           <span className="text-orange-400 text-base font-urbanist">
-            Batterie faible - rechargez
+            Batterie faible
           </span>
         </div>
       )}
