@@ -56,7 +56,8 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
 
   const startCityName = getDisplayName(trip.startLocation);
   const endCityName = getDisplayName(trip.endLocation);
-  const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length > 0;
+  // Une tournée doit avoir minimum 3 stops (villes), sinon c'est un trajet simple
+  const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length >= 3;
 
   const handleCardClick = () => {
     if (isTour) {

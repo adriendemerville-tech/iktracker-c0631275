@@ -53,69 +53,72 @@ export function TourDetailSheet({ open, onOpenChange, stops, totalDistance, date
           </div>
         </SheetHeader>
 
-        {/* Departure and arrival cities */}
-        {stops.length > 0 && (
-          <div className="flex items-center justify-center gap-3 py-3 border-b border-border bg-muted/30">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-primary" />
-              <span className="font-medium text-sm">{stops[0]?.city || stops[0]?.address || 'Départ'}</span>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-accent" />
-              <span className="font-medium text-sm">{stops[stops.length - 1]?.city || stops[stops.length - 1]?.address || 'Arrivée'}</span>
-            </div>
-          </div>
-        )}
-
         <div className="py-4 overflow-y-auto max-h-[calc(85vh-120px)]">
           <div className="space-y-0">
-            {stops.map((stop, index) => (
-              <div key={stop.id} className="relative pl-8">
-                {/* Timeline line */}
-                {index < stops.length - 1 && (
-                  <div className="absolute left-3 top-6 bottom-0 w-0.5 bg-border" />
-                )}
-                
-                {/* Timeline dot */}
-                <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                  index === 0 
-                    ? 'bg-primary border-primary text-primary-foreground' 
-                    : index === stops.length - 1 
-                      ? 'bg-accent border-accent text-accent-foreground'
-                      : 'bg-background border-muted-foreground'
-                }`}>
-                  <span className="text-xs font-medium">{index + 1}</span>
-                </div>
+            {stops.map((stop, index) => {
+              const isFirst = index === 0;
+              const isLast = index === stops.length - 1;
+              const isIntermediate = !isFirst && !isLast;
+              
+              // Labels pour le design
+              const label = isFirst ? 'Départ' : isLast ? 'Arrivée' : `Étape ${index}`;
+              
+              return (
+                <div key={stop.id} className="relative pl-10">
+                  {/* Timeline line */}
+                  {!isLast && (
+                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-border to-border/50" />
+                  )}
+                  
+                  {/* Timeline dot avec label */}
+                  <div className={`absolute left-0 top-1 w-8 h-8 rounded-full border-2 flex items-center justify-center shadow-sm ${
+                    isFirst 
+                      ? 'bg-primary border-primary text-primary-foreground' 
+                      : isLast 
+                        ? 'bg-accent border-accent text-accent-foreground'
+                        : 'bg-background border-primary/40'
+                  }`}>
+                    {isFirst ? (
+                      <MapPin className="w-4 h-4" />
+                    ) : isLast ? (
+                      <MapPin className="w-4 h-4" />
+                    ) : (
+                      <span className="text-xs font-semibold text-primary">{index}</span>
+                    )}
+                  </div>
 
-                {/* Stop content */}
-                <div className="pb-6">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">
-                        {stop.city || stop.address || 'Position'}
-                      </p>
-                      {stop.address && stop.city && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {stop.address}
+                  {/* Stop content */}
+                  <div className="pb-6">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-0.5">
+                          {label}
                         </p>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Clock className="w-3.5 h-3.5" />
-                        {formatTime(stop.timestamp)}
+                        <p className="font-semibold text-foreground truncate">
+                          {stop.city || stop.address || 'Position'}
+                        </p>
+                        {stop.address && stop.city && (
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            {stop.address}
+                          </p>
+                        )}
                       </div>
-                      {stop.duration && stop.duration > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          Arrêt: {formatDuration(stop.duration)}
-                        </p>
-                      )}
+                      <div className="text-right shrink-0">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Clock className="w-3.5 h-3.5" />
+                          {formatTime(stop.timestamp)}
+                        </div>
+                        {stop.duration && stop.duration > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            Arrêt: {formatDuration(stop.duration)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </SheetContent>
