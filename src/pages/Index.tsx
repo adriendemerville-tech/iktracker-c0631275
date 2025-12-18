@@ -697,11 +697,11 @@ ${IKTRACKER_MENTION}
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
           }}
         />
-        <div className="max-w-lg mx-auto relative z-10">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1">
-              <h1 className="text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
-              <p className="text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
+              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
+              <p className="text-xs sm:text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
             </div>
             {isAdmin && (
               <>
@@ -774,7 +774,7 @@ ${IKTRACKER_MENTION}
           </div>
 
           {/* KPI Cards - Glassmorphism */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <Counter key={`km-${preferences.counterResetDate}`} value={totalKm} label="Distance totale" unit="km" />
             <Counter key={`ik-${preferences.counterResetDate}`} value={totalIK} label="Indemnités" unit="€" variant="accent" decimals={2} />
           </div>
@@ -782,7 +782,7 @@ ${IKTRACKER_MENTION}
       </header>
 
       {/* Main content */}
-      <main className="max-w-lg mx-auto px-4 pt-4 space-y-5 pb-32">
+      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-4 space-y-5 pb-32">
         {/* Vehicles section */}
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -874,7 +874,7 @@ ${IKTRACKER_MENTION}
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
-        <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto grid grid-cols-2 gap-3">
           <Link to="/report">
             <Button variant="secondary" size="lg" className="w-full shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
               <FileText className="w-5 h-5" />

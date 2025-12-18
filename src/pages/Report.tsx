@@ -563,7 +563,7 @@ ${IKTRACKER_URL}`
   return (
     <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
-        <div className="flex items-center justify-between max-w-lg mx-auto">
+        <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
           <Link to="/app">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="w-5 h-5" />
@@ -581,7 +581,7 @@ ${IKTRACKER_URL}`
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-4">
         <div className="bg-card rounded-md p-4 shadow-md">
           <h2 className="text-sm font-medium text-muted-foreground mb-3">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
@@ -795,7 +795,7 @@ ${IKTRACKER_URL}`
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
-        <div className="max-w-lg mx-auto flex justify-center">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center">
           <Button 
             variant="gradient" 
             size="lg"
