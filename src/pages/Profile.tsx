@@ -386,7 +386,15 @@ const Profile = () => {
                   </defs>
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis type="number" hide />
-                  <Bar dataKey="km" radius={[20, 20, 0, 0]} filter="url(#barShadow)">
+                  <Bar 
+                    dataKey="km" 
+                    radius={[20, 20, 0, 0]} 
+                    filter="url(#barShadow)"
+                    isAnimationActive={true}
+                    animationBegin={200}
+                    animationDuration={800}
+                    animationEasing="ease-out"
+                  >
                     {monthlyKmData.map((_, index) => {
                       const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
