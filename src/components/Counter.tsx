@@ -118,7 +118,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   const getDelay = (index: number, totalLength: number) => {
     // Reverse index so rightmost digits animate first
     const reverseIndex = totalLength - 1 - index;
-    return reverseIndex * 180; // 180ms delay between each position
+    return reverseIndex * 90; // 90ms delay between each position
   };
 
   const digits = formattedValue.split('');
@@ -144,7 +144,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
               key={`${key}-${index}`}
               digit={digit} 
               delay={getDelay(index, digits.length)}
-              duration={variant === 'default' ? 1800 : 800}
+              duration={variant === 'default' ? 7200 : 3200}
               variant={variant}
             />
           ))}
