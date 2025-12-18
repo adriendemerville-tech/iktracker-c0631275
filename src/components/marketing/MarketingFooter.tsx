@@ -31,7 +31,7 @@ export function MarketingFooter() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" onClick={handleLinkClick('/')} className="flex items-center gap-2 mb-4">
-              <img src="/logo-iktracker.png" alt="IKtracker" className="h-10 w-10" loading="lazy" />
+              <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="h-10 w-10" loading="lazy" />
               <span className="text-xl font-bold text-foreground">IKtracker</span>
             </Link>
             <p className="text-muted-foreground mb-4 max-w-sm">
