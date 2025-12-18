@@ -562,7 +562,7 @@ ${IKTRACKER_URL}`
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24 cursor-default">
+    <div className="min-h-screen bg-background pb-28 cursor-default">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
         <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
           <Link to="/app">
@@ -802,7 +802,7 @@ ${IKTRACKER_URL}`
       </main>
 
       {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm">
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center">
           <Button 
             variant="gradient" 
