@@ -245,20 +245,20 @@ const ExpertComptable = () => {
     <div className="min-h-screen bg-background font-display overflow-x-hidden">
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="banner">
-        <nav className="container mx-auto px-4 py-4 flex items-center justify-between" aria-label="Navigation principale">
+        <nav className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between" aria-label="Navigation principale">
           <Link to="/" className="flex items-center gap-2" aria-label="IKtracker - Accueil">
-            <img src="/logo.png" alt="Logo IKtracker" className="h-9 w-9 transition-transform duration-300 hover:scale-110" width="36" height="36" />
-            <span className="text-xl font-bold text-foreground">IKtracker</span>
+            <img src="/logo.png" alt="Logo IKtracker" className="h-8 w-8 md:h-9 md:w-9 transition-transform duration-300 hover:scale-110" width="36" height="36" />
+            <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Accueil
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Accueil</span>
               </Button>
             </Link>
             <Link to="/install">
-              <Button variant="gradient" size="sm">
+              <Button variant="gradient" size="sm" className="text-xs sm:text-sm">
                 Installer
               </Button>
             </Link>
@@ -288,48 +288,48 @@ const ExpertComptable = () => {
               </div>
               <h1 
                 id="hero-heading"
-                className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
               >
                 Simplifiez la{" "}
                 <span className="text-gradient">comptabilité des IK</span>{" "}
                 de vos clients
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto px-2">
                 IKtracker est l'outil <strong>gratuit et français</strong> qui transforme la gestion des 
                 indemnités kilométriques. Vos clients saisissent leurs trajets, vous recevez des 
                 exports <strong>standardisés et fiables</strong>.
               </p>
               
-              <div className="flex flex-wrap gap-4 justify-center mb-8">
-                <Link to="/#auth-section">
-                  <Button size="xl" variant="gradient" className="group">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 px-4">
+                <Link to="/#auth-section" className="w-full sm:w-auto">
+                  <Button size="lg" variant="gradient" className="group w-full sm:w-auto text-sm sm:text-base">
                     Recommander à mes clients
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link to="/install">
-                  <Button size="xl" variant="outline" className="group">
-                    <Download className="h-5 w-5 mr-2" />
+                <Link to="/install" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="group w-full sm:w-auto text-sm sm:text-base">
+                    <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     Guide d'installation
                   </Button>
                 </Link>
               </div>
 
-              <div className="flex flex-wrap gap-6 justify-center text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+              <div className="flex flex-wrap gap-3 sm:gap-6 justify-center text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
                   100% Gratuit
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
                   Made in France
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
                   RGPD Compliant
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
                   Barème fiscal 2024
                 </div>
               </div>
