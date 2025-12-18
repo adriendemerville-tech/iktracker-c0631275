@@ -217,10 +217,10 @@ export function TourLogSheet({
           {isActive ? (
             <Button
               variant="destructive"
-              size="default"
+              size="sm"
               onClick={onFinish}
             >
-              <span className="w-3 h-3 bg-white rounded-sm mr-2" />
+              <span className="w-2.5 h-2.5 bg-white rounded-sm mr-1.5" />
               Terminer
             </Button>
           ) : !isHistory ? (
