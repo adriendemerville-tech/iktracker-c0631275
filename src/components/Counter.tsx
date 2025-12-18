@@ -9,17 +9,19 @@ interface CounterProps {
   decimals?: number;
 }
 
-// Animated digit component - slot machine effect cycling only within valid range
+// Animated digit component - slot machine effect
 function AnimatedDigit({ 
   digit, 
   delay = 0,
   duration = 800,
-  variant = 'default'
+  variant = 'default',
+  fullRange = false // true = cycle 0-9, false = cycle 0-target only
 }: { 
   digit: string; 
   delay?: number;
   duration?: number;
   variant?: 'default' | 'accent';
+  fullRange?: boolean;
 }) {
   const [displayDigit, setDisplayDigit] = useState('0');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -35,17 +37,18 @@ function AnimatedDigit({
 
     const target = parseInt(digit) || 0;
     
-    if (target === 0) {
+    if (target === 0 && !fullRange) {
       const timeoutId = setTimeout(() => {
         setDisplayDigit('0');
       }, delay);
       return () => clearTimeout(timeoutId);
     }
 
-    // Number of full cycles through the valid range (0 to target)
-    const numCycles = 8;
-    // Total steps = cycles * (target + 1) to end exactly on target
-    const totalSteps = numCycles * (target + 1);
+    // For fullRange: cycle through 0-9 multiple times
+    // For constrained: cycle through 0-target multiple times
+    const maxDigit = fullRange ? 9 : target;
+    const numCycles = fullRange ? 5 : 6;
+    const totalSteps = numCycles * (maxDigit + 1);
     let lastDisplayed = -1;
 
     const animate = (timestamp: number) => {
@@ -66,9 +69,9 @@ function AnimatedDigit({
       // Ease-out exponential for dramatic slowdown at the end
       const easeOut = 1 - Math.pow(1 - progress, 4);
       
-      // Calculate current step and cycle within 0 to target range
+      // Calculate current step
       const currentStep = Math.floor(totalSteps * easeOut);
-      const displayValue = currentStep % (target + 1);
+      const displayValue = currentStep % (maxDigit + 1);
       
       // Only update if digit changed
       if (displayValue !== lastDisplayed) {
@@ -91,7 +94,7 @@ function AnimatedDigit({
       startTimeRef.current = null;
       setIsAnimating(false);
     };
-  }, [digit, delay, duration, variant]);
+  }, [digit, delay, duration, variant, fullRange]);
 
   if (digit === ',' || digit === ' ' || digit === '.') {
     return <span>{digit}</span>;
@@ -135,6 +138,24 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
   };
 
   const digits = formattedValue.split('');
+  
+  // Determine which digits get full 0-9 range vs constrained range
+  // Units and tens (last 2 numeric positions) get full range
+  // Hundreds and beyond are constrained to 0-target
+  const getFullRange = (index: number) => {
+    // Find numeric digits only (exclude commas, spaces, etc.)
+    const numericIndices: number[] = [];
+    digits.forEach((d, i) => {
+      if (/\d/.test(d)) numericIndices.push(i);
+    });
+    
+    // Position from the right (0 = units, 1 = tens, 2 = hundreds...)
+    const numericPosition = numericIndices.indexOf(index);
+    const positionFromRight = numericIndices.length - 1 - numericPosition;
+    
+    // Units (0) and tens (1) get full 0-9 range
+    return positionFromRight <= 1;
+  };
 
   return (
     <div className={cn(
@@ -159,6 +180,7 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
               delay={getDelay(index, digits.length)}
               duration={variant === 'default' ? 2500 : 1500}
               variant={variant}
+              fullRange={getFullRange(index)}
             />
           ))}
         </span>
