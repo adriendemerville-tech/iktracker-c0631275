@@ -442,7 +442,7 @@ const Profile = () => {
                     filter="url(#barShadow)"
                     isAnimationActive={true}
                     animationBegin={0}
-                    animationDuration={2000}
+                    animationDuration={20000}
                     animationEasing="linear"
                   >
                     {monthlyKmData.map((_, index) => {
