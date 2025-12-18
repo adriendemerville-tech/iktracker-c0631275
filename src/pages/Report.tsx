@@ -7,7 +7,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, Home, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -790,16 +790,11 @@ ${IKTRACKER_URL}`
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
-        <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
-          <Link to="/app">
-            <Button variant="outline" size="lg" className="w-full bg-white dark:bg-white text-primary hover:bg-white/90 dark:hover:bg-white/90 border-0 shadow-md">
-              <Home className="w-5 h-5" />
-              Accueil
-            </Button>
-          </Link>
+        <div className="max-w-lg mx-auto">
           <Button 
             variant="gradient" 
             size="lg" 
+            className="w-full"
             onClick={() => setShowNewTrip(true)}
             disabled={vehicles.length === 0}
           >
