@@ -808,7 +808,7 @@ ${IKTRACKER_MENTION}
       </header>
 
       {/* Main content */}
-      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-4 space-y-5 pb-32">
+      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-4 space-y-5 pb-36">
         {/* Geolocation Banner */}
         {showGeoBanner && (
           <GeolocationBanner
@@ -906,7 +906,7 @@ ${IKTRACKER_MENTION}
       </div>
 
       {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm">
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto grid grid-cols-2 gap-3">
           <Link to="/report">
             <Button variant="secondary" size="lg" className="w-full shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
