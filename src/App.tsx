@@ -17,6 +17,7 @@ import Admin from "./pages/Admin";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Install from "./pages/Install";
+import Offline from "./pages/Offline";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -101,6 +102,7 @@ const AppContent = () => {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/install" element={<Install />} />
+        <Route path="/offline" element={<Offline />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
