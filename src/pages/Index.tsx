@@ -8,6 +8,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useAdmin } from '@/hooks/useAdmin';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
+import { reverseGeocode } from '@/lib/geocoding';
 import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
@@ -83,6 +84,7 @@ const Index = () => {
     isLoading: isTourLoading,
     stops: tourStops,
     totalDistanceKm,
+    currentPosition,
     startTour,
     stopTour,
     clearTour,
@@ -109,12 +111,12 @@ const Index = () => {
     // Stop tracking
     stopTour();
     
-    // Automatically save the tour if we have enough stops
-    if (tourStops.length >= 2) {
+    // Save the tour/trip based on number of stops
+    if (tourStops.length >= 1) {
       await handleConvertToTrips(tourStops);
     } else {
-      toast.error("Tournée trop courte", {
-        description: "Il faut au moins 2 arrêts pour enregistrer une tournée",
+      toast.error("Aucune étape détectée", {
+        description: "Impossible d'enregistrer le trajet",
       });
       clearTour();
       setShowTourLog(false);
@@ -125,9 +127,9 @@ const Index = () => {
     console.log('handleConvertToTrips called with stops:', stops);
     console.log('vehicles:', vehicles);
     
-    if (stops.length < 2) {
+    if (stops.length < 1) {
       toast.error("Impossible de créer le trajet", {
-        description: "Il faut au moins 2 arrêts pour créer un trajet",
+        description: "Aucune étape détectée",
       });
       return;
     }
@@ -139,35 +141,82 @@ const Index = () => {
       return;
     }
 
-    toast.info("Calcul de la distance totale...");
+    toast.info("Calcul de la distance...");
 
-    // Get first and last stops
     const firstStop = stops[0];
-    const lastStop = stops[stops.length - 1];
     const vehicleId = vehicles[0].id;
-
-    // Calculate total distance between all consecutive stops
+    const isTour = stops.length >= 2;
+    
     let totalDistance = 0;
-    for (let i = 0; i < stops.length - 1; i++) {
-      const start = stops[i];
-      const end = stops[i + 1];
-      try {
-        const distance = await calculateDrivingDistance(
-          start.lat,
-          start.lng,
-          end.lat,
-          end.lng
-        );
-        totalDistance += distance;
-      } catch (e) {
-        console.warn('Failed to calculate distance segment:', e);
+    let endLocation: { lat: number; lng: number; address?: string; city?: string };
+
+    if (isTour) {
+      // Multiple stops: calculate total distance between all consecutive stops
+      for (let i = 0; i < stops.length - 1; i++) {
+        const start = stops[i];
+        const end = stops[i + 1];
+        try {
+          const distance = await calculateDrivingDistance(
+            start.lat,
+            start.lng,
+            end.lat,
+            end.lng
+          );
+          totalDistance += distance;
+        } catch (e) {
+          console.warn('Failed to calculate distance segment:', e);
+        }
+      }
+      const lastStop = stops[stops.length - 1];
+      endLocation = {
+        lat: lastStop.lat,
+        lng: lastStop.lng,
+        address: lastStop.address,
+        city: lastStop.city,
+      };
+    } else {
+      // Single stop: use current position as end point or use tracked distance
+      if (currentPosition) {
+        try {
+          totalDistance = await calculateDrivingDistance(
+            firstStop.lat,
+            firstStop.lng,
+            currentPosition.lat,
+            currentPosition.lng
+          );
+          // Get address for current position
+          const geocodeResult = await reverseGeocode(currentPosition.lat, currentPosition.lng);
+          endLocation = {
+            lat: currentPosition.lat,
+            lng: currentPosition.lng,
+            address: geocodeResult?.fullAddress,
+            city: geocodeResult?.city,
+          };
+        } catch (e) {
+          console.warn('Failed to calculate distance:', e);
+          // Fallback to tracked distance
+          totalDistance = totalDistanceKm;
+          endLocation = {
+            lat: currentPosition.lat,
+            lng: currentPosition.lng,
+          };
+        }
+      } else {
+        // No current position available, use tracked distance and same location
+        totalDistance = totalDistanceKm || 0;
+        endLocation = {
+          lat: firstStop.lat,
+          lng: firstStop.lng,
+          address: firstStop.address,
+          city: firstStop.city,
+        };
       }
     }
 
-    console.log(`Total distance: ${totalDistance} km`);
+    console.log(`Total distance: ${totalDistance} km, isTour: ${isTour}`);
 
-    // Convert TourStop[] to TourStopData[] for storage
-    const tourStopsData = stops.map(stop => ({
+    // Convert TourStop[] to TourStopData[] for storage (only for tours)
+    const tourStopsData = isTour ? stops.map(stop => ({
       id: stop.id,
       timestamp: stop.timestamp.toISOString(),
       lat: stop.lat,
@@ -175,7 +224,7 @@ const Index = () => {
       address: stop.address,
       city: stop.city,
       duration: stop.duration,
-    }));
+    })) : undefined;
 
     try {
       const result = await addTrip({
@@ -189,27 +238,28 @@ const Index = () => {
           type: 'other',
         },
         endLocation: {
-          id: firstStop.id,
-          name: firstStop.city || firstStop.address || 'Position',
-          address: firstStop.address || '',
-          lat: firstStop.lat,
-          lng: firstStop.lng,
+          id: crypto.randomUUID(),
+          name: endLocation.city || endLocation.address || 'Position',
+          address: endLocation.address || '',
+          lat: endLocation.lat,
+          lng: endLocation.lng,
           type: 'other',
         },
         distance: totalDistance,
         baseDistance: totalDistance,
         roundTrip: false,
-        purpose: 'Tournée',
+        purpose: isTour ? 'Tournée' : 'Trajet',
         startTime: firstStop.timestamp,
-        endTime: lastStop.timestamp,
+        endTime: new Date(),
         tourStops: tourStopsData,
       });
       
-      console.log('Tour trip created:', result);
+      console.log('Trip created:', result);
       
       if (result) {
-        toast.success("Tournée enregistrée", {
-          description: `${totalDistance.toFixed(1)} km - ${stops.length} étapes`,
+        const label = isTour ? 'Tournée' : 'Trajet';
+        toast.success(`${label} enregistré`, {
+          description: `${totalDistance.toFixed(1)} km${isTour ? ` - ${stops.length} étapes` : ''}`,
         });
         clearTour();
         setShowTourLog(false);
@@ -217,8 +267,8 @@ const Index = () => {
         toast.error("Erreur lors de l'enregistrement");
       }
     } catch (e) {
-      console.error('Failed to create tour trip:', e);
-      toast.error("Erreur lors de l'enregistrement de la tournée");
+      console.error('Failed to create trip:', e);
+      toast.error("Erreur lors de l'enregistrement");
     }
   };
 
