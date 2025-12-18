@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { AdminStats } from '@/components/AdminStats';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -27,7 +28,8 @@ import {
   Search,
   UserPlus,
   UserMinus,
-  Crown
+  Crown,
+  BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -334,8 +336,12 @@ const Admin = () => {
       </header>
 
       <main className="max-w-4xl mx-auto p-4">
-        <Tabs defaultValue="feedbacks" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+        <Tabs defaultValue="stats" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger value="stats" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Stats
+            </TabsTrigger>
             <TabsTrigger value="feedbacks" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               Avis ({feedbacks.length})
@@ -345,6 +351,11 @@ const Admin = () => {
               Utilisateurs ({users.length})
             </TabsTrigger>
           </TabsList>
+
+          {/* Stats Tab */}
+          <TabsContent value="stats">
+            <AdminStats />
+          </TabsContent>
 
           {/* Feedbacks Tab */}
           <TabsContent value="feedbacks" className="space-y-4">
