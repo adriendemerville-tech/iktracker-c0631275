@@ -62,6 +62,7 @@ const Admin = () => {
   const [responseText, setResponseText] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [newAdminId, setNewAdminId] = useState('');
+  const [activeTab, setActiveTab] = useState('stats');
 
   // Fetch feedbacks
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
@@ -313,6 +314,15 @@ const Admin = () => {
             <Shield className="w-8 h-8 opacity-80" />
           </div>
           
+          {/* Stats quick access button */}
+          <Button 
+            onClick={() => setActiveTab('stats')}
+            className="mt-4 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Voir le dashboard statistique
+          </Button>
+          
           {/* Stats */}
           <div className="flex gap-3 mt-4 flex-wrap">
             <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
@@ -336,7 +346,7 @@ const Admin = () => {
       </header>
 
       <main className="max-w-4xl mx-auto p-4">
-        <Tabs defaultValue="stats" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="stats" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
