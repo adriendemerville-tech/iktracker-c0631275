@@ -44,13 +44,14 @@ export function TourButton({
         </span>
       )}
       
-      {/* Speed lines - only visible when active */}
-      {isActive && !isLoading && (
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
-          <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
-          <span className="w-3 h-0.5 bg-current opacity-40 rounded-full -ml-0.5" />
-        </span>
-      )}
+      {/* Speed lines - fade in/out based on active state */}
+      <span className={cn(
+        "absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 transition-opacity duration-700 ease-out",
+        isActive && !isLoading ? "opacity-100" : "opacity-0"
+      )}>
+        <span className="w-2 h-0.5 bg-current opacity-60 rounded-full" />
+        <span className="w-3 h-0.5 bg-current opacity-40 rounded-full -ml-0.5" />
+      </span>
       
       {/* Dot in front when inactive */}
       {!isActive && !isLoading && (
