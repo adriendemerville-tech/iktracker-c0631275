@@ -626,10 +626,6 @@ export function NewTripSheet({
                 onDelete={onDeleteLocation}
                 onUpdate={onUpdateLocation}
               />
-              
-              <Button variant="ghost" className="mt-4" onClick={() => setStep('vehicle')}>
-                ← Retour
-              </Button>
             </div>
           )}
 
@@ -654,10 +650,6 @@ export function NewTripSheet({
                 onDelete={onDeleteLocation}
                 onUpdate={onUpdateLocation}
               />
-              
-              <Button variant="ghost" className="mt-4" onClick={() => setStep('start')}>
-                ← Retour
-              </Button>
             </div>
           )}
 
