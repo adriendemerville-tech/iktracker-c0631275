@@ -129,7 +129,7 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                       {/* Header */}
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                          <img src="/favicon.png" alt="IKtracker" className="w-8 h-8 rounded-lg" />
+                          <img src="/logo.png" alt="IKtracker" className="w-8 h-8 rounded-lg" />
                           <span className="font-bold text-foreground">IKtracker</span>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-muted" />
