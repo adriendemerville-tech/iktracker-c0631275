@@ -809,7 +809,11 @@ export function NewTripSheet({
                   <p className="text-xs text-muted-foreground">
                     Calcul de la distance en cours...
                   </p>
-                ) : null}
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Calcul automatique
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
