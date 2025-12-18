@@ -677,14 +677,6 @@ export function NewTripSheet({
                   <MapPin className="w-4 h-4 text-accent" />
                   <span className="font-medium">{draft.endLocation?.name}</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  <span>
-                    {draft.startTime?.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    {' → '}
-                    {draft.endTime?.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
               </div>
 
               {/* Navigation Assistée - Waze & Maps Buttons */}
