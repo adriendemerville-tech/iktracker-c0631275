@@ -802,7 +802,7 @@ ${IKTRACKER_URL}`
       </main>
 
       {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm border-t border-border">
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center">
           <Button 
             variant="gradient" 
