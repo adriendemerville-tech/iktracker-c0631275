@@ -729,9 +729,13 @@ ${IKTRACKER_URL}`
             <p className="text-muted-foreground">Aucun trajet enregistré</p>
           </div>
         ) : (
-          Object.entries(groupedByMonth).map(([month, monthTrips]) => (
+          <>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Trajets passés</h3>
+            {Object.entries(groupedByMonth).map(([month, monthTrips], index) => (
             <div key={month}>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 capitalize">{month}</h3>
+              {index > 0 && (
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 mt-6 capitalize">{month}</h3>
+              )}
               <div className="space-y-3">
                 {monthTrips.map(trip => {
                   const vehicle = getVehicle(trip.vehicleId);
@@ -751,7 +755,8 @@ ${IKTRACKER_URL}`
                 })}
               </div>
             </div>
-          ))
+          ))}
+          </>
         )}
 
         <div className="bg-card rounded-md shadow-md overflow-hidden">
