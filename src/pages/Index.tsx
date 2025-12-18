@@ -755,7 +755,7 @@ ${IKTRACKER_MENTION}
       </header>
 
       {/* Main content */}
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-6 pb-32">
+      <main className="max-w-lg mx-auto px-4 pt-4 space-y-5 pb-32">
         {/* Vehicles section */}
         <section>
           <div className="flex items-center justify-between mb-4">
