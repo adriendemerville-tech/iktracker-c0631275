@@ -234,3 +234,25 @@
 .animate-blink-orange {
   animation: blink-orange 0.6s ease-in-out;
 }
+
+/* Profile - Kilomètres parcourus bar animation ("champignon") */
+@keyframes km-bar-grow {
+  0% {
+    transform: scaleY(0);
+  }
+  75% {
+    transform: scaleY(1.06);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+.km-bar-grow {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  will-change: transform;
+  animation-name: km-bar-grow;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
