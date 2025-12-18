@@ -385,7 +385,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
             <Clock className="w-4 h-4" />
             Récents
           </p>
-          <div className="grid gap-2 max-w-[70%]">
+          <div className="grid gap-2 w-[95%]">
             {recentLocations.map((location, index) => (
               <button
                 key={`recent-${index}`}
@@ -411,7 +411,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       <div className="space-y-2">
         <p className="text-sm font-medium text-muted-foreground">Lieux enregistrés</p>
         <p className="text-xs text-muted-foreground">Appui long pour modifier</p>
-        <div className="grid gap-2">
+        <div className="grid gap-2 w-[95%]">
           {savedLocations.map((location) => (
             <div key={location.id} className="relative group">
               {editingLocation?.id === location.id ? (
