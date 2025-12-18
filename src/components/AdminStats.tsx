@@ -61,6 +61,12 @@ interface TopUser {
   total_ik: number;
 }
 
+interface RecentSignup {
+  user_id: string;
+  email: string;
+  created_at: string;
+}
+
 type PeriodFilter = 'week' | 'month' | 'year' | 'all';
 type TopUserSort = 'trips' | 'km' | 'ik';
 
@@ -237,6 +243,17 @@ export function AdminStats() {
       }));
     },
     refetchInterval: 60000,
+  });
+
+  // Fetch recent signups
+  const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
+    queryKey: ['admin-recent-signups'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_recent_signups', { limit_count: 10 });
+      if (error) throw error;
+      return data as unknown as RecentSignup[];
+    },
+    refetchInterval: 30000,
   });
 
   const formatNumber = (num: number) => {
@@ -532,6 +549,52 @@ export function AdminStats() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Signups */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
+            10 derniers inscrits
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {signupsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map(i => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : recentSignups.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">Aucun inscrit récent</p>
+          ) : (
+            <div className="space-y-2">
+              {recentSignups.map((signup, index) => (
+                <div 
+                  key={signup.user_id} 
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
+                    <div>
+                      <p className="text-sm font-medium truncate max-w-[200px]">{signup.email}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{signup.user_id.slice(0, 8)}...</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(signup.created_at), 'dd/MM/yyyy', { locale: fr })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(signup.created_at), 'HH:mm', { locale: fr })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Download App Stats */}
       <Card>

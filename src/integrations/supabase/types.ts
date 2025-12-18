@@ -330,6 +330,14 @@ export type Database = {
         }[]
       }
       get_download_stats: { Args: never; Returns: Json }
+      get_recent_signups: {
+        Args: { limit_count?: number }
+        Returns: {
+          created_at: string
+          email: string
+          user_id: string
+        }[]
+      }
       get_registrations_by_day: {
         Args: { days_back?: number }
         Returns: {
