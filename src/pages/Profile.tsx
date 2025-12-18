@@ -676,6 +676,19 @@ const Profile = () => {
               ? `J'ai parcouru ${totalStats.totalKm} km et récupéré ${totalStats.totalIk}€ d'indemnités avec IKtracker ! 🚗💰 Rejoins-moi !`
               : "Découvrez IKtracker, l'application de suivi des frais kilométriques !";
             
+            // Log share event
+            if (user) {
+              try {
+                await supabase.from('share_events').insert({
+                  user_id: user.id,
+                  total_km: totalStats.totalKm,
+                  total_ik: parseFloat(totalStats.totalIk),
+                });
+              } catch (error) {
+                console.error('Error logging share event:', error);
+              }
+            }
+            
             if (navigator.share) {
               try {
                 await navigator.share({
