@@ -348,6 +348,11 @@ const Profile = () => {
                       {preferences.minDistanceKm} km
                     </span>
                   </div>
+                  {preferences.minDistanceKm === 0 && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 pl-8">
+                      ⚠️ Tous les trajets seront enregistrés
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
