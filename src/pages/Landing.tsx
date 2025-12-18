@@ -470,18 +470,22 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center space-y-8">
-          <h2 className="text-3xl md:text-4xl font-bold">Prêt à simplifier vos trajets ?</h2>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
-          </p>
-          <Link to="/signup">
-            <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6">
-              Créer mon compte gratuit
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
+      <section className="py-32 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold">Prêt à simplifier vos trajets ?</h2>
+            <p className="text-xl opacity-90">
+              Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
+            </p>
+          </div>
+          <div className="mt-10">
+            <Link to="/signup">
+              <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6">
+                Créer mon compte gratuit
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
