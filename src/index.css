@@ -425,6 +425,32 @@
   animation: road-wave 1.2s ease-in-out infinite;
 }
 
+/* Road line passing under car every 6 seconds */
+@keyframes road-line {
+  0%, 90% {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  92% {
+    opacity: 0.4;
+  }
+  95% {
+    transform: translateX(0);
+    opacity: 0.3;
+  }
+  98% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+}
+
+.animate-road-line {
+  animation: road-line 6s linear infinite;
+}
+
 /* Subtle gradient breathing animation */
 @keyframes pulse-gradient {
   0%, 100% {
