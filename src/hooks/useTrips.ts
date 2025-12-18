@@ -82,6 +82,7 @@ export function useTrips() {
           endTime: new Date(t.date),
           ikAmount: t.ik_amount,
           tourStops: (t as any).tour_stops as TourStopData[] | undefined,
+          calendarEventId: t.calendar_event_id || undefined,
         })));
       }
     } catch (error) {
