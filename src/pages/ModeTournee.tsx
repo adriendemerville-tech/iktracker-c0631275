@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { TourModeDemo } from "@/components/marketing/TourModeDemo";
+import { TourModeMockup } from "@/components/marketing/TourModeMockup";
 import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
 import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -147,7 +148,7 @@ export default function ModeTournee() {
               </AnimatedSection>
 
               <AnimatedSection delay={200} className="flex justify-center">
-                <AnimatedPhoneMockup screen="tour" />
+                <TourModeMockup />
               </AnimatedSection>
             </div>
           </div>

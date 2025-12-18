@@ -10,6 +10,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
 import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { TourModeDemo } from "@/components/marketing/TourModeDemo";
+import { TourModeMockup } from "@/components/marketing/TourModeMockup";
 import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
 import { 
   ArrowRight,
@@ -260,7 +261,7 @@ const Landing = () => {
                 </Button>
               </Link>
             </div>
-            <TourModeDemo />
+            <TourModeMockup />
           </div>
         </div>
       </section>
