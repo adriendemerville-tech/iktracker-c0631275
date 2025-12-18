@@ -41,6 +41,7 @@ export interface Trip {
   endTime: Date;
   ikAmount: number; // calculated IK in euros
   tourStops?: TourStopData[]; // For tours: array of intermediate stops
+  calendarEventId?: string | null; // If trip was created from a calendar event
 }
 
 export interface TripDraft {

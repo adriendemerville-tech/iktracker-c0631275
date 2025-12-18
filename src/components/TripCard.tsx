@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, X, Car, Pencil, Truck, ChevronRight } from 'lucide-react';
+import { MapPin, ArrowRight, X, Car, Pencil, Truck, ChevronRight, Calendar } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -113,6 +113,10 @@ export function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }
             </div>
           )}
           
+          {/* Calendar icon if trip is from calendar event */}
+          {trip.calendarEventId && (
+            <Calendar className="w-4 h-4 text-primary shrink-0" />
+          )}
           {onEdit && !isTour && (
             <Button
               variant="ghost"
