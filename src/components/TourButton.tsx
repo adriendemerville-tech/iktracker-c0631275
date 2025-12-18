@@ -39,7 +39,7 @@ export function TourButton({
       {/* Loading spinner - minimal ring */}
       {isLoading && (
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="w-12 h-12 rounded-full border-2 border-current/20 border-t-current animate-spin" />
+          <span className="w-14 h-14 rounded-full border-2 border-transparent border-t-primary animate-[spin_0.5s_linear_infinite]" />
         </span>
       )}
       
