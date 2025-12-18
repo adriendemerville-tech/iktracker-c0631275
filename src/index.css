@@ -9,19 +9,40 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Allow text selection on marketing pages */
+  /* Allow text selection and text cursor on marketing pages */
   .select-text, .select-text * {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
+    cursor: text;
   }
 
+  /* Text cursor for editable fields everywhere */
   input, textarea, [contenteditable="true"] {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
+    cursor: text;
+  }
+
+  /* Default cursor for app pages (non-marketing) */
+  .cursor-default, .cursor-default * {
+    cursor: default;
+  }
+
+  /* Preserve text cursor for interactive elements in app pages */
+  .cursor-default input,
+  .cursor-default textarea,
+  .cursor-default [contenteditable="true"] {
+    cursor: text;
+  }
+
+  .cursor-default button,
+  .cursor-default a,
+  .cursor-default [role="button"] {
+    cursor: pointer;
   }
 
   :root {

@@ -694,7 +694,7 @@ ${IKTRACKER_MENTION}
         onStop={() => setShowTourLog(true)}
       />
 
-      <div className="min-h-screen bg-background font-urbanist">
+      <div className="min-h-screen bg-background font-urbanist cursor-default">
       {/* Header - Fintech Dark */}
       <header 
         className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"
