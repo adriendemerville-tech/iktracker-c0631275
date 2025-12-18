@@ -69,8 +69,9 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/api/, /^\/functions/],
+        navigateFallback: "/offline",
+        navigateFallbackAllowlist: [/^\/(?!api|functions|.*\.\w+$).*/],
+        navigateFallbackDenylist: [/^\/api/, /^\/functions/, /\.\w+$/],
         runtimeCaching: [
           // Google Fonts stylesheets
           {
