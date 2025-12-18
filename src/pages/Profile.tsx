@@ -342,7 +342,7 @@ const Profile = () => {
                       min={0}
                       max={5}
                       step={0.5}
-                      className="flex-1"
+                      className={`flex-1 ${preferences.minDistanceKm === 0 ? '[&_[role=slider]]:bg-amber-500 [&_[data-orientation=horizontal]>.bg-primary]:bg-amber-500' : ''}`}
                     />
                     <span className="text-sm font-medium w-16 text-right">
                       {preferences.minDistanceKm} km
