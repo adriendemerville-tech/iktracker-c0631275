@@ -36,8 +36,8 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
       const elapsed = timestamp - startTimeRef.current;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Ease-out cubic for smooth deceleration
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      // Ease-out exponential for dramatic slowdown at the end
+      const easeOut = 1 - Math.pow(1 - progress, 5);
       
       const current = startValue + (endValue - startValue) * easeOut;
       setDisplayValue(current);
