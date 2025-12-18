@@ -482,7 +482,7 @@ const Profile = () => {
                     className="font-normal"
                     onClick={handleResetCounters}
                   >
-                    <RotateCcw className={`w-4 h-4 mr-2 transition-transform duration-500 ${isResetting ? 'animate-spin' : ''}`} />
+                    <RotateCcw className={`w-4 h-4 mr-2 transition-transform duration-500 ${isResetting ? 'animate-[spin_0.6s_linear_reverse]' : ''}`} />
                     Réinitialiser les compteurs
                   </Button>
                   <p className="text-xs text-muted-foreground mt-1">
