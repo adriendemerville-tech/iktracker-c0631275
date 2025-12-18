@@ -116,12 +116,12 @@ const Index = () => {
       toast.error("Aucune étape détectée", {
         description: "Impossible d'enregistrer le trajet",
       });
-      // Close sheet first, then stop tour after animation
+      // Close sheet first, then stop tour after animation fades out
       setShowTourLog(false);
       setTimeout(() => {
         stopTour();
         clearTour();
-      }, 300);
+      }, 500);
     }
   };
 
@@ -273,12 +273,12 @@ const Index = () => {
         toast.success(`${label} enregistré`, {
           description: `${totalDistance.toFixed(1)} km${isTour ? ` - ${stops.length} étapes` : ''}`,
         });
-        // Close sheet first, then stop tour after animation
+        // Close sheet first, then stop tour after animation fades out
         setShowTourLog(false);
         setTimeout(() => {
           stopTour();
           clearTour();
-        }, 300);
+        }, 500);
       } else {
         toast.error("Erreur lors de l'enregistrement");
       }
