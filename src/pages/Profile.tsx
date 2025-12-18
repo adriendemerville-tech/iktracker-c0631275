@@ -332,29 +332,7 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Invoices */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Receipt className="w-4 h-4" />
-              Factures
-            </CardTitle>
-            <CardDescription>
-              Historique de vos factures
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-6 text-muted-foreground">
-              <Receipt className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Aucune facture disponible</p>
-            </div>
-            <div className="mt-4 flex justify-center">
-              <span className="bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium px-4 py-1.5 rounded-md">
-                Gratuit
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Invoices - Hidden while app is free */}
 
         {/* Preferences */}
         <Card>
