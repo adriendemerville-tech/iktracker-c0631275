@@ -381,7 +381,7 @@ const Profile = () => {
                 <BarChart data={monthlyKmData} margin={{ left: 0, right: 0, bottom: 0, top: 10 }}>
                   <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis type="number" hide />
-                  <Bar dataKey="km" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="km" radius={[16, 16, 0, 0]}>
                     {monthlyKmData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill="hsl(25, 95%, 53%)" />
                     ))}
