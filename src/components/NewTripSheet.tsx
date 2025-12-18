@@ -533,7 +533,7 @@ export function NewTripSheet({
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="h-[85vh] rounded-t-3xl w-full max-w-[95vw] sm:max-w-[90%] md:max-w-[82%] mx-auto overflow-x-hidden"
+        className="h-[85vh] rounded-t-3xl w-full max-w-[95vw] sm:max-w-[90%] md:max-w-[82%] mx-auto overflow-hidden flex flex-col"
         onInteractOutside={preventCloseOnGoogleAutocomplete}
         onPointerDownOutside={preventCloseOnGoogleAutocomplete}
         onFocusOutside={preventCloseOnGoogleAutocomplete}
@@ -568,7 +568,7 @@ export function NewTripSheet({
           </div>
         </SheetHeader>
 
-        <div className="overflow-y-auto overflow-x-hidden h-full pb-24 px-3 sm:px-4">
+        <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 pb-24 px-3 sm:px-4">
           {step === 'vehicle' && (
             <div className="animate-fade-in space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
