@@ -42,154 +42,156 @@ export function TourLogSheet({
     return `${Math.round(seconds / 3600)}h`;
   };
 
+  // Compact view when active (just to stop)
+  const isCompactView = isActive && stops.length <= 3;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
-        <SheetHeader className="pb-4">
-          <SheetTitle className="text-xl flex items-center gap-2">
-            <Truck className="w-6 h-6 text-primary" />
-            {isHistory ? 'Dernière tournée' : 'Journal de tournée'}
+      <SheetContent 
+        side="bottom" 
+        className={cn(
+          "rounded-t-2xl mx-auto max-w-md left-1/2 -translate-x-1/2",
+          isCompactView ? "h-auto pb-6" : "h-[60vh]"
+        )}
+      >
+        <SheetHeader className="pb-3">
+          <SheetTitle className="text-base flex items-center gap-2">
+            <Truck className="w-5 h-5 text-primary" />
+            {isHistory ? 'Dernière tournée' : 'Tournée'}
+            {isActive && (
+              <span className="ml-auto flex items-center gap-1.5 text-sm font-normal text-accent">
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                En cours
+              </span>
+            )}
           </SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-4 overflow-y-auto h-[calc(100%-8rem)] pb-4">
-          {/* Status banner */}
-          <div
-            className={cn(
-              "p-4 rounded-md flex items-center gap-3",
-              isActive
-                ? "bg-accent/20 border border-accent"
-                : "bg-muted"
-            )}
-          >
-            <div
-              className={cn(
-                "w-3 h-3 rounded-full",
-                isActive ? "bg-accent animate-pulse" : "bg-muted-foreground"
-              )}
-            />
-            <span className="font-medium">
-              {isActive ? "Tournée en cours..." : "Tournée inactive"}
-            </span>
-            {isActive && stops.length > 0 && (
-              <span className="text-sm text-muted-foreground ml-auto">
-                {stops.length} arrêt{stops.length > 1 ? 's' : ''}
+        {/* Stops summary for compact view */}
+        {isCompactView && stops.length > 0 && (
+          <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                {stops.length} étape{stops.length > 1 ? 's' : ''} détectée{stops.length > 1 ? 's' : ''}
               </span>
-            )}
+              <span className="font-medium">
+                Depuis {formatTime(stops[0].timestamp)}
+              </span>
+            </div>
           </div>
+        )}
 
-          {/* Stops list */}
-          {stops.length > 0 ? (
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-muted-foreground">Étapes détectées</p>
-              <div className="relative">
-                {/* Timeline line */}
-                <div className="absolute left-4 top-6 bottom-6 w-0.5 bg-border" />
+        {/* Full stops list for non-compact view */}
+        {!isCompactView && (
+          <div className="space-y-3 overflow-y-auto h-[calc(100%-7rem)] pb-4">
+            {stops.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Étapes détectées
+                </p>
+                <div className="relative">
+                  <div className="absolute left-3 top-5 bottom-5 w-0.5 bg-border" />
 
-                {stops.map((stop, index) => (
-                  <div key={stop.id} className="relative flex gap-4 py-3">
-                    {/* Timeline dot */}
-                    <div
-                      className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center z-10 shrink-0",
-                        index === 0
-                          ? "bg-primary text-primary-foreground"
-                          : index === stops.length - 1 && !isActive
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-secondary text-secondary-foreground"
-                      )}
-                    >
-                      <MapPin className="w-4 h-4" />
-                    </div>
+                  {stops.map((stop, index) => (
+                    <div key={stop.id} className="relative flex gap-3 py-2">
+                      <div
+                        className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center z-10 shrink-0",
+                          index === 0
+                            ? "bg-primary text-primary-foreground"
+                            : index === stops.length - 1 && !isActive
+                            ? "bg-accent text-accent-foreground"
+                            : "bg-secondary text-secondary-foreground"
+                        )}
+                      >
+                        <MapPin className="w-3 h-3" />
+                      </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 bg-card rounded-lg p-3 shadow-sm">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="font-medium truncate">
-                            {stop.city || 'Position'}
-                          </p>
-                          {stop.address && (
-                            <p className="text-sm text-muted-foreground truncate">
-                              {stop.address}
+                      <div className="flex-1 min-w-0 bg-card rounded-md p-2.5 shadow-sm border border-border/50">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {stop.city || 'Position'}
                             </p>
-                          )}
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm font-medium flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatTime(stop.timestamp)}
-                          </p>
-                          {stop.duration && (
-                            <p className="text-xs text-muted-foreground">
-                              {formatDuration(stop.duration)}
+                            {stop.address && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {stop.address}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-xs font-medium flex items-center gap-1">
+                              <Clock className="w-2.5 h-2.5" />
+                              {formatTime(stop.timestamp)}
                             </p>
-                          )}
+                            {stop.duration && (
+                              <p className="text-xs text-muted-foreground">
+                                {formatDuration(stop.duration)}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Truck className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-              <p className="text-muted-foreground">Aucune étape pour le moment</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {isActive
-                  ? "Les arrêts seront détectés automatiquement"
-                  : "Démarrez une tournée pour commencer"}
-              </p>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="text-center py-8">
+                <Truck className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">Aucune étape pour le moment</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isActive
+                    ? "Les arrêts seront détectés automatiquement"
+                    : "Démarrez une tournée pour commencer"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t">
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-3 w-full">
-              {isActive ? (
-                <div className="flex justify-center w-full">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onFinish}
-                    className="border-destructive text-destructive hover:bg-destructive/10 rounded-md border-2"
-                  >
-                    <Square className="w-4 h-4 mr-2" />
-                    Terminer
-                  </Button>
-                </div>
-              ) : !isHistory ? (
-                <>
-                  {stops.length === 0 && (
-                    <Button
-                      variant="secondary"
-                      size="lg"
-                      onClick={onStart}
-                      disabled={isLoading}
-                      className="flex-1"
-                    >
-                      <Play className="w-4 h-4 mr-2" />
-                      {isLoading ? 'Démarrage...' : 'Nouvelle tournée'}
-                    </Button>
-                  )}
-                  {hasHistory && onShowHistory && (
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={onShowHistory}
-                      className="flex items-center gap-2"
-                    >
-                      <History className="w-4 h-4" />
-                      Historique
-                    </Button>
-                  )}
-                </>
-              ) : null}
-            </div>
-          </div>
+        <div className={cn(
+          "flex gap-2",
+          !isCompactView && "absolute bottom-0 left-0 right-0 p-4 bg-background border-t"
+        )}>
+          {isActive ? (
+            <Button
+              variant="outline"
+              size="default"
+              onClick={onFinish}
+              className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Terminer la tournée
+            </Button>
+          ) : !isHistory ? (
+            <>
+              {stops.length === 0 && (
+                <Button
+                  variant="secondary"
+                  size="default"
+                  onClick={onStart}
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  {isLoading ? 'Démarrage...' : 'Nouvelle tournée'}
+                </Button>
+              )}
+              {hasHistory && onShowHistory && (
+                <Button
+                  variant="outline"
+                  size="default"
+                  onClick={onShowHistory}
+                  className="flex items-center gap-2"
+                >
+                  <History className="w-4 h-4" />
+                  Historique
+                </Button>
+              )}
+            </>
+          ) : null}
         </div>
       </SheetContent>
     </Sheet>
