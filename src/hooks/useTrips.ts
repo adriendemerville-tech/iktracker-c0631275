@@ -42,6 +42,7 @@ export function useTrips() {
           model: (v as any).model || v.name,
           fiscalPower: v.fiscal_power,
           year: (v as any).year || undefined,
+          isElectric: (v as any).is_electric || false,
         })));
       }
 
@@ -243,8 +244,13 @@ export function useTrips() {
     if (!vehicle) return null;
 
     const totalAnnualKm = getTotalAnnualKm(trip.vehicleId) + trip.distance;
-    const ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                     calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower);
+    let ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
+                   calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower);
+    
+    // Apply 20% bonus for electric vehicles
+    if (vehicle.isElectric) {
+      ikAmount = ikAmount * 1.2;
+    }
 
     if (user) {
       const { data, error } = await supabase
@@ -317,6 +323,11 @@ export function useTrips() {
       const totalAnnualKm = getTotalAnnualKm(vehicle.id) - existingTrip.distance + updates.distance;
       ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
                  calculateTotalAnnualIK(totalAnnualKm - updates.distance, vehicle.fiscalPower);
+      
+      // Apply 20% bonus for electric vehicles
+      if (vehicle.isElectric) {
+        ikAmount = ikAmount * 1.2;
+      }
     }
 
     if (user) {
@@ -467,6 +478,7 @@ export function useTrips() {
           make: vehicle.make,
           model: vehicle.model,
           year: vehicle.year || null,
+          is_electric: vehicle.isElectric || false,
         } as any)
         .select()
         .single();
@@ -503,6 +515,7 @@ export function useTrips() {
           make: updates.make,
           model: updates.model,
           year: updates.year || null,
+          is_electric: updates.isElectric,
         } as any)
         .eq('id', id);
       setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
@@ -540,7 +553,12 @@ export function useTrips() {
     vehicleKms.forEach((km, vehicleId) => {
       const vehicle = vehicles.find(v => v.id === vehicleId);
       if (vehicle) {
-        total += calculateTotalAnnualIK(km, vehicle.fiscalPower);
+        let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower);
+        // Apply 20% bonus for electric vehicles
+        if (vehicle.isElectric) {
+          vehicleIK = vehicleIK * 1.2;
+        }
+        total += vehicleIK;
       }
     });
     return total;

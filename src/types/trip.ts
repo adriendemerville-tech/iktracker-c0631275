@@ -16,6 +16,7 @@ export interface Vehicle {
   model: string;
   fiscalPower: number; // CV
   year?: number;
+  isElectric?: boolean; // 100% electric vehicle (20% IK bonus)
 }
 
 export interface TourStopData {
