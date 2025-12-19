@@ -169,6 +169,12 @@ ${IKTRACKER_MENTION}
   };
 
   const generateCSVContent = () => {
+    const vehicle = vehicles.length > 0 ? vehicles[0] : null;
+    const ownerName = vehicle ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim() : '';
+    const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() : '';
+    const fiscalPower = vehicle?.fiscalPower ? `${vehicle.fiscalPower} CV` : '';
+    const licensePlate = vehicle?.licensePlate || '';
+    
     const headers = [
       'Date',
       'Propriétaire',
@@ -190,14 +196,14 @@ ${IKTRACKER_MENTION}
     );
 
     const rows = sortedTrips.map(t => {
-      const vehicle = getVehicle(t.vehicleId);
+      const tripVehicle = getVehicle(t.vehicleId);
 
       return [
         new Date(t.startTime).toLocaleDateString('fr-FR'),
-        vehicle ? `${vehicle.ownerFirstName} ${vehicle.ownerLastName}` : '',
-        vehicle ? `${vehicle.make} ${vehicle.model}` : '',
-        vehicle?.licensePlate || '',
-        vehicle?.fiscalPower?.toString() || '',
+        tripVehicle ? `${tripVehicle.ownerFirstName} ${tripVehicle.ownerLastName}` : '',
+        tripVehicle ? `${tripVehicle.make} ${tripVehicle.model}` : '',
+        tripVehicle?.licensePlate || '',
+        tripVehicle?.fiscalPower?.toString() || '',
         t.startLocation.name,
         t.endLocation.name,
         t.distance.toFixed(1),
@@ -228,10 +234,21 @@ ${IKTRACKER_MENTION}
     rows.push([IKTRACKER_MENTION]);
     rows.push([IKTRACKER_URL]);
 
-    const csv = [
-      // Header mention
+    // Build header info section
+    const headerInfo = [
       IKTRACKER_MENTION,
       '',
+      '=== INFORMATIONS CONDUCTEUR ET VÉHICULE ===',
+      `Propriétaire;${ownerName}`,
+      `Véhicule;${vehicleName}`,
+      `Puissance fiscale;${fiscalPower}`,
+      `Immatriculation;${licensePlate}`,
+      '',
+      '=== DÉTAIL DES TRAJETS ===',
+    ];
+
+    const csv = [
+      ...headerInfo,
       headers.join(';'),
       ...rows.map(r => r.join(';')),
     ].join('\n');
@@ -292,34 +309,38 @@ ${IKTRACKER_MENTION}
     doc.text(`Généré le ${generatedDate}`, pageWidth - margin, 18, { align: 'right' });
     doc.text('Barème fiscal 2025', pageWidth - margin, 24, { align: 'right' });
 
-    // === VEHICLE INFO BOX ===
+    // === OWNER & VEHICLE INFO BOX ===
     const vehicle = vehicles.length > 0 ? vehicles[0] : null;
     if (vehicle) {
-      doc.setFillColor(248, 249, 250);
-      doc.roundedRect(margin, 35, pageWidth - 2 * margin, 22, 3, 3, 'F');
+      const ownerName = `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim();
       
+      doc.setFillColor(248, 249, 250);
+      doc.roundedRect(margin, 35, pageWidth - 2 * margin, 28, 3, 3, 'F');
+      
+      // First row - Owner name prominent
       doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
-      doc.text('Véhicule', margin + 8, 42);
-      doc.text('Puissance fiscale', margin + 60, 42);
-      doc.text('Immatriculation', margin + 110, 42);
+      doc.text('Propriétaire', margin + 8, 42);
+      doc.text('Puissance fiscale', margin + 80, 42);
       
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       doc.setTextColor(30, 30, 30);
       doc.setFont('helvetica', 'bold');
-      const vehicleName = `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`;
-      doc.text(vehicleName, margin + 8, 50);
-      doc.text(`${vehicle.fiscalPower} CV`, margin + 60, 50);
-      doc.text(vehicle.licensePlate || '-', margin + 110, 50);
+      doc.text(ownerName || '-', margin + 8, 50);
+      doc.text(`${vehicle.fiscalPower} CV`, margin + 80, 50);
       
-      if (vehicle.ownerFirstName || vehicle.ownerLastName) {
-        doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        doc.text('Propriétaire', margin + 155, 42);
-        doc.setFontSize(10);
-        doc.setTextColor(30, 30, 30);
-        doc.text(`${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim(), margin + 155, 50);
-      }
+      // Second row - Vehicle details
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Véhicule', margin + 8, 56);
+      doc.text('Immatriculation', margin + 80, 56);
+      
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont('helvetica', 'normal');
+      const vehicleName = `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`;
+      doc.text(vehicleName, margin + 8, 62);
+      doc.text(vehicle.licensePlate || '-', margin + 80, 62);
     }
 
     // === TRIPS TABLE ===
@@ -336,7 +357,7 @@ ${IKTRACKER_MENTION}
     });
 
     autoTable(doc, {
-      startY: vehicle ? 62 : 38,
+      startY: vehicle ? 70 : 38,
       head: [['Date', 'Trajet', 'Distance', 'Indemnité']],
       body: tableData,
       styles: { 
