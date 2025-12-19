@@ -19,14 +19,14 @@ interface AppCarouselProps {
 
 const defaultSlides: CarouselSlide[] = [
   {
-    title: "Tableau de bord",
-    description: "Visualisez vos kilomètres et indemnités du mois en un coup d'œil.",
-    screen: 'dashboard'
-  },
-  {
     title: "Mode Tournée",
     description: "Enregistrez plusieurs arrêts en un seul trajet avec le GPS en temps réel.",
     screen: 'tour'
+  },
+  {
+    title: "Tableau de bord",
+    description: "Visualisez vos kilomètres et indemnités du mois en un coup d'œil.",
+    screen: 'dashboard'
   }
 ];
 
