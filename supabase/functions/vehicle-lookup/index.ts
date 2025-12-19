@@ -22,14 +22,17 @@ serve(async (req) => {
       );
     }
 
-    // Clean the license plate (remove dashes and spaces)
+    // Format the license plate with dashes (ex: FH-034-DD)
     const cleanPlate = licensePlate.replace(/[-\s]/g, '').toUpperCase();
-    console.log(`Looking up vehicle with plate: ${cleanPlate}`);
+    const formattedPlate = cleanPlate.length === 7 
+      ? `${cleanPlate.slice(0, 2)}-${cleanPlate.slice(2, 5)}-${cleanPlate.slice(5, 7)}`
+      : licensePlate;
+    console.log(`Looking up vehicle with plate: ${formattedPlate}`);
 
-    const apiKey = Deno.env.get('IMMATRICULATION_API_KEY');
+    const apiKey = Deno.env.get('RAPIDAPI_KEY');
     
     if (!apiKey) {
-      console.error('IMMATRICULATION_API_KEY not configured');
+      console.error('RAPIDAPI_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -38,15 +41,17 @@ serve(async (req) => {
 
     // Call the French car check API via RapidAPI
     // API: api-de-plaque-d-immatriculation-france
-    const apiUrl = `https://api-de-plaque-d-immatriculation-france.p.rapidapi.com/?immatriculation=${cleanPlate}`;
+    // Uses 'plaque' as query parameter and header
+    const apiUrl = `https://api-de-plaque-d-immatriculation-france.p.rapidapi.com/?plaque=${encodeURIComponent(formattedPlate)}`;
     
     console.log(`Calling RapidAPI: ${apiUrl}`);
     
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': 'api-de-plaque-d-immatriculation-france.p.rapidapi.com',
+        'x-rapidapi-host': 'api-de-plaque-d-immatriculation-france.p.rapidapi.com',
+        'x-rapidapi-key': apiKey,
+        'plaque': formattedPlate,
       },
     });
 
