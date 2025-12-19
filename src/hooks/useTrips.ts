@@ -648,12 +648,34 @@ export function useTrips() {
     }
   };
 
-  const deleteVehicle = async (id: string) => {
+  const deleteVehicle = async (id: string): Promise<{ success: boolean; error?: string }> => {
     if (user) {
-      await supabase.from('vehicles').delete().eq('id', id);
+      // Check if vehicle has trips attached
+      const vehicleTrips = trips.filter(t => t.vehicleId === id);
+      if (vehicleTrips.length > 0) {
+        return { 
+          success: false, 
+          error: `Ce véhicule a ${vehicleTrips.length} trajet(s) enregistré(s). Supprimez d'abord les trajets associés.` 
+        };
+      }
+      
+      const { error } = await supabase.from('vehicles').delete().eq('id', id);
+      if (error) {
+        return { success: false, error: 'Impossible de supprimer ce véhicule.' };
+      }
       setVehicles(prev => prev.filter(v => v.id !== id));
+      return { success: true };
     } else {
+      // For local storage, also check trips
+      const vehicleTrips = trips.filter(t => t.vehicleId === id);
+      if (vehicleTrips.length > 0) {
+        return { 
+          success: false, 
+          error: `Ce véhicule a ${vehicleTrips.length} trajet(s) enregistré(s). Supprimez d'abord les trajets associés.` 
+        };
+      }
       saveVehiclesLocal(vehicles.filter(v => v.id !== id));
+      return { success: true };
     }
   };
 
