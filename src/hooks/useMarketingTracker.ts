@@ -60,7 +60,7 @@ const checkIsAdmin = async (): Promise<boolean> => {
 
 interface TrackEventOptions {
   page: string;
-  eventType: 'page_view' | 'cta_click' | 'ik_simulation';
+  eventType: 'page_view' | 'cta_click' | 'ik_simulation' | 'signup_click';
 }
 
 export function useMarketingTracker(page: string) {
@@ -110,5 +110,9 @@ export function useMarketingTracker(page: string) {
     trackEvent({ page, eventType: 'ik_simulation' });
   }, [page, trackEvent]);
 
-  return { trackCTAClick, trackIKSimulation };
+  const trackSignupClick = useCallback(() => {
+    trackEvent({ page, eventType: 'signup_click' });
+  }, [page, trackEvent]);
+
+  return { trackCTAClick, trackIKSimulation, trackSignupClick };
 }
