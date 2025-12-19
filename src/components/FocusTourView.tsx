@@ -8,6 +8,7 @@ interface FocusTourViewProps {
   detectedStopsCount: number; // Number of detected stops (excludes departure)
   wakeLockActive: boolean;
   lowBattery: boolean;
+  tourStartTime?: Date;
   onStop: () => void;
 }
 
@@ -17,6 +18,7 @@ export function FocusTourView({
   detectedStopsCount,
   wakeLockActive,
   lowBattery,
+  tourStartTime,
   onStop,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -74,6 +76,20 @@ export function FocusTourView({
     });
   };
 
+  const formatElapsedTime = () => {
+    if (!tourStartTime) return null;
+    const elapsed = currentTime.getTime() - tourStartTime.getTime();
+    const totalSeconds = Math.floor(elapsed / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
+    }
+    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+  };
+
   if (!isActive) return null;
 
   return (
@@ -93,11 +109,16 @@ export function FocusTourView({
         </div>
       )}
 
-      {/* TOP: Current time */}
+      {/* TOP: Current time and tour duration */}
       <div className="flex flex-col items-center">
         <span className="font-urbanist text-6xl font-bold text-gray-400 tracking-tight">
           {formatTime(currentTime)}
         </span>
+        {tourStartTime && (
+          <span className="font-urbanist text-lg text-gray-600 mt-1 tabular-nums">
+            {formatElapsedTime()}
+          </span>
+        )}
       </div>
 
       {/* CENTER: Tour button with exact TourButton active design */}
