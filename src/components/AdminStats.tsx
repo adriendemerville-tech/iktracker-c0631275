@@ -590,6 +590,269 @@ export function AdminStats() {
         </div>
       </div>
 
+      {/* Marketing KPIs Section */}
+      <div className="border-b border-border pb-6 mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Globe className="w-6 h-6 text-primary" />
+            KPI Marketing
+          </h2>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 text-green-700 dark:text-green-400 rounded-full text-xs">
+            <span className="w-2 h-2 rounded-full bg-green-500" />
+            Visites admin exclues des statistiques
+          </div>
+        </div>
+
+        {/* Marketing Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+          {/* Total views */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Globe className="w-5 h-5 text-blue-500" />
+                <span className="text-xs text-muted-foreground">Visites</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_views || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Unique visitors */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-green-500" />
+                <span className="text-xs text-muted-foreground">Visiteurs uniques</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.unique_sessions || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* CTA clicks */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <MousePointer className="w-5 h-5 text-amber-500" />
+                <span className="text-xs text-muted-foreground">Clics CTA</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_cta_clicks || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* IK simulations */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Calculator className="w-5 h-5 text-purple-500" />
+                <span className="text-xs text-muted-foreground">Simulations IK</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_simulations || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Signup clicks */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <UserPlus className="w-5 h-5 text-emerald-500" />
+                <span className="text-xs text-muted-foreground">Clics inscription</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_signup_clicks || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Mobile % */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Smartphone className="w-5 h-5 text-pink-500" />
+                <span className="text-xs text-muted-foreground">Mobile</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{marketingStats?.mobile_pct || 0}%</p>
+                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.mobile_views || 0)} visites</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Desktop % */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Monitor className="w-5 h-5 text-slate-500" />
+                <span className="text-xs text-muted-foreground">Desktop</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{marketingStats?.desktop_pct || 0}%</p>
+                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.desktop_views || 0)} visites</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Marketing charts row */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          {/* Views by day chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-500" />
+                Visites par jour
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {marketingViewsLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : marketingViewsByDay.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={marketingViewsByDay}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Bar dataKey="views" fill="hsl(var(--primary))" name="Visites" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="unique_visitors" fill="hsl(var(--chart-2))" name="Visiteurs uniques" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Signup clicks by day chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-emerald-500" />
+                Clics inscription par jour
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {signupClicksLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : signupClicksByDay.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={signupClicksByDay}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="clicks" 
+                      name="Clics inscription"
+                      stroke="hsl(142, 76%, 36%)" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
+                      activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats by page table */}
+        <div className="grid md:grid-cols-1 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="w-5 h-5 text-green-500" />
+                Stats par page
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {marketingByPageLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : marketingByPage.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+              ) : (
+                <div className="overflow-x-auto max-h-[200px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Page</TableHead>
+                        <TableHead className="text-right">Vues</TableHead>
+                        <TableHead className="text-right">CTA</TableHead>
+                        <TableHead className="text-right">Simul.</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {marketingByPage.map((page) => (
+                        <TableRow key={page.page}>
+                          <TableCell className="font-medium text-xs">{page.page}</TableCell>
+                          <TableCell className="text-right">{formatNumber(page.views)}</TableCell>
+                          <TableCell className="text-right">{formatNumber(page.cta_clicks)}</TableCell>
+                          <TableCell className="text-right">{formatNumber(page.simulations)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Real-time and main stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Online users - real-time */}
@@ -1025,268 +1288,6 @@ export function AdminStats() {
         </CardContent>
       </Card>
 
-      {/* Marketing KPIs Section */}
-      <div className="border-t border-border pt-6 mt-6">
-        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Globe className="w-6 h-6 text-primary" />
-            KPI Marketing
-          </h2>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 text-green-700 dark:text-green-400 rounded-full text-xs">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
-            Visites admin exclues des statistiques
-          </div>
-        </div>
-
-        {/* Marketing Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          {/* Total views */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Globe className="w-5 h-5 text-blue-500" />
-                <span className="text-xs text-muted-foreground">Visites</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_views || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Unique visitors */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-green-500" />
-                <span className="text-xs text-muted-foreground">Visiteurs uniques</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.unique_sessions || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* CTA clicks */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <MousePointer className="w-5 h-5 text-amber-500" />
-                <span className="text-xs text-muted-foreground">Clics CTA</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_cta_clicks || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* IK simulations */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Calculator className="w-5 h-5 text-purple-500" />
-                <span className="text-xs text-muted-foreground">Simulations IK</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_simulations || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Signup clicks */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <UserPlus className="w-5 h-5 text-emerald-500" />
-                <span className="text-xs text-muted-foreground">Clics inscription</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_signup_clicks || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Mobile % */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Smartphone className="w-5 h-5 text-pink-500" />
-                <span className="text-xs text-muted-foreground">Mobile</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{marketingStats?.mobile_pct || 0}%</p>
-                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.mobile_views || 0)} visites</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Desktop % */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Monitor className="w-5 h-5 text-slate-500" />
-                <span className="text-xs text-muted-foreground">Desktop</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{marketingStats?.desktop_pct || 0}%</p>
-                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.desktop_views || 0)} visites</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Marketing charts row */}
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
-          {/* Views by day chart */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
-                Visites par jour
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {marketingViewsLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : marketingViewsByDay.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={marketingViewsByDay}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Bar dataKey="views" fill="hsl(var(--primary))" name="Visites" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="unique_visitors" fill="hsl(var(--chart-2))" name="Visiteurs uniques" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Signup clicks by day chart */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-emerald-500" />
-                Clics inscription par jour
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {signupClicksLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : signupClicksByDay.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={signupClicksByDay}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="clicks" 
-                      name="Clics inscription"
-                      stroke="hsl(142, 76%, 36%)" 
-                      strokeWidth={2}
-                      dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
-                      activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Stats by page table */}
-        <div className="grid md:grid-cols-1 gap-4 mb-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="w-5 h-5 text-green-500" />
-                Stats par page
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {marketingByPageLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : marketingByPage.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-              ) : (
-                <div className="overflow-x-auto max-h-[200px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Page</TableHead>
-                        <TableHead className="text-right">Vues</TableHead>
-                        <TableHead className="text-right">CTA</TableHead>
-                        <TableHead className="text-right">Simul.</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {marketingByPage.map((page) => (
-                        <TableRow key={page.page}>
-                          <TableCell className="font-medium text-xs">{page.page}</TableCell>
-                          <TableCell className="text-right">{formatNumber(page.views)}</TableCell>
-                          <TableCell className="text-right">{formatNumber(page.cta_clicks)}</TableCell>
-                          <TableCell className="text-right">{formatNumber(page.simulations)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
     </div>
   );
 }
