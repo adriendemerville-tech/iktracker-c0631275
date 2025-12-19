@@ -46,6 +46,8 @@ const fireConfetti = () => {
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
@@ -109,6 +111,10 @@ const Signup = () => {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/app`,
+          data: {
+            first_name: firstName.trim() || undefined,
+            last_name: lastName.trim() || undefined,
+          },
         },
       });
       if (error) throw error;
@@ -217,6 +223,24 @@ const Signup = () => {
 
             {/* Email/Password form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Optional name fields */}
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  type="text"
+                  placeholder="Prénom (optionnel)"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="bg-background/50"
+                />
+                <Input
+                  type="text"
+                  placeholder="Nom (optionnel)"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="bg-background/50"
+                />
+              </div>
+
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input

@@ -118,8 +118,15 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     setIsLookingUp(false);
   };
 
+  // Determine fuel type label and color
+  const getFuelTypeInfo = () => {
+    if (isElectric) return { label: 'Électrique', className: 'bg-emerald-500 text-white' };
+    // For now, we assume non-electric is thermal. Hybrid detection could be added later.
+    return { label: 'Thermique', className: 'bg-red-500 text-white' };
+  };
+
   const handleSave = () => {
-    if (!firstName.trim() || !lastName.trim() || !licensePlate || !fiscalPower) {
+    if (!licensePlate || !fiscalPower) {
       toast.error('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -131,8 +138,8 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     }
 
     onSave({
-      ownerFirstName: firstName.trim(),
-      ownerLastName: lastName.trim(),
+      ownerFirstName: firstName.trim() || undefined,
+      ownerLastName: lastName.trim() || undefined,
       licensePlate: licensePlate.toUpperCase(),
       make: make.trim() || 'Non renseigné',
       model: model.trim() || 'Non renseigné',
@@ -149,7 +156,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl overflow-hidden flex flex-col">
+      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col">
         <div className="w-[95%] max-w-lg mx-auto flex flex-col h-full">
           <SheetHeader className="pb-4 shrink-0">
             <SheetTitle className="text-xl flex items-center gap-2 font-display">
@@ -158,32 +165,8 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
             </SheetTitle>
           </SheetHeader>
 
-          <div className="overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(90% - 60px)' }}>
-            <div className="space-y-5 pb-8 font-display">
-              {/* Owner info */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="firstName">Prénom *</Label>
-                  <Input
-                    id="firstName"
-                    placeholder="Jean"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="font-display"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="lastName">Nom *</Label>
-                  <Input
-                    id="lastName"
-                    placeholder="Dupont"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="font-display"
-                  />
-                </div>
-              </div>
-
+          <div className="overflow-y-auto flex-1 pr-2">
+            <div className="space-y-4 pb-6 font-display">
               {/* License plate + Fiscal Power - Side by side */}
               <div className="grid grid-cols-2 gap-3">
                 {/* License plate */}
@@ -249,6 +232,9 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     {make && <span className="bg-background px-2 py-0.5 rounded">{make}</span>}
                     {model && <span className="bg-background px-2 py-0.5 rounded">{model}</span>}
                     {year && <span className="bg-background px-2 py-0.5 rounded">{year}</span>}
+                    <span className={cn("px-2 py-0.5 rounded text-xs font-medium", getFuelTypeInfo().className)}>
+                      {getFuelTypeInfo().label}
+                    </span>
                   </div>
                 </div>
               )}
