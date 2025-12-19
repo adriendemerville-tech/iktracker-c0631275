@@ -32,7 +32,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   const [isElectric, setIsElectric] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
-  const [fieldsUnlocked, setFieldsUnlocked] = useState(false);
 
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
@@ -46,7 +45,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       setYear(editVehicle?.year?.toString() || '');
       setIsElectric(editVehicle?.isElectric || false);
       setLookupDone(!!editVehicle);
-      setFieldsUnlocked(!!editVehicle);
     }
   }, [open, editVehicle]);
 
@@ -84,7 +82,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       if (error) {
         console.error('Lookup error:', error);
         toast.error('Impossible de récupérer les informations du véhicule');
-        setFieldsUnlocked(true);
         setIsLookingUp(false);
         return;
       }
@@ -98,7 +95,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
         if (data.isElectric !== undefined) setIsElectric(data.isElectric);
         
         setLookupDone(true);
-        setFieldsUnlocked(true);
         
         if (data.simulated) {
           toast.success('Véhicule détecté (données simulées)', {
@@ -113,12 +109,10 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
         toast.error('Véhicule non trouvé', {
           description: 'Veuillez saisir les informations manuellement.'
         });
-        setFieldsUnlocked(true);
       }
     } catch (err) {
       console.error('Lookup error:', err);
       toast.error('Erreur lors de la recherche');
-      setFieldsUnlocked(true);
     }
     
     setIsLookingUp(false);
@@ -151,218 +145,166 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   };
 
   const fiscalPowerOptions = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const isPlateEmpty = !licensePlate || licensePlate.length === 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl overflow-y-auto">
-        <SheetHeader className="pb-4">
-          <SheetTitle className="text-xl flex items-center gap-2 font-display">
-            <Car className="w-5 h-5 text-primary" />
-            {editVehicle ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
-          </SheetTitle>
-        </SheetHeader>
+      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl overflow-hidden flex flex-col">
+        <div className="w-[95%] max-w-lg mx-auto flex flex-col h-full">
+          <SheetHeader className="pb-4 shrink-0">
+            <SheetTitle className="text-xl flex items-center gap-2 font-display">
+              <Car className="w-5 h-5 text-primary" />
+              {editVehicle ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
+            </SheetTitle>
+          </SheetHeader>
 
-        <div className="space-y-6 pb-8 font-display">
-          {/* Owner info */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Propriétaire</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Prénom *</Label>
-                <Input
-                  id="firstName"
-                  placeholder="Jean"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="font-display"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Nom *</Label>
-                <Input
-                  id="lastName"
-                  placeholder="Dupont"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="font-display"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* License plate + Fiscal Power - Side by side */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              Immatriculation & Puissance fiscale
-              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Important</span>
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {/* License plate */}
-              <div className="space-y-2">
-                <Label htmlFor="licensePlate">Plaque *</Label>
-                <div className="relative">
+          <div className="overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(90% - 60px)' }}>
+            <div className="space-y-5 pb-8 font-display">
+              {/* Owner info */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName">Prénom *</Label>
                   <Input
-                    id="licensePlate"
-                    placeholder="AA-123-BB"
-                    value={licensePlate}
-                    onChange={(e) => handleLicensePlateChange(e.target.value)}
-                    maxLength={9}
-                    className="font-mono text-base tracking-wider pr-10"
+                    id="firstName"
+                    placeholder="Jean"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="font-display"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    {isLookingUp ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                    ) : lookupDone ? (
-                      <Check className="w-5 h-5 text-emerald-500" />
-                    ) : null}
-                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName">Nom *</Label>
+                  <Input
+                    id="lastName"
+                    placeholder="Dupont"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="font-display"
+                  />
                 </div>
               </div>
 
-              {/* Fiscal Power - Compact selector */}
-              <div className="space-y-2">
-                <Label htmlFor="fiscalPower">Puissance fiscale *</Label>
-                <div className={cn(
-                  "grid grid-cols-5 gap-1",
-                  !fieldsUnlocked && "opacity-50 pointer-events-none"
-                )}>
-                  {fiscalPowerOptions.map(cv => (
-                    <button
-                      key={cv}
-                      type="button"
-                      onClick={() => setFiscalPower(cv.toString())}
-                      disabled={!fieldsUnlocked}
+              {/* License plate + Fiscal Power - Side by side */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* License plate */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="licensePlate">Plaque *</Label>
+                  <div className="relative">
+                    <Input
+                      id="licensePlate"
+                      placeholder="AA-123-BB"
+                      value={licensePlate}
+                      onChange={(e) => handleLicensePlateChange(e.target.value)}
+                      maxLength={9}
                       className={cn(
-                        "px-2 py-2 rounded-md text-xs font-medium transition-all font-display",
-                        fiscalPower === cv.toString()
-                          ? "bg-primary text-primary-foreground shadow-md"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                        "font-mono text-base tracking-wider pr-10",
+                        isPlateEmpty && "ring-2 ring-primary/50 border-primary"
                       )}
-                    >
-                      {cv}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
-              <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">
-                La puissance fiscale (CV) figure sur la carte grise (rubrique P.6) et détermine le barème IK applicable.
-              </p>
-            </div>
-          </div>
-
-          {/* Vehicle info - locked until lookup done */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              Informations véhicule
-              {!fieldsUnlocked && (
-                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                  Remplissez l'immatriculation
-                </span>
-              )}
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="make">Marque</Label>
-                <Input
-                  id="make"
-                  placeholder="Renault"
-                  value={make}
-                  onChange={(e) => setMake(e.target.value)}
-                  list="makes"
-                  disabled={!fieldsUnlocked}
-                  className={cn("font-display", !fieldsUnlocked && "opacity-50")}
-                />
-                <datalist id="makes">
-                  {COMMON_MAKES.map(m => <option key={m} value={m} />)}
-                </datalist>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="model">Modèle</Label>
-                <Input
-                  id="model"
-                  placeholder="Clio"
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  disabled={!fieldsUnlocked}
-                  className={cn("font-display", !fieldsUnlocked && "opacity-50")}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="year">Année</Label>
-              <Input
-                id="year"
-                type="number"
-                placeholder="2020"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                min="1990"
-                max={new Date().getFullYear() + 1}
-                disabled={!fieldsUnlocked}
-                className={cn("font-display", !fieldsUnlocked && "opacity-50")}
-              />
-            </div>
-          </div>
-
-          {/* Electric Vehicle Toggle */}
-          <div className="space-y-4">
-            <div className={cn(
-              "flex items-center justify-between p-4 rounded-xl border-2 transition-all",
-              isElectric 
-                ? "border-emerald-500/50 bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/40 dark:to-emerald-900/20" 
-                : "border-border bg-card",
-              !fieldsUnlocked && "opacity-50 pointer-events-none"
-            )}>
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
-                  isElectric 
-                    ? "bg-emerald-500 text-white" 
-                    : "bg-muted text-muted-foreground"
-                )}>
-                  <Zap className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="electric" className="text-sm font-semibold cursor-pointer">
-                      Véhicule 100% électrique
-                    </Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-sm">
-                          Conformément au barème fiscal, les véhicules 100% électriques bénéficient d'une majoration de 20% sur les indemnités kilométriques. Les hybrides ne sont pas éligibles.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {isLookingUp ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      ) : lookupDone ? (
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      ) : null}
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Majoration de 20% sur vos IK
-                  </p>
+                </div>
+
+                {/* Fiscal Power - Compact selector */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="fiscalPower">Puissance fiscale *</Label>
+                  <div className="grid grid-cols-5 gap-0.5">
+                    {fiscalPowerOptions.map(cv => (
+                      <button
+                        key={cv}
+                        type="button"
+                        onClick={() => setFiscalPower(cv.toString())}
+                        className={cn(
+                          "px-1 py-1.5 rounded text-xs font-medium transition-all font-display",
+                          fiscalPower === cv.toString()
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                        )}
+                      >
+                        {cv}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <Switch
-                id="electric"
-                checked={isElectric}
-                onCheckedChange={setIsElectric}
-                disabled={!fieldsUnlocked}
-              />
-            </div>
-          </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
-            <Button variant="secondary" className="flex-1 font-display" onClick={() => onOpenChange(false)}>
-              Annuler
-            </Button>
-            <Button variant="gradient" className="flex-1 font-display" onClick={handleSave}>
-              {editVehicle ? 'Enregistrer' : 'Ajouter le véhicule'}
-            </Button>
+              <div className="flex items-start gap-2 p-2.5 bg-muted rounded-lg">
+                <AlertCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">
+                  CV = rubrique P.6 de la carte grise. Détermine le barème IK.
+                </p>
+              </div>
+
+              {/* Vehicle info - Read only display when lookup done */}
+              {lookupDone && (make || model || year) && (
+                <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">Véhicule détecté</p>
+                  <div className="flex flex-wrap gap-2 text-sm">
+                    {make && <span className="bg-background px-2 py-0.5 rounded">{make}</span>}
+                    {model && <span className="bg-background px-2 py-0.5 rounded">{model}</span>}
+                    {year && <span className="bg-background px-2 py-0.5 rounded">{year}</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Electric Vehicle Toggle */}
+              <div className={cn(
+                "flex items-center justify-between p-3 rounded-xl border-2 transition-all",
+                isElectric 
+                  ? "border-emerald-500/50 bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/40 dark:to-emerald-900/20" 
+                  : "border-border bg-card"
+              )}>
+                <div className="flex items-center gap-2.5">
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                    isElectric 
+                      ? "bg-emerald-500 text-white" 
+                      : "bg-muted text-muted-foreground"
+                  )}>
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <Label htmlFor="electric" className="text-sm font-semibold cursor-pointer">
+                        100% électrique
+                      </Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            Majoration de 20% sur les IK. Les hybrides ne sont pas éligibles.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <p className="text-xs text-muted-foreground">+20% IK</p>
+                  </div>
+                </div>
+                <Switch
+                  id="electric"
+                  checked={isElectric}
+                  onCheckedChange={setIsElectric}
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button variant="secondary" className="flex-1 font-display" onClick={() => onOpenChange(false)}>
+                  Annuler
+                </Button>
+                <Button variant="gradient" className="flex-1 font-display" onClick={handleSave}>
+                  {editVehicle ? 'Enregistrer' : 'Ajouter'}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </SheetContent>
