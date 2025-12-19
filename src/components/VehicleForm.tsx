@@ -156,71 +156,65 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col">
-        <div className="w-[95%] max-w-lg mx-auto flex flex-col h-full">
-          <SheetHeader className="pb-4 shrink-0">
-            <SheetTitle className="text-xl flex items-center gap-2 font-display">
+      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col px-4 sm:px-6">
+        <div className="w-full max-w-md mx-auto flex flex-col">
+          <SheetHeader className="pb-6 shrink-0">
+            <SheetTitle className="text-lg sm:text-xl flex items-center gap-2 font-display">
               <Car className="w-5 h-5 text-primary" />
               {editVehicle ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
             </SheetTitle>
           </SheetHeader>
 
-          <div className="overflow-y-auto flex-1 pr-2">
-            <div className="space-y-4 pb-6 font-display">
-              {/* License plate + Fiscal Power - Side by side */}
-              <div className="grid grid-cols-2 gap-3">
-                {/* License plate */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="licensePlate">Plaque *</Label>
-                  <div className="relative">
-                    <Input
-                      id="licensePlate"
-                      placeholder="AA-123-BB"
-                      value={licensePlate}
-                      onChange={(e) => handleLicensePlateChange(e.target.value)}
-                      maxLength={9}
-                      className={cn(
-                        "font-mono text-base tracking-wider pr-10",
-                        isPlateEmpty && "ring-2 ring-primary/50 border-primary"
-                      )}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {isLookingUp ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                      ) : lookupDone ? (
-                        <Check className="w-4 h-4 text-emerald-500" />
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fiscal Power - Compact selector */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="fiscalPower">Puissance fiscale *</Label>
-                  <div className="grid grid-cols-5 gap-0.5">
-                    {fiscalPowerOptions.map(cv => (
-                      <button
-                        key={cv}
-                        type="button"
-                        onClick={() => setFiscalPower(cv.toString())}
-                        className={cn(
-                          "px-1 py-1.5 rounded text-xs font-medium transition-all font-display",
-                          fiscalPower === cv.toString()
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        )}
-                      >
-                        {cv}
-                      </button>
-                    ))}
+          <div className="overflow-y-auto flex-1">
+            <div className="space-y-5 pb-6 font-display">
+              {/* License plate */}
+              <div className="space-y-2">
+                <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>
+                <div className="relative">
+                  <Input
+                    id="licensePlate"
+                    placeholder="AA-123-BB"
+                    value={licensePlate}
+                    onChange={(e) => handleLicensePlateChange(e.target.value)}
+                    maxLength={9}
+                    className={cn(
+                      "font-mono text-base sm:text-lg tracking-wider pr-10 h-12",
+                      isPlateEmpty && "ring-2 ring-primary/50 border-primary"
+                    )}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isLookingUp ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    ) : lookupDone ? (
+                      <Check className="w-5 h-5 text-emerald-500" />
+                    ) : null}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-2.5 bg-muted rounded-lg">
-                <AlertCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  CV = rubrique P.6 de la carte grise. Détermine le barème IK.
+              {/* Fiscal Power */}
+              <div className="space-y-2">
+                <Label>Puissance fiscale (CV) *</Label>
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+                  {fiscalPowerOptions.map(cv => (
+                    <button
+                      key={cv}
+                      type="button"
+                      onClick={() => setFiscalPower(cv.toString())}
+                      className={cn(
+                        "py-2 px-2 rounded-lg text-sm font-medium transition-all font-display",
+                        fiscalPower === cv.toString()
+                          ? "bg-primary text-primary-foreground shadow-md scale-105"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      )}
+                    >
+                      {cv}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                  Rubrique P.6 de la carte grise
                 </p>
               </div>
 
