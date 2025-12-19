@@ -156,10 +156,10 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col px-4 sm:px-6">
-        <div className="w-full max-w-md mx-auto flex flex-col">
-          <SheetHeader className="pb-6 shrink-0">
-            <SheetTitle className="text-lg sm:text-xl flex items-center gap-2 font-display">
+      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col">
+        <div className="w-full flex flex-col">
+          <SheetHeader className="pb-5 shrink-0">
+            <SheetTitle className="text-lg flex items-center gap-2 font-display">
               <Car className="w-5 h-5 text-primary" />
               {editVehicle ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
             </SheetTitle>
