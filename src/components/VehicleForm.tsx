@@ -190,30 +190,65 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
             </div>
           </div>
 
-          {/* License plate with auto-lookup */}
+          {/* License plate + Fiscal Power - Side by side */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Immatriculation</h3>
-            <div className="space-y-2">
-              <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>
-              <div className="relative">
-                <Input
-                  id="licensePlate"
-                  placeholder="AA-123-BB"
-                  value={licensePlate}
-                  onChange={(e) => handleLicensePlateChange(e.target.value)}
-                  maxLength={9}
-                  className="font-mono text-lg tracking-wider pr-10"
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {isLookingUp ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                  ) : lookupDone ? (
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  ) : null}
+            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              Immatriculation & Puissance fiscale
+              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Important</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {/* License plate */}
+              <div className="space-y-2">
+                <Label htmlFor="licensePlate">Plaque *</Label>
+                <div className="relative">
+                  <Input
+                    id="licensePlate"
+                    placeholder="AA-123-BB"
+                    value={licensePlate}
+                    onChange={(e) => handleLicensePlateChange(e.target.value)}
+                    maxLength={9}
+                    className="font-mono text-base tracking-wider pr-10"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isLookingUp ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    ) : lookupDone ? (
+                      <Check className="w-5 h-5 text-emerald-500" />
+                    ) : null}
+                  </div>
                 </div>
               </div>
+
+              {/* Fiscal Power - Compact selector */}
+              <div className="space-y-2">
+                <Label htmlFor="fiscalPower">Puissance fiscale *</Label>
+                <div className={cn(
+                  "grid grid-cols-5 gap-1",
+                  !fieldsUnlocked && "opacity-50 pointer-events-none"
+                )}>
+                  {fiscalPowerOptions.map(cv => (
+                    <button
+                      key={cv}
+                      type="button"
+                      onClick={() => setFiscalPower(cv.toString())}
+                      disabled={!fieldsUnlocked}
+                      className={cn(
+                        "px-2 py-2 rounded-md text-xs font-medium transition-all font-display",
+                        fiscalPower === cv.toString()
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      )}
+                    >
+                      {cv}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
+              <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Les informations du véhicule seront récupérées automatiquement
+                La puissance fiscale (CV) figure sur la carte grise (rubrique P.6) et détermine le barème IK applicable.
               </p>
             </div>
           </div>
@@ -317,45 +352,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 onCheckedChange={setIsElectric}
                 disabled={!fieldsUnlocked}
               />
-            </div>
-          </div>
-
-          {/* Fiscal power - CRITICAL for IK calculation */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              Puissance fiscale
-              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Important</span>
-            </h3>
-            <div className="space-y-2">
-              <Label htmlFor="fiscalPower">Puissance fiscale (CV) *</Label>
-              <div className={cn(
-                "flex flex-wrap gap-2",
-                !fieldsUnlocked && "opacity-50 pointer-events-none"
-              )}>
-                {fiscalPowerOptions.map(cv => (
-                  <button
-                    key={cv}
-                    type="button"
-                    onClick={() => setFiscalPower(cv.toString())}
-                    disabled={!fieldsUnlocked}
-                    className={cn(
-                      "px-4 py-2 rounded-lg text-sm font-medium transition-all font-display",
-                      fiscalPower === cv.toString()
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                    )}
-                  >
-                    {cv} CV
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-start gap-2 p-3 bg-muted rounded-lg mt-3">
-                <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  La puissance fiscale (CV) figure sur la carte grise à la rubrique P.6. 
-                  Elle détermine le barème des indemnités kilométriques applicable.
-                </p>
-              </div>
             </div>
           </div>
 
