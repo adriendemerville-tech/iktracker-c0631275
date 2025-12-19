@@ -76,6 +76,10 @@ export function useMarketingTracker(page: string) {
 
   const trackEvent = useCallback(async (options: TrackEventOptions) => {
     try {
+      // Get current user session
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || null;
+
       // Skip tracking for admin users
       const isAdmin = await checkIsAdmin();
       if (isAdmin) {
@@ -90,6 +94,7 @@ export function useMarketingTracker(page: string) {
         session_id: getSessionId(),
         referrer: document.referrer || null,
         user_agent: navigator.userAgent,
+        user_id: userId,
       });
     } catch (error) {
       // Silently fail - don't impact user experience
