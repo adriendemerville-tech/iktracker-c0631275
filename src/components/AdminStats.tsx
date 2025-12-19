@@ -33,7 +33,14 @@ import {
   ArrowDown,
   Minus,
   Download,
-  Share2
+  Share2,
+  Globe,
+  MousePointer,
+  Smartphone,
+  Monitor,
+  Tablet,
+  BarChart3,
+  Calculator
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -59,6 +66,31 @@ interface ShareStatsData {
   total_shares: number;
   unique_sharers: number;
   pct_users_shared: number;
+}
+
+interface MarketingStatsData {
+  total_views: number;
+  unique_sessions: number;
+  total_cta_clicks: number;
+  total_simulations: number;
+  mobile_views: number;
+  desktop_views: number;
+  tablet_views: number;
+  mobile_pct: number;
+  desktop_pct: number;
+}
+
+interface MarketingViewsByDay {
+  day: string;
+  views: number;
+  unique_visitors: number;
+}
+
+interface MarketingStatsByPage {
+  page: string;
+  views: number;
+  cta_clicks: number;
+  simulations: number;
 }
 
 interface TopUser {
@@ -278,6 +310,45 @@ export function AdminStats() {
     refetchInterval: 60000,
   });
 
+  // Fetch marketing stats
+  const { data: marketingStats, isLoading: marketingStatsLoading } = useQuery({
+    queryKey: ['admin-marketing-stats', period],
+    queryFn: async () => {
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_marketing_stats', { days_back: daysBack });
+      if (error) throw error;
+      return data as unknown as MarketingStatsData;
+    },
+    refetchInterval: 60000,
+  });
+
+  // Fetch marketing views by day
+  const { data: marketingViewsByDay = [], isLoading: marketingViewsLoading } = useQuery({
+    queryKey: ['admin-marketing-views-by-day', period],
+    queryFn: async () => {
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_marketing_views_by_day', { days_back: daysBack });
+      if (error) throw error;
+      return (data as unknown as { day: string; views: number; unique_visitors: number }[]).map(d => ({
+        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
+        views: Number(d.views),
+        unique_visitors: Number(d.unique_visitors),
+      }));
+    },
+    refetchInterval: 60000,
+  });
+
+  // Fetch marketing stats by page
+  const { data: marketingByPage = [], isLoading: marketingByPageLoading } = useQuery({
+    queryKey: ['admin-marketing-by-page', period],
+    queryFn: async () => {
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_marketing_stats_by_page', { days_back: daysBack });
+      if (error) throw error;
+      return data as unknown as MarketingStatsByPage[];
+    },
+    refetchInterval: 60000,
+  });
 
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
     queryKey: ['admin-recent-signups'],
@@ -973,6 +1044,202 @@ export function AdminStats() {
           )}
         </CardContent>
       </Card>
+
+      {/* Marketing KPIs Section */}
+      <div className="border-t border-border pt-6 mt-6">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Globe className="w-6 h-6 text-primary" />
+          KPI Marketing
+        </h2>
+
+        {/* Marketing Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+          {/* Total views */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Globe className="w-5 h-5 text-blue-500" />
+                <span className="text-xs text-muted-foreground">Visites</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_views || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Unique visitors */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-green-500" />
+                <span className="text-xs text-muted-foreground">Visiteurs uniques</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.unique_sessions || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* CTA clicks */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <MousePointer className="w-5 h-5 text-amber-500" />
+                <span className="text-xs text-muted-foreground">Clics CTA</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_cta_clicks || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* IK simulations */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Calculator className="w-5 h-5 text-purple-500" />
+                <span className="text-xs text-muted-foreground">Simulations IK</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_simulations || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Mobile % */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Smartphone className="w-5 h-5 text-pink-500" />
+                <span className="text-xs text-muted-foreground">Mobile</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{marketingStats?.mobile_pct || 0}%</p>
+                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.mobile_views || 0)} visites</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Desktop % */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Monitor className="w-5 h-5 text-slate-500" />
+                <span className="text-xs text-muted-foreground">Desktop</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{marketingStats?.desktop_pct || 0}%</p>
+                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.desktop_views || 0)} visites</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Marketing charts row */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          {/* Views by day chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-500" />
+                Visites par jour
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {marketingViewsLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : marketingViewsByDay.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={marketingViewsByDay}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Bar dataKey="views" fill="hsl(var(--primary))" name="Visites" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="unique_visitors" fill="hsl(var(--chart-2))" name="Visiteurs uniques" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Stats by page table */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="w-5 h-5 text-green-500" />
+                Stats par page
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {marketingByPageLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : marketingByPage.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+              ) : (
+                <div className="overflow-x-auto max-h-[200px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Page</TableHead>
+                        <TableHead className="text-right">Vues</TableHead>
+                        <TableHead className="text-right">CTA</TableHead>
+                        <TableHead className="text-right">Simul.</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {marketingByPage.map((page) => (
+                        <TableRow key={page.page}>
+                          <TableCell className="font-medium text-xs">{page.page}</TableCell>
+                          <TableCell className="text-right">{formatNumber(page.views)}</TableCell>
+                          <TableCell className="text-right">{formatNumber(page.cta_clicks)}</TableCell>
+                          <TableCell className="text-right">{formatNumber(page.simulations)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

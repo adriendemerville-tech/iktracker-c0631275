@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,7 @@ import { Switch } from "@/components/ui/switch";
 
 const BaremeIK2026 = () => {
   const { user, loading } = useAuth();
+  const { trackCTAClick, trackIKSimulation } = useMarketingTracker('bareme-ik');
   const [fiscalPower, setFiscalPower] = useState<string>("5");
   const [annualKm, setAnnualKm] = useState<string>("10000");
   const [isElectric, setIsElectric] = useState<boolean>(false);

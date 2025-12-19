@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -31,6 +32,7 @@ const Landing = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { trackCTAClick } = useMarketingTracker('landing');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

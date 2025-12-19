@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useMarketingTracker } from '@/hooks/useMarketingTracker';
 import { PWAPromoSection } from '@/components/PWAPromoSection';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -54,6 +55,7 @@ const Signup = () => {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackCTAClick } = useMarketingTracker('signup');
 
   useEffect(() => {
     // SEO meta tags

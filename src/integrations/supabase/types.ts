@@ -164,6 +164,39 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_analytics: {
+        Row: {
+          created_at: string
+          device_type: string
+          event_type: string
+          id: string
+          page: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string
+          event_type: string
+          id?: string
+          page: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_type?: string
+          event_type?: string
+          id?: string
+          page?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       share_events: {
         Row: {
           id: string
@@ -357,6 +390,24 @@ export type Database = {
         }[]
       }
       get_download_stats: { Args: never; Returns: Json }
+      get_marketing_stats: { Args: { days_back?: number }; Returns: Json }
+      get_marketing_stats_by_page: {
+        Args: { days_back?: number }
+        Returns: {
+          cta_clicks: number
+          page: string
+          simulations: number
+          views: number
+        }[]
+      }
+      get_marketing_views_by_day: {
+        Args: { days_back?: number }
+        Returns: {
+          day: string
+          unique_visitors: number
+          views: number
+        }[]
+      }
       get_recent_signups: {
         Args: { limit_count?: number }
         Returns: {
