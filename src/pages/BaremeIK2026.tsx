@@ -506,7 +506,7 @@ const BaremeIK2026 = () => {
                   </p>
                   <Link to="/#auth-section">
                     <Button variant="gradient" size="lg" className="gap-2">
-                      Tester IKtracker gratuitement
+                      Accéder à l'outil
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -715,7 +715,7 @@ const BaremeIK2026 = () => {
             <div className="text-center">
               <Link to="/#auth-section">
                 <Button variant="gradient" size="lg" className="gap-2">
-                  Tester IKtracker gratuitement
+                  Accéder à l'outil
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
