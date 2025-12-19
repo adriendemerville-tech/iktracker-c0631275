@@ -31,7 +31,7 @@ export interface TourStopData {
 
 export interface Trip {
   id: string;
-  vehicleId: string;
+  vehicleId: string | null; // Can be null if vehicle was deleted
   startLocation: Location;
   endLocation: Location;
   distance: number; // in km (total distance, doubled if round trip)
@@ -40,7 +40,7 @@ export interface Trip {
   purpose: string;
   startTime: Date;
   endTime: Date;
-  ikAmount: number; // calculated IK in euros
+  ikAmount: number; // calculated IK in euros (preserved even if vehicle deleted)
   tourStops?: TourStopData[]; // For tours: array of intermediate stops
   calendarEventId?: string | null; // If trip was created from a calendar event
 }

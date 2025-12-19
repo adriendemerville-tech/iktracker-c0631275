@@ -239,7 +239,7 @@ export type Database = {
           start_location: string
           tour_stops: Json | null
           user_id: string
-          vehicle_id: string
+          vehicle_id: string | null
         }
         Insert: {
           calendar_event_id?: string | null
@@ -255,7 +255,7 @@ export type Database = {
           start_location: string
           tour_stops?: Json | null
           user_id: string
-          vehicle_id: string
+          vehicle_id?: string | null
         }
         Update: {
           calendar_event_id?: string | null
@@ -271,7 +271,7 @@ export type Database = {
           start_location?: string
           tour_stops?: Json | null
           user_id?: string
-          vehicle_id?: string
+          vehicle_id?: string | null
         }
         Relationships: [
           {

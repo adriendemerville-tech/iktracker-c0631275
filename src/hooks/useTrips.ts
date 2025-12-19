@@ -315,37 +315,40 @@ export function useTrips() {
     const existingTrip = trips.find(t => t.id === id);
     if (!existingTrip) return null;
 
-    // IMPORTANT: Once a trip is created, the vehicle cannot be changed
-    // Remove vehicleId from updates to prevent modification
-    const { vehicleId: _ignoredVehicleId, ...safeUpdates } = updates;
-
-    const vehicle = vehicles.find(v => v.id === existingTrip.vehicleId);
-    if (!vehicle) return null;
-
-    // Recalculate IK if distance changed
+    // Determine the vehicle to use for calculations
+    const newVehicleId = updates.vehicleId !== undefined ? updates.vehicleId : existingTrip.vehicleId;
+    const vehicle = newVehicleId ? vehicles.find(v => v.id === newVehicleId) : null;
+    
+    // Recalculate IK if distance or vehicle changed
     let ikAmount = existingTrip.ikAmount;
-    if (safeUpdates.distance !== undefined && safeUpdates.distance !== existingTrip.distance) {
-      const totalAnnualKm = getTotalAnnualKm(vehicle.id) - existingTrip.distance + safeUpdates.distance;
+    const distanceChanged = updates.distance !== undefined && updates.distance !== existingTrip.distance;
+    const vehicleChanged = updates.vehicleId !== undefined && updates.vehicleId !== existingTrip.vehicleId;
+    
+    if (vehicle && (distanceChanged || vehicleChanged)) {
+      const newDistance = updates.distance !== undefined ? updates.distance : existingTrip.distance;
+      const totalAnnualKm = getTotalAnnualKm(vehicle.id) + newDistance;
       ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                 calculateTotalAnnualIK(totalAnnualKm - safeUpdates.distance, vehicle.fiscalPower);
+                 calculateTotalAnnualIK(totalAnnualKm - newDistance, vehicle.fiscalPower);
       
       // Apply 20% bonus for electric vehicles
       if (vehicle.isElectric) {
         ikAmount = ikAmount * 1.2;
       }
+    } else if (!vehicle && vehicleChanged) {
+      // Vehicle removed, keep existing IK amount (already set above)
     }
 
     if (user) {
       const { error } = await supabase
         .from('trips')
         .update({
-          // vehicle_id is NOT updated - trips are permanently linked to their vehicle
-          date: safeUpdates.startTime ? new Date(safeUpdates.startTime).toISOString().split('T')[0] : undefined,
-          start_location: safeUpdates.startLocation?.name,
-          end_location: safeUpdates.endLocation?.name,
-          distance: safeUpdates.distance,
-          round_trip: safeUpdates.roundTrip,
-          purpose: safeUpdates.purpose || null,
+          vehicle_id: updates.vehicleId !== undefined ? updates.vehicleId : undefined,
+          date: updates.startTime ? new Date(updates.startTime).toISOString().split('T')[0] : undefined,
+          start_location: updates.startLocation?.name,
+          end_location: updates.endLocation?.name,
+          distance: updates.distance,
+          round_trip: updates.roundTrip,
+          purpose: updates.purpose || null,
           ik_amount: ikAmount,
         })
         .eq('id', id);
@@ -353,8 +356,7 @@ export function useTrips() {
       if (!error) {
         const updatedTrip: Trip = {
           ...existingTrip,
-          ...safeUpdates,
-          vehicleId: existingTrip.vehicleId, // Ensure vehicleId stays unchanged
+          ...updates,
           ikAmount,
         };
         setTrips(prev => prev.map(t => t.id === id ? updatedTrip : t));
@@ -364,8 +366,7 @@ export function useTrips() {
     } else {
       const updatedTrip: Trip = {
         ...existingTrip,
-        ...safeUpdates,
-        vehicleId: existingTrip.vehicleId, // Ensure vehicleId stays unchanged
+        ...updates,
         ikAmount,
       };
       saveTripsLocal(trips.map(t => t.id === id ? updatedTrip : t));
@@ -650,30 +651,20 @@ export function useTrips() {
 
   const deleteVehicle = async (id: string): Promise<{ success: boolean; error?: string }> => {
     if (user) {
-      // Check if vehicle has trips attached
-      const vehicleTrips = trips.filter(t => t.vehicleId === id);
-      if (vehicleTrips.length > 0) {
-        return { 
-          success: false, 
-          error: `Ce véhicule a ${vehicleTrips.length} trajet(s) enregistré(s). Supprimez d'abord les trajets associés.` 
-        };
-      }
-      
+      // Delete vehicle - trips will have vehicle_id set to NULL (ON DELETE SET NULL)
+      // Trips keep their existing IK amounts
       const { error } = await supabase.from('vehicles').delete().eq('id', id);
       if (error) {
         return { success: false, error: 'Impossible de supprimer ce véhicule.' };
       }
+      // Update local state: set vehicleId to null for affected trips
+      setTrips(prev => prev.map(t => t.vehicleId === id ? { ...t, vehicleId: null } : t));
       setVehicles(prev => prev.filter(v => v.id !== id));
       return { success: true };
     } else {
-      // For local storage, also check trips
-      const vehicleTrips = trips.filter(t => t.vehicleId === id);
-      if (vehicleTrips.length > 0) {
-        return { 
-          success: false, 
-          error: `Ce véhicule a ${vehicleTrips.length} trajet(s) enregistré(s). Supprimez d'abord les trajets associés.` 
-        };
-      }
+      // For local storage, set vehicleId to null for affected trips
+      const updatedTrips = trips.map(t => t.vehicleId === id ? { ...t, vehicleId: null } : t);
+      saveTripsLocal(updatedTrips);
       saveVehiclesLocal(vehicles.filter(v => v.id !== id));
       return { success: true };
     }
@@ -691,6 +682,8 @@ export function useTrips() {
   const recalculatedTotalIK = useMemo(() => {
     const vehicleKms = new Map<string, number>();
     filteredTrips.forEach(t => {
+      // Skip trips without a vehicle for recalculation
+      if (!t.vehicleId) return;
       const current = vehicleKms.get(t.vehicleId) || 0;
       vehicleKms.set(t.vehicleId, current + t.distance);
     });
@@ -707,6 +700,14 @@ export function useTrips() {
         total += vehicleIK;
       }
     });
+    
+    // Add preserved IK from trips without vehicles
+    filteredTrips.forEach(t => {
+      if (!t.vehicleId) {
+        total += t.ikAmount;
+      }
+    });
+    
     return total;
   }, [filteredTrips, vehicles]);
 
