@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GripVertical } from 'lucide-react';
+import { Move } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MarketingCardData {
@@ -62,9 +62,9 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
         <div
           {...attributes}
           {...listeners}
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted"
+          className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors"
         >
-          <GripVertical className="w-4 h-4 text-muted-foreground" />
+          <Move className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
       )}
       <CardContent className="p-4">
