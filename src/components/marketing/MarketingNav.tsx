@@ -16,7 +16,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
   const links = [
     { label: 'Mode Tournée', href: '/mode-tournee' },
     { label: 'Calendrier', href: '/calendrier' },
-    { label: 'Barème des indemnités', href: '/bareme-ik-2026' },
+    { label: 'Barème des indemnités', href: '/bareme-ik-2026', isNew: true },
     { label: 'Installation', href: '/install' },
     { label: 'Expert-Comptable', href: '/expert-comptable' },
   ];
@@ -44,13 +44,18 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "text-sm transition-colors relative",
+                  "text-sm transition-colors relative flex items-center gap-1.5",
                   isActive(link.href) 
                     ? "text-primary font-medium" 
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {link.label}
+                {link.isNew && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse">
+                    Nouveau
+                  </span>
+                )}
                 {isActive(link.href) && (
                   <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full" />
                 )}
@@ -99,13 +104,18 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   to={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    "px-4 py-2 rounded-lg transition-colors",
+                    "px-4 py-2 rounded-lg transition-colors flex items-center justify-between",
                     isActive(link.href)
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.isNew && (
+                    <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full">
+                      Nouveau
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
