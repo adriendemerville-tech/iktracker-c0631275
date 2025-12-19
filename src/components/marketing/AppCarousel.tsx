@@ -7,7 +7,7 @@ import { MemoizedAnimatedPhoneMockup } from './AnimatedPhoneMockup';
 interface CarouselSlide {
   title: string;
   description: string;
-  screen: 'dashboard' | 'newTrip' | 'tour' | 'calendar';
+  screen: 'dashboard' | 'newTrip' | 'tour' | 'tourFocus' | 'calendar';
 }
 
 interface AppCarouselProps {
@@ -22,6 +22,11 @@ const defaultSlides: CarouselSlide[] = [
     title: "Mode Tournée",
     description: "Enregistrez plusieurs arrêts en un seul trajet avec le GPS en temps réel.",
     screen: 'tour'
+  },
+  {
+    title: "Vue focus tournée",
+    description: "Interface épurée pendant vos déplacements avec compteur de kilomètres en temps réel.",
+    screen: 'tourFocus'
   },
   {
     title: "Tableau de bord",
