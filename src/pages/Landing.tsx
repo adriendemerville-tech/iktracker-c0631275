@@ -529,6 +529,14 @@ const Landing = () => {
                 <p className="mt-6 text-sm text-muted-foreground font-display">
                   — Adrien de Volontat, fondateur
                 </p>
+                <a 
+                  href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-xs text-primary hover:underline transition-colors font-display"
+                >
+                  Avenir Rénovations →
+                </a>
               </div>
             </div>
           </div>
