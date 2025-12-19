@@ -1049,11 +1049,15 @@ ${IKTRACKER_MENTION}
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
+              onClick={async () => {
                 if (vehicleToDelete) {
-                  deleteVehicle(vehicleToDelete);
+                  const result = await deleteVehicle(vehicleToDelete);
                   setVehicleToDelete(null);
-                  toast.success("Véhicule supprimé");
+                  if (result.success) {
+                    toast.success("Véhicule supprimé");
+                  } else {
+                    toast.error(result.error || "Impossible de supprimer ce véhicule");
+                  }
                 }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

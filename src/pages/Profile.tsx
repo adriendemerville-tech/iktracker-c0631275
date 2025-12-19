@@ -246,8 +246,13 @@ const Profile = () => {
     setVehicleFormOpen(true);
   };
 
-  const handleDeleteVehicle = (vehicleId: string) => {
-    deleteVehicle(vehicleId);
+  const handleDeleteVehicle = async (vehicleId: string) => {
+    const result = await deleteVehicle(vehicleId);
+    if (result.success) {
+      toast.success("Véhicule supprimé");
+    } else {
+      toast.error(result.error || "Impossible de supprimer ce véhicule");
+    }
   };
 
   return (
