@@ -199,7 +199,7 @@ export function AdminStats() {
   const dateRange = getDateRange();
   const prevDateRange = getDateRange(true);
 
-  // Fetch admin stats with period filter
+  // Fetch admin stats with period filter - refresh every hour
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin-stats', period],
     queryFn: async () => {
@@ -210,10 +210,10 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as AdminStatsData;
     },
-    refetchInterval: 30000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch previous period stats for comparison
+  // Fetch previous period stats for comparison - refresh every hour
   const { data: prevStats, isLoading: prevStatsLoading } = useQuery({
     queryKey: ['admin-stats-prev', period],
     queryFn: async () => {
@@ -226,10 +226,10 @@ export function AdminStats() {
       return data as unknown as AdminStatsData;
     },
     enabled: period !== 'all',
-    refetchInterval: 30000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch registrations by day with period filter
+  // Fetch registrations by day with period filter - refresh every hour
   const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
     queryKey: ['admin-registrations', period],
     queryFn: async () => {
@@ -241,10 +241,10 @@ export function AdminStats() {
         count: Number(d.count),
       }));
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch top users
+  // Fetch top users - refresh every hour
   const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
     queryKey: ['admin-top-users', topUserSort],
     queryFn: async () => {
@@ -255,10 +255,10 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as TopUser[];
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch download stats
+  // Fetch download stats - refresh every hour
   const { data: downloadStats, isLoading: downloadStatsLoading } = useQuery({
     queryKey: ['admin-download-stats'],
     queryFn: async () => {
@@ -266,10 +266,10 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as DownloadStatsData;
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch download clicks by day with period filter
+  // Fetch download clicks by day with period filter - refresh every hour
   const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
     queryKey: ['admin-download-clicks-by-day', period],
     queryFn: async () => {
@@ -281,10 +281,10 @@ export function AdminStats() {
         count: Number(d.count),
       }));
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch share stats
+  // Fetch share stats - refresh every hour
   const { data: shareStats, isLoading: shareStatsLoading } = useQuery({
     queryKey: ['admin-share-stats'],
     queryFn: async () => {
@@ -292,10 +292,10 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as ShareStatsData;
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch shares by day with period filter
+  // Fetch shares by day with period filter - refresh every hour
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
     queryKey: ['admin-shares-by-day', period],
     queryFn: async () => {
@@ -307,10 +307,10 @@ export function AdminStats() {
         count: Number(d.count),
       }));
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch marketing stats
+  // Fetch marketing stats - refresh every hour
   const { data: marketingStats, isLoading: marketingStatsLoading } = useQuery({
     queryKey: ['admin-marketing-stats', period],
     queryFn: async () => {
@@ -319,10 +319,10 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as MarketingStatsData;
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch marketing views by day
+  // Fetch marketing views by day - refresh every hour
   const { data: marketingViewsByDay = [], isLoading: marketingViewsLoading } = useQuery({
     queryKey: ['admin-marketing-views-by-day', period],
     queryFn: async () => {
@@ -335,10 +335,10 @@ export function AdminStats() {
         unique_visitors: Number(d.unique_visitors),
       }));
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch marketing stats by page
+  // Fetch marketing stats by page - refresh every hour
   const { data: marketingByPage = [], isLoading: marketingByPageLoading } = useQuery({
     queryKey: ['admin-marketing-by-page', period],
     queryFn: async () => {
@@ -347,9 +347,10 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as MarketingStatsByPage[];
     },
-    refetchInterval: 60000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
+  // Fetch recent signups - refresh every hour
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
     queryKey: ['admin-recent-signups'],
     queryFn: async () => {
@@ -357,7 +358,7 @@ export function AdminStats() {
       if (error) throw error;
       return data as unknown as RecentSignup[];
     },
-    refetchInterval: 30000,
+    refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
   const formatNumber = (num: number) => {
