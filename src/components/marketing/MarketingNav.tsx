@@ -16,6 +16,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
   const links = [
     { label: 'Mode Tournée', href: '/mode-tournee' },
     { label: 'Calendrier', href: '/calendrier' },
+    { label: 'Barème IK 2026', href: '/bareme-ik-2026' },
     { label: 'Installation', href: '/install' },
     { label: 'Expert-Comptable', href: '/expert-comptable' },
   ];

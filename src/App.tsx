@@ -21,6 +21,7 @@ import Install from "./pages/Install";
 import ExpertComptable from "./pages/ExpertComptable";
 import ModeTournee from "./pages/ModeTournee";
 import Calendrier from "./pages/Calendrier";
+import BaremeIK2026 from "./pages/BaremeIK2026";
 import Offline from "./pages/Offline";
 import NotFound from "./pages/NotFound";
 
@@ -110,6 +111,7 @@ const AppContent = () => {
         <Route path="/expert-comptable" element={<ExpertComptable />} />
         <Route path="/mode-tournee" element={<ModeTournee />} />
         <Route path="/calendrier" element={<Calendrier />} />
+        <Route path="/bareme-ik-2026" element={<BaremeIK2026 />} />
         <Route path="/offline" element={<Offline />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
