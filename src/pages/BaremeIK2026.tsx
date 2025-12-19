@@ -21,20 +21,29 @@ import {
   CheckCircle2,
   Info,
   FileText,
-  Users
+  Users,
+  Zap,
+  AlertTriangle,
+  Fuel
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 const BaremeIK2026 = () => {
   const { user, loading } = useAuth();
   const [fiscalPower, setFiscalPower] = useState<string>("5");
   const [annualKm, setAnnualKm] = useState<string>("10000");
+  const [isElectric, setIsElectric] = useState<boolean>(false);
 
-  // Simulate IK calculation
+  // Simulate IK calculation with electric vehicle bonus
   const simulation = useMemo(() => {
     const cv = parseInt(fiscalPower) || 5;
     const km = parseInt(annualKm) || 0;
     const bareme = getIKBareme(cv);
-    const totalIK = calculateTotalAnnualIK(km, cv);
+    let totalIK = calculateTotalAnnualIK(km, cv);
+    
+    // Apply 20% bonus for 100% electric vehicles
+    const electricBonus = isElectric ? totalIK * 0.20 : 0;
+    const totalWithBonus = totalIK + electricBonus;
     
     let bracket = "";
     let rate = 0;
@@ -49,8 +58,8 @@ const BaremeIK2026 = () => {
       rate = bareme.over20000.rate;
     }
 
-    return { totalIK, bracket, rate, bareme };
-  }, [fiscalPower, annualKm]);
+    return { totalIK, totalWithBonus, electricBonus, bracket, rate, bareme, isElectric };
+  }, [fiscalPower, annualKm, isElectric]);
 
   return (
     <>
@@ -60,7 +69,7 @@ const BaremeIK2026 = () => {
           name="description" 
           content="Barème des indemnités kilométriques 2025 reconduit en 2026. Simulateur IK gratuit, tableau des taux par CV et calcul automatique de vos frais kilométriques professionnels." 
         />
-        <meta name="keywords" content="indemnités kilométriques 2026, indemnités kilométriques 2025, barème des indemnités kilométriques 2025, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule" />
+        <meta name="keywords" content="indemnités kilométriques 2026, indemnités kilométriques 2025, barème des indemnités kilométriques 2025, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
         <link rel="canonical" href="https://iktracker.lovable.app/bareme-ik-2026" />
         <meta property="og:title" content="Barème indemnités kilométriques 2026 - Simulateur et calcul IK" />
         <meta property="og:description" content="Tableau complet du barème IK 2026 basé sur le barème des indemnités kilométriques 2025. Simulateur gratuit pour calculer vos IK." />
@@ -129,6 +138,14 @@ const BaremeIK2026 = () => {
                 "acceptedAnswer": {
                   "@type": "Answer",
                   "text": "Non, le barème des IK 2026 devrait être identique au barème des indemnités kilométriques 2025, compte tenu de la stabilisation des prix du carburant et des contraintes budgétaires de l'État."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Les véhicules électriques bénéficient-ils d'un avantage pour les IK ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Oui, depuis 2021 et confirmé pour 2025-2026, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques. Attention : les véhicules hybrides et hybrides rechargeables ne bénéficient pas de cet avantage."
                 }
               }
             ]
@@ -265,6 +282,113 @@ const BaremeIK2026 = () => {
           </div>
         </section>
 
+        {/* Electric Vehicle Section */}
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                Véhicules électriques : majoration de 20% des indemnités kilométriques
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Depuis 2021 et confirmé pour les <strong>indemnités kilométriques 2025</strong> et 2026, les véhicules 100% électriques bénéficient d'un avantage fiscal significatif.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Electric Bonus Card */}
+              <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/40 dark:to-emerald-900/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                    <Zap className="h-5 w-5" />
+                    Véhicules 100% électriques
+                  </CardTitle>
+                  <CardDescription className="text-emerald-600/80 dark:text-emerald-300/80">
+                    Majoration applicable depuis 2021
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-white/60 dark:bg-black/20">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-lg">
+                      +20%
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Majoration automatique</p>
+                      <p className="text-sm text-muted-foreground">Sur le montant total calculé avec le barème</p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                      <span>S'applique aux véhicules <strong>exclusivement électriques</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                      <span>Aucune démarche supplémentaire requise</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                      <span>Applicable que vous soyez salarié ou indépendant</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Warning Card - Hybrid vehicles */}
+              <Card className="border-amber-500/30 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-900/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                    <AlertTriangle className="h-5 w-5" />
+                    Attention aux véhicules hybrides
+                  </CardTitle>
+                  <CardDescription className="text-amber-600/80 dark:text-amber-300/80">
+                    Une confusion fréquente à éviter
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm">
+                    <strong className="text-amber-700 dark:text-amber-400">Les véhicules hybrides et hybrides rechargeables ne bénéficient PAS de la majoration de 20%.</strong>
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-2 rounded-lg bg-red-100/60 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                      <Fuel className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-medium text-red-700 dark:text-red-400">Hybride classique</p>
+                        <p className="text-muted-foreground text-xs">Barème standard, pas de majoration</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 rounded-lg bg-red-100/60 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                      <Fuel className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-medium text-red-700 dark:text-red-400">Hybride rechargeable (PHEV)</p>
+                        <p className="text-muted-foreground text-xs">Barème standard, pas de majoration</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Ces véhicules utilisent le barème classique car ils disposent d'un moteur thermique, même partiel.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Important Note */}
+            <Card className="mt-6 border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20">
+              <CardContent className="p-4 flex items-start gap-3">
+                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
+                    Le type de carburant n'influence pas le calcul des IK
+                  </p>
+                  <p className="text-muted-foreground">
+                    Que vous rouliez à l'essence, au diesel ou au GPL, le calcul des <strong>indemnités kilométriques 2026</strong> reste identique. 
+                    Seuls les véhicules 100% électriques bénéficient d'un traitement fiscal avantageux avec la majoration de 20%.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
         {/* Simulator Section */}
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-4xl">
@@ -313,13 +437,33 @@ const BaremeIK2026 = () => {
                         className="mt-1.5"
                       />
                     </div>
+
+                    {/* Electric Vehicle Toggle */}
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        <div>
+                          <Label htmlFor="electric" className="text-sm font-medium cursor-pointer">
+                            Véhicule 100% électrique
+                          </Label>
+                          <p className="text-xs text-muted-foreground">Majoration de 20%</p>
+                        </div>
+                      </div>
+                      <Switch
+                        id="electric"
+                        checked={isElectric}
+                        onCheckedChange={setIsElectric}
+                      />
+                    </div>
                   </div>
 
                   {/* Results */}
-                  <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 flex flex-col justify-center">
-                    <p className="text-sm text-muted-foreground mb-1">Estimation IK 2026</p>
-                    <p className="text-4xl font-bold text-primary mb-4">
-                      {simulation.totalIK.toLocaleString('fr-FR', { 
+                  <div className={`rounded-xl p-6 flex flex-col justify-center ${isElectric ? 'bg-gradient-to-br from-emerald-500/10 to-emerald-600/20' : 'bg-gradient-to-br from-primary/5 to-primary/10'}`}>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Estimation IK 2026 {isElectric && <span className="text-emerald-600 dark:text-emerald-400 font-medium">(véhicule électrique)</span>}
+                    </p>
+                    <p className={`text-4xl font-bold mb-4 ${isElectric ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary'}`}>
+                      {simulation.totalWithBonus.toLocaleString('fr-FR', { 
                         style: 'currency', 
                         currency: 'EUR',
                         maximumFractionDigits: 0 
@@ -332,8 +476,14 @@ const BaremeIK2026 = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span>Taux : <strong>{simulation.rate.toFixed(3)} €/km</strong></span>
+                        <span>Taux de base : <strong>{simulation.rate.toFixed(3)} €/km</strong></span>
                       </div>
+                      {isElectric && (
+                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                          <Zap className="h-4 w-4" />
+                          <span>Bonus électrique : <strong>+{simulation.electricBonus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</strong></span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
