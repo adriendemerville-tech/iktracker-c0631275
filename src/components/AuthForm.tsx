@@ -95,7 +95,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
   const getButtonText = () => {
     switch (mode) {
       case 'login': return 'Se connecter';
-      case 'signup': return 'S\'inscrire gratuitement';
+      case 'signup': return 'Créer mon compte';
       case 'forgot-password': return 'Envoyer le lien';
     }
   };
@@ -115,7 +115,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
               {mode === 'login' 
                 ? 'Accédez à votre tableau de bord' 
                 : mode === 'signup' 
-                ? 'Commencez à suivre vos trajets gratuitement'
+                ? 'Créez votre compte en 2 minutes'
                 : 'Recevez un lien de réinitialisation'}
             </p>
           </div>

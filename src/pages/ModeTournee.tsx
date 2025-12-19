@@ -126,7 +126,7 @@ export default function ModeTournee() {
                 <div className="flex flex-wrap gap-4 mb-8">
                   <Link to="/#auth-section">
                     <Button size="lg" variant="gradient" className="group">
-                      Essayer gratuitement
+                      Accéder à l'outil
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
@@ -247,15 +247,15 @@ export default function ModeTournee() {
               <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-accent/10 via-primary/5 to-accent/10 rounded-3xl p-12 border border-accent/20">
                 <Navigation className="w-16 h-16 text-accent mx-auto mb-6" />
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                  Prêt à optimiser vos tournées ?
+                  Prêt à simplifier vos tournées ?
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Inscription gratuite, sans carte bancaire. Commencez à suivre vos km dès maintenant.
+                  Sans carte bancaire. Compte créé en 2 minutes.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Link to="/#auth-section">
                     <Button size="xl" variant="gradient" className="group">
-                      Créer mon compte gratuit
+                      Accéder à l'outil
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
