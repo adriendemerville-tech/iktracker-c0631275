@@ -36,17 +36,17 @@ serve(async (req) => {
       );
     }
 
-    // Call the French car check API (OpenAPI)
-    // API documentation: https://openapi.com/products/french-car-check
-    const apiUrl = `https://automotive.openapi.com/FR-car/${cleanPlate}`;
+    // Call the French car check API via RapidAPI
+    // API documentation: https://rapidapi.com/apiplateau/api/immatriculation-siv-carte-grise-fni
+    const apiUrl = `https://immatriculation-siv-carte-grise-fni.p.rapidapi.com/get-vehicule-info?immat=${cleanPlate}`;
     
-    console.log(`Calling API: ${apiUrl}`);
+    console.log(`Calling RapidAPI: ${apiUrl}`);
     
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': 'immatriculation-siv-carte-grise-fni.p.rapidapi.com',
       },
     });
 
@@ -67,28 +67,35 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('API response:', JSON.stringify(data));
+    console.log('RapidAPI response:', JSON.stringify(data));
 
-    if (!data.success || !data.data) {
+    // Check for error in response
+    if (data.error || !data.marque) {
       console.log('Vehicle not found in API response');
       return new Response(
-        JSON.stringify({ error: 'Vehicle not found', success: false }),
+        JSON.stringify({ error: data.error || 'Vehicle not found', success: false }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Map the API response to our format
+    // Map the RapidAPI response to our format
+    // Response format: { marque, modele, date1erCir_us, puisFisc, energie, carrosserie, ... }
+    const fuelType = data.energie || '';
+    const isElectric = fuelType.toLowerCase().includes('electri') || 
+                       fuelType.toLowerCase().includes('électri') ||
+                       fuelType.toLowerCase() === 'el';
+    
     const vehicleData = {
       success: true,
-      licensePlate: data.data.LicensePlate || licensePlate,
-      make: data.data.CarMake || data.data.MakeDescription || '',
-      model: data.data.CarModel || data.data.ModelDescription || '',
-      year: data.data.RegistrationYear ? parseInt(data.data.RegistrationYear) : null,
-      fiscalPower: data.data.PowerCV ? parseInt(data.data.PowerCV) : null,
-      fuelType: data.data.FuelType || '',
-      isElectric: (data.data.FuelType || '').toLowerCase().includes('electri'),
-      bodyStyle: data.data.BodyStyle || '',
-      registrationDate: data.data.RegistrationDate || null,
+      licensePlate: licensePlate,
+      make: data.marque || '',
+      model: data.modele || '',
+      year: data.date1erCir_us ? parseInt(data.date1erCir_us.substring(0, 4)) : null,
+      fiscalPower: data.puisFisc ? parseInt(data.puisFisc) : null,
+      fuelType: fuelType,
+      isElectric: isElectric,
+      bodyStyle: data.carrosserie || '',
+      registrationDate: data.date1erCir || null,
     };
 
     console.log('Mapped vehicle data:', JSON.stringify(vehicleData));
