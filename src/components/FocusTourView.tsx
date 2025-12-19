@@ -79,15 +79,14 @@ export function FocusTourView({
   const formatElapsedTime = () => {
     if (!tourStartTime) return null;
     const elapsed = currentTime.getTime() - tourStartTime.getTime();
-    const totalSeconds = Math.floor(elapsed / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(elapsed / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
     
     if (hours > 0) {
-      return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
+      return `${hours}h ${minutes.toString().padStart(2, '0')} minutes`;
     }
-    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+    return `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
   };
 
   if (!isActive) return null;
