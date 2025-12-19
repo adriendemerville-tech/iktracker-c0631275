@@ -759,7 +759,11 @@ ${IKTRACKER_MENTION}
         />
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1">
+            <Link to="/" className="flex-1 hidden md:block hover:opacity-80 transition-opacity">
+              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
+              <p className="text-xs sm:text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
+            </Link>
+            <div className="flex-1 md:hidden">
               <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
               <p className="text-xs sm:text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
             </div>
