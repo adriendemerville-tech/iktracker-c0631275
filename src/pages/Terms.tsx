@@ -194,7 +194,7 @@ const Terms = () => {
                 />
                 <div className="text-center sm:text-left">
                   <blockquote className="text-sm text-muted-foreground leading-relaxed italic">
-                    "Dirigeant d'une agence Avenir Rénovation, je n'ai trouvé aucune solution satisfaisante pour automatiser mes indemnités kilométriques. J'ai donc créé IKtracker pour mon usage professionnel. L'infrastructure étant en place, je la partage gratuitement avec ceux qui ont les mêmes besoins de gestion. Pas de carte bancaire, pas de frais cachés."
+                    "Dirigeant d'une agence Avenir Rénovations, je n'ai trouvé aucune solution satisfaisante pour automatiser mes indemnités kilométriques. J'ai donc créé IKtracker pour mon usage professionnel. L'infrastructure étant en place, je la partage gratuitement avec ceux qui ont les mêmes besoins de gestion. Pas de carte bancaire, pas de frais cachés."
                   </blockquote>
                   <p className="mt-3 text-xs text-muted-foreground">
                     — Adrien de Volontat, fondateur
