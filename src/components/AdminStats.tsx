@@ -40,7 +40,8 @@ import {
   Monitor,
   Tablet,
   BarChart3,
-  Calculator
+  Calculator,
+  UserPlus
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -73,6 +74,7 @@ interface MarketingStatsData {
   unique_sessions: number;
   total_cta_clicks: number;
   total_simulations: number;
+  total_signup_clicks: number;
   mobile_views: number;
   desktop_views: number;
   tablet_views: number;
@@ -1081,6 +1083,24 @@ export function AdminStats() {
               ) : (
                 <>
                   <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_simulations || 0)}</p>
+                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Signup clicks */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <UserPlus className="w-5 h-5 text-emerald-500" />
+                <span className="text-xs text-muted-foreground">Clics inscription</span>
+              </div>
+              {marketingStatsLoading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_signup_clicks || 0)}</p>
                   <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                 </>
               )}

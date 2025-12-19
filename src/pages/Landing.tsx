@@ -34,7 +34,7 @@ const Landing = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
-  const { trackCTAClick } = useMarketingTracker('landing');
+  const { trackCTAClick, trackSignupClick } = useMarketingTracker('landing');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -503,7 +503,7 @@ const Landing = () => {
             </p>
           </div>
           <div className="mt-10">
-            <Link to="/signup">
+            <Link to="/signup" onClick={trackSignupClick}>
               <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6">
                 Créer mon compte gratuit
                 <ArrowRight className="h-5 w-5" />
