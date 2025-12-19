@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import founderImage from "@/assets/founder-adrien.jpg";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -53,8 +54,11 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden">
-      <title>IKtracker - Suivi kilométrique automatique et indemnités IK</title>
-      <meta name="description" content="Automatisez vos indemnités kilométriques. Application gratuite pour freelances et indépendants. Calcul IK selon barème fiscal 2024." />
+      <Helmet>
+        <title>IKtracker - Suivi kilométrique automatique et indemnités IK | Gratuit</title>
+        <meta name="description" content="Automatisez vos indemnités kilométriques gratuitement. Application pour freelances, infirmiers libéraux et indépendants en France. Calcul IK selon barème fiscal 2025." />
+        <link rel="canonical" href="https://iktracker.fr/" />
+      </Helmet>
       
       <MarketingNav />
 

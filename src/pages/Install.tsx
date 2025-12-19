@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,8 +60,11 @@ const Install = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <title>Installer IKtracker - Application PWA gratuite</title>
-      <meta name="description" content="Installez IKtracker sur votre smartphone iOS ou Android en 2 minutes." />
+      <Helmet>
+        <title>Installer IKtracker | Application PWA gratuite iOS et Android</title>
+        <meta name="description" content="Installez IKtracker sur votre smartphone iOS ou Android en 2 minutes. Application PWA gratuite, sans App Store. Guide d'installation complet." />
+        <link rel="canonical" href="https://iktracker.fr/install" />
+      </Helmet>
       
       <MarketingNav />
 

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -29,8 +30,11 @@ const ExpertComptable = () => {
   
   return (
     <div className="min-h-screen bg-background">
-      <title>Export comptable - IKtracker pour experts-comptables</title>
-      <meta name="description" content="Exportez vos trajets professionnels au format Excel ou PDF. Conforme au barème fiscal des indemnités kilométriques 2024." />
+      <Helmet>
+        <title>IKtracker pour Experts-Comptables | Export IK PDF et Excel</title>
+        <meta name="description" content="Recommandez IKtracker à vos clients : exports standardisés PDF/Excel, calcul automatique des indemnités kilométriques selon barème fiscal 2025. Gratuit." />
+        <link rel="canonical" href="https://iktracker.fr/expert-comptable" />
+      </Helmet>
       
       <MarketingNav />
 

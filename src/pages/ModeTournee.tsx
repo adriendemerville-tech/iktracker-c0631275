@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -41,12 +42,6 @@ const AnimatedSection = ({ children, className, delay = 0 }: { children: React.R
 export default function ModeTournee() {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Mode Tournée IKtracker | Suivi kilométrique pour professionnels itinérants";
-    
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', "Découvrez le mode Tournée d'IKtracker : enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux. Gratuit.");
-    }
   }, []);
 
   const benefits = [
@@ -99,6 +94,11 @@ export default function ModeTournee() {
 
   return (
     <div className="min-h-screen bg-background font-display">
+      <Helmet>
+        <title>Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans</title>
+        <meta name="description" content="Découvrez le mode Tournée d'IKtracker : enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux en France. Gratuit." />
+        <link rel="canonical" href="https://iktracker.fr/mode-tournee" />
+      </Helmet>
       <MarketingNav />
 
       <main>

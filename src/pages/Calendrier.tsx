@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -39,12 +40,6 @@ const AnimatedSection = ({ children, className, delay = 0 }: { children: React.R
 export default function Calendrier() {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Synchronisation Calendrier IKtracker | Google Calendar & Outlook";
-    
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', "Synchronisez IKtracker avec Google Calendar ou Outlook. Vos rendez-vous avec adresse deviennent automatiquement des trajets. Plus de saisie manuelle. Gratuit.");
-    }
   }, []);
 
   const benefits = [
@@ -113,6 +108,11 @@ export default function Calendrier() {
 
   return (
     <div className="min-h-screen bg-background font-display">
+      <Helmet>
+        <title>Synchronisation Calendrier IKtracker | Google Calendar & Outlook</title>
+        <meta name="description" content="Synchronisez IKtracker avec Google Calendar ou Outlook. Vos rendez-vous avec adresse deviennent automatiquement des trajets. Gratuit pour indépendants en France." />
+        <link rel="canonical" href="https://iktracker.fr/calendrier" />
+      </Helmet>
       <MarketingNav />
 
       <main>
