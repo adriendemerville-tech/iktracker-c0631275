@@ -361,7 +361,7 @@ const ExpertComptable = () => {
           <p className="text-lg opacity-90">Gratuit, français, et fiable.</p>
           <Link to="/signup">
             <Button size="lg" variant="secondary" className="gap-2">
-              Créer un compte test
+              Outil 100% gratuit
               <ArrowRight className="h-5 w-5" />
             </Button>
           </Link>
