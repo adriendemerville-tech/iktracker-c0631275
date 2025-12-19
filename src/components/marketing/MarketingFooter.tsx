@@ -1,7 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { LayoutDashboard } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export function MarketingFooter() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const currentYear = new Date().getFullYear();
 
   const handleLinkClick = (href: string) => (e: React.MouseEvent) => {
@@ -42,6 +45,16 @@ export function MarketingFooter() {
               <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">100% Gratuit</span>
               <span className="text-xs bg-success/10 text-success px-3 py-1 rounded-full">Made in France</span>
             </div>
+            {!loading && user && (
+              <Link 
+                to="/app" 
+                onClick={handleLinkClick('/app')}
+                className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Accéder au dashboard
+              </Link>
+            )}
           </div>
 
           {/* Product Links */}
