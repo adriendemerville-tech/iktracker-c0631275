@@ -297,6 +297,7 @@ export type Database = {
           created_at: string
           fiscal_power: number
           id: string
+          is_electric: boolean
           license_plate: string | null
           make: string | null
           model: string | null
@@ -311,6 +312,7 @@ export type Database = {
           created_at?: string
           fiscal_power: number
           id?: string
+          is_electric?: boolean
           license_plate?: string | null
           make?: string | null
           model?: string | null
@@ -325,6 +327,7 @@ export type Database = {
           created_at?: string
           fiscal_power?: number
           id?: string
+          is_electric?: boolean
           license_plate?: string | null
           make?: string | null
           model?: string | null
