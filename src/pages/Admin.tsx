@@ -54,7 +54,7 @@ interface UserWithRole {
 
 const Admin = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const { toast } = useToast();
@@ -317,7 +317,10 @@ const Admin = () => {
           
           {/* Stats quick access button */}
           <Button 
-            onClick={() => setActiveTab('stats')}
+            onClick={() => {
+              setActiveTab('stats');
+              setSearchParams({ tab: 'stats' });
+            }}
             className="mt-4 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
           >
             <BarChart3 className="w-4 h-4 mr-2" />

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, LayoutDashboard } from 'lucide-react';
+import { Menu, X, LayoutDashboard, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MarketingNavProps {
@@ -84,11 +84,19 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Button>
                 </Link>
               ) : (
-                <a href="/#auth-section">
-                  <Button variant="gradient" size="sm">
-                    S'inscrire
-                  </Button>
-                </a>
+                <>
+                  <Link to="/auth" className="hidden sm:block">
+                    <Button variant="outline" size="sm">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Connexion
+                    </Button>
+                  </Link>
+                  <a href="/#auth-section">
+                    <Button variant="gradient" size="sm">
+                      S'inscrire
+                    </Button>
+                  </a>
+                </>
               )
             )}
           </div>
@@ -118,6 +126,18 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   )}
                 </Link>
               ))}
+              
+              {/* Mobile login link for non-authenticated users */}
+              {!loading && !user && (
+                <Link
+                  to="/auth"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-lg transition-colors flex items-center gap-2 text-primary font-medium hover:bg-primary/10 active:scale-[0.98]"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span className="text-base">Connexion</span>
+                </Link>
+              )}
             </div>
           </div>
         )}
