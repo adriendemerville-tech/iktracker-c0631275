@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -109,6 +109,30 @@ const Index = () => {
     locationRadius: preferences.locationRadiusMeters,
     trackingInterval: 30000, // Check every 30 seconds
   });
+
+  // Check for saved trip on reconnection
+  useEffect(() => {
+    const lastTripSaved = localStorage.getItem('iktracker_last_trip_saved');
+    if (lastTripSaved) {
+      try {
+        const tripInfo = JSON.parse(lastTripSaved);
+        // Only show notification if saved within the last 24 hours
+        const savedAt = new Date(tripInfo.savedAt);
+        const hoursAgo = (Date.now() - savedAt.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursAgo < 24) {
+          toast.success("Dernier trajet enregistré", {
+            description: `${tripInfo.distance.toFixed(1)} km${tripInfo.isTour ? ` - ${tripInfo.stopsCount} étapes` : ''}`,
+            duration: 5000,
+          });
+        }
+        // Clear after showing
+        localStorage.removeItem('iktracker_last_trip_saved');
+      } catch (e) {
+        localStorage.removeItem('iktracker_last_trip_saved');
+      }
+    }
+  }, []);
 
   const handleTourButtonClick = () => {
     if (isTourActive) {
@@ -286,6 +310,14 @@ const Index = () => {
       console.log('Trip created:', result);
       
       if (result) {
+        // Store last trip info in localStorage for reconnection notification
+        localStorage.setItem('iktracker_last_trip_saved', JSON.stringify({
+          distance: totalDistance,
+          isTour,
+          stopsCount: stops.length,
+          savedAt: new Date().toISOString(),
+        }));
+        
         // Close sheet first, wait for it to fully disappear, then stop tour and show notification
         setShowTourLog(false);
         setTimeout(() => {
@@ -293,6 +325,8 @@ const Index = () => {
           clearTour();
           // Show green "Enregistré" notification for 4 seconds
           toast.success("Enregistré", { duration: 4000 });
+          // Clear the stored trip info since user saw the notification
+          localStorage.removeItem('iktracker_last_trip_saved');
         }, 800);
       } else {
         toast.error("Erreur lors de l'enregistrement");
