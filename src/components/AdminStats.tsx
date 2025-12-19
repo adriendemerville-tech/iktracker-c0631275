@@ -88,6 +88,11 @@ interface MarketingViewsByDay {
   unique_visitors: number;
 }
 
+interface SignupClicksByDay {
+  day: string;
+  clicks: number;
+}
+
 interface MarketingStatsByPage {
   page: string;
   views: number;
@@ -335,6 +340,24 @@ export function AdminStats() {
         day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
         views: Number(d.views),
         unique_visitors: Number(d.unique_visitors),
+      }));
+    },
+    refetchInterval: 60 * 60 * 1000, // 1 hour
+  });
+
+  // Fetch signup clicks by day - refresh every hour
+  const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
+    queryKey: ['admin-signup-clicks-by-day', period],
+    queryFn: async () => {
+      const dateRange = getDateRange();
+      const { data, error } = await supabase.rpc('get_signup_clicks_by_day', { 
+        start_date: dateRange.start_date,
+        end_date: dateRange.end_date
+      });
+      if (error) throw error;
+      return (data as unknown as { day: string; clicks: number }[]).map(d => ({
+        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
+        clicks: Number(d.clicks),
       }));
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
@@ -1180,7 +1203,50 @@ export function AdminStats() {
             </CardContent>
           </Card>
 
-          {/* Stats by page table */}
+          {/* Signup clicks by day chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-emerald-500" />
+                Clics inscription par jour
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {signupClicksLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : signupClicksByDay.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={signupClicksByDay}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="clicks" 
+                      name="Clics inscription"
+                      stroke="hsl(142, 76%, 36%)" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
+                      activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats by page table */}
+        <div className="grid md:grid-cols-1 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">

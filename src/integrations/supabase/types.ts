@@ -434,6 +434,13 @@ export type Database = {
           day: string
         }[]
       }
+      get_signup_clicks_by_day: {
+        Args: { end_date: string; start_date: string }
+        Returns: {
+          clicks: number
+          day: string
+        }[]
+      }
       get_top_users: {
         Args: { limit_count?: number; sort_by?: string }
         Returns: {
