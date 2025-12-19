@@ -1047,10 +1047,16 @@ export function AdminStats() {
 
       {/* Marketing KPIs Section */}
       <div className="border-t border-border pt-6 mt-6">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Globe className="w-6 h-6 text-primary" />
-          KPI Marketing
-        </h2>
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Globe className="w-6 h-6 text-primary" />
+            KPI Marketing
+          </h2>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-full text-xs">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            Visites admin exclues depuis le 19/12/2025
+          </div>
+        </div>
 
         {/* Marketing Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
