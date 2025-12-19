@@ -801,66 +801,20 @@ export function AdminStats() {
               <Skeleton className="h-16" />
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
-                <p className="text-xs text-muted-foreground">Partages totaux</p>
+            <>
+              <div className="grid grid-cols-2 gap-4 mb-2">
+                <div className="text-center p-3 bg-muted/50 rounded-lg">
+                  <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
+                  <p className="text-xs text-muted-foreground">Partages totaux</p>
+                </div>
+                <div className="text-center p-3 bg-muted/50 rounded-lg">
+                  <p className="text-2xl font-bold text-green-500">{shareStats?.pct_users_shared || 0}%</p>
+                  <p className="text-xs text-muted-foreground">Utilisateurs ayant partagé</p>
+                </div>
               </div>
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-blue-500">{shareStats?.unique_sharers || 0}</p>
-                <p className="text-xs text-muted-foreground">Partageurs uniques</p>
-              </div>
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-green-500">{shareStats?.pct_users_shared || 0}%</p>
-                <p className="text-xs text-muted-foreground">Utilisateurs ayant partagé</p>
-              </div>
-            </div>
+              <p className="text-xs text-muted-foreground text-center">sur les 30 derniers jours</p>
+            </>
           )}
-          
-          {/* Shares chart with period filter */}
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution {getPeriodLabel()}</h4>
-            {sharesLoading ? (
-              <Skeleton className="h-[180px] w-full" />
-            ) : (
-              <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={sharesByDay}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis 
-                    dataKey="day" 
-                    tick={{ fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval="preserveStartEnd"
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    allowDecimals={false}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                    }}
-                    labelStyle={{ fontWeight: 'bold' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="count" 
-                    name="Partages"
-                    stroke="hsl(142, 71%, 45%)" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(142, 71%, 45%)', strokeWidth: 0, r: 2 }}
-                    activeDot={{ r: 4, stroke: 'hsl(142, 71%, 45%)', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-          </div>
         </CardContent>
       </Card>
 
