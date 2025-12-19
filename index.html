@@ -68,13 +68,14 @@
     <meta name="language" content="French" />
     <meta name="revisit-after" content="7 days" />
     
-    <!-- Fonts -->
+    <!-- Fonts - Preload critical -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjuGRMRKrDb5OYhO0_Efcm8I7QpUe70IY&libraries=places&language=fr"></script>
+    <!-- Google Maps - Defer loading -->
+    <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjuGRMRKrDb5OYhO0_Efcm8I7QpUe70IY&libraries=places&language=fr"></script>
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -201,12 +202,78 @@
       "name": "IKtracker",
       "url": "https://iktracker.fr",
       "logo": "https://iktracker.fr/iktracker-indemnites-kilometriques-logo.png",
-      "description": "Outil gratuit et facile de suivi des indemnités kilométriques pour les indépendants, libéraux et artisans",
+      "description": "Outil gratuit et facile de suivi des indemnités kilométriques pour les indépendants, libéraux et artisans en France",
+      "areaServed": {
+        "@type": "Country",
+        "name": "France"
+      },
       "sameAs": [],
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer support",
-        "availableLanguage": "French"
+        "availableLanguage": "French",
+        "areaServed": "FR"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "FR",
+        "addressRegion": "Provence-Alpes-Côte d'Azur"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "IKtracker",
+      "description": "Application gratuite de gestion des indemnités kilométriques pour professionnels itinérants en France",
+      "url": "https://iktracker.fr",
+      "logo": "https://iktracker.fr/iktracker-indemnites-kilometriques-logo.png",
+      "priceRange": "Gratuit",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "FR",
+        "addressRegion": "France"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "46.603354",
+        "longitude": "1.888334"
+      },
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "France"
+        },
+        {
+          "@type": "AdministrativeArea",
+          "name": "Île-de-France"
+        },
+        {
+          "@type": "AdministrativeArea", 
+          "name": "Provence-Alpes-Côte d'Azur"
+        },
+        {
+          "@type": "AdministrativeArea",
+          "name": "Auvergne-Rhône-Alpes"
+        },
+        {
+          "@type": "AdministrativeArea",
+          "name": "Nouvelle-Aquitaine"
+        },
+        {
+          "@type": "AdministrativeArea",
+          "name": "Occitanie"
+        }
+      ],
+      "serviceType": ["Calcul indemnités kilométriques", "Suivi trajets professionnels", "Export comptable IK"],
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Professionnels itinérants",
+        "geographicArea": {
+          "@type": "Country",
+          "name": "France"
+        }
       }
     }
     </script>
