@@ -150,7 +150,7 @@ const Signup = () => {
       <header className="border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/favicon.png" alt="IKtracker" className="h-9 w-9 rounded-full" />
+            <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="h-9 w-9 rounded-lg" />
             <span className="text-xl font-bold text-foreground">IKtracker</span>
           </Link>
           <Link to="/">
