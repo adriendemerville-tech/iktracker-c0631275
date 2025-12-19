@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +48,7 @@ import { fr } from 'date-fns/locale';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
 
 interface AdminStatsData {
   total_users: number;
@@ -464,6 +465,66 @@ export function AdminStats() {
     return <ArrowDown className="w-3 h-3 text-red-500" />;
   };
 
+  // Marketing cards data for drag and drop
+  const marketingCardsData = useMemo(() => [
+    {
+      id: 'views',
+      icon: <Globe className="w-5 h-5 text-blue-500" />,
+      label: 'Visites',
+      value: formatNumber(marketingStats?.total_views || 0),
+      subValue: getPeriodLabel(),
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'unique-visitors',
+      icon: <Users className="w-5 h-5 text-green-500" />,
+      label: 'Visiteurs uniques',
+      value: formatNumber(marketingStats?.unique_sessions || 0),
+      subValue: getPeriodLabel(),
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'cta-clicks',
+      icon: <MousePointer className="w-5 h-5 text-amber-500" />,
+      label: 'Clics CTA',
+      value: formatNumber(marketingStats?.total_cta_clicks || 0),
+      subValue: getPeriodLabel(),
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'simulations',
+      icon: <Calculator className="w-5 h-5 text-purple-500" />,
+      label: 'Simulations IK',
+      value: formatNumber(marketingStats?.total_simulations || 0),
+      subValue: getPeriodLabel(),
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'signup-clicks',
+      icon: <UserPlus className="w-5 h-5 text-emerald-500" />,
+      label: 'Clics inscription',
+      value: formatNumber(marketingStats?.total_signup_clicks || 0),
+      subValue: getPeriodLabel(),
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'mobile',
+      icon: <Smartphone className="w-5 h-5 text-pink-500" />,
+      label: 'Mobile',
+      value: `${marketingStats?.mobile_pct || 0}%`,
+      subValue: `${formatNumber(marketingStats?.mobile_views || 0)} visites`,
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'desktop',
+      icon: <Monitor className="w-5 h-5 text-slate-500" />,
+      label: 'Desktop',
+      value: `${marketingStats?.desktop_pct || 0}%`,
+      subValue: `${formatNumber(marketingStats?.desktop_views || 0)} visites`,
+      isLoading: marketingStatsLoading,
+    },
+  ], [marketingStats, marketingStatsLoading, period]);
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -603,134 +664,8 @@ export function AdminStats() {
           </div>
         </div>
 
-        {/* Marketing Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          {/* Total views */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Globe className="w-5 h-5 text-blue-500" />
-                <span className="text-xs text-muted-foreground">Visites</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_views || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Unique visitors */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-green-500" />
-                <span className="text-xs text-muted-foreground">Visiteurs uniques</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.unique_sessions || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* CTA clicks */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <MousePointer className="w-5 h-5 text-amber-500" />
-                <span className="text-xs text-muted-foreground">Clics CTA</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_cta_clicks || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* IK simulations */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Calculator className="w-5 h-5 text-purple-500" />
-                <span className="text-xs text-muted-foreground">Simulations IK</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_simulations || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Signup clicks */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <UserPlus className="w-5 h-5 text-emerald-500" />
-                <span className="text-xs text-muted-foreground">Clics inscription</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{formatNumber(marketingStats?.total_signup_clicks || 0)}</p>
-                  <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Mobile % */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Smartphone className="w-5 h-5 text-pink-500" />
-                <span className="text-xs text-muted-foreground">Mobile</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{marketingStats?.mobile_pct || 0}%</p>
-                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.mobile_views || 0)} visites</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Desktop % */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Monitor className="w-5 h-5 text-slate-500" />
-                <span className="text-xs text-muted-foreground">Desktop</span>
-              </div>
-              {marketingStatsLoading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <p className="text-2xl font-bold">{marketingStats?.desktop_pct || 0}%</p>
-                  <p className="text-xs text-muted-foreground">{formatNumber(marketingStats?.desktop_views || 0)} visites</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        {/* Marketing Stats Cards - Draggable on desktop */}
+        <DraggableMarketingCards cards={marketingCardsData} />
 
         {/* Marketing charts row */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
