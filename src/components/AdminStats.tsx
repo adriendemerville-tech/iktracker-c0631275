@@ -534,7 +534,7 @@ export function AdminStats() {
               <ToggleGroupItem 
                 key={key} 
                 value={key}
-                className="px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                className="px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
               >
                 {config.label}
               </ToggleGroupItem>
