@@ -97,20 +97,20 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="lg:hidden mt-4 pb-4 border-t border-border pt-4 animate-fade-in">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {links.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    "px-4 py-2 rounded-lg transition-colors flex items-center justify-between",
+                    "px-4 py-3 rounded-lg transition-colors flex items-center justify-between active:scale-[0.98]",
                     isActive(link.href)
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
-                  <span>{link.label}</span>
+                  <span className="text-base">{link.label}</span>
                   {link.isNew && (
                     <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full">
                       2026

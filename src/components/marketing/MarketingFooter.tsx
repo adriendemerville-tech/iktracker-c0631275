@@ -25,20 +25,20 @@ export function MarketingFooter() {
   };
 
   return (
-    <footer className="py-16 px-4 border-t border-border bg-muted/30">
+    <footer className="py-12 md:py-16 px-4 border-t border-border bg-muted/30">
       <div className="container mx-auto">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           {/* Brand */}
-          <div className="md:col-span-2">
+          <div className="col-span-2">
             <Link to="/" onClick={handleLinkClick('/')} className="flex items-center gap-2 mb-4">
-              <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="h-10 w-10" loading="lazy" />
-              <span className="text-xl font-bold text-foreground">IKtracker</span>
+              <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="h-8 w-8 md:h-10 md:w-10" loading="lazy" />
+              <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
             </Link>
-            <p className="text-muted-foreground mb-4 max-w-sm">
+            <p className="text-sm md:text-base text-muted-foreground mb-4 max-w-sm">
               L'outil gratuit et français pour automatiser vos indemnités kilométriques. 
               Conçu pour les infirmiers, artisans et consultants.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">100% Gratuit</span>
               <span className="text-xs bg-success/10 text-success px-3 py-1 rounded-full">Made in France</span>
             </div>
