@@ -45,10 +45,27 @@ import {
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
+import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdminStatsData {
   total_users: number;
@@ -140,10 +157,59 @@ const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getS
   },
 };
 
+const DEFAULT_SECTION_ORDER = [
+  'main-stats',
+  'recent-signups',
+  'download-stats',
+  'share-stats',
+  'comparison-chart',
+  'registrations-chart',
+  'top-users',
+];
+
 export function AdminStats() {
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [period, setPeriod] = useState<PeriodFilter>('month');
   const [topUserSort, setTopUserSort] = useState<TopUserSort>('trips');
+  const isMobile = useIsMobile();
+  const isDesktop = !isMobile;
+  
+  // Section ordering for drag and drop
+  const [sectionOrder, setSectionOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem('admin-stats-section-order');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return DEFAULT_SECTION_ORDER;
+      }
+    }
+    return DEFAULT_SECTION_ORDER;
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSectionOrder((items) => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        localStorage.setItem('admin-stats-section-order', JSON.stringify(newOrder));
+        return newOrder;
+      });
+    }
+  };
 
   // Track presence for simultaneous visits
   useEffect(() => {
@@ -788,441 +854,472 @@ export function AdminStats() {
         </div>
       </div>
 
-      {/* Real-time and main stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {/* Online users - real-time */}
-        <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="relative">
-                <Activity className="w-5 h-5 text-green-500" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              </div>
-              <span className="text-xs text-muted-foreground">En ligne</span>
-            </div>
-            <p className="text-2xl font-bold text-green-600">{onlineUsers}</p>
-            <p className="text-xs text-muted-foreground">visites simultanées</p>
-          </CardContent>
-        </Card>
+      {/* Draggable sections */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleSectionDragEnd}
+      >
+        <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {sectionOrder.map((sectionId) => {
+              switch (sectionId) {
+                case 'main-stats':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} isCard={false}>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        {/* Online users - real-time */}
+                        <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="relative">
+                                <Activity className="w-5 h-5 text-green-500" />
+                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                              </div>
+                              <span className="text-xs text-muted-foreground">En ligne</span>
+                            </div>
+                            <p className="text-2xl font-bold text-green-600">{onlineUsers}</p>
+                            <p className="text-xs text-muted-foreground">visites simultanées</p>
+                          </CardContent>
+                        </Card>
 
-        {/* Total users */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="text-xs text-muted-foreground">Utilisateurs</span>
-            </div>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <p className="text-2xl font-bold">{formatNumber(stats?.total_users || 0)}</p>
-                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                        {/* Total users */}
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Users className="w-5 h-5 text-primary" />
+                              <span className="text-xs text-muted-foreground">Utilisateurs</span>
+                            </div>
+                            {statsLoading ? (
+                              <Skeleton className="h-8 w-16" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold">{formatNumber(stats?.total_users || 0)}</p>
+                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
 
-        {/* Total trips */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Route className="w-5 h-5 text-blue-500" />
-              <span className="text-xs text-muted-foreground">Trajets</span>
-            </div>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
-                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                        {/* Total trips */}
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Route className="w-5 h-5 text-blue-500" />
+                              <span className="text-xs text-muted-foreground">Trajets</span>
+                            </div>
+                            {statsLoading ? (
+                              <Skeleton className="h-8 w-16" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
+                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
 
-        {/* Total IK */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Euro className="w-5 h-5 text-amber-500" />
-              <span className="text-xs text-muted-foreground">Total IK</span>
-            </div>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-20" />
-            ) : (
-              <>
-                <p className="text-2xl font-bold">{formatCurrency(stats?.total_ik || 0)}</p>
-                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                        {/* Total IK */}
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Euro className="w-5 h-5 text-amber-500" />
+                              <span className="text-xs text-muted-foreground">Total IK</span>
+                            </div>
+                            {statsLoading ? (
+                              <Skeleton className="h-8 w-20" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold">{formatCurrency(stats?.total_ik || 0)}</p>
+                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
 
-        {/* Total KM */}
-        <Card className="col-span-2">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Navigation className="w-5 h-5 text-purple-500" />
-              <span className="text-xs text-muted-foreground">Distance totale</span>
-            </div>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <>
-                <p className="text-2xl font-bold">{formatKm(stats?.total_km || 0)}</p>
-                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                        {/* Total KM */}
+                        <Card className="col-span-2">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Navigation className="w-5 h-5 text-purple-500" />
+                              <span className="text-xs text-muted-foreground">Distance totale</span>
+                            </div>
+                            {statsLoading ? (
+                              <Skeleton className="h-8 w-24" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold">{formatKm(stats?.total_km || 0)}</p>
+                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </DraggableStatsSection>
+                  );
 
-      {/* Recent Signups */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Users className="w-5 h-5 text-primary" />
-            10 derniers inscrits
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {signupsLoading ? (
-            <div className="space-y-2">
-              {[1, 2, 3, 4, 5].map(i => (
-                <Skeleton key={i} className="h-10 w-full" />
-              ))}
-            </div>
-          ) : recentSignups.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Aucun inscrit récent</p>
-          ) : (
-            <div className="space-y-2">
-              {recentSignups.map((signup, index) => (
-                <div 
-                  key={signup.user_id} 
-                  className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
-                    <div>
-                      <p className="text-sm font-medium truncate max-w-[200px]">{signup.email}</p>
-                      <p className="text-xs text-muted-foreground font-mono">{signup.user_id.slice(0, 8)}...</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(signup.created_at), 'dd/MM/yyyy', { locale: fr })}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(signup.created_at), 'HH:mm', { locale: fr })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                case 'recent-signups':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          10 derniers inscrits
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {signupsLoading ? (
+                          <div className="space-y-2">
+                            {[1, 2, 3, 4, 5].map(i => (
+                              <Skeleton key={i} className="h-10 w-full" />
+                            ))}
+                          </div>
+                        ) : recentSignups.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">Aucun inscrit récent</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {recentSignups.map((signup, index) => (
+                              <div 
+                                key={signup.user_id} 
+                                className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
+                                  <div>
+                                    <p className="text-sm font-medium truncate max-w-[200px]">{signup.email}</p>
+                                    <p className="text-xs text-muted-foreground font-mono">{signup.user_id.slice(0, 8)}...</p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(signup.created_at), 'dd/MM/yyyy', { locale: fr })}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(signup.created_at), 'HH:mm', { locale: fr })}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
 
-      {/* Download App Stats */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Download className="w-5 h-5 text-primary" />
-            Téléchargement de l'application
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {downloadStatsLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Skeleton className="h-16" />
-              <Skeleton className="h-16" />
-              <Skeleton className="h-16" />
-              <Skeleton className="h-16" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-primary">{downloadStats?.total_clicks || 0}</p>
-                <p className="text-xs text-muted-foreground">Clics totaux</p>
-              </div>
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-blue-500">{downloadStats?.unique_users || 0}</p>
-                <p className="text-xs text-muted-foreground">Utilisateurs uniques</p>
-              </div>
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-amber-500">{downloadStats?.avg_clicks_per_user || 0}</p>
-                <p className="text-xs text-muted-foreground">Clics/utilisateur</p>
-              </div>
-              <div className="text-center p-3 bg-muted/50 rounded-lg">
-                <p className="text-2xl font-bold text-green-500">{downloadStats?.pct_users_clicked || 0}%</p>
-                <p className="text-xs text-muted-foreground">Utilisateurs ayant cliqué</p>
-              </div>
-            </div>
-          )}
-          
-          {/* Download clicks chart with period filter */}
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution {getPeriodLabel()}</h4>
-            {downloadClicksLoading ? (
-              <Skeleton className="h-[180px] w-full" />
-            ) : (
-              <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={downloadClicksByDay}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis 
-                    dataKey="day" 
-                    tick={{ fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval="preserveStartEnd"
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    allowDecimals={false}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                    }}
-                    labelStyle={{ fontWeight: 'bold' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="count" 
-                    name="Clics"
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 2 }}
-                    activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+                case 'download-stats':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Download className="w-5 h-5 text-primary" />
+                          Téléchargement de l'application
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {downloadStatsLoading ? (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="text-center p-3 bg-muted/50 rounded-lg">
+                              <p className="text-2xl font-bold text-primary">{downloadStats?.total_clicks || 0}</p>
+                              <p className="text-xs text-muted-foreground">Clics totaux</p>
+                            </div>
+                            <div className="text-center p-3 bg-muted/50 rounded-lg">
+                              <p className="text-2xl font-bold text-blue-500">{downloadStats?.unique_users || 0}</p>
+                              <p className="text-xs text-muted-foreground">Utilisateurs uniques</p>
+                            </div>
+                            <div className="text-center p-3 bg-muted/50 rounded-lg">
+                              <p className="text-2xl font-bold text-amber-500">{downloadStats?.avg_clicks_per_user || 0}</p>
+                              <p className="text-xs text-muted-foreground">Clics/utilisateur</p>
+                            </div>
+                            <div className="text-center p-3 bg-muted/50 rounded-lg">
+                              <p className="text-2xl font-bold text-green-500">{downloadStats?.pct_users_clicked || 0}%</p>
+                              <p className="text-xs text-muted-foreground">Utilisateurs ayant cliqué</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution {getPeriodLabel()}</h4>
+                          {downloadClicksLoading ? (
+                            <Skeleton className="h-[180px] w-full" />
+                          ) : (
+                            <ResponsiveContainer width="100%" height={180}>
+                              <LineChart data={downloadClicksByDay}>
+                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                <XAxis 
+                                  dataKey="day" 
+                                  tick={{ fontSize: 10 }}
+                                  tickLine={false}
+                                  axisLine={false}
+                                  interval="preserveStartEnd"
+                                />
+                                <YAxis 
+                                  tick={{ fontSize: 10 }}
+                                  tickLine={false}
+                                  axisLine={false}
+                                  allowDecimals={false}
+                                />
+                                <Tooltip 
+                                  contentStyle={{ 
+                                    backgroundColor: 'hsl(var(--card))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '8px',
+                                    fontSize: '12px',
+                                  }}
+                                  labelStyle={{ fontWeight: 'bold' }}
+                                />
+                                <Line 
+                                  type="monotone" 
+                                  dataKey="count" 
+                                  name="Clics"
+                                  stroke="hsl(var(--primary))" 
+                                  strokeWidth={2}
+                                  dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 2 }}
+                                  activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          )}
+                        </div>
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
+                case 'share-stats':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Share2 className="w-5 h-5 text-primary" />
+                          Partages de l'application
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {shareStatsLoading ? (
+                          <div className="grid grid-cols-3 gap-4">
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                          </div>
+                        ) : (
+                          <>
+                            <div className="grid grid-cols-2 gap-4 mb-2">
+                              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                                <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
+                                <p className="text-xs text-muted-foreground">Partages totaux</p>
+                              </div>
+                              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                                <p className="text-2xl font-bold text-green-500">{shareStats?.pct_users_shared || 0}%</p>
+                                <p className="text-xs text-muted-foreground">Utilisateurs ayant partagé</p>
+                              </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground text-center">sur les 30 derniers jours</p>
+                          </>
+                        )}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
+                case 'comparison-chart':
+                  if (period === 'all') return null;
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-primary" />
+                          Comparaison : {periodConfig[period].label} actuel vs {getPrevPeriodLabel()}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {statsLoading || prevStatsLoading ? (
+                          <Skeleton className="h-[250px] w-full" />
+                        ) : comparisonData.length > 0 ? (
+                          <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={comparisonData} layout="vertical">
+                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+                              <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                              <YAxis 
+                                type="category" 
+                                dataKey="name" 
+                                tick={{ fontSize: 11 }} 
+                                tickLine={false} 
+                                axisLine={false}
+                                width={100}
+                              />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: 'hsl(var(--card))',
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                }}
+                                formatter={(value: number, name: string) => [
+                                  new Intl.NumberFormat('fr-FR').format(value),
+                                  name === 'current' ? periodConfig[period].label : getPrevPeriodLabel()
+                                ]}
+                              />
+                              <Legend 
+                                formatter={(value) => value === 'current' ? periodConfig[period].label : getPrevPeriodLabel()}
+                              />
+                              <Bar 
+                                dataKey="current" 
+                                fill="hsl(var(--primary))" 
+                                radius={[12, 12, 12, 12]}
+                                name="current"
+                              />
+                              <Bar 
+                                dataKey="previous" 
+                                fill="hsl(var(--muted-foreground))" 
+                                radius={[12, 12, 12, 12]}
+                                opacity={0.5}
+                                name="previous"
+                              />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        ) : null}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
+                case 'registrations-chart':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-primary" />
+                          Nouveaux inscrits ({periodConfig[period].label.toLowerCase()})
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {registrationsLoading ? (
+                          <Skeleton className="h-[200px] w-full" />
+                        ) : (
+                          <ResponsiveContainer width="100%" height={200}>
+                            <LineChart data={registrations}>
+                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                              <XAxis 
+                                dataKey="day" 
+                                tick={{ fontSize: 11 }}
+                                tickLine={false}
+                                axisLine={false}
+                                interval="preserveStartEnd"
+                              />
+                              <YAxis 
+                                tick={{ fontSize: 11 }}
+                                tickLine={false}
+                                axisLine={false}
+                                allowDecimals={false}
+                              />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: 'hsl(var(--card))',
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                }}
+                                labelStyle={{ fontWeight: 'bold' }}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="count" 
+                                name="Nouveaux inscrits"
+                                stroke="hsl(var(--primary))" 
+                                strokeWidth={2}
+                                dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
+                                activeDot={{ r: 5, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        )}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
+                case 'top-users':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Trophy className="w-5 h-5 text-amber-500" />
+                            Top 10 utilisateurs
+                          </CardTitle>
+                          <ToggleGroup 
+                            type="single" 
+                            value={topUserSort} 
+                            onValueChange={(value) => value && setTopUserSort(value as TopUserSort)}
+                            className="bg-muted/50 p-1 rounded-lg"
+                          >
+                            <ToggleGroupItem value="trips" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                              Trajets
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="km" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                              Km
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="ik" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                              IK
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {topUsersLoading ? (
+                          <Skeleton className="h-[300px] w-full" />
+                        ) : topUsers.length === 0 ? (
+                          <p className="text-muted-foreground text-center py-8">Aucun utilisateur trouvé</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-12">#</TableHead>
+                                  <TableHead>ID Utilisateur</TableHead>
+                                  <TableHead className="text-right">Trajets</TableHead>
+                                  <TableHead className="text-right">Distance</TableHead>
+                                  <TableHead className="text-right">IK</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {topUsers.map((user, index) => (
+                                  <TableRow key={user.user_id}>
+                                    <TableCell className="font-medium">
+                                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                                    </TableCell>
+                                    <TableCell className="font-mono text-xs">
+                                      {user.user_id.slice(0, 8)}...
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                      {formatNumber(user.total_trips)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      {formatKm(user.total_km)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      {formatCurrency(user.total_ik)}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
+                default:
+                  return null;
+              }
+            })}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Share Stats */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-primary" />
-            Partages de l'application
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {shareStatsLoading ? (
-            <div className="grid grid-cols-3 gap-4">
-              <Skeleton className="h-16" />
-              <Skeleton className="h-16" />
-              <Skeleton className="h-16" />
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-4 mb-2">
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
-                  <p className="text-xs text-muted-foreground">Partages totaux</p>
-                </div>
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <p className="text-2xl font-bold text-green-500">{shareStats?.pct_users_shared || 0}%</p>
-                  <p className="text-xs text-muted-foreground">Utilisateurs ayant partagé</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground text-center">sur les 30 derniers jours</p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Comparison chart */}
-      {period !== 'all' && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Comparaison : {periodConfig[period].label} actuel vs {getPrevPeriodLabel()}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {statsLoading || prevStatsLoading ? (
-              <Skeleton className="h-[250px] w-full" />
-            ) : comparisonData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={comparisonData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    tick={{ fontSize: 11 }} 
-                    tickLine={false} 
-                    axisLine={false}
-                    width={100}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                    }}
-                    formatter={(value: number, name: string) => [
-                      new Intl.NumberFormat('fr-FR').format(value),
-                      name === 'current' ? periodConfig[period].label : getPrevPeriodLabel()
-                    ]}
-                  />
-                  <Legend 
-                    formatter={(value) => value === 'current' ? periodConfig[period].label : getPrevPeriodLabel()}
-                  />
-                  <Bar 
-                    dataKey="current" 
-                    fill="hsl(var(--primary))" 
-                    radius={[12, 12, 12, 12]}
-                    name="current"
-                  />
-                  <Bar 
-                    dataKey="previous" 
-                    fill="hsl(var(--muted-foreground))" 
-                    radius={[12, 12, 12, 12]}
-                    opacity={0.5}
-                    name="previous"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : null}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Registrations chart */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            Nouveaux inscrits ({periodConfig[period].label.toLowerCase()})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {registrationsLoading ? (
-            <Skeleton className="h-[200px] w-full" />
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={registrations}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="day" 
-                  tick={{ fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={false}
-                  interval="preserveStartEnd"
-                />
-                <YAxis 
-                  tick={{ fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                  }}
-                  labelStyle={{ fontWeight: 'bold' }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  name="Nouveaux inscrits"
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={2}
-                  dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
-                  activeDot={{ r: 5, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Top users table */}
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-amber-500" />
-              Top 10 utilisateurs
-            </CardTitle>
-            <ToggleGroup 
-              type="single" 
-              value={topUserSort} 
-              onValueChange={(value) => value && setTopUserSort(value as TopUserSort)}
-              className="bg-muted/50 p-1 rounded-lg"
-            >
-              <ToggleGroupItem value="trips" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
-                Trajets
-              </ToggleGroupItem>
-              <ToggleGroupItem value="km" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
-                Km
-              </ToggleGroupItem>
-              <ToggleGroupItem value="ik" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
-                IK
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {topUsersLoading ? (
-            <Skeleton className="h-[300px] w-full" />
-          ) : topUsers.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Aucun utilisateur trouvé</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>ID Utilisateur</TableHead>
-                    <TableHead className="text-right">Trajets</TableHead>
-                    <TableHead className="text-right">Distance</TableHead>
-                    <TableHead className="text-right">IK</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topUsers.map((user, index) => (
-                    <TableRow key={user.user_id}>
-                      <TableCell className="font-medium">
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {user.user_id.slice(0, 8)}...
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatNumber(user.total_trips)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatKm(user.total_km)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(user.total_ik)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
