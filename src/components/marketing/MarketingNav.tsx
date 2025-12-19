@@ -52,8 +52,8 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
               >
                 {link.label}
                 {link.isNew && (
-                  <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse">
-                    Nouveau
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse">
+                    2026
                   </span>
                 )}
                 {isActive(link.href) && (
@@ -112,8 +112,8 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                 >
                   <span>{link.label}</span>
                   {link.isNew && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full">
-                      Nouveau
+                    <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full">
+                      2026
                     </span>
                   )}
                 </Link>
