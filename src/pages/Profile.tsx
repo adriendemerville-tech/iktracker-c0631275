@@ -14,7 +14,8 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -154,6 +155,31 @@ const Profile = () => {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [showPreferencesDropdown, setShowPreferencesDropdown] = useState(false);
+  
+  // User profile fields
+  const [profileFirstName, setProfileFirstName] = useState('');
+  const [profileLastName, setProfileLastName] = useState('');
+  
+  // Load user metadata on mount
+  useEffect(() => {
+    if (user?.user_metadata) {
+      setProfileFirstName(user.user_metadata.first_name || '');
+      setProfileLastName(user.user_metadata.last_name || '');
+    }
+  }, [user]);
+  
+  // Save profile names
+  const handleSaveProfileNames = async () => {
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        first_name: profileFirstName.trim() || undefined,
+        last_name: profileLastName.trim() || undefined,
+      }
+    });
+    if (!error) {
+      toast.success('Profil mis à jour');
+    }
+  };
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
@@ -260,6 +286,31 @@ const Profile = () => {
         {showAccountInfo && (
           <Card className="border-t-0 rounded-t-none -mt-5">
               <CardContent className="space-y-4 pt-4">
+                {/* First Name / Last Name */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <UserCircle className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1 grid grid-cols-2 gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Prénom"
+                      value={profileFirstName}
+                      onChange={(e) => setProfileFirstName(e.target.value)}
+                      onBlur={handleSaveProfileNames}
+                      className="text-sm"
+                    />
+                    <Input
+                      type="text"
+                      placeholder="Nom"
+                      value={profileLastName}
+                      onChange={(e) => setProfileLastName(e.target.value)}
+                      onBlur={handleSaveProfileNames}
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Mail className="w-5 h-5 text-primary" />
