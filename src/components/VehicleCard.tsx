@@ -1,7 +1,8 @@
 import { memo } from 'react';
 import { Vehicle, getIKBareme } from '@/types/trip';
-import { Car, Edit2, X, MoreVertical } from 'lucide-react';
+import { Car, Edit2, X, MoreVertical, Zap } from 'lucide-react';
 import { Button } from './ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +24,17 @@ export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSele
   const bareme = getIKBareme(vehicle.fiscalPower);
   
   const getCurrentRate = () => {
-    if (!totalKm || totalKm <= 5000) return bareme.upTo5000.rate;
-    if (totalKm <= 20000) return bareme.from5001To20000.rate;
-    return bareme.over20000.rate;
+    let rate = bareme.upTo5000.rate;
+    if (totalKm && totalKm > 5000 && totalKm <= 20000) {
+      rate = bareme.from5001To20000.rate;
+    } else if (totalKm && totalKm > 20000) {
+      rate = bareme.over20000.rate;
+    }
+    // Apply 20% bonus for electric vehicles
+    if (vehicle.isElectric) {
+      rate = rate * 1.2;
+    }
+    return rate;
   };
 
   return (
@@ -41,18 +50,41 @@ export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSele
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2 min-w-0 w-2/3">
           <div className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+            "w-8 h-8 rounded-full flex items-center justify-center shrink-0 relative",
             selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
           )}>
             <Car className="w-4 h-4" />
           </div>
-          <span className="font-semibold truncate">{vehicle.make} {vehicle.model}</span>
-          <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium shrink-0">
+          <span className="font-semibold truncate font-display">{vehicle.make} {vehicle.model}</span>
+          
+          {/* Electric badge */}
+          {vehicle.isElectric && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white shrink-0">
+                  <Zap className="w-3 h-3" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Véhicule électrique (+20% IK)</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          
+          <span className={cn(
+            "px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
+            vehicle.isElectric 
+              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              : "bg-primary/10 text-primary"
+          )}>
             {vehicle.fiscalPower} CV
           </span>
         </div>
         
-        <span className="text-muted-foreground text-xs shrink-0">
+        <span className={cn(
+          "text-xs shrink-0",
+          vehicle.isElectric ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-muted-foreground"
+        )}>
           {getCurrentRate().toFixed(3)} €/km
         </span>
         

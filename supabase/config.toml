@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.outlook-calendar-auth]
 verify_jwt = false
+
+[functions.vehicle-lookup]
+verify_jwt = false
