@@ -25,6 +25,39 @@ const getDeviceType = (): 'mobile' | 'tablet' | 'desktop' => {
   return 'desktop';
 };
 
+// Check if current user is admin (cached per session)
+const checkIsAdmin = async (): Promise<boolean> => {
+  // Check session cache first
+  const cached = sessionStorage.getItem('is_admin_user');
+  if (cached !== null) {
+    return cached === 'true';
+  }
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return false;
+    }
+
+    const { data, error } = await supabase.rpc('has_role', { 
+      _user_id: session.user.id, 
+      _role: 'admin' 
+    });
+
+    if (error) {
+      console.debug('Error checking admin role:', error);
+      return false;
+    }
+
+    const isAdmin = data === true;
+    // Cache for this session
+    sessionStorage.setItem('is_admin_user', String(isAdmin));
+    return isAdmin;
+  } catch {
+    return false;
+  }
+};
+
 interface TrackEventOptions {
   page: string;
   eventType: 'page_view' | 'cta_click' | 'ik_simulation';
@@ -43,6 +76,13 @@ export function useMarketingTracker(page: string) {
 
   const trackEvent = useCallback(async (options: TrackEventOptions) => {
     try {
+      // Skip tracking for admin users
+      const isAdmin = await checkIsAdmin();
+      if (isAdmin) {
+        console.debug('Skipping marketing tracking for admin user');
+        return;
+      }
+
       await supabase.from('marketing_analytics').insert({
         event_type: options.eventType,
         page: options.page,
