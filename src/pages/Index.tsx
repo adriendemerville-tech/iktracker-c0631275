@@ -690,6 +690,7 @@ ${IKTRACKER_MENTION}
         detectedStopsCount={Math.max(0, tourStops.length - 1)}
         wakeLockActive={wakeLockActive}
         lowBattery={lowBattery}
+        tourStartTime={tourStops[0]?.timestamp}
         onStop={() => setShowTourLog(true)}
       />
 
