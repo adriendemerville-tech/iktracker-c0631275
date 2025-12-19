@@ -3,6 +3,7 @@ import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { usePreferences } from './usePreferences';
+import { toast } from 'sonner';
 
 const TRIPS_KEY = 'ik-tracker-trips';
 const LOCATIONS_KEY = 'ik-tracker-locations';
@@ -590,6 +591,14 @@ export function useTrips() {
             calendarEventId: t.calendar_event_id || undefined,
           })));
         }
+
+        // Notify user that IK amounts were recalculated
+        const tripCount = sortedTrips.length;
+        if (tripCount > 0) {
+          toast.success('Indemnités recalculées', {
+            description: `${tripCount} trajet${tripCount > 1 ? 's' : ''} mis à jour avec le nouveau barème.`
+          });
+        }
       }
 
       setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
@@ -625,6 +634,14 @@ export function useTrips() {
             : t
         );
         saveTripsLocal(newTrips);
+
+        // Notify user that IK amounts were recalculated
+        const tripCount = sortedTrips.length;
+        if (tripCount > 0) {
+          toast.success('Indemnités recalculées', {
+            description: `${tripCount} trajet${tripCount > 1 ? 's' : ''} mis à jour avec le nouveau barème.`
+          });
+        }
       }
       
       saveVehiclesLocal(vehicles.map(v => v.id === id ? { ...v, ...updates } : v));
