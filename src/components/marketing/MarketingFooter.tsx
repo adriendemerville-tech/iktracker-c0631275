@@ -103,6 +103,22 @@ export function MarketingFooter() {
             </Link>
           </div>
         </div>
+
+        {/* Creator Attribution */}
+        <div className="mt-8 pt-4 border-t border-border/50 text-center">
+          <p className="text-xs text-slate-500">
+            IKtracker — Outil conçu par Adrien de Volontat, entrepreneur{' '}
+            <a 
+              href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline hover:text-slate-700 transition-colors"
+            >
+              Avenir Rénovations
+            </a>
+            {' '}à Saint-Rémy-de-Provence. Partagé gratuitement avec la communauté.
+          </p>
+        </div>
       </div>
     </footer>
   );

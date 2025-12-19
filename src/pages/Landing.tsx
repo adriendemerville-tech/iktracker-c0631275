@@ -508,6 +508,23 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Testimonial / Disclaimer Section */}
+      <section className="py-16 px-4 bg-muted/50">
+        <div className="container mx-auto max-w-3xl">
+          <div className="bg-background border border-border rounded-2xl p-8 md:p-10">
+            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-6 font-display">
+              Pourquoi IKtracker est-il gratuit ?
+            </h3>
+            <blockquote className="text-muted-foreground leading-relaxed font-display">
+              "Dirigeant de l'agence Avenir Rénovations à Saint-Rémy-de-Provence, je n'ai trouvé aucune solution techniquement satisfaisante pour automatiser le suivi de mes indemnités kilométriques. J'ai donc fait développer IKtracker pour répondre à mes propres besoins de terrain. L'infrastructure étant en place et opérationnelle pour mon équipe, je la partage gratuitement avec la communauté des professionnels. Il n'y a ni abonnement, ni frais cachés, ni exploitation commerciale de vos données."
+            </blockquote>
+            <p className="mt-6 text-sm text-muted-foreground font-display">
+              — Adrien de Volontat, fondateur
+            </p>
+          </div>
+        </div>
+      </section>
+
       <MarketingFooter />
     </div>
   );
