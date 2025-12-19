@@ -71,21 +71,35 @@ serve(async (req) => {
       );
     }
 
-    const data = await response.json();
-    console.log('RapidAPI response:', JSON.stringify(data));
+    const responseText = await response.text();
+    console.log('RapidAPI raw response:', responseText);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Failed to parse response as JSON:', responseText);
+      return new Response(
+        JSON.stringify({ error: 'Invalid API response', success: false }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log('RapidAPI parsed response:', JSON.stringify(data));
 
-    // Check for error in response
-    if (data.error || !data.marque) {
+    // Check for error in response - API returns data in data.data object with AWN_ prefix
+    const vehicleInfo = data.data;
+    if (data.error === true || !vehicleInfo || !vehicleInfo.AWN_marque) {
       console.log('Vehicle not found in API response');
       return new Response(
-        JSON.stringify({ error: data.error || 'Vehicle not found', success: false }),
+        JSON.stringify({ error: data.message || 'Vehicle not found', success: false }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Map the RapidAPI response to our format
-    // Response format: { marque, modele, date1erCir_us, puisFisc, energie, carrosserie, ... }
-    const fuelType = data.energie || '';
+    // Response format: { data: { AWN_marque, AWN_modele, AWN_date_mise_en_circulation_us, AWN_puissance_fiscale, AWN_energie, AWN_carrosserie, ... }}
+    const fuelType = vehicleInfo.AWN_energie || '';
     const isElectric = fuelType.toLowerCase().includes('electri') || 
                        fuelType.toLowerCase().includes('électri') ||
                        fuelType.toLowerCase() === 'el';
@@ -93,14 +107,14 @@ serve(async (req) => {
     const vehicleData = {
       success: true,
       licensePlate: licensePlate,
-      make: data.marque || '',
-      model: data.modele || '',
-      year: data.date1erCir_us ? parseInt(data.date1erCir_us.substring(0, 4)) : null,
-      fiscalPower: data.puisFisc ? parseInt(data.puisFisc) : null,
+      make: vehicleInfo.AWN_marque || '',
+      model: vehicleInfo.AWN_modele || '',
+      year: vehicleInfo.AWN_date_mise_en_circulation_us ? parseInt(vehicleInfo.AWN_date_mise_en_circulation_us.substring(0, 4)) : null,
+      fiscalPower: vehicleInfo.AWN_puissance_fiscale ? parseInt(vehicleInfo.AWN_puissance_fiscale) : null,
       fuelType: fuelType,
       isElectric: isElectric,
-      bodyStyle: data.carrosserie || '',
-      registrationDate: data.date1erCir || null,
+      bodyStyle: vehicleInfo.AWN_carrosserie || '',
+      registrationDate: vehicleInfo.AWN_date_mise_en_circulation || null,
     };
 
     console.log('Mapped vehicle data:', JSON.stringify(vehicleData));
