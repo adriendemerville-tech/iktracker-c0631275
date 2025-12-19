@@ -65,7 +65,7 @@ const Admin = () => {
   const [newAdminId, setNewAdminId] = useState('');
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'stats');
 
-  // Fetch feedbacks
+  // Fetch feedbacks - refresh every 15 minutes
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
     queryKey: ['admin-feedbacks'],
     queryFn: async () => {
@@ -78,9 +78,10 @@ const Admin = () => {
       return data as Feedback[];
     },
     enabled: isAdmin,
+    refetchInterval: 15 * 60 * 1000, // 15 minutes
   });
 
-  // Fetch user roles
+  // Fetch user roles - refresh every 15 minutes
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ['admin-user-roles'],
     queryFn: async () => {
@@ -93,6 +94,7 @@ const Admin = () => {
       return data;
     },
     enabled: isAdmin,
+    refetchInterval: 15 * 60 * 1000, // 15 minutes
   });
 
   // Build users list from feedbacks and roles
