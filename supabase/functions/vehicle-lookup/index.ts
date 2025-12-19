@@ -37,8 +37,8 @@ serve(async (req) => {
     }
 
     // Call the French car check API via RapidAPI
-    // API documentation: https://rapidapi.com/apiplateau/api/immatriculation-siv-carte-grise-fni
-    const apiUrl = `https://immatriculation-siv-carte-grise-fni.p.rapidapi.com/get-vehicule-info?immat=${cleanPlate}`;
+    // API: api-de-plaque-d-immatriculation-france
+    const apiUrl = `https://api-de-plaque-d-immatriculation-france.p.rapidapi.com/?immatriculation=${cleanPlate}`;
     
     console.log(`Calling RapidAPI: ${apiUrl}`);
     
@@ -46,7 +46,7 @@ serve(async (req) => {
       method: 'GET',
       headers: {
         'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': 'immatriculation-siv-carte-grise-fni.p.rapidapi.com',
+        'X-RapidAPI-Host': 'api-de-plaque-d-immatriculation-france.p.rapidapi.com',
       },
     });
 
