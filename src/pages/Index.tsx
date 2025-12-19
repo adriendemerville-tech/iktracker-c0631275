@@ -136,6 +136,8 @@ const Index = () => {
       setTimeout(() => {
         stopTour();
         clearTour();
+        // Show green "enregistré" notification for 4 seconds
+        toast.success("Enregistré", { duration: 4000 });
       }, 800);
     }
   };
@@ -284,16 +286,13 @@ const Index = () => {
       console.log('Trip created:', result);
       
       if (result) {
-        const label = isTour ? 'Tournée' : 'Trajet';
-        toast.success(`${label} enregistré`, {
-          description: `${totalDistance.toFixed(1)} km${isTour ? ` - ${stops.length} étapes` : ''}`,
-          duration: 2500,
-        });
-        // Close sheet first, wait for it to fully disappear, then stop tour
+        // Close sheet first, wait for it to fully disappear, then stop tour and show notification
         setShowTourLog(false);
         setTimeout(() => {
           stopTour();
           clearTour();
+          // Show green "Enregistré" notification for 4 seconds
+          toast.success("Enregistré", { duration: 4000 });
         }, 800);
       } else {
         toast.error("Erreur lors de l'enregistrement");
@@ -688,7 +687,7 @@ ${IKTRACKER_MENTION}
       <FocusTourView
         isActive={isTourActive}
         totalDistanceKm={totalDistanceKm}
-        stopsCount={tourStops.length}
+        detectedStopsCount={Math.max(0, tourStops.length - 1)}
         wakeLockActive={wakeLockActive}
         lowBattery={lowBattery}
         onStop={() => setShowTourLog(true)}

@@ -5,7 +5,7 @@ import { useNightMode } from '@/hooks/useNightMode';
 interface FocusTourViewProps {
   isActive: boolean;
   totalDistanceKm: number;
-  stopsCount: number;
+  detectedStopsCount: number; // Number of detected stops (excludes departure)
   wakeLockActive: boolean;
   lowBattery: boolean;
   onStop: () => void;
@@ -14,7 +14,7 @@ interface FocusTourViewProps {
 export function FocusTourView({
   isActive,
   totalDistanceKm,
-  stopsCount,
+  detectedStopsCount,
   wakeLockActive,
   lowBattery,
   onStop,
@@ -22,6 +22,17 @@ export function FocusTourView({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
   const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
+
+  // Determine display mode based on distance
+  // < 0.1 km (100m): show "DÉPART" with green-orange gradient
+  // >= 0.1 km and < 1 km: still show "DÉPART"
+  // >= 1 km: show stops counter (0 if no detected stops yet)
+  const showDeparture = totalDistanceKm < 1;
+  
+  // Determine which gradient to use for stops counter
+  // 0 stops: green-orange gradient (same as DÉPART)
+  // 1+ stops: current orange-red gradient
+  const useGreenOrangeGradient = showDeparture || detectedStopsCount === 0;
 
   // Update time every second
   useEffect(() => {
@@ -153,21 +164,45 @@ export function FocusTourView({
         {/* Separator */}
         <div className="h-12 w-px bg-gray-800" />
 
-        {/* Stops Counter - gradient orange-red with animation */}
+        {/* Stops Counter or Departure indicator */}
         <div className="flex flex-col items-center">
-          <span 
-            className="font-urbanist text-5xl font-bold tabular-nums bg-clip-text text-transparent"
-            style={{
-              backgroundImage: 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-              backgroundSize: '100% 300%',
-              animation: 'gradient-scroll 6s linear infinite',
-            }}
-          >
-            {stopsCount}
-          </span>
-          <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest font-bold">
-            {stopsCount === 1 ? 'ÉTAPE' : 'ÉTAPES'}
-          </span>
+          {showDeparture ? (
+            // Show "DÉPART" while under 1km
+            <>
+              <span 
+                className="font-urbanist text-4xl font-bold bg-clip-text text-transparent uppercase tracking-wide"
+                style={{
+                  backgroundImage: 'linear-gradient(180deg, #22c55e, #84cc16, #f97316, #22c55e)',
+                  backgroundSize: '100% 300%',
+                  animation: 'gradient-scroll 4s linear infinite',
+                }}
+              >
+                Départ
+              </span>
+              <span className="font-urbanist text-sm text-gray-500 mt-1 uppercase tracking-widest">
+                &nbsp;
+              </span>
+            </>
+          ) : (
+            // Show stops counter once >= 1km
+            <>
+              <span 
+                className="font-urbanist text-5xl font-bold tabular-nums bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: useGreenOrangeGradient 
+                    ? 'linear-gradient(180deg, #22c55e, #84cc16, #f97316, #22c55e)'
+                    : 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
+                  backgroundSize: '100% 300%',
+                  animation: 'gradient-scroll 6s linear infinite',
+                }}
+              >
+                {detectedStopsCount}
+              </span>
+              <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest font-bold">
+                {detectedStopsCount === 1 ? 'ÉTAPE' : 'ÉTAPES'}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
