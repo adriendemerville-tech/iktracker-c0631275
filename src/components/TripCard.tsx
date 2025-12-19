@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, X, Car, Pencil, Truck, ChevronRight, Calendar } from 'lucide-react';
+import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -135,13 +135,19 @@ export const TripCard = memo(function TripCard({ trip, vehicle, onDelete, onEdit
 
         {/* Motif masqué dans l'aperçu - visible uniquement en mode édition */}
 
-        {/* Ligne 3: Distance + IK + Bouton supprimer */}
+        {/* Ligne 3: Distance + IK + Badge véhicule manquant + Bouton supprimer */}
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-3">
             <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
             <span className="counter-text text-sm font-bold text-accent">
               +{trip.ikAmount.toFixed(2)} €
             </span>
+            {!vehicle && !trip.vehicleId && (
+              <span className="inline-flex items-center gap-1 text-xs text-warning bg-warning/10 px-1.5 py-0.5 rounded">
+                <AlertTriangle className="w-3 h-3" />
+                <span>Sans véhicule</span>
+              </span>
+            )}
           </div>
           {showDelete && onDelete && (
             <Button

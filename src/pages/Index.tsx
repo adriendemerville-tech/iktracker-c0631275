@@ -1043,7 +1043,7 @@ ${IKTRACKER_MENTION}
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. Le véhicule sera définitivement supprimé.
+              Cette action est irréversible. Les trajets associés seront conservés avec leurs indemnités déjà calculées.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
