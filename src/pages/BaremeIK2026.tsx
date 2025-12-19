@@ -383,6 +383,16 @@ const BaremeIK2026 = () => {
                     Que vous rouliez à l'essence, au diesel ou au GPL, le calcul des <strong>indemnités kilométriques 2026</strong> reste identique. 
                     Seuls les véhicules 100% électriques bénéficient d'un traitement fiscal avantageux avec la majoration de 20%.
                   </p>
+                  <a 
+                    href="https://bofip.impots.gouv.fr/bofip/2568-PGP.html/identifiant%3DBOI-BAREME-000003-20210309" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-2 text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <FileText className="h-3 w-3" />
+                    Source officielle : BOFiP – Majoration véhicules électriques
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 </div>
               </CardContent>
             </Card>
