@@ -315,16 +315,19 @@ const Admin = () => {
             <Shield className="w-8 h-8 opacity-80" />
           </div>
           
-          {/* Stats quick access button */}
+          {/* Marketing stats quick access button */}
           <Button 
             onClick={() => {
               setActiveTab('stats');
               setSearchParams({ tab: 'stats' });
+              setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+              }, 100);
             }}
             className="mt-4 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
           >
             <BarChart3 className="w-4 h-4 mr-2" />
-            Voir le dashboard statistique
+            Voir le dashboard Marketing
           </Button>
           
           {/* Stats */}
