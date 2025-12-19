@@ -47,9 +47,13 @@ interface Feedback {
 
 interface UserWithRole {
   user_id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
   isAdmin: boolean;
   feedbackCount: number;
   lastActivity: string | null;
+  created_at: string;
 }
 
 const Admin = () => {
@@ -62,8 +66,17 @@ const Admin = () => {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
   const [responseText, setResponseText] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [newAdminId, setNewAdminId] = useState('');
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'stats');
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(userSearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [userSearch]);
 
   // Fetch feedbacks - refresh every 15 minutes
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
@@ -97,48 +110,45 @@ const Admin = () => {
     refetchInterval: 15 * 60 * 1000, // 15 minutes
   });
 
-  // Build users list from feedbacks and roles
-  const users: UserWithRole[] = (() => {
-    const userMap = new Map<string, UserWithRole>();
+  // Search users with the new function
+  const { data: searchedUsers = [], isLoading: usersLoading } = useQuery({
+    queryKey: ['admin-search-users', debouncedSearch],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('search_users', { 
+        search_term: debouncedSearch,
+        limit_count: 50
+      });
+      if (error) throw error;
+      return data as { user_id: string; email: string; first_name: string; last_name: string; created_at: string }[];
+    },
+    enabled: isAdmin,
+    refetchInterval: 15 * 60 * 1000, // 15 minutes
+  });
+
+  // Build users list with roles and feedback counts
+  const users: UserWithRole[] = searchedUsers.map(u => {
+    const feedbackCount = feedbacks.filter(f => f.user_id === u.user_id).length;
+    const userFeedbacks = feedbacks.filter(f => f.user_id === u.user_id);
+    const lastActivity = userFeedbacks.length > 0 
+      ? userFeedbacks.reduce((latest, f) => 
+          new Date(f.created_at) > new Date(latest) ? f.created_at : latest, 
+          userFeedbacks[0].created_at
+        )
+      : null;
     
-    // Add users from feedbacks
-    feedbacks.forEach(f => {
-      if (!userMap.has(f.user_id)) {
-        userMap.set(f.user_id, {
-          user_id: f.user_id,
-          isAdmin: false,
-          feedbackCount: 0,
-          lastActivity: null,
-        });
-      }
-      const u = userMap.get(f.user_id)!;
-      u.feedbackCount++;
-      if (!u.lastActivity || new Date(f.created_at) > new Date(u.lastActivity)) {
-        u.lastActivity = f.created_at;
-      }
-    });
+    return {
+      user_id: u.user_id,
+      email: u.email,
+      first_name: u.first_name,
+      last_name: u.last_name,
+      isAdmin: userRoles.some(r => r.user_id === u.user_id),
+      feedbackCount,
+      lastActivity,
+      created_at: u.created_at,
+    };
+  });
 
-    // Mark admins
-    userRoles.forEach(r => {
-      if (!userMap.has(r.user_id)) {
-        userMap.set(r.user_id, {
-          user_id: r.user_id,
-          isAdmin: true,
-          feedbackCount: 0,
-          lastActivity: r.created_at,
-        });
-      } else {
-        userMap.get(r.user_id)!.isAdmin = true;
-      }
-    });
-
-    return Array.from(userMap.values());
-  })();
-
-  // Filter users by search
-  const filteredUsers = users.filter(u => 
-    u.user_id.toLowerCase().includes(userSearch.toLowerCase())
-  );
+  const filteredUsers = users;
 
   // Respond to feedback mutation
   const respondMutation = useMutation({
@@ -580,14 +590,14 @@ const Admin = () => {
                 <div className="relative mb-4">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Rechercher par ID utilisateur..."
+                    placeholder="Rechercher par prénom, nom ou email..."
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
-                    className="pl-10 font-mono"
+                    className="pl-10"
                   />
                 </div>
 
-                {rolesLoading ? (
+                {usersLoading || rolesLoading ? (
                   <div className="space-y-2">
                     {[1, 2, 3].map(i => (
                       <Skeleton key={i} className="h-16 w-full" />
@@ -609,8 +619,10 @@ const Admin = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                              <span className="font-mono text-sm truncate">
-                                {u.user_id}
+                              <span className="text-sm font-medium truncate">
+                                {u.first_name || u.last_name 
+                                  ? `${u.first_name} ${u.last_name}`.trim() 
+                                  : u.email || u.user_id.slice(0, 8) + '...'}
                               </span>
                               {u.isAdmin && (
                                 <Badge className="bg-amber-500 hover:bg-amber-600 flex-shrink-0">
@@ -619,13 +631,14 @@ const Admin = () => {
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                              <span>{u.feedbackCount} avis</span>
-                              {u.lastActivity && (
-                                <span>
-                                  Dernière activité: {format(new Date(u.lastActivity), 'dd/MM/yyyy', { locale: fr })}
-                                </span>
+                            <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-foreground">
+                              {u.email && (
+                                <span className="truncate">{u.email}</span>
                               )}
+                              <div className="flex items-center gap-4">
+                                <span>{u.feedbackCount} avis</span>
+                                <span>Inscrit le {format(new Date(u.created_at), 'dd/MM/yyyy', { locale: fr })}</span>
+                              </div>
                             </div>
                           </div>
                           

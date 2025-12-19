@@ -450,6 +450,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      search_users: {
+        Args: { limit_count?: number; search_term?: string }
+        Returns: {
+          created_at: string
+          email: string
+          first_name: string
+          last_name: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
