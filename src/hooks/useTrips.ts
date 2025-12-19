@@ -314,15 +314,19 @@ export function useTrips() {
     const existingTrip = trips.find(t => t.id === id);
     if (!existingTrip) return null;
 
-    const vehicle = vehicles.find(v => v.id === (updates.vehicleId || existingTrip.vehicleId));
+    // IMPORTANT: Once a trip is created, the vehicle cannot be changed
+    // Remove vehicleId from updates to prevent modification
+    const { vehicleId: _ignoredVehicleId, ...safeUpdates } = updates;
+
+    const vehicle = vehicles.find(v => v.id === existingTrip.vehicleId);
     if (!vehicle) return null;
 
     // Recalculate IK if distance changed
     let ikAmount = existingTrip.ikAmount;
-    if (updates.distance !== undefined && updates.distance !== existingTrip.distance) {
-      const totalAnnualKm = getTotalAnnualKm(vehicle.id) - existingTrip.distance + updates.distance;
+    if (safeUpdates.distance !== undefined && safeUpdates.distance !== existingTrip.distance) {
+      const totalAnnualKm = getTotalAnnualKm(vehicle.id) - existingTrip.distance + safeUpdates.distance;
       ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                 calculateTotalAnnualIK(totalAnnualKm - updates.distance, vehicle.fiscalPower);
+                 calculateTotalAnnualIK(totalAnnualKm - safeUpdates.distance, vehicle.fiscalPower);
       
       // Apply 20% bonus for electric vehicles
       if (vehicle.isElectric) {
@@ -334,13 +338,13 @@ export function useTrips() {
       const { error } = await supabase
         .from('trips')
         .update({
-          vehicle_id: updates.vehicleId || existingTrip.vehicleId,
-          date: updates.startTime ? new Date(updates.startTime).toISOString().split('T')[0] : undefined,
-          start_location: updates.startLocation?.name,
-          end_location: updates.endLocation?.name,
-          distance: updates.distance,
-          round_trip: updates.roundTrip,
-          purpose: updates.purpose || null,
+          // vehicle_id is NOT updated - trips are permanently linked to their vehicle
+          date: safeUpdates.startTime ? new Date(safeUpdates.startTime).toISOString().split('T')[0] : undefined,
+          start_location: safeUpdates.startLocation?.name,
+          end_location: safeUpdates.endLocation?.name,
+          distance: safeUpdates.distance,
+          round_trip: safeUpdates.roundTrip,
+          purpose: safeUpdates.purpose || null,
           ik_amount: ikAmount,
         })
         .eq('id', id);
@@ -348,7 +352,8 @@ export function useTrips() {
       if (!error) {
         const updatedTrip: Trip = {
           ...existingTrip,
-          ...updates,
+          ...safeUpdates,
+          vehicleId: existingTrip.vehicleId, // Ensure vehicleId stays unchanged
           ikAmount,
         };
         setTrips(prev => prev.map(t => t.id === id ? updatedTrip : t));
@@ -358,7 +363,8 @@ export function useTrips() {
     } else {
       const updatedTrip: Trip = {
         ...existingTrip,
-        ...updates,
+        ...safeUpdates,
+        vehicleId: existingTrip.vehicleId, // Ensure vehicleId stays unchanged
         ikAmount,
       };
       saveTripsLocal(trips.map(t => t.id === id ? updatedTrip : t));
@@ -503,11 +509,23 @@ export function useTrips() {
   };
 
   const updateVehicle = async (id: string, updates: Partial<Vehicle>) => {
+    const existingVehicle = vehicles.find(v => v.id === id);
+    if (!existingVehicle) return;
+
+    // Check if fiscal power or electric status changed - need to recalculate IK for all trips
+    const fiscalPowerChanged = updates.fiscalPower !== undefined && updates.fiscalPower !== existingVehicle.fiscalPower;
+    const electricStatusChanged = updates.isElectric !== undefined && updates.isElectric !== existingVehicle.isElectric;
+    const needsIKRecalculation = fiscalPowerChanged || electricStatusChanged;
+
+    const newFiscalPower = updates.fiscalPower ?? existingVehicle.fiscalPower;
+    const newIsElectric = updates.isElectric ?? existingVehicle.isElectric;
+
     if (user) {
+      // Update the vehicle first
       await supabase
         .from('vehicles')
         .update({
-          name: `${updates.make || ''} ${updates.model || ''}`.trim() || undefined,
+          name: `${updates.make || existingVehicle.make || ''} ${updates.model || existingVehicle.model || ''}`.trim() || undefined,
           fiscal_power: updates.fiscalPower,
           owner_first_name: updates.ownerFirstName,
           owner_last_name: updates.ownerLastName,
@@ -518,8 +536,97 @@ export function useTrips() {
           is_electric: updates.isElectric,
         } as any)
         .eq('id', id);
+
+      // If fiscal power or electric status changed, recalculate IK for all trips with this vehicle
+      if (needsIKRecalculation) {
+        const vehicleTrips = trips.filter(t => t.vehicleId === id);
+        
+        // Sort trips by date to calculate cumulative IK correctly
+        const sortedTrips = [...vehicleTrips].sort((a, b) => 
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        );
+
+        let cumulativeKm = 0;
+        for (const trip of sortedTrips) {
+          const previousCumulativeKm = cumulativeKm;
+          cumulativeKm += trip.distance;
+          
+          // Calculate new IK based on cumulative distance
+          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower) - 
+                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower);
+          
+          // Apply 20% bonus for electric vehicles
+          if (newIsElectric) {
+            newIkAmount = newIkAmount * 1.2;
+          }
+
+          // Update trip in database
+          await supabase
+            .from('trips')
+            .update({ ik_amount: newIkAmount })
+            .eq('id', trip.id);
+        }
+
+        // Reload trips from database to get updated IK amounts
+        const { data: updatedTrips } = await supabase
+          .from('trips')
+          .select('*')
+          .order('date', { ascending: false });
+
+        if (updatedTrips) {
+          setTrips(updatedTrips.map(t => ({
+            id: t.id,
+            vehicleId: t.vehicle_id,
+            startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
+            endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+            distance: t.distance,
+            baseDistance: t.round_trip ? t.distance / 2 : t.distance,
+            roundTrip: t.round_trip,
+            purpose: t.purpose || '',
+            startTime: new Date(t.date),
+            endTime: new Date(t.date),
+            ikAmount: t.ik_amount,
+            tourStops: (t as any).tour_stops as TourStopData[] | undefined,
+            calendarEventId: t.calendar_event_id || undefined,
+          })));
+        }
+      }
+
       setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
     } else {
+      // For local storage users
+      if (needsIKRecalculation) {
+        const vehicleTrips = trips.filter(t => t.vehicleId === id);
+        const sortedTrips = [...vehicleTrips].sort((a, b) => 
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        );
+
+        let cumulativeKm = 0;
+        const updatedTripsMap = new Map<string, number>();
+        
+        for (const trip of sortedTrips) {
+          const previousCumulativeKm = cumulativeKm;
+          cumulativeKm += trip.distance;
+          
+          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower) - 
+                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower);
+          
+          if (newIsElectric) {
+            newIkAmount = newIkAmount * 1.2;
+          }
+          
+          updatedTripsMap.set(trip.id, newIkAmount);
+        }
+
+        // Update all trips with new IK amounts
+        const newTrips = trips.map(t => 
+          updatedTripsMap.has(t.id) 
+            ? { ...t, ikAmount: updatedTripsMap.get(t.id)! } 
+            : t
+        );
+        saveTripsLocal(newTrips);
+      }
+      
       saveVehiclesLocal(vehicles.map(v => v.id === id ? { ...v, ...updates } : v));
     }
   };
