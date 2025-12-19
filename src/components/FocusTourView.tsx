@@ -192,9 +192,7 @@ export function FocusTourView({
               <span 
                 className="font-urbanist text-4xl font-bold bg-clip-text text-transparent uppercase tracking-wide"
                 style={{
-                  backgroundImage: 'linear-gradient(180deg, #22c55e, #84cc16, #f97316, #22c55e)',
-                  backgroundSize: '100% 300%',
-                  animation: 'gradient-scroll 4s linear infinite',
+                  backgroundImage: 'linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 75%, #f97316 100%)',
                 }}
               >
                 Départ
