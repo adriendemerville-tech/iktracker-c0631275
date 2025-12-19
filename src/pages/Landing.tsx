@@ -529,14 +529,24 @@ const Landing = () => {
                 <p className="mt-4 md:mt-6 text-xs md:text-sm text-muted-foreground font-display">
                   — Adrien de Volontat, fondateur
                 </p>
-                <a 
-                  href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 text-xs text-primary hover:underline transition-colors font-display"
-                >
-                  Avenir Rénovations →
-                </a>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-3">
+                  <a 
+                    href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline transition-colors font-display"
+                  >
+                    Avenir Rénovations →
+                  </a>
+                  <span className="text-muted-foreground/50">•</span>
+                  <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors font-display">
+                    CGU
+                  </Link>
+                  <span className="text-muted-foreground/50">•</span>
+                  <Link to="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors font-display">
+                    Confidentialité
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

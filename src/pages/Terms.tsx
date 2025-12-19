@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import founderImage from '@/assets/founder-adrien.jpg';
 
 const Terms = () => {
   const navigate = useNavigate();
@@ -180,6 +181,41 @@ const Terms = () => {
             <p className="text-muted-foreground mt-4 text-sm">
               Dernière mise à jour : {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
+          </section>
+
+          {/* Founder Disclaimer */}
+          <section className="mt-12 pt-8 border-t border-border">
+            <div className="bg-muted/50 rounded-2xl p-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+                <img 
+                  src={founderImage} 
+                  alt="Adrien de Volontat, fondateur d'IKtracker" 
+                  className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-border"
+                />
+                <div className="text-center sm:text-left">
+                  <blockquote className="text-sm text-muted-foreground leading-relaxed italic">
+                    "Dirigeant d'une agence Avenir Rénovation, je n'ai trouvé aucune solution satisfaisante pour automatiser mes indemnités kilométriques. J'ai donc créé IKtracker pour mon usage professionnel. L'infrastructure étant en place, je la partage gratuitement avec ceux qui ont les mêmes besoins de gestion. Pas de carte bancaire, pas de frais cachés."
+                  </blockquote>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    — Adrien de Volontat, fondateur
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2">
+                    <a 
+                      href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline transition-colors"
+                    >
+                      Avenir Rénovations →
+                    </a>
+                    <span className="text-muted-foreground/50">•</span>
+                    <Link to="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                      Accueil
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
         </div>
       </main>
