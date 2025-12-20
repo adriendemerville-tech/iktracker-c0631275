@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.vehicle-lookup]
 verify_jwt = false
+
+[functions.sync-calendar-trips]
+verify_jwt = false
