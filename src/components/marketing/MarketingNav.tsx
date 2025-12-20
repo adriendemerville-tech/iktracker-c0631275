@@ -32,7 +32,12 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
             <img 
               src="/iktracker-indemnites-kilometriques-logo.png" 
               alt="IKtracker" 
+              width={36}
+              height={36}
               className="h-8 w-8 md:h-9 md:w-9 transition-transform duration-300 hover:scale-110" 
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
             />
             <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
           </Link>

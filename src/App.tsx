@@ -2,10 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import Landing from "./pages/Landing";
@@ -54,6 +56,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Preload Google Maps when entering app routes
+function GoogleMapsPreloader() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Preload Google Maps when entering authenticated app routes
+    if (location.pathname.startsWith('/app') || 
+        location.pathname.startsWith('/profile') ||
+        location.pathname.startsWith('/report')) {
+      preloadGoogleMaps();
+    }
+  }, [location.pathname]);
+  
+  return null;
+}
+
 const AppContent = () => {
   // Initialize theme and online status detection
   useTheme();
@@ -61,6 +79,7 @@ const AppContent = () => {
   
   return (
     <BrowserRouter>
+      <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />

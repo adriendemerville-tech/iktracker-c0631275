@@ -359,7 +359,15 @@ const Landing = () => {
                         <p className="text-xs text-gray-500">Décembre 2025</p>
                       </div>
                     </div>
-                    <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="h-6 opacity-60" />
+                    <img 
+                      src="/iktracker-indemnites-kilometriques-logo.png" 
+                      alt="IKtracker" 
+                      width={24}
+                      height={24}
+                      className="h-6 w-6 opacity-60" 
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
                 </div>
                 

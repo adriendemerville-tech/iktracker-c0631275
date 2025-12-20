@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Urbanist:wght@400;500;600;700;800&display=swap');
+/* Fonts loaded via index.html with preload for better performance */
 
 @tailwind base;
 @tailwind components;
@@ -375,6 +375,7 @@
 
 .animate-car-bounce {
   animation: car-bounce 0.5s ease-in-out infinite, car-vibrate 0.08s linear infinite;
+  will-change: transform;
 }
 
 /* Speed lines animation - synced with car */
@@ -399,6 +400,7 @@
 
 .animate-speed-lines {
   animation: speed-lines 0.5s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 /* Animated wheels - spin */
@@ -414,6 +416,7 @@
 .animate-wheel-spin {
   animation: wheel-spin 0.5s linear infinite;
   border-style: dashed;
+  will-change: transform;
 }
 
 /* Road dashes animation */
