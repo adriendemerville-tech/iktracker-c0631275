@@ -68,14 +68,17 @@
     <meta name="language" content="French" />
     <meta name="revisit-after" content="7 days" />
     
-    <!-- Fonts - Preload critical -->
+    <!-- Fonts - Preconnect and load asynchronously -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Google Maps - Defer loading -->
-    <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjuGRMRKrDb5OYhO0_Efcm8I7QpUe70IY&libraries=places&language=fr"></script>
+    <!-- Preload critical LCP image -->
+    <link rel="preload" href="/iktracker-indemnites-kilometriques-logo.png" as="image" type="image/png">
+    
+    <!-- Google Maps loaded dynamically only when needed -->
+    
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">

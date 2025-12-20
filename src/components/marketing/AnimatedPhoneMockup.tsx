@@ -51,6 +51,8 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
           <img 
             src="/iktracker-indemnites-kilometriques-logo.png" 
             alt="IKtracker" 
+            width={32}
+            height={32}
             className="w-8 h-8 rounded-lg" 
             loading="lazy"
             decoding="async"
