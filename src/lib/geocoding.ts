@@ -14,8 +14,22 @@ export interface GeocodingResult {
   fullAddress?: string;
 }
 
+// In-memory cache for reverse geocoding results (reduces API calls)
+const geocodeCache = new Map<string, GeocodingResult | null>();
+const CACHE_KEY_PRECISION = 4; // Round to 4 decimal places (~11m precision)
+
+function getCacheKey(lat: number, lng: number): string {
+  return `${lat.toFixed(CACHE_KEY_PRECISION)},${lng.toFixed(CACHE_KEY_PRECISION)}`;
+}
+
 // Extract city name from geocoding result
 export async function reverseGeocode(lat: number, lng: number): Promise<GeocodingResult | null> {
+  // Check cache first
+  const cacheKey = getCacheKey(lat, lng);
+  if (geocodeCache.has(cacheKey)) {
+    return geocodeCache.get(cacheKey)!;
+  }
+
   return new Promise((resolve) => {
     if (typeof google === 'undefined' || !google.maps) {
       console.warn('Google Maps not loaded');
@@ -53,13 +67,19 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Geocodin
           if (city) break;
         }
 
-        resolve({
+        const result: GeocodingResult = {
           city: city || 'Lieu inconnu',
           postalCode,
           fullAddress,
-        });
+        };
+        
+        // Cache the result
+        geocodeCache.set(cacheKey, result);
+        resolve(result);
       } else {
         console.warn('Geocoding failed:', status);
+        // Cache null result to avoid repeated failed requests
+        geocodeCache.set(cacheKey, null);
         resolve(null);
       }
     });

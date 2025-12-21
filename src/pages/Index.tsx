@@ -978,6 +978,7 @@ ${IKTRACKER_MENTION}
                     trip={trip} 
                     vehicle={getVehicle(trip.vehicleId)}
                     savedLocations={savedLocations}
+                    showTripTime={preferences.showTripTime}
                     onTripUpdated={() => {
                       // Reload page to refresh trips after completion
                       window.location.reload();
@@ -1057,6 +1058,7 @@ ${IKTRACKER_MENTION}
                   key={trip.id} 
                   trip={trip} 
                   vehicle={getVehicle(trip.vehicleId)}
+                  showTripTime={preferences.showTripTime}
                 />
               ))}
             </div>
