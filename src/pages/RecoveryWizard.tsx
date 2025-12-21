@@ -508,8 +508,8 @@ export default function RecoveryWizard() {
                 <ol className="space-y-6">
                   {[
                     { step: "Accédez à Google Takeout", detail: "Cliquez sur le bouton ci-dessous pour ouvrir la page d'export Google." },
-                    { step: "Exportez l'Historique des positions", detail: "Sélectionnez uniquement « Historique des positions » au format JSON." },
-                    { step: "Téléchargez l'archive .zip", detail: "Google vous enverra un email. Téléchargez l'archive fournie." },
+                    { step: "Exportez l'Historique des positions", detail: "Sélectionnez uniquement « Historique des positions » (peu importe le format)." },
+                    { step: "Téléchargez l'archive .zip", detail: "Google vous enverra un email. Téléchargez directement l'archive .zip fournie." },
                   ].map((item, index) => (
                     <li key={index} className="flex gap-5">
                       <span className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-lg">
