@@ -2,14 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, lazy, Suspense, createContext, useContext } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
+import { LogoutOverlay } from "@/components/LogoutOverlay";
 
 // Critical routes - loaded immediately
 import Landing from "./pages/Landing";
@@ -49,6 +50,19 @@ const queryClient = new QueryClient({
   },
 });
 
+// Auth context for logout with navigation
+interface AuthContextType {
+  handleLogout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const useAppAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAppAuth must be used within AuthProvider');
+  return context;
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, requiresAuth, loading } = useAuth();
 
@@ -84,13 +98,22 @@ function GoogleMapsPreloader() {
   return null;
 }
 
-const AppContent = () => {
-  // Initialize theme and online status detection
-  useTheme();
-  useOnlineStatus();
-  
+const AppRoutes = () => {
+  const navigate = useNavigate();
+  const { isLoggingOut, signOut, clearLogoutOverlay } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    // Wait for overlay animation
+    setTimeout(() => {
+      clearLogoutOverlay();
+      navigate('/');
+    }, 1200);
+  };
+
   return (
-    <BrowserRouter>
+    <AuthContext.Provider value={{ handleLogout }}>
+      <LogoutOverlay isVisible={isLoggingOut} />
       <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -156,6 +179,18 @@ const AppContent = () => {
         />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
+    </AuthContext.Provider>
+  );
+};
+
+const AppContent = () => {
+  // Initialize theme and online status detection
+  useTheme();
+  useOnlineStatus();
+  
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   );
 };

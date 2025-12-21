@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAppAuth } from '@/App';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -149,7 +150,8 @@ const PROFESSIONS = [
 const Profile = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const { handleLogout } = useAppAuth();
   const { theme, toggleTheme } = useTheme();
   const { trips, vehicles, savedLocations, addVehicle, updateVehicle, deleteVehicle, addLocation, updateLocation, deleteLocation, getTotalAnnualKm } = useTrips();
   const { preferences, updatePreference } = usePreferences();
@@ -236,8 +238,7 @@ const Profile = () => {
   }, [trips]);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth', { replace: true });
+    await handleLogout();
   };
 
   const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>) => {

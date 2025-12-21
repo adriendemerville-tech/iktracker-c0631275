@@ -11,6 +11,7 @@ export const useAuth = () => {
   const [sessionCount, setSessionCount] = useState(1);
   const [requiresAuth, setRequiresAuth] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Silent session refresh - attempts to get a new session using refresh token
   const silentRefresh = useCallback(async () => {
@@ -133,7 +134,10 @@ export const useAuth = () => {
     setRequiresAuth(sessionCount >= 2 && !user);
   }, [sessionCount, user]);
 
-  const signOut = async () => {
+  const signOut = async (): Promise<boolean> => {
+    // Show logout overlay
+    setIsLoggingOut(true);
+
     // Optimistic local sign-out (instant UX, avoids Safari hanging)
     setUser(null);
     setSession(null);
@@ -158,6 +162,13 @@ export const useAuth = () => {
     } catch (error) {
       console.warn('Sign out warning:', error);
     }
+
+    // Return true to indicate signout complete (for navigation timing)
+    return true;
+  };
+
+  const clearLogoutOverlay = () => {
+    setIsLoggingOut(false);
   };
 
   return {
@@ -167,7 +178,9 @@ export const useAuth = () => {
     sessionCount,
     requiresAuth,
     isRefreshing,
+    isLoggingOut,
     signOut,
     silentRefresh,
+    clearLogoutOverlay,
   };
 };

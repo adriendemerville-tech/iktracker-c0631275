@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAppAuth } from '@/App';
 import { Button } from '@/components/ui/button';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -57,7 +57,7 @@ export const DesktopSidebar = ({
   totalKm = 0,
 }: DesktopSidebarProps) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { handleLogout } = useAppAuth();
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
@@ -66,8 +66,7 @@ export const DesktopSidebar = ({
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth', { replace: true });
+    await handleLogout();
   };
 
   const handleEditVehicle = (vehicleId: string) => {
