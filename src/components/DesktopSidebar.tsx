@@ -13,9 +13,10 @@ interface DesktopSidebarProps {
   onAddVehicle: (vehicleData: Omit<Vehicle, 'id'>) => void;
   onTourClick?: () => void;
   isTourActive?: boolean;
+  onStartTutorial?: () => void;
 }
 
-export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActive }: DesktopSidebarProps) => {
+export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActive, onStartTutorial }: DesktopSidebarProps) => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
@@ -33,30 +34,35 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
       label: 'Véhicules', 
       onClick: () => navigate('/profile'),
       active: false,
+      tutorialId: 'vehicles',
     },
     { 
       icon: Calendar, 
       label: 'Calendriers', 
       onClick: () => setShowCalendarSheet(true),
       active: false,
+      tutorialId: 'calendar',
     },
     { 
       icon: Route, 
       label: 'Mode tournée', 
       onClick: onTourClick,
       active: isTourActive,
+      tutorialId: 'tour',
     },
     { 
       icon: Settings, 
       label: 'Préférences', 
       onClick: () => navigate('/profile'),
       active: false,
+      tutorialId: 'settings',
     },
     { 
       icon: MessageSquare, 
       label: 'Aide & Avis', 
       onClick: () => setShowFeedbackSheet(true),
       active: false,
+      tutorialId: 'feedback',
     },
   ];
 
@@ -64,7 +70,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
     <>
       <aside className="fixed left-0 top-0 h-full w-16 bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40">
         {/* Logo - Landing page style */}
-        <Link to="/" className="mb-8">
+        <Link to="/" className="mb-8" data-tutorial="home">
           <img 
             src="/iktracker-indemnites-kilometriques-logo.png" 
             alt="IKtracker" 
@@ -79,6 +85,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
           className="w-12 h-12 rounded-xl bg-wizard-amber hover:bg-wizard-amber/90 text-slate-950 mb-4"
           onClick={() => navigate('/recovery')}
           title="Récupération Auto"
+          data-tutorial="recovery"
         >
           <Sparkles className="w-5 h-5" />
         </Button>
@@ -93,6 +100,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
               className={`w-12 h-12 rounded-xl hover:bg-accent ${item.active ? 'bg-primary/10 text-primary' : ''}`}
               onClick={item.onClick}
               title={item.label}
+              data-tutorial={item.tutorialId}
             >
               <item.icon className={`w-5 h-5 ${item.active ? 'text-primary' : 'text-muted-foreground'}`} />
             </Button>

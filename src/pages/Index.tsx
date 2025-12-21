@@ -38,10 +38,13 @@ import {
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3 } from 'lucide-react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import JSZip from 'jszip';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 const Index = () => {
   const navigate = useNavigate();
   const { preferences } = usePreferences();
@@ -96,6 +99,9 @@ const Index = () => {
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const isMobile = useIsMobile();
+  const { showTutorial, completeTutorial, startTutorial } = useTutorial();
+  
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
@@ -738,7 +744,16 @@ ${IKTRACKER_MENTION}
         onAddVehicle={addVehicle}
         onTourClick={handleTourButtonClick}
         isTourActive={isTourActive}
+        onStartTutorial={startTutorial}
       />
+
+      {/* Onboarding Tutorial - Desktop only */}
+      {!isMobile && (
+        <OnboardingTutorial 
+          isVisible={showTutorial} 
+          onComplete={completeTutorial} 
+        />
+      )}
 
       <div className="min-h-screen bg-background font-urbanist cursor-default md:pl-16">
       {/* Header - Fintech Dark */}
@@ -1017,7 +1032,7 @@ ${IKTRACKER_MENTION}
       <div className="hidden md:block">
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-4">
           {/* Voir le relevé */}
-          <Link to="/report">
+          <Link to="/report" data-tutorial="report">
             <Button variant="outline" size="lg" className="shadow-lg">
               <FileText className="w-5 h-5" />
               Voir le relevé
@@ -1029,6 +1044,7 @@ ${IKTRACKER_MENTION}
             variant="gradient"
             size="lg"
             className="shadow-lg shadow-primary/30"
+            data-tutorial="add-trip"
             onClick={() => {
               if (vehicles.length === 0) {
                 toast.info("Ajoutez d'abord un véhicule", {
