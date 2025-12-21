@@ -84,21 +84,22 @@ async function refreshGoogleToken(connection: CalendarConnection, supabase: any)
   }
 }
 
-// Fetch Google Calendar events for today + next 7 days
+// Fetch Google Calendar events: 7 days ago + today + next 14 days
 async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarEvent[]> {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-  const endWindow = new Date(startOfToday.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days
+  const startWindow = new Date(startOfToday.getTime() - 7 * 24 * 60 * 60 * 1000); // -7 days
+  const endWindow = new Date(startOfToday.getTime() + 14 * 24 * 60 * 60 * 1000); // +14 days
 
   const params = new URLSearchParams({
-    timeMin: startOfToday.toISOString(),
+    timeMin: startWindow.toISOString(),
     timeMax: endWindow.toISOString(),
     singleEvents: 'true',
     orderBy: 'startTime',
     maxResults: '250',
   });
 
-  console.log(`Fetching Google Calendar events from ${startOfToday.toISOString()} to ${endWindow.toISOString()}`);
+  console.log(`Fetching Google Calendar events from ${startWindow.toISOString()} to ${endWindow.toISOString()}`);
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
