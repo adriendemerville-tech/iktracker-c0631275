@@ -125,7 +125,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -5 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center relative z-10 flex flex-col items-center gap-6"
+                className="text-center relative z-10 flex flex-col items-center gap-10"
               >
                 <h1 
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
