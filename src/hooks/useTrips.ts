@@ -85,6 +85,7 @@ export function useTrips() {
           ikAmount: t.ik_amount,
           tourStops: (t as any).tour_stops as TourStopData[] | undefined,
           calendarEventId: t.calendar_event_id || undefined,
+          status: (t as any).status || 'validated',
         })));
       }
     } catch (error) {
@@ -285,6 +286,7 @@ export function useTrips() {
           endTime: new Date(data.date),
           ikAmount: data.ik_amount,
           tourStops: (data as any).tour_stops as TourStopData[] | undefined,
+          status: 'validated',
         };
         setTrips(prev => [newTrip, ...prev]);
         return newTrip;
@@ -635,6 +637,7 @@ export function useTrips() {
             ikAmount: t.ik_amount,
             tourStops: (t as any).tour_stops as TourStopData[] | undefined,
             calendarEventId: t.calendar_event_id || undefined,
+            status: (t as any).status || 'validated',
           })));
         }
 

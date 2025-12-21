@@ -131,6 +131,30 @@ export type Database = {
         }
         Relationships: []
       }
+      frequent_destinations: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          keyword: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          keyword: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          keyword?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string | null
@@ -237,6 +261,7 @@ export type Database = {
           round_trip: boolean
           source: string | null
           start_location: string
+          status: string
           tour_stops: Json | null
           user_id: string
           vehicle_id: string | null
@@ -253,6 +278,7 @@ export type Database = {
           round_trip?: boolean
           source?: string | null
           start_location: string
+          status?: string
           tour_stops?: Json | null
           user_id: string
           vehicle_id?: string | null
@@ -269,6 +295,7 @@ export type Database = {
           round_trip?: boolean
           source?: string | null
           start_location?: string
+          status?: string
           tour_stops?: Json | null
           user_id?: string
           vehicle_id?: string | null

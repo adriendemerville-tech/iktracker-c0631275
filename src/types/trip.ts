@@ -43,6 +43,7 @@ export interface Trip {
   ikAmount: number; // calculated IK in euros (preserved even if vehicle deleted)
   tourStops?: TourStopData[]; // For tours: array of intermediate stops
   calendarEventId?: string | null; // If trip was created from a calendar event
+  status: 'validated' | 'pending_location'; // Trip status
 }
 
 export interface TripDraft {
