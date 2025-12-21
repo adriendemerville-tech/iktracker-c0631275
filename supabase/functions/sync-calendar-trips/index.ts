@@ -10,6 +10,8 @@ const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID');
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+// Google Maps API key for distance calculation
+const GOOGLE_MAPS_API_KEY = 'AIzaSyDjuGRMRKrDb5OYhO0_Efcm8I7QpUe70IY';
 
 // Default start location for calendar-detected trips
 const DEFAULT_START_LOCATION = "Maison";
@@ -222,6 +224,78 @@ async function getVehicleAnnualKm(userId: string, vehicleId: string, supabase: a
   return trips?.reduce((sum: number, t: { distance: number }) => sum + (t.distance || 0), 0) || 0;
 }
 
+// Get user's home/default location for distance calculation
+async function getUserHomeLocation(userId: string, supabase: any): Promise<string | null> {
+  // Try to find a 'home' type location
+  const { data: homeLocation } = await supabase
+    .from('locations')
+    .select('address, name')
+    .eq('user_id', userId)
+    .eq('type', 'home')
+    .limit(1);
+
+  if (homeLocation && homeLocation.length > 0 && homeLocation[0].address) {
+    return homeLocation[0].address;
+  }
+
+  // Fallback: get any location to use as origin
+  const { data: anyLocation } = await supabase
+    .from('locations')
+    .select('address, name')
+    .eq('user_id', userId)
+    .not('address', 'is', null)
+    .limit(1);
+
+  if (anyLocation && anyLocation.length > 0 && anyLocation[0].address) {
+    return anyLocation[0].address;
+  }
+
+  return null;
+}
+
+// Calculate driving distance using Google Maps Distance Matrix API
+async function calculateDrivingDistance(origin: string, destination: string): Promise<number | null> {
+  try {
+    const params = new URLSearchParams({
+      origins: origin,
+      destinations: destination,
+      mode: 'driving',
+      language: 'fr',
+      key: GOOGLE_MAPS_API_KEY,
+    });
+
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/distancematrix/json?${params}`
+    );
+
+    if (!response.ok) {
+      console.error('Distance Matrix API error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    if (data.status !== 'OK') {
+      console.error('Distance Matrix API status:', data.status, data.error_message);
+      return null;
+    }
+
+    const element = data.rows?.[0]?.elements?.[0];
+    if (element?.status === 'OK' && element.distance?.value) {
+      // Convert meters to kilometers, round to 1 decimal
+      const distanceKm = Math.round(element.distance.value / 100) / 10;
+      console.log(`📏 Distance calculated: ${origin} → ${destination} = ${distanceKm} km`);
+      return distanceKm;
+    }
+
+    console.log(`⚠️ Could not calculate distance for: ${origin} → ${destination} (status: ${element?.status})`);
+    return null;
+  } catch (error) {
+    console.error('Error calculating distance:', error);
+    return null;
+  }
+}
+
 // Check if a trip already exists for this calendar event
 async function tripExistsForEvent(userId: string, eventId: string, supabase: any): Promise<boolean> {
   const { data } = await supabase
@@ -239,8 +313,9 @@ async function createTripFromEvent(
   userId: string,
   event: CalendarEvent,
   vehicle: VehicleInfo | null,
+  userHomeAddress: string | null,
   supabase: any
-): Promise<{ created: boolean; reason?: string }> {
+): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean }> {
   // Log all events for debugging
   console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
 
@@ -265,19 +340,49 @@ async function createTripFromEvent(
 
   const eventDate = new Date(eventDateTime).toISOString().split('T')[0];
 
-  // Calculate IK amount if we have a vehicle
-  // Note: distance is 0 at creation, IK will be recalculated when user sets distance
-  // But we calculate based on current annual km for proper rate tier
+  // Try to calculate distance automatically if we have a home address
+  let distance = 0;
+  let distanceCalculated = false;
+  let startLocationName = DEFAULT_START_LOCATION;
+  
+  if (userHomeAddress) {
+    const calculatedDistance = await calculateDrivingDistance(userHomeAddress, event.location);
+    if (calculatedDistance !== null && calculatedDistance > 0) {
+      // Round trip = double the distance
+      distance = calculatedDistance * 2;
+      distanceCalculated = true;
+      startLocationName = userHomeAddress;
+      console.log(`📍 Auto-calculated round-trip distance: ${distance} km`);
+    }
+  }
+
+  // Calculate IK amount if we have a vehicle and distance
   let ikAmount = 0;
-  // IK will be calculated when user updates the distance
+  if (vehicle && distance > 0) {
+    const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
+    const newAnnualTotal = annualKm + distance;
+    
+    // Calculate incremental IK (what this trip adds to total)
+    const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power);
+    const ikAfter = calculateTotalAnnualIK(newAnnualTotal, vehicle.fiscal_power);
+    ikAmount = ikAfter - ikBefore;
+    
+    // Apply 20% bonus for electric vehicles
+    if (vehicle.is_electric) {
+      ikAmount *= 1.20;
+    }
+    
+    ikAmount = Math.round(ikAmount * 100) / 100;
+    console.log(`💰 IK calculated: ${ikAmount}€ (annual km: ${annualKm} → ${newAnnualTotal})`);
+  }
   
   // Create the trip
   const { error } = await supabase.from('trips').insert({
     user_id: userId,
     vehicle_id: vehicle?.id || null,
-    start_location: DEFAULT_START_LOCATION,
+    start_location: startLocationName,
     end_location: event.location,
-    distance: 0, // User will update distance later
+    distance: distance,
     round_trip: true,
     purpose: event.summary || 'Rendez-vous calendrier',
     date: eventDate,
@@ -291,8 +396,8 @@ async function createTripFromEvent(
     return { created: false, reason: 'db_error' };
   }
 
-  console.log(`✅ Created trip for event "${event.summary}" to ${event.location} on ${eventDate} (vehicle: ${vehicle?.id || 'none'})`);
-  return { created: true };
+  console.log(`✅ Created trip for event "${event.summary}" to ${event.location} on ${eventDate} (vehicle: ${vehicle?.id || 'none'}, distance: ${distance}km, ik: ${ikAmount}€)`);
+  return { created: true, distanceCalculated };
 }
 
 serve(async (req) => {
@@ -340,9 +445,14 @@ serve(async (req) => {
 
         // Get user's last used vehicle
         const vehicle = await getUserLastUsedVehicle(connection.user_id, supabase);
+        
+        // Get user's home address for distance calculation
+        const userHomeAddress = await getUserHomeLocation(connection.user_id, supabase);
+        console.log(`User home address: ${userHomeAddress || 'not found'}`);
 
         // Create trips from events
         let tripsCreated = 0;
+        let tripsWithDistance = 0;
         let skippedNoLocation = 0;
         let skippedAlreadyExists = 0;
         let skippedOther = 0;
@@ -352,10 +462,14 @@ serve(async (req) => {
             connection.user_id,
             event,
             vehicle,
+            userHomeAddress,
             supabase
           );
           if (result.created) {
             tripsCreated++;
+            if (result.distanceCalculated) {
+              tripsWithDistance++;
+            }
           } else if (result.reason === 'no_location') {
             skippedNoLocation++;
           } else if (result.reason === 'already_exists') {
@@ -367,7 +481,7 @@ serve(async (req) => {
 
         totalTripsCreated += tripsCreated;
         usersProcessed++;
-        console.log(`User ${connection.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+        console.log(`User ${connection.user_id}: created=${tripsCreated} (with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
       } catch (error) {
         console.error(`Error processing user ${connection.user_id}:`, error);
       }
