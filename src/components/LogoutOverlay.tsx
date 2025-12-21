@@ -5,10 +5,11 @@ import confetti from 'canvas-confetti';
 
 interface LogoutOverlayProps {
   isVisible: boolean;
+  userName?: string | null;
   onComplete?: () => void;
 }
 
-export const LogoutOverlay = ({ isVisible, onComplete }: LogoutOverlayProps) => {
+export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlayProps) => {
   const navigate = useNavigate();
   const [showText, setShowText] = useState(false);
   const [hideText, setHideText] = useState(false);
@@ -100,7 +101,7 @@ export const LogoutOverlay = ({ isVisible, onComplete }: LogoutOverlayProps) => 
                 className="text-center"
               >
                 <h1 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
-                  À bientôt !
+                  {userName ? `À bientôt ${userName} !` : 'À bientôt !'}
                 </h1>
               </motion.div>
             )}
