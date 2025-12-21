@@ -10,7 +10,7 @@ interface Location {
   id: string;
   name: string;
   address?: string;
-  type: 'home' | 'office' | 'other';
+  type: string; // Can be 'home', 'office', or custom type
   latitude?: number;
   longitude?: number;
 }
@@ -25,7 +25,8 @@ interface AddressFormProps {
 export function AddressForm({ open, onOpenChange, onSave, editLocation }: AddressFormProps) {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
-  const [type, setType] = useState<'home' | 'office' | 'other'>('home');
+  const [type, setType] = useState<string>('home');
+  const [customType, setCustomType] = useState('');
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
   
@@ -36,13 +37,21 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     if (editLocation) {
       setName(editLocation.name);
       setAddress(editLocation.address || '');
-      setType(editLocation.type);
+      // Check if type is a custom type (not home/office)
+      if (editLocation.type === 'home' || editLocation.type === 'office') {
+        setType(editLocation.type);
+        setCustomType('');
+      } else {
+        setType('other');
+        setCustomType(editLocation.type === 'other' ? '' : editLocation.type);
+      }
       setLatitude(editLocation.latitude);
       setLongitude(editLocation.longitude);
     } else {
       setName('');
       setAddress('');
       setType('home');
+      setCustomType('');
       setLatitude(undefined);
       setLongitude(undefined);
     }
@@ -94,10 +103,13 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     e.preventDefault();
     if (!name.trim() || !address.trim()) return;
     
+    // Use custom type if "other" is selected and customType is provided
+    const finalType = type === 'other' && customType.trim() ? customType.trim() : type;
+    
     onSave({
       name: name.trim(),
       address: address.trim(),
-      type,
+      type: finalType,
       latitude,
       longitude,
     });
@@ -141,10 +153,21 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="other" id="type-other" />
-                <Label htmlFor="type-other" className="flex items-center gap-1.5 cursor-pointer">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  Autre
-                </Label>
+                {type === 'other' ? (
+                  <Input
+                    id="custom-type"
+                    placeholder="Personnaliser..."
+                    value={customType}
+                    onChange={(e) => setCustomType(e.target.value)}
+                    className="h-8 w-32 text-sm"
+                    autoFocus
+                  />
+                ) : (
+                  <Label htmlFor="type-other" className="flex items-center gap-1.5 cursor-pointer text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    Personnaliser
+                  </Label>
+                )}
               </div>
             </RadioGroup>
           </div>

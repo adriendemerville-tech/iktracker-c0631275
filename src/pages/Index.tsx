@@ -827,6 +827,15 @@ ${IKTRACKER_MENTION}
                 >
                   <Shield className="w-5 h-5" />
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={exportZip}
+                  disabled={trips.length === 0 || isExporting}
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+                </Button>
               </>
             )}
             {!isAdmin && (

@@ -462,11 +462,14 @@ async function createTripFromEvent(
     console.log(`💰 IK calculated: ${ikAmount}€ (annual km: ${annualKm} → ${newAnnualTotal})`);
   }
   
-  // Create the trip
+  // Create the trip - use actual address for start_location to enable proper distance calculation
+  // Use the real address if available, fall back to name for display purposes
+  const startLocationValue = userHomeLocation?.address || startLocationName;
+  
   const { error } = await supabase.from('trips').insert({
     user_id: userId,
     vehicle_id: vehicle?.id || null,
-    start_location: startLocationName,
+    start_location: startLocationValue,
     end_location: destinationAddress || event.summary || 'Adresse à compléter',
     distance: distance,
     round_trip: true,
