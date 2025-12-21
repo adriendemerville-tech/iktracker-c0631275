@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Calendar, Link2, Trash2, ExternalLink, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug } from 'lucide-react';
 import { useCalendarConnections } from '@/hooks/useCalendarConnections';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +40,49 @@ export function CalendarConnections() {
   const [addingIcs, setAddingIcs] = useState(false);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
   const [connectingOutlook, setConnectingOutlook] = useState(false);
+
+  const [debugProvider, setDebugProvider] = useState<'google' | 'outlook' | null>(null);
+  const [debugLoading, setDebugLoading] = useState(false);
+  const [debugResponse, setDebugResponse] = useState<any>(null);
+  const [debugError, setDebugError] = useState<any>(null);
+
+  const debugProviderLabel = useMemo(() => {
+    if (debugProvider === 'google') return 'Google Calendar';
+    if (debugProvider === 'outlook') return 'Outlook Calendar';
+    return '';
+  }, [debugProvider]);
+
+  const runCalendarDebug = useCallback(async (provider: 'google' | 'outlook') => {
+    if (!user) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setDebugProvider(provider);
+    setDebugLoading(true);
+    setDebugResponse(null);
+    setDebugError(null);
+
+    const { data, error } = await supabase.functions.invoke('calendar-debug', {
+      body: { provider, daysBack: 7, daysForward: 7 },
+    });
+
+    if (error) {
+      setDebugError({
+        message: error.message,
+        name: error.name,
+        code: (error as any).code,
+        details: (error as any).details,
+        hint: (error as any).hint,
+        context: (error as any).context,
+      });
+      setDebugLoading(false);
+      return;
+    }
+
+    setDebugResponse(data);
+    setDebugLoading(false);
+  }, [user]);
 
   const googleConnection = getConnection('google');
   const outlookConnection = getConnection('outlook');
@@ -227,6 +271,19 @@ export function CalendarConnections() {
           </div>
           {googleConnection ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => runCalendarDebug('google')}
+                disabled={debugLoading && debugProvider === 'google'}
+              >
+                {debugLoading && debugProvider === 'google' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Bug className="w-4 h-4" />
+                )}
+                <span className="sr-only">Debug raw Google Calendar</span>
+              </Button>
               <Switch
                 checked={googleConnection.isActive}
                 onCheckedChange={(checked) => toggleConnection(googleConnection.id, checked)}
@@ -262,6 +319,19 @@ export function CalendarConnections() {
           </div>
           {outlookConnection ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => runCalendarDebug('outlook')}
+                disabled={debugLoading && debugProvider === 'outlook'}
+              >
+                {debugLoading && debugProvider === 'outlook' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Bug className="w-4 h-4" />
+                )}
+                <span className="sr-only">Debug raw Outlook Calendar</span>
+              </Button>
               <Switch
                 checked={outlookConnection.isActive}
                 onCheckedChange={(checked) => toggleConnection(outlookConnection.id, checked)}
@@ -360,12 +430,96 @@ export function CalendarConnections() {
           )}
         </div>
 
+        {/* Debug Raw & Verbose */}
+        {(debugResponse || debugError) && (
+          <div className="space-y-3 rounded-lg border bg-card p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium">Debug RAW — {debugProviderLabel || 'Calendrier'}</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => console.log('[calendar-debug]', debugResponse ?? debugError)}
+                >
+                  Log Raw Data
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDebugProvider(null);
+                    setDebugResponse(null);
+                    setDebugError(null);
+                  }}
+                >
+                  Fermer
+                </Button>
+              </div>
+            </div>
+
+            {debugError ? (
+              <Alert variant="destructive">
+                <AlertTitle>Erreur API (raw)</AlertTitle>
+                <AlertDescription>
+                  <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
+                    {JSON.stringify(debugError, null, 2)}
+                  </pre>
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                {debugResponse?.eventsCount === 0 ? (
+                  <Alert variant="destructive">
+                    <AlertTitle>Appel API réussi (Status 200) mais 0 événement brut récupéré.</AlertTitle>
+                    <AlertDescription>
+                      <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
+                        {JSON.stringify(
+                          {
+                            provider: debugResponse?.provider,
+                            timeMin: debugResponse?.timeMin,
+                            timeMax: debugResponse?.timeMax,
+                            eventsHttp: debugResponse?.eventsHttp,
+                            tokenInfo: debugResponse?.tokenInfo,
+                            tokenClaims: debugResponse?.tokenClaims,
+                          },
+                          null,
+                          2
+                        )}
+                      </pre>
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert>
+                    <AlertTitle>
+                      Événements bruts récupérés :{' '}
+                      {debugResponse?.eventsCount ?? debugResponse?.events?.length ?? 0}
+                    </AlertTitle>
+                    <AlertDescription>
+                      <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
+                        {JSON.stringify(
+                          {
+                            provider: debugResponse?.provider,
+                            timeMin: debugResponse?.timeMin,
+                            timeMax: debugResponse?.timeMax,
+                            sampleEvent: debugResponse?.events?.[0],
+                          },
+                          null,
+                          2
+                        )}
+                      </pre>
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
         {/* Info about syncing */}
         {connections.length > 0 && (
           <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <p>
-              📍 Les trajets seront créés automatiquement vers les lieux de vos rendez-vous.
-              Les réunions en visio (Teams, Meet) sont exclues.
+              📍 Les trajets seront créés automatiquement pour les RDV avec une adresse (champ lieu).
             </p>
           </div>
         )}
