@@ -86,22 +86,25 @@ async function refreshGoogleToken(connection: CalendarConnection, supabase: any)
   }
 }
 
-// Fetch Google Calendar events: 7 days ago + today + next 14 days
+// Fetch Google Calendar events: entire previous month + current month up to now + next 14 days
 async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarEvent[]> {
   const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-  const startWindow = new Date(startOfToday.getTime() - 7 * 24 * 60 * 60 * 1000); // -7 days
-  const endWindow = new Date(startOfToday.getTime() + 14 * 24 * 60 * 60 * 1000); // +14 days
+  
+  // Start of previous month (1st day at 00:00:00)
+  const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
+  
+  // End window: 14 days from today
+  const endWindow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14, 23, 59, 59);
 
   const params = new URLSearchParams({
-    timeMin: startWindow.toISOString(),
+    timeMin: startOfPreviousMonth.toISOString(),
     timeMax: endWindow.toISOString(),
     singleEvents: 'true',
     orderBy: 'startTime',
-    maxResults: '250',
+    maxResults: '500', // Increased to handle more past events
   });
 
-  console.log(`Fetching Google Calendar events from ${startWindow.toISOString()} to ${endWindow.toISOString()}`);
+  console.log(`Fetching Google Calendar events from ${startOfPreviousMonth.toISOString()} to ${endWindow.toISOString()}`);
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
