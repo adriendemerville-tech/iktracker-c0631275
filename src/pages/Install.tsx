@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
 import { AppCarousel } from "@/components/marketing/AppCarousel";
@@ -253,6 +254,7 @@ const Install = () => {
       </section>
 
       <MarketingFooter />
+      <MarketingPWANotification />
     </div>
   );
 };

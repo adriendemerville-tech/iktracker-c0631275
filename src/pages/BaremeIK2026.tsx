@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
@@ -724,6 +725,7 @@ const BaremeIK2026 = () => {
         </section>
 
         <MarketingFooter />
+        <MarketingPWANotification />
       </div>
     </>
   );

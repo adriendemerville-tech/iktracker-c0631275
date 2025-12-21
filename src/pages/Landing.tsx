@@ -15,6 +15,7 @@ import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { TourModeDemo } from "@/components/marketing/TourModeDemo";
 import { TourModeMockup } from "@/components/marketing/TourModeMockup";
 import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
+import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   ArrowRight,
@@ -585,6 +586,7 @@ const Landing = () => {
       </section>
 
       <MarketingFooter />
+      <MarketingPWANotification />
     </div>
   );
 };
