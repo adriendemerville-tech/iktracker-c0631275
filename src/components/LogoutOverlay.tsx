@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import confetti from 'canvas-confetti';
 
 interface LogoutOverlayProps {
   isVisible: boolean;
@@ -32,9 +33,21 @@ export const LogoutOverlay = ({ isVisible, onComplete }: LogoutOverlayProps) => 
     }
 
     // Desktop animation sequence:
-    // 1. Wait 2s, then show text
+    // 1. Wait 2s, then show text and trigger confetti
     const showTextTimer = setTimeout(() => {
       setShowText(true);
+      
+      // Subtle confetti burst
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.5, x: 0.5 },
+        colors: ['#ffffff', '#93c5fd', '#60a5fa', '#3b82f6'],
+        gravity: 0.8,
+        scalar: 0.9,
+        drift: 0,
+        ticks: 150,
+      });
     }, 2000);
 
     // 2. Text stays 2s, then hide it (at 4s total)
