@@ -36,6 +36,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3 } from 'lucide-react';
+import { DesktopSidebar } from '@/components/DesktopSidebar';
+import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { toast } from '@/components/ui/sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -730,7 +732,13 @@ ${IKTRACKER_MENTION}
         onStop={() => setShowTourLog(true)}
       />
 
-      <div className="min-h-screen bg-background font-urbanist cursor-default">
+      {/* Desktop Sidebar - hidden on mobile */}
+      <DesktopSidebar 
+        vehicles={vehicles}
+        onAddVehicle={addVehicle}
+      />
+
+      <div className="min-h-screen bg-background font-urbanist cursor-default md:pl-16">
       {/* Header - Fintech Dark */}
       <header 
         className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"
@@ -943,8 +951,8 @@ ${IKTRACKER_MENTION}
         </section>
       </main>
 
-      {/* Tour button - floating above */}
-      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10">
+      {/* Tour button - floating above mobile nav */}
+      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:bottom-24 md:left-auto md:right-24">
         <TourButton
           isActive={isTourActive}
           isLoading={isTourLoading}
@@ -954,9 +962,29 @@ ${IKTRACKER_MENTION}
         />
       </div>
 
-      {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)]">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto grid grid-cols-2 gap-3">
+      {/* Desktop: Floating Action Button */}
+      <div className="hidden md:block">
+        <FloatingActionButton 
+          onClick={() => {
+            if (vehicles.length === 0) {
+              toast.info("Ajoutez d'abord un véhicule", {
+                description: "Un véhicule est nécessaire pour enregistrer les trajets",
+                action: {
+                  label: "Ajouter",
+                  onClick: handleAddVehicle,
+                },
+              });
+            } else {
+              setShowNewTrip(true);
+            }
+          }}
+          disabled={vehicles.length === 0}
+        />
+      </div>
+
+      {/* Mobile: Bottom action buttons (unchanged) */}
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden">
+        <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
           <Link to="/report">
             <Button variant="secondary" size="lg" className="w-full shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
               <FileText className="w-5 h-5" />
