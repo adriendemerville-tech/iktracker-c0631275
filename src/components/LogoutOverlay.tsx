@@ -3,6 +3,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
+const FAREWELL_MESSAGES = [
+  'À bientôt',
+  'À très vite',
+  'Bon retour',
+  'À la prochaine',
+  'Bonne route',
+];
+
 interface LogoutOverlayProps {
   isVisible: boolean;
   userName?: string | null;
@@ -14,6 +22,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
   const [showText, setShowText] = useState(false);
   const [hideText, setHideText] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
+  const [message, setMessage] = useState('');
   
   // Check if desktop (>= 768px)
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
@@ -23,8 +32,13 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       setShowText(false);
       setHideText(false);
       setFadeOut(false);
+      setMessage('');
       return;
     }
+
+    // Pick a random farewell message when overlay becomes visible
+    const randomMessage = FAREWELL_MESSAGES[Math.floor(Math.random() * FAREWELL_MESSAGES.length)];
+    setMessage(randomMessage);
 
     // If mobile, skip animation and redirect immediately
     if (!isDesktop) {
@@ -101,7 +115,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 className="text-center"
               >
                 <h1 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
-                  {userName ? `À bientôt ${userName} !` : 'À bientôt !'}
+                  {userName ? `${message} ${userName} !` : `${message} !`}
                 </h1>
               </motion.div>
             )}
