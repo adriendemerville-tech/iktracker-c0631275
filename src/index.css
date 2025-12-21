@@ -9,13 +9,12 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Allow text selection and text cursor on marketing pages */
+  /* Allow text selection on marketing pages */
   .select-text, .select-text * {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
-    cursor: text;
   }
 
   /* Text cursor for editable fields everywhere */

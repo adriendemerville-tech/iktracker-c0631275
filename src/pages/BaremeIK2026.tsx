@@ -156,7 +156,7 @@ const BaremeIK2026 = () => {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-background font-display">
+      <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
         {/* Hero Section */}

@@ -804,7 +804,7 @@ ${IKTRACKER_MENTION}
         />
       )}
 
-      <div className="min-h-screen bg-background font-urbanist cursor-default md:pl-16">
+      <div className="min-h-screen bg-background font-urbanist cursor-default select-none md:pl-16">
       {/* Header - Fintech Dark */}
       <header 
         className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"

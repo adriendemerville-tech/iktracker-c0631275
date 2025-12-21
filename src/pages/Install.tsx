@@ -61,7 +61,7 @@ const Install = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background select-text">
       <Helmet>
         <title>Installer IKtracker | Application PWA gratuite iOS et Android</title>
         <meta name="description" content="Installez IKtracker sur votre smartphone iOS ou Android en 2 minutes. Application PWA gratuite, sans App Store. Guide d'installation complet." />

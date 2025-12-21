@@ -94,7 +94,7 @@ export default function ModeTournee() {
   ];
 
   return (
-    <div className="min-h-screen bg-background font-display">
+    <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
         <title>Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans</title>
         <meta name="description" content="Découvrez le mode Tournée d'IKtracker : enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux en France. Gratuit." />
