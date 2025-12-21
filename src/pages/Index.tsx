@@ -1033,11 +1033,11 @@ ${IKTRACKER_MENTION}
 
       {/* Desktop: Bottom action buttons */}
       <div className="hidden md:block">
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-4">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-3">
           {/* Voir le relevé */}
           <Link to="/report" data-tutorial="report">
-            <Button variant="outline" size="lg" className="shadow-lg">
-              <FileText className="w-5 h-5" />
+            <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
+              <FileText className="w-4 h-4" />
               Voir le relevé
             </Button>
           </Link>
@@ -1045,7 +1045,7 @@ ${IKTRACKER_MENTION}
           {/* Nouveau trajet */}
           <Button
             variant="gradient"
-            size="lg"
+            size="default"
             className="shadow-lg shadow-primary/30"
             data-tutorial="add-trip"
             onClick={() => {
@@ -1063,7 +1063,7 @@ ${IKTRACKER_MENTION}
             }}
             disabled={vehicles.length === 0}
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             Nouveau trajet
           </Button>
         </div>

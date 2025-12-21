@@ -6,6 +6,7 @@ import { TripCard } from '@/components/TripCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
+import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -14,13 +15,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import JSZip from 'jszip';
 
 export default function Report() {
   const navigate = useNavigate();
-  const { trips, vehicles, savedLocations, deleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, getTotalAnnualKm } = useTrips();
+  const isMobile = useIsMobile();
+  const { trips, vehicles, savedLocations, deleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
   const { preferences, updatePreference } = usePreferences();
   
@@ -629,27 +632,39 @@ ${IKTRACKER_URL}`
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 cursor-default">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
-        <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
-          <Link to="/app">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="text-lg font-semibold">Relevé des trajets</h1>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={exportZip} disabled={trips.length === 0 || isExporting}>
-              <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
-              <UserCircle className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+    <>
+      {/* Desktop Sidebar - hidden on mobile */}
+      {!isMobile && (
+        <DesktopSidebar 
+          vehicles={vehicles}
+          onAddVehicle={addVehicle}
+          onEditVehicle={updateVehicle}
+          onDeleteVehicle={deleteVehicle}
+          totalKm={totalKm}
+        />
+      )}
 
-      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-4">
+      <div className="min-h-screen bg-background pb-28 cursor-default md:pl-16">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
+          <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
+            <Link to="/app">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <h1 className="text-lg font-semibold">Relevé des trajets</h1>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" onClick={exportZip} disabled={trips.length === 0 || isExporting}>
+                <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+                <UserCircle className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-4">
         <div className="bg-card rounded-md p-4 shadow-md space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
@@ -974,7 +989,8 @@ ${IKTRACKER_URL}`
             addVehicle(vehicleData);
           }
         }}
-      />
-    </div>
+        />
+      </div>
+    </>
   );
 }
