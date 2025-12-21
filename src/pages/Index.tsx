@@ -727,6 +727,113 @@ ${IKTRACKER_MENTION}
     doc.setFont('helvetica', 'bold');
     doc.text(`${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, pageWidth - margin, currentY, { align: 'right' });
 
+    // === PAGE 2: BARÈME FISCAL ===
+    doc.addPage();
+    
+    // Dark header band (same as page 1)
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 8, 'F');
+
+    let baremeY = 24;
+
+    // Header
+    doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
+    doc.roundedRect(margin, baremeY, contentWidth, 14, 4, 4, 'F');
+    
+    doc.setFillColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
+    doc.circle(margin + 10, baremeY + 7, 5, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('€', margin + 10, baremeY + 8, { align: 'center' });
+    
+    doc.setTextColor(darkText.r, darkText.g, darkText.b);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Barème kilométrique fiscal 2025', margin + 20, baremeY + 9);
+
+    baremeY += 24;
+
+    // Explanation text
+    doc.setFontSize(9);
+    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
+    doc.setFont('helvetica', 'normal');
+    const explanationText = "Le barème kilométrique permet de calculer les frais de déplacement professionnels déductibles. Le montant varie selon la puissance fiscale du véhicule et le nombre de kilomètres parcourus sur l'année.";
+    const splitText = doc.splitTextToSize(explanationText, contentWidth);
+    doc.text(splitText, margin, baremeY);
+    
+    baremeY += splitText.length * 5 + 10;
+
+    // Barème table data
+    const baremeTableData = IK_BAREME_2024.map(b => [
+      b.cv === '7+' ? '7 CV et plus' : `${b.cv} CV`,
+      `d × ${b.upTo5000.rate} €`,
+      `(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed} €`,
+      `d × ${b.over20000.rate} €`,
+    ]);
+
+    autoTable(doc, {
+      startY: baremeY,
+      head: [['Puissance fiscale', 'Jusqu\'à 5 000 km', 'De 5 001 à 20 000 km', 'Au-delà de 20 000 km']],
+      body: baremeTableData,
+      styles: { 
+        fontSize: 9, 
+        cellPadding: 6,
+        textColor: [darkText.r, darkText.g, darkText.b],
+      },
+      headStyles: { 
+        fillColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 8,
+      },
+      bodyStyles: {
+        fillColor: [255, 255, 255],
+      },
+      alternateRowStyles: { 
+        fillColor: [lightGray.r, lightGray.g, lightGray.b],
+      },
+      columnStyles: {
+        0: { fontStyle: 'bold', cellWidth: 35 },
+        1: { halign: 'center' },
+        2: { halign: 'center' },
+        3: { halign: 'center' },
+      },
+      margin: { left: margin, right: margin },
+    });
+
+    baremeY = (doc as any).lastAutoTable.finalY + 16;
+
+    // Legend
+    doc.setFontSize(8);
+    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
+    doc.setFont('helvetica', 'italic');
+    doc.text('d = distance parcourue en kilomètres', margin, baremeY);
+
+    baremeY += 12;
+
+    // Electric vehicle bonus info
+    doc.setFillColor(239, 246, 255);
+    doc.roundedRect(margin, baremeY, contentWidth, 24, 3, 3, 'F');
+    
+    doc.setFontSize(9);
+    doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
+    doc.setFont('helvetica', 'bold');
+    doc.text('⚡ Bonus véhicule électrique', margin + 8, baremeY + 8);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Les véhicules 100% électriques bénéficient d\'une majoration de 20% sur le montant des indemnités kilométriques.', margin + 8, baremeY + 16);
+
+    baremeY += 36;
+
+    // Source info
+    doc.setFontSize(7);
+    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
+    doc.text('Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l\'évaluation des frais de déplacement', margin, baremeY);
+    doc.text('relatifs à l\'utilisation d\'un véhicule par les bénéficiaires de traitements et salaires.', margin, baremeY + 4);
+
     // === FOOTER ON ALL PAGES ===
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
