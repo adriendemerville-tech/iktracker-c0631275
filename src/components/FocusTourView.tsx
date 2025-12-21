@@ -103,43 +103,9 @@ export function FocusTourView({
     return `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
   };
 
-  const isDesktop = useIsDesktop();
-
+  // Tour is now blocked at startTour level on desktop, so this component
+  // will only render on mobile when isActive is true
   if (!isActive) return null;
-
-  // Desktop overlay - feature not available
-  if (isDesktop) {
-    return (
-      <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center p-6">
-        <div className="bg-slate-800 rounded-2xl p-8 max-w-md text-center border border-slate-700 shadow-2xl">
-          <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center mx-auto mb-6">
-            <Smartphone className="w-10 h-10 text-amber-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-3">
-            Réservé à l'usage mobile
-          </h2>
-          <p className="text-slate-400 text-lg mb-6">
-            Téléchargez l'application depuis le site sur votre smartphone.
-          </p>
-          <a 
-            href="https://iktracker.fr/install" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-          >
-            <Monitor className="w-5 h-5" />
-            Installer l'application
-          </a>
-          <button
-            onClick={onStop}
-            className="block w-full mt-4 text-slate-500 hover:text-slate-300 text-sm transition-colors"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-between py-12 px-6">
