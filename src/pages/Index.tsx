@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -95,6 +95,7 @@ const Index = () => {
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [showTourLog, setShowTourLog] = useState(false);
   const [showTourHistory, setShowTourHistory] = useState(false);
+  const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
@@ -105,7 +106,6 @@ const Index = () => {
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
-    error: tourError,
     stops: tourStops,
     totalDistanceKm,
     currentPosition,
@@ -147,33 +147,26 @@ const Index = () => {
   const handleTourButtonClick = () => {
     if (isTourActive) {
       setShowTourLog(true);
-    } else if (tourStops.length > 0) {
+      return;
+    }
+
+    if (tourStops.length > 0) {
       setShowTourLog(true);
-    } else {
-      startTour();
+      return;
     }
+
+    // Desktop: show info modal (no tour starts)
+    if (!isMobile) {
+      setShowTourMobileOnly(true);
+      return;
+    }
+
+    // Mobile: start the tour
+    startTour();
+    toast.success("Tournée démarrée", {
+      description: "Les arrêts seront détectés automatiquement",
+    });
   };
-
-  // Show desktop error message when tour start is blocked
-  useEffect(() => {
-    if (tourError === 'desktop_only') {
-      toast.error("Réservé à l'usage mobile", {
-        description: "Installez l'application sur votre smartphone depuis iktracker.fr/install",
-        duration: 6000,
-      });
-    }
-  }, [tourError]);
-
-  // Show success toast when tour actually starts
-  const prevTourActive = useRef(false);
-  useEffect(() => {
-    if (isTourActive && !prevTourActive.current) {
-      toast.success("Tournée démarrée", {
-        description: "Les arrêts seront détectés automatiquement",
-      });
-    }
-    prevTourActive.current = isTourActive;
-  }, [isTourActive]);
 
   const handleFinishTour = async () => {
     // Save the tour/trip based on number of stops
@@ -746,6 +739,23 @@ ${IKTRACKER_MENTION}
 
   return (
     <>
+      <AlertDialog open={showTourMobileOnly} onOpenChange={setShowTourMobileOnly}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-accent">Réservé à l'usage mobile</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Fermer</AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <a href="/install">Installer l'app</a>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Focus Tour View - Full screen immersive mode */}
       <FocusTourView
         isActive={isTourActive}
