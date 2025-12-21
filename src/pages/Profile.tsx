@@ -14,14 +14,16 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { VehicleForm } from '@/components/VehicleForm';
-import { Vehicle } from '@/types/trip';
+import { AddressCard } from '@/components/AddressCard';
+import { AddressForm } from '@/components/AddressForm';
+import { Vehicle, Location } from '@/types/trip';
 
 // Chart animation settings
 const KM_BAR_ANIMATION_DURATION_MS = 6000;
@@ -146,13 +148,15 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { trips, vehicles, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
+  const { trips, vehicles, savedLocations, addVehicle, updateVehicle, deleteVehicle, addLocation, updateLocation, deleteLocation, getTotalAnnualKm } = useTrips();
   const { preferences, updatePreference } = usePreferences();
   const { isAdmin } = useAdmin();
   const { unreadResponsesCount } = useFeedback();
   
   const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [addressFormOpen, setAddressFormOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Location | null>(null);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [showPreferencesDropdown, setShowPreferencesDropdown] = useState(false);
   
@@ -659,6 +663,101 @@ const Profile = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Mes adresses */}
+        <Card id="mes-adresses">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <MapPin className="w-4 h-4" />
+                Mes adresses
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-7 text-xs px-2"
+                onClick={() => {
+                  setEditingAddress(null);
+                  setAddressFormOpen(true);
+                }}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Ajouter
+              </Button>
+            </div>
+            <CardDescription>
+              Vos lieux pour le calcul automatique des distances
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {savedLocations.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                <Home className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucune adresse enregistrée</p>
+                <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
+                  Ajoutez votre domicile pour que les trajets du calendrier soient calculés automatiquement
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {savedLocations.map((location) => (
+                  <AddressCard
+                    key={location.id}
+                    location={{
+                      id: location.id,
+                      name: location.name,
+                      address: location.address,
+                      type: location.type as 'home' | 'office' | 'other',
+                    }}
+                    onEdit={() => {
+                      setEditingAddress(location);
+                      setAddressFormOpen(true);
+                    }}
+                    onDelete={() => {
+                      deleteLocation(location.id);
+                      toast.success("Adresse supprimée");
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <AddressForm
+          open={addressFormOpen}
+          onOpenChange={setAddressFormOpen}
+          editLocation={editingAddress ? {
+            id: editingAddress.id,
+            name: editingAddress.name,
+            address: editingAddress.address,
+            type: editingAddress.type as 'home' | 'office' | 'other',
+            latitude: editingAddress.lat,
+            longitude: editingAddress.lng,
+          } : undefined}
+          onSave={(locationData) => {
+            if (editingAddress) {
+              updateLocation(editingAddress.id, {
+                name: locationData.name,
+                address: locationData.address,
+                type: locationData.type,
+                lat: locationData.latitude,
+                lng: locationData.longitude,
+              });
+              toast.success("Adresse mise à jour");
+            } else {
+              addLocation({
+                name: locationData.name,
+                address: locationData.address,
+                type: locationData.type,
+                lat: locationData.latitude,
+                lng: locationData.longitude,
+              });
+              toast.success("Adresse ajoutée");
+            }
+            setEditingAddress(null);
+          }}
+        />
 
         <VehicleForm
           open={vehicleFormOpen}
