@@ -125,7 +125,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -5 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center relative z-10"
+                className="text-center relative z-10 flex flex-col items-center gap-6"
               >
                 <h1 
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
@@ -136,6 +136,19 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 >
                   {userName ? `${message} ${userName} !` : `${message} !`}
                 </h1>
+                
+                {/* Logo */}
+                <motion.img
+                  src="/iktracker-indemnites-kilometriques-logo.png"
+                  alt="IKTracker"
+                  className="w-16 h-16 rounded-full shadow-lg"
+                  style={{
+                    boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
+                  }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                />
               </motion.div>
             )}
           </AnimatePresence>
