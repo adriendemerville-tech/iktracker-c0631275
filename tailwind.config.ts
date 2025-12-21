@@ -61,6 +61,13 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        wizard: {
+          amber: "hsl(var(--wizard-amber))",
+          background: "hsl(var(--wizard-background))",
+          card: "hsl(var(--wizard-card))",
+          border: "hsl(var(--wizard-border))",
+          muted: "hsl(var(--wizard-muted))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

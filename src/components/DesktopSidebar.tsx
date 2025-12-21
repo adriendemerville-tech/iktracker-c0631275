@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Car, Calendar, Settings, MessageSquare, LogOut, Route } from 'lucide-react';
+import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles } from 'lucide-react';
 import { Vehicle } from '@/types/trip';
 
 interface DesktopSidebarProps {
@@ -73,6 +73,15 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
             className="h-10 w-10 transition-transform duration-300 hover:scale-110" 
           />
         </Link>
+
+        {/* Recovery Button - Highlighted */}
+        <Button
+          className="w-12 h-12 rounded-xl bg-wizard-amber hover:bg-wizard-amber/90 text-slate-950 mb-4"
+          onClick={() => navigate('/recovery')}
+          title="Récupération Auto"
+        >
+          <Sparkles className="w-5 h-5" />
+        </Button>
 
         {/* Navigation items */}
         <nav className="flex-1 flex flex-col items-center gap-2">
