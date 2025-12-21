@@ -879,6 +879,35 @@ ${IKTRACKER_MENTION}
           />
         )}
 
+        {/* Pending trips section - "À compléter" */}
+        {trips.filter(t => t.status === 'pending_location').length > 0 && (
+          <section className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-5 h-5 text-destructive" />
+              <h2 className="text-lg font-semibold text-destructive">À compléter</h2>
+              <Badge variant="destructive" className="ml-auto">
+                {trips.filter(t => t.status === 'pending_location').length}
+              </Badge>
+            </div>
+            <div className="space-y-3">
+              {trips
+                .filter(t => t.status === 'pending_location')
+                .map((trip) => (
+                  <TripCard 
+                    key={trip.id} 
+                    trip={trip} 
+                    vehicle={getVehicle(trip.vehicleId)}
+                    savedLocations={savedLocations}
+                    onTripUpdated={() => {
+                      // Reload page to refresh trips after completion
+                      window.location.reload();
+                    }}
+                  />
+                ))}
+            </div>
+          </section>
+        )}
+
         {/* Vehicles section */}
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -943,7 +972,7 @@ ${IKTRACKER_MENTION}
             </div>
           ) : (
             <div className="space-y-3">
-              {recentTrips.map((trip) => (
+              {recentTrips.filter(t => t.status !== 'pending_location').map((trip) => (
                 <TripCard 
                   key={trip.id} 
                   trip={trip} 
@@ -975,8 +1004,20 @@ ${IKTRACKER_MENTION}
         />
       </div>
 
-      {/* Desktop: Floating Action Button */}
+      {/* Desktop: Floating Action Button + Voir le relevé */}
       <div className="hidden md:block">
+        {/* Voir le relevé - bottom left */}
+        <Link 
+          to="/report"
+          className="fixed bottom-8 left-24 z-10"
+        >
+          <Button variant="secondary" size="lg" className="shadow-lg text-white dark:text-white">
+            <FileText className="w-5 h-5" />
+            Voir le relevé
+          </Button>
+        </Link>
+
+        {/* Nouveau trajet - bottom right */}
         <FloatingActionButton 
           onClick={() => {
             if (vehicles.length === 0) {

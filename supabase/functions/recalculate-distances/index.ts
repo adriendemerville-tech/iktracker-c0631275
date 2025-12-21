@@ -184,8 +184,11 @@ serve(async (req) => {
 
       // Calculate distance
       const oneWayDistance = await calculateDrivingDistance(startLocation, newEndLocation);
-      if (oneWayDistance === null || oneWayDistance === 0) {
-        return new Response(JSON.stringify({ success: false, error: 'Could not calculate distance' }), {
+      
+      // If start and end are different but distance is 0 or null, force recalculation error
+      const locationsAreDifferent = startLocation.toLowerCase().trim() !== newEndLocation.toLowerCase().trim();
+      if (oneWayDistance === null || (oneWayDistance === 0 && locationsAreDifferent)) {
+        return new Response(JSON.stringify({ success: false, error: 'Could not calculate distance - locations are different but distance is zero' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
