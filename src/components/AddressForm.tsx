@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Home, Building2, MapPin } from 'lucide-react';
+import { Home, Building2, MapPin, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Location {
   id: string;
@@ -29,9 +30,12 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
   const [customType, setCustomType] = useState('');
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
+  const [isValidating, setIsValidating] = useState(false);
+  const [addressValidated, setAddressValidated] = useState(false);
   
   const addressInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (editLocation) {
@@ -47,6 +51,8 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
       }
       setLatitude(editLocation.latitude);
       setLongitude(editLocation.longitude);
+      // If editing and has coordinates, consider it validated
+      setAddressValidated(!!editLocation.latitude && !!editLocation.longitude);
     } else {
       setName('');
       setAddress('');
@@ -54,8 +60,17 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
       setCustomType('');
       setLatitude(undefined);
       setLongitude(undefined);
+      setAddressValidated(false);
     }
   }, [editLocation, open]);
+
+  // Reset validation when address changes manually
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+    setAddressValidated(false);
+    setLatitude(undefined);
+    setLongitude(undefined);
+  };
 
   // Initialize Google Places Autocomplete
   useEffect(() => {
@@ -80,6 +95,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
           setAddress(place.formatted_address || place.name || '');
           setLatitude(place.geometry.location.lat());
           setLongitude(place.geometry.location.lng());
+          setAddressValidated(true);
         }
       });
     };
@@ -99,19 +115,73 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     };
   }, [open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Geocode address if not validated via autocomplete
+  const geocodeAddress = async (addressText: string): Promise<{ address: string; lat: number; lng: number } | null> => {
+    if (!window.google?.maps?.Geocoder) return null;
+    
+    const geocoder = new window.google.maps.Geocoder();
+    
+    return new Promise((resolve) => {
+      geocoder.geocode(
+        { address: addressText, componentRestrictions: { country: 'fr' } },
+        (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const result = results[0];
+            resolve({
+              address: result.formatted_address,
+              lat: result.geometry.location.lat(),
+              lng: result.geometry.location.lng(),
+            });
+          } else {
+            resolve(null);
+          }
+        }
+      );
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !address.trim()) return;
+    
+    // If address wasn't validated via autocomplete, geocode it
+    let finalAddress = address.trim();
+    let finalLat = latitude;
+    let finalLng = longitude;
+    
+    if (!addressValidated && window.google?.maps) {
+      setIsValidating(true);
+      const geocoded = await geocodeAddress(address.trim());
+      setIsValidating(false);
+      
+      if (geocoded) {
+        finalAddress = geocoded.address;
+        finalLat = geocoded.lat;
+        finalLng = geocoded.lng;
+        
+        toast({
+          title: "Adresse corrigée",
+          description: `L'adresse a été corrigée en : ${geocoded.address}`,
+        });
+      } else {
+        toast({
+          title: "Adresse non trouvée",
+          description: "Impossible de valider cette adresse. Veuillez sélectionner une suggestion.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     
     // Use custom type if "other" is selected and customType is provided
     const finalType = type === 'other' && customType.trim() ? customType.trim() : type;
     
     onSave({
       name: name.trim(),
-      address: address.trim(),
+      address: finalAddress,
       type: finalType,
-      latitude,
-      longitude,
+      latitude: finalLat,
+      longitude: finalLng,
     });
     onOpenChange(false);
   };
@@ -181,7 +251,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
                 ref={addressInputRef}
                 placeholder="Rechercher une adresse..."
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={handleAddressChange}
                 className="pl-10"
                 required
               />
@@ -198,8 +268,15 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
             <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
               Annuler
             </Button>
-            <Button type="submit" className="flex-1" disabled={!name.trim() || !address.trim()}>
-              {editLocation ? 'Enregistrer' : 'Ajouter'}
+            <Button type="submit" className="flex-1" disabled={!name.trim() || !address.trim() || isValidating}>
+              {isValidating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Validation...
+                </>
+              ) : (
+                editLocation ? 'Enregistrer' : 'Ajouter'
+              )}
             </Button>
           </div>
         </form>
