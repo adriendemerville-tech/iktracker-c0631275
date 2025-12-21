@@ -419,6 +419,22 @@
   will-change: transform;
 }
 
+/* Sleeping Zz float animation */
+@keyframes zz-float {
+  0%, 100% {
+    transform: translate(-50%, 0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -3px);
+    opacity: 1;
+  }
+}
+
+.animate-zz-float {
+  animation: zz-float 2s ease-in-out infinite;
+}
+
 /* Road dashes animation */
 @keyframes road-dash {
   0%, 100% {
