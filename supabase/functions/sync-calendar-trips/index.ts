@@ -162,9 +162,26 @@ interface VehicleInfo {
   is_electric: boolean;
 }
 
-// Get user's last used vehicle (from most recent trip) or first vehicle
+// Get user's default vehicle: if only one vehicle, use it; otherwise use last used from trips
 async function getUserLastUsedVehicle(userId: string, supabase: any): Promise<VehicleInfo | null> {
-  // First try to get the vehicle from the most recent trip
+  // First, get all user's vehicles
+  const { data: allVehicles } = await supabase
+    .from('vehicles')
+    .select('id, fiscal_power, is_electric')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (!allVehicles || allVehicles.length === 0) {
+    return null;
+  }
+
+  // If only one vehicle, use it directly
+  if (allVehicles.length === 1) {
+    console.log(`User has only 1 vehicle, using it: ${allVehicles[0].id}`);
+    return allVehicles[0];
+  }
+
+  // Multiple vehicles: try to get the one from the most recent trip
   const { data: recentTrip } = await supabase
     .from('trips')
     .select('vehicle_id')
@@ -176,24 +193,16 @@ async function getUserLastUsedVehicle(userId: string, supabase: any): Promise<Ve
   const lastVehicleId = recentTrip?.[0]?.vehicle_id;
 
   if (lastVehicleId) {
-    const { data: vehicle } = await supabase
-      .from('vehicles')
-      .select('id, fiscal_power, is_electric')
-      .eq('id', lastVehicleId)
-      .single();
-    
-    if (vehicle) return vehicle;
+    const lastVehicle = allVehicles.find((v: VehicleInfo) => v.id === lastVehicleId);
+    if (lastVehicle) {
+      console.log(`Using last used vehicle: ${lastVehicle.id}`);
+      return lastVehicle;
+    }
   }
 
-  // Fallback: get the first vehicle
-  const { data: vehicles } = await supabase
-    .from('vehicles')
-    .select('id, fiscal_power, is_electric')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  return vehicles?.[0] || null;
+  // Fallback: use the most recently created vehicle
+  console.log(`Fallback to most recent vehicle: ${allVehicles[0].id}`);
+  return allVehicles[0];
 }
 
 // Get total annual km for a vehicle in current year
