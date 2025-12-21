@@ -8,11 +8,12 @@ import { VehicleForm } from '@/components/VehicleForm';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle } from 'lucide-react';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import JSZip from 'jszip';
@@ -32,9 +33,53 @@ export default function Report() {
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [showToursDropdown, setShowToursDropdown] = useState(false);
   const [showBaremeDropdown, setShowBaremeDropdown] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
+  
+  // Count trips with 0km distance
+  const tripsWithZeroKm = useMemo(() => trips.filter(t => t.distance === 0), [trips]);
+  const hasZeroKmTrips = tripsWithZeroKm.length > 0;
+  
+  // Check if user has a home address configured
+  const hasHomeAddress = useMemo(() => {
+    return savedLocations.some(loc => loc.type === 'home' && loc.address);
+  }, [savedLocations]);
+  
+  const handleRecalculateDistances = async () => {
+    if (!hasHomeAddress) {
+      toast.error("Adresse manquante", {
+        description: "Configurez d'abord votre adresse de domicile dans 'Mes adresses'",
+      });
+      return;
+    }
+    
+    setIsRecalculating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('recalculate-distances');
+      
+      if (error) throw error;
+      
+      if (data?.updated > 0) {
+        toast.success(`${data.updated} trajet(s) recalculé(s)`, {
+          description: "La page va se rafraîchir",
+        });
+        setTimeout(() => window.location.reload(), 1500);
+      } else if (data?.skipped > 0) {
+        toast.info("Aucun trajet à recalculer", {
+          description: `${data.skipped} trajet(s) ignoré(s) - vérifiez vos adresses`,
+        });
+      } else {
+        toast.info("Aucun trajet à recalculer");
+      }
+    } catch (error) {
+      console.error('Recalculation error:', error);
+      toast.error("Erreur lors du recalcul");
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
 
   const groupedByMonth = trips.reduce((acc, trip) => {
     const month = new Date(trip.startTime).toLocaleDateString('fr-FR', {
@@ -630,6 +675,46 @@ ${IKTRACKER_URL}`
               variant="report" 
             />
           )}
+          
+          {/* Alert for trips with 0km */}
+          {hasZeroKmTrips && (
+            <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mt-3">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-warning-foreground">
+                    {tripsWithZeroKm.length} trajet{tripsWithZeroKm.length > 1 ? 's' : ''} à 0 km
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {hasHomeAddress 
+                      ? "Les distances peuvent être recalculées automatiquement" 
+                      : "Configurez votre adresse de domicile pour recalculer"}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant={hasHomeAddress ? "default" : "outline"}
+                  onClick={hasHomeAddress ? handleRecalculateDistances : () => navigate('/profile#mes-adresses')}
+                  disabled={isRecalculating}
+                  className="shrink-0"
+                >
+                  {isRecalculating ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : hasHomeAddress ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                      Recalculer
+                    </>
+                  ) : (
+                    <>
+                      <Home className="w-4 h-4 mr-1" />
+                      Configurer
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2 flex flex-col items-center -my-1">
@@ -789,6 +874,8 @@ ${IKTRACKER_URL}`
                       }}
                       onDelete={deleteTrip}
                       showDelete
+                      savedLocations={savedLocations}
+                      onTripUpdated={() => window.location.reload()}
                     />
                   );
                 })}
