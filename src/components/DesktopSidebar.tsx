@@ -200,7 +200,7 @@ export const DesktopSidebar = ({
 
       {/* Vehicle Sheet - opens from right */}
       <Sheet open={showVehicleSheet} onOpenChange={setShowVehicleSheet}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Mes véhicules</SheetTitle>
             <SheetDescription>
@@ -255,7 +255,7 @@ export const DesktopSidebar = ({
 
       {/* Calendar Sheet - opens from right */}
       <Sheet open={showCalendarSheet} onOpenChange={setShowCalendarSheet}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Connexions calendrier</SheetTitle>
             <SheetDescription>
