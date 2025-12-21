@@ -248,8 +248,9 @@ async function getVehicleAnnualKm(userId: string, vehicleId: string, supabase: a
 }
 
 // Get user's home/default location for distance calculation
-async function getUserHomeLocation(userId: string, supabase: any): Promise<string | null> {
-  // Try to find a 'home' type location
+// Returns both address (for distance calc) and name (for trip display)
+async function getUserHomeLocation(userId: string, supabase: any): Promise<{ address: string; name: string } | null> {
+  // Try to find a 'home' type location first
   const { data: homeLocation } = await supabase
     .from('locations')
     .select('address, name')
@@ -258,19 +259,25 @@ async function getUserHomeLocation(userId: string, supabase: any): Promise<strin
     .limit(1);
 
   if (homeLocation && homeLocation.length > 0 && homeLocation[0].address) {
-    return homeLocation[0].address;
+    return { 
+      address: homeLocation[0].address, 
+      name: homeLocation[0].name || 'Domicile' 
+    };
   }
 
-  // Fallback: get any location to use as origin
-  const { data: anyLocation } = await supabase
+  // Fallback: try to find an 'office' type location
+  const { data: officeLocation } = await supabase
     .from('locations')
     .select('address, name')
     .eq('user_id', userId)
-    .not('address', 'is', null)
+    .eq('type', 'office')
     .limit(1);
 
-  if (anyLocation && anyLocation.length > 0 && anyLocation[0].address) {
-    return anyLocation[0].address;
+  if (officeLocation && officeLocation.length > 0 && officeLocation[0].address) {
+    return { 
+      address: officeLocation[0].address, 
+      name: officeLocation[0].name || 'Bureau' 
+    };
   }
 
   return null;
@@ -336,7 +343,7 @@ async function createTripFromEvent(
   userId: string,
   event: CalendarEvent,
   vehicle: VehicleInfo | null,
-  userHomeAddress: string | null,
+  userHomeLocation: { address: string; name: string } | null,
   supabase: any
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean }> {
   // Log all events for debugging
@@ -366,15 +373,15 @@ async function createTripFromEvent(
   // Try to calculate distance automatically if we have a home address
   let distance = 0;
   let distanceCalculated = false;
-  let startLocationName = DEFAULT_START_LOCATION;
+  // Use home location name, or default to "Domicile"
+  let startLocationName = userHomeLocation?.name || DEFAULT_START_LOCATION;
   
-  if (userHomeAddress) {
-    const calculatedDistance = await calculateDrivingDistance(userHomeAddress, event.location);
+  if (userHomeLocation?.address) {
+    const calculatedDistance = await calculateDrivingDistance(userHomeLocation.address, event.location);
     if (calculatedDistance !== null && calculatedDistance > 0) {
       // Round trip = double the distance
       distance = calculatedDistance * 2;
       distanceCalculated = true;
-      startLocationName = userHomeAddress;
       console.log(`📍 Auto-calculated round-trip distance: ${distance} km`);
     }
   }
@@ -475,9 +482,9 @@ serve(async (req) => {
         // Get user's last used vehicle
         const vehicle = await getUserLastUsedVehicle(connection.user_id, supabase);
         
-        // Get user's home address for distance calculation
-        const userHomeAddress = await getUserHomeLocation(connection.user_id, supabase);
-        console.log(`User home address: ${userHomeAddress || 'not found'}`);
+        // Get user's home location for distance calculation and trip start name
+        const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
+        console.log(`User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : 'not found'}`);
 
         // Create trips from events
         let tripsCreated = 0;
@@ -491,7 +498,7 @@ serve(async (req) => {
             connection.user_id,
             event,
             vehicle,
-            userHomeAddress,
+            userHomeLocation,
             supabase
           );
           if (result.created) {
