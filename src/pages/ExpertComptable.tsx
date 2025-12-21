@@ -30,7 +30,7 @@ const ExpertComptable = () => {
   const { trackCTAClick } = useMarketingTracker('expert-comptable');
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background select-text">
       <Helmet>
         <title>IKtracker pour Experts-Comptables | Export IK PDF et Excel</title>
         <meta name="description" content="Recommandez IKtracker à vos clients : exports standardisés PDF/Excel, calcul automatique des indemnités kilométriques selon barème fiscal 2025. Gratuit." />

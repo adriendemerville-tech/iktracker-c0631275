@@ -108,7 +108,7 @@ export default function Calendrier() {
   ];
 
   return (
-    <div className="min-h-screen bg-background font-display">
+    <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
         <title>Synchronisation Calendrier IKtracker | Google Calendar & Outlook</title>
         <meta name="description" content="Synchronisez IKtracker avec Google Calendar ou Outlook. Vos rendez-vous avec adresse deviennent automatiquement des trajets. Gratuit pour indépendants en France." />
