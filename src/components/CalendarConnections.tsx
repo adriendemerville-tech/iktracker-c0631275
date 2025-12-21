@@ -191,11 +191,36 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
       
-      window.open(
+      const popup = window.open(
         result.url,
         'google-oauth',
         `width=${width},height=${height},left=${left},top=${top}`
       );
+
+      // Check if popup was blocked
+      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        toast.error('Le popup a été bloqué. Autorisez les popups pour ce site.');
+        setConnectingGoogle(false);
+        return;
+      }
+
+      // Set a timeout to reset loading state if popup is closed without auth
+      const checkPopupClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkPopupClosed);
+          // Give a small delay for the message to be received
+          setTimeout(() => {
+            setConnectingGoogle(false);
+          }, 1000);
+        }
+      }, 500);
+
+      // Clear interval after 5 minutes max
+      setTimeout(() => {
+        clearInterval(checkPopupClosed);
+        setConnectingGoogle(false);
+      }, 5 * 60 * 1000);
+
     } catch (error) {
       console.error('Error initiating Google OAuth:', error);
       toast.error('Erreur lors de la connexion Google');
@@ -236,14 +261,38 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
       
-      window.open(
+      const popup = window.open(
         result.url,
         'outlook-oauth',
         `width=${width},height=${height},left=${left},top=${top}`
       );
+
+      // Check if popup was blocked
+      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        toast.error('Le popup a été bloqué. Autorisez les popups pour ce site.');
+        setConnectingOutlook(false);
+        return;
+      }
+
+      // Set a timeout to reset loading state if popup is closed without auth
+      const checkPopupClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkPopupClosed);
+          setTimeout(() => {
+            setConnectingOutlook(false);
+          }, 1000);
+        }
+      }, 500);
+
+      // Clear interval after 5 minutes max
+      setTimeout(() => {
+        clearInterval(checkPopupClosed);
+        setConnectingOutlook(false);
+      }, 5 * 60 * 1000);
+
     } catch (error) {
       console.error('Error initiating Outlook OAuth:', error);
-      toast.error('Erreur lors de la connexion');
+      toast.error('Erreur lors de la connexion Outlook');
       setConnectingOutlook(false);
     }
   };
