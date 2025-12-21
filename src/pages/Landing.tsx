@@ -15,6 +15,7 @@ import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { TourModeDemo } from "@/components/marketing/TourModeDemo";
 import { TourModeMockup } from "@/components/marketing/TourModeMockup";
 import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   ArrowRight,
   CheckCircle2,
@@ -26,7 +27,8 @@ import {
   Route,
   FileText,
   Check,
-  Star
+  Star,
+  Smartphone
 } from "lucide-react";
 
 const Landing = () => {
@@ -510,6 +512,23 @@ const Landing = () => {
               Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
             </p>
           </div>
+          
+          {/* QR Code for desktop users */}
+          <div className="hidden md:flex flex-col items-center gap-3 mt-8">
+            <div className="bg-white p-4 rounded-xl shadow-lg">
+              <QRCodeSVG 
+                value="https://iktracker.fr/install" 
+                size={140}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+            <p className="text-sm opacity-80 flex items-center gap-2">
+              <Smartphone className="h-4 w-4" />
+              Scannez pour installer sur mobile
+            </p>
+          </div>
+          
           <div className="mt-10">
             <Link to="/signup" onClick={trackSignupClick}>
               <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6">
