@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
+import { VehicleCard } from '@/components/VehicleCard';
+import { VehicleForm } from '@/components/VehicleForm';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -12,8 +14,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle } from 'lucide-react';
+import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus } from 'lucide-react';
 import founderImage from '@/assets/founder-adrien.jpg';
+import { Vehicle } from '@/types/trip';
 
 // FAQ items
 const FAQ_ITEMS = [
@@ -30,33 +33,70 @@ const FAQ_ITEMS = [
     answer: "Utilisez la fonction 'Récupération Auto' (icône étoile dorée dans la barre latérale). Exportez votre historique de positions depuis Google Takeout, puis importez le fichier JSON. L'application détectera automatiquement vos trajets professionnels et calculera les indemnités correspondantes."
   },
 ];
-import { Vehicle } from '@/types/trip';
 
 interface DesktopSidebarProps {
   vehicles: Vehicle[];
   onAddVehicle: (vehicleData: Omit<Vehicle, 'id'>) => void;
+  onEditVehicle?: (vehicleId: string, vehicleData: Partial<Vehicle>) => void;
+  onDeleteVehicle?: (vehicleId: string) => void;
   onTourClick?: () => void;
   isTourActive?: boolean;
   onStartTutorial?: () => void;
+  totalKm?: number;
 }
 
-export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActive, onStartTutorial }: DesktopSidebarProps) => {
+export const DesktopSidebar = ({ 
+  vehicles, 
+  onAddVehicle, 
+  onEditVehicle,
+  onDeleteVehicle,
+  onTourClick, 
+  isTourActive, 
+  onStartTutorial,
+  totalKm = 0,
+}: DesktopSidebarProps) => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth', { replace: true });
   };
 
+  const handleEditVehicle = (vehicleId: string) => {
+    setEditingVehicleId(vehicleId);
+    setShowVehicleForm(true);
+  };
+
+  const handleDeleteVehicle = (vehicleId: string) => {
+    if (onDeleteVehicle) {
+      onDeleteVehicle(vehicleId);
+    }
+  };
+
+  const handleVehicleFormSubmit = (vehicleData: Omit<Vehicle, 'id'>) => {
+    if (editingVehicleId && onEditVehicle) {
+      onEditVehicle(editingVehicleId, vehicleData);
+    } else {
+      onAddVehicle(vehicleData);
+    }
+    setShowVehicleForm(false);
+    setEditingVehicleId(null);
+  };
+
+  const editingVehicle = editingVehicleId ? vehicles.find(v => v.id === editingVehicleId) : undefined;
+
+  // Navigation items in order from top to bottom
   const navItems = [
     { 
       icon: Car, 
       label: 'Véhicules', 
-      onClick: () => navigate('/profile'),
+      onClick: () => setShowVehicleSheet(true),
       active: false,
       tutorialId: 'vehicles',
       isRecovery: false,
@@ -157,6 +197,61 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
           <LogOut className="w-5 h-5 text-muted-foreground" />
         </Button>
       </aside>
+
+      {/* Vehicle Sheet - opens from right */}
+      <Sheet open={showVehicleSheet} onOpenChange={setShowVehicleSheet}>
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Mes véhicules</SheetTitle>
+            <SheetDescription>
+              Gérez vos véhicules pour le calcul des indemnités kilométriques
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 space-y-4">
+            {vehicles.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Aucun véhicule configuré</p>
+                <p className="text-sm">Ajoutez votre premier véhicule pour commencer</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {vehicles.map((vehicle) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    totalKm={totalKm}
+                    onEdit={() => handleEditVehicle(vehicle.id)}
+                    onDelete={() => handleDeleteVehicle(vehicle.id)}
+                  />
+                ))}
+              </div>
+            )}
+            <Button
+              onClick={() => {
+                setEditingVehicleId(null);
+                setShowVehicleForm(true);
+              }}
+              className="w-full"
+              variant="outline"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un véhicule
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Vehicle Form Sheet */}
+      <VehicleForm
+        open={showVehicleForm}
+        onOpenChange={(open) => {
+          setShowVehicleForm(open);
+          if (!open) setEditingVehicleId(null);
+        }}
+        onSave={handleVehicleFormSubmit}
+        editVehicle={editingVehicle}
+      />
 
       {/* Calendar Sheet - opens from right */}
       <Sheet open={showCalendarSheet} onOpenChange={setShowCalendarSheet}>

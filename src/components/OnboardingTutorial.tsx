@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Car, Calendar, Route, Settings, MessageSquare, FileText, Sparkles, Plus, Home } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Car, Calendar, Route, Settings, MessageSquare, FileText, Sparkles, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -15,26 +15,10 @@ interface TutorialStep {
 
 const TUTORIAL_STEPS: TutorialStep[] = [
   {
-    id: 'home',
-    targetSelector: '[data-tutorial="home"]',
-    title: 'Accueil',
-    description: 'Revenez à l\'écran principal pour voir vos statistiques et ajouter des trajets.',
-    icon: <Home className="w-5 h-5" />,
-    position: 'right',
-  },
-  {
-    id: 'recovery',
-    targetSelector: '[data-tutorial="recovery"]',
-    title: 'Récupération Auto',
-    description: 'Importez automatiquement vos trajets depuis l\'historique Google Maps pour récupérer vos indemnités.',
-    icon: <Sparkles className="w-5 h-5" />,
-    position: 'right',
-  },
-  {
     id: 'vehicles',
     targetSelector: '[data-tutorial="vehicles"]',
     title: 'Mes véhicules',
-    description: 'Configurez vos véhicules avec leur puissance fiscale pour un calcul précis des indemnités.',
+    description: 'Configurez vos véhicules avec leur puissance fiscale pour un calcul précis des indemnités kilométriques.',
     icon: <Car className="w-5 h-5" />,
     position: 'right',
   },
@@ -42,7 +26,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: 'calendar',
     targetSelector: '[data-tutorial="calendar"]',
     title: 'Synchronisation calendrier',
-    description: 'Connectez Google Calendar ou Outlook pour importer automatiquement vos rendez-vous.',
+    description: 'Connectez Google Calendar ou Outlook pour importer automatiquement vos rendez-vous professionnels.',
     icon: <Calendar className="w-5 h-5" />,
     position: 'right',
   },
@@ -50,15 +34,39 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: 'tour',
     targetSelector: '[data-tutorial="tour"]',
     title: 'Mode tournée',
-    description: 'Activez le GPS pour enregistrer vos déplacements en temps réel lors de vos tournées.',
+    description: 'Activez le GPS pour enregistrer vos déplacements en temps réel lors de vos tournées. Idéal pour les infirmiers, artisans et commerciaux.',
     icon: <Route className="w-5 h-5" />,
+    position: 'right',
+  },
+  {
+    id: 'settings',
+    targetSelector: '[data-tutorial="settings"]',
+    title: 'Mes préférences',
+    description: 'Personnalisez les paramètres de détection des arrêts, la distance minimale et l\'email de votre expert-comptable.',
+    icon: <Settings className="w-5 h-5" />,
+    position: 'right',
+  },
+  {
+    id: 'recovery',
+    targetSelector: '[data-tutorial="recovery"]',
+    title: 'Récupération Auto',
+    description: 'Importez automatiquement vos trajets depuis l\'historique Google Maps pour récupérer vos indemnités passées.',
+    icon: <Sparkles className="w-5 h-5" />,
+    position: 'right',
+  },
+  {
+    id: 'feedback',
+    targetSelector: '[data-tutorial="feedback"]',
+    title: 'Aide & Avis',
+    description: 'Besoin d\'aide ? Une question ? Envoyez-nous votre avis et consultez les réponses de notre équipe.',
+    icon: <MessageSquare className="w-5 h-5" />,
     position: 'right',
   },
   {
     id: 'report',
     targetSelector: '[data-tutorial="report"]',
     title: 'Mon relevé',
-    description: 'Consultez et téléchargez votre relevé d\'indemnités kilométriques mensuel.',
+    description: 'Consultez et téléchargez votre relevé d\'indemnités kilométriques mensuel au format PDF ou CSV.',
     icon: <FileText className="w-5 h-5" />,
     position: 'bottom',
   },
@@ -66,7 +74,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: 'add-trip',
     targetSelector: '[data-tutorial="add-trip"]',
     title: 'Ajouter un trajet',
-    description: 'Créez manuellement un trajet avec le calcul automatique de la distance.',
+    description: 'Créez manuellement un trajet avec le calcul automatique de la distance et des indemnités.',
     icon: <Plus className="w-5 h-5" />,
     position: 'top',
   },
