@@ -15,10 +15,11 @@ const defaultLocations: Location[] = [
 ];
 
 export function useTrips() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
   const [trips, setTrips] = useState<Trip[]>([]);
-  const [savedLocations, setSavedLocations] = useState<Location[]>(defaultLocations);
+  // Start with empty array - don't show defaults until we know if user is logged in
+  const [savedLocations, setSavedLocations] = useState<Location[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -113,6 +114,9 @@ export function useTrips() {
     const storedLocations = localStorage.getItem(LOCATIONS_KEY);
     if (storedLocations) {
       setSavedLocations(JSON.parse(storedLocations));
+    } else {
+      // Only show defaults for non-logged users with no saved locations
+      setSavedLocations(defaultLocations);
     }
 
     const storedVehicles = localStorage.getItem(VEHICLES_KEY);
@@ -209,12 +213,15 @@ export function useTrips() {
   }, [user]);
 
   useEffect(() => {
+    // Wait for auth to finish loading before deciding which data source to use
+    if (authLoading) return;
+    
     if (user) {
       migrateToDatabase().then(() => loadFromDatabase());
     } else {
       loadFromLocalStorage();
     }
-  }, [user, loadFromDatabase, loadFromLocalStorage, migrateToDatabase]);
+  }, [user, authLoading, loadFromDatabase, loadFromLocalStorage, migrateToDatabase]);
 
   // Save functions
   const saveTripsLocal = (newTrips: Trip[]) => {
