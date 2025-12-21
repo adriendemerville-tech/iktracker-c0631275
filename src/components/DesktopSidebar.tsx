@@ -6,6 +6,7 @@ import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { VehicleForm } from '@/components/VehicleForm';
+import { PreferencesContent } from '@/components/PreferencesContent';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -60,6 +61,7 @@ export const DesktopSidebar = ({
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
+  const [showPreferencesSheet, setShowPreferencesSheet] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
 
@@ -120,7 +122,7 @@ export const DesktopSidebar = ({
     { 
       icon: Settings, 
       label: 'Préférences', 
-      onClick: () => navigate('/profile'),
+      onClick: () => setShowPreferencesSheet(true),
       active: false,
       tutorialId: 'settings',
       isRecovery: false,
@@ -350,6 +352,21 @@ export const DesktopSidebar = ({
                 </div>
               </div>
             </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Preferences Sheet - opens from right */}
+      <Sheet open={showPreferencesSheet} onOpenChange={setShowPreferencesSheet}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Préférences</SheetTitle>
+            <SheetDescription>
+              Personnalisez le comportement de l'application
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <PreferencesContent />
           </div>
         </SheetContent>
       </Sheet>
