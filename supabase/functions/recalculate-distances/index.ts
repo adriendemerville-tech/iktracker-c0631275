@@ -150,11 +150,11 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
     
     const body = await req.json().catch(() => ({}));
-    const { tripId, newEndLocation } = body;
+    const { tripId, newStartLocation, newEndLocation } = body;
 
     // If tripId and newEndLocation provided, update single trip
     if (tripId && newEndLocation) {
-      console.log(`Updating single trip ${tripId} with new location: ${newEndLocation}`);
+      console.log(`Updating single trip ${tripId} with start: ${newStartLocation || 'auto'}, end: ${newEndLocation}`);
       
       // Get trip details
       const { data: trip, error: tripError } = await supabase
@@ -170,17 +170,20 @@ serve(async (req) => {
         });
       }
 
-      // Get user's home location
-      const userHome = await getUserHomeLocation(trip.user_id, supabase);
-      if (!userHome) {
-        return new Response(JSON.stringify({ success: false, error: 'No home address configured' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+      // Determine start location: use provided, or fallback to user's home
+      let startLocation = newStartLocation;
+      if (!startLocation) {
+        startLocation = await getUserHomeLocation(trip.user_id, supabase);
+        if (!startLocation) {
+          return new Response(JSON.stringify({ success: false, error: 'No start address provided and no home address configured' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
       }
 
       // Calculate distance
-      const oneWayDistance = await calculateDrivingDistance(userHome, newEndLocation);
+      const oneWayDistance = await calculateDrivingDistance(startLocation, newEndLocation);
       if (oneWayDistance === null || oneWayDistance === 0) {
         return new Response(JSON.stringify({ success: false, error: 'Could not calculate distance' }), {
           status: 400,
@@ -210,10 +213,11 @@ serve(async (req) => {
         }
       }
 
-      // Update trip
+      // Update trip with both start and end locations
       const { error: updateError } = await supabase
         .from('trips')
         .update({
+          start_location: startLocation,
           end_location: newEndLocation,
           distance: totalDistance,
           ik_amount: ikAmount,
