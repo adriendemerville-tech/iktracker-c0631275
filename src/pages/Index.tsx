@@ -1004,36 +1004,41 @@ ${IKTRACKER_MENTION}
         />
       </div>
 
-      {/* Desktop: Floating Action Button + Voir le relevé */}
+      {/* Desktop: Bottom action buttons */}
       <div className="hidden md:block">
-        {/* Voir le relevé - bottom left */}
-        <Link 
-          to="/report"
-          className="fixed bottom-8 left-24 z-10"
-        >
-          <Button variant="secondary" size="lg" className="shadow-lg text-white dark:text-white">
-            <FileText className="w-5 h-5" />
-            Voir le relevé
-          </Button>
-        </Link>
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-4">
+          {/* Voir le relevé */}
+          <Link to="/report">
+            <Button variant="outline" size="lg" className="shadow-lg">
+              <FileText className="w-5 h-5" />
+              Voir le relevé
+            </Button>
+          </Link>
 
-        {/* Nouveau trajet - bottom right */}
-        <FloatingActionButton 
-          onClick={() => {
-            if (vehicles.length === 0) {
-              toast.info("Ajoutez d'abord un véhicule", {
-                description: "Un véhicule est nécessaire pour enregistrer les trajets",
-                action: {
-                  label: "Ajouter",
-                  onClick: handleAddVehicle,
-                },
-              });
-            } else {
-              setShowNewTrip(true);
-            }
-          }}
-          disabled={vehicles.length === 0}
-        />
+          {/* Nouveau trajet */}
+          <Button
+            variant="gradient"
+            size="lg"
+            className="shadow-lg shadow-primary/30"
+            onClick={() => {
+              if (vehicles.length === 0) {
+                toast.info("Ajoutez d'abord un véhicule", {
+                  description: "Un véhicule est nécessaire pour enregistrer les trajets",
+                  action: {
+                    label: "Ajouter",
+                    onClick: handleAddVehicle,
+                  },
+                });
+              } else {
+                setShowNewTrip(true);
+              }
+            }}
+            disabled={vehicles.length === 0}
+          >
+            <Plus className="w-5 h-5" />
+            Nouveau trajet
+          </Button>
+        </div>
       </div>
 
       {/* Mobile: Bottom action buttons (unchanged) */}

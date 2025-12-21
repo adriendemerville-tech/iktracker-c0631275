@@ -8,7 +8,7 @@ import { VehicleForm } from '@/components/VehicleForm';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home } from 'lucide-react';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -834,7 +834,16 @@ ${IKTRACKER_URL}`
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)]">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center gap-3">
+          <Link to="/profile#mes-adresses">
+            <Button 
+              variant="outline" 
+              size="lg"
+            >
+              <Home className="w-5 h-5" />
+              Mes adresses
+            </Button>
+          </Link>
           <Button 
             variant="gradient" 
             size="lg"
