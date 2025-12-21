@@ -498,12 +498,17 @@ export function useTrips() {
         };
         setVehicles(prev => [...prev, newVehicle]);
 
-        // If this is the first/only vehicle, assign it to all trips without a vehicle
-        const tripsWithoutVehicle = trips.filter(t => !t.vehicleId);
-        if (tripsWithoutVehicle.length > 0) {
+        // Query database directly for trips without a vehicle (more reliable than local state)
+        const { data: tripsWithoutVehicle } = await supabase
+          .from('trips')
+          .select('*')
+          .eq('user_id', user.id)
+          .is('vehicle_id', null);
+
+        if (tripsWithoutVehicle && tripsWithoutVehicle.length > 0) {
           console.log(`Assigning new vehicle ${data.id} to ${tripsWithoutVehicle.length} trips without vehicle`);
           
-          // Update trips in database
+          // Update all trips to use this vehicle
           const tripIds = tripsWithoutVehicle.map(t => t.id);
           await supabase
             .from('trips')
@@ -511,11 +516,12 @@ export function useTrips() {
             .in('id', tripIds);
 
           // Recalculate IK for each trip and update
-          let cumulativeKm = 0;
+          // Sort trips by date to calculate cumulative IK correctly
           const sortedTrips = [...tripsWithoutVehicle].sort((a, b) => 
-            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+            new Date(a.date).getTime() - new Date(b.date).getTime()
           );
 
+          let cumulativeKm = 0;
           for (const trip of sortedTrips) {
             cumulativeKm += trip.distance;
             let ikAmount = calculateTotalAnnualIK(cumulativeKm, newVehicle.fiscalPower) - 
