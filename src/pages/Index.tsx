@@ -628,28 +628,48 @@ ${IKTRACKER_MENTION}
     }
 
     // === TRIPS TABLE ===
-    // Create table data with compact formatting
+    // Create table data with address including postal code and city
     const tableData = sortedTrips.map(t => {
       const tripDate = new Date(t.startTime);
       const day = tripDate.getDate().toString().padStart(2, '0');
       const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
       
-      // Compact location names - truncate if too long
-      const truncate = (str: string, max: number) => {
-        const clean = str.split(',')[0].trim();
-        return clean.length > max ? clean.substring(0, max - 1) + '…' : clean;
+      // Format address: keep street, postal code and city
+      const formatAddress = (str: string, max: number) => {
+        // Split by comma and take relevant parts
+        const parts = str.split(',').map(p => p.trim());
+        let result = parts[0]; // Street name
+        
+        // Try to find postal code and city (usually in format "12345 City")
+        for (let i = 1; i < parts.length; i++) {
+          const part = parts[i];
+          // Match French postal code pattern (5 digits followed by city name)
+          const postalMatch = part.match(/(\d{5})\s+(.+)/);
+          if (postalMatch) {
+            result += `, ${postalMatch[1]} ${postalMatch[2]}`;
+            break;
+          }
+          // If it looks like just a city or contains a postal code
+          if (part.match(/^\d{5}/) || (part.length > 2 && !part.match(/france/i))) {
+            result += `, ${part}`;
+            break;
+          }
+        }
+        
+        return result.length > max ? result.substring(0, max - 1) + '…' : result;
       };
-      const startName = truncate(t.startLocation.name, 25);
-      const endName = truncate(t.endLocation.name, 25);
+      
+      const startAddr = formatAddress(t.startLocation.name, 45);
+      const endAddr = formatAddress(t.endLocation.name, 45);
       
       // Purpose/motif
       const motif = t.purpose || '-';
       
       return [
         `${day}/${month}`,
-        startName,
-        endName,
-        motif.length > 20 ? motif.substring(0, 19) + '…' : motif,
+        startAddr,
+        endAddr,
+        motif.length > 25 ? motif.substring(0, 24) + '…' : motif,
         `${Math.round(t.distance)} km`,
         `${t.recalculatedIK.toFixed(2)} €`,
       ];
@@ -665,6 +685,7 @@ ${IKTRACKER_MENTION}
         textColor: [darkText.r, darkText.g, darkText.b],
         lineWidth: 0,
         overflow: 'ellipsize',
+        font: 'helvetica',
       },
       headStyles: { 
         fillColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b],
@@ -680,9 +701,9 @@ ${IKTRACKER_MENTION}
       },
       columnStyles: {
         0: { cellWidth: 18, halign: 'center' },
-        1: { cellWidth: 55 },
-        2: { cellWidth: 55 },
-        3: { cellWidth: 45 },
+        1: { cellWidth: 75 },
+        2: { cellWidth: 75 },
+        3: { cellWidth: 50 },
         4: { cellWidth: 22, halign: 'right' },
         5: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b] },
       },
