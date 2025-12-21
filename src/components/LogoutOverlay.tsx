@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import confetti from 'canvas-confetti';
 
 const FAREWELL_MESSAGES = [
   'À bientôt',
@@ -48,21 +47,9 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
     }
 
     // Desktop animation sequence:
-    // 1. Wait 2s, then show text and trigger confetti
+    // 1. Wait 2s, then show text
     const showTextTimer = setTimeout(() => {
       setShowText(true);
-      
-      // Subtle confetti burst
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.5, x: 0.5 },
-        colors: ['#ffffff', '#93c5fd', '#60a5fa', '#3b82f6'],
-        gravity: 0.8,
-        scalar: 0.9,
-        drift: 0,
-        ticks: 150,
-      });
     }, 2000);
 
     // 2. Text stays 2s, then hide it (at 4s total)
@@ -102,9 +89,35 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          style={{ backgroundColor: 'hsl(217, 91%, 25%)' }}
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)',
+          }}
         >
+          {/* Subtle light reflection at top */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 80% 50% at 50% -10%, hsla(210, 100%, 70%, 0.15) 0%, transparent 60%)',
+            }}
+          />
+          
+          {/* Soft glow in center */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at 50% 50%, hsla(217, 90%, 50%, 0.1) 0%, transparent 50%)',
+            }}
+          />
+          
+          {/* Bottom shadow/vignette */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 100% 60% at 50% 110%, hsla(220, 100%, 5%, 0.4) 0%, transparent 70%)',
+            }}
+          />
+
           <AnimatePresence>
             {showText && !hideText && (
               <motion.div
@@ -112,9 +125,15 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -5 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center"
+                className="text-center relative z-10"
               >
-                <h1 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
+                <h1 
+                  className="text-2xl md:text-3xl font-semibold tracking-tight"
+                  style={{
+                    color: 'white',
+                    textShadow: '0 2px 20px hsla(210, 100%, 70%, 0.3), 0 4px 40px hsla(217, 90%, 30%, 0.5)',
+                  }}
+                >
                   {userName ? `${message} ${userName} !` : `${message} !`}
                 </h1>
               </motion.div>
