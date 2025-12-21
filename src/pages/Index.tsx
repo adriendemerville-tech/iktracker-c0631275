@@ -490,10 +490,10 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = async () => {
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    const margin = 20;
+    const margin = 15;
     const contentWidth = pageWidth - 2 * margin;
     
     // Date formatting
@@ -501,9 +501,8 @@ ${IKTRACKER_MENTION}
     const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
     const currentMonth = monthNames[now.getMonth()];
     const currentYear = now.getFullYear();
-    const generatedDate = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    // Load logo
+    // Load logo (same as app/home)
     let logoBase64: string | null = null;
     try {
       const response = await fetch('/iktracker-indemnites-kilometriques-logo.png');
@@ -558,134 +557,120 @@ ${IKTRACKER_MENTION}
     // === HEADER SECTION ===
     // Dark header band
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, pageWidth, 8, 'F');
+    doc.rect(0, 0, pageWidth, 6, 'F');
 
-    let currentY = 20;
+    let currentY = 14;
 
-    // Header with logo and title
-    const headerHeight = 16;
-    doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-    doc.roundedRect(margin, currentY, contentWidth, headerHeight, 4, 4, 'F');
-    
-    // Logo icon (blue circle with document icon)
-    doc.setFillColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
-    doc.circle(margin + 10, currentY + headerHeight / 2, 5, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.text('IK', margin + 10, currentY + headerHeight / 2 + 1, { align: 'center' });
+    // Header row with logo, title and stats
+    // Logo
+    if (logoBase64) {
+      doc.addImage(logoBase64, 'PNG', margin, currentY - 2, 12, 12);
+    }
     
     // Title and subtitle
     doc.setTextColor(darkText.r, darkText.g, darkText.b);
-    doc.setFontSize(14);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('Relevé IK', margin + 20, currentY + 7);
+    doc.text('Relevé IK', margin + 16, currentY + 3);
     doc.setFontSize(9);
     doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${currentMonth} ${currentYear}`, margin + 20, currentY + 12);
-    
-    // IKtracker logo on right
-    if (logoBase64) {
-      doc.addImage(logoBase64, 'PNG', pageWidth - margin - 10, currentY + 3, 8, 8);
-    }
+    doc.text(`${currentMonth} ${currentYear}`, margin + 16, currentY + 8);
 
-    currentY += headerHeight + 12;
-
-    // === STATS CARDS ===
-    const cardWidth = (contentWidth - 8) / 2;
-    const cardHeight = 24;
+    // Stats on right side
+    const statsX = pageWidth - margin - 120;
     
-    // Distance totale card
+    // Distance card
     doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-    doc.roundedRect(margin, currentY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setFontSize(8);
+    doc.roundedRect(statsX, currentY - 4, 55, 16, 2, 2, 'F');
+    doc.setFontSize(7);
     doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.text('Distance totale', margin + 8, currentY + 8);
-    doc.setFontSize(18);
+    doc.text('Distance totale', statsX + 4, currentY);
+    doc.setFontSize(12);
     doc.setTextColor(darkText.r, darkText.g, darkText.b);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${totalKm.toLocaleString('fr-FR')} km`, margin + 8, currentY + 18);
+    doc.text(`${totalKm.toLocaleString('fr-FR')} km`, statsX + 4, currentY + 8);
     
     // Indemnités card
     doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-    doc.roundedRect(margin + cardWidth + 8, currentY, cardWidth, cardHeight, 3, 3, 'F');
-    doc.setFontSize(8);
+    doc.roundedRect(statsX + 60, currentY - 4, 55, 16, 2, 2, 'F');
+    doc.setFontSize(7);
     doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
     doc.setFont('helvetica', 'normal');
-    doc.text('Indemnités', margin + cardWidth + 16, currentY + 8);
-    doc.setFontSize(18);
+    doc.text('Indemnités', statsX + 64, currentY);
+    doc.setFontSize(12);
     doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, margin + cardWidth + 16, currentY + 18);
+    doc.text(`${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, statsX + 64, currentY + 8);
 
-    currentY += cardHeight + 12;
+    currentY += 18;
 
-    // === VEHICLE INFO CARD ===
+    // === VEHICLE INFO ===
     const vehicle = vehicles.length > 0 ? vehicles[0] : null;
     if (vehicle) {
-      const vehicleCardHeight = 18;
       doc.setFillColor(255, 255, 255);
       doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
-      doc.roundedRect(margin, currentY, contentWidth, vehicleCardHeight, 3, 3, 'FD');
+      doc.roundedRect(margin, currentY, contentWidth, 12, 2, 2, 'FD');
       
-      // Car icon circle
-      doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-      doc.circle(margin + 10, currentY + vehicleCardHeight / 2, 5, 'F');
-      doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-      doc.setFontSize(7);
-      doc.text('🚗', margin + 10, currentY + vehicleCardHeight / 2 + 1, { align: 'center' });
-      
-      // Vehicle name
       const vehicleName = `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`;
       doc.setTextColor(darkText.r, darkText.g, darkText.b);
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.text(vehicleName, margin + 20, currentY + 7);
-      
-      // Vehicle details
       doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(vehicleName, margin + 6, currentY + 7);
+      
+      doc.setFontSize(8);
       doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
       doc.setFont('helvetica', 'normal');
-      const vehicleDetails = `${vehicle.fiscalPower} CV fiscaux${vehicle.licensePlate ? ' • ' + vehicle.licensePlate : ''}`;
-      doc.text(vehicleDetails, margin + 20, currentY + 13);
+      const vehicleDetails = `${vehicle.fiscalPower} CV${vehicle.licensePlate ? ' • ' + vehicle.licensePlate : ''}`;
+      doc.text(vehicleDetails, margin + 60, currentY + 7);
 
-      currentY += vehicleCardHeight + 12;
+      currentY += 16;
     }
 
     // === TRIPS TABLE ===
-    doc.setFontSize(9);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'bold');
-    doc.text('TRAJETS', margin, currentY);
-    currentY += 6;
-
-    // Create table data with clean formatting
+    // Create table data with compact formatting
     const tableData = sortedTrips.map(t => {
       const tripDate = new Date(t.startTime);
-      const day = tripDate.getDate();
-      const month = monthNames[tripDate.getMonth()].substring(0, 3).toLowerCase();
+      const day = tripDate.getDate().toString().padStart(2, '0');
+      const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
       
-      // Clean location names (take only first part if too long)
-      const startName = t.startLocation.name.split(',')[0].trim();
-      const endName = t.endLocation.name.split(',')[0].trim();
+      // Compact location names - truncate if too long
+      const truncate = (str: string, max: number) => {
+        const clean = str.split(',')[0].trim();
+        return clean.length > max ? clean.substring(0, max - 1) + '…' : clean;
+      };
+      const startName = truncate(t.startLocation.name, 25);
+      const endName = truncate(t.endLocation.name, 25);
+      
+      // Purpose/motif
+      const motif = t.purpose || '-';
       
       return [
-        `${day} ${month}`,
-        `${startName}  →  ${endName}`,
+        `${day}/${month}`,
+        startName,
+        endName,
+        motif.length > 20 ? motif.substring(0, 19) + '…' : motif,
         `${Math.round(t.distance)} km`,
+        `${t.recalculatedIK.toFixed(2)} €`,
       ];
     });
 
     autoTable(doc, {
       startY: currentY,
-      head: [],
+      head: [['Date', 'Départ', 'Arrivée', 'Motif', 'Distance', 'IK']],
       body: tableData,
       styles: { 
-        fontSize: 10, 
-        cellPadding: { top: 5, right: 6, bottom: 5, left: 6 },
+        fontSize: 8, 
+        cellPadding: { top: 3, right: 4, bottom: 3, left: 4 },
         textColor: [darkText.r, darkText.g, darkText.b],
         lineWidth: 0,
+        overflow: 'ellipsize',
+      },
+      headStyles: { 
+        fillColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 7,
       },
       bodyStyles: {
         fillColor: [255, 255, 255],
@@ -694,35 +679,32 @@ ${IKTRACKER_MENTION}
         fillColor: [lightGray.r, lightGray.g, lightGray.b],
       },
       columnStyles: {
-        0: { cellWidth: 22, textColor: [mutedText.r, mutedText.g, mutedText.b], fontSize: 9 },
-        1: { cellWidth: 'auto' },
-        2: { cellWidth: 28, halign: 'right', fontStyle: 'bold' },
+        0: { cellWidth: 18, halign: 'center' },
+        1: { cellWidth: 55 },
+        2: { cellWidth: 55 },
+        3: { cellWidth: 45 },
+        4: { cellWidth: 22, halign: 'right' },
+        5: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b] },
       },
       margin: { left: margin, right: margin },
       tableLineColor: [borderGray.r, borderGray.g, borderGray.b],
       tableLineWidth: 0.1,
-      didDrawCell: function(data) {
-        // Add border radius effect with subtle borders
-        if (data.row.index === 0) {
-          doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
-          doc.setLineWidth(0.1);
-        }
-      },
     });
 
-    currentY = (doc as any).lastAutoTable.finalY + 16;
+    currentY = (doc as any).lastAutoTable.finalY + 8;
 
     // === TOTAL SECTION ===
     doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
     doc.setLineWidth(0.3);
-    doc.line(margin, currentY - 8, pageWidth - margin, currentY - 8);
+    doc.line(margin, currentY, pageWidth - margin, currentY);
+    currentY += 6;
     
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setTextColor(darkText.r, darkText.g, darkText.b);
     doc.setFont('helvetica', 'normal');
     doc.text('Total à déclarer', margin, currentY);
     
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
     doc.setFont('helvetica', 'bold');
     doc.text(`${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, pageWidth - margin, currentY, { align: 'right' });
@@ -732,37 +714,31 @@ ${IKTRACKER_MENTION}
     
     // Dark header band (same as page 1)
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, pageWidth, 8, 'F');
+    doc.rect(0, 0, pageWidth, 6, 'F');
 
-    let baremeY = 24;
+    let baremeY = 16;
 
-    // Header
-    doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-    doc.roundedRect(margin, baremeY, contentWidth, 14, 4, 4, 'F');
-    
-    doc.setFillColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
-    doc.circle(margin + 10, baremeY + 7, 5, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.text('€', margin + 10, baremeY + 8, { align: 'center' });
+    // Header with logo
+    if (logoBase64) {
+      doc.addImage(logoBase64, 'PNG', margin, baremeY - 2, 10, 10);
+    }
     
     doc.setTextColor(darkText.r, darkText.g, darkText.b);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Barème kilométrique fiscal 2025', margin + 20, baremeY + 9);
+    doc.text('Barème kilométrique fiscal 2025', margin + 14, baremeY + 4);
 
-    baremeY += 24;
+    baremeY += 16;
 
     // Explanation text
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
     doc.setFont('helvetica', 'normal');
     const explanationText = "Le barème kilométrique permet de calculer les frais de déplacement professionnels déductibles. Le montant varie selon la puissance fiscale du véhicule et le nombre de kilomètres parcourus sur l'année.";
     const splitText = doc.splitTextToSize(explanationText, contentWidth);
     doc.text(splitText, margin, baremeY);
     
-    baremeY += splitText.length * 5 + 10;
+    baremeY += splitText.length * 4 + 8;
 
     // Barème table data
     const baremeTableData = IK_BAREME_2024.map(b => [
@@ -778,7 +754,7 @@ ${IKTRACKER_MENTION}
       body: baremeTableData,
       styles: { 
         fontSize: 9, 
-        cellPadding: 6,
+        cellPadding: 5,
         textColor: [darkText.r, darkText.g, darkText.b],
       },
       headStyles: { 
@@ -794,45 +770,44 @@ ${IKTRACKER_MENTION}
         fillColor: [lightGray.r, lightGray.g, lightGray.b],
       },
       columnStyles: {
-        0: { fontStyle: 'bold', cellWidth: 35 },
-        1: { halign: 'center' },
-        2: { halign: 'center' },
-        3: { halign: 'center' },
+        0: { fontStyle: 'bold', cellWidth: 40 },
+        1: { halign: 'center', cellWidth: 50 },
+        2: { halign: 'center', cellWidth: 70 },
+        3: { halign: 'center', cellWidth: 50 },
       },
       margin: { left: margin, right: margin },
     });
 
-    baremeY = (doc as any).lastAutoTable.finalY + 16;
+    baremeY = (doc as any).lastAutoTable.finalY + 10;
 
     // Legend
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
     doc.setFont('helvetica', 'italic');
     doc.text('d = distance parcourue en kilomètres', margin, baremeY);
 
-    baremeY += 12;
+    baremeY += 8;
 
     // Electric vehicle bonus info
     doc.setFillColor(239, 246, 255);
-    doc.roundedRect(margin, baremeY, contentWidth, 24, 3, 3, 'F');
-    
-    doc.setFontSize(9);
-    doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
-    doc.setFont('helvetica', 'bold');
-    doc.text('⚡ Bonus véhicule électrique', margin + 8, baremeY + 8);
+    doc.roundedRect(margin, baremeY, 200, 18, 2, 2, 'F');
     
     doc.setFontSize(8);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Les véhicules 100% électriques bénéficient d\'une majoration de 20% sur le montant des indemnités kilométriques.', margin + 8, baremeY + 16);
-
-    baremeY += 36;
-
-    // Source info
+    doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
+    doc.setFont('helvetica', 'bold');
+    doc.text('⚡ Bonus véhicule électrique', margin + 6, baremeY + 6);
+    
     doc.setFontSize(7);
     doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.text('Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l\'évaluation des frais de déplacement', margin, baremeY);
-    doc.text('relatifs à l\'utilisation d\'un véhicule par les bénéficiaires de traitements et salaires.', margin, baremeY + 4);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Les véhicules 100% électriques bénéficient d\'une majoration de 20% sur le montant des indemnités kilométriques.', margin + 6, baremeY + 12);
+
+    baremeY += 24;
+
+    // Source info
+    doc.setFontSize(6);
+    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
+    doc.text('Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l\'évaluation des frais de déplacement relatifs à l\'utilisation d\'un véhicule.', margin, baremeY);
 
     // === FOOTER ON ALL PAGES ===
     const pageCount = doc.getNumberOfPages();
@@ -840,20 +815,20 @@ ${IKTRACKER_MENTION}
       doc.setPage(i);
       
       // Marketing tagline at bottom
-      doc.setFontSize(8);
+      doc.setFontSize(7);
       doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
       doc.setFont('helvetica', 'normal');
-      doc.text('Simplifiez votre suivi kilométrique avec IKtracker', margin, pageHeight - 18);
+      doc.text('Simplifiez votre suivi kilométrique avec IKtracker', margin, pageHeight - 12);
       
       // Footer line
       doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
       doc.setLineWidth(0.2);
-      doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14);
+      doc.line(margin, pageHeight - 9, pageWidth - margin, pageHeight - 9);
       
       // Footer text
-      doc.setFontSize(7);
-      doc.text('Généré par IKtracker  •  iktracker.fr  •  Conforme au barème fiscal 2025', margin, pageHeight - 10);
-      doc.text(`Page ${i}/${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+      doc.setFontSize(6);
+      doc.text('Généré par IKtracker  •  iktracker.fr  •  Conforme au barème fiscal 2025', margin, pageHeight - 6);
+      doc.text(`Page ${i}/${pageCount}`, pageWidth - margin, pageHeight - 6, { align: 'right' });
     }
 
     return doc.output('arraybuffer');
