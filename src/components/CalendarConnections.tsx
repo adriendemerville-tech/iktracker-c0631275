@@ -10,6 +10,7 @@ import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug, RefreshCw } from '
 import { useCalendarConnections } from '@/hooks/useCalendarConnections';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 // Google Calendar icon
 const GoogleCalendarIcon = () => (
@@ -32,9 +33,10 @@ const OutlookIcon = () => (
   </svg>
 );
 
-export function CalendarConnections() {
+export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () => void } = {}) {
   const { connections, loading, addIcsConnection, removeConnection, toggleConnection, getConnection, refetch } = useCalendarConnections();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [icsUrl, setIcsUrl] = useState('');
   const [icsDialogOpen, setIcsDialogOpen] = useState(false);
   const [addingIcs, setAddingIcs] = useState(false);
@@ -112,10 +114,13 @@ export function CalendarConnections() {
 
     if (data?.totalTripsCreated > 0) {
       toast.success(`${data.totalTripsCreated} trajet(s) créé(s) depuis le calendrier`);
+      // Trigger refresh of trips data
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      onTripsUpdated?.();
     } else {
       toast.info('Aucun nouveau trajet à créer');
     }
-  }, [user]);
+  }, [user, queryClient, onTripsUpdated]);
 
   const googleConnection = getConnection('google');
   const outlookConnection = getConnection('outlook');
