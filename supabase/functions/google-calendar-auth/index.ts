@@ -76,9 +76,12 @@ serve(async (req) => {
       
       // Helper function to return response based on mode (popup vs redirect)
       const returnResponse = (success: boolean, errorMessage?: string) => {
-        if (use_redirect && redirect_url) {
+        // Determine the final redirect URL
+        const finalRedirectUrl = redirect_url || 'https://iktracker.fr/profile';
+        
+        if (use_redirect) {
           // Mobile mode: redirect back to app with query params
-          const redirectTarget = new URL(redirect_url);
+          const redirectTarget = new URL(finalRedirectUrl);
           if (success) {
             redirectTarget.searchParams.set('oauth_success', 'true');
             redirectTarget.searchParams.set('oauth_provider', 'google');
@@ -88,16 +91,82 @@ serve(async (req) => {
           }
           return Response.redirect(redirectTarget.toString(), 302);
         } else {
-          // Desktop mode: use postMessage to parent window
-          if (success) {
-            return new Response(`<html><body><script>window.opener.postMessage({type:'google-auth-success'},'*');window.close();</script></body></html>`, {
-              headers: { 'Content-Type': 'text/html' },
-            });
-          } else {
-            return new Response(`<html><body><script>window.opener.postMessage({type:'google-auth-error',error:'${errorMessage}'},'*');window.close();</script></body></html>`, {
-              headers: { 'Content-Type': 'text/html' },
-            });
-          }
+          // Desktop mode: try postMessage first, but always redirect as fallback
+          const successHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Connexion réussie</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: white; }
+    .container { text-align: center; padding: 2rem; }
+    .success { color: #22c55e; font-size: 3rem; margin-bottom: 1rem; }
+    p { color: #94a3b8; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="success">✓</div>
+    <h2>Calendrier connecté !</h2>
+    <p>Cette fenêtre va se fermer automatiquement...</p>
+  </div>
+  <script>
+    // Try to notify the opener window
+    if (window.opener && !window.opener.closed) {
+      try {
+        window.opener.postMessage({ type: 'google-auth-success' }, '*');
+        setTimeout(() => window.close(), 1500);
+      } catch(e) {
+        // If postMessage fails, redirect instead
+        setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_success=true&oauth_provider=google'; }, 1500);
+      }
+    } else {
+      // No opener, redirect to the app
+      setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_success=true&oauth_provider=google'; }, 1500);
+    }
+  </script>
+</body>
+</html>`;
+
+          const errorHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Erreur de connexion</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: white; }
+    .container { text-align: center; padding: 2rem; }
+    .error { color: #ef4444; font-size: 3rem; margin-bottom: 1rem; }
+    p { color: #94a3b8; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error">✗</div>
+    <h2>Erreur de connexion</h2>
+    <p>${errorMessage || 'Une erreur est survenue'}</p>
+    <p>Redirection en cours...</p>
+  </div>
+  <script>
+    if (window.opener && !window.opener.closed) {
+      try {
+        window.opener.postMessage({ type: 'google-auth-error', error: '${errorMessage}' }, '*');
+        setTimeout(() => window.close(), 2000);
+      } catch(e) {
+        setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_error=${encodeURIComponent(errorMessage || 'Unknown error')}&oauth_provider=google'; }, 2000);
+      }
+    } else {
+      setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_error=${encodeURIComponent(errorMessage || 'Unknown error')}&oauth_provider=google'; }, 2000);
+    }
+  </script>
+</body>
+</html>`;
+
+          return new Response(success ? successHtml : errorHtml, {
+            headers: { 'Content-Type': 'text/html' },
+          });
         }
       };
 
