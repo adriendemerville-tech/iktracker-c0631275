@@ -497,6 +497,45 @@ export function useTrips() {
           id: data.id,
         };
         setVehicles(prev => [...prev, newVehicle]);
+
+        // If this is the first/only vehicle, assign it to all trips without a vehicle
+        const tripsWithoutVehicle = trips.filter(t => !t.vehicleId);
+        if (tripsWithoutVehicle.length > 0) {
+          console.log(`Assigning new vehicle ${data.id} to ${tripsWithoutVehicle.length} trips without vehicle`);
+          
+          // Update trips in database
+          const tripIds = tripsWithoutVehicle.map(t => t.id);
+          await supabase
+            .from('trips')
+            .update({ vehicle_id: data.id })
+            .in('id', tripIds);
+
+          // Recalculate IK for each trip and update
+          let cumulativeKm = 0;
+          const sortedTrips = [...tripsWithoutVehicle].sort((a, b) => 
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+          );
+
+          for (const trip of sortedTrips) {
+            cumulativeKm += trip.distance;
+            let ikAmount = calculateTotalAnnualIK(cumulativeKm, newVehicle.fiscalPower) - 
+                           calculateTotalAnnualIK(cumulativeKm - trip.distance, newVehicle.fiscalPower);
+            
+            if (newVehicle.isElectric) {
+              ikAmount = ikAmount * 1.2;
+            }
+
+            await supabase
+              .from('trips')
+              .update({ ik_amount: ikAmount })
+              .eq('id', trip.id);
+          }
+
+          // Reload trips to get updated data
+          loadFromDatabase();
+          toast.success(`${tripsWithoutVehicle.length} trajet(s) mis à jour avec le nouveau véhicule`);
+        }
+
         return newVehicle;
       }
       return null;
