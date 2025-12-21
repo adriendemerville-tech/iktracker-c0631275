@@ -538,15 +538,32 @@ const Profile = () => {
         <Card className="relative">
           {/* Animated car - at header level, above December bar */}
           <div className="absolute top-4 right-[40px] flex flex-col items-center gap-0 z-10">
-            <div className="animate-car-bounce relative" style={{ filter: 'drop-shadow(0 0 4px hsl(220 70% 50% / 0.35))' }}>
-              <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
-              {/* Animated wheels overlay */}
-              <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-              <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-            </div>
+            {totalStats.totalKm === 0 ? (
+              /* Sleeping car when 0 km */
+              <div className="relative" style={{ filter: 'drop-shadow(0 0 4px hsl(220 70% 50% / 0.2))' }}>
+                <Car className="w-8 h-8 text-primary/60 fill-transparent" strokeWidth={1.5} />
+                {/* Static wheels */}
+                <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
+                <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
+                {/* "Zz.." sleeping text inside car */}
+                <span className="absolute top-[6px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none">
+                  Zz..
+                </span>
+                {/* Dot in front of front wheel */}
+                <div className="absolute bottom-[6px] -left-[4px] w-[4px] h-[4px] rounded-full bg-primary/60" />
+              </div>
+            ) : (
+              /* Animated car when > 0 km */
+              <div className="animate-car-bounce relative" style={{ filter: 'drop-shadow(0 0 4px hsl(220 70% 50% / 0.35))' }}>
+                <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
+                {/* Animated wheels overlay */}
+                <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+                <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+              </div>
+            )}
             {/* Road */}
             <div className="relative w-12 -mt-1.5">
-              <div className="w-full h-[2px] bg-muted-foreground/40 rounded-full animate-road-wave" />
+              <div className={`w-full h-[2px] bg-muted-foreground/40 rounded-full ${totalStats.totalKm > 0 ? 'animate-road-wave' : ''}`} />
             </div>
           </div>
           <CardHeader>
