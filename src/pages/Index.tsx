@@ -956,11 +956,13 @@ ${IKTRACKER_MENTION}
 
         {/* Pending trips section - "À compléter" */}
         {trips.filter(t => t.status === 'pending_location').length > 0 && (
-          <section className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+          <section className="rounded-lg p-4 border border-[hsl(270,50%,35%)]/40" style={{
+            background: 'linear-gradient(135deg, hsl(270, 50%, 20%) 0%, hsl(280, 45%, 15%) 100%)'
+          }}>
             <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-5 h-5 text-destructive" />
-              <h2 className="text-lg font-semibold text-destructive">À compléter</h2>
-              <Badge variant="destructive" className="ml-auto">
+              <MapPin className="w-5 h-5 text-purple-300" />
+              <h2 className="text-lg font-semibold text-purple-100">À compléter</h2>
+              <Badge className="ml-auto bg-purple-400/20 text-purple-200 border-purple-400/30 hover:bg-purple-400/30">
                 {trips.filter(t => t.status === 'pending_location').length}
               </Badge>
             </div>

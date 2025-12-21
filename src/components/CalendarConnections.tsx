@@ -425,6 +425,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
                 size="sm"
                 onClick={() => runCalendarDebug('google')}
                 disabled={debugLoading && debugProvider === 'google'}
+                className="hidden md:flex"
               >
                 {debugLoading && debugProvider === 'google' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -473,6 +474,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
                 size="sm"
                 onClick={() => runCalendarDebug('outlook')}
                 disabled={debugLoading && debugProvider === 'outlook'}
+                className="hidden md:flex"
               >
                 {debugLoading && debugProvider === 'outlook' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
