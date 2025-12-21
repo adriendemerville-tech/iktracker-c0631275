@@ -15,6 +15,7 @@ interface TutorialStep {
 }
 
 const TUTORIAL_STEPS: TutorialStep[] = [
+  // Left sidebar: top to bottom
   {
     id: 'vehicles',
     targetSelector: '[data-tutorial="vehicles"]',
@@ -64,6 +65,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     icon: <MessageSquare className="w-5 h-5" />,
     position: 'right',
   },
+  // Bottom bar: left to right (report, add-trip)
   {
     id: 'report',
     targetSelector: '[data-tutorial="report"]',
@@ -73,28 +75,29 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     position: 'top',
   },
   {
-    id: 'download',
-    targetSelector: '[data-tutorial="download"]',
-    title: 'Télécharger le relevé',
-    description: 'Exportez votre relevé au format PDF ou CSV pour votre déclaration fiscale ou votre comptable.',
-    icon: <Download className="w-5 h-5" />,
-    position: 'top',
-  },
-  {
-    id: 'profile',
-    targetSelector: '[data-tutorial="profile"]',
-    title: 'Mon profil',
-    description: 'Gérez votre compte, vos informations personnelles et vos paramètres de sécurité.',
-    icon: <UserCircle className="w-5 h-5" />,
-    position: 'top',
-  },
-  {
     id: 'add-trip',
     targetSelector: '[data-tutorial="add-trip"]',
     title: 'Ajouter un trajet',
     description: 'Créez manuellement un trajet avec le calcul automatique de la distance et des indemnités.',
     icon: <Plus className="w-5 h-5" />,
     position: 'top',
+  },
+  // Top right: profile, download
+  {
+    id: 'profile',
+    targetSelector: '[data-tutorial="profile"]',
+    title: 'Mon profil',
+    description: 'Gérez votre compte, vos informations personnelles et vos paramètres de sécurité.',
+    icon: <UserCircle className="w-5 h-5" />,
+    position: 'bottom',
+  },
+  {
+    id: 'download',
+    targetSelector: '[data-tutorial="download"]',
+    title: 'Télécharger le relevé',
+    description: 'Exportez votre relevé au format PDF ou CSV pour votre déclaration fiscale ou votre comptable.',
+    icon: <Download className="w-5 h-5" />,
+    position: 'bottom',
   },
 ];
 

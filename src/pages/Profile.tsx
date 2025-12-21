@@ -650,6 +650,63 @@ const Profile = () => {
         {/* Feedback Button - Shown at top when there are unread responses */}
         {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
 
+        {/* Calendar Connections */}
+        <CalendarConnections />
+
+        {/* Vehicles */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Car className="w-4 h-4" />
+                Mes véhicules
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-7 text-xs px-2"
+                onClick={() => {
+                  setEditingVehicle(null);
+                  setVehicleFormOpen(true);
+                }}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Ajouter
+              </Button>
+            </div>
+            <CardDescription>
+              Gérez vos véhicules pour le calcul des IK
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {vehicles.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucun véhicule enregistré</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {vehicles.map((vehicle) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    totalKm={getTotalAnnualKm(vehicle.id)}
+                    selected={false}
+                    onEdit={() => handleEditVehicle(vehicle)}
+                    onDelete={() => handleDeleteVehicle(vehicle.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <VehicleForm
+          open={vehicleFormOpen}
+          onOpenChange={setVehicleFormOpen}
+          onSave={handleSaveVehicle}
+          editVehicle={editingVehicle || undefined}
+        />
+
         {/* Kilometers Chart */}
         <Card className="relative">
           {/* Animated car - at header level, above December bar */}
@@ -724,63 +781,6 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Calendar Connections */}
-        <CalendarConnections />
-
-        {/* Vehicles */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Car className="w-4 h-4" />
-                Mes véhicules
-              </CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-7 text-xs px-2"
-                onClick={() => {
-                  setEditingVehicle(null);
-                  setVehicleFormOpen(true);
-                }}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Ajouter
-              </Button>
-            </div>
-            <CardDescription>
-              Gérez vos véhicules pour le calcul des IK
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {vehicles.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Aucun véhicule enregistré</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {vehicles.map((vehicle) => (
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    totalKm={getTotalAnnualKm(vehicle.id)}
-                    selected={false}
-                    onEdit={() => handleEditVehicle(vehicle)}
-                    onDelete={() => handleDeleteVehicle(vehicle.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <VehicleForm
-          open={vehicleFormOpen}
-          onOpenChange={setVehicleFormOpen}
-          onSave={handleSaveVehicle}
-          editVehicle={editingVehicle || undefined}
-        />
 
         <Card>
           <CardHeader>
