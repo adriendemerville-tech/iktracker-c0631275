@@ -86,25 +86,32 @@ async function refreshGoogleToken(connection: CalendarConnection, supabase: any)
   }
 }
 
-// Fetch Google Calendar events: entire previous month + current month up to now + next 14 days
-async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarEvent[]> {
+// Calculate date range for calendar sync: entire previous month + current month + 14 days ahead
+function getCalendarSyncDateRange(): { startDate: Date; endDate: Date } {
   const now = new Date();
   
   // Start of previous month (1st day at 00:00:00)
-  const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
+  const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
   
   // End window: 14 days from today
-  const endWindow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14, 23, 59, 59);
+  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14, 23, 59, 59);
+  
+  return { startDate, endDate };
+}
+
+// Fetch Google Calendar events: entire previous month + current month up to now + next 14 days
+async function fetchGoogleCalendarEvents(accessToken: string): Promise<{ events: CalendarEvent[]; dateRange: { startDate: string; endDate: string } }> {
+  const { startDate, endDate } = getCalendarSyncDateRange();
 
   const params = new URLSearchParams({
-    timeMin: startOfPreviousMonth.toISOString(),
-    timeMax: endWindow.toISOString(),
+    timeMin: startDate.toISOString(),
+    timeMax: endDate.toISOString(),
     singleEvents: 'true',
     orderBy: 'startTime',
     maxResults: '500', // Increased to handle more past events
   });
 
-  console.log(`Fetching Google Calendar events from ${startOfPreviousMonth.toISOString()} to ${endWindow.toISOString()}`);
+  console.log(`Fetching Google Calendar events from ${startDate.toISOString()} to ${endDate.toISOString()}`);
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
@@ -115,15 +122,28 @@ async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarE
     }
   );
 
+
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Failed to fetch calendar events:', response.status, errorText);
-    return [];
+    return { 
+      events: [], 
+      dateRange: { 
+        startDate: startDate.toISOString().split('T')[0], 
+        endDate: endDate.toISOString().split('T')[0] 
+      } 
+    };
   }
 
   const data = await response.json();
   console.log(`Fetched ${data.items?.length || 0} raw events from Google Calendar`);
-  return data.items || [];
+  return { 
+    events: data.items || [], 
+    dateRange: { 
+      startDate: startDate.toISOString().split('T')[0], 
+      endDate: endDate.toISOString().split('T')[0] 
+    } 
+  };
 }
 
 // IK Barème 2024 (same as frontend)
@@ -430,6 +450,7 @@ serve(async (req) => {
 
     let totalTripsCreated = 0;
     let usersProcessed = 0;
+    let syncDateRange: { startDate: string; endDate: string } | null = null;
 
     for (const connection of connections || []) {
       try {
@@ -443,8 +464,13 @@ serve(async (req) => {
         }
 
         // Fetch calendar events
-        const events = await fetchGoogleCalendarEvents(accessToken);
+        const { events, dateRange } = await fetchGoogleCalendarEvents(accessToken);
         console.log(`Found ${events.length} events for user ${connection.user_id}`);
+
+        // Store date range for response
+        if (!syncDateRange) {
+          syncDateRange = dateRange;
+        }
 
         // Get user's last used vehicle
         const vehicle = await getUserLastUsedVehicle(connection.user_id, supabase);
@@ -494,6 +520,7 @@ serve(async (req) => {
       success: true,
       usersProcessed,
       totalTripsCreated,
+      dateRange: syncDateRange,
       timestamp: new Date().toISOString(),
     };
 

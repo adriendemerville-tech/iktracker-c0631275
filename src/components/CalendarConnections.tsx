@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { CalendarSyncNotification } from './CalendarSyncNotification';
 
 // Detect if we're on a mobile device (more reliable than just screen size)
 const isMobileDevice = () => {
@@ -93,7 +94,11 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
   }, [user]);
 
   const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<any>(null);
+  const [syncResult, setSyncResult] = useState<{
+    totalTripsCreated: number;
+    dateRange: { startDate: string; endDate: string } | null;
+  } | null>(null);
+  const [showSyncNotification, setShowSyncNotification] = useState(false);
 
   const runManualSync = useCallback(async () => {
     if (!user) {
@@ -103,6 +108,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
 
     setSyncing(true);
     setSyncResult(null);
+    setShowSyncNotification(false);
 
     const { data, error } = await supabase.functions.invoke('sync-calendar-trips', {
       body: { trigger: 'manual' },
@@ -115,16 +121,17 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       return;
     }
 
-    setSyncResult(data);
+    setSyncResult({
+      totalTripsCreated: data?.totalTripsCreated || 0,
+      dateRange: data?.dateRange || null,
+    });
     setSyncing(false);
+    setShowSyncNotification(true);
 
     if (data?.totalTripsCreated > 0) {
-      toast.success(`${data.totalTripsCreated} trajet(s) créé(s) depuis le calendrier`);
       // Trigger refresh of trips data
       queryClient.invalidateQueries({ queryKey: ['trips'] });
       onTripsUpdated?.();
-    } else {
-      toast.info('Aucun nouveau trajet à créer');
     }
   }, [user, queryClient, onTripsUpdated]);
 
@@ -703,6 +710,15 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           </div>
         )}
       </CardContent>
+
+      {/* Sync notification modal */}
+      {showSyncNotification && syncResult && (
+        <CalendarSyncNotification
+          dateRange={syncResult.dateRange}
+          tripsCreated={syncResult.totalTripsCreated}
+          onClose={() => setShowSyncNotification(false)}
+        />
+      )}
     </Card>
   );
 }
