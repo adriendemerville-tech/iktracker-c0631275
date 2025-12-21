@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.recalculate-distances]
 verify_jwt = false
+
+[functions.parse-takeout]
+verify_jwt = false
