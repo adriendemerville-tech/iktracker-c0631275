@@ -4,7 +4,7 @@ export interface Location {
   address: string;
   lat?: number;
   lng?: number;
-  type: 'home' | 'office' | 'client' | 'supplier' | 'other';
+  type: string; // 'home' | 'office' | 'client' | 'supplier' | 'other' or custom type
 }
 
 export interface Vehicle {
