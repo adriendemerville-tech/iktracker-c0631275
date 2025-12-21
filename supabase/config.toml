@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.sync-calendar-trips]
 verify_jwt = false
+
+[functions.recalculate-distances]
+verify_jwt = false
