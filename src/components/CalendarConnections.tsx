@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug } from 'lucide-react';
+import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug, RefreshCw } from 'lucide-react';
 import { useCalendarConnections } from '@/hooks/useCalendarConnections';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,6 +82,39 @@ export function CalendarConnections() {
 
     setDebugResponse(data);
     setDebugLoading(false);
+  }, [user]);
+
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<any>(null);
+
+  const runManualSync = useCallback(async () => {
+    if (!user) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setSyncing(true);
+    setSyncResult(null);
+
+    const { data, error } = await supabase.functions.invoke('sync-calendar-trips', {
+      body: { trigger: 'manual' },
+    });
+
+    if (error) {
+      toast.error('Erreur lors de la synchronisation');
+      console.error('[sync-calendar-trips] error:', error);
+      setSyncing(false);
+      return;
+    }
+
+    setSyncResult(data);
+    setSyncing(false);
+
+    if (data?.totalTripsCreated > 0) {
+      toast.success(`${data.totalTripsCreated} trajet(s) créé(s) depuis le calendrier`);
+    } else {
+      toast.info('Aucun nouveau trajet à créer');
+    }
   }, [user]);
 
   const googleConnection = getConnection('google');
@@ -515,11 +548,48 @@ export function CalendarConnections() {
           </div>
         )}
 
+        {/* Manual Sync Button */}
+        {connections.length > 0 && (
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div>
+              <p className="font-medium text-sm">Synchroniser maintenant</p>
+              <p className="text-xs text-muted-foreground">
+                Importer les trajets depuis vos RDV avec adresse (7 prochains jours)
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={runManualSync}
+              disabled={syncing}
+            >
+              {syncing ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
+              Sync
+            </Button>
+          </div>
+        )}
+
+        {/* Sync Result */}
+        {syncResult && (
+          <Alert>
+            <AlertTitle>Résultat de la synchronisation</AlertTitle>
+            <AlertDescription>
+              <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
+                {JSON.stringify(syncResult, null, 2)}
+              </pre>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Info about syncing */}
         {connections.length > 0 && (
           <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <p>
-              📍 Les trajets seront créés automatiquement pour les RDV avec une adresse (champ lieu).
+              📍 Les trajets sont créés automatiquement pour les RDV avec une adresse (champ lieu).
             </p>
           </div>
         )}

@@ -84,18 +84,21 @@ async function refreshGoogleToken(connection: CalendarConnection, supabase: any)
   }
 }
 
-// Fetch Google Calendar events for today
+// Fetch Google Calendar events for today + next 7 days
 async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarEvent[]> {
   const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const endWindow = new Date(startOfToday.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days
 
   const params = new URLSearchParams({
-    timeMin: startOfDay.toISOString(),
-    timeMax: endOfDay.toISOString(),
+    timeMin: startOfToday.toISOString(),
+    timeMax: endWindow.toISOString(),
     singleEvents: 'true',
     orderBy: 'startTime',
+    maxResults: '250',
   });
+
+  console.log(`Fetching Google Calendar events from ${startOfToday.toISOString()} to ${endWindow.toISOString()}`);
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
@@ -107,11 +110,13 @@ async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarE
   );
 
   if (!response.ok) {
-    console.error('Failed to fetch calendar events:', await response.text());
+    const errorText = await response.text();
+    console.error('Failed to fetch calendar events:', response.status, errorText);
     return [];
   }
 
   const data = await response.json();
+  console.log(`Fetched ${data.items?.length || 0} raw events from Google Calendar`);
   return data.items || [];
 }
 
@@ -144,24 +149,27 @@ async function createTripFromEvent(
   event: CalendarEvent,
   vehicleId: string | null,
   supabase: any
-): Promise<boolean> {
-  // Skip events without location
+): Promise<{ created: boolean; reason?: string }> {
+  // Log all events for debugging
+  console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
+
+  // Skip events without location - but log it
   if (!event.location) {
-    console.log(`Skipping event "${event.summary}" - no location`);
-    return false;
+    console.log(`⏭️ Skipping event "${event.summary}" - no location field`);
+    return { created: false, reason: 'no_location' };
   }
 
   // Check if trip already exists
   if (await tripExistsForEvent(userId, event.id, supabase)) {
-    console.log(`Trip already exists for event "${event.summary}"`);
-    return false;
+    console.log(`⏭️ Trip already exists for event "${event.summary}"`);
+    return { created: false, reason: 'already_exists' };
   }
 
   // Get event date
   const eventDateTime = event.start.dateTime || event.start.date;
   if (!eventDateTime) {
-    console.log(`Skipping event "${event.summary}" - no start date`);
-    return false;
+    console.log(`⏭️ Skipping event "${event.summary}" - no start date`);
+    return { created: false, reason: 'no_start_date' };
   }
 
   const eventDate = new Date(eventDateTime).toISOString().split('T')[0];
@@ -183,12 +191,12 @@ async function createTripFromEvent(
   });
 
   if (error) {
-    console.error(`Failed to create trip for event "${event.summary}":`, error);
-    return false;
+    console.error(`❌ Failed to create trip for event "${event.summary}":`, error);
+    return { created: false, reason: 'db_error' };
   }
 
-  console.log(`Created trip for event "${event.summary}" to ${event.location}`);
-  return true;
+  console.log(`✅ Created trip for event "${event.summary}" to ${event.location} on ${eventDate}`);
+  return { created: true };
 }
 
 serve(async (req) => {
@@ -239,19 +247,31 @@ serve(async (req) => {
 
         // Create trips from events
         let tripsCreated = 0;
+        let skippedNoLocation = 0;
+        let skippedAlreadyExists = 0;
+        let skippedOther = 0;
+
         for (const event of events) {
-          const created = await createTripFromEvent(
+          const result = await createTripFromEvent(
             connection.user_id,
             event,
             vehicleId,
             supabase
           );
-          if (created) tripsCreated++;
+          if (result.created) {
+            tripsCreated++;
+          } else if (result.reason === 'no_location') {
+            skippedNoLocation++;
+          } else if (result.reason === 'already_exists') {
+            skippedAlreadyExists++;
+          } else {
+            skippedOther++;
+          }
         }
 
         totalTripsCreated += tripsCreated;
         usersProcessed++;
-        console.log(`Created ${tripsCreated} trips for user ${connection.user_id}`);
+        console.log(`User ${connection.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
       } catch (error) {
         console.error(`Error processing user ${connection.user_id}:`, error);
       }
