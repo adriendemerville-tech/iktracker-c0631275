@@ -15,7 +15,17 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus, Smartphone } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import founderImage from '@/assets/founder-adrien.jpg';
 import { Vehicle } from '@/types/trip';
 
@@ -63,6 +73,7 @@ export const DesktopSidebar = ({
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
   const [showPreferencesSheet, setShowPreferencesSheet] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
 
   const handleSignOut = async () => {
@@ -113,7 +124,7 @@ export const DesktopSidebar = ({
     { 
       icon: Route, 
       label: 'Mode tournée', 
-      onClick: onTourClick,
+      onClick: onTourClick || (() => setShowTourMobileOnly(true)),
       active: isTourActive,
       tutorialId: 'tour',
       isRecovery: false,
@@ -378,6 +389,40 @@ export const DesktopSidebar = ({
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Tour Mobile Only Dialog */}
+      <AlertDialog open={showTourMobileOnly} onOpenChange={setShowTourMobileOnly}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader className="text-center">
+            <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-2">
+              <Smartphone className="w-7 h-7 text-accent" />
+            </div>
+            <AlertDialogTitle className="text-accent text-xl">Réservé à l'usage mobile</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          {/* QR Code */}
+          <div className="flex justify-center py-4">
+            <div className="bg-white p-3 rounded-xl">
+              <QRCodeSVG 
+                value="https://iktracker.fr/install" 
+                size={140}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+          </div>
+          <p className="text-center text-xs text-muted-foreground -mt-2">
+            Scannez ce QR code avec votre téléphone
+          </p>
+          
+          <AlertDialogFooter className="sm:justify-center gap-2">
+            <AlertDialogCancel>Fermer</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
