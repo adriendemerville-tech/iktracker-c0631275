@@ -9,6 +9,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
 import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { TourModeDemo } from "@/components/marketing/TourModeDemo";
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   Smartphone, 
   Monitor, 
@@ -228,6 +229,20 @@ const Install = () => {
         <div className="container mx-auto px-4 text-center space-y-6">
           <h2 className="text-3xl font-bold">Prêt à installer ?</h2>
           <p className="text-lg opacity-90">Ouvrez cette page sur votre mobile et suivez les instructions.</p>
+          
+          {/* QR Code for desktop users */}
+          <div className="hidden md:flex flex-col items-center gap-3 py-4">
+            <div className="bg-white p-4 rounded-xl shadow-lg">
+              <QRCodeSVG 
+                value="https://iktracker.fr/install" 
+                size={160}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+            <p className="text-sm opacity-80">Scannez ce QR code avec votre téléphone</p>
+          </div>
+          
           <Link to="/signup">
             <Button size="lg" variant="secondary" className="gap-2">
               Créer mon compte

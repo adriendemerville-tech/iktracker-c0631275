@@ -35,7 +35,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3 } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
@@ -740,18 +741,34 @@ ${IKTRACKER_MENTION}
   return (
     <>
       <AlertDialog open={showTourMobileOnly} onOpenChange={setShowTourMobileOnly}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-accent">Réservé à l'usage mobile</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader className="text-center">
+            <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-2">
+              <Smartphone className="w-7 h-7 text-accent" />
+            </div>
+            <AlertDialogTitle className="text-accent text-xl">Réservé à l'usage mobile</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
               Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          
+          {/* QR Code */}
+          <div className="flex justify-center py-4">
+            <div className="bg-white p-3 rounded-xl">
+              <QRCodeSVG 
+                value="https://iktracker.fr/install" 
+                size={140}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+          </div>
+          <p className="text-center text-xs text-muted-foreground -mt-2">
+            Scannez ce QR code avec votre téléphone
+          </p>
+          
+          <AlertDialogFooter className="sm:justify-center gap-2">
             <AlertDialogCancel>Fermer</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <a href="/install">Installer l'app</a>
-            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -880,6 +897,7 @@ ${IKTRACKER_MENTION}
                   onClick={exportZip}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
+                  data-tutorial="download"
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
@@ -892,11 +910,12 @@ ${IKTRACKER_MENTION}
                 onClick={exportZip}
                 disabled={trips.length === 0 || isExporting}
                 className="text-white/70 hover:text-white hover:bg-white/10"
+                data-tutorial="download"
               >
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
             )}
-            <div className="relative">
+            <div className="relative" data-tutorial="profile">
               <Button 
                 variant="ghost" 
                 size="icon"

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Car, Calendar, Route, Settings, MessageSquare, FileText, Sparkles, Plus } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Car, Calendar, Route, Settings, MessageSquare, FileText, Sparkles, Plus, Download, UserCircle, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -11,6 +11,7 @@ interface TutorialStep {
   description: string;
   icon: React.ReactNode;
   position: 'top' | 'bottom' | 'left' | 'right';
+  mobileOnly?: boolean;
 }
 
 const TUTORIAL_STEPS: TutorialStep[] = [
@@ -37,6 +38,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     description: 'Activez le GPS pour enregistrer vos déplacements en temps réel lors de vos tournées. Idéal pour les infirmiers, artisans et commerciaux.',
     icon: <Route className="w-5 h-5" />,
     position: 'right',
+    mobileOnly: true,
   },
   {
     id: 'settings',
@@ -65,10 +67,26 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'report',
     targetSelector: '[data-tutorial="report"]',
-    title: 'Mon relevé',
-    description: 'Consultez et téléchargez votre relevé d\'indemnités kilométriques mensuel au format PDF ou CSV.',
+    title: 'Voir le relevé',
+    description: 'Consultez votre relevé d\'indemnités kilométriques mensuel avec le détail de chaque trajet.',
     icon: <FileText className="w-5 h-5" />,
-    position: 'bottom',
+    position: 'top',
+  },
+  {
+    id: 'download',
+    targetSelector: '[data-tutorial="download"]',
+    title: 'Télécharger le relevé',
+    description: 'Exportez votre relevé au format PDF ou CSV pour votre déclaration fiscale ou votre comptable.',
+    icon: <Download className="w-5 h-5" />,
+    position: 'top',
+  },
+  {
+    id: 'profile',
+    targetSelector: '[data-tutorial="profile"]',
+    title: 'Mon profil',
+    description: 'Gérez votre compte, vos informations personnelles et vos paramètres de sécurité.',
+    icon: <UserCircle className="w-5 h-5" />,
+    position: 'top',
   },
   {
     id: 'add-trip',
@@ -259,6 +277,14 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
               <p className="text-sm text-muted-foreground mb-4">
                 {step.description}
               </p>
+
+              {/* Mobile only badge */}
+              {step.mobileOnly && (
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-accent/10 border border-accent/20">
+                  <Smartphone className="w-4 h-4 text-accent" />
+                  <span className="text-sm font-medium text-accent">Réservé à l'usage mobile</span>
+                </div>
+              )}
 
               {/* Progress bar */}
               <div className="w-full h-1 bg-muted rounded-full mb-4">
