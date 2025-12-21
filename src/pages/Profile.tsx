@@ -392,6 +392,101 @@ const Profile = () => {
             </Card>
         )}
 
+        {/* Mes adresses */}
+        <Card id="mes-adresses">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <MapPin className="w-4 h-4" />
+                Mes adresses
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-7 text-xs px-2"
+                onClick={() => {
+                  setEditingAddress(null);
+                  setAddressFormOpen(true);
+                }}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Ajouter
+              </Button>
+            </div>
+            <CardDescription>
+              Vos lieux pour le calcul automatique des distances
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {savedLocations.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                <Home className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucune adresse enregistrée</p>
+                <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
+                  Ajoutez votre domicile pour que les trajets du calendrier soient calculés automatiquement
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {savedLocations.map((location) => (
+                  <AddressCard
+                    key={location.id}
+                    location={{
+                      id: location.id,
+                      name: location.name,
+                      address: location.address,
+                      type: location.type as 'home' | 'office' | 'other',
+                    }}
+                    onEdit={() => {
+                      setEditingAddress(location);
+                      setAddressFormOpen(true);
+                    }}
+                    onDelete={() => {
+                      deleteLocation(location.id);
+                      toast.success("Adresse supprimée");
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <AddressForm
+          open={addressFormOpen}
+          onOpenChange={setAddressFormOpen}
+          editLocation={editingAddress ? {
+            id: editingAddress.id,
+            name: editingAddress.name,
+            address: editingAddress.address,
+            type: editingAddress.type as 'home' | 'office' | 'other',
+            latitude: editingAddress.lat,
+            longitude: editingAddress.lng,
+          } : undefined}
+          onSave={(locationData) => {
+            if (editingAddress) {
+              updateLocation(editingAddress.id, {
+                name: locationData.name,
+                address: locationData.address,
+                type: locationData.type,
+                lat: locationData.latitude,
+                lng: locationData.longitude,
+              });
+              toast.success("Adresse mise à jour");
+            } else {
+              addLocation({
+                name: locationData.name,
+                address: locationData.address,
+                type: locationData.type,
+                lat: locationData.latitude,
+                lng: locationData.longitude,
+              });
+              toast.success("Adresse ajoutée");
+            }
+            setEditingAddress(null);
+          }}
+        />
+
         {/* Preferences Dropdown */}
         <div className="bg-card rounded-md shadow-md overflow-hidden">
           <button
@@ -550,7 +645,7 @@ const Profile = () => {
                 <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
                 <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
                 {/* "Zz.." sleeping text inside car - lowered for better centering */}
-                <span className="absolute top-[10px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none">
+                <span className="absolute top-[10px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none animate-zz-float">
                   Zz..
                 </span>
                 {/* Dot after the car (in front in driving direction) */}
@@ -663,102 +758,6 @@ const Profile = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Mes adresses */}
-        <Card id="mes-adresses">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <MapPin className="w-4 h-4" />
-                Mes adresses
-              </CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-7 text-xs px-2"
-                onClick={() => {
-                  setEditingAddress(null);
-                  setAddressFormOpen(true);
-                }}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Ajouter
-              </Button>
-            </div>
-            <CardDescription>
-              Vos lieux pour le calcul automatique des distances
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {savedLocations.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Home className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Aucune adresse enregistrée</p>
-                <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
-                  Ajoutez votre domicile pour que les trajets du calendrier soient calculés automatiquement
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {savedLocations.map((location) => (
-                  <AddressCard
-                    key={location.id}
-                    location={{
-                      id: location.id,
-                      name: location.name,
-                      address: location.address,
-                      type: location.type as 'home' | 'office' | 'other',
-                    }}
-                    onEdit={() => {
-                      setEditingAddress(location);
-                      setAddressFormOpen(true);
-                    }}
-                    onDelete={() => {
-                      deleteLocation(location.id);
-                      toast.success("Adresse supprimée");
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <AddressForm
-          open={addressFormOpen}
-          onOpenChange={setAddressFormOpen}
-          editLocation={editingAddress ? {
-            id: editingAddress.id,
-            name: editingAddress.name,
-            address: editingAddress.address,
-            type: editingAddress.type as 'home' | 'office' | 'other',
-            latitude: editingAddress.lat,
-            longitude: editingAddress.lng,
-          } : undefined}
-          onSave={(locationData) => {
-            if (editingAddress) {
-              updateLocation(editingAddress.id, {
-                name: locationData.name,
-                address: locationData.address,
-                type: locationData.type,
-                lat: locationData.latitude,
-                lng: locationData.longitude,
-              });
-              toast.success("Adresse mise à jour");
-            } else {
-              addLocation({
-                name: locationData.name,
-                address: locationData.address,
-                type: locationData.type,
-                lat: locationData.latitude,
-                lng: locationData.longitude,
-              });
-              toast.success("Adresse ajoutée");
-            }
-            setEditingAddress(null);
-          }}
-        />
-
         <VehicleForm
           open={vehicleFormOpen}
           onOpenChange={setVehicleFormOpen}
