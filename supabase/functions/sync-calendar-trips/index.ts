@@ -121,15 +121,96 @@ async function fetchGoogleCalendarEvents(accessToken: string): Promise<CalendarE
   return data.items || [];
 }
 
-// Get user's default vehicle
-async function getUserDefaultVehicle(userId: string, supabase: any): Promise<string | null> {
-  const { data: vehicles } = await supabase
-    .from('vehicles')
-    .select('id')
+// IK Barème 2024 (same as frontend)
+interface IKBareme {
+  cv: string;
+  upTo5000: { rate: number };
+  from5001To20000: { rate: number; fixed: number };
+  over20000: { rate: number };
+}
+
+const IK_BAREME_2024: IKBareme[] = [
+  { cv: '3', upTo5000: { rate: 0.529 }, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: { rate: 0.370 } },
+  { cv: '4', upTo5000: { rate: 0.606 }, from5001To20000: { rate: 0.340, fixed: 1330 }, over20000: { rate: 0.407 } },
+  { cv: '5', upTo5000: { rate: 0.636 }, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: { rate: 0.427 } },
+  { cv: '6', upTo5000: { rate: 0.665 }, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: { rate: 0.447 } },
+  { cv: '7+', upTo5000: { rate: 0.697 }, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: { rate: 0.470 } },
+];
+
+function getIKBareme(fiscalPower: number): IKBareme {
+  if (fiscalPower <= 3) return IK_BAREME_2024[0];
+  if (fiscalPower === 4) return IK_BAREME_2024[1];
+  if (fiscalPower === 5) return IK_BAREME_2024[2];
+  if (fiscalPower === 6) return IK_BAREME_2024[3];
+  return IK_BAREME_2024[4];
+}
+
+function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number): number {
+  const bareme = getIKBareme(fiscalPower);
+  if (totalAnnualKm <= 5000) {
+    return totalAnnualKm * bareme.upTo5000.rate;
+  } else if (totalAnnualKm <= 20000) {
+    return (totalAnnualKm * bareme.from5001To20000.rate) + bareme.from5001To20000.fixed;
+  } else {
+    return totalAnnualKm * bareme.over20000.rate;
+  }
+}
+
+interface VehicleInfo {
+  id: string;
+  fiscal_power: number;
+  is_electric: boolean;
+}
+
+// Get user's last used vehicle (from most recent trip) or first vehicle
+async function getUserLastUsedVehicle(userId: string, supabase: any): Promise<VehicleInfo | null> {
+  // First try to get the vehicle from the most recent trip
+  const { data: recentTrip } = await supabase
+    .from('trips')
+    .select('vehicle_id')
     .eq('user_id', userId)
+    .not('vehicle_id', 'is', null)
+    .order('created_at', { ascending: false })
     .limit(1);
 
-  return vehicles?.[0]?.id || null;
+  const lastVehicleId = recentTrip?.[0]?.vehicle_id;
+
+  if (lastVehicleId) {
+    const { data: vehicle } = await supabase
+      .from('vehicles')
+      .select('id, fiscal_power, is_electric')
+      .eq('id', lastVehicleId)
+      .single();
+    
+    if (vehicle) return vehicle;
+  }
+
+  // Fallback: get the first vehicle
+  const { data: vehicles } = await supabase
+    .from('vehicles')
+    .select('id, fiscal_power, is_electric')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  return vehicles?.[0] || null;
+}
+
+// Get total annual km for a vehicle in current year
+async function getVehicleAnnualKm(userId: string, vehicleId: string, supabase: any): Promise<number> {
+  const currentYear = new Date().getFullYear();
+  const startOfYear = `${currentYear}-01-01`;
+  const endOfYear = `${currentYear}-12-31`;
+
+  const { data: trips } = await supabase
+    .from('trips')
+    .select('distance')
+    .eq('user_id', userId)
+    .eq('vehicle_id', vehicleId)
+    .gte('date', startOfYear)
+    .lte('date', endOfYear);
+
+  return trips?.reduce((sum: number, t: { distance: number }) => sum + (t.distance || 0), 0) || 0;
 }
 
 // Check if a trip already exists for this calendar event
@@ -148,7 +229,7 @@ async function tripExistsForEvent(userId: string, eventId: string, supabase: any
 async function createTripFromEvent(
   userId: string,
   event: CalendarEvent,
-  vehicleId: string | null,
+  vehicle: VehicleInfo | null,
   supabase: any
 ): Promise<{ created: boolean; reason?: string }> {
   // Log all events for debugging
@@ -175,18 +256,23 @@ async function createTripFromEvent(
 
   const eventDate = new Date(eventDateTime).toISOString().split('T')[0];
 
-  // Create the trip with default values
-  // Distance will be 0 - user can update it later
+  // Calculate IK amount if we have a vehicle
+  // Note: distance is 0 at creation, IK will be recalculated when user sets distance
+  // But we calculate based on current annual km for proper rate tier
+  let ikAmount = 0;
+  // IK will be calculated when user updates the distance
+  
+  // Create the trip
   const { error } = await supabase.from('trips').insert({
     user_id: userId,
-    vehicle_id: vehicleId,
+    vehicle_id: vehicle?.id || null,
     start_location: DEFAULT_START_LOCATION,
     end_location: event.location,
-    distance: 0,
+    distance: 0, // User will update distance later
     round_trip: true,
     purpose: event.summary || 'Rendez-vous calendrier',
     date: eventDate,
-    ik_amount: 0,
+    ik_amount: ikAmount,
     source: 'google_calendar',
     calendar_event_id: event.id,
   });
@@ -196,7 +282,7 @@ async function createTripFromEvent(
     return { created: false, reason: 'db_error' };
   }
 
-  console.log(`✅ Created trip for event "${event.summary}" to ${event.location} on ${eventDate}`);
+  console.log(`✅ Created trip for event "${event.summary}" to ${event.location} on ${eventDate} (vehicle: ${vehicle?.id || 'none'})`);
   return { created: true };
 }
 
@@ -243,8 +329,8 @@ serve(async (req) => {
         const events = await fetchGoogleCalendarEvents(accessToken);
         console.log(`Found ${events.length} events for user ${connection.user_id}`);
 
-        // Get user's default vehicle
-        const vehicleId = await getUserDefaultVehicle(connection.user_id, supabase);
+        // Get user's last used vehicle
+        const vehicle = await getUserLastUsedVehicle(connection.user_id, supabase);
 
         // Create trips from events
         let tripsCreated = 0;
@@ -256,7 +342,7 @@ serve(async (req) => {
           const result = await createTripFromEvent(
             connection.user_id,
             event,
-            vehicleId,
+            vehicle,
             supabase
           );
           if (result.created) {
