@@ -21,6 +21,7 @@ import { TourLogSheet } from '@/components/TourLogSheet';
 import { FocusTourView } from '@/components/FocusTourView';
 import { GeolocationBanner } from '@/components/GeolocationBanner';
 import { GeolocationTutorialModal } from '@/components/GeolocationTutorialModal';
+import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { InstallBanner } from '@/components/InstallBanner';
@@ -928,6 +929,15 @@ ${IKTRACKER_MENTION}
                 />
               ))}
             </div>
+          )}
+          
+          {/* Threshold Alert - Home variant (gray) */}
+          {vehicles.length > 0 && (
+            <ThresholdAlert 
+              totalKm={totalKm} 
+              fiscalPower={vehicles[0].fiscalPower} 
+              variant="home" 
+            />
           )}
         </section>
       </main>
