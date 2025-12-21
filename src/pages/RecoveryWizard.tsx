@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import JSZip from 'jszip';
+import pako from 'pako';
 
 interface DetectedTrip {
   id: string;
@@ -155,25 +156,109 @@ export default function RecoveryWizard() {
     return null;
   };
 
-  const processZipFile = async (file: File) => {
+  // Parse TAR format (simple implementation for Google Takeout)
+  const parseTar = (buffer: Uint8Array): Map<string, Uint8Array> => {
+    const files = new Map<string, Uint8Array>();
+    let offset = 0;
+
+    while (offset < buffer.length - 512) {
+      // Read header (512 bytes)
+      const header = buffer.slice(offset, offset + 512);
+      
+      // Check for empty block (end of archive)
+      if (header.every(b => b === 0)) break;
+
+      // Extract filename (first 100 bytes, null-terminated)
+      let nameEnd = 0;
+      while (nameEnd < 100 && header[nameEnd] !== 0) nameEnd++;
+      const name = new TextDecoder().decode(header.slice(0, nameEnd));
+
+      // Extract file size (bytes 124-135, octal)
+      const sizeStr = new TextDecoder().decode(header.slice(124, 135)).trim();
+      const size = parseInt(sizeStr, 8) || 0;
+
+      // Skip to file content
+      offset += 512;
+
+      if (size > 0 && name) {
+        const content = buffer.slice(offset, offset + size);
+        files.set(name, content);
+      }
+
+      // Move to next file (512-byte aligned)
+      offset += Math.ceil(size / 512) * 512;
+    }
+
+    return files;
+  };
+
+  // Find JSON in TAR files
+  const findJsonInTar = (tarFiles: Map<string, Uint8Array>): string | null => {
+    const possibleNames = [
+      'Records.json',
+      'Location History.json',
+    ];
+
+    for (const [filename, content] of tarFiles) {
+      // Check if this is a JSON file we're looking for
+      const isLocationHistory = filename.includes('Location History') || 
+                                 filename.includes('Historique des positions');
+      const isRecordsJson = possibleNames.some(name => filename.endsWith(name));
+      
+      if (isLocationHistory && filename.endsWith('.json') || isRecordsJson) {
+        try {
+          return new TextDecoder().decode(content);
+        } catch {
+          continue;
+        }
+      }
+    }
+
+    return null;
+  };
+
+  // Decompress TGZ and extract JSON
+  const processTgzFile = async (file: File): Promise<string | null> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const compressed = new Uint8Array(arrayBuffer);
+    
+    // Decompress gzip
+    const decompressed = pako.ungzip(compressed);
+    
+    // Parse tar
+    const tarFiles = parseTar(decompressed);
+    
+    // Find JSON
+    return findJsonInTar(tarFiles);
+  };
+
+  const processArchiveFile = async (file: File) => {
     setIsExtracting(true);
     setParseError(null);
     setCurrentStep(2);
     setExtractProgress(0);
 
+    const isTgz = file.name.endsWith('.tgz') || file.name.endsWith('.tar.gz');
+
     try {
-      // Load the ZIP file
-      const arrayBuffer = await file.arrayBuffer();
-      setExtractProgress(20);
+      let jsonContent: string | null = null;
 
-      const zip = await JSZip.loadAsync(arrayBuffer, {
-        // Progress callback
-      });
-      setExtractProgress(50);
+      if (isTgz) {
+        // Process TGZ file
+        setExtractProgress(20);
+        jsonContent = await processTgzFile(file);
+        setExtractProgress(80);
+      } else {
+        // Process ZIP file
+        const arrayBuffer = await file.arrayBuffer();
+        setExtractProgress(20);
 
-      // Find the JSON file
-      const jsonContent = await findJsonInZip(zip);
-      setExtractProgress(80);
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        setExtractProgress(50);
+
+        jsonContent = await findJsonInZip(zip);
+        setExtractProgress(80);
+      }
 
       if (!jsonContent) {
         throw new Error('Aucun fichier de localisation trouvé dans l\'archive. Assurez-vous d\'avoir exporté "Historique des positions" depuis Google Takeout.');
@@ -245,18 +330,30 @@ export default function RecoveryWizard() {
     }
   };
 
+  const isValidArchive = (file: File): boolean => {
+    const name = file.name.toLowerCase();
+    return name.endsWith('.zip') || 
+           name.endsWith('.tgz') || 
+           name.endsWith('.tar.gz') ||
+           file.type === 'application/zip' || 
+           file.type === 'application/x-zip-compressed' ||
+           file.type === 'application/gzip' ||
+           file.type === 'application/x-gzip' ||
+           file.type === 'application/x-tar';
+  };
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
     
     const file = e.dataTransfer.files[0];
     if (file) {
-      if (file.name.endsWith('.zip') || file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
-        processZipFile(file);
+      if (isValidArchive(file)) {
+        processArchiveFile(file);
       } else {
         toast({
           title: "Format non supporté",
-          description: "Veuillez déposer l'archive .zip téléchargée depuis Google Takeout.",
+          description: "Veuillez déposer l'archive .zip ou .tgz téléchargée depuis Google Takeout.",
           variant: "destructive",
         });
       }
@@ -266,12 +363,12 @@ export default function RecoveryWizard() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.name.endsWith('.zip')) {
-        processZipFile(file);
+      if (isValidArchive(file)) {
+        processArchiveFile(file);
       } else {
         toast({
           title: "Format non supporté",
-          description: "Veuillez sélectionner l'archive .zip téléchargée depuis Google Takeout.",
+          description: "Veuillez sélectionner l'archive .zip ou .tgz téléchargée depuis Google Takeout.",
           variant: "destructive",
         });
       }
@@ -422,7 +519,7 @@ export default function RecoveryWizard() {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".zip"
+        accept=".zip,.tgz,.tar.gz"
         onChange={handleFileSelect}
         className="hidden"
       />
@@ -452,8 +549,8 @@ export default function RecoveryWizard() {
                 <ol className="space-y-6">
                   {[
                     { step: "Accédez à Google Takeout", detail: "Cliquez sur le bouton ci-dessous pour ouvrir la page d'export Google." },
-                    { step: "Exportez l'Historique des positions", detail: "Sélectionnez uniquement « Historique des positions » (peu importe le format)." },
-                    { step: "Téléchargez l'archive .zip", detail: "Google vous enverra un email. Téléchargez directement l'archive .zip fournie." },
+                    { step: "Exportez l'Historique des positions", detail: "Sélectionnez uniquement « Historique des positions » (format .zip ou .tgz)." },
+                    { step: "Téléchargez l'archive", detail: "Google vous enverra un email. Téléchargez l'archive .zip ou .tgz fournie." },
                   ].map((item, index) => (
                     <li key={index} className="flex gap-5">
                       <span className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-lg">
@@ -483,7 +580,7 @@ export default function RecoveryWizard() {
                   className="border-slate-700 text-white hover:bg-slate-800 h-14"
                   onClick={() => setCurrentStep(2)}
                 >
-                  J'ai mon archive .zip
+                  J'ai mon archive
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -504,7 +601,7 @@ export default function RecoveryWizard() {
                 Importez votre archive
               </h1>
               <p className="text-slate-400 text-lg mb-10">
-                Déposez le fichier .zip téléchargé depuis Google Takeout
+                Déposez le fichier .zip ou .tgz téléchargé depuis Google Takeout
               </p>
 
               {/* Error message */}
@@ -569,13 +666,13 @@ export default function RecoveryWizard() {
                 >
                   <FileArchive className={`w-20 h-20 mx-auto mb-6 ${isDragOver ? 'text-amber-500' : 'text-slate-600'}`} />
                   <p className="text-xl text-white mb-2">
-                    Glissez-déposez votre archive .zip ici
+                    Glissez-déposez votre archive ici
                   </p>
                   <p className="text-slate-500">
                     ou cliquez pour sélectionner le fichier
                   </p>
                   <p className="text-slate-600 text-sm mt-6">
-                    Format accepté : takeout-*.zip
+                    Formats acceptés : .zip, .tgz, .tar.gz
                   </p>
                 </div>
               )}
