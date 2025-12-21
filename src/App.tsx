@@ -104,16 +104,20 @@ const AppRoutes = () => {
 
   const handleLogout = async () => {
     await signOut();
-    // Wait for overlay animation
-    setTimeout(() => {
+    // On mobile, navigate immediately. On desktop, the overlay handles navigation.
+    if (window.innerWidth < 768) {
       clearLogoutOverlay();
       navigate('/');
-    }, 1200);
+    }
+  };
+
+  const handleLogoutComplete = () => {
+    clearLogoutOverlay();
   };
 
   return (
     <AuthContext.Provider value={{ handleLogout }}>
-      <LogoutOverlay isVisible={isLoggingOut} />
+      <LogoutOverlay isVisible={isLoggingOut} onComplete={handleLogoutComplete} />
       <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<Landing />} />
