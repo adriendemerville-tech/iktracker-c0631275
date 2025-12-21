@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -105,6 +105,7 @@ const Index = () => {
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
+    error: tourError,
     stops: tourStops,
     totalDistanceKm,
     currentPosition,
@@ -150,11 +151,29 @@ const Index = () => {
       setShowTourLog(true);
     } else {
       startTour();
+    }
+  };
+
+  // Show desktop error message when tour start is blocked
+  useEffect(() => {
+    if (tourError === 'desktop_only') {
+      toast.error("Réservé à l'usage mobile", {
+        description: "Installez l'application sur votre smartphone depuis iktracker.fr/install",
+        duration: 6000,
+      });
+    }
+  }, [tourError]);
+
+  // Show success toast when tour actually starts
+  const prevTourActive = useRef(false);
+  useEffect(() => {
+    if (isTourActive && !prevTourActive.current) {
       toast.success("Tournée démarrée", {
         description: "Les arrêts seront détectés automatiquement",
       });
     }
-  };
+    prevTourActive.current = isTourActive;
+  }, [isTourActive]);
 
   const handleFinishTour = async () => {
     // Save the tour/trip based on number of stops

@@ -28,6 +28,11 @@ interface PendingStop {
   city?: string;
 }
 
+// Check if on desktop
+function isDesktop() {
+  return typeof window !== 'undefined' && window.innerWidth >= 1024;
+}
+
 export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const {
     stopDurationThreshold = 7 * 60, // 7 minutes in seconds
@@ -255,6 +260,12 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   }, [stopDurationThreshold, locationRadius, addStop, updateTotalDistance]);
 
   const startTour = useCallback(async () => {
+    // Block tour start on desktop
+    if (isDesktop()) {
+      setError('desktop_only');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setStops([]);
