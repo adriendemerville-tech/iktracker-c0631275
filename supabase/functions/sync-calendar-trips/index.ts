@@ -414,13 +414,31 @@ async function createTripFromEvent(
   let distance = 0;
   let distanceCalculated = false;
   
-  if (tripStatus === 'validated' && userHomeLocation?.address && destinationAddress) {
-    const calculatedDistance = await calculateDrivingDistance(userHomeLocation.address, destinationAddress);
-    if (calculatedDistance !== null && calculatedDistance > 0) {
-      // Round trip = double the distance
-      distance = calculatedDistance * 2;
-      distanceCalculated = true;
-      console.log(`📍 Auto-calculated round-trip distance: ${distance} km`);
+  // Log warning if home location is missing
+  if (!userHomeLocation?.address) {
+    console.log(`⚠️ No home address configured for user ${userId} - distance will be 0`);
+  }
+  
+  if (tripStatus === 'validated' && destinationAddress) {
+    // Use home address if available, otherwise try using "Maison" as fallback
+    const originAddress = userHomeLocation?.address;
+    
+    if (originAddress) {
+      const calculatedDistance = await calculateDrivingDistance(originAddress, destinationAddress);
+      if (calculatedDistance !== null && calculatedDistance > 0) {
+        // Round trip = double the distance
+        distance = calculatedDistance * 2;
+        distanceCalculated = true;
+        console.log(`📍 Auto-calculated round-trip distance: ${distance} km`);
+      } else {
+        // Distance calculation failed - mark as pending so user can fix it
+        tripStatus = 'pending_location';
+        console.log(`⚠️ Distance calculation failed, marking as pending: ${originAddress} → ${destinationAddress}`);
+      }
+    } else {
+      // No home address - mark as pending so user knows they need to configure it
+      tripStatus = 'pending_location';
+      console.log(`⚠️ No home address, marking as pending: "${event.summary}"`);
     }
   }
 
