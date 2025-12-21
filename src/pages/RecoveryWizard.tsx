@@ -427,69 +427,6 @@ export default function RecoveryWizard() {
         className="hidden"
       />
 
-      {/* Sidebar */}
-      <aside className="w-72 bg-slate-900 border-r border-slate-800 flex flex-col p-6">
-        <div className="flex items-center gap-3 mb-10">
-          <img 
-            src="/iktracker-indemnites-kilometriques-logo.png" 
-            alt="IKtracker" 
-            className="w-10 h-10"
-          />
-          <span className="text-white font-semibold text-lg">IK Tracker</span>
-        </div>
-
-        {/* Recovery Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <Sparkles className="w-6 h-6 text-amber-500" />
-          <span className="text-white font-medium">Récupération Auto</span>
-        </div>
-
-        {/* Step indicators */}
-        <nav className="flex-1 space-y-3">
-          {[
-            { num: 1, label: 'Préparation', desc: 'Export Google Takeout' },
-            { num: 2, label: 'Import', desc: 'Décompression & analyse' },
-            { num: 3, label: 'Validation', desc: 'Sélection des trajets' },
-          ].map((step) => (
-            <div
-              key={step.num}
-              className={`flex items-start gap-4 p-3 rounded-xl transition-all ${
-                currentStep === step.num 
-                  ? 'bg-amber-500/10 border border-amber-500/30' 
-                  : currentStep > step.num 
-                    ? 'opacity-60' 
-                    : 'opacity-40'
-              }`}
-            >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${
-                currentStep > step.num 
-                  ? 'bg-amber-500 text-slate-950' 
-                  : currentStep === step.num 
-                    ? 'bg-amber-500/20 border-2 border-amber-500 text-amber-500' 
-                    : 'bg-slate-800 text-slate-500'
-              }`}>
-                {currentStep > step.num ? <Check className="w-4 h-4" /> : step.num}
-              </div>
-              <div>
-                <p className={`font-medium ${currentStep >= step.num ? 'text-white' : 'text-slate-500'}`}>
-                  {step.label}
-                </p>
-                <p className="text-xs text-slate-500 mt-0.5">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        <Button 
-          variant="ghost" 
-          className="text-slate-400 hover:text-white hover:bg-slate-800 mt-auto"
-          onClick={() => navigate('/app')}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour à l'application
-        </Button>
-      </aside>
-
       {/* Main Content */}
       <main className="flex-1 p-10 overflow-auto">
         <AnimatePresence mode="wait">
@@ -825,7 +762,7 @@ export default function RecoveryWizard() {
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-0 left-72 right-0 bg-slate-900 border-t border-slate-800 p-5"
+          className="fixed bottom-0 left-16 right-72 bg-slate-900 border-t border-slate-800 p-5"
         >
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div>
@@ -867,6 +804,69 @@ export default function RecoveryWizard() {
           </div>
         </motion.div>
       )}
+
+      {/* Right Sidebar - Progress Steps */}
+      <aside className="w-72 bg-slate-900 border-l border-slate-800 flex flex-col p-6 sticky top-0 h-screen flex-shrink-0">
+        <div className="flex items-center gap-3 mb-10">
+          <img 
+            src="/iktracker-indemnites-kilometriques-logo.png" 
+            alt="IKtracker" 
+            className="w-10 h-10"
+          />
+          <span className="text-white font-semibold text-lg">IK Tracker</span>
+        </div>
+
+        {/* Recovery Header */}
+        <div className="flex items-center gap-3 mb-8">
+          <Sparkles className="w-6 h-6 text-amber-500" />
+          <span className="text-white font-medium">Récupération Auto</span>
+        </div>
+
+        {/* Step indicators */}
+        <nav className="flex-1 space-y-3">
+          {[
+            { num: 1, label: 'Préparation', desc: 'Export Google Takeout' },
+            { num: 2, label: 'Import', desc: 'Décompression & analyse' },
+            { num: 3, label: 'Validation', desc: 'Sélection des trajets' },
+          ].map((step) => (
+            <div
+              key={step.num}
+              className={`flex items-start gap-4 p-3 rounded-xl transition-all ${
+                currentStep === step.num 
+                  ? 'bg-amber-500/10 border border-amber-500/30' 
+                  : currentStep > step.num 
+                    ? 'opacity-60' 
+                    : 'opacity-40'
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${
+                currentStep > step.num 
+                  ? 'bg-amber-500 text-slate-950' 
+                  : currentStep === step.num 
+                    ? 'bg-amber-500/20 border-2 border-amber-500 text-amber-500' 
+                    : 'bg-slate-800 text-slate-500'
+              }`}>
+                {currentStep > step.num ? <Check className="w-4 h-4" /> : step.num}
+              </div>
+              <div>
+                <p className={`font-medium ${currentStep >= step.num ? 'text-white' : 'text-slate-500'}`}>
+                  {step.label}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        <Button 
+          variant="ghost" 
+          className="text-slate-400 hover:text-white hover:bg-slate-800 mt-auto"
+          onClick={() => navigate('/app')}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Retour à l'application
+        </Button>
+      </aside>
     </div>
   );
 }
