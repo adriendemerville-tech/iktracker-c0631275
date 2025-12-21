@@ -5,6 +5,7 @@ import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } fr
 import { TripCard } from '@/components/TripCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
+import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator } from 'lucide-react';
@@ -604,8 +605,8 @@ ${IKTRACKER_URL}`
       </header>
 
       <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-4">
-        <div className="bg-card rounded-md p-4 shadow-md">
-          <h2 className="text-sm font-medium text-muted-foreground mb-3">Récapitulatif</h2>
+        <div className="bg-card rounded-md p-4 shadow-md space-y-3">
+          <h2 className="text-sm font-medium text-muted-foreground">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
@@ -620,6 +621,15 @@ ${IKTRACKER_URL}`
               <p className="text-xs font-urbanist font-semibold text-muted-foreground">IK</p>
             </div>
           </div>
+          
+          {/* Threshold Alert - Report variant (orange) */}
+          {vehicles.length > 0 && (
+            <ThresholdAlert 
+              totalKm={totalKm} 
+              fiscalPower={vehicles[0].fiscalPower} 
+              variant="report" 
+            />
+          )}
         </div>
 
         <div className="space-y-2 flex flex-col items-center -my-1">
