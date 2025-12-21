@@ -4,6 +4,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
@@ -373,6 +374,7 @@ const ExpertComptable = () => {
       </section>
 
       <MarketingFooter />
+      <MarketingPWANotification />
     </div>
   );
 };

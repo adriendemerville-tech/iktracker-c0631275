@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { TourModeDemo } from "@/components/marketing/TourModeDemo";
 import { TourModeMockup } from "@/components/marketing/TourModeMockup";
@@ -272,6 +273,7 @@ export default function ModeTournee() {
       </main>
 
       <MarketingFooter />
+      <MarketingPWANotification />
     </div>
   );
 }

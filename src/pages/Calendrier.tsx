@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
 import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
@@ -299,6 +300,7 @@ export default function Calendrier() {
       </main>
 
       <MarketingFooter />
+      <MarketingPWANotification />
     </div>
   );
 }
