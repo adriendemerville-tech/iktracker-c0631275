@@ -100,7 +100,18 @@ function GoogleMapsPreloader() {
 
 const AppRoutes = () => {
   const navigate = useNavigate();
-  const { isLoggingOut, signOut, clearLogoutOverlay } = useAuth();
+  const { user, isLoggingOut, signOut, clearLogoutOverlay } = useAuth();
+
+  // Extract first name from user metadata
+  const getUserFirstName = (): string | null => {
+    if (!user?.user_metadata) return null;
+    const meta = user.user_metadata;
+    // Try different possible fields
+    if (meta.first_name) return meta.first_name;
+    if (meta.full_name) return meta.full_name.split(' ')[0];
+    if (meta.name) return meta.name.split(' ')[0];
+    return null;
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -117,7 +128,7 @@ const AppRoutes = () => {
 
   return (
     <AuthContext.Provider value={{ handleLogout }}>
-      <LogoutOverlay isVisible={isLoggingOut} onComplete={handleLogoutComplete} />
+      <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
       <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<Landing />} />
