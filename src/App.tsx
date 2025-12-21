@@ -26,6 +26,7 @@ import Calendrier from "./pages/Calendrier";
 import BaremeIK2026 from "./pages/BaremeIK2026";
 import Offline from "./pages/Offline";
 import NotFound from "./pages/NotFound";
+import RecoveryWizard from "./pages/RecoveryWizard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -132,6 +133,16 @@ const AppContent = () => {
         <Route path="/calendrier" element={<Calendrier />} />
         <Route path="/bareme-ik-2026" element={<BaremeIK2026 />} />
         <Route path="/offline" element={<Offline />} />
+        <Route
+          path="/recovery"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <RecoveryWizard />
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
