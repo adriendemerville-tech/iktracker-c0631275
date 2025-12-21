@@ -35,6 +35,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
       onClick: () => navigate('/profile'),
       active: false,
       tutorialId: 'vehicles',
+      isRecovery: false,
     },
     { 
       icon: Calendar, 
@@ -42,6 +43,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
       onClick: () => setShowCalendarSheet(true),
       active: false,
       tutorialId: 'calendar',
+      isRecovery: false,
     },
     { 
       icon: Route, 
@@ -49,6 +51,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
       onClick: onTourClick,
       active: isTourActive,
       tutorialId: 'tour',
+      isRecovery: false,
     },
     { 
       icon: Settings, 
@@ -56,6 +59,15 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
       onClick: () => navigate('/profile'),
       active: false,
       tutorialId: 'settings',
+      isRecovery: false,
+    },
+    { 
+      icon: Sparkles, 
+      label: 'Récupération Auto', 
+      onClick: () => navigate('/recovery'),
+      active: false,
+      tutorialId: 'recovery',
+      isRecovery: true,
     },
     { 
       icon: MessageSquare, 
@@ -63,6 +75,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
       onClick: () => setShowFeedbackSheet(true),
       active: false,
       tutorialId: 'feedback',
+      isRecovery: false,
     },
   ];
 
@@ -80,16 +93,6 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
           />
         </Link>
 
-        {/* Recovery Button - Highlighted */}
-        <Button
-          className="w-12 h-12 rounded-xl bg-wizard-amber hover:bg-wizard-amber/90 text-slate-950 mb-4"
-          onClick={() => navigate('/recovery')}
-          title="Récupération Auto"
-          data-tutorial="recovery"
-        >
-          <Sparkles className="w-5 h-5" />
-        </Button>
-
         {/* Navigation items */}
         <nav className="flex-1 flex flex-col items-center gap-2">
           {navItems.map((item) => (
@@ -97,12 +100,24 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActi
               key={item.label}
               variant="ghost"
               size="icon"
-              className={`w-12 h-12 rounded-xl hover:bg-accent ${item.active ? 'bg-primary/10 text-primary' : ''}`}
+              className={`w-12 h-12 rounded-xl transition-all duration-200 ${
+                item.isRecovery 
+                  ? 'hover:bg-wizard-amber/10 group' 
+                  : item.active 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-accent'
+              }`}
               onClick={item.onClick}
               title={item.label}
               data-tutorial={item.tutorialId}
             >
-              <item.icon className={`w-5 h-5 ${item.active ? 'text-primary' : 'text-muted-foreground'}`} />
+              <item.icon className={`w-5 h-5 transition-colors ${
+                item.isRecovery 
+                  ? 'text-wizard-amber group-hover:scale-110 transition-transform' 
+                  : item.active 
+                    ? 'text-primary' 
+                    : 'text-muted-foreground'
+              }`} />
             </Button>
           ))}
         </nav>
