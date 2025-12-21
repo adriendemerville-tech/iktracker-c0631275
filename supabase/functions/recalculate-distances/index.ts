@@ -147,10 +147,101 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting distance recalculation...');
-    
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    
+    const body = await req.json().catch(() => ({}));
+    const { tripId, newEndLocation } = body;
 
+    // If tripId and newEndLocation provided, update single trip
+    if (tripId && newEndLocation) {
+      console.log(`Updating single trip ${tripId} with new location: ${newEndLocation}`);
+      
+      // Get trip details
+      const { data: trip, error: tripError } = await supabase
+        .from('trips')
+        .select('id, user_id, vehicle_id, start_location, round_trip, date')
+        .eq('id', tripId)
+        .single();
+
+      if (tripError || !trip) {
+        return new Response(JSON.stringify({ success: false, error: 'Trip not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Get user's home location
+      const userHome = await getUserHomeLocation(trip.user_id, supabase);
+      if (!userHome) {
+        return new Response(JSON.stringify({ success: false, error: 'No home address configured' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Calculate distance
+      const oneWayDistance = await calculateDrivingDistance(userHome, newEndLocation);
+      if (oneWayDistance === null || oneWayDistance === 0) {
+        return new Response(JSON.stringify({ success: false, error: 'Could not calculate distance' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const totalDistance = trip.round_trip ? oneWayDistance * 2 : oneWayDistance;
+
+      // Calculate IK if vehicle exists
+      let ikAmount = 0;
+      if (trip.vehicle_id) {
+        const vehicle = await getVehicle(trip.vehicle_id, supabase);
+        if (vehicle) {
+          const annualKmBefore = await getVehicleAnnualKm(trip.user_id, trip.vehicle_id, trip.date, supabase);
+          const annualKmAfter = annualKmBefore + totalDistance;
+          
+          const ikBefore = calculateTotalAnnualIK(annualKmBefore, vehicle.fiscal_power);
+          const ikAfter = calculateTotalAnnualIK(annualKmAfter, vehicle.fiscal_power);
+          ikAmount = ikAfter - ikBefore;
+          
+          if (vehicle.is_electric) {
+            ikAmount *= 1.20;
+          }
+          
+          ikAmount = Math.round(ikAmount * 100) / 100;
+        }
+      }
+
+      // Update trip
+      const { error: updateError } = await supabase
+        .from('trips')
+        .update({
+          end_location: newEndLocation,
+          distance: totalDistance,
+          ik_amount: ikAmount,
+          status: 'validated',
+        })
+        .eq('id', tripId);
+
+      if (updateError) {
+        console.error('Error updating trip:', updateError);
+        return new Response(JSON.stringify({ success: false, error: 'Failed to update trip' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      console.log(`✅ Updated trip ${tripId}: ${totalDistance}km, ${ikAmount}€`);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        distance: totalDistance,
+        ikAmount,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Batch mode: recalculate all trips with distance = 0
+    console.log('Starting batch distance recalculation...');
+    
     // Get all trips with distance = 0
     const { data: tripsToUpdate, error: tripsError } = await supabase
       .from('trips')
@@ -188,6 +279,7 @@ serve(async (req) => {
 
         // Determine origin: use home address if start_location is just a name like "Maison"
         const origin = trip.start_location.toLowerCase().includes('maison') || 
+                       trip.start_location.toLowerCase().includes('domicile') ||
                        trip.start_location.length < 20 
                        ? userHome 
                        : trip.start_location;
@@ -229,8 +321,9 @@ serve(async (req) => {
           .from('trips')
           .update({
             distance: totalDistance,
-            start_location: origin, // Update with full address
+            start_location: origin,
             ik_amount: ikAmount,
+            status: 'validated',
           })
           .eq('id', trip.id);
 

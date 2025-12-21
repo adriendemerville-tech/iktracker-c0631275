@@ -338,6 +338,32 @@ async function tripExistsForEvent(userId: string, eventId: string, supabase: any
   return (data?.length || 0) > 0;
 }
 
+// Find matching keyword in frequent_destinations for event title
+async function findFrequentDestination(userId: string, eventTitle: string, supabase: any): Promise<string | null> {
+  if (!eventTitle) return null;
+  
+  // Get all user's frequent destinations
+  const { data: destinations } = await supabase
+    .from('frequent_destinations')
+    .select('keyword, address')
+    .eq('user_id', userId);
+  
+  if (!destinations || destinations.length === 0) return null;
+  
+  // Split title into words and check each against keywords (case-insensitive)
+  const titleWords = eventTitle.toLowerCase().split(/\s+/);
+  
+  for (const dest of destinations) {
+    const keyword = dest.keyword.toLowerCase();
+    if (titleWords.some((word: string) => word.includes(keyword) || keyword.includes(word))) {
+      console.log(`🔑 Found matching keyword "${dest.keyword}" for event "${eventTitle}" → ${dest.address}`);
+      return dest.address;
+    }
+  }
+  
+  return null;
+}
+
 // Create a trip from a calendar event
 async function createTripFromEvent(
   userId: string,
@@ -345,15 +371,9 @@ async function createTripFromEvent(
   vehicle: VehicleInfo | null,
   userHomeLocation: { address: string; name: string } | null,
   supabase: any
-): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean }> {
+): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
   console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
-
-  // Skip events without location - but log it
-  if (!event.location) {
-    console.log(`⏭️ Skipping event "${event.summary}" - no location field`);
-    return { created: false, reason: 'no_location' };
-  }
 
   // Check if trip already exists
   if (await tripExistsForEvent(userId, event.id, supabase)) {
@@ -370,14 +390,32 @@ async function createTripFromEvent(
 
   const eventDate = new Date(eventDateTime).toISOString().split('T')[0];
 
-  // Try to calculate distance automatically if we have a home address
-  let distance = 0;
-  let distanceCalculated = false;
+  // Determine destination address
+  let destinationAddress = event.location || '';
+  let tripStatus = 'validated';
+  
+  // If no location in event, try to find from frequent_destinations using title keywords
+  if (!event.location) {
+    const matchedAddress = await findFrequentDestination(userId, event.summary || '', supabase);
+    if (matchedAddress) {
+      destinationAddress = matchedAddress;
+      console.log(`📍 Using frequent destination address: ${matchedAddress}`);
+    } else {
+      // No location and no keyword match - create as pending
+      tripStatus = 'pending_location';
+      console.log(`⚠️ No location found, creating as pending: "${event.summary}"`);
+    }
+  }
+
   // Use home location name, or default to "Domicile"
   let startLocationName = userHomeLocation?.name || DEFAULT_START_LOCATION;
   
-  if (userHomeLocation?.address) {
-    const calculatedDistance = await calculateDrivingDistance(userHomeLocation.address, event.location);
+  // Try to calculate distance if we have both addresses
+  let distance = 0;
+  let distanceCalculated = false;
+  
+  if (tripStatus === 'validated' && userHomeLocation?.address && destinationAddress) {
+    const calculatedDistance = await calculateDrivingDistance(userHomeLocation.address, destinationAddress);
     if (calculatedDistance !== null && calculatedDistance > 0) {
       // Round trip = double the distance
       distance = calculatedDistance * 2;
@@ -411,7 +449,7 @@ async function createTripFromEvent(
     user_id: userId,
     vehicle_id: vehicle?.id || null,
     start_location: startLocationName,
-    end_location: event.location,
+    end_location: destinationAddress || event.summary || 'Adresse à compléter',
     distance: distance,
     round_trip: true,
     purpose: event.summary || 'Rendez-vous calendrier',
@@ -419,6 +457,7 @@ async function createTripFromEvent(
     ik_amount: ikAmount,
     source: 'google_calendar',
     calendar_event_id: event.id,
+    status: tripStatus,
   });
 
   if (error) {
@@ -426,7 +465,12 @@ async function createTripFromEvent(
     return { created: false, reason: 'db_error' };
   }
 
-  console.log(`✅ Created trip for event "${event.summary}" to ${event.location} on ${eventDate} (vehicle: ${vehicle?.id || 'none'}, distance: ${distance}km, ik: ${ikAmount}€)`);
+  if (tripStatus === 'pending_location') {
+    console.log(`🕐 Created PENDING trip for event "${event.summary}" (no address)`);
+    return { created: true, pending: true };
+  }
+
+  console.log(`✅ Created trip for event "${event.summary}" to ${destinationAddress} on ${eventDate} (vehicle: ${vehicle?.id || 'none'}, distance: ${distance}km, ik: ${ikAmount}€)`);
   return { created: true, distanceCalculated };
 }
 

@@ -1,11 +1,12 @@
 import { useState, memo } from 'react';
-import { Trip, Vehicle } from '@/types/trip';
-import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle } from 'lucide-react';
+import { Trip, Vehicle, Location } from '@/types/trip';
+import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
 import { usePreferences } from '@/hooks/usePreferences';
 import { TourDetailSheet } from './TourDetailSheet';
+import { CompleteAddressSheet } from './CompleteAddressSheet';
 
 interface TripCardProps {
   trip: Trip;
@@ -13,6 +14,8 @@ interface TripCardProps {
   onDelete?: (id: string) => void;
   onEdit?: (trip: Trip) => void;
   showDelete?: boolean;
+  savedLocations?: Location[];
+  onTripUpdated?: () => void;
 }
 
 const getDisplayName = (location: { name: string; address?: string }): string => {
@@ -25,9 +28,20 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
   return location.name;
 };
 
-export const TripCard = memo(function TripCard({ trip, vehicle, onDelete, onEdit, showDelete = false }: TripCardProps) {
+export const TripCard = memo(function TripCard({ 
+  trip, 
+  vehicle, 
+  onDelete, 
+  onEdit, 
+  showDelete = false,
+  savedLocations = [],
+  onTripUpdated,
+}: TripCardProps) {
   const { preferences } = usePreferences();
   const [showTourDetail, setShowTourDetail] = useState(false);
+  const [showCompleteAddress, setShowCompleteAddress] = useState(false);
+  
+  const isPending = trip.status === 'pending_location';
   
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
@@ -69,13 +83,21 @@ export const TripCard = memo(function TripCard({ trip, vehicle, onDelete, onEdit
     <>
       <div 
         className={cn(
-          "bg-card rounded-md p-3 shadow-sm border border-border/50 animate-fade-in relative",
-          isTour && "cursor-pointer hover:bg-muted/50 transition-colors"
+          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative",
+          isTour && "cursor-pointer hover:bg-muted/50 transition-colors",
+          isPending ? "border-destructive/50 bg-destructive/5" : "border-border/50"
         )}
         onClick={handleCardClick}
       >
+        {/* Pending location badge */}
+        {isPending && (
+          <div className="absolute -top-2 -left-2 w-6 h-6 bg-destructive rounded-full shadow-sm flex items-center justify-center">
+            <MapPinOff className="w-3.5 h-3.5 text-destructive-foreground" />
+          </div>
+        )}
+        
         {/* Tour icon badge */}
-        {isTour && (
+        {isTour && !isPending && (
           <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-sm border border-border/50 flex items-center justify-center">
             <Truck className="w-3.5 h-3.5 text-primary" />
           </div>
@@ -135,20 +157,35 @@ export const TripCard = memo(function TripCard({ trip, vehicle, onDelete, onEdit
 
         {/* Motif masqué dans l'aperçu - visible uniquement en mode édition */}
 
-        {/* Ligne 3: Distance + IK + Badge véhicule manquant + Bouton supprimer */}
+        {/* Ligne 3: Distance + IK or Pending action */}
         <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-3">
-            <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
-            <span className="counter-text text-sm font-bold text-accent">
-              +{trip.ikAmount.toFixed(2)} €
-            </span>
-            {!vehicle && !trip.vehicleId && (
-              <span className="inline-flex items-center gap-1 text-xs text-warning bg-warning/10 px-1.5 py-0.5 rounded">
-                <AlertTriangle className="w-3 h-3" />
-                <span>Sans véhicule</span>
+          {isPending ? (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowCompleteAddress(true);
+              }}
+            >
+              <MapPinOff className="w-3 h-3 mr-1" />
+              Compléter l'adresse
+            </Button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
+              <span className="counter-text text-sm font-bold text-accent">
+                +{trip.ikAmount.toFixed(2)} €
               </span>
-            )}
-          </div>
+              {!vehicle && !trip.vehicleId && (
+                <span className="inline-flex items-center gap-1 text-xs text-warning bg-warning/10 px-1.5 py-0.5 rounded">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span>Sans véhicule</span>
+                </span>
+              )}
+            </div>
+          )}
           {showDelete && onDelete && (
             <Button
               variant="ghost"
@@ -173,6 +210,17 @@ export const TripCard = memo(function TripCard({ trip, vehicle, onDelete, onEdit
           stops={trip.tourStops!}
           totalDistance={trip.distance}
           date={trip.startTime}
+        />
+      )}
+
+      {/* Complete address sheet */}
+      {isPending && (
+        <CompleteAddressSheet
+          open={showCompleteAddress}
+          onOpenChange={setShowCompleteAddress}
+          trip={trip}
+          savedLocations={savedLocations}
+          onCompleted={() => onTripUpdated?.()}
         />
       )}
     </>

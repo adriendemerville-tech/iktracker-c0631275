@@ -306,6 +306,7 @@ const Index = () => {
         startTime: firstStop.timestamp,
         endTime: new Date(),
         tourStops: tourStopsData,
+        status: 'validated',
       });
       
       console.log('Trip created:', result);
