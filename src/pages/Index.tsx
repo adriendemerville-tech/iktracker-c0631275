@@ -742,9 +742,12 @@ ${IKTRACKER_MENTION}
       <DesktopSidebar 
         vehicles={vehicles}
         onAddVehicle={addVehicle}
+        onEditVehicle={updateVehicle}
+        onDeleteVehicle={(vehicleId) => setVehicleToDelete(vehicleId)}
         onTourClick={handleTourButtonClick}
         isTourActive={isTourActive}
         onStartTutorial={startTutorial}
+        totalKm={totalKm}
       />
 
       {/* Onboarding Tutorial - Desktop only */}
