@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Loader2, Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MapPin, Loader2, Navigation } from 'lucide-react';
 import { Trip, Location } from '@/types/trip';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { reverseGeocode } from '@/lib/geocoding';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface CompleteAddressSheetProps {
   open: boolean;
@@ -23,23 +25,177 @@ export function CompleteAddressSheet({
   savedLocations,
   onCompleted 
 }: CompleteAddressSheetProps) {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [startAddress, setStartAddress] = useState('');
+  const [endAddress, setEndAddress] = useState('');
+  const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  const startInputRef = useRef<HTMLInputElement>(null);
+  const endInputRef = useRef<HTMLInputElement>(null);
+  const startAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const endAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  
+  const { getCurrentPosition, loading: geoLoading } = useGeolocation();
+
+  // Pre-fill with home/office location
+  useEffect(() => {
+    if (open) {
+      // Find home or office location
+      const homeLocation = savedLocations.find(l => l.type === 'home');
+      const officeLocation = savedLocations.find(l => l.type === 'office');
+      const defaultLocation = homeLocation || officeLocation;
+      
+      if (defaultLocation) {
+        setStartAddress(defaultLocation.address || defaultLocation.name);
+        if (defaultLocation.lat && defaultLocation.lng) {
+          setStartCoords({ lat: defaultLocation.lat, lng: defaultLocation.lng });
+        }
+      }
+      
+      // Reset end address
+      setEndAddress('');
+      setEndCoords(null);
+    }
+  }, [open, savedLocations]);
+
+  // Initialize Google Places Autocomplete for start address
+  useEffect(() => {
+    if (!open || !startInputRef.current) return;
+    
+    const initStartAutocomplete = () => {
+      if (!window.google?.maps?.places || !startInputRef.current) return;
+
+      if (startAutocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
+      }
+
+      startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
+        componentRestrictions: { country: 'fr' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['geocode'],
+      });
+
+      startAutocompleteRef.current.addListener('place_changed', () => {
+        const place = startAutocompleteRef.current?.getPlace();
+        if (place?.geometry?.location) {
+          setStartAddress(place.formatted_address || place.name || '');
+          setStartCoords({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+          });
+        }
+      });
+    };
+
+    const timer = setTimeout(() => {
+      if (window.google?.maps?.places) {
+        initStartAutocomplete();
+      }
+    }, 300);
+    
+    return () => {
+      clearTimeout(timer);
+      if (startAutocompleteRef.current && window.google?.maps?.event) {
+        try {
+          window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
+        } catch (e) {}
+      }
+    };
+  }, [open]);
+
+  // Initialize Google Places Autocomplete for end address
+  useEffect(() => {
+    if (!open || !endInputRef.current) return;
+    
+    const initEndAutocomplete = () => {
+      if (!window.google?.maps?.places || !endInputRef.current) return;
+
+      if (endAutocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
+      }
+
+      endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
+        componentRestrictions: { country: 'fr' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['geocode'],
+      });
+
+      endAutocompleteRef.current.addListener('place_changed', () => {
+        const place = endAutocompleteRef.current?.getPlace();
+        if (place?.geometry?.location) {
+          setEndAddress(place.formatted_address || place.name || '');
+          setEndCoords({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+          });
+        }
+      });
+    };
+
+    const timer = setTimeout(() => {
+      if (window.google?.maps?.places) {
+        initEndAutocomplete();
+      }
+    }, 300);
+    
+    return () => {
+      clearTimeout(timer);
+      if (endAutocompleteRef.current && window.google?.maps?.event) {
+        try {
+          window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
+        } catch (e) {}
+      }
+    };
+  }, [open]);
+
+  const handleUseCurrentLocation = async (field: 'start' | 'end') => {
+    try {
+      const coords = await getCurrentPosition();
+      const geocodeResult = await reverseGeocode(coords.lat, coords.lng);
+      const address = geocodeResult?.fullAddress || `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`;
+      
+      if (field === 'start') {
+        setStartAddress(address);
+        setStartCoords(coords);
+      } else {
+        setEndAddress(address);
+        setEndCoords(coords);
+      }
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      toast.error('Impossible d\'obtenir votre position');
+    }
+  };
+
+  const handleSelectSavedLocation = (location: Location, field: 'start' | 'end') => {
+    const address = location.address || location.name;
+    const coords = location.lat && location.lng ? { lat: location.lat, lng: location.lng } : null;
+    
+    if (field === 'start') {
+      setStartAddress(address);
+      setStartCoords(coords);
+    } else {
+      setEndAddress(address);
+      setEndCoords(coords);
+    }
+  };
 
   const handleComplete = async () => {
-    if (!selectedLocation) {
-      toast.error('Veuillez sélectionner une destination');
+    if (!startAddress.trim() || !endAddress.trim()) {
+      toast.error('Veuillez renseigner les deux adresses');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Call edge function to recalculate distance
+      // Call edge function to recalculate distance with both addresses
       const { data, error } = await supabase.functions.invoke('recalculate-distances', {
         body: { 
           tripId: trip.id,
-          newEndLocation: selectedLocation.address || selectedLocation.name,
+          newStartLocation: startAddress,
+          newEndLocation: endAddress,
         },
       });
 
@@ -73,67 +229,128 @@ export function CompleteAddressSheet({
     return colors[type] || colors.other;
   };
 
-  const getLocationLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      home: 'Domicile',
-      office: 'Bureau',
-      client: 'Client',
-      supplier: 'Fournisseur',
-      other: 'Autre',
-    };
-    return labels[type] || 'Autre';
-  };
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[70vh]">
+      <SheetContent side="bottom" className="h-[85vh]">
         <SheetHeader className="text-left">
-          <SheetTitle>Compléter l'adresse</SheetTitle>
+          <SheetTitle>Compléter le trajet</SheetTitle>
           <SheetDescription>
             RDV: <span className="font-medium text-foreground">{trip.purpose}</span>
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground mb-3">
-            Sélectionnez la destination pour ce rendez-vous :
-          </p>
-
-          <ScrollArea className="h-[calc(70vh-200px)]">
-            <div className="space-y-2 pr-4">
-              {savedLocations.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  Aucun lieu enregistré. Ajoutez des lieux dans vos paramètres.
-                </p>
-              ) : (
-                savedLocations.map((location) => (
-                  <button
-                    key={location.id}
-                    onClick={() => setSelectedLocation(location)}
-                    className={cn(
-                      "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors",
-                      selectedLocation?.id === location.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:bg-muted/50"
-                    )}
-                  >
-                    <MapPin className={cn("w-5 h-5 shrink-0", getLocationIcon(location.type))} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{location.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {location.address || getLocationLabel(location.type)}
-                      </p>
-                    </div>
-                    {selectedLocation?.id === location.id && (
-                      <Check className="w-5 h-5 text-primary shrink-0" />
-                    )}
-                  </button>
-                ))
+        <div className="mt-6 space-y-6">
+          {/* Départ */}
+          <div className="space-y-2">
+            <Label htmlFor="start-address">Départ</Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="start-address"
+                ref={startInputRef}
+                placeholder="Adresse de départ..."
+                value={startAddress}
+                onChange={(e) => setStartAddress(e.target.value)}
+                className="pl-10"
+              />
+              {startCoords && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">✓</span>
               )}
             </div>
-          </ScrollArea>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleUseCurrentLocation('start')}
+                disabled={geoLoading}
+              >
+                <Navigation className="w-3 h-3 mr-1" />
+                Position
+              </Button>
+              {savedLocations.slice(0, 3).map((loc) => (
+                <Button
+                  key={loc.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSelectSavedLocation(loc, 'start')}
+                  className="text-xs"
+                >
+                  <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
+                  {loc.name}
+                </Button>
+              ))}
+            </div>
+          </div>
 
-          <div className="mt-4 flex gap-3">
+          {/* Arrivée */}
+          <div className="space-y-2">
+            <Label htmlFor="end-address">Arrivée</Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+              <Input
+                id="end-address"
+                ref={endInputRef}
+                placeholder="Adresse d'arrivée..."
+                value={endAddress}
+                onChange={(e) => setEndAddress(e.target.value)}
+                className="pl-10"
+              />
+              {endCoords && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">✓</span>
+              )}
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleUseCurrentLocation('end')}
+                disabled={geoLoading}
+              >
+                <Navigation className="w-3 h-3 mr-1" />
+                Position
+              </Button>
+              {savedLocations.slice(0, 3).map((loc) => (
+                <Button
+                  key={loc.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSelectSavedLocation(loc, 'end')}
+                  className="text-xs"
+                >
+                  <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
+                  {loc.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lieux enregistrés */}
+          {savedLocations.length > 3 && (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Autres lieux enregistrés</p>
+              <div className="flex gap-2 flex-wrap">
+                {savedLocations.slice(3).map((loc) => (
+                  <Button
+                    key={loc.id}
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSelectSavedLocation(loc, 'end')}
+                    className="text-xs"
+                  >
+                    <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
+                    {loc.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
             <Button
               variant="outline"
               className="flex-1"
@@ -144,7 +361,7 @@ export function CompleteAddressSheet({
             <Button
               className="flex-1"
               onClick={handleComplete}
-              disabled={!selectedLocation || loading}
+              disabled={!startAddress.trim() || !endAddress.trim() || loading}
             >
               {loading ? (
                 <>

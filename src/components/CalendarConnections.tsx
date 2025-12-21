@@ -579,99 +579,12 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           )}
         </div>
 
-        {/* Debug Raw & Verbose */}
-        {(debugResponse || debugError) && (
-          <div className="space-y-3 rounded-lg border bg-card p-3">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-medium">Debug RAW — {debugProviderLabel || 'Calendrier'}</p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => console.log('[calendar-debug]', debugResponse ?? debugError)}
-                >
-                  Log Raw Data
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setDebugProvider(null);
-                    setDebugResponse(null);
-                    setDebugError(null);
-                  }}
-                >
-                  Fermer
-                </Button>
-              </div>
-            </div>
-
-            {debugError ? (
-              <Alert variant="destructive">
-                <AlertTitle>Erreur API (raw)</AlertTitle>
-                <AlertDescription>
-                  <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
-                    {JSON.stringify(debugError, null, 2)}
-                  </pre>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <>
-                {debugResponse?.eventsCount === 0 ? (
-                  <Alert variant="destructive">
-                    <AlertTitle>Appel API réussi (Status 200) mais 0 événement brut récupéré.</AlertTitle>
-                    <AlertDescription>
-                      <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
-                        {JSON.stringify(
-                          {
-                            provider: debugResponse?.provider,
-                            timeMin: debugResponse?.timeMin,
-                            timeMax: debugResponse?.timeMax,
-                            eventsHttp: debugResponse?.eventsHttp,
-                            tokenInfo: debugResponse?.tokenInfo,
-                            tokenClaims: debugResponse?.tokenClaims,
-                          },
-                          null,
-                          2
-                        )}
-                      </pre>
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <Alert>
-                    <AlertTitle>
-                      Événements bruts récupérés :{' '}
-                      {debugResponse?.eventsCount ?? debugResponse?.events?.length ?? 0}
-                    </AlertTitle>
-                    <AlertDescription>
-                      <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
-                        {JSON.stringify(
-                          {
-                            provider: debugResponse?.provider,
-                            timeMin: debugResponse?.timeMin,
-                            timeMax: debugResponse?.timeMax,
-                            sampleEvent: debugResponse?.events?.[0],
-                          },
-                          null,
-                          2
-                        )}
-                      </pre>
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </>
-            )}
-          </div>
-        )}
 
         {/* Manual Sync Button */}
         {connections.length > 0 && (
           <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
             <div>
               <p className="font-medium text-sm">Synchroniser maintenant</p>
-              <p className="text-xs text-muted-foreground">
-                Importer les trajets depuis vos RDV avec adresse (7 prochains jours)
-              </p>
             </div>
             <Button
               variant="outline"
@@ -689,17 +602,6 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           </div>
         )}
 
-        {/* Sync Result */}
-        {syncResult && (
-          <Alert>
-            <AlertTitle>Résultat de la synchronisation</AlertTitle>
-            <AlertDescription>
-              <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
-                {JSON.stringify(syncResult, null, 2)}
-              </pre>
-            </AlertDescription>
-          </Alert>
-        )}
 
         {/* Info about syncing */}
         {connections.length > 0 && (
