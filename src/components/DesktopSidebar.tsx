@@ -36,8 +36,8 @@ const FAQ_ITEMS = [
 ];
 
 interface DesktopSidebarProps {
-  vehicles: Vehicle[];
-  onAddVehicle: (vehicleData: Omit<Vehicle, 'id'>) => void;
+  vehicles?: Vehicle[];
+  onAddVehicle?: (vehicleData: Omit<Vehicle, 'id'>) => void;
   onEditVehicle?: (vehicleId: string, vehicleData: Partial<Vehicle>) => void;
   onDeleteVehicle?: (vehicleId: string) => void;
   onTourClick?: () => void;
@@ -47,7 +47,7 @@ interface DesktopSidebarProps {
 }
 
 export const DesktopSidebar = ({ 
-  vehicles, 
+  vehicles = [], 
   onAddVehicle, 
   onEditVehicle,
   onDeleteVehicle,

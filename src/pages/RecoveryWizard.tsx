@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { DesktopSidebar } from '@/components/DesktopSidebar';
 import JSZip from 'jszip';
 
 interface DetectedTrip {
@@ -409,8 +411,13 @@ export default function RecoveryWizard() {
     );
   }
 
+  const isMobile = useIsMobile();
+
   return (
     <div className="min-h-screen bg-slate-950 flex">
+      {/* Desktop Sidebar - sticky */}
+      {!isMobile && <DesktopSidebar />}
+
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
