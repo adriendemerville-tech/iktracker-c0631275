@@ -341,12 +341,21 @@ export const DesktopSidebar = ({
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground italic leading-relaxed">
-                      "J'ai créé IKTracker car je perdais des heures à calculer mes indemnités kilométriques sur Excel. Aujourd'hui, je veux que chaque professionnel en déplacement puisse récupérer facilement ce qui lui est dû. La gratuité permet à tous d'y accéder."
+                      "J'ai créé IKTracker parce que je perdais des heures à calculer mes indemnités kilométriques sur Excel. Aujourd'hui, je veux que chaque professionnel en déplacement puisse récupérer facilement ce qui lui est dû."
                     </p>
                     <div className="mt-3 flex items-center gap-2">
                       <User className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium">Adrien</span>
-                      <span className="text-xs text-muted-foreground">— Fondateur</span>
+                      <span className="text-xs text-muted-foreground">— Fondateur,{' '}
+                        <a 
+                          href="https://www.avenir-renovations.fr/actualite/nouvelle-ouverture-d-agence-avenir-renovations-a-saint-remy-de-provence-13/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          Avenir Rénovations Saint-Rémy-de-Provence
+                        </a>
+                      </span>
                     </div>
                   </div>
                 </div>
