@@ -883,6 +883,7 @@ ${IKTRACKER_URL}`
                       key={trip.id}
                       trip={trip}
                       vehicle={vehicle}
+                      showTripTime={preferences.showTripTime}
                       onEdit={(t) => {
                         setEditingTrip(t);
                         setShowNewTrip(true);

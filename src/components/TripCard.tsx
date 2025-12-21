@@ -4,7 +4,6 @@ import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTria
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
-import { usePreferences } from '@/hooks/usePreferences';
 import { TourDetailSheet } from './TourDetailSheet';
 import { CompleteAddressSheet } from './CompleteAddressSheet';
 
@@ -16,6 +15,7 @@ interface TripCardProps {
   showDelete?: boolean;
   savedLocations?: Location[];
   onTripUpdated?: () => void;
+  showTripTime?: boolean;
 }
 
 const getDisplayName = (location: { name: string; address?: string }): string => {
@@ -36,8 +36,8 @@ export const TripCard = memo(function TripCard({
   showDelete = false,
   savedLocations = [],
   onTripUpdated,
+  showTripTime = true,
 }: TripCardProps) {
-  const { preferences } = usePreferences();
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
   
@@ -107,7 +107,7 @@ export const TripCard = memo(function TripCard({
         <div className="flex items-center gap-3 mb-2">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
             <span>{formatDate(trip.startTime)}</span>
-            {preferences.showTripTime && (
+            {showTripTime && (
               <span className="text-muted-foreground/70">
                 {formatTime(trip.startTime)}
               </span>

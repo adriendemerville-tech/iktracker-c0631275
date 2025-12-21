@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { reverseGeocode } from '@/lib/geocoding';
-import { calculateDrivingDistance } from '@/hooks/useGeolocation';
+import { calculateDrivingDistance, getDistanceInMeters } from '@/lib/distance';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { playNotificationSound } from '@/lib/sounds';
 
@@ -51,22 +51,6 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const pendingStopRef = useRef<PendingStop | null>(null);
   const lastPositionRef = useRef<{ lat: number; lng: number } | null>(null);
   const maxDistanceReachedRef = useRef<number>(0); // Track max distance to ensure it only increases
-
-  // Calculate distance between two points (Haversine formula) - for determining if in same location
-  const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371e3; // Earth radius in meters
-    const φ1 = (lat1 * Math.PI) / 180;
-    const φ2 = (lat2 * Math.PI) / 180;
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-    const Δλ = ((lng2 - lng1) * Math.PI) / 180;
-
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c;
-  };
 
   // Check geolocation permission status
   const checkPermission = useCallback(async () => {
@@ -154,7 +138,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
         // Update total distance if we have a previous position
         if (lastPositionRef.current) {
-          const distanceFromLast = getDistance(
+          const distanceFromLast = getDistanceInMeters(
             lastPositionRef.current.lat,
             lastPositionRef.current.lng,
             lat,
@@ -177,7 +161,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
         // Check if we're at the same location as pending stop
         if (pendingStopRef.current) {
-          const distanceFromPending = getDistance(
+          const distanceFromPending = getDistanceInMeters(
             pendingStopRef.current.lat,
             pendingStopRef.current.lng,
             lat,

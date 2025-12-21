@@ -3,30 +3,41 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
+
+// Critical routes - loaded immediately
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Report from "./pages/Report";
 import Auth from "./pages/Auth";
-import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Install from "./pages/Install";
-import ExpertComptable from "./pages/ExpertComptable";
-import ModeTournee from "./pages/ModeTournee";
-import Calendrier from "./pages/Calendrier";
-import BaremeIK2026 from "./pages/BaremeIK2026";
-import Offline from "./pages/Offline";
-import NotFound from "./pages/NotFound";
-import RecoveryWizard from "./pages/RecoveryWizard";
+
+// Lazy loaded routes - loaded on demand
+const Signup = lazy(() => import("./pages/Signup"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Install = lazy(() => import("./pages/Install"));
+const ExpertComptable = lazy(() => import("./pages/ExpertComptable"));
+const ModeTournee = lazy(() => import("./pages/ModeTournee"));
+const Calendrier = lazy(() => import("./pages/Calendrier"));
+const BaremeIK2026 = lazy(() => import("./pages/BaremeIK2026"));
+const Offline = lazy(() => import("./pages/Offline"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,7 +95,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<Suspense fallback={<PageLoader />}><Signup /></Suspense>} />
         <Route
           path="/app"
           element={
@@ -120,30 +131,30 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
-                <Admin />
+                <Suspense fallback={<PageLoader />}><Admin /></Suspense>
               </QueryErrorBoundary>
             </ProtectedRoute>
           }
         />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/install" element={<Install />} />
-        <Route path="/expert-comptable" element={<ExpertComptable />} />
-        <Route path="/mode-tournee" element={<ModeTournee />} />
-        <Route path="/calendrier" element={<Calendrier />} />
-        <Route path="/bareme-ik-2026" element={<BaremeIK2026 />} />
-        <Route path="/offline" element={<Offline />} />
+        <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
+        <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
+        <Route path="/install" element={<Suspense fallback={<PageLoader />}><Install /></Suspense>} />
+        <Route path="/expert-comptable" element={<Suspense fallback={<PageLoader />}><ExpertComptable /></Suspense>} />
+        <Route path="/mode-tournee" element={<Suspense fallback={<PageLoader />}><ModeTournee /></Suspense>} />
+        <Route path="/calendrier" element={<Suspense fallback={<PageLoader />}><Calendrier /></Suspense>} />
+        <Route path="/bareme-ik-2026" element={<Suspense fallback={<PageLoader />}><BaremeIK2026 /></Suspense>} />
+        <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
         <Route
           path="/recovery"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
-                <RecoveryWizard />
+                <Suspense fallback={<PageLoader />}><RecoveryWizard /></Suspense>
               </QueryErrorBoundary>
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
     </BrowserRouter>
   );
