@@ -85,14 +85,14 @@ export const TripCard = memo(function TripCard({
         className={cn(
           "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative",
           isTour && "cursor-pointer hover:bg-muted/50 transition-colors",
-          isPending ? "border-destructive/50 bg-destructive/5" : "border-border/50"
+          isPending ? "border-violet-500/40 bg-violet-500/5" : "border-border/50"
         )}
         onClick={handleCardClick}
       >
         {/* Pending location badge */}
         {isPending && (
-          <div className="absolute -top-2 -left-2 w-6 h-6 bg-destructive rounded-full shadow-sm flex items-center justify-center">
-            <MapPinOff className="w-3.5 h-3.5 text-destructive-foreground" />
+          <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-500 rounded-full shadow-sm flex items-center justify-center">
+            <MapPinOff className="w-3.5 h-3.5 text-white" />
           </div>
         )}
         
@@ -162,15 +162,13 @@ export const TripCard = memo(function TripCard({
           {isPending ? (
             <Button
               size="sm"
-              variant="destructive"
-              className="text-xs"
+              className="text-xs h-7 px-2.5 bg-violet-500 hover:bg-violet-600 text-white"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowCompleteAddress(true);
               }}
             >
-              <MapPinOff className="w-3 h-3 mr-1" />
-              Compléter l'adresse
+              Compléter
             </Button>
           ) : (
             <div className="flex items-center gap-3">
