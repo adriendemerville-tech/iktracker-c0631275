@@ -7,6 +7,7 @@ import { useTrips } from '@/hooks/useTrips';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useFeedback } from '@/hooks/useFeedback';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -23,6 +24,7 @@ import { VehicleCard } from '@/components/VehicleCard';
 import { VehicleForm } from '@/components/VehicleForm';
 import { AddressCard } from '@/components/AddressCard';
 import { AddressForm } from '@/components/AddressForm';
+import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { Vehicle, Location } from '@/types/trip';
 
 // Chart animation settings
@@ -146,12 +148,15 @@ const PROFESSIONS = [
 
 const Profile = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { trips, vehicles, savedLocations, addVehicle, updateVehicle, deleteVehicle, addLocation, updateLocation, deleteLocation, getTotalAnnualKm } = useTrips();
   const { preferences, updatePreference } = usePreferences();
   const { isAdmin } = useAdmin();
   const { unreadResponsesCount } = useFeedback();
+  
+  const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   
   const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -260,18 +265,30 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background cursor-default">
-      {/* Header */}
-      <header className="bg-card border-b border-border px-4 py-4">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/app')}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-semibold">Mon profil</h1>
-        </div>
-      </header>
+    <>
+      {/* Desktop Sidebar - hidden on mobile */}
+      {!isMobile && (
+        <DesktopSidebar 
+          vehicles={vehicles}
+          onAddVehicle={addVehicle}
+          onEditVehicle={updateVehicle}
+          onDeleteVehicle={deleteVehicle}
+          totalKm={totalKm}
+        />
+      )}
 
-      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-5">
+      <div className="min-h-screen bg-background cursor-default md:pl-16">
+        {/* Header */}
+        <header className="bg-card border-b border-border px-4 py-4">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/app')}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-xl font-semibold">Mon profil</h1>
+          </div>
+        </header>
+
+        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-5">
         {/* Account Info Button */}
         <Card 
           className="cursor-pointer hover:bg-accent/50 transition-colors"
@@ -909,7 +926,8 @@ const Profile = () => {
           <p>© 2024 - Tous droits réservés</p>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 
