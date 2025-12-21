@@ -549,12 +549,12 @@ const Profile = () => {
                 {/* Static wheels */}
                 <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
                 <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
-                {/* "Zz.." sleeping text inside car */}
-                <span className="absolute top-[6px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none">
+                {/* "Zz.." sleeping text inside car - lowered for better centering */}
+                <span className="absolute top-[10px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none">
                   Zz..
                 </span>
-                {/* Dot in front of front wheel */}
-                <div className="absolute bottom-[6px] -left-[4px] w-[4px] h-[4px] rounded-full bg-primary/60" />
+                {/* Dot after the car (in front in driving direction) */}
+                <div className="absolute bottom-[6px] -right-[6px] w-[4px] h-[4px] rounded-full bg-primary/60" />
               </div>
             ) : (
               /* Animated car when > 0 km */
