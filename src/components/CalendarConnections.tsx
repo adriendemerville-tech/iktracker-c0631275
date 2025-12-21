@@ -12,6 +12,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+// Detect if we're on a mobile device (more reliable than just screen size)
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
 // Google Calendar icon
 const GoogleCalendarIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -126,7 +132,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
   const outlookConnection = getConnection('outlook');
   const icsConnection = getConnection('ics');
 
-  // Listen for OAuth callback messages
+  // Listen for OAuth callback messages (popup mode)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'google-auth-success') {
@@ -150,6 +156,39 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     return () => window.removeEventListener('message', handleMessage);
   }, [refetch]);
 
+  // Handle OAuth redirect return (mobile mode)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const oauthSuccess = urlParams.get('oauth_success');
+    const oauthError = urlParams.get('oauth_error');
+    const oauthProvider = urlParams.get('oauth_provider');
+    const pendingOauth = sessionStorage.getItem('oauth_pending');
+
+    // Clean up URL params after reading
+    if (oauthSuccess || oauthError) {
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      sessionStorage.removeItem('oauth_pending');
+    }
+
+    if (oauthSuccess === 'true' && oauthProvider) {
+      toast.success(`${oauthProvider === 'google' ? 'Google' : 'Outlook'} Calendar connecté`);
+      refetch();
+    } else if (oauthError) {
+      toast.error(`Erreur de connexion: ${oauthError}`);
+    }
+
+    // If we had a pending OAuth and came back without success/error params,
+    // the user might have cancelled - just clear the pending state
+    if (pendingOauth && !oauthSuccess && !oauthError) {
+      // Check if we're coming back from OAuth (has code param)
+      const hasCode = urlParams.get('code');
+      if (!hasCode) {
+        sessionStorage.removeItem('oauth_pending');
+      }
+    }
+  }, [refetch]);
+
   const handleGoogleConnect = async () => {
     if (!user) {
       toast.error('Vous devez être connecté');
@@ -159,10 +198,11 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     setConnectingGoogle(true);
 
     try {
-      // Create state with user info
+      // Create state with user info - include redirect for mobile
       const state = btoa(JSON.stringify({
         user_id: user.id,
         redirect_url: window.location.href,
+        use_redirect: isMobileDevice(), // Tell the backend to use redirect mode
       }));
 
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${state}`;
@@ -185,7 +225,15 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
         throw new Error('No URL in response');
       }
       
-      // Open OAuth popup
+      // On mobile, use direct redirect instead of popup
+      if (isMobileDevice()) {
+        // Store state in sessionStorage to recover after redirect
+        sessionStorage.setItem('oauth_pending', 'google');
+        window.location.href = result.url;
+        return;
+      }
+
+      // On desktop, use popup
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
@@ -208,7 +256,6 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       const checkPopupClosed = setInterval(() => {
         if (popup.closed) {
           clearInterval(checkPopupClosed);
-          // Give a small delay for the message to be received
           setTimeout(() => {
             setConnectingGoogle(false);
           }, 1000);
@@ -237,10 +284,11 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     setConnectingOutlook(true);
 
     try {
-      // Create state with user info
+      // Create state with user info - include redirect for mobile
       const state = btoa(JSON.stringify({
         user_id: user.id,
         redirect_url: window.location.href,
+        use_redirect: isMobileDevice(),
       }));
 
       // Get auth URL from edge function
@@ -255,7 +303,14 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
 
       const result = await response.json();
       
-      // Open OAuth popup
+      // On mobile, use direct redirect instead of popup
+      if (isMobileDevice()) {
+        sessionStorage.setItem('oauth_pending', 'outlook');
+        window.location.href = result.url;
+        return;
+      }
+
+      // On desktop, use popup
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;

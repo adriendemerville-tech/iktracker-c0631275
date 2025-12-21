@@ -49,26 +49,54 @@ serve(async (req) => {
       const error = url.searchParams.get('error');
       const errorDescription = url.searchParams.get('error_description');
 
+      // Parse state first to get use_redirect and redirect_url
+      let stateData: { user_id?: string; redirect_url?: string; use_redirect?: boolean } = {};
+      if (state) {
+        try {
+          stateData = JSON.parse(atob(state));
+        } catch {
+          return new Response('Invalid state', { status: 400 });
+        }
+      }
+
+      const { user_id, redirect_url, use_redirect } = stateData;
+      
+      // Helper function to return response based on mode (popup vs redirect)
+      const returnResponse = (success: boolean, errorMessage?: string) => {
+        if (use_redirect && redirect_url) {
+          // Mobile mode: redirect back to app with query params
+          const redirectTarget = new URL(redirect_url);
+          if (success) {
+            redirectTarget.searchParams.set('oauth_success', 'true');
+            redirectTarget.searchParams.set('oauth_provider', 'outlook');
+          } else {
+            redirectTarget.searchParams.set('oauth_error', errorMessage || 'Unknown error');
+            redirectTarget.searchParams.set('oauth_provider', 'outlook');
+          }
+          return Response.redirect(redirectTarget.toString(), 302);
+        } else {
+          // Desktop mode: use postMessage to parent window
+          if (success) {
+            return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-success'},'*');window.close();</script></body></html>`, {
+              headers: { 'Content-Type': 'text/html' },
+            });
+          } else {
+            return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-error',error:'${errorMessage}'},'*');window.close();</script></body></html>`, {
+              headers: { 'Content-Type': 'text/html' },
+            });
+          }
+        }
+      };
+
       if (error) {
         console.error('OAuth error:', error, errorDescription);
-        return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-error',error:'${error}: ${errorDescription}'},'*');window.close();</script></body></html>`, {
-          headers: { 'Content-Type': 'text/html' },
-        });
+        return returnResponse(false, `${error}: ${errorDescription}`);
       }
 
-      if (!code || !state) {
-        return new Response('Missing code or state', { status: 400 });
+      if (!code || !user_id) {
+        return new Response('Missing code or user_id', { status: 400 });
       }
 
-      // Parse state (contains user_id and redirect_url)
-      let stateData;
-      try {
-        stateData = JSON.parse(atob(state));
-      } catch {
-        return new Response('Invalid state', { status: 400 });
-      }
-
-      const { user_id, redirect_url } = stateData;
       console.log('Callback received for user:', user_id);
 
       // Exchange code for tokens
@@ -90,9 +118,7 @@ serve(async (req) => {
 
       if (!tokenResponse.ok) {
         console.error('Token exchange failed:', tokens);
-        return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-error',error:'Token exchange failed: ${tokens.error_description || tokens.error}'},'*');window.close();</script></body></html>`, {
-          headers: { 'Content-Type': 'text/html' },
-        });
+        return returnResponse(false, `Token exchange failed: ${tokens.error_description || tokens.error}`);
       }
 
       // Save tokens to database
@@ -133,11 +159,7 @@ serve(async (req) => {
       }
 
       console.log('Outlook calendar connection saved successfully');
-
-      // Redirect back to app
-      return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-success'},'*');window.close();</script></body></html>`, {
-        headers: { 'Content-Type': 'text/html' },
-      });
+      return returnResponse(true);
     }
 
     return new Response('Invalid action', { status: 400 });
