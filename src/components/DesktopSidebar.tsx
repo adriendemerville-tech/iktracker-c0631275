@@ -1,24 +1,24 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { VehicleForm } from '@/components/VehicleForm';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Car, Calendar, Settings, MessageSquare, LogOut } from 'lucide-react';
-import { toast } from 'sonner';
+import { Car, Calendar, Settings, MessageSquare, LogOut, Route } from 'lucide-react';
 import { Vehicle } from '@/types/trip';
 
 interface DesktopSidebarProps {
   vehicles: Vehicle[];
   onAddVehicle: (vehicleData: Omit<Vehicle, 'id'>) => void;
+  onTourClick?: () => void;
+  isTourActive?: boolean;
 }
 
-export const DesktopSidebar = ({ vehicles, onAddVehicle }: DesktopSidebarProps) => {
+export const DesktopSidebar = ({ vehicles, onAddVehicle, onTourClick, isTourActive }: DesktopSidebarProps) => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
 
@@ -31,34 +31,48 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle }: DesktopSidebarProps) 
     { 
       icon: Car, 
       label: 'Véhicules', 
-      onClick: () => setShowVehicleForm(true) 
+      onClick: () => navigate('/profile'),
+      active: false,
     },
     { 
       icon: Calendar, 
       label: 'Calendriers', 
-      onClick: () => setShowCalendarSheet(true) 
+      onClick: () => setShowCalendarSheet(true),
+      active: false,
+    },
+    { 
+      icon: Route, 
+      label: 'Mode tournée', 
+      onClick: onTourClick,
+      active: isTourActive,
     },
     { 
       icon: Settings, 
       label: 'Préférences', 
-      onClick: () => navigate('/profile') 
+      onClick: () => navigate('/profile'),
+      active: false,
     },
     { 
       icon: MessageSquare, 
-      label: 'Avis', 
-      onClick: () => setShowFeedbackSheet(true) 
+      label: 'Aide & Avis', 
+      onClick: () => setShowFeedbackSheet(true),
+      active: false,
     },
   ];
 
   return (
     <>
       <aside className="fixed left-0 top-0 h-full w-16 bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40">
-        {/* Logo */}
-        <div className="mb-8">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">IK</span>
-          </div>
-        </div>
+        {/* Logo - Landing page style */}
+        <Link to="/" className="mb-8">
+          <img 
+            src="/iktracker-indemnites-kilometriques-logo.png" 
+            alt="IKtracker" 
+            width={40}
+            height={40}
+            className="h-10 w-10 transition-transform duration-300 hover:scale-110" 
+          />
+        </Link>
 
         {/* Navigation items */}
         <nav className="flex-1 flex flex-col items-center gap-2">
@@ -67,11 +81,11 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle }: DesktopSidebarProps) 
               key={item.label}
               variant="ghost"
               size="icon"
-              className="w-12 h-12 rounded-xl hover:bg-accent"
+              className={`w-12 h-12 rounded-xl hover:bg-accent ${item.active ? 'bg-primary/10 text-primary' : ''}`}
               onClick={item.onClick}
               title={item.label}
             >
-              <item.icon className="w-5 h-5 text-muted-foreground" />
+              <item.icon className={`w-5 h-5 ${item.active ? 'text-primary' : 'text-muted-foreground'}`} />
             </Button>
           ))}
         </nav>
@@ -88,18 +102,7 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle }: DesktopSidebarProps) 
         </Button>
       </aside>
 
-      {/* Vehicle Form Sheet */}
-      <VehicleForm
-        open={showVehicleForm}
-        onOpenChange={setShowVehicleForm}
-        onSave={(vehicleData) => {
-          onAddVehicle(vehicleData);
-          setShowVehicleForm(false);
-          toast.success("Véhicule ajouté");
-        }}
-      />
-
-      {/* Calendar Sheet */}
+      {/* Calendar Sheet - opens from right */}
       <Sheet open={showCalendarSheet} onOpenChange={setShowCalendarSheet}>
         <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
@@ -114,13 +117,13 @@ export const DesktopSidebar = ({ vehicles, onAddVehicle }: DesktopSidebarProps) 
         </SheetContent>
       </Sheet>
 
-      {/* Feedback Sheet */}
+      {/* Feedback Sheet - opens from right */}
       <Sheet open={showFeedbackSheet} onOpenChange={setShowFeedbackSheet}>
         <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Donnez votre avis</SheetTitle>
+            <SheetTitle>Besoin d'aide ? Un avis ?</SheetTitle>
             <SheetDescription>
-              Vos retours nous aident à améliorer l'application
+              Notre équipe vous répond rapidement. Vos retours nous aident à améliorer l'application.
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6">

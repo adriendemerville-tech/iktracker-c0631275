@@ -736,6 +736,8 @@ ${IKTRACKER_MENTION}
       <DesktopSidebar 
         vehicles={vehicles}
         onAddVehicle={addVehicle}
+        onTourClick={handleTourButtonClick}
+        isTourActive={isTourActive}
       />
 
       <div className="min-h-screen bg-background font-urbanist cursor-default md:pl-16">
@@ -769,10 +771,21 @@ ${IKTRACKER_MENTION}
         />
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
           <div className="flex items-center gap-3 mb-6">
-            <Link to="/" className="flex-1 hidden md:block group transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5">
-              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white group-hover:text-primary transition-colors duration-300">IKtracker</h1>
-              <p className="text-xs sm:text-sm text-white/60 font-urbanist group-hover:text-white/80 transition-colors duration-300">Indemnités Kilométriques</p>
+            {/* Desktop: Logo image like landing page */}
+            <Link to="/" className="flex-1 hidden md:flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5">
+              <img 
+                src="/iktracker-indemnites-kilometriques-logo.png" 
+                alt="IKtracker" 
+                width={40}
+                height={40}
+                className="h-10 w-10 transition-transform duration-300 group-hover:scale-110" 
+              />
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white group-hover:text-primary transition-colors duration-300">IKtracker</h1>
+                <p className="text-xs sm:text-sm text-white/60 font-urbanist group-hover:text-white/80 transition-colors duration-300">Indemnités Kilométriques</p>
+              </div>
             </Link>
+            {/* Mobile: Text only */}
             <div className="flex-1 md:hidden">
               <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
               <p className="text-xs sm:text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
@@ -951,8 +964,8 @@ ${IKTRACKER_MENTION}
         </section>
       </main>
 
-      {/* Tour button - floating above mobile nav */}
-      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:bottom-24 md:left-auto md:right-24">
+      {/* Tour button - floating above mobile nav (hidden on desktop, now in sidebar) */}
+      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:hidden">
         <TourButton
           isActive={isTourActive}
           isLoading={isTourLoading}
