@@ -72,22 +72,22 @@ export function Counter({ value, label, unit, variant = 'default', decimals = 0 
 
   return (
     <div className={cn(
-      "flex flex-col items-center p-3 sm:p-5 rounded-xl transition-all duration-300",
+      "flex flex-col items-center p-2 sm:p-5 rounded-xl transition-all duration-300",
       "bg-white/5 backdrop-blur-xl border border-white/10",
       "shadow-[0_8px_32px_rgba(0,0,0,0.12)]",
       variant === 'accent' && "border-emerald-500/20"
     )}>
-      <span className="text-[10px] sm:text-xs uppercase tracking-wider text-white/60 mb-2 font-urbanist font-medium">{label}</span>
-      <div className="flex items-baseline gap-1 sm:gap-1.5">
+      <span className="text-[9px] sm:text-xs uppercase tracking-wider text-white/60 mb-1 sm:mb-2 font-urbanist font-medium">{label}</span>
+      <div className="flex items-baseline gap-0.5 sm:gap-1.5">
         <span 
           className={cn(
-            "text-2xl sm:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight",
+            "text-xl sm:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight",
             variant === 'default' ? "text-white" : "text-emerald-400"
           )}
         >
           {formattedValue}
         </span>
-        <span className="text-xs sm:text-sm font-urbanist font-semibold text-white/70">{unit}</span>
+        <span className="text-[10px] sm:text-sm font-urbanist font-semibold text-white/70">{unit}</span>
       </div>
     </div>
   );
