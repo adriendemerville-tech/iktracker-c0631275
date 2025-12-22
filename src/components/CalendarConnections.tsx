@@ -400,8 +400,11 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           <Calendar className="w-4 h-4" />
           Mes Agendas
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="hidden md:block">
           Connectez vos agendas pour importer automatiquement vos trajets
+        </CardDescription>
+        <CardDescription className="md:hidden">
+          Importer automatiquement vos trajets
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
