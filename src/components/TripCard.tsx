@@ -57,6 +57,15 @@ export const TripCard = memo(function TripCard({
     });
   };
 
+  // Check if time is meaningful (not midnight/1AM which indicates no real time was recorded)
+  const hasRealTime = (date: Date) => {
+    const d = new Date(date);
+    const hours = d.getHours();
+    const minutes = d.getMinutes();
+    // If it's exactly midnight (00:00) or 1AM (01:00), it's likely a default/timezone artifact
+    return !((hours === 0 || hours === 1) && minutes === 0);
+  };
+
   const getLocationIcon = (type: string) => {
     const colors: Record<string, string> = {
       home: 'text-primary',
@@ -107,7 +116,7 @@ export const TripCard = memo(function TripCard({
         <div className="flex items-center gap-3 mb-2">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
             <span>{formatDate(trip.startTime)}</span>
-            {showTripTime && (
+            {showTripTime && hasRealTime(trip.startTime) && (
               <span className="text-muted-foreground/70">
                 {formatTime(trip.startTime)}
               </span>
