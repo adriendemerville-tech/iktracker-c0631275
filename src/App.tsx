@@ -12,13 +12,14 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
 
-// Critical routes - loaded immediately
+// Critical routes - Landing and Auth loaded immediately for fast initial load
 import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import Report from "./pages/Report";
 import Auth from "./pages/Auth";
-import Profile from "./pages/Profile";
 
+// Lazy loaded app routes - reduces initial bundle size
+const Index = lazy(() => import("./pages/Index"));
+const Report = lazy(() => import("./pages/Report"));
+const Profile = lazy(() => import("./pages/Profile"));
 // Lazy loaded routes - loaded on demand
 const Signup = lazy(() => import("./pages/Signup"));
 const Admin = lazy(() => import("./pages/Admin"));
@@ -139,7 +140,7 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
-                <Index />
+                <Suspense fallback={<PageLoader />}><Index /></Suspense>
               </QueryErrorBoundary>
             </ProtectedRoute>
           }
@@ -149,7 +150,7 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
-                <Report />
+                <Suspense fallback={<PageLoader />}><Report /></Suspense>
               </QueryErrorBoundary>
             </ProtectedRoute>
           }
@@ -159,7 +160,7 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
-                <Profile />
+                <Suspense fallback={<PageLoader />}><Profile /></Suspense>
               </QueryErrorBoundary>
             </ProtectedRoute>
           }
