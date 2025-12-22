@@ -431,9 +431,11 @@ const Profile = () => {
                 Ajouter
               </Button>
             </div>
-            <CardDescription>
-              Vos lieux pour le calcul automatique des distances
-            </CardDescription>
+            {!isMobile && (
+              <CardDescription>
+                Vos lieux pour le calcul automatique des distances
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             {savedLocations.length === 0 ? (
