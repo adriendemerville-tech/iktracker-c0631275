@@ -646,7 +646,7 @@ ${IKTRACKER_URL}`
       )}
 
       <div className="min-h-screen bg-background pb-28 cursor-default md:pl-16">
-        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-4">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2 md:py-4">
           <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
             <Link to="/app">
               <Button variant="ghost" size="icon">
@@ -665,20 +665,20 @@ ${IKTRACKER_URL}`
           </div>
         </header>
 
-        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-4">
-        <div className="bg-card rounded-md p-4 shadow-md space-y-3">
+        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-3 md:space-y-4">
+        <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground">Récapitulatif</h2>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-3 gap-3 md:gap-4 text-center">
             <div>
-              <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
+              <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
               <p className="text-xs font-urbanist font-semibold text-muted-foreground">trajets</p>
             </div>
             <div>
-              <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{totalKm.toFixed(0)}</p>
+              <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{totalKm.toFixed(0)}</p>
               <p className="text-xs font-urbanist font-semibold text-muted-foreground">km</p>
             </div>
             <div>
-              <p className="text-2xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
+              <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
               <p className="text-xs font-urbanist font-semibold text-muted-foreground">IK</p>
             </div>
           </div>

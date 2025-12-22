@@ -957,7 +957,7 @@ ${IKTRACKER_MENTION}
       <div className="min-h-screen bg-background font-urbanist cursor-default select-none md:pl-16">
       {/* Header - Fintech Dark */}
       <header 
-        className="text-white px-4 pt-8 pb-8 rounded-b-[2rem] relative overflow-hidden"
+        className="text-white px-4 pt-4 pb-4 md:pt-8 md:pb-8 rounded-b-[2rem] relative overflow-hidden"
         style={{
           background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 100%)'
         }}
@@ -984,7 +984,7 @@ ${IKTRACKER_MENTION}
           }}
         />
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-3 md:mb-6">
             {/* Desktop: Logo image like landing page */}
             <Link to="/" className="flex-1 hidden md:flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5">
               <img 
@@ -1094,7 +1094,7 @@ ${IKTRACKER_MENTION}
       </header>
 
       {/* Main content */}
-      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-4 space-y-5 pb-36">
+      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36">
         {/* Geolocation Banner */}
         {showGeoBanner && (
           <GeolocationBanner
