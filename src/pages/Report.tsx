@@ -7,6 +7,7 @@ import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
+import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -23,7 +24,7 @@ import JSZip from 'jszip';
 export default function Report() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { trips, vehicles, savedLocations, deleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
+  const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
   const { preferences, updatePreference } = usePreferences();
   
@@ -900,6 +901,14 @@ ${IKTRACKER_URL}`
           ))}
           </>
         )}
+
+        {/* Archived trips section - above barème */}
+        <ArchivedTripsSection
+          archivedTrips={archivedTrips}
+          vehicles={vehicles}
+          onRestore={restoreTrip}
+          onPermanentDelete={permanentlyDeleteTrip}
+        />
 
         <div className="bg-card rounded-md shadow-md overflow-hidden">
           <button
