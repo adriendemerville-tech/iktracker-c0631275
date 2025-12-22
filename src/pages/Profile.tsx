@@ -753,9 +753,11 @@ const Profile = () => {
               <BarChart3 className="w-4 h-4" />
               Kilomètres parcourus
             </CardTitle>
-            <CardDescription>
-              Sur les 6 derniers mois
-            </CardDescription>
+            {!isMobile && (
+              <CardDescription>
+                Sur les 6 derniers mois
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             <div className="h-48">
