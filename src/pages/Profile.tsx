@@ -153,7 +153,7 @@ const Profile = () => {
   const { user } = useAuth();
   const { handleLogout } = useAppAuth();
   const { theme, toggleTheme } = useTheme();
-  const { trips, vehicles, savedLocations, addVehicle, updateVehicle, deleteVehicle, addLocation, updateLocation, deleteLocation, getTotalAnnualKm } = useTrips();
+  const { trips, vehicles, savedLocations, addVehicle, updateVehicle, deleteVehicle, addLocation, updateLocation, deleteLocation, getTotalAnnualKm, loading: tripsLoading } = useTrips();
   const { preferences, updatePreference } = usePreferences();
   const { isAdmin } = useAdmin();
   const { unreadResponsesCount } = useFeedback();
@@ -440,7 +440,12 @@ const Profile = () => {
             )}
           </CardHeader>
           <CardContent>
-            {savedLocations.length === 0 ? (
+            {tripsLoading ? (
+              <div className="space-y-3">
+                <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
+                <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
+              </div>
+            ) : savedLocations.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
                 <Home className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Aucune adresse enregistrée</p>
