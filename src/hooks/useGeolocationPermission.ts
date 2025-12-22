@@ -12,6 +12,8 @@ interface GeolocationPermissionState {
 }
 
 const STORAGE_KEY = 'iktracker_geolocation_dismissed';
+const SESSION_COUNT_KEY = 'iktracker_geolocation_session_count';
+const MAX_SESSIONS = 6;
 
 export function useGeolocationPermission() {
   const [state, setState] = useState<GeolocationPermissionState>({
@@ -23,9 +25,36 @@ export function useGeolocationPermission() {
     isGpsDisabled: false,
   });
 
-  // Check if banner was dismissed
+  // Check if banner was permanently dismissed or max sessions reached
   const wasDismissed = useCallback(() => {
-    return localStorage.getItem(STORAGE_KEY) === 'true';
+    const dismissed = localStorage.getItem(STORAGE_KEY) === 'true';
+    if (dismissed) return true;
+    
+    const sessionCount = parseInt(localStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
+    return sessionCount >= MAX_SESSIONS;
+  }, []);
+
+  // Should show banner this session (every other session, up to 6 total)
+  const shouldShowThisSession = useCallback(() => {
+    if (wasDismissed()) return false;
+    
+    const sessionCount = parseInt(localStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
+    
+    // Show only on even sessions (0, 2, 4) = every other session
+    // Session 0 -> show, Session 1 -> hide, Session 2 -> show, etc.
+    return sessionCount % 2 === 0;
+  }, [wasDismissed]);
+
+  // Increment session count on mount (once per session)
+  useEffect(() => {
+    const sessionKey = 'iktracker_geolocation_session_tracked';
+    const alreadyTracked = sessionStorage.getItem(sessionKey);
+    
+    if (!alreadyTracked) {
+      const currentCount = parseInt(localStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
+      localStorage.setItem(SESSION_COUNT_KEY, String(currentCount + 1));
+      sessionStorage.setItem(sessionKey, 'true');
+    }
   }, []);
 
   // Check permission status using Permissions API
@@ -49,7 +78,7 @@ export function useGeolocationPermission() {
         const result = await navigator.permissions.query({ name: 'geolocation' });
         
         const updateFromPermission = (permState: PermissionState) => {
-          const shouldShowBanner = permState === 'prompt' && !wasDismissed();
+          const shouldShowBanner = permState === 'prompt' && shouldShowThisSession();
           setState(s => ({
             ...s,
             permission: permState,
@@ -72,7 +101,7 @@ export function useGeolocationPermission() {
           ...s,
           permission: 'prompt',
           isLoading: false,
-          showBanner: !wasDismissed(),
+          showBanner: shouldShowThisSession(),
         }));
       }
     } catch (error) {
@@ -81,10 +110,10 @@ export function useGeolocationPermission() {
         ...s,
         permission: 'unknown',
         isLoading: false,
-        showBanner: !wasDismissed(),
+        showBanner: shouldShowThisSession(),
       }));
     }
-  }, [wasDismissed]);
+  }, [shouldShowThisSession]);
 
   // Request permission by triggering getCurrentPosition
   const requestPermission = useCallback(() => {
@@ -92,7 +121,8 @@ export function useGeolocationPermission() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Success - permission granted
+        // Success - permission granted, permanently dismiss banner
+        localStorage.setItem(STORAGE_KEY, 'true');
         setState(s => ({
           ...s,
           permission: 'granted',
@@ -102,8 +132,6 @@ export function useGeolocationPermission() {
           isGpsDisabled: false,
           error: null,
         }));
-        // Clear dismissed state since user granted
-        localStorage.removeItem(STORAGE_KEY);
       },
       (error) => {
         let newState: Partial<GeolocationPermissionState> = {
@@ -138,7 +166,7 @@ export function useGeolocationPermission() {
             newState = {
               ...newState,
               permission: 'prompt',
-              showBanner: true,
+              showBanner: shouldShowThisSession(),
               error: 'Délai dépassé',
             };
             break;
@@ -152,11 +180,10 @@ export function useGeolocationPermission() {
         maximumAge: 0,
       }
     );
-  }, []);
+  }, [shouldShowThisSession]);
 
-  // Dismiss banner
+  // Dismiss banner (just hide for this session, don't permanently dismiss)
   const dismissBanner = useCallback(() => {
-    localStorage.setItem(STORAGE_KEY, 'true');
     setState(s => ({ ...s, showBanner: false }));
   }, []);
 
@@ -168,6 +195,7 @@ export function useGeolocationPermission() {
   // Reset dismissed state (useful for testing)
   const resetDismissed = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SESSION_COUNT_KEY);
     checkPermission();
   }, [checkPermission]);
 
