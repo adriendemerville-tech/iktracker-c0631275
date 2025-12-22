@@ -344,6 +344,51 @@ async function tripExistsForEvent(userId: string, eventId: string, supabase: any
   return { exists: true, wasDeleted };
 }
 
+// Check if a similar trip already exists (same date + similar destination) - includes archived trips
+async function similarTripExists(
+  userId: string, 
+  eventDate: string, 
+  destination: string, 
+  supabase: any
+): Promise<{ exists: boolean; wasDeleted: boolean }> {
+  if (!destination) return { exists: false, wasDeleted: false };
+  
+  // Normalize destination for comparison (lowercase, trim)
+  const normalizedDest = destination.toLowerCase().trim();
+  
+  // Fetch all trips for this date (including archived ones)
+  const { data: existingTrips } = await supabase
+    .from('trips')
+    .select('id, end_location, deleted_at')
+    .eq('user_id', userId)
+    .eq('date', eventDate);
+
+  if (!existingTrips || existingTrips.length === 0) {
+    return { exists: false, wasDeleted: false };
+  }
+
+  // Check for similar destinations
+  for (const trip of existingTrips) {
+    const tripDest = (trip.end_location || '').toLowerCase().trim();
+    
+    // Check if destinations are similar (contains match or significant overlap)
+    const isSimilar = 
+      tripDest === normalizedDest ||
+      tripDest.includes(normalizedDest) ||
+      normalizedDest.includes(tripDest) ||
+      // Also check city-level match (first significant word)
+      (tripDest.split(',')[0]?.trim() === normalizedDest.split(',')[0]?.trim() && 
+       tripDest.split(',')[0]?.trim().length > 3);
+    
+    if (isSimilar) {
+      console.log(`🔍 Found similar trip: "${trip.end_location}" matches "${destination}" on ${eventDate}`);
+      return { exists: true, wasDeleted: trip.deleted_at !== null };
+    }
+  }
+
+  return { exists: false, wasDeleted: false };
+}
+
 // Find matching keyword in frequent_destinations for event title
 async function findFrequentDestination(userId: string, eventTitle: string, supabase: any): Promise<string | null> {
   if (!eventTitle) return null;
@@ -416,6 +461,25 @@ async function createTripFromEvent(
       // No location and no keyword match - create as pending
       tripStatus = 'pending_location';
       console.log(`⚠️ No location found, creating as pending: "${event.summary}"`);
+    }
+  }
+
+  // Check for similar trips (same date + similar destination) - prevents duplicates with archived trips
+  if (destinationAddress) {
+    const { exists: similarExists, wasDeleted: similarWasDeleted } = await similarTripExists(
+      userId, 
+      eventDate, 
+      destinationAddress, 
+      supabase
+    );
+    
+    if (similarExists) {
+      if (similarWasDeleted) {
+        console.log(`⏭️ Similar archived trip found for "${event.summary}" on ${eventDate} - not re-importing`);
+        return { created: false, reason: 'similar_archived' };
+      }
+      console.log(`⏭️ Similar trip already exists for "${event.summary}" on ${eventDate}`);
+      return { created: false, reason: 'similar_exists' };
     }
   }
 
