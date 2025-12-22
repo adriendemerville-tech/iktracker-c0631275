@@ -1000,10 +1000,7 @@ ${IKTRACKER_MENTION}
               </div>
             </Link>
             {/* Mobile: Text only */}
-            <div className="flex-1 md:hidden">
-              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
-              <p className="text-xs sm:text-sm text-white/60 font-urbanist">Indemnités Kilométriques</p>
-            </div>
+            <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-white">IKtracker</h1>
             {isAdmin && (
               <>
                 <Button 
