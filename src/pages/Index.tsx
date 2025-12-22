@@ -1141,7 +1141,8 @@ ${IKTRACKER_MENTION}
 
         {/* Vehicles section */}
         <section>
-          <div className="flex items-center justify-between mb-4">
+          {/* Title hidden on mobile */}
+          <div className="hidden md:flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Mes véhicules</h2>
             <Button variant="ghost" size="sm" onClick={handleAddVehicle}>
               <Plus className="w-4 h-4 mr-1" />
@@ -1156,7 +1157,7 @@ ${IKTRACKER_MENTION}
               <p className="text-sm text-muted-foreground mt-1 mb-4">
                 Ajoutez votre véhicule pour commencer
               </p>
-              <Button onClick={handleAddVehicle}>
+              <Button onClick={handleAddVehicle} className="hidden md:inline-flex">
                 <Plus className="w-4 h-4 mr-2" />
                 Ajouter un véhicule
               </Button>
