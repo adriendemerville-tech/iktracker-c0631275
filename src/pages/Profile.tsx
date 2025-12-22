@@ -794,31 +794,15 @@ const Profile = () => {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="py-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <CreditCard className="w-4 h-4" />
               Paiement
-            </CardTitle>
-            {!isMobile && (
-              <CardDescription>
-                Gérez vos moyens de paiement
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-6 text-muted-foreground">
-              <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Aucun moyen de paiement enregistré</p>
-              <Button variant="outline" size="sm" className="mt-3" disabled>
-                Ajouter une carte
-              </Button>
-            </div>
-            <div className="mt-4 flex justify-center">
-              <span className="bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium px-4 py-1.5 rounded-md">
+              <span className="bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium px-2 py-0.5 rounded-md ml-auto">
                 Gratuit
               </span>
-            </div>
-          </CardContent>
+            </CardTitle>
+          </CardHeader>
         </Card>
 
         {/* Invoices - Hidden while app is free */}
