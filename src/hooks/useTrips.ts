@@ -5,6 +5,9 @@ import { useAuth } from './useAuth';
 import { usePreferences } from './usePreferences';
 import { toast } from 'sonner';
 
+// Archived trips are kept for 30 days
+const ARCHIVE_RETENTION_DAYS = 30;
+
 const TRIPS_KEY = 'ik-tracker-trips';
 const LOCATIONS_KEY = 'ik-tracker-locations';
 const VEHICLES_KEY = 'ik-tracker-vehicles';
@@ -18,6 +21,7 @@ export function useTrips() {
   const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [archivedTrips, setArchivedTrips] = useState<Trip[]>([]);
   // Start with empty array - don't show defaults until we know if user is logged in
   const [savedLocations, setSavedLocations] = useState<Location[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -65,14 +69,45 @@ export function useTrips() {
         })));
       }
 
-      // Load trips
+      // Load active trips (not deleted)
       const { data: dbTrips } = await supabase
         .from('trips')
         .select('*')
+        .is('deleted_at', null)
         .order('date', { ascending: false });
 
       if (dbTrips) {
         setTrips(dbTrips.map(t => ({
+          id: t.id,
+          vehicleId: t.vehicle_id,
+          startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
+          endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+          distance: t.distance,
+          baseDistance: t.round_trip ? t.distance / 2 : t.distance,
+          roundTrip: t.round_trip,
+          purpose: t.purpose || '',
+          startTime: new Date(t.date),
+          endTime: new Date(t.date),
+          ikAmount: t.ik_amount,
+          tourStops: (t as any).tour_stops as TourStopData[] | undefined,
+          calendarEventId: t.calendar_event_id || undefined,
+          status: (t as any).status || 'validated',
+        })));
+      }
+
+      // Load archived trips (deleted within last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - ARCHIVE_RETENTION_DAYS);
+      
+      const { data: dbArchivedTrips } = await supabase
+        .from('trips')
+        .select('*')
+        .not('deleted_at', 'is', null)
+        .gte('deleted_at', thirtyDaysAgo.toISOString())
+        .order('deleted_at', { ascending: false });
+
+      if (dbArchivedTrips) {
+        setArchivedTrips(dbArchivedTrips.map(t => ({
           id: t.id,
           vehicleId: t.vehicle_id,
           startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
@@ -312,11 +347,81 @@ export function useTrips() {
   };
 
   const deleteTrip = async (id: string) => {
+    const tripToDelete = trips.find(t => t.id === id);
+    if (!tripToDelete) return;
+
+    if (user) {
+      // Soft delete: set deleted_at timestamp
+      const deletedAt = new Date().toISOString();
+      await supabase
+        .from('trips')
+        .update({ deleted_at: deletedAt })
+        .eq('id', id);
+      
+      // Move to archived trips
+      setTrips(prev => prev.filter(t => t.id !== id));
+      setArchivedTrips(prev => [{ ...tripToDelete }, ...prev]);
+    } else {
+      // For local storage, also implement soft delete
+      const deletedAt = new Date().toISOString();
+      const archivedTrip = { ...tripToDelete, deletedAt };
+      
+      // Save to archived storage
+      const storedArchived = localStorage.getItem('ik-tracker-archived-trips');
+      const archived = storedArchived ? JSON.parse(storedArchived) : [];
+      localStorage.setItem('ik-tracker-archived-trips', JSON.stringify([archivedTrip, ...archived]));
+      
+      // Remove from active trips
+      saveTripsLocal(trips.filter(t => t.id !== id));
+      setArchivedTrips(prev => [tripToDelete, ...prev]);
+    }
+  };
+
+  // Restore a trip from archive
+  const restoreTrip = async (id: string) => {
+    const tripToRestore = archivedTrips.find(t => t.id === id);
+    if (!tripToRestore) return;
+
+    if (user) {
+      // Clear deleted_at to restore
+      await supabase
+        .from('trips')
+        .update({ deleted_at: null })
+        .eq('id', id);
+      
+      // Move back to active trips
+      setArchivedTrips(prev => prev.filter(t => t.id !== id));
+      setTrips(prev => [tripToRestore, ...prev].sort((a, b) => 
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+      ));
+      toast.success('Trajet restauré');
+    } else {
+      // For local storage
+      const storedArchived = localStorage.getItem('ik-tracker-archived-trips');
+      const archived = storedArchived ? JSON.parse(storedArchived) : [];
+      localStorage.setItem('ik-tracker-archived-trips', 
+        JSON.stringify(archived.filter((t: any) => t.id !== id))
+      );
+      
+      // Add back to active trips
+      saveTripsLocal([tripToRestore, ...trips]);
+      setArchivedTrips(prev => prev.filter(t => t.id !== id));
+      toast.success('Trajet restauré');
+    }
+  };
+
+  // Permanently delete a trip from archive
+  const permanentlyDeleteTrip = async (id: string) => {
     if (user) {
       await supabase.from('trips').delete().eq('id', id);
-      setTrips(prev => prev.filter(t => t.id !== id));
+      setArchivedTrips(prev => prev.filter(t => t.id !== id));
     } else {
-      saveTripsLocal(trips.filter(t => t.id !== id));
+      const storedArchived = localStorage.getItem('ik-tracker-archived-trips');
+      const archived = storedArchived ? JSON.parse(storedArchived) : [];
+      localStorage.setItem('ik-tracker-archived-trips', 
+        JSON.stringify(archived.filter((t: any) => t.id !== id))
+      );
+      setArchivedTrips(prev => prev.filter(t => t.id !== id));
     }
   };
 
@@ -768,6 +873,7 @@ export function useTrips() {
 
   return {
     trips,
+    archivedTrips,
     savedLocations,
     vehicles,
     totalKm,
@@ -777,6 +883,8 @@ export function useTrips() {
     addTrip,
     updateTrip,
     deleteTrip,
+    restoreTrip,
+    permanentlyDeleteTrip,
     addLocation,
     updateLocation,
     deleteLocation,

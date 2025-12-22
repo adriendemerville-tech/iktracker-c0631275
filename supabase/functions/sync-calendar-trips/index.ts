@@ -326,16 +326,22 @@ async function calculateDrivingDistance(origin: string, destination: string): Pr
   }
 }
 
-// Check if a trip already exists for this calendar event
-async function tripExistsForEvent(userId: string, eventId: string, supabase: any): Promise<boolean> {
+// Check if a trip already exists for this calendar event (including deleted ones)
+async function tripExistsForEvent(userId: string, eventId: string, supabase: any): Promise<{ exists: boolean; wasDeleted: boolean }> {
   const { data } = await supabase
     .from('trips')
-    .select('id')
+    .select('id, deleted_at')
     .eq('user_id', userId)
     .eq('calendar_event_id', eventId)
     .limit(1);
 
-  return (data?.length || 0) > 0;
+  if (!data || data.length === 0) {
+    return { exists: false, wasDeleted: false };
+  }
+  
+  // Trip exists - check if it was deleted (archived)
+  const wasDeleted = data[0].deleted_at !== null;
+  return { exists: true, wasDeleted };
 }
 
 // Find matching keyword in frequent_destinations for event title
@@ -375,8 +381,14 @@ async function createTripFromEvent(
   // Log all events for debugging
   console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
 
-  // Check if trip already exists
-  if (await tripExistsForEvent(userId, event.id, supabase)) {
+  // Check if trip already exists (including deleted/archived trips)
+  const { exists, wasDeleted } = await tripExistsForEvent(userId, event.id, supabase);
+  
+  if (exists) {
+    if (wasDeleted) {
+      console.log(`⏭️ Trip was previously deleted for event "${event.summary}" - not re-importing`);
+      return { created: false, reason: 'previously_deleted' };
+    }
     console.log(`⏭️ Trip already exists for event "${event.summary}"`);
     return { created: false, reason: 'already_exists' };
   }

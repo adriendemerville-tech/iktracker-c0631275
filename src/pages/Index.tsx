@@ -38,6 +38,7 @@ import {
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
+import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
@@ -77,6 +78,7 @@ const Index = () => {
   });
   const { 
     trips, 
+    archivedTrips,
     savedLocations, 
     vehicles,
     totalKm, 
@@ -84,6 +86,8 @@ const Index = () => {
     getTotalAnnualKm,
     addTrip,
     deleteTrip,
+    restoreTrip,
+    permanentlyDeleteTrip,
     addLocation,
     updateLocation,
     deleteLocation,
@@ -1218,6 +1222,14 @@ ${IKTRACKER_MENTION}
               variant="home" 
             />
           )}
+
+          {/* Archived trips section */}
+          <ArchivedTripsSection
+            archivedTrips={archivedTrips}
+            vehicles={vehicles}
+            onRestore={restoreTrip}
+            onPermanentDelete={permanentlyDeleteTrip}
+          />
         </section>
       </main>
 
