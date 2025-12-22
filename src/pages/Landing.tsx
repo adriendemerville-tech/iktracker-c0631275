@@ -478,7 +478,13 @@ const Landing = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <img src="/iktracker-indemnites-kilometriques-logo.png" alt="IKtracker" className="h-5 opacity-50" />
+                      <img 
+                        src="/iktracker-indemnites-kilometriques-logo.png" 
+                        alt="IKtracker" 
+                        className="h-5 opacity-50" 
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                     <p className="text-xs text-gray-400">
                       Simplifiez vos IK • <span className="text-primary">iktracker.fr</span>
@@ -553,6 +559,8 @@ const Landing = () => {
                 src={founderImage} 
                 alt="Adrien de Volontat, fondateur d'IKtracker" 
                 className="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover flex-shrink-0 border-2 border-border transition-transform duration-300 hover:scale-110"
+                loading="lazy"
+                decoding="async"
               />
               <div className="text-center md:text-left">
                 <blockquote className="text-sm md:text-base text-muted-foreground leading-relaxed font-display">
