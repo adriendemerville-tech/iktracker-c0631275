@@ -302,7 +302,9 @@ const Profile = () => {
               </div>
               <div>
                 <p className="font-medium">Informations et connexion</p>
-                <p className="text-sm text-muted-foreground">{user?.email || 'Non connecté'}</p>
+                {!isMobile && (
+                  <p className="text-sm text-muted-foreground">{user?.email || 'Non connecté'}</p>
+                )}
               </div>
             </div>
             <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${showAccountInfo ? 'rotate-90' : ''}`} />
