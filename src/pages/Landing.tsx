@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import founderImage from "@/assets/founder-adrien.jpg";
+import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Link, useNavigate } from "react-router-dom";

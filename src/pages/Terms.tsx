@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import founderImage from '@/assets/founder-adrien.jpg';
+import founderImage from '@/assets/founder-adrien-optimized.webp';
 
 const Terms = () => {
   const navigate = useNavigate();
