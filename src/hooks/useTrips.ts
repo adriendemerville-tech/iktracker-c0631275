@@ -69,11 +69,13 @@ export function useTrips() {
         })));
       }
 
-      // Load active trips (not deleted)
+      // Load active trips (not deleted) - only past or today's trips (no future calendar imports)
+      const today = new Date().toISOString().split('T')[0];
       const { data: dbTrips } = await supabase
         .from('trips')
         .select('*')
         .is('deleted_at', null)
+        .lte('date', today)
         .order('date', { ascending: false });
 
       if (dbTrips) {
