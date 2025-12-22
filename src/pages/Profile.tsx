@@ -681,9 +681,11 @@ const Profile = () => {
                 Ajouter
               </Button>
             </div>
-            <CardDescription>
-              Gérez vos véhicules pour le calcul des IK
-            </CardDescription>
+            {!isMobile && (
+              <CardDescription>
+                Gérez vos véhicules pour le calcul des IK
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             {vehicles.length === 0 ? (
