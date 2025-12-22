@@ -57,13 +57,18 @@ export const TripCard = memo(function TripCard({
     });
   };
 
-  // Check if time is meaningful (not midnight/1AM which indicates no real time was recorded)
+  // Check if time is meaningful (not a timezone artifact or default value)
   const hasRealTime = (date: Date) => {
     const d = new Date(date);
     const hours = d.getHours();
     const minutes = d.getMinutes();
-    // If it's exactly midnight (00:00) or 1AM (01:00), it's likely a default/timezone artifact
-    return !((hours === 0 || hours === 1) && minutes === 0);
+    // Only show time if minutes are non-zero, or if it's a "real" hour (not midnight/1AM/2AM which are timezone artifacts)
+    // A real time typically has non-zero minutes or is during normal business hours with intent
+    if (minutes !== 0) return true;
+    // Hours 0, 1, 2 at :00 are almost always timezone conversion artifacts from date-only storage
+    if (hours <= 2) return false;
+    // For other round hours, we can't be 100% sure, but they're more likely real if during work hours
+    return true;
   };
 
   const getLocationIcon = (type: string) => {
