@@ -253,6 +253,7 @@ export type Database = {
           calendar_event_id: string | null
           created_at: string
           date: string
+          deleted_at: string | null
           distance: number
           end_location: string
           id: string
@@ -270,6 +271,7 @@ export type Database = {
           calendar_event_id?: string | null
           created_at?: string
           date: string
+          deleted_at?: string | null
           distance: number
           end_location: string
           id?: string
@@ -287,6 +289,7 @@ export type Database = {
           calendar_event_id?: string | null
           created_at?: string
           date?: string
+          deleted_at?: string | null
           distance?: number
           end_location?: string
           id?: string
