@@ -521,7 +521,9 @@ const Profile = () => {
               </div>
               <div className="text-left">
                 <p className="font-medium">Préférences</p>
-                <p className="text-sm text-muted-foreground">Personnaliser l'application</p>
+                {!isMobile && (
+                  <p className="text-sm text-muted-foreground">Personnaliser l'application</p>
+                )}
               </div>
             </div>
             <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showPreferencesDropdown ? 'rotate-180' : ''}`} />
