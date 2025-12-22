@@ -68,14 +68,18 @@
     <meta name="language" content="French" />
     <meta name="revisit-after" content="7 days" />
     
-    <!-- Fonts - Preconnect and load asynchronously -->
+    <!-- Preconnect to third-party origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://yarjaudctshlxkatqgeb.supabase.co">
+    <link rel="preconnect" href="https://yarjaudctshlxkatqgeb.supabase.co" crossorigin>
+    
+    <!-- Fonts - Load asynchronously with display swap -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Preload critical LCP image -->
-    <link rel="preload" href="/iktracker-indemnites-kilometriques-logo.png" as="image" type="image/png">
+    <!-- Preload critical LCP assets -->
+    <link rel="preload" href="/iktracker-indemnites-kilometriques-logo.png" as="image" type="image/png" fetchpriority="high">
     
     <!-- Google Maps loaded dynamically only when needed -->
     

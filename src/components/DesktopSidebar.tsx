@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus, Smartphone, Archive } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import founderImage from '@/assets/founder-adrien.jpg';
+import founderImage from '@/assets/founder-adrien-optimized.webp';
 import { Vehicle } from '@/types/trip';
 
 // FAQ items
