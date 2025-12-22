@@ -799,9 +799,11 @@ const Profile = () => {
               <CreditCard className="w-4 h-4" />
               Paiement
             </CardTitle>
-            <CardDescription>
-              Gérez vos moyens de paiement
-            </CardDescription>
+            {!isMobile && (
+              <CardDescription>
+                Gérez vos moyens de paiement
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             <div className="text-center py-6 text-muted-foreground">
