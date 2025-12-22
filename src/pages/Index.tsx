@@ -1180,7 +1180,7 @@ ${IKTRACKER_MENTION}
         {/* Recent trips */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Derniers trajets</h2>
+            <h2 className="text-base md:text-lg font-semibold">Derniers trajets</h2>
             {trips.length > 3 && (
               <Link to="/report" className="text-sm text-primary font-medium flex items-center">
                 Voir tout
