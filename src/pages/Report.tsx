@@ -734,8 +734,8 @@ ${IKTRACKER_URL}`
         </div>
 
         <div className="space-y-2 flex flex-col items-center -my-1">
-          {/* Show email input only if not sent yet */}
-          {(!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
+          {/* Show email input only if not sent yet - hidden on mobile */}
+          {!isMobile && (!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
             <div className="flex items-center gap-2 w-full">
               <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <Input
