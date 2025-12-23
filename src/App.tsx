@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense, createContext, useContext, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -194,7 +194,7 @@ function GoogleMapsPreloader() {
 }
 
 const AppRoutes = () => {
-  const { user, isLoggingOut, clearLogoutOverlay } = useAuth();
+  const { user, isLoggingOut, clearLogoutOverlay, signOut } = useAuth();
 
   // Extract first name from user metadata
   const getUserFirstName = (): string | null => {
@@ -208,8 +208,8 @@ const AppRoutes = () => {
   };
 
   const handleLogout = async () => {
-    // Critical: quit React/router immediately to prevent any intermediate /auth redirect flash.
-    void supabase.auth.signOut();
+    // Ensure local session is cleared synchronously, then hard-reload out of React.
+    void signOut();
     window.location.href = "/";
   };
 
