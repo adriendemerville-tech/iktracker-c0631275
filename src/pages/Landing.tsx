@@ -131,11 +131,7 @@ const Landing = () => {
 
             {/* Right: Auth form or Phone mockup - Reserved space to prevent CLS */}
             <div id="auth-section" className="animate-scale-in min-h-[420px]">
-              {loading ? (
-                <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
-                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : user ? (
+              {user ? (
                 <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
                   <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="h-8 w-8 text-success" />
