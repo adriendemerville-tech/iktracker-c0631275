@@ -28,7 +28,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
       <nav className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer select-none">
             <img 
               src="/logo-iktracker-250.webp" 
               alt="IKtracker - Suivi des indemnités kilométriques" 
@@ -38,8 +38,9 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
               loading="eager"
               decoding="async"
               fetchPriority="high"
+              draggable={false}
             />
-            <span className="text-lg md:text-xl font-bold text-foreground">IKtracker</span>
+            <span className="text-lg md:text-xl font-bold text-foreground select-none">IKtracker</span>
           </Link>
 
           {/* Desktop Navigation */}
