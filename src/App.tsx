@@ -129,11 +129,35 @@ const SmartLanding = () => {
 const SmartAuth = () => {
   const { user, loading } = useAuth();
   const [minDelayPassed, setMinDelayPassed] = useState(false);
+  const [hasCheckedCookie, setHasCheckedCookie] = useState(false);
+  const [cookieHasSession, setCookieHasSession] = useState(false);
+
+  // Check localStorage cookie synchronously on mount for immediate redirect
+  useEffect(() => {
+    const storageKey = `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID}-auth-token`;
+    const storedSession = localStorage.getItem(storageKey);
+    if (storedSession) {
+      try {
+        const parsed = JSON.parse(storedSession);
+        if (parsed?.access_token) {
+          setCookieHasSession(true);
+        }
+      } catch {
+        // Invalid JSON, ignore
+      }
+    }
+    setHasCheckedCookie(true);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
     return () => clearTimeout(timer);
   }, []);
+
+  // Immediate redirect if cookie shows session exists (before auth loading completes)
+  if (hasCheckedCookie && cookieHasSession) {
+    return <Navigate to="/app" replace />;
+  }
 
   if (loading || !minDelayPassed) {
     return <AuthLoadingScreen />;
