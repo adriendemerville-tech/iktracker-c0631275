@@ -85,7 +85,7 @@ const Landing = () => {
         <link rel="canonical" href="https://iktracker.fr/" />
       </Helmet>
       
-      <MarketingNav />
+      <MarketingNav user={user} loading={loading} />
 
       {/* Hero Section */}
       <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden">
