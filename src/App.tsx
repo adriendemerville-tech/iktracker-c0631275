@@ -10,7 +10,9 @@ import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
-import { LogoutOverlay } from "@/components/LogoutOverlay";
+
+// Lazy load LogoutOverlay to avoid loading framer-motion on landing page
+const LogoutOverlay = lazy(() => import("@/components/LogoutOverlay").then(m => ({ default: m.LogoutOverlay })));
 
 // Critical route - Landing loaded immediately for fast initial load
 import Landing from "./pages/Landing";
@@ -131,7 +133,9 @@ const AppRoutes = () => {
 
   return (
     <AuthContext.Provider value={{ handleLogout }}>
-      <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
+      <Suspense fallback={null}>
+        <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
+      </Suspense>
       <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<Landing />} />
