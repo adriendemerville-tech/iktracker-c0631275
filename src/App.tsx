@@ -12,9 +12,11 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
 
-// Critical routes - Landing and Auth loaded immediately for fast initial load
+// Critical route - Landing loaded immediately for fast initial load
 import Landing from "./pages/Landing";
-import Auth from "./pages/Auth";
+
+// Auth lazy loaded - not needed on initial page load
+const Auth = lazy(() => import("./pages/Auth"));
 
 // Lazy loaded app routes - reduces initial bundle size
 const Index = lazy(() => import("./pages/Index"));
@@ -133,7 +135,7 @@ const AppRoutes = () => {
       <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/auth" element={<Auth />} />
+        <Route path="/auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />
         <Route path="/signup" element={<Suspense fallback={<PageLoader />}><Signup /></Suspense>} />
         <Route
           path="/app"
