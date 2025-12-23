@@ -153,27 +153,49 @@ export default defineConfig(({ mode }) => ({
               },
             },
           },
-          // Images - StaleWhileRevalidate for balance
+          // Images - CacheFirst for faster loading
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
-            handler: "StaleWhileRevalidate",
+            handler: "CacheFirst",
             options: {
               cacheName: "images-cache",
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxEntries: 150,
+                maxAgeSeconds: 60 * 60 * 24 * 90, // 90 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
               },
             },
           },
-          // Static assets - CacheFirst
+          // Static assets - CacheFirst with long expiration
           {
             urlPattern: /\.(?:js|css|woff2|woff|ttf)$/i,
             handler: "CacheFirst",
             options: {
               cacheName: "static-assets",
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxEntries: 150,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year (hashed files)
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // HTML pages - NetworkFirst for freshness
+          {
+            urlPattern: /\.html$/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "html-pages",
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
+              },
+              networkTimeoutSeconds: 3,
+              cacheableResponse: {
+                statuses: [0, 200],
               },
             },
           },

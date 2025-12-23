@@ -1,13 +1,21 @@
 # Cache headers for Netlify/Cloudflare Pages
-# Optimized for performance and LCP
+# Optimized for maximum performance
 
-# Hashed assets (JS, CSS) - immutable, long cache
+# Default headers for all pages
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Hashed assets (JS, CSS) - immutable, maximum cache
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+  Vary: Accept-Encoding
 
-# Images - long cache with revalidation
+# Images - immutable with encoding variation
 *.webp
   Cache-Control: public, max-age=31536000, immutable
+  Vary: Accept-Encoding
 
 *.png
   Cache-Control: public, max-age=31536000, immutable
@@ -17,27 +25,49 @@
 
 *.svg
   Cache-Control: public, max-age=31536000, immutable
+  Vary: Accept-Encoding
 
-# Fonts - long cache
+# Fonts - immutable long cache
 *.woff2
   Cache-Control: public, max-age=31536000, immutable
 
 *.woff
   Cache-Control: public, max-age=31536000, immutable
 
-# PWA files
+# Compressed assets
+*.js.gz
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Encoding: gzip
+  Content-Type: application/javascript
+
+*.js.br
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Encoding: br
+  Content-Type: application/javascript
+
+*.css.gz
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Encoding: gzip
+  Content-Type: text/css
+
+*.css.br
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Encoding: br
+  Content-Type: text/css
+
+# PWA files - must revalidate
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
 
 /manifest.webmanifest
   Cache-Control: public, max-age=86400
 
-# HTML - short cache for updates
+# HTML - stale-while-revalidate for faster perceived load
 /*.html
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=0, must-revalidate, stale-while-revalidate=86400
 
 /
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=0, must-revalidate, stale-while-revalidate=86400
 
 # Robots and sitemap
 /robots.txt
