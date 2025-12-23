@@ -48,20 +48,21 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       return;
     }
 
-    // Desktop animation sequence (optimized timings):
-    // 1. Show spinner for 1s, then hide it and show text
+    // Desktop animation sequence (smooth crossfade):
+    // 1. Spinner fades out while text fades in (overlap for smooth transition)
     const hideSpinnerTimer = setTimeout(() => {
       setShowSpinner(false);
-    }, 1000);
+    }, 1200);
 
+    // Start showing text slightly before spinner fully disappears
     const showTextTimer = setTimeout(() => {
       setShowText(true);
-    }, 1100);
+    }, 900);
 
-    // 2. Text stays 1.8s, then hide it
+    // 2. Text stays visible, then fades out
     const hideTextTimer = setTimeout(() => {
       setHideText(true);
-    }, 2900);
+    }, 2800);
 
     // 3. Fade out background
     const fadeOutTimer = setTimeout(() => {
@@ -126,14 +127,14 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
           />
 
           {/* Spinner during initial loading */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {showSpinner && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="relative z-10 flex flex-col items-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                className="absolute z-10 flex flex-col items-center"
               >
                 {/* Spinning loader */}
                 <div className="relative">
@@ -156,11 +157,15 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
           <AnimatePresence>
             {showText && !hideText && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                initial={{ opacity: 0, scale: 0.9, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98, y: -5 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center relative z-10 flex flex-col items-center"
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ 
+                  duration: 0.6, 
+                  ease: [0.4, 0, 0.2, 1],
+                  opacity: { duration: 0.5 }
+                }}
+                className="absolute text-center z-10 flex flex-col items-center"
               >
                 <h1 
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
