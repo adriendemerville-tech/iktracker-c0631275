@@ -45,13 +45,13 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
       return;
     }
 
-    // Store farewell data for the transition shell
+    // Store farewell data for the transition shell (landing page will pick this up)
     sessionStorage.setItem('iktracker_logout_transition', JSON.stringify({
       message: fullMessage,
       timestamp: Date.now()
     }));
 
-    // If mobile, redirect immediately without animation
+    // If mobile, redirect immediately
     if (!isDesktop) {
       window.location.href = "/";
       return;
@@ -63,12 +63,12 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
     // Transition to visible after enter animation
     const visibleTimer = setTimeout(() => {
       setPhase('visible');
-    }, 400);
+    }, 300);
 
-    // Navigate after showing the message - the HTML shell will continue the overlay
+    // Navigate quickly - the HTML shell will maintain the overlay until Landing loads
     const navigateTimer = setTimeout(() => {
       window.location.href = "/";
-    }, 1800);
+    }, 800);
 
     return () => {
       clearTimeout(visibleTimer);
