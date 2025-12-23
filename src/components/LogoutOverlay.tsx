@@ -48,31 +48,31 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       return;
     }
 
-    // Desktop animation sequence:
-    // 1. Show spinner for 1.5s, then hide it and show text
+    // Desktop animation sequence (optimized timings):
+    // 1. Show spinner for 1s, then hide it and show text
     const hideSpinnerTimer = setTimeout(() => {
       setShowSpinner(false);
-    }, 1500);
+    }, 1000);
 
     const showTextTimer = setTimeout(() => {
       setShowText(true);
-    }, 1600);
+    }, 1100);
 
-    // 2. Text stays 2s, then hide it
+    // 2. Text stays 1.8s, then hide it
     const hideTextTimer = setTimeout(() => {
       setHideText(true);
-    }, 3600);
+    }, 2900);
 
     // 3. Fade out background
     const fadeOutTimer = setTimeout(() => {
       setFadeOut(true);
-    }, 4600);
+    }, 3400);
 
     // 4. After fade out animation completes, navigate
     const navigateTimer = setTimeout(() => {
       navigate('/');
       onComplete?.();
-    }, 5400);
+    }, 4000);
 
     return () => {
       clearTimeout(hideSpinnerTimer);
