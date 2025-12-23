@@ -649,16 +649,16 @@ ${IKTRACKER_URL}`
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2 md:py-4">
           <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
             <Link to="/app">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" aria-label="Retour à l'accueil">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
             <h1 className="text-lg font-semibold">Relevé des trajets</h1>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={exportZip} disabled={trips.length === 0 || isExporting}>
+              <Button variant="ghost" size="icon" onClick={exportZip} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">
                 <UserCircle className="w-5 h-5" />
               </Button>
             </div>

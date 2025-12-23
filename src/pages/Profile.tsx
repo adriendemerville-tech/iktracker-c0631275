@@ -282,7 +282,7 @@ const Profile = () => {
         {/* Header */}
         <header className="bg-card border-b border-border px-4 py-4">
           <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/app')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/app')} aria-label="Retour à l'accueil">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-xl font-semibold">Mon profil</h1>

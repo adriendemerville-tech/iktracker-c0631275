@@ -71,7 +71,7 @@ const Privacy = () => {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Retour au profil">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-semibold">Politique de confidentialité</h1>
