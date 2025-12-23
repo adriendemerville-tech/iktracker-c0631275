@@ -72,9 +72,7 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB to accommodate larger bundles
-        // IMPORTANT: navigateFallback must point to a real file in precache (usually index.html).
-        // A SPA route like /offline can break navigation requests and lead to a blank page.
-        navigateFallback: "/index.html",
+        navigateFallback: "/offline",
         navigateFallbackAllowlist: [/^\/(?!api|functions|.*\.\w+$).*/],
         navigateFallbackDenylist: [/^\/api/, /^\/functions/, /\.\w+$/],
         runtimeCaching: [
