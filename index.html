@@ -375,7 +375,9 @@
       @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500 700;font-display:swap;src:url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2) format('woff2')}
       /* Reset */
       *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
-      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,sans-serif}
+      /* Use system fonts FIRST for instant render, then swap to custom font */
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+      html.fonts-loaded{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif}
       body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground));transition:background-color 0s,color 0s}
       #root{min-height:100vh;display:flex;flex-direction:column}
       /* Navbar critical styles */
@@ -428,6 +430,17 @@
           }
         } catch(e) {}
       })();
+      // Detect when custom font is loaded, then swap
+      if ('fonts' in document) {
+        document.fonts.ready.then(function() {
+          document.documentElement.classList.add('fonts-loaded');
+        });
+      } else {
+        // Fallback for older browsers - swap after 100ms
+        setTimeout(function() {
+          document.documentElement.classList.add('fonts-loaded');
+        }, 100);
+      }
     </script>
   </head>
 
