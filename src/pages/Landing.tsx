@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -10,13 +10,6 @@ import { Button } from "@/components/ui/button";
 import { AuthForm } from "@/components/AuthForm";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
-import { AppCarousel } from "@/components/marketing/AppCarousel";
-import { TourModeDemo } from "@/components/marketing/TourModeDemo";
-import { TourModeMockup } from "@/components/marketing/TourModeMockup";
-import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
-import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
-import { QRCodeSVG } from 'qrcode.react';
 import { 
   ArrowRight,
   CheckCircle2,
@@ -31,6 +24,22 @@ import {
   Star,
   Smartphone
 } from "lucide-react";
+
+// Lazy load heavy marketing components - reduces initial bundle by ~100KB
+const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
+const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
+const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
+const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
+const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
+const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
+const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
+
+// Placeholder for lazy components
+const LazyPlaceholder = () => (
+  <div className="animate-pulse bg-muted/50 rounded-2xl min-h-[300px] flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -217,7 +226,9 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1">
-              <AnimatedPhoneMockup />
+              <Suspense fallback={<LazyPlaceholder />}>
+                <AnimatedPhoneMockup />
+              </Suspense>
             </div>
             <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Une app mobile complète</h2>
@@ -271,7 +282,9 @@ const Landing = () => {
                 </Button>
               </Link>
             </div>
-            <TourModeMockup />
+            <Suspense fallback={<LazyPlaceholder />}>
+              <TourModeMockup />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -281,7 +294,9 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1">
-              <CalendarSyncDemo />
+              <Suspense fallback={<LazyPlaceholder />}>
+                <CalendarSyncDemo />
+              </Suspense>
             </div>
             <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
@@ -525,12 +540,14 @@ const Landing = () => {
           {/* QR Code for desktop users */}
           <div className="hidden md:flex flex-col items-center gap-3 mt-8">
             <div className="bg-white p-4 rounded-xl shadow-lg">
-              <QRCodeSVG 
-                value="https://iktracker.fr/install" 
-                size={140}
-                level="M"
-                includeMargin={false}
-              />
+              <Suspense fallback={<div className="w-[140px] h-[140px] bg-gray-200 animate-pulse rounded" />}>
+                <QRCodeSVG 
+                  value="https://iktracker.fr/install" 
+                  size={140}
+                  level="M"
+                  includeMargin={false}
+                />
+              </Suspense>
             </div>
             <p className="text-sm opacity-80 flex items-center gap-2">
               <Smartphone className="h-4 w-4" />
@@ -596,7 +613,9 @@ const Landing = () => {
       </section>
 
       <MarketingFooter />
-      <MarketingPWANotification />
+      <Suspense fallback={null}>
+        <MarketingPWANotification />
+      </Suspense>
     </div>
   );
 };
