@@ -98,11 +98,20 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                       Connexion
                     </Link>
                   </Button>
-                  <a href="/#auth-section">
-                    <Button variant="gradient" size="sm">
-                      S'inscrire
-                    </Button>
-                  </a>
+                  <Button 
+                    variant="gradient" 
+                    size="sm"
+                    onClick={() => {
+                      const authSection = document.getElementById('auth-section');
+                      if (authSection) {
+                        authSection.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        window.location.href = '/#auth-section';
+                      }
+                    }}
+                  >
+                    S'inscrire
+                  </Button>
                 </>
               )
             )}
