@@ -156,10 +156,25 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-sans);
+    font-size-adjust: 0.52; /* DM Sans x-height ratio */
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
+  }
+
+  /* FOUT prevention - font-size-adjust for each font family */
+  .font-mono, code, pre {
+    font-size-adjust: 0.54; /* Space Mono x-height ratio */
+  }
+
+  .font-playfair {
+    font-size-adjust: 0.465; /* Playfair Display x-height ratio */
+  }
+
+  /* Counter uses mono font */
+  .counter-text {
+    font-size-adjust: 0.54;
   }
 }
 
