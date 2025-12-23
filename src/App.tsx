@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, lazy, Suspense, createContext, useContext } from "react";
+import { useEffect, lazy, Suspense, createContext, useContext, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -86,11 +86,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Minimum loading delay for premium UX
+const MIN_LOADING_DELAY = 1500;
+
 // Smart landing: redirect authenticated users to /app
 const SmartLanding = () => {
   const { user, loading } = useAuth();
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minDelayPassed) {
     return <AuthLoadingScreen />;
   }
 
@@ -106,8 +115,14 @@ const SmartLanding = () => {
 // Smart auth: redirect authenticated users to /app
 const SmartAuth = () => {
   const { user, loading } = useAuth();
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minDelayPassed) {
     return <AuthLoadingScreen />;
   }
 
@@ -127,8 +142,14 @@ const SmartAuth = () => {
 // Smart signup: redirect authenticated users to /app
 const SmartSignup = () => {
   const { user, loading } = useAuth();
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minDelayPassed) {
     return <AuthLoadingScreen />;
   }
 
@@ -142,6 +163,7 @@ const SmartSignup = () => {
     </Suspense>
   );
 };
+
 
 function GoogleMapsPreloader() {
   const location = useLocation();
