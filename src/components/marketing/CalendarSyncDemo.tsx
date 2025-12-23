@@ -154,7 +154,7 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
         <div>
           <div className="flex items-center gap-2 mb-3 md:mb-4 mt-4 md:mt-0">
             <img 
-              src="/iktracker-indemnites-kilometriques-logo.png" 
+              src="/logo-iktracker.webp" 
               alt="IKtracker" 
               width={32}
               height={32}

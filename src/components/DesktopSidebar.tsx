@@ -161,7 +161,7 @@ export const DesktopSidebar = ({
         {/* Logo - clickable, links to app home */}
         <Link to="/app" className="mb-8" data-tutorial="home" title="Accueil">
           <img 
-            src="/iktracker-indemnites-kilometriques-logo.png" 
+            src="/logo-iktracker.webp" 
             alt="IKtracker" 
             width={40}
             height={40}
