@@ -229,15 +229,35 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks - separated for better caching
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-tooltip'],
-          'vendor-charts': ['recharts'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-pdf': ['jspdf', 'jspdf-autotable'],
-          'vendor-supabase': ['@supabase/supabase-js'],
+        manualChunks(id) {
+          // Core React - always loaded
+          if (id.includes('node_modules/react/') || 
+              id.includes('node_modules/react-dom/') || 
+              id.includes('node_modules/react-router-dom/')) {
+            return 'vendor-react';
+          }
+          // Query - loaded with app
+          if (id.includes('@tanstack/react-query')) {
+            return 'vendor-query';
+          }
+          // Supabase - loaded with app
+          if (id.includes('@supabase/supabase-js')) {
+            return 'vendor-supabase';
+          }
+          // Heavy libraries - only loaded on specific pages
+          if (id.includes('node_modules/recharts/') || id.includes('node_modules/d3-')) {
+            return 'vendor-charts';
+          }
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/jspdf-autotable')) {
+            return 'vendor-pdf';
+          }
+          if (id.includes('node_modules/framer-motion')) {
+            return 'vendor-motion';
+          }
+          // Radix UI - common components
+          if (id.includes('@radix-ui/')) {
+            return 'vendor-ui';
+          }
         },
       },
     },
