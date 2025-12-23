@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { AuthForm } from "@/components/AuthForm";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { 
@@ -21,6 +21,22 @@ import {
   Star,
   Smartphone
 } from "lucide-react";
+
+// Lazy load AuthForm - not needed for initial LCP
+const AuthForm = lazy(() => import("@/components/AuthForm").then(m => ({ default: m.AuthForm })));
+
+// Auth form loading placeholder
+const AuthFormSkeleton = memo(() => (
+  <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 min-h-[420px]">
+    <Skeleton className="h-8 w-32 mx-auto mb-2" />
+    <Skeleton className="h-4 w-48 mx-auto mb-6" />
+    <Skeleton className="h-12 w-full mb-4 rounded-lg" />
+    <Skeleton className="h-4 w-8 mx-auto mb-4" />
+    <Skeleton className="h-10 w-full mb-3" />
+    <Skeleton className="h-10 w-full mb-4" />
+    <Skeleton className="h-12 w-full rounded-lg" />
+  </div>
+));
 
 // Lazy load heavy marketing components - reduces initial bundle
 const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
@@ -185,7 +201,9 @@ const Landing = () => {
                   </Link>
                 </div>
               ) : (
-                <AuthForm />
+                <Suspense fallback={<AuthFormSkeleton />}>
+                  <AuthForm />
+                </Suspense>
               )}
             </div>
           </div>
