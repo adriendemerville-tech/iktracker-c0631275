@@ -85,6 +85,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Smart landing: redirect authenticated users to /app
+const SmartLanding = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Authenticated users go directly to the app
+  if (user) {
+    return <Navigate to="/app" replace />;
+  }
+
+  // Non-authenticated users see the landing page
+  return <Landing />;
+};
+
 // Preload Google Maps when entering app routes
 function GoogleMapsPreloader() {
   const location = useLocation();
@@ -134,7 +155,7 @@ const AppRoutes = () => {
       <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
       <GoogleMapsPreloader />
       <Routes>
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />
         <Route path="/signup" element={<Suspense fallback={<PageLoader />}><Signup /></Suspense>} />
         <Route
