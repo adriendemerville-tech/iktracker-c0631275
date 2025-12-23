@@ -125,8 +125,23 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -5 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center relative z-10 flex flex-col items-center gap-10"
+                className="text-center relative z-10 flex flex-col items-center gap-10 pt-8"
               >
+                {/* Logo first, above text */}
+                <motion.img
+                  src="/logo-iktracker-250.webp"
+                  alt="IKTracker"
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full shadow-lg"
+                  style={{
+                    boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
+                  }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.4 }}
+                />
+                
                 <h1 
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
                   style={{
@@ -136,21 +151,6 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 >
                   {userName ? `${message} ${userName} !` : `${message} !`}
                 </h1>
-                
-                {/* Logo */}
-                <motion.img
-                  src="/logo-iktracker-250.webp"
-                  alt="IKTracker"
-                  width={250}
-                  height={250}
-                  className="w-16 h-16 rounded-full shadow-lg"
-                  style={{
-                    boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
-                  }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
-                />
               </motion.div>
             )}
           </AnimatePresence>
