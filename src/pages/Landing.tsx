@@ -1,15 +1,12 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense, memo } from "react";
 import { Helmet } from "react-helmet-async";
-import founderImage from "@/assets/founder-adrien-optimized.webp";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { AuthForm } from "@/components/AuthForm";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { 
   ArrowRight,
   CheckCircle2,
@@ -25,34 +22,56 @@ import {
   Smartphone
 } from "lucide-react";
 
-// Lazy load heavy marketing components - reduces initial bundle by ~100KB
+// Lazy load heavy marketing components - reduces initial bundle
 const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
 const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
+const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
 const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
 
+// Lazy load below-the-fold assets - use public path for lazy loading
+const founderImage = "/founder-adrien-optimized.webp";
+
+// Inline scroll animation hook to avoid extra import
+const useScrollAnimation = (options?: { threshold?: number }) => {
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    if (!ref) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: options?.threshold ?? 0.2 }
+    );
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, options?.threshold]);
+  
+  return { ref: setRef, isVisible };
+};
+
 // Placeholder for lazy components with explicit dimensions to prevent CLS
-const LazyPlaceholder = ({ height = 300 }: { height?: number }) => (
+const LazyPlaceholder = memo(({ height = 300 }: { height?: number }) => (
   <div 
     className="animate-pulse bg-muted/50 rounded-2xl flex items-center justify-center"
     style={{ minHeight: height, aspectRatio: 'auto' }}
   >
     <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
-);
+));
 
 // Phone mockup placeholder with exact dimensions
-const PhonePlaceholder = () => (
+const PhonePlaceholder = memo(() => (
   <div className="relative w-[280px] h-[560px] mx-auto bg-muted/30 rounded-[3rem] animate-pulse" />
-);
+));
 
 // Calendar demo placeholder
-const CalendarPlaceholder = () => (
+const CalendarPlaceholder = memo(() => (
   <div className="w-full max-w-[400px] mx-auto bg-muted/30 rounded-2xl animate-pulse" style={{ aspectRatio: '1/1.2' }} />
-);
+));
 
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
