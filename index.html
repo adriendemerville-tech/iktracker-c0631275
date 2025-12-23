@@ -68,20 +68,22 @@
     <meta name="language" content="French" />
     <meta name="revisit-after" content="7 days" />
     
-    <!-- Preconnect to third-party origins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Preconnect to critical third-party origins (ordered by priority) -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://yarjaudctshlxkatqgeb.supabase.co">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://yarjaudctshlxkatqgeb.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://yarjaudctshlxkatqgeb.supabase.co">
     
-    <!-- Fonts - Load asynchronously with display swap -->
+    <!-- Preload critical fonts directly (faster than stylesheet) -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Fonts stylesheet with display swap -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Preload critical LCP assets -->
     <link rel="preload" href="/logo-iktracker-250.webp" as="image" type="image/webp" fetchpriority="high">
     
-    <!-- Preload critical chunks will be injected by Vite -->
     <!-- DNS prefetch for Google Maps (loaded dynamically) -->
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.gstatic.com">
