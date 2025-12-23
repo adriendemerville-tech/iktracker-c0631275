@@ -347,11 +347,11 @@ export const DesktopSidebar = ({
                   <img 
                     src={founderImage} 
                     srcSet={`${founderImage} 1x, ${founderImage} 2x`}
-                    sizes="64px"
+                    sizes="60px"
                     alt="Adrien, fondateur d'IKTracker"
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
+                    width={60}
+                    height={60}
+                    className="w-[60px] h-[60px] rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground italic leading-relaxed">

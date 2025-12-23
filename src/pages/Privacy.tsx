@@ -173,11 +173,11 @@ const Privacy = () => {
                 <img 
                   src={founderImage} 
                   srcSet={`${founderImage} 1x, ${founderImage} 2x`}
-                  sizes="64px"
+                  sizes="60px"
                   alt="Adrien de Volontat, fondateur d'IKtracker" 
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-border"
+                  width={60}
+                  height={60}
+                  className="w-[60px] h-[60px] rounded-full object-cover flex-shrink-0 border-2 border-border"
                 />
                 <div className="text-center sm:text-left">
                   <blockquote className="text-sm text-muted-foreground leading-relaxed italic">
