@@ -22,6 +22,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
   const [showText, setShowText] = useState(false);
   const [hideText, setHideText] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [message, setMessage] = useState('');
   
   // Check if desktop (>= 768px)
@@ -33,6 +34,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       setShowText(false);
       setHideText(false);
       setFadeOut(false);
+      setIsTransitioning(false);
       setMessage('');
       return;
     }
@@ -48,8 +50,13 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       return;
     }
 
-    // Desktop animation sequence (smooth crossfade):
-    // 1. Spinner fades out while text fades in (overlap for smooth transition)
+    // Desktop animation sequence (smooth crossfade with blur):
+    // 1. Start blur transition
+    const startTransitionTimer = setTimeout(() => {
+      setIsTransitioning(true);
+    }, 800);
+
+    // 2. Spinner fades out while text fades in (overlap for smooth transition)
     const hideSpinnerTimer = setTimeout(() => {
       setShowSpinner(false);
     }, 1200);
@@ -59,7 +66,12 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       setShowText(true);
     }, 900);
 
-    // 2. Text stays visible, then fades out
+    // End blur transition
+    const endTransitionTimer = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1400);
+
+    // 3. Text stays visible, then fades out
     const hideTextTimer = setTimeout(() => {
       setHideText(true);
     }, 2800);
@@ -76,8 +88,10 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
     }, 4000);
 
     return () => {
+      clearTimeout(startTransitionTimer);
       clearTimeout(hideSpinnerTimer);
       clearTimeout(showTextTimer);
+      clearTimeout(endTransitionTimer);
       clearTimeout(hideTextTimer);
       clearTimeout(fadeOutTimer);
       clearTimeout(navigateTimer);
@@ -123,6 +137,19 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
             className="absolute inset-0 pointer-events-none"
             style={{
               background: 'radial-gradient(ellipse 100% 60% at 50% 110%, hsla(220, 100%, 5%, 0.4) 0%, transparent 70%)',
+            }}
+          />
+
+          {/* Blur overlay during transition */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none z-[5]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isTransitioning ? 1 : 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            style={{
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              background: 'hsla(217, 91%, 25%, 0.2)',
             }}
           />
 
