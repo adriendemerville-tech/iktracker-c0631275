@@ -395,8 +395,8 @@ const Landing = () => {
                     <img 
                       src="/logo-iktracker-250.webp" 
                       alt="IKtracker" 
-                      width={250}
-                      height={250}
+                      width={24}
+                      height={24}
                       className="h-6 w-6 opacity-60" 
                       loading="lazy"
                       decoding="async"
@@ -511,8 +511,8 @@ const Landing = () => {
                       <img 
                         src="/logo-iktracker-250.webp" 
                         alt="IKtracker" 
-                        width={250}
-                        height={250}
+                        width={20}
+                        height={20}
                         className="h-5 opacity-50" 
                         loading="lazy"
                         decoding="async"

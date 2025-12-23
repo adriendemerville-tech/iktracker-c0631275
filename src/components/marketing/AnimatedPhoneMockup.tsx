@@ -51,8 +51,8 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
           <img 
             src="/logo-iktracker-250.webp" 
             alt="IKtracker" 
-            width={250}
-            height={250}
+            width={32}
+            height={32}
             className="w-8 h-8 rounded-lg" 
             loading="lazy"
             decoding="async"

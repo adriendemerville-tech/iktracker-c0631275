@@ -37,8 +37,8 @@ export function MarketingFooter() {
               <img 
                 src="/logo-iktracker-250.webp" 
                 alt="IKtracker" 
-                width={250}
-                height={250}
+                width={40}
+                height={40}
                 className="h-8 w-8 md:h-10 md:w-10" 
                 loading="lazy"
                 decoding="async"
