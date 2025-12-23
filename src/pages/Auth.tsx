@@ -231,8 +231,8 @@ const Auth = () => {
         </Link>
         
         {/* Main Card - Landscape format */}
-        <div className="relative z-10 w-full max-w-4xl">
-          <div className="bg-slate-900 rounded-2xl md:rounded-3xl shadow-2xl border border-slate-800/50 overflow-hidden">
+        <div className="relative z-10 w-full max-w-4xl animate-fade-in">
+          <div className="bg-slate-900 rounded-2xl md:rounded-3xl shadow-2xl border border-slate-800/50 overflow-hidden animate-scale-in">
             <div className="grid md:grid-cols-2">
               
               {/* Left Panel - Branding */}
