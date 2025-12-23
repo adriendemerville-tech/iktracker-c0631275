@@ -242,6 +242,8 @@ const Auth = () => {
                     <img 
                       src="/logo-iktracker-250.webp" 
                       alt="IKtracker" 
+                      width={40}
+                      height={40}
                       className="w-10 h-10"
                     />
                     <span className="text-xl font-semibold text-white">IKtracker</span>
@@ -278,6 +280,8 @@ const Auth = () => {
                   <img 
                     src="/logo-iktracker-250.webp" 
                     alt="IKtracker" 
+                    width={40}
+                    height={40}
                     className="w-10 h-10"
                   />
                   <span className="text-xl font-semibold text-white">IKtracker</span>

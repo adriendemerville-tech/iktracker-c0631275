@@ -138,6 +138,8 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
         <img
           src="/logo-iktracker-250.webp"
           alt="IKTracker"
+          width={64}
+          height={64}
           className="w-16 h-16 object-contain"
           style={{
             filter: 'drop-shadow(0 4px 20px hsla(210, 100%, 70%, 0.3))',

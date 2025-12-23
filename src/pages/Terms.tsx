@@ -190,6 +190,8 @@ const Terms = () => {
                 <img 
                   src={founderImage} 
                   alt="Adrien de Volontat, fondateur d'IKtracker" 
+                  width={64}
+                  height={64}
                   className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-border"
                 />
                 <div className="text-center sm:text-left">
