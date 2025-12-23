@@ -340,44 +340,79 @@
     
     <!-- Critical CSS for above-the-fold content - prevents render blocking -->
     <style>
-      /* Design tokens */
-      :root{--background:0 0% 100%;--foreground:222 47% 11%;--primary:217 91% 50%;--border:214 32% 91%;--muted-foreground:215 16% 47%}
+      /* Design tokens - must match index.css */
+      :root{
+        --background:210 20% 98%;
+        --foreground:220 25% 10%;
+        --primary:220 70% 50%;
+        --border:220 15% 90%;
+        --muted-foreground:220 10% 45%;
+        --card:0 0% 100%
+      }
+      /* Font-face with swap for zero FOIT */
+      @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500 700;font-display:swap;src:url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2) format('woff2')}
       /* Reset */
       *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
-      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,sans-serif}
-      body{margin:0;line-height:inherit;background-color:hsl(var(--background));color:hsl(var(--foreground))}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,sans-serif}
+      body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground))}
       #root{min-height:100vh;display:flex;flex-direction:column}
       /* Navbar critical styles */
-      header.nav-critical{position:fixed;top:0;left:0;right:0;z-index:50;background:hsla(var(--background)/.8);backdrop-filter:blur(12px);border-bottom:1px solid hsl(var(--border))}
-      .nav-container{max-width:1280px;margin:0 auto;padding:.75rem 1rem}
-      .nav-flex{display:flex;align-items:center;justify-content:space-between}
-      .nav-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
-      .nav-logo img{height:2rem;width:2rem}
-      .nav-logo span{font-size:1.125rem;font-weight:700;color:hsl(var(--foreground))}
-      /* Loading utilities */
-      .min-h-screen{min-height:100vh}
-      .bg-background{background-color:hsl(var(--background))}
-      .flex{display:flex}
-      .items-center{align-items:center}
-      .justify-center{justify-content:center}
+      .shell-header{position:fixed;top:0;left:0;right:0;z-index:50;background:hsla(var(--background)/.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid hsl(var(--border))}
+      .shell-nav{max-width:1280px;margin:0 auto;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
+      .shell-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+      .shell-logo img{height:2rem;width:2rem}
+      .shell-logo span{font-size:1.125rem;font-weight:700;color:hsl(var(--foreground))}
+      /* Hero section critical styles */
+      .shell-hero{padding-top:6rem;padding-bottom:4rem;padding-left:1rem;padding-right:1rem}
+      .shell-hero-container{max-width:1280px;margin:0 auto}
+      .shell-hero-grid{display:grid;gap:3rem;align-items:center}
+      @media(min-width:1024px){.shell-hero-grid{grid-template-columns:1fr 1fr}}
+      .shell-hero-content{text-align:center}
+      @media(min-width:1024px){.shell-hero-content{text-align:left}}
+      /* LCP Element - H1 Title */
+      .shell-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:9999px;background:hsl(var(--primary)/.1);color:hsl(var(--primary));font-size:.875rem;font-weight:500;margin-bottom:1.5rem}
+      .shell-h1{font-size:1.875rem;font-weight:800;line-height:1.1;margin:0 0 1.5rem;color:hsl(var(--foreground))}
+      @media(min-width:640px){.shell-h1{font-size:2.25rem}}
+      @media(min-width:768px){.shell-h1{font-size:3rem}}
+      @media(min-width:1024px){.shell-h1{font-size:3.75rem}}
+      .shell-h1 .text-gradient{background:linear-gradient(135deg,hsl(220 75% 50%) 0%,hsl(260 70% 55%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+      .shell-subtitle{font-size:1rem;color:hsl(var(--muted-foreground));margin:0 0 2rem}
+      @media(min-width:768px){.shell-subtitle{font-size:1.125rem}}
+      /* Form placeholder */
+      .shell-form{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:1rem;padding:2rem;min-height:420px;display:flex;align-items:center;justify-content:center}
+      .shell-spinner{width:2rem;height:2rem;border:3px solid hsl(var(--primary));border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
       @keyframes spin{to{transform:rotate(360deg)}}
-      .animate-spin{animation:spin 1s linear infinite}
-      .rounded-full{border-radius:9999px}
-      .h-8{height:2rem}
-      .w-8{width:2rem}
-      .border-b-2{border-bottom-width:2px}
-      .border-primary{border-color:hsl(var(--primary))}
     </style>
   </head>
 
   <body>
     <div id="root">
-      <!-- App Shell - Visible immédiatement pendant le chargement de React -->
-      <div id="app-shell" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:hsl(210 20% 98%);">
-        <img src="/logo-iktracker-250.webp" alt="IKtracker" width="64" height="64" style="width:64px;height:64px;margin-bottom:16px;" fetchpriority="high" />
-        <div style="width:24px;height:24px;border:3px solid hsl(220 70% 50%);border-top-color:transparent;border-radius:50%;animation:shell-spin 0.8s linear infinite;"></div>
-        <style>@keyframes shell-spin{to{transform:rotate(360deg)}}</style>
-      </div>
+      <!-- Static App Shell - LCP visible immediately before JS loads -->
+      <header class="shell-header">
+        <nav class="shell-nav">
+          <a href="/" class="shell-logo">
+            <img src="/logo-iktracker-250.webp" alt="IKtracker" width="32" height="32" fetchpriority="high">
+            <span>IKtracker</span>
+          </a>
+        </nav>
+      </header>
+      <section class="shell-hero">
+        <div class="shell-hero-container">
+          <div class="shell-hero-grid">
+            <div class="shell-hero-content">
+              <div class="shell-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                100% Gratuit
+              </div>
+              <h1 class="shell-h1">Vos trajets pro.<br><span class="text-gradient">Automatiquement.</span></h1>
+              <p class="shell-subtitle">Enregistrez, calculez et exportez vos indemnités kilométriques en quelques clics.</p>
+            </div>
+            <div class="shell-form">
+              <div class="shell-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
     <script type="module" src="/src/main.tsx" defer></script>
     
