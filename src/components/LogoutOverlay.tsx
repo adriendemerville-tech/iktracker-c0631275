@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const FAREWELL_MESSAGES = [
   'À bientôt',
@@ -30,6 +31,7 @@ interface LogoutOverlayProps {
 }
 
 export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlayProps) => {
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<'hidden' | 'entering' | 'visible' | 'exiting'>('hidden');
   
   // Check if desktop (>= 768px)
@@ -45,8 +47,9 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       return;
     }
 
-    // If mobile, skip animation and complete immediately (no redirect)
+    // If mobile, redirect immediately without animation
     if (!isDesktop) {
+      navigate('/');
       onComplete?.();
       return;
     }
@@ -64,17 +67,18 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
       setPhase('exiting');
     }, 2200);
 
-    // Complete after exit animation (no redirect)
-    const completeTimer = setTimeout(() => {
+    // Navigate to landing page after exit animation
+    const navigateTimer = setTimeout(() => {
+      navigate('/');
       onComplete?.();
     }, 2800);
 
     return () => {
       clearTimeout(visibleTimer);
       clearTimeout(exitTimer);
-      clearTimeout(completeTimer);
+      clearTimeout(navigateTimer);
     };
-  }, [isVisible, isDesktop, onComplete]);
+  }, [isVisible, isDesktop, navigate, onComplete]);
 
   // On mobile, don't render anything
   if (!isDesktop || phase === 'hidden') {
