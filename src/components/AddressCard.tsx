@@ -61,7 +61,7 @@ export const AddressCard = memo(function AddressCard({ location, onEdit, onDelet
       {(onEdit || onDelete) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" aria-label="Options de l'adresse">
               <MoreVertical className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>

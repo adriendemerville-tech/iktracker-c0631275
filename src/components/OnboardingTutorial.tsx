@@ -271,7 +271,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
                     Étape {currentStep + 1} sur {TUTORIAL_STEPS.length}
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8">
+                <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8" aria-label="Fermer le tutoriel">
                   <X className="w-4 h-4" />
                 </Button>
               </div>

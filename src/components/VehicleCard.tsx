@@ -92,7 +92,7 @@ export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSele
           <div className="ml-auto shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" aria-label="Options du véhicule">
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
