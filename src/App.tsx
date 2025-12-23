@@ -106,7 +106,27 @@ const SmartLanding = () => {
   return <Landing />;
 };
 
-// Preload Google Maps when entering app routes
+// Smart auth: redirect authenticated users to /app
+const SmartAuth = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <PageLoader />;
+  }
+
+  // Authenticated users go directly to the app
+  if (user) {
+    return <Navigate to="/app" replace />;
+  }
+
+  // Non-authenticated users see the auth page
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Auth />
+    </Suspense>
+  );
+};
+
 function GoogleMapsPreloader() {
   const location = useLocation();
   
@@ -156,7 +176,7 @@ const AppRoutes = () => {
       <GoogleMapsPreloader />
       <Routes>
         <Route path="/" element={<SmartLanding />} />
-        <Route path="/auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />
+        <Route path="/auth" element={<SmartAuth />} />
         <Route path="/signup" element={<Suspense fallback={<PageLoader />}><Signup /></Suspense>} />
         <Route
           path="/app"
