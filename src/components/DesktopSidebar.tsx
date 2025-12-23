@@ -346,6 +346,8 @@ export const DesktopSidebar = ({
                 <div className="flex gap-4">
                   <img 
                     src={founderImage} 
+                    srcSet={`${founderImage} 1x, ${founderImage} 2x`}
+                    sizes="64px"
                     alt="Adrien, fondateur d'IKTracker"
                     width={64}
                     height={64}

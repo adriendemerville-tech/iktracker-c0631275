@@ -606,6 +606,8 @@ const Landing = () => {
             <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start">
               <img 
                 src={founderImage} 
+                srcSet={`${founderImage} 1x, ${founderImage} 2x`}
+                sizes="(max-width: 768px) 80px, 128px"
                 alt="Adrien de Volontat, fondateur d'IKtracker" 
                 width={128}
                 height={128}
