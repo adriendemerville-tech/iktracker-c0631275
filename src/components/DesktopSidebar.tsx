@@ -161,10 +161,10 @@ export const DesktopSidebar = ({
         {/* Logo - clickable, links to app home */}
         <Link to="/app" className="mb-8" data-tutorial="home" title="Accueil">
           <img 
-            src="/logo-iktracker.webp" 
+            src="/logo-iktracker-250.webp" 
             alt="IKtracker" 
-            width={40}
-            height={40}
+            width={250}
+            height={250}
             className="h-10 w-10 transition-transform duration-300 hover:scale-110" 
           />
         </Link>

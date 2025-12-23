@@ -139,8 +139,10 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 
                 {/* Logo */}
                 <motion.img
-                  src="/logo-iktracker.webp"
+                  src="/logo-iktracker-250.webp"
                   alt="IKTracker"
+                  width={250}
+                  height={250}
                   className="w-16 h-16 rounded-full shadow-lg"
                   style={{
                     boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',

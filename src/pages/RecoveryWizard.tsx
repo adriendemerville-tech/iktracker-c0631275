@@ -906,8 +906,10 @@ export default function RecoveryWizard() {
       <aside className="w-72 bg-slate-900 border-l border-slate-800 flex flex-col p-6 sticky top-0 h-screen flex-shrink-0">
         <div className="flex items-center gap-3 mb-10">
           <img 
-            src="/logo-iktracker.webp" 
+            src="/logo-iktracker-250.webp" 
             alt="IKtracker" 
+            width={250}
+            height={250}
             className="w-10 h-10"
           />
           <span className="text-white font-semibold text-lg">IK Tracker</span>

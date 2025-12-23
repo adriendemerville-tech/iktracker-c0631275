@@ -35,8 +35,10 @@ export function MarketingFooter() {
           <div className="col-span-2">
             <Link to="/" onClick={handleLinkClick('/')} className="flex items-center gap-2 mb-4">
               <img 
-                src="/logo-iktracker.webp" 
+                src="/logo-iktracker-250.webp" 
                 alt="IKtracker" 
+                width={250}
+                height={250}
                 className="h-8 w-8 md:h-10 md:w-10" 
                 loading="lazy"
                 decoding="async"

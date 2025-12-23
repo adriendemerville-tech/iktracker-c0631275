@@ -509,7 +509,7 @@ ${IKTRACKER_MENTION}
     // Load logo (same as app/home)
     let logoBase64: string | null = null;
     try {
-      const response = await fetch('/logo-iktracker.webp');
+      const response = await fetch('/logo-iktracker-250.webp');
       const blob = await response.blob();
       logoBase64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -988,10 +988,10 @@ ${IKTRACKER_MENTION}
             {/* Desktop: Logo image like landing page */}
             <Link to="/" className="flex-1 hidden md:flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5">
               <img 
-                src="/logo-iktracker.webp" 
+                src="/logo-iktracker-250.webp" 
                 alt="IKtracker"
-                width={40}
-                height={40}
+                width={250}
+                height={250}
                 className="h-10 w-10 transition-transform duration-300 group-hover:scale-110" 
               />
               <div>
