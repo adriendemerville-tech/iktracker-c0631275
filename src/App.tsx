@@ -11,6 +11,7 @@ import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
+import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 
 // Critical route - Landing loaded immediately for fast initial load
 import Landing from "./pages/Landing";
@@ -90,11 +91,7 @@ const SmartLanding = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <AuthLoadingScreen />;
   }
 
   // Authenticated users go directly to the app
@@ -111,7 +108,7 @@ const SmartAuth = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <PageLoader />;
+    return <AuthLoadingScreen />;
   }
 
   // Authenticated users go directly to the app
@@ -132,7 +129,7 @@ const SmartSignup = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <PageLoader />;
+    return <AuthLoadingScreen />;
   }
 
   if (user) {
