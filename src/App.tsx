@@ -232,22 +232,27 @@ const AppRoutes = () => {
   };
 
   const handleLogout = async () => {
-    // Ultra-safe logout: server sign-out + aggressive local cleanup + hard redirect
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // Best-effort: even if server sign-out fails, we still clear local state and hard-redirect.
-    } finally {
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-      } catch {
-        // ignore storage errors
-      }
+    // Critical: quit React/router immediately to prevent any intermediate /auth redirect flash.
+    void supabase.auth.signOut();
 
-      // Force a full reload to exit React/router context and avoid any intermediate redirects.
-      window.location.replace('/');
+    // Ensure client session is cleared BEFORE reload, otherwise SmartLanding/SmartAuth can detect a token
+    // in storage and bounce the user back to /app.
+    try {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const prefix = `sb-${projectId}-`;
+
+      // Remove known token key + any related auth keys for this project.
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix) && key.includes('auth')) {
+          localStorage.removeItem(key);
+        }
+      }
+    } catch {
+      // ignore storage errors
     }
+
+    window.location.href = "/";
   };
 
   const handleLogoutComplete = () => {
