@@ -280,7 +280,7 @@ const Profile = () => {
 
       <div className="min-h-screen bg-background cursor-default md:pl-16">
         {/* Header */}
-        <header className="bg-card border-b border-border px-4 py-4">
+        <header className="bg-card border-b border-border px-4 py-4 h-[65px]">
           <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate('/app')} aria-label="Retour à l'accueil">
               <ArrowLeft className="w-5 h-5" />
@@ -439,7 +439,7 @@ const Profile = () => {
               </CardDescription>
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-h-[120px]">
             {tripsLoading ? (
               <div className="space-y-3">
                 <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
@@ -692,8 +692,12 @@ const Profile = () => {
               </CardDescription>
             )}
           </CardHeader>
-          <CardContent>
-            {vehicles.length === 0 ? (
+          <CardContent className="min-h-[100px]">
+            {tripsLoading ? (
+              <div className="space-y-3">
+                <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
+              </div>
+            ) : vehicles.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
                 <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Aucun véhicule enregistré</p>
