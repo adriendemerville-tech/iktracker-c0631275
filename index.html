@@ -406,6 +406,13 @@
       .shell-form{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:1rem;padding:2rem;min-height:420px;display:flex;align-items:center;justify-content:center}
       .shell-spinner{width:2rem;height:2rem;border:3px solid hsl(var(--primary));border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
       @keyframes spin{to{transform:rotate(360deg)}}
+      /* Auth form skeleton */
+      .auth-skeleton{background:hsla(var(--card)/.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid hsl(var(--border));border-radius:1rem;padding:2rem;min-height:420px}
+      .skeleton{background:linear-gradient(90deg,hsl(var(--muted)) 0%,hsl(var(--muted)/.5) 50%,hsl(var(--muted)) 100%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:.5rem}
+      @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+      /* Button critical styles */
+      .btn-gradient{background:linear-gradient(135deg,hsl(220 75% 50%) 0%,hsl(240 65% 55%) 100%);color:white;font-weight:600;padding:.75rem 1.5rem;border-radius:.5rem;border:none;cursor:pointer}
+      .btn-outline{background:transparent;border:1px solid hsl(var(--border));color:hsl(var(--foreground));font-weight:500;padding:.5rem 1rem;border-radius:.5rem;cursor:pointer}
       /* Logout transition overlay */
       .logout-overlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,hsl(217 91% 35%) 0%,hsl(217 91% 20%) 50%,hsl(220 95% 12%) 100%)}
       .logout-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,hsla(210 100% 70%/.15) 0%,transparent 60%);pointer-events:none}
