@@ -365,7 +365,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           setTimeout(function() {
-            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' });
           }, 3000); // Delay 3s after load to not block LCP
         });
       }
