@@ -89,7 +89,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)',
           }}
@@ -121,30 +121,26 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
           <AnimatePresence>
             {showText && !hideText && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: -5 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center relative z-10 flex flex-col items-center justify-center gap-8 p-12"
+                className="text-center relative z-10 flex flex-col items-center gap-10 pt-8"
               >
-                {/* Logo */}
-                <motion.div
-                  className="w-20 h-20 rounded-full overflow-hidden shadow-lg flex-shrink-0"
+                {/* Logo first, above text */}
+                <motion.img
+                  src="/logo-iktracker-250.webp"
+                  alt="IKTracker"
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full shadow-lg"
                   style={{
                     boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
                   }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1, duration: 0.4 }}
-                >
-                  <img
-                    src="/logo-iktracker-250.webp"
-                    alt="IKTracker"
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </motion.div>
+                />
                 
                 <h1 
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
