@@ -3,9 +3,12 @@ import * as React from "react";
 const MOBILE_BREAKPOINT = 768;
 
 export function useIsMobile() {
-  // Start with undefined to indicate "not yet determined"
-  // This prevents hydration mismatches
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
+  // Initialize with a check that works on first render (SSR-safe)
+  const [isMobile, setIsMobile] = React.useState<boolean>(() => {
+    // During SSR or initial load, default to desktop to prevent layout shift
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < MOBILE_BREAKPOINT;
+  });
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
@@ -13,12 +16,10 @@ export function useIsMobile() {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
     mql.addEventListener("change", onChange);
-    // Set initial value on mount
+    // Sync on mount in case initial state differs
     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Return false as default until we know the real value
-  // This is safe because desktop is the more common case
-  return isMobile ?? false;
+  return isMobile;
 }
