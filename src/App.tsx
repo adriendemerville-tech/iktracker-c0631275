@@ -127,6 +127,25 @@ const SmartAuth = () => {
   );
 };
 
+// Smart signup: redirect authenticated users to /app
+const SmartSignup = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <PageLoader />;
+  }
+
+  if (user) {
+    return <Navigate to="/app" replace />;
+  }
+
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Signup />
+    </Suspense>
+  );
+};
+
 function GoogleMapsPreloader() {
   const location = useLocation();
   
@@ -177,7 +196,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
-        <Route path="/signup" element={<Suspense fallback={<PageLoader />}><Signup /></Suspense>} />
+        <Route path="/signup" element={<SmartSignup />} />
         <Route
           path="/app"
           element={
