@@ -66,12 +66,23 @@ interface TrackEventOptions {
 export function useMarketingTracker(page: string) {
   const hasTrackedPageView = useRef(false);
 
-  // Track page view on mount
+  // Track page view on mount - deferred to avoid blocking critical path
   useEffect(() => {
     if (hasTrackedPageView.current) return;
     hasTrackedPageView.current = true;
     
-    trackEvent({ page, eventType: 'page_view' });
+    // Use requestIdleCallback to defer tracking until browser is idle
+    // Falls back to setTimeout for browsers without support
+    const scheduleTracking = () => {
+      trackEvent({ page, eventType: 'page_view' });
+    };
+    
+    if ('requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number })
+        .requestIdleCallback(scheduleTracking, { timeout: 5000 });
+    } else {
+      setTimeout(scheduleTracking, 2000);
+    }
   }, [page]);
 
   const trackEvent = useCallback(async (options: TrackEventOptions) => {
