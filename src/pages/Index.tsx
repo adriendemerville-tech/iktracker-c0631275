@@ -42,9 +42,7 @@ import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import JSZip from 'jszip';
+import { loadPDFLibraries, loadZip } from '@/lib/pdf-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
@@ -494,6 +492,7 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = async () => {
+    const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -867,6 +866,7 @@ ${IKTRACKER_MENTION}
 
     setIsExporting(true);
     try {
+      const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
       zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());

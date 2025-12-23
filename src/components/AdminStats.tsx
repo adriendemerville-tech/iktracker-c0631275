@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { lazy, Suspense } from 'react';
 import { 
   LineChart, 
   Line, 
@@ -61,8 +62,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { loadPDFLibraries } from '@/lib/pdf-utils';
 import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
 import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -591,7 +591,8 @@ export function AdminStats() {
     },
   ], [marketingStats, marketingStatsLoading, period]);
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     
