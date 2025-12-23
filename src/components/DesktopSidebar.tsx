@@ -347,6 +347,8 @@ export const DesktopSidebar = ({
                   <img 
                     src={founderImage} 
                     alt="Adrien, fondateur d'IKTracker"
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
