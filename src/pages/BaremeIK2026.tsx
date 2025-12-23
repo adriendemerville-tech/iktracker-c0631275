@@ -100,7 +100,7 @@ const BaremeIK2026 = () => {
               "name": "IKtracker",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://iktracker.lovable.app/iktracker-indemnites-kilometriques-logo.png"
+                "url": "https://iktracker.fr/logo-iktracker.webp"
               }
             },
             "datePublished": "2024-12-01",
