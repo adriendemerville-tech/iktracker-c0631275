@@ -4,20 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useMarketingTracker } from '@/hooks/useMarketingTracker';
-import { PWAPromoSection } from '@/components/PWAPromoSection';
-import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const fireConfetti = () => {
-  // First burst
   confetti({
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 }
   });
 
-  // Side bursts
   setTimeout(() => {
     confetti({
       particleCount: 50,
@@ -33,7 +29,6 @@ const fireConfetti = () => {
     });
   }, 150);
 
-  // Final celebration
   setTimeout(() => {
     confetti({
       particleCount: 100,
@@ -48,17 +43,14 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { trackCTAClick } = useMarketingTracker('signup');
 
   useEffect(() => {
-    // SEO meta tags
     document.title = 'Créer un compte gratuit | IKtracker';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -115,7 +107,6 @@ const Signup = () => {
           emailRedirectTo: `${window.location.origin}/app`,
           data: {
             first_name: firstName.trim() || undefined,
-            last_name: lastName.trim() || undefined,
           },
         },
       });
@@ -138,67 +129,119 @@ const Signup = () => {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center cursor-default">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center cursor-default">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col cursor-default">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/logo-iktracker-250.webp" alt="IKtracker" width={250} height={250} className="h-9 w-9 rounded-lg" />
-            <span className="text-xl font-bold text-foreground">IKtracker</span>
-          </Link>
-          <Link to="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-          </Link>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="flex-1 flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="w-full max-w-md">
-            {/* Hero text */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-foreground mb-3">
-                Créez votre compte <span className="text-gradient">gratuit</span>
-              </h1>
-              <p className="text-muted-foreground">
-                Rejoignez les centaines d'indépendants qui automatisent leurs IK
-              </p>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
+      {/* Gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-950 to-slate-900" />
+      
+      {/* Decorative gradient orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-slate-700/20 rounded-full blur-3xl" />
+      
+      {/* Grid pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+      
+      {/* Back to home link */}
+      <Link 
+        to="/" 
+        className="absolute top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm z-20"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Retour
+      </Link>
+      
+      {/* Main Card */}
+      <div className="relative z-10 w-full max-w-4xl animate-fade-in">
+        <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl shadow-2xl border border-slate-800/50 overflow-hidden animate-scale-in">
+          <div className="grid md:grid-cols-2">
+            
+            {/* Left Panel - Branding */}
+            <div className="hidden md:flex flex-col justify-between p-10 lg:p-12 bg-gradient-to-br from-blue-900/30 via-slate-800/50 to-slate-900/50 border-r border-slate-800/50">
+              <div>
+                <div className="flex items-center gap-3 mb-8">
+                  <img 
+                    src="/logo-iktracker-250.webp" 
+                    alt="IKtracker" 
+                    className="w-10 h-10"
+                  />
+                  <span className="text-xl font-semibold text-white">IKtracker</span>
+                </div>
+                
+                <h2 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
+                  Automatisez vos<br />
+                  <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">indemnités kilométriques</span>
+                </h2>
+                
+                <p className="text-slate-400 text-base leading-relaxed mb-8">
+                  Créez votre compte en quelques secondes et commencez à suivre vos trajets professionnels.
+                </p>
+                
+                {/* Features */}
+                <div className="space-y-4">
+                  {[
+                    'Calcul automatique selon le barème fiscal',
+                    'Export PDF et Excel en un clic',
+                    'Synchronisation avec votre calendrier',
+                  ].map((feature, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-3 h-3 text-blue-400" />
+                      </div>
+                      <span className="text-slate-300 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 pt-8 border-t border-slate-800/50">
+                <div className="flex -space-x-2">
+                  {[1,2,3].map((i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300">
+                      {['A', 'M', 'S'][i-1]}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-slate-500">
+                  Rejoint par <span className="text-slate-300">+500 professionnels</span>
+                </p>
+              </div>
             </div>
-
-            {/* Features list */}
-            <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                100% gratuit
+            
+            {/* Right Panel - Signup Form */}
+            <div className="p-8 md:p-10 lg:p-12">
+              {/* Mobile Logo */}
+              <div className="flex items-center gap-3 mb-8 md:hidden">
+                <img 
+                  src="/logo-iktracker-250.webp" 
+                  alt="IKtracker" 
+                  className="w-10 h-10"
+                />
+                <span className="text-xl font-semibold text-white">IKtracker</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                Sans engagement
+              
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-white mb-2">Créer un compte</h1>
+                <p className="text-slate-400">
+                  100% gratuit • Aucune carte requise
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                Prêt en 2 min
-              </div>
-            </div>
-
-            {/* Auth card */}
-            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-6 md:p-8">
+              
               {/* Google OAuth */}
               <Button
                 type="button"
                 variant="outline"
-                className="w-full bg-background/50 mb-4"
+                className="w-full bg-white/5 border-slate-700 text-white hover:bg-white/10 mb-4"
                 onClick={handleOAuthLogin}
                 disabled={oauthLoading !== null}
               >
@@ -212,99 +255,89 @@ const Signup = () => {
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
                 )}
-                S'inscrire avec Google
+                Continuer avec Google
               </Button>
-
-              <div className="relative mb-4">
+              
+              {/* Divider */}
+              <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-slate-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">ou par email</span>
+                  <span className="bg-slate-900 px-2 text-slate-500">ou</span>
                 </div>
               </div>
-
-              {/* Email/Password form */}
+              
+              {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Optional name fields */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* First name */}
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <Input
                     type="text"
                     placeholder="Prénom (optionnel)"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="bg-background/50"
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Nom (optionnel)"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="bg-background/50"
+                    className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"
                   />
                 </div>
-
+                
+                {/* Email */}
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <Input
                     type="email"
-                    placeholder="Votre email"
+                    placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-background/50"
+                    className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"
                     required
                   />
                 </div>
-
+                
+                {/* Password */}
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Mot de passe (min. 6 caractères)"
+                    placeholder="Mot de passe (6 caractères min.)"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-background/50"
+                    className="pl-10 pr-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"
                     minLength={6}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
                     aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-
-                <Button type="submit" className="w-full" variant="gradient" size="lg" disabled={loading}>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white" 
+                  disabled={loading}
+                >
                   {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Créer mon compte gratuit
                 </Button>
               </form>
-
+              
               {/* Login link */}
-              <p className="mt-6 text-center text-sm text-muted-foreground">
+              <p className="mt-6 text-center text-slate-400 text-sm">
                 Déjà un compte ?{' '}
-                <Link to="/#auth-section" className="text-primary hover:underline font-medium">
+                <Link to="/auth" className="text-blue-400 hover:text-blue-300 font-medium">
                   Connectez-vous
                 </Link>
               </p>
             </div>
-
-            {/* Legal notice */}
-            <p className="mt-6 text-center text-xs text-muted-foreground">
-              En créant un compte, vous acceptez nos{' '}
-              <Link to="/terms" className="underline hover:text-foreground">CGU</Link>
-              {' '}et notre{' '}
-              <Link to="/privacy" className="underline hover:text-foreground">politique de confidentialité</Link>.
-            </p>
           </div>
         </div>
-
-        {/* PWA Promo Section - Outside the centered container */}
-        <PWAPromoSection compact />
-      </main>
+      </div>
     </div>
   );
 };
