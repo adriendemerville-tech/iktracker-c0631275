@@ -133,7 +133,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
         let tooltipTop = rect.top;
         let tooltipLeft = rect.left;
         const tooltipWidth = 320;
-        const tooltipHeight = 160;
+        const tooltipHeight = 220; // Increased height to prevent overlapping buttons
         const gap = 16;
 
         switch (step.position) {
