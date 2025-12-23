@@ -206,52 +206,99 @@ const Auth = () => {
     );
   }
 
-  // Login form with elegant gradient background
+  // Login form - Premium SaaS design
   if (showLoginForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-center p-4 cursor-default relative overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-slate-500/10 rounded-full blur-3xl" />
-        </div>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
+        
+        {/* Decorative grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
         
         {/* Back to home link */}
         <Link 
           to="/" 
-          className="absolute top-6 left-6 flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm"
+          className="absolute top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm z-20"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour à l'accueil
+          Retour
         </Link>
         
-        {/* Logo */}
-        <div className="mb-8 flex items-center gap-3 relative z-10">
-          <img 
-            src="/logo-iktracker-250.webp" 
-            alt="IKtracker" 
-            className="w-12 h-12"
-          />
-          <span className="text-2xl font-bold text-white">IKtracker</span>
+        {/* Main Card - Landscape format */}
+        <div className="relative z-10 w-full max-w-4xl">
+          <div className="bg-slate-900 rounded-2xl md:rounded-3xl shadow-2xl border border-slate-800/50 overflow-hidden">
+            <div className="grid md:grid-cols-2">
+              
+              {/* Left Panel - Branding */}
+              <div className="hidden md:flex flex-col justify-between p-10 lg:p-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-r border-slate-800/50">
+                <div>
+                  <div className="flex items-center gap-3 mb-8">
+                    <img 
+                      src="/logo-iktracker-250.webp" 
+                      alt="IKtracker" 
+                      className="w-10 h-10"
+                    />
+                    <span className="text-xl font-semibold text-white">IKtracker</span>
+                  </div>
+                  
+                  <h2 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
+                    Gérez vos indemnités<br />
+                    <span className="text-slate-400">en toute simplicité</span>
+                  </h2>
+                  
+                  <p className="text-slate-400 text-base leading-relaxed">
+                    Automatisez le suivi de vos trajets professionnels et générez vos relevés kilométriques en un clic.
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-3 pt-8 border-t border-slate-800/50">
+                  <div className="flex -space-x-2">
+                    {[1,2,3].map((i) => (
+                      <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300">
+                        {['A', 'M', 'S'][i-1]}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    Rejoint par <span className="text-slate-300">+500 professionnels</span>
+                  </p>
+                </div>
+              </div>
+              
+              {/* Right Panel - Auth Form */}
+              <div className="p-8 md:p-10 lg:p-12">
+                {/* Mobile Logo */}
+                <div className="flex items-center gap-3 mb-8 md:hidden">
+                  <img 
+                    src="/logo-iktracker-250.webp" 
+                    alt="IKtracker" 
+                    className="w-10 h-10"
+                  />
+                  <span className="text-xl font-semibold text-white">IKtracker</span>
+                </div>
+                
+                <div className="mb-8">
+                  <h1 className="text-2xl font-bold text-white mb-2">Bienvenue</h1>
+                  <p className="text-slate-400">
+                    Connectez-vous pour continuer
+                  </p>
+                </div>
+                
+                <AuthForm />
+                
+                <p className="mt-8 text-center text-slate-500 text-sm">
+                  100% gratuit • Aucune carte requise
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        {/* Login Card */}
-        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm relative z-10">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
-            <CardDescription>
-              Connectez-vous pour accéder à vos trajets
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <AuthForm />
-          </CardContent>
-        </Card>
-        
-        {/* Footer text */}
-        <p className="mt-6 text-white/50 text-sm text-center relative z-10">
-          100% gratuit • Aucune carte bancaire requise
-        </p>
       </div>
     );
   }
