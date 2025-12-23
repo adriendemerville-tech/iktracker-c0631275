@@ -2,63 +2,115 @@
   publish = "dist"
   command = "npm run build"
 
-# Cache immutable assets (JS, CSS with hashes)
+# === IMMUTABLE ASSETS (max cache 1 year) ===
+
+# Hashed JS/CSS in /assets folder
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Cache fonts
+# Also match nested paths in assets
 [[headers]]
-  for = "*.woff2"
+  for = "/assets/**"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# === IMAGES ===
+
+[[headers]]
+  for = "/*.webp"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-  for = "*.woff"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# Cache images
-[[headers]]
-  for = "*.webp"
+  for = "/*.png"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-  for = "*.png"
+  for = "/*.jpg"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-  for = "*.svg"
+  for = "/*.jpeg"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# HTML should not be cached aggressively
 [[headers]]
-  for = "/*.html"
+  for = "/*.svg"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Images in subdirectories
+[[headers]]
+  for = "/splash/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# === FONTS ===
+
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# === HTML (no cache, must revalidate) ===
 
 [[headers]]
   for = "/"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Service worker should not be cached
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# === SERVICE WORKER (no cache) ===
+
 [[headers]]
   for = "/sw.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Manifest
+# === PWA MANIFEST ===
+
 [[headers]]
   for = "/manifest.webmanifest"
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# SPA fallback
+# === SEO FILES ===
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# === SPA FALLBACK ===
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
