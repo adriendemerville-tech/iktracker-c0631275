@@ -330,10 +330,42 @@
       "totalTime": "PT2M"
     }
     </script>
+    
+    <!-- Critical CSS for above-the-fold content - prevents render blocking -->
+    <style>
+      :root{--background:0 0% 100%;--foreground:222 47% 11%;--primary:217 91% 50%}
+      *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:ui-sans-serif,system-ui,sans-serif}
+      body{margin:0;line-height:inherit;background-color:hsl(var(--background));color:hsl(var(--foreground))}
+      #root{min-height:100vh;display:flex;flex-direction:column}
+      .min-h-screen{min-height:100vh}
+      .bg-background{background-color:hsl(var(--background))}
+      .flex{display:flex}
+      .items-center{align-items:center}
+      .justify-center{justify-content:center}
+      @keyframes spin{to{transform:rotate(360deg)}}
+      .animate-spin{animation:spin 1s linear infinite}
+      .rounded-full{border-radius:9999px}
+      .h-8{height:2rem}
+      .w-8{width:2rem}
+      .border-b-2{border-bottom-width:2px}
+      .border-primary{border-color:hsl(var(--primary))}
+    </style>
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Defer service worker registration until after page load -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+          }, 3000); // Delay 3s after load to not block LCP
+        });
+      }
+    </script>
   </body>
 </html>
