@@ -172,6 +172,8 @@ const Privacy = () => {
               <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
                 <img 
                   src={founderImage} 
+                  srcSet={`${founderImage} 1x, ${founderImage} 2x`}
+                  sizes="64px"
                   alt="Adrien de Volontat, fondateur d'IKtracker" 
                   width={64}
                   height={64}
