@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Car, Lock, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Car, Lock, Loader2, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
+import { AuthForm } from '@/components/AuthForm';
 
 // Deployed domain - OAuth redirects here
 const DEPLOYED_DOMAIN = 'iktracker.lovable.app';
@@ -28,6 +29,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showOAuthSuccess, setShowOAuthSuccess] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -57,7 +59,8 @@ const Auth = () => {
           variant: 'destructive' 
         });
         window.location.hash = '';
-        navigate('/', { replace: true });
+        setShowLoginForm(true);
+        setCheckingAuth(false);
         return;
       }
 
@@ -72,8 +75,9 @@ const Auth = () => {
           navigate('/app', { replace: true });
         }
       } else {
-        // No session and not password reset - redirect to landing
-        navigate('/', { replace: true });
+        // No session - show login form
+        setShowLoginForm(true);
+        setCheckingAuth(false);
       }
     };
     checkAuth();
@@ -123,8 +127,8 @@ const Auth = () => {
   // Show loading while checking auth
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center cursor-default">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center cursor-default">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
     );
   }
@@ -132,8 +136,8 @@ const Auth = () => {
   // Show OAuth success screen on deployed domain
   if (showOAuthSuccess) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 cursor-default">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
+        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="p-3 bg-green-500/10 rounded-full">
@@ -165,8 +169,8 @@ const Auth = () => {
   // Password reset form
   if (isResetPassword) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 cursor-default">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
+        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="p-3 bg-primary/10 rounded-full">
@@ -209,10 +213,60 @@ const Auth = () => {
     );
   }
 
-  // Default: redirect to landing (handled in useEffect)
+  // Login form with elegant gradient background
+  if (showLoginForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center justify-center p-4 cursor-default relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-slate-500/10 rounded-full blur-3xl" />
+        </div>
+        
+        {/* Back to home link */}
+        <Link 
+          to="/" 
+          className="absolute top-6 left-6 flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour à l'accueil
+        </Link>
+        
+        {/* Logo */}
+        <div className="mb-8 flex items-center gap-3 relative z-10">
+          <img 
+            src="/logo-iktracker-250.webp" 
+            alt="IKtracker" 
+            className="w-12 h-12"
+          />
+          <span className="text-2xl font-bold text-white">IKtracker</span>
+        </div>
+        
+        {/* Login Card */}
+        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm relative z-10">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
+            <CardDescription>
+              Connectez-vous pour accéder à vos trajets
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <AuthForm />
+          </CardContent>
+        </Card>
+        
+        {/* Footer text */}
+        <p className="mt-6 text-white/50 text-sm text-center relative z-10">
+          100% gratuit • Aucune carte bancaire requise
+        </p>
+      </div>
+    );
+  }
+
+  // Default: loading state
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center cursor-default">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center cursor-default">
+      <Loader2 className="w-8 h-8 animate-spin text-white" />
     </div>
   );
 };
