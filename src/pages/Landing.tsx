@@ -34,11 +34,24 @@ const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncD
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
 
-// Placeholder for lazy components
-const LazyPlaceholder = () => (
-  <div className="animate-pulse bg-muted/50 rounded-2xl min-h-[300px] flex items-center justify-center">
+// Placeholder for lazy components with explicit dimensions to prevent CLS
+const LazyPlaceholder = ({ height = 300 }: { height?: number }) => (
+  <div 
+    className="animate-pulse bg-muted/50 rounded-2xl flex items-center justify-center"
+    style={{ minHeight: height, aspectRatio: 'auto' }}
+  >
     <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
+);
+
+// Phone mockup placeholder with exact dimensions
+const PhonePlaceholder = () => (
+  <div className="relative w-[280px] h-[560px] mx-auto bg-muted/30 rounded-[3rem] animate-pulse" />
+);
+
+// Calendar demo placeholder
+const CalendarPlaceholder = () => (
+  <div className="w-full max-w-[400px] mx-auto bg-muted/30 rounded-2xl animate-pulse" style={{ aspectRatio: '1/1.2' }} />
 );
 
 const Landing = () => {
@@ -116,31 +129,33 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Right: Auth form or Phone mockup */}
-            <div id="auth-section" className="animate-scale-in">
-              {!loading && (
-                user ? (
-                  <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="h-8 w-8 text-success" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">
-                      Bienvenue !
-                    </h3>
-                    <p className="text-muted-foreground mb-6">
-                      Accédez à votre tableau de bord pour gérer vos trajets.
-                    </p>
-                    <Link to="/app">
-                      <Button size="lg" variant="gradient" className="w-full group">
-                        <LayoutDashboard className="h-5 w-5 mr-2" />
-                        Tableau de bord
-                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
+            {/* Right: Auth form or Phone mockup - Reserved space to prevent CLS */}
+            <div id="auth-section" className="animate-scale-in min-h-[420px]">
+              {loading ? (
+                <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : user ? (
+                <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
+                  <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-success" />
                   </div>
-                ) : (
-                  <AuthForm />
-                )
+                  <h3 className="text-xl font-bold text-foreground mb-2">
+                    Bienvenue !
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    Accédez à votre tableau de bord pour gérer vos trajets.
+                  </p>
+                  <Link to="/app">
+                    <Button size="lg" variant="gradient" className="w-full group">
+                      <LayoutDashboard className="h-5 w-5 mr-2" />
+                      Tableau de bord
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <AuthForm />
               )}
             </div>
           </div>
@@ -226,7 +241,7 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1">
-              <Suspense fallback={<LazyPlaceholder />}>
+              <Suspense fallback={<PhonePlaceholder />}>
                 <AnimatedPhoneMockup />
               </Suspense>
             </div>
@@ -282,7 +297,7 @@ const Landing = () => {
                 </Button>
               </Link>
             </div>
-            <Suspense fallback={<LazyPlaceholder />}>
+            <Suspense fallback={<PhonePlaceholder />}>
               <TourModeMockup />
             </Suspense>
           </div>
@@ -294,7 +309,7 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1">
-              <Suspense fallback={<LazyPlaceholder />}>
+              <Suspense fallback={<CalendarPlaceholder />}>
                 <CalendarSyncDemo />
               </Suspense>
             </div>
@@ -577,6 +592,8 @@ const Landing = () => {
               <img 
                 src={founderImage} 
                 alt="Adrien de Volontat, fondateur d'IKtracker" 
+                width={128}
+                height={128}
                 className="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover flex-shrink-0 border-2 border-border transition-transform duration-300 hover:scale-110"
                 loading="lazy"
                 decoding="async"

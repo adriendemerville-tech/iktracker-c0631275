@@ -514,3 +514,40 @@
     box-shadow: 0 4px 14px -1px hsl(220 70% 60% / 0.35), 0 2px 10px -2px hsl(220 70% 60% / 0.25);
   }
 }
+
+/* CLS Prevention - Contain intrinsic size for lazy-loaded sections */
+.contain-layout {
+  contain: layout style;
+}
+
+/* Reserve space for images before they load */
+img {
+  content-visibility: auto;
+}
+
+/* Prevent font FOUT/FOIT causing CLS */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-display: swap;
+  size-adjust: 100%;
+  ascent-override: 95%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+/* Skeleton loader with exact aspect ratios */
+.skeleton-phone {
+  width: 280px;
+  height: 560px;
+  aspect-ratio: 280 / 560;
+}
+
+.skeleton-calendar {
+  aspect-ratio: 1 / 1.2;
+  max-width: 400px;
+}
+
+/* Ensure smooth transitions without layout shift */
+.transition-opacity-only {
+  transition: opacity 0.3s ease-out;
+}
