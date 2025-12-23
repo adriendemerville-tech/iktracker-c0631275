@@ -96,7 +96,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-start pt-[25vh] overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)',
           }}
@@ -133,18 +133,8 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="relative z-10 flex flex-col items-center gap-8"
+                className="relative z-10 flex flex-col items-center"
               >
-                {/* Logo */}
-                <motion.img
-                  src="/logo-iktracker-250.webp"
-                  alt="IK Tracker"
-                  className="w-20 h-20 object-contain"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                />
-                
                 {/* Spinning loader */}
                 <div className="relative">
                   <div className="w-12 h-12 rounded-full border-2 border-white/20" />
@@ -170,7 +160,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -5 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="text-center relative z-10 flex flex-col items-center gap-10"
+                className="text-center relative z-10 flex flex-col items-center"
               >
                 <h1 
                   className="text-2xl md:text-3xl font-semibold tracking-tight"
@@ -181,23 +171,6 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 >
                   {userName ? `${message} ${userName} !` : `${message} !`}
                 </h1>
-                
-                {/* Logo - larger container to prevent truncation */}
-                <motion.div
-                  className="w-24 h-24 flex items-center justify-center"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
-                >
-                  <img
-                    src="/logo-iktracker-250.webp"
-                    alt="IKTracker"
-                    className="w-20 h-20 object-contain rounded-full shadow-lg"
-                    style={{
-                      boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
-                    }}
-                  />
-                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
