@@ -130,7 +130,7 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                           <img 
-                            src="/iktracker-indemnites-kilometriques-logo.png" 
+                            src="/logo-iktracker.webp" 
                             alt="IKtracker" 
                             className="w-8 h-8 rounded-lg" 
                             loading="lazy"
