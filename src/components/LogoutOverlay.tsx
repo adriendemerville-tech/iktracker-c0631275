@@ -18,6 +18,7 @@ interface LogoutOverlayProps {
 
 export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlayProps) => {
   const navigate = useNavigate();
+  const [showSpinner, setShowSpinner] = useState(true);
   const [showText, setShowText] = useState(false);
   const [hideText, setHideText] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
@@ -28,6 +29,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
 
   useEffect(() => {
     if (!isVisible) {
+      setShowSpinner(true);
       setShowText(false);
       setHideText(false);
       setFadeOut(false);
@@ -47,28 +49,33 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
     }
 
     // Desktop animation sequence:
-    // 1. Wait 2s, then show text
+    // 1. Show spinner for 1.5s, then hide it and show text
+    const hideSpinnerTimer = setTimeout(() => {
+      setShowSpinner(false);
+    }, 1500);
+
     const showTextTimer = setTimeout(() => {
       setShowText(true);
-    }, 2000);
+    }, 1600);
 
-    // 2. Text stays 2s, then hide it (at 4s total)
+    // 2. Text stays 2s, then hide it
     const hideTextTimer = setTimeout(() => {
       setHideText(true);
-    }, 4000);
+    }, 3600);
 
-    // 3. 1s after text disappears, fade out background (at 5s total)
+    // 3. Fade out background
     const fadeOutTimer = setTimeout(() => {
       setFadeOut(true);
-    }, 5000);
+    }, 4600);
 
-    // 4. After fade out animation completes, navigate (at ~5.8s)
+    // 4. After fade out animation completes, navigate
     const navigateTimer = setTimeout(() => {
       navigate('/');
       onComplete?.();
-    }, 5800);
+    }, 5400);
 
     return () => {
+      clearTimeout(hideSpinnerTimer);
       clearTimeout(showTextTimer);
       clearTimeout(hideTextTimer);
       clearTimeout(fadeOutTimer);
@@ -118,6 +125,44 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
             }}
           />
 
+          {/* Spinner during initial loading */}
+          <AnimatePresence>
+            {showSpinner && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="relative z-10 flex flex-col items-center gap-8"
+              >
+                {/* Logo */}
+                <motion.img
+                  src="/logo-iktracker-250.webp"
+                  alt="IK Tracker"
+                  className="w-20 h-20 object-contain"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+                
+                {/* Spinning loader */}
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full border-2 border-white/20" />
+                  <motion.div
+                    className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent border-t-white"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 1,
+                      ease: "linear",
+                      repeat: Infinity,
+                    }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Farewell message */}
           <AnimatePresence>
             {showText && !hideText && (
               <motion.div
@@ -137,20 +182,22 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                   {userName ? `${message} ${userName} !` : `${message} !`}
                 </h1>
                 
-                {/* Logo */}
-                <motion.img
-                  src="/logo-iktracker-250.webp"
-                  alt="IKTracker"
-                  width={250}
-                  height={250}
-                  className="w-16 h-16 rounded-full shadow-lg"
-                  style={{
-                    boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
-                  }}
+                {/* Logo - larger container to prevent truncation */}
+                <motion.div
+                  className="w-24 h-24 flex items-center justify-center"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.4 }}
-                />
+                >
+                  <img
+                    src="/logo-iktracker-250.webp"
+                    alt="IKTracker"
+                    className="w-20 h-20 object-contain rounded-full shadow-lg"
+                    style={{
+                      boxShadow: '0 4px 30px hsla(210, 100%, 70%, 0.25)',
+                    }}
+                  />
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
