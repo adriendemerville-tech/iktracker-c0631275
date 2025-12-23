@@ -119,7 +119,8 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
   const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
 
   return (
-    <div className="h-48">
+    // Fixed height container to prevent CLS when chart loads
+    <div className="h-48 min-h-[192px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={32}>
           <defs>

@@ -61,7 +61,8 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
   }, [slides.length]);
 
   return (
-    <div className={cn("relative w-full overflow-hidden", className)}>
+    // Fixed min-height to prevent CLS during slide transitions
+    <div className={cn("relative w-full overflow-hidden min-h-[600px] md:min-h-[400px]", className)}>
       {/* Slides Container */}
       <div 
         className="flex transition-transform duration-500 ease-out"
@@ -73,8 +74,8 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
             className="min-w-full px-4"
           >
             <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
-              {/* Mockup - only render current and adjacent slides for performance */}
-              <div className="flex justify-center">
+              {/* Mockup with reserved space - only render current and adjacent slides for performance */}
+              <div className="flex justify-center min-h-[560px] items-center">
                 {Math.abs(currentIndex - index) <= 1 && (
                   <MemoizedAnimatedPhoneMockup screen={slide.screen} />
                 )}

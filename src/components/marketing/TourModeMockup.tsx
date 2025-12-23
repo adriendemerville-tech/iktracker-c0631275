@@ -64,8 +64,8 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
   }, [stopsCount]);
 
   return (
-    <div className={cn("relative", className)}>
-      {/* Phone frame - iPhone style */}
+    <div className={cn("relative w-[280px] h-[560px]", className)}>
+      {/* Phone frame - iPhone style with explicit dimensions to prevent CLS */}
       <div className="relative w-[280px] h-[560px] bg-zinc-900 rounded-[3rem] p-2 shadow-2xl border border-zinc-700">
         {/* Side buttons */}
         <div className="absolute -left-[2px] top-24 w-1 h-8 bg-zinc-700 rounded-l-full" />
@@ -138,10 +138,10 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
               </span>
             </div>
 
-            {/* Bottom counters */}
+            {/* Bottom counters with fixed widths for tabular numbers */}
             <div className="flex items-end justify-center gap-10 w-full pb-4">
-              {/* KM Counter */}
-              <div className="flex flex-col items-center">
+              {/* KM Counter - fixed min-width to prevent CLS */}
+              <div className="flex flex-col items-center min-w-[70px]">
                 <span 
                   className={cn(
                     "font-urbanist text-3xl font-bold text-zinc-400 tabular-nums transition-all duration-700 ease-out",
@@ -158,8 +158,8 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
               {/* Separator */}
               <div className="h-8 w-px bg-zinc-800" />
 
-              {/* Stops Counter */}
-              <div className="flex flex-col items-center">
+              {/* Stops Counter - fixed min-width to prevent CLS */}
+              <div className="flex flex-col items-center min-w-[70px]">
                 <span 
                   className={cn(
                     "font-urbanist text-3xl font-bold tabular-nums bg-clip-text text-transparent transition-transform duration-300",

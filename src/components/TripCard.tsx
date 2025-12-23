@@ -186,8 +186,9 @@ export const TripCard = memo(function TripCard({
             </Button>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="counter-text text-sm font-semibold">{trip.distance.toFixed(1)} km</span>
-              <span className="counter-text text-sm font-bold text-accent">
+              {/* Use tabular-nums and min-width for stable layout during number changes */}
+              <span className="counter-text text-sm font-semibold tabular-nums min-w-[55px]">{trip.distance.toFixed(1)} km</span>
+              <span className="counter-text text-sm font-bold text-accent tabular-nums min-w-[65px]">
                 +{trip.ikAmount.toFixed(2)} €
               </span>
               {!vehicle && !trip.vehicleId && (

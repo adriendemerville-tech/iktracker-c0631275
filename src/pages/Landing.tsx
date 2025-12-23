@@ -79,9 +79,11 @@ const LazyPlaceholder = memo(({ height = 300 }: { height?: number }) => (
   </div>
 ));
 
-// Phone mockup placeholder with exact dimensions
+// Phone mockup placeholder with exact dimensions to prevent CLS
 const PhonePlaceholder = memo(() => (
-  <div className="relative w-[280px] h-[560px] mx-auto bg-muted/30 rounded-[3rem] animate-pulse" />
+  <div className="relative w-[280px] h-[560px] mx-auto bg-muted/30 rounded-[3rem] animate-pulse flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
 ));
 
 // Calendar demo placeholder
@@ -179,8 +181,8 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Right: Auth form or Phone mockup - Reserved space to prevent CLS */}
-            <div id="auth-section" className="animate-scale-in min-h-[420px]">
+            {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
+            <div id="auth-section" className="animate-scale-in min-h-[420px] min-w-[320px] lg:min-w-[400px]">
               {user ? (
                 <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
                   <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
