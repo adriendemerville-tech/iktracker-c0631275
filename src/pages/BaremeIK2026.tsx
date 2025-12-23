@@ -100,7 +100,7 @@ const BaremeIK2026 = () => {
               "name": "IKtracker",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://iktracker.fr/logo-iktracker.webp"
+                "url": "https://iktracker.fr/logo-iktracker-250.webp"
               }
             },
             "datePublished": "2024-12-01",

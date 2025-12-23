@@ -363,10 +363,10 @@ const Landing = () => {
                       </div>
                     </div>
                     <img 
-                      src="/logo-iktracker.webp" 
+                      src="/logo-iktracker-250.webp" 
                       alt="IKtracker" 
-                      width={24}
-                      height={24}
+                      width={250}
+                      height={250}
                       className="h-6 w-6 opacity-60" 
                       loading="lazy"
                       decoding="async"
@@ -479,8 +479,10 @@ const Landing = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <img 
-                        src="/logo-iktracker.webp" 
+                        src="/logo-iktracker-250.webp" 
                         alt="IKtracker" 
+                        width={250}
+                        height={250}
                         className="h-5 opacity-50" 
                         loading="lazy"
                         decoding="async"

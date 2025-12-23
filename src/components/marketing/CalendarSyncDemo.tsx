@@ -154,10 +154,10 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
         <div>
           <div className="flex items-center gap-2 mb-3 md:mb-4 mt-4 md:mt-0">
             <img 
-              src="/logo-iktracker.webp" 
+              src="/logo-iktracker-250.webp" 
               alt="IKtracker" 
-              width={32}
-              height={32}
+              width={250}
+              height={250}
               className="w-6 h-6 md:w-8 md:h-8 rounded-lg" 
               loading="lazy"
               decoding="async"
