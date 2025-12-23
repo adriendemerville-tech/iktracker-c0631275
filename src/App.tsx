@@ -93,7 +93,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Minimum loading delay for premium UX (only for authenticated users)
-const MIN_LOADING_DELAY = 1500;
+const MIN_LOADING_DELAY = 800;
 
 // Smart landing: redirect authenticated users to /app
 const SmartLanding = () => {
@@ -208,9 +208,9 @@ const AppRoutes = () => {
   };
 
   const handleLogout = async () => {
-    // Ensure local session is cleared synchronously, then hard-reload out of React.
-    void signOut();
-    window.location.href = "/";
+    // Start signOut which sets isLoggingOut=true to show the overlay
+    await signOut();
+    // The LogoutOverlay will handle navigation via onComplete after animation
   };
 
   const handleLogoutComplete = () => {
