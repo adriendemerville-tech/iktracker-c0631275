@@ -101,7 +101,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
   };
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full", className)} style={{ minHeight: compact ? 'auto' : '400px' }}>
       <div className={cn(
         "bg-card/80 backdrop-blur-sm border border-border rounded-2xl",
         compact ? "p-5" : "p-6 md:p-8"
