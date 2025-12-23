@@ -357,9 +357,83 @@
   </head>
 
   <body>
+    <!-- Boot screen: avoids pure white page if JS fails to load / crashes early -->
+    <div id="boot-screen" role="status" aria-live="polite" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:hsl(var(--background));color:hsl(var(--foreground));">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" aria-hidden="true"></div>
+        <div style="font-weight:600;">Chargement…</div>
+      </div>
+      <div id="boot-details" style="max-width:720px;text-align:center;color:hsl(var(--foreground) / 0.7);font-size:14px;line-height:1.45;">
+        Si cette page reste bloquée, c’est généralement un souci de cache ou de déploiement.
+      </div>
+      <div id="boot-actions" style="display:none;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button type="button" id="boot-reload" style="padding:10px 14px;border-radius:10px;border:1px solid hsl(var(--foreground) / 0.18);background:transparent;color:inherit;cursor:pointer;">Recharger</button>
+        <button type="button" id="boot-reset" style="padding:10px 14px;border-radius:10px;border:1px solid hsl(var(--foreground) / 0.18);background:transparent;color:inherit;cursor:pointer;">Réinitialiser</button>
+      </div>
+    </div>
+
     <div id="root"></div>
+
+    <script>
+      // If the app doesn't boot, show a non-white error UI.
+      (function () {
+        function showBootError(reason) {
+          var details = document.getElementById('boot-details');
+          var actions = document.getElementById('boot-actions');
+          if (details) {
+            details.textContent = "Impossible de charger l'application." + (reason ? " (" + reason + ")" : "") + " Essayez de recharger ou réinitialiser.";
+          }
+          if (actions) actions.style.display = 'flex';
+        }
+
+        // Capture early JS errors (including module load failures in some browsers)
+        window.addEventListener('error', function (e) {
+          try {
+            window.__APP_BOOT_ERROR__ = e && e.message ? e.message : 'Erreur JS';
+            if (!window.__APP_BOOTED__) showBootError(window.__APP_BOOT_ERROR__);
+          } catch (_) {}
+        });
+
+        window.addEventListener('unhandledrejection', function (e) {
+          try {
+            var msg = (e && e.reason && (e.reason.message || String(e.reason))) || 'Promise rejetée';
+            window.__APP_BOOT_ERROR__ = msg;
+            if (!window.__APP_BOOTED__) showBootError(msg);
+          } catch (_) {}
+        });
+
+        var reloadBtn = document.getElementById('boot-reload');
+        if (reloadBtn) reloadBtn.addEventListener('click', function () { window.location.reload(); });
+
+        var resetBtn = document.getElementById('boot-reset');
+        if (resetBtn) {
+          resetBtn.addEventListener('click', async function () {
+            try {
+              // Clear caches + unregister service workers when available.
+              if (window.caches && caches.keys) {
+                var keys = await caches.keys();
+                await Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              }
+              if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                var regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }
+            } catch (_) {}
+            window.location.reload();
+          });
+        }
+
+        // If React never boots, reveal actions after 8 seconds.
+        setTimeout(function () {
+          if (!window.__APP_BOOTED__) {
+            showBootError(window.__APP_BOOT_ERROR__ || 'chargement bloqué');
+          }
+        }, 8000);
+      })();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
-    
+
     <!-- Defer service worker registration until after page load -->
     <script>
       if ('serviceWorker' in navigator) {
@@ -370,5 +444,6 @@
         });
       }
     </script>
+  </body>
   </body>
 </html>
