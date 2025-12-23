@@ -607,11 +607,11 @@ const Landing = () => {
               <img 
                 src={founderImage} 
                 srcSet={`${founderImage} 1x, ${founderImage} 2x`}
-                sizes="(max-width: 768px) 80px, 128px"
+                sizes="75px"
                 alt="Adrien de Volontat, fondateur d'IKtracker" 
-                width={128}
-                height={128}
-                className="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover flex-shrink-0 border-2 border-border transition-transform duration-300 hover:scale-110"
+                width={75}
+                height={75}
+                className="w-[75px] h-[75px] rounded-full object-cover flex-shrink-0 border-2 border-border transition-transform duration-300 hover:scale-110"
                 loading="lazy"
                 decoding="async"
               />
