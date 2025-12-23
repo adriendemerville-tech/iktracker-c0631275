@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- CRITICAL: Theme detection MUST run before any rendering to prevent flash -->
+    <script>
+      (function(){
+        try {
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch(e) {}
+      })();
+    </script>
+    
     <!-- CRITICAL: Preconnect to third-party origins FIRST -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -349,12 +362,21 @@
         --muted-foreground:220 10% 45%;
         --card:0 0% 100%
       }
+      /* Dark mode tokens */
+      :root.dark{
+        --background:220 25% 8%;
+        --foreground:210 20% 98%;
+        --primary:220 70% 60%;
+        --border:220 20% 18%;
+        --muted-foreground:220 10% 55%;
+        --card:220 25% 12%
+      }
       /* Font-face with swap for zero FOIT */
       @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500 700;font-display:swap;src:url(https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2) format('woff2')}
       /* Reset */
       *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
       html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,sans-serif}
-      body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground))}
+      body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground));transition:background-color 0s,color 0s}
       #root{min-height:100vh;display:flex;flex-direction:column}
       /* Navbar critical styles */
       .shell-header{position:fixed;top:0;left:0;right:0;z-index:50;background:hsla(var(--background)/.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid hsl(var(--border))}
