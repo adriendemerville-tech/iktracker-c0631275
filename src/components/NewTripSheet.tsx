@@ -10,7 +10,7 @@ import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
 import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map, X } from 'lucide-react';
-import wazeLogo from '@/assets/waze-logo.png';
+import wazeLogo from '@/assets/waze-logo.webp';
 import googleMapsLogo from '@/assets/google-maps-logo.webp';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
