@@ -124,14 +124,7 @@ const Auth = () => {
     }
   };
 
-  // Show loading while checking auth
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center cursor-default">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
-      </div>
-    );
-  }
+  // Skip loading screen - show login form immediately
 
   // Show OAuth success screen on deployed domain
   if (showOAuthSuccess) {
