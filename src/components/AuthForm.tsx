@@ -246,10 +246,10 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
             <button
               type="button"
               onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              className="text-base text-white/90 hover:text-primary transition-colors font-medium"
+              className="text-lg text-white hover:text-primary transition-colors font-medium"
             >
               {mode === 'login' 
-                ? 'Pas encore de compte ? Inscrivez-vous'
+                ? 'Pas encore de compte ? Inscrivez-vous !'
                 : 'Déjà un compte ? Connectez-vous'
               }
             </button>
