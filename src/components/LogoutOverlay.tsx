@@ -45,6 +45,12 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
       return;
     }
 
+    // Store farewell data for the transition shell
+    sessionStorage.setItem('iktracker_logout_transition', JSON.stringify({
+      message: fullMessage,
+      timestamp: Date.now()
+    }));
+
     // If mobile, redirect immediately without animation
     if (!isDesktop) {
       window.location.href = "/";
@@ -59,22 +65,16 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
       setPhase('visible');
     }, 400);
 
-    // Start exit animation
-    const exitTimer = setTimeout(() => {
-      setPhase('exiting');
-    }, 1600);
-
-    // Hard navigate to landing page after exit animation (bypasses React Router)
+    // Navigate after showing the message - the HTML shell will continue the overlay
     const navigateTimer = setTimeout(() => {
       window.location.href = "/";
-    }, 2000);
+    }, 1800);
 
     return () => {
       clearTimeout(visibleTimer);
-      clearTimeout(exitTimer);
       clearTimeout(navigateTimer);
     };
-  }, [isVisible, isDesktop]);
+  }, [isVisible, isDesktop, fullMessage]);
 
   // On mobile, don't render anything
   if (!isDesktop || phase === 'hidden') {
@@ -84,8 +84,8 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
-      animate={{ opacity: phase === 'exiting' ? 0 : 1 }}
-      transition={{ duration: 0.6, ease: 'easeInOut' }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)',

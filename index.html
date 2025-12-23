@@ -382,7 +382,31 @@
       .shell-form{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:1rem;padding:2rem;min-height:420px;display:flex;align-items:center;justify-content:center}
       .shell-spinner{width:2rem;height:2rem;border:3px solid hsl(var(--primary));border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
       @keyframes spin{to{transform:rotate(360deg)}}
+      /* Logout transition overlay */
+      .logout-overlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,hsl(217 91% 35%) 0%,hsl(217 91% 20%) 50%,hsl(220 95% 12%) 100%)}
+      .logout-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,hsla(210 100% 70%/.15) 0%,transparent 60%);pointer-events:none}
+      .logout-content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:1.5rem}
+      .logout-content img{width:4rem;height:4rem;filter:drop-shadow(0 4px 20px hsla(210 100% 70%/.3))}
+      .logout-content h2{font-size:1.5rem;font-weight:600;color:white;text-shadow:0 2px 20px hsla(210 100% 70%/.3),0 4px 40px hsla(217 90% 30%/.5);margin:0}
+      @media(min-width:768px){.logout-content h2{font-size:1.875rem}}
+      .logout-hide{display:none}
     </style>
+    <script>
+      // Check for logout transition - show overlay immediately if coming from logout
+      (function(){
+        try {
+          var data = sessionStorage.getItem('iktracker_logout_transition');
+          if (data) {
+            var parsed = JSON.parse(data);
+            // Only valid for 10 seconds
+            if (Date.now() - parsed.timestamp < 10000) {
+              document.write('<div id="logout-shell-overlay" class="logout-overlay"><div class="logout-content"><img src="/logo-iktracker-250.webp" alt="IKtracker" width="64" height="64"><h2>' + parsed.message + '</h2></div></div>');
+            }
+            sessionStorage.removeItem('iktracker_logout_transition');
+          }
+        } catch(e) {}
+      })();
+    </script>
   </head>
 
   <body>
@@ -422,7 +446,7 @@
         window.addEventListener('load', function() {
           setTimeout(function() {
             navigator.serviceWorker.register('/sw.js', { scope: '/' });
-          }, 3000); // Delay 3s after load to not block LCP
+          }, 3000);
         });
       }
     </script>

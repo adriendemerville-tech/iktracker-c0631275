@@ -96,6 +96,20 @@ const Landing = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Remove logout transition overlay once React has fully mounted
+  useEffect(() => {
+    const overlay = document.getElementById('logout-shell-overlay');
+    if (overlay) {
+      // Small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        overlay.style.transition = 'opacity 0.5s ease-out';
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 500);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
       <Helmet>
