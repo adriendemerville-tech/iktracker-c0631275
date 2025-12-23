@@ -13,22 +13,23 @@ export const useAuth = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Silent session refresh - attempts to get a new session using refresh token
+  // Silent session refresh - only called when we have a valid reason to refresh
   const silentRefresh = useCallback(async () => {
     if (isRefreshing) return null;
     
     setIsRefreshing(true);
     try {
-      console.log('[Auth] Attempting silent session refresh...');
       const { data, error } = await supabase.auth.refreshSession();
       
       if (error) {
-        console.warn('[Auth] Silent refresh failed:', error.message);
+        // Only log if it's not a "no session" error (expected for logged out users)
+        if (!error.message.includes('session missing') && !error.message.includes('no session')) {
+          console.warn('[Auth] Session refresh failed:', error.message);
+        }
         return null;
       }
       
       if (data.session) {
-        console.log('[Auth] Session refreshed successfully');
         setSession(data.session);
         setUser(data.session.user);
         return data.session;
@@ -36,7 +37,7 @@ export const useAuth = () => {
       
       return null;
     } catch (err) {
-      console.warn('[Auth] Silent refresh error:', err);
+      // Silent fail for expected errors
       return null;
     } finally {
       setIsRefreshing(false);
@@ -77,28 +78,28 @@ export const useAuth = () => {
       }
     );
 
-    // THEN check for existing session and attempt silent refresh if needed
+    // THEN check for existing session
     const initializeSession = async () => {
       try {
         const { data: { session: existingSession }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.warn('[Auth] Error getting session:', error.message);
-          // Try silent refresh if there's an error (session might be expired)
-          await silentRefresh();
+          // Don't spam logs for expected "no session" errors
+          if (!error.message.includes('session') && !error.message.includes('missing')) {
+            console.warn('[Auth] Error getting session:', error.message);
+          }
           setLoading(false);
           return;
         }
         
         if (existingSession) {
-          // Check if session is about to expire (within 5 minutes)
+          // Check if session is about to expire (within 2 minutes)
           const expiresAt = existingSession.expires_at;
           if (expiresAt) {
             const expiresAtMs = expiresAt * 1000;
-            const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+            const twoMinutesFromNow = Date.now() + 2 * 60 * 1000;
             
-            if (expiresAtMs < fiveMinutesFromNow) {
-              console.log('[Auth] Session expiring soon, refreshing...');
+            if (expiresAtMs < twoMinutesFromNow) {
               await silentRefresh();
             } else {
               setSession(existingSession);
@@ -108,14 +109,8 @@ export const useAuth = () => {
             setSession(existingSession);
             setUser(existingSession.user);
           }
-        } else {
-          // No session exists, try silent refresh in case there's a refresh token
-          const refreshed = await silentRefresh();
-          if (!refreshed) {
-            setSession(null);
-            setUser(null);
-          }
         }
+        // If no session exists, just set loading to false - no need to attempt refresh
         
         setLoading(false);
       } catch (err) {

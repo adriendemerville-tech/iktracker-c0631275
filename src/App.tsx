@@ -92,32 +92,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Minimum loading delay for premium UX (only for authenticated users)
-const MIN_LOADING_DELAY = 800;
-
 // Smart landing: redirect authenticated users to /app
 const SmartLanding = () => {
   const { user, loading } = useAuth();
-  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  useEffect(() => {
-    // Only start the delay timer if user is authenticated
-    if (user) {
-      const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
-      return () => clearTimeout(timer);
-    }
-  }, [user]);
-
-  // Still loading auth state - show nothing to avoid flash
+  // Still loading auth state - show AuthLoadingScreen for consistency
   if (loading) {
     return <AuthLoadingScreen />;
   }
 
-  // Authenticated users: show spinner then redirect
+  // Authenticated users redirect to app
   if (user) {
-    if (!minDelayPassed) {
-      return <AuthLoadingScreen />;
-    }
     return <Navigate to="/app" replace />;
   }
 
@@ -128,14 +113,9 @@ const SmartLanding = () => {
 // Smart auth: redirect authenticated users to /app
 const SmartAuth = () => {
   const { user, loading } = useAuth();
-  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading || !minDelayPassed) {
+  // Show loader only while actually loading auth state
+  if (loading) {
     return <AuthLoadingScreen />;
   }
 
@@ -144,9 +124,9 @@ const SmartAuth = () => {
     return <Navigate to="/app" replace />;
   }
 
-  // Non-authenticated users see the auth page
+  // Non-authenticated users see the auth page immediately
   return (
-    <Suspense fallback={<PageLoader />}>
+    <Suspense fallback={<AuthLoadingScreen />}>
       <Auth />
     </Suspense>
   );
@@ -155,14 +135,8 @@ const SmartAuth = () => {
 // Smart signup: redirect authenticated users to /app
 const SmartSignup = () => {
   const { user, loading } = useAuth();
-  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading || !minDelayPassed) {
+  if (loading) {
     return <AuthLoadingScreen />;
   }
 
@@ -171,7 +145,7 @@ const SmartSignup = () => {
   }
 
   return (
-    <Suspense fallback={<PageLoader />}>
+    <Suspense fallback={<AuthLoadingScreen />}>
       <Signup />
     </Suspense>
   );
