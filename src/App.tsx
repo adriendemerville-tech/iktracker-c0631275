@@ -2,8 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense, createContext, useContext, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -193,8 +194,7 @@ function GoogleMapsPreloader() {
 }
 
 const AppRoutes = () => {
-  const navigate = useNavigate();
-  const { user, isLoggingOut, signOut, clearLogoutOverlay } = useAuth();
+  const { user, isLoggingOut, clearLogoutOverlay } = useAuth();
 
   // Extract first name from user metadata
   const getUserFirstName = (): string | null => {
@@ -208,12 +208,9 @@ const AppRoutes = () => {
   };
 
   const handleLogout = async () => {
-    await signOut();
-    // On mobile, navigate immediately. On desktop, the overlay handles navigation.
-    if (window.innerWidth < 768) {
-      clearLogoutOverlay();
-      navigate('/');
-    }
+    // Critical: quit React/router immediately to prevent any intermediate /auth redirect flash.
+    void supabase.auth.signOut();
+    window.location.href = "/";
   };
 
   const handleLogoutComplete = () => {
