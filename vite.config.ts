@@ -186,6 +186,10 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // Enable module preload polyfill for better browser support
+    modulePreload: {
+      polyfill: true,
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -202,5 +206,8 @@ export default defineConfig(({ mode }) => ({
     },
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 500,
+    // Minification settings for smaller bundles
+    minify: 'esbuild',
+    target: 'es2020',
   },
 }));

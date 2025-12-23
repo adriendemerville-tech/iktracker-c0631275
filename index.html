@@ -81,7 +81,10 @@
     <!-- Preload critical LCP assets -->
     <link rel="preload" href="/logo-iktracker-250.webp" as="image" type="image/webp" fetchpriority="high">
     
-    <!-- Google Maps loaded dynamically only when needed -->
+    <!-- Preload critical chunks will be injected by Vite -->
+    <!-- DNS prefetch for Google Maps (loaded dynamically) -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.gstatic.com">
     
     
     <!-- JSON-LD Structured Data -->
