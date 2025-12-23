@@ -86,7 +86,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Minimum loading delay for premium UX
+// Minimum loading delay for premium UX (only for authenticated users)
 const MIN_LOADING_DELAY = 1500;
 
 // Smart landing: redirect authenticated users to /app
@@ -95,20 +95,27 @@ const SmartLanding = () => {
   const [minDelayPassed, setMinDelayPassed] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
-    return () => clearTimeout(timer);
-  }, []);
+    // Only start the delay timer if user is authenticated
+    if (user) {
+      const timer = setTimeout(() => setMinDelayPassed(true), MIN_LOADING_DELAY);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
-  if (loading || !minDelayPassed) {
+  // Still loading auth state - show nothing to avoid flash
+  if (loading) {
     return <AuthLoadingScreen />;
   }
 
-  // Authenticated users go directly to the app
+  // Authenticated users: show spinner then redirect
   if (user) {
+    if (!minDelayPassed) {
+      return <AuthLoadingScreen />;
+    }
     return <Navigate to="/app" replace />;
   }
 
-  // Non-authenticated users see the landing page
+  // Non-authenticated users see the landing page immediately
   return <Landing />;
 };
 
