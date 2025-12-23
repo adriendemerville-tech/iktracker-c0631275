@@ -91,12 +91,12 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                 </Link>
               ) : (
                 <>
-                  <Link to="/auth" className="hidden sm:block">
-                    <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                    <Link to="/auth">
                       <LogIn className="h-4 w-4 mr-2" />
                       Connexion
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                   <a href="/#auth-section">
                     <Button variant="gradient" size="sm">
                       S'inscrire
