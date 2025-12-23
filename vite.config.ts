@@ -218,11 +218,6 @@ export default defineConfig(({ mode }) => ({
           'vendor-supabase': ['@supabase/supabase-js'],
         },
       },
-      // Optimize tree-shaking
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-      },
     },
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 500,
