@@ -223,24 +223,52 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Enable module preload polyfill for better browser support
-    modulePreload: {
-      polyfill: true,
-    },
+    // Disable module preload to prevent heavy chunks from being loaded on initial page
+    modulePreload: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks - separated for better caching
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-router': ['react-router-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-ui-core': ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select'],
-          'vendor-ui-extra': ['@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip', '@radix-ui/react-accordion'],
-          'vendor-charts': ['recharts'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-pdf': ['jspdf', 'jspdf-autotable'],
-          'vendor-supabase': ['@supabase/supabase-js'],
-          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+        manualChunks: (id) => {
+          // Critical vendors - needed on initial load
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/react-router-dom/') || id.includes('node_modules/@remix-run/')) {
+            return 'vendor-router';
+          }
+          if (id.includes('node_modules/@supabase/')) {
+            return 'vendor-supabase';
+          }
+          
+          // Deferred vendors - only loaded when needed by specific pages
+          if (id.includes('node_modules/recharts/') || id.includes('node_modules/d3-')) {
+            return 'vendor-charts';
+          }
+          if (id.includes('node_modules/jspdf')) {
+            return 'vendor-pdf';
+          }
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'vendor-motion';
+          }
+          
+          // UI libraries
+          if (id.includes('node_modules/@radix-ui/react-dialog') || 
+              id.includes('node_modules/@radix-ui/react-popover') || 
+              id.includes('node_modules/@radix-ui/react-select')) {
+            return 'vendor-ui-core';
+          }
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'vendor-ui-extra';
+          }
+          
+          // Query and forms
+          if (id.includes('node_modules/@tanstack/react-query')) {
+            return 'vendor-query';
+          }
+          if (id.includes('node_modules/react-hook-form') || 
+              id.includes('node_modules/@hookform/') || 
+              id.includes('node_modules/zod')) {
+            return 'vendor-forms';
+          }
         },
       },
     },
