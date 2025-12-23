@@ -62,9 +62,10 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
         <div className="w-8 h-8 rounded-full bg-primary/20" />
       </div>
 
-      <div className="bg-gradient-primary rounded-xl p-4 mb-4 text-primary-foreground animate-scale-in">
+      {/* Stats card with min-height to prevent CLS */}
+      <div className="bg-gradient-primary rounded-xl p-4 mb-4 text-primary-foreground animate-scale-in min-h-[100px]">
         <p className="text-sm opacity-80">Ce mois</p>
-        <p className="text-3xl font-bold animate-pulse">1 247 km</p>
+        <p className="text-3xl font-bold tabular-nums">1 247 km</p>
         <p className="text-sm">612,50 € d'IK</p>
       </div>
 
@@ -242,10 +243,10 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
         </span>
       </div>
 
-      {/* Bottom counters */}
+      {/* Bottom counters with fixed width for tabular numbers */}
       <div className="flex items-end justify-center gap-8 w-full pb-2">
-        {/* KM Counter */}
-        <div className="flex flex-col items-center">
+        {/* KM Counter - fixed width to prevent CLS from number changes */}
+        <div className="flex flex-col items-center min-w-[60px]">
           <span className="text-2xl font-bold text-zinc-400 tabular-nums">
             47.5
           </span>
@@ -257,8 +258,8 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
         {/* Separator */}
         <div className="h-6 w-px bg-zinc-800" />
 
-        {/* Stops Counter */}
-        <div className="flex flex-col items-center">
+        {/* Stops Counter - fixed width to prevent CLS */}
+        <div className="flex flex-col items-center min-w-[60px]">
           <span 
             className="text-2xl font-bold tabular-nums bg-clip-text text-transparent"
             style={{
@@ -344,8 +345,8 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
   };
 
   return (
-    <div className={cn("relative", className)}>
-      {/* Phone frame */}
+    <div className={cn("relative w-[280px] h-[560px]", className)}>
+      {/* Phone frame with explicit dimensions to prevent CLS */}
       <div className="relative w-[280px] h-[560px] bg-foreground rounded-[3rem] p-3 shadow-2xl">
         {/* Screen */}
         <div className="w-full h-full bg-background rounded-[2.5rem] overflow-hidden relative">

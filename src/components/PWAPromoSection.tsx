@@ -112,10 +112,10 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
               </div>
             </div>
 
-            {/* Right: Phone mockup */}
+            {/* Right: Phone mockup with explicit dimensions to prevent CLS */}
             <div className="order-1 lg:order-2 flex justify-center">
-              <div className="relative">
-                {/* Phone frame */}
+              <div className="relative w-[280px] h-[560px]">
+                {/* Phone frame with fixed dimensions */}
                 <div className="relative w-[280px] h-[560px] bg-foreground rounded-[3rem] p-3 shadow-2xl">
                   {/* Screen */}
                   <div className="w-full h-full bg-background rounded-[2.5rem] overflow-hidden relative">
@@ -143,10 +143,10 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                         <div className="w-8 h-8 rounded-full bg-muted" />
                       </div>
 
-                      {/* Stats card */}
-                      <div className="bg-gradient-primary rounded-xl p-4 mb-4 text-primary-foreground">
+                      {/* Stats card with min-height to prevent CLS */}
+                      <div className="bg-gradient-primary rounded-xl p-4 mb-4 text-primary-foreground min-h-[100px]">
                         <p className="text-sm opacity-80">Ce mois</p>
-                        <p className="text-2xl font-bold">847 km</p>
+                        <p className="text-2xl font-bold tabular-nums">847 km</p>
                         <p className="text-sm">412,50 € d'IK</p>
                       </div>
 

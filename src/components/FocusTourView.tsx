@@ -185,10 +185,10 @@ export function FocusTourView({
         </div>
       )}
 
-      {/* BOTTOM: Counters */}
+      {/* BOTTOM: Counters with fixed widths to prevent CLS */}
       <div className="flex items-end justify-center gap-16 w-full">
-        {/* KM Counter */}
-        <div className="flex flex-col items-center">
+        {/* KM Counter - fixed width for stable layout */}
+        <div className="flex flex-col items-center min-w-[100px]">
           <span className="font-urbanist text-5xl font-bold text-gray-400 tabular-nums">
             {displayedKm.toFixed(1)}
           </span>
@@ -200,8 +200,8 @@ export function FocusTourView({
         {/* Separator */}
         <div className="h-12 w-px bg-gray-800" />
 
-        {/* Stops Counter or Departure indicator */}
-        <div className="flex flex-col items-center">
+        {/* Stops Counter or Departure indicator - fixed width */}
+        <div className="flex flex-col items-center min-w-[100px]">
           {showDeparture ? (
             // Show "DÉPART" while under 1km
             <>
