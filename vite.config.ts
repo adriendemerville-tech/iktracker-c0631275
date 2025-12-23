@@ -231,13 +231,16 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           // Vendor chunks - separated for better caching
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-router': ['react-router-dom'],
           'vendor-query': ['@tanstack/react-query'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-tooltip'],
+          'vendor-ui-core': ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select'],
+          'vendor-ui-extra': ['@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip', '@radix-ui/react-accordion'],
           'vendor-charts': ['recharts'],
           'vendor-motion': ['framer-motion'],
           'vendor-pdf': ['jspdf', 'jspdf-autotable'],
           'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
       },
     },
