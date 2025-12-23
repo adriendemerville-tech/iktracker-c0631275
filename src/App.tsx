@@ -68,7 +68,7 @@ export const useAppAuth = () => {
 };
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, requiresAuth, loading } = useAuth();
+  const { user, requiresAuth, loading, isLoggingOut } = useAuth();
 
   if (loading) {
     return (
@@ -76,6 +76,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  // Don't redirect to /auth if logout is in progress - let LogoutOverlay handle navigation
+  if (isLoggingOut) {
+    return null;
   }
 
   // Redirect to auth if user is logged out OR if auth is required
