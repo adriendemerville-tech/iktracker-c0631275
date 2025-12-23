@@ -363,7 +363,7 @@ const Landing = () => {
                       </div>
                     </div>
                     <img 
-                      src="/iktracker-indemnites-kilometriques-logo.png" 
+                      src="/logo-iktracker.webp" 
                       alt="IKtracker" 
                       width={24}
                       height={24}
@@ -479,7 +479,7 @@ const Landing = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <img 
-                        src="/iktracker-indemnites-kilometriques-logo.png" 
+                        src="/logo-iktracker.webp" 
                         alt="IKtracker" 
                         className="h-5 opacity-50" 
                         loading="lazy"

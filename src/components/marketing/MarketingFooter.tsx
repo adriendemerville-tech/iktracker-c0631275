@@ -35,7 +35,7 @@ export function MarketingFooter() {
           <div className="col-span-2">
             <Link to="/" onClick={handleLinkClick('/')} className="flex items-center gap-2 mb-4">
               <img 
-                src="/iktracker-indemnites-kilometriques-logo.png" 
+                src="/logo-iktracker.webp" 
                 alt="IKtracker" 
                 className="h-8 w-8 md:h-10 md:w-10" 
                 loading="lazy"

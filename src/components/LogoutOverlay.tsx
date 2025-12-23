@@ -139,7 +139,7 @@ export const LogoutOverlay = ({ isVisible, userName, onComplete }: LogoutOverlay
                 
                 {/* Logo */}
                 <motion.img
-                  src="/iktracker-indemnites-kilometriques-logo.png"
+                  src="/logo-iktracker.webp"
                   alt="IKTracker"
                   className="w-16 h-16 rounded-full shadow-lg"
                   style={{
