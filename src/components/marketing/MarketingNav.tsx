@@ -90,18 +90,18 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Button>
                 </Link>
               ) : (
-                <>
-                  <Link to="/auth" className="hidden sm:block">
-                    <Button variant="outline" size="sm">
+              <>
+                  <Button variant="outline" size="sm" className="hidden sm:flex" asChild>
+                    <Link to="/auth">
                       <LogIn className="h-4 w-4 mr-2" />
                       Connexion
-                    </Button>
-                  </Link>
-                  <a href="/#auth-section">
-                    <Button variant="gradient" size="sm">
+                    </Link>
+                  </Button>
+                  <Button variant="gradient" size="sm" asChild>
+                    <Link to="/#auth-section">
                       S'inscrire
-                    </Button>
-                  </a>
+                    </Link>
+                  </Button>
                 </>
               )
             )}
