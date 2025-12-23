@@ -17,7 +17,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { loadPDFLibraries, loadZip } from '@/lib/pdf-utils';
+import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
 
 export default function Report() {
   const navigate = useNavigate();
@@ -656,7 +656,7 @@ ${IKTRACKER_URL}`
             </Link>
             <h1 className="text-lg font-semibold">Relevé des trajets</h1>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={exportZip} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
+              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">

@@ -42,7 +42,7 @@ import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
-import { loadPDFLibraries, loadZip } from '@/lib/pdf-utils';
+import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
@@ -1042,6 +1042,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={exportZip}
+                  onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   data-tutorial="download"
@@ -1055,6 +1056,7 @@ ${IKTRACKER_MENTION}
                 variant="ghost" 
                 size="icon"
                 onClick={exportZip}
+                onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }}
                 disabled={trips.length === 0 || isExporting}
                 className="text-white/70 hover:text-white hover:bg-white/10"
                 data-tutorial="download"
