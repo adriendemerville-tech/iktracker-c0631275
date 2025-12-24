@@ -128,14 +128,16 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
             <Button
               type="button"
               variant="outline"
-              className="w-full bg-background/50"
+              className="w-full bg-background/50 focus-visible-ring"
               onClick={handleOAuthLogin}
               disabled={oauthLoading !== null}
+              aria-label="Se connecter avec Google"
             >
               {oauthLoading === 'google' ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
               ) : (
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" aria-hidden="true" role="img">
+                  <title>Logo Google</title>
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -157,8 +159,8 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
               Continuer avec Google
             </Button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
+            <div className="relative" role="separator" aria-orientation="horizontal">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
@@ -168,18 +170,22 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3" aria-label="Formulaire d'authentification">
           {/* Email field */}
           {mode !== 'forgot-password' || mode === 'forgot-password' ? (
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <label htmlFor="auth-email" className="sr-only">Adresse email</label>
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
               <Input
+                id="auth-email"
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-background/50"
+                className="pl-10 bg-background/50 focus-visible-ring"
                 required
+                aria-required="true"
+                autoComplete="email"
               />
             </div>
           ) : null}
@@ -187,29 +193,34 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
           {/* Password field */}
           {(mode === 'login' || mode === 'signup') && (
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <label htmlFor="auth-password" className="sr-only">Mot de passe</label>
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
               <Input
+                id="auth-password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10 bg-background/50"
+                className="pl-10 pr-10 bg-background/50 focus-visible-ring"
                 minLength={6}
                 required
+                aria-required="true"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-sm p-0.5"
                 aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                aria-pressed={showPassword}
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
               </button>
             </div>
           )}
 
-          <Button type="submit" className="w-full" variant="gradient" disabled={loading}>
-            {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+          <Button type="submit" className="w-full focus-visible-ring" variant="gradient" disabled={loading}>
+            {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />}
             {getButtonText()}
           </Button>
         </form>
@@ -220,7 +231,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
             <button
               type="button"
               onClick={() => setMode('forgot-password')}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors focus-visible-ring rounded-sm underline-offset-4 hover:underline"
             >
               Mot de passe oublié ?
             </button>
@@ -233,9 +244,9 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
             <button
               type="button"
               onClick={() => setMode('login')}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 focus-visible-ring rounded-sm"
             >
-              <ArrowLeft className="w-3 h-3" />
+              <ArrowLeft className="w-3 h-3" aria-hidden="true" />
               Retour à la connexion
             </button>
           </div>
@@ -247,7 +258,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
             <button
               type="button"
               onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              className="text-lg text-white hover:text-primary transition-colors font-medium"
+              className="text-base text-primary hover:text-primary/80 transition-colors font-medium focus-visible-ring rounded-sm underline-offset-4 hover:underline"
             >
               {mode === 'login' 
                 ? 'Pas encore de compte ? Inscrivez-vous !'

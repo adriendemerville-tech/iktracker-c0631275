@@ -181,27 +181,27 @@ export default function ModeTournee() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <Link to="/#auth-section">
+                  <Link to="/#auth-section" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="gradient" className="group">
                       Accéder à l'outil
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                     </Button>
                   </Link>
-                  <Link to="/install">
+                  <Link to="/install" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="outline">
                       Installer l'app
                     </Button>
                   </Link>
                 </div>
 
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <ul className="flex flex-wrap gap-4 text-sm text-muted-foreground" role="list" aria-label="Avantages">
                   {["100% Gratuit", "Pas de pub", "Données en Europe"].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                       {item}
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </AnimatedSection>
 
               <AnimatedSection delay={200} className="flex justify-center">

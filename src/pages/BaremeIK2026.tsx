@@ -239,21 +239,24 @@ const BaremeIK2026 = () => {
 
             <Card>
               <CardContent className="p-0 overflow-x-auto">
-                <Table>
+                <Table aria-label="Barème des indemnités kilométriques 2025-2026">
+                  <caption className="sr-only">
+                    Tableau des taux d'indemnités kilométriques par puissance fiscale et distance parcourue
+                  </caption>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead className="font-bold">Puissance fiscale (CV)</TableHead>
-                      <TableHead className="text-center font-bold">Jusqu'à 5 000 km</TableHead>
-                      <TableHead className="text-center font-bold">De 5 001 à 20 000 km</TableHead>
-                      <TableHead className="text-center font-bold">Plus de 20 000 km</TableHead>
+                      <TableHead scope="col" className="font-bold">Puissance fiscale (CV)</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">Jusqu'à 5 000 km</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">De 5 001 à 20 000 km</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">Plus de 20 000 km</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {IK_BAREME_2024.map((row, index) => (
                       <TableRow key={row.cv} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                        <TableCell className="font-semibold">
+                        <TableCell scope="row" className="font-semibold">
                           <div className="flex items-center gap-2">
-                            <Car className="h-4 w-4 text-primary" />
+                            <Car className="h-4 w-4 text-primary" aria-hidden="true" />
                             {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}
                           </div>
                         </TableCell>
