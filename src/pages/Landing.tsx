@@ -4,11 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { usePrefetch } from "@/hooks/usePrefetch";
-import { 
+import { AuthForm } from "@/components/AuthForm";
+import {
   ArrowRight,
   CheckCircle2,
   LayoutDashboard,
@@ -20,34 +20,24 @@ import {
   FileText,
   Check,
   Star,
-  Smartphone
+  Smartphone,
 } from "lucide-react";
 
-// Lazy load AuthForm - not needed for initial LCP
-const AuthForm = lazy(() => import("@/components/AuthForm").then(m => ({ default: m.AuthForm })));
-
-// Auth form loading placeholder
-const AuthFormSkeleton = memo(() => (
-  <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 min-h-[420px]">
-    <Skeleton className="h-8 w-32 mx-auto mb-2" />
-    <Skeleton className="h-4 w-48 mx-auto mb-6" />
-    <Skeleton className="h-12 w-full mb-4 rounded-lg" />
-    <Skeleton className="h-4 w-8 mx-auto mb-4" />
-    <Skeleton className="h-10 w-full mb-3" />
-    <Skeleton className="h-10 w-full mb-4" />
-    <Skeleton className="h-12 w-full rounded-lg" />
-  </div>
-));
-
 // Lazy load heavy marketing components - reduces initial bundle
-const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
-const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
-const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
-const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
-const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
-const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
-const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
-const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
+const AnimatedPhoneMockup = lazy(() =>
+  import("@/components/marketing/AnimatedPhoneMockup").then((m) => ({ default: m.AnimatedPhoneMockup }))
+);
+const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then((m) => ({ default: m.AppCarousel })));
+const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then((m) => ({ default: m.TourModeDemo })));
+const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then((m) => ({ default: m.TourModeMockup })));
+const CalendarSyncDemo = lazy(() =>
+  import("@/components/marketing/CalendarSyncDemo").then((m) => ({ default: m.CalendarSyncDemo }))
+);
+const MarketingPWANotification = lazy(() =>
+  import("@/components/marketing/MarketingPWANotification").then((m) => ({ default: m.MarketingPWANotification }))
+);
+const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then((m) => ({ default: m.MarketingFooter })));
+const QRCodeSVG = lazy(() => import("qrcode.react").then((m) => ({ default: m.QRCodeSVG })));
 
 // Lazy load below-the-fold assets - use public path for lazy loading
 const founderImage = "/founder-adrien-optimized.webp";
@@ -204,9 +194,7 @@ const Landing = () => {
                   </Link>
                 </div>
               ) : (
-                <Suspense fallback={<AuthFormSkeleton />}>
-                  <AuthForm />
-                </Suspense>
+                <AuthForm />
               )}
             </div>
           </div>
