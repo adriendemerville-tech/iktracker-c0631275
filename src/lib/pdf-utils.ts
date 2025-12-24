@@ -40,13 +40,23 @@ export async function loadHtml2Pdf() {
 export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const html2pdf = await loadHtml2Pdf();
   
-  // Create a temporary container
+  // Create a temporary container - must be visible for html2canvas to work
   const container = document.createElement('div');
   container.innerHTML = html;
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
+  // Position off-screen but still rendered (not display:none)
+  container.style.position = 'fixed';
+  container.style.left = '0';
   container.style.top = '0';
+  container.style.width = '297mm'; // A4 landscape width
+  container.style.minHeight = '210mm'; // A4 landscape height
+  container.style.zIndex = '-9999';
+  container.style.opacity = '0';
+  container.style.pointerEvents = 'none';
+  container.style.background = 'white';
   document.body.appendChild(container);
+  
+  // Wait for content to render
+  await new Promise(resolve => setTimeout(resolve, 100));
   
   try {
     const pdfBlob = await html2pdf()
@@ -58,6 +68,9 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
           scale: 2,
           useCORS: true,
           letterRendering: true,
+          logging: false,
+          windowWidth: 1122, // A4 landscape at 96dpi
+          windowHeight: 794,
         },
         jsPDF: { 
           unit: 'mm', 
