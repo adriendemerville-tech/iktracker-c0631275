@@ -138,19 +138,24 @@ const Landing = () => {
       
       <MarketingNav user={user} loading={loading} />
 
-      {/* Hero Section */}
-      <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden contain-layout">
+      {/* Main content wrapper with skip link target */}
+      <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Hero Section */}
+        <section 
+          className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden contain-layout"
+          aria-labelledby="hero-heading"
+        >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text content - NO animation on LCP elements for instant render */}
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in">
-                <Star className="h-4 w-4" />
-                100% Gratuit
+                <Star className="h-4 w-4" aria-hidden="true" />
+                <span>100% Gratuit</span>
               </div>
               {/* LCP Element - H1 must render instantly without any animation */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
+              <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
                 Vos trajets pro.
                 <br />
                 <span className="text-gradient">Automatiquement.</span>
@@ -161,24 +166,24 @@ const Landing = () => {
               
               {user && (
                 <div className="lg:hidden mb-8">
-                  <Link to="/app">
+                  <Link to="/app" className="focus-visible-ring rounded-lg inline-block">
                     <Button size="lg" variant="gradient" className="w-full sm:w-auto group">
-                      <LayoutDashboard className="h-5 w-5 mr-2" />
+                      <LayoutDashboard className="h-5 w-5 mr-2" aria-hidden="true" />
                       Mon tableau de bord
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                     </Button>
                   </Link>
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-muted-foreground">
+              <ul className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-muted-foreground" role="list" aria-label="Avantages">
                 {["Sans carte bancaire", "Installation 2 min", "Export PDF/CSV"].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
+                  <li key={i} className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                     {item}
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
 
             {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
@@ -679,9 +684,12 @@ const Landing = () => {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      </main>
 
-      <MarketingFooter />
+      <Suspense fallback={null}>
+        <MarketingFooter />
+      </Suspense>
       <Suspense fallback={null}>
         <MarketingPWANotification />
       </Suspense>

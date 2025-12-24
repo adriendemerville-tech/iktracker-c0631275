@@ -155,20 +155,23 @@ export default function ModeTournee() {
       </Helmet>
       <MarketingNav />
 
-      <main>
+      <main id="main-content" tabIndex={-1} className="outline-none">
         {/* Hero */}
-        <section className="pt-28 pb-20 md:pt-36 md:pb-28 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/5" />
+        <section 
+          className="pt-28 pb-20 md:pt-36 md:pb-28 px-4 relative overflow-hidden"
+          aria-labelledby="hero-heading"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/5" aria-hidden="true" />
           
           <div className="container mx-auto relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <AnimatedSection>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
-                  <Navigation className="h-4 w-4" />
-                  Fonctionnalité exclusive
+                  <Navigation className="h-4 w-4" aria-hidden="true" />
+                  <span>Fonctionnalité exclusive</span>
                 </div>
                 
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-6">
+                <h1 id="hero-heading" className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-6">
                   Le <span className="text-gradient">Mode Tournée</span> pour les pros itinérants
                 </h1>
                 
