@@ -679,6 +679,7 @@ ${IKTRACKER_MENTION}
                   onClick={() => navigate('/admin?tab=stats')}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   title="Dashboard statistiques"
+                  aria-label="Dashboard statistiques"
                 >
                   <BarChart3 className="w-5 h-5" />
                 </Button>
@@ -688,6 +689,7 @@ ${IKTRACKER_MENTION}
                     size="icon"
                     onClick={() => navigate('/admin')}
                     className="text-white/70 hover:text-white hover:bg-white/10"
+                    aria-label="Feedbacks utilisateurs"
                   >
                     <MessageSquareMore className="w-5 h-5" />
                   </Button>
@@ -705,6 +707,7 @@ ${IKTRACKER_MENTION}
                   size="icon"
                   onClick={() => navigate('/admin?tab=users')}
                   className="text-white/70 hover:text-white hover:bg-white/10"
+                  aria-label="Gestion des utilisateurs"
                 >
                   <Shield className="w-5 h-5" />
                 </Button>
@@ -716,6 +719,7 @@ ${IKTRACKER_MENTION}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   data-tutorial="download"
+                  aria-label="Télécharger le relevé"
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
@@ -730,6 +734,7 @@ ${IKTRACKER_MENTION}
                 disabled={trips.length === 0 || isExporting}
                 className="text-white/70 hover:text-white hover:bg-white/10"
                 data-tutorial="download"
+                aria-label="Télécharger le relevé"
               >
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
@@ -740,6 +745,7 @@ ${IKTRACKER_MENTION}
                 size="icon"
                 onClick={() => navigate('/profile')}
                 className="text-white/70 hover:text-white hover:bg-white/10 w-10 h-10"
+                aria-label="Accéder au profil"
               >
                 <UserCircle className="w-20 h-20" />
               </Button>
