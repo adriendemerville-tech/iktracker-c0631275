@@ -130,21 +130,25 @@ const Install = () => {
       
       <MarketingNav />
 
-      {/* Hero */}
-      <section className="pt-24 pb-16 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" />
-        <div className="container mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                <Smartphone className="h-4 w-4" />
-                Application PWA
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                Installez en
-                <br />
-                <span className="text-primary">30 secondes</span>
-              </h1>
+      <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Hero */}
+        <section 
+          className="pt-24 pb-16 px-4 relative overflow-hidden"
+          aria-labelledby="hero-heading"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" aria-hidden="true" />
+          <div className="container mx-auto relative">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6 animate-fade-in">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                  <Smartphone className="h-4 w-4" aria-hidden="true" />
+                  <span>Application PWA</span>
+                </div>
+                <h1 id="hero-heading" className="text-4xl md:text-5xl font-bold tracking-tight">
+                  Installez en
+                  <br />
+                  <span className="text-primary">30 secondes</span>
+                </h1>
               <p className="text-xl text-muted-foreground">
                 Aucun store requis. Directement sur votre écran d'accueil.
               </p>
@@ -311,7 +315,8 @@ const Install = () => {
             </Button>
           </Link>
         </div>
-      </section>
+        </section>
+      </main>
 
       <MarketingFooter />
       <MarketingPWANotification />

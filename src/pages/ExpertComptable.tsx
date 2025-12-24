@@ -96,18 +96,22 @@ const ExpertComptable = () => {
       
       <MarketingNav />
 
-      {/* Hero */}
-      <section className="pt-24 pb-16 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" />
-        <div className="container mx-auto relative">
-          <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Briefcase className="h-4 w-4" />
-              Pour Experts-Comptables
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Simplifiez <span className="text-2xl md:text-3xl font-medium text-emerald-500">gratuitement</span> les
-              <br />
+      <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Hero */}
+        <section 
+          className="pt-24 pb-16 px-4 relative overflow-hidden"
+          aria-labelledby="hero-heading"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" aria-hidden="true" />
+          <div className="container mx-auto relative">
+            <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                <Briefcase className="h-4 w-4" aria-hidden="true" />
+                <span>Pour Experts-Comptables</span>
+              </div>
+              <h1 id="hero-heading" className="text-4xl md:text-5xl font-bold tracking-tight">
+                Simplifiez <span className="text-2xl md:text-3xl font-medium text-emerald-500">gratuitement</span> les
+                <br />
               <span className="text-primary">déclarations IK</span>
             </h1>
             <p className="text-xl text-muted-foreground">
@@ -432,7 +436,8 @@ const ExpertComptable = () => {
             </Button>
           </Link>
         </div>
-      </section>
+        </section>
+      </main>
 
       <MarketingFooter />
       <MarketingPWANotification />
