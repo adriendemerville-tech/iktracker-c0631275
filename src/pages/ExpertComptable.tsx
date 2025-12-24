@@ -39,7 +39,59 @@ const ExpertComptable = () => {
       <Helmet>
         <title>IKtracker pour Experts-Comptables | Export IK PDF et Excel</title>
         <meta name="description" content="Recommandez IKtracker à vos clients : exports standardisés PDF/Excel, calcul automatique des indemnités kilométriques selon barème fiscal 2025. Gratuit." />
+        <meta name="keywords" content="expert-comptable IK, export PDF indemnités kilométriques, Excel frais kilométriques, barème fiscal 2025, comptabilité IK, relevé kilométrique client" />
         <link rel="canonical" href="https://iktracker.fr/expert-comptable" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="IKtracker pour Experts-Comptables | Export IK PDF et Excel" />
+        <meta property="og:description" content="Exports standardisés PDF/Excel pour vos clients. Calcul automatique selon barème fiscal 2025. Gratuit." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://iktracker.fr/expert-comptable" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="IKtracker" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="IKtracker pour Experts-Comptables" />
+        <meta name="twitter:description" content="Exports standardisés PDF/Excel pour vos clients. Barème fiscal 2025 inclus." />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Geo */}
+        <meta name="geo.region" content="FR" />
+        <meta name="geo.placename" content="France" />
+        <meta name="language" content="fr" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "IKtracker pour Experts-Comptables",
+            "description": "Solution gratuite d'export IK pour cabinets comptables",
+            "url": "https://iktracker.fr/expert-comptable",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "IKtracker",
+              "url": "https://iktracker.fr"
+            },
+            "audience": {
+              "@type": "Audience",
+              "audienceType": "Experts-Comptables"
+            },
+            "about": {
+              "@type": "SoftwareApplication",
+              "name": "IKtracker Export Comptable",
+              "applicationCategory": "BusinessApplication",
+              "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "EUR"
+              }
+            }
+          })}
+        </script>
       </Helmet>
       
       <MarketingNav />

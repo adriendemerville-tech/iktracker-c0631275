@@ -102,7 +102,56 @@ export default function ModeTournee() {
       <Helmet>
         <title>Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans</title>
         <meta name="description" content="Découvrez le mode Tournée d'IKtracker : enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux en France. Gratuit." />
+        <meta name="keywords" content="mode tournée, suivi kilométrique infirmier, indemnités kilométriques artisan, tournée commerciaux, frais kilométriques multi-arrêts, IK libéral, application gratuite tournée" />
         <link rel="canonical" href="https://iktracker.fr/mode-tournee" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
+        <meta property="og:description" content="Enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://iktracker.fr/mode-tournee" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="IKtracker" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
+        <meta name="twitter:description" content="Enregistrez tous vos arrêts clients en un seul trajet. Gratuit pour indépendants." />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Geo */}
+        <meta name="geo.region" content="FR" />
+        <meta name="geo.placename" content="France" />
+        <meta name="language" content="fr" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Mode Tournée IKtracker",
+            "description": "Fonctionnalité de suivi kilométrique multi-arrêts pour professionnels itinérants",
+            "url": "https://iktracker.fr/mode-tournee",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "IKtracker",
+              "url": "https://iktracker.fr"
+            },
+            "about": {
+              "@type": "SoftwareApplication",
+              "name": "IKtracker Mode Tournée",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web, iOS, Android",
+              "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "EUR"
+              }
+            }
+          })}
+        </script>
       </Helmet>
       <MarketingNav />
 

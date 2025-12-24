@@ -116,7 +116,56 @@ export default function Calendrier() {
       <Helmet>
         <title>Synchronisation Calendrier IKtracker | Google Calendar & Outlook</title>
         <meta name="description" content="Synchronisez IKtracker avec Google Calendar ou Outlook. Vos rendez-vous avec adresse deviennent automatiquement des trajets. Gratuit pour indépendants en France." />
+        <meta name="keywords" content="synchronisation calendrier, Google Calendar IK, Outlook indemnités kilométriques, import automatique trajets, RDV en trajets, calendrier frais kilométriques" />
         <link rel="canonical" href="https://iktracker.fr/calendrier" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Synchronisation Calendrier IKtracker | Google Calendar & Outlook" />
+        <meta property="og:description" content="Vos rendez-vous deviennent automatiquement des trajets avec calcul IK. Gratuit." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://iktracker.fr/calendrier" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="IKtracker" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Synchronisation Calendrier IKtracker" />
+        <meta name="twitter:description" content="Vos RDV deviennent automatiquement des trajets avec calcul IK. Google Calendar & Outlook." />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Geo */}
+        <meta name="geo.region" content="FR" />
+        <meta name="geo.placename" content="France" />
+        <meta name="language" content="fr" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Synchronisation Calendrier IKtracker",
+            "description": "Connectez votre calendrier Google ou Outlook pour créer automatiquement vos trajets",
+            "url": "https://iktracker.fr/calendrier",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "IKtracker",
+              "url": "https://iktracker.fr"
+            },
+            "about": {
+              "@type": "SoftwareApplication",
+              "name": "IKtracker Calendrier Sync",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web, iOS, Android",
+              "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "EUR"
+              }
+            }
+          })}
+        </script>
       </Helmet>
       <MarketingNav />
 
