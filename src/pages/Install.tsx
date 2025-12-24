@@ -69,7 +69,7 @@ const Install = () => {
       </Helmet>
       
       <MarketingNav />
-      <main>
+
       {/* Hero */}
       <section className="pt-24 pb-16 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10" />
@@ -252,7 +252,6 @@ const Install = () => {
           </Link>
         </div>
       </section>
-      </main>
 
       <MarketingFooter />
       <MarketingPWANotification />

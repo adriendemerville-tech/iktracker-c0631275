@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect, lazy, Suspense, createContext, useContext, useState, type ComponentType } from "react";
+import { useEffect, lazy, Suspense, createContext, useContext, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -17,58 +17,26 @@ import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 // Critical route - Landing loaded immediately for fast initial load
 import Landing from "./pages/Landing";
 
-// Retry helper for lazy routes: prevents infinite loaders when a stale HTML references old chunks
-const LAZY_CHUNK_RETRY_KEY = "lazy-chunk-retry";
-const lazyWithRetry = <T extends ComponentType<any>>(
-  factory: () => Promise<{ default: T }>
-) =>
-  lazy(() =>
-    factory().catch((error) => {
-      const message = String((error as any)?.message ?? "");
-      const isChunkError =
-        message.includes("Failed to fetch dynamically imported module") ||
-        message.includes("Importing a module script failed") ||
-        message.includes("ChunkLoadError") ||
-        message.includes("Loading chunk") ||
-        message.includes("Unexpected token") ||
-        message.includes("ERR_ABORTED");
-
-      if (isChunkError && typeof window !== "undefined") {
-        const alreadyRetried = sessionStorage.getItem(LAZY_CHUNK_RETRY_KEY);
-        if (!alreadyRetried) {
-          sessionStorage.setItem(LAZY_CHUNK_RETRY_KEY, "1");
-          window.location.reload();
-          // Keep the suspense fallback while reload happens
-          return new Promise<{ default: T }>(() => {
-            /* intentionally unresolved */
-          });
-        }
-      }
-
-      throw error;
-    })
-  );
-
 // Auth lazy loaded - not needed on initial page load
-const Auth = lazyWithRetry(() => import("./pages/Auth"));
+const Auth = lazy(() => import("./pages/Auth"));
 
 // Lazy loaded app routes - reduces initial bundle size
-const Index = lazyWithRetry(() => import("./pages/Index"));
-const Report = lazyWithRetry(() => import("./pages/Report"));
-const Profile = lazyWithRetry(() => import("./pages/Profile"));
+const Index = lazy(() => import("./pages/Index"));
+const Report = lazy(() => import("./pages/Report"));
+const Profile = lazy(() => import("./pages/Profile"));
 // Lazy loaded routes - loaded on demand
-const Signup = lazyWithRetry(() => import("./pages/Signup"));
-const Admin = lazyWithRetry(() => import("./pages/Admin"));
-const Privacy = lazyWithRetry(() => import("./pages/Privacy"));
-const Terms = lazyWithRetry(() => import("./pages/Terms"));
-const Install = lazyWithRetry(() => import("./pages/Install"));
-const ExpertComptable = lazyWithRetry(() => import("./pages/ExpertComptable"));
-const ModeTournee = lazyWithRetry(() => import("./pages/ModeTournee"));
-const Calendrier = lazyWithRetry(() => import("./pages/Calendrier"));
-const BaremeIK2026 = lazyWithRetry(() => import("./pages/BaremeIK2026"));
-const Offline = lazyWithRetry(() => import("./pages/Offline"));
-const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
-const RecoveryWizard = lazyWithRetry(() => import("./pages/RecoveryWizard"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Install = lazy(() => import("./pages/Install"));
+const ExpertComptable = lazy(() => import("./pages/ExpertComptable"));
+const ModeTournee = lazy(() => import("./pages/ModeTournee"));
+const Calendrier = lazy(() => import("./pages/Calendrier"));
+const BaremeIK2026 = lazy(() => import("./pages/BaremeIK2026"));
+const Offline = lazy(() => import("./pages/Offline"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
 
 // Loading fallback component
 const PageLoader = () => (

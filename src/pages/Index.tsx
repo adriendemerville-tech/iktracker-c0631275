@@ -13,7 +13,6 @@ import { reverseGeocode } from '@/lib/geocoding';
 import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
-import { TripCardSkeleton, VehicleCardSkeleton } from '@/components/TripCardSkeleton';
 import { VehicleCard } from '@/components/VehicleCard';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
@@ -82,7 +81,6 @@ const Index = () => {
     vehicles,
     totalKm, 
     totalIK, 
-    loading: tripsLoading,
     getTotalAnnualKm,
     addTrip,
     deleteTrip,
@@ -1151,11 +1149,7 @@ ${IKTRACKER_MENTION}
             </Button>
           </div>
 
-          {tripsLoading ? (
-            <div className="space-y-3">
-              <VehicleCardSkeleton />
-            </div>
-          ) : vehicles.length === 0 ? (
+          {vehicles.length === 0 ? (
             <div className="text-center py-8 bg-card rounded-md">
               <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground">Aucun véhicule enregistré</p>
@@ -1197,9 +1191,7 @@ ${IKTRACKER_MENTION}
             )}
           </div>
 
-          {tripsLoading ? (
-            <TripCardSkeleton count={3} />
-          ) : recentTrips.length === 0 ? (
+          {recentTrips.length === 0 ? (
             <div className="text-center py-12 bg-card rounded-md">
               <MapPin className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground">Aucun trajet enregistré</p>

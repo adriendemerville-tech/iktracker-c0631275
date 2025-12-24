@@ -137,7 +137,7 @@ const Landing = () => {
       </Helmet>
       
       <MarketingNav user={user} loading={loading} />
-      <main>
+
       {/* Hero Section */}
       <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
@@ -680,7 +680,6 @@ const Landing = () => {
           </div>
         </div>
       </section>
-      </main>
 
       <MarketingFooter />
       <Suspense fallback={null}>

@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTrips } from '@/hooks/useTrips';
 import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
 import { TripCard } from '@/components/TripCard';
-import { TripCardSkeleton } from '@/components/TripCardSkeleton';
 import { NewTripSheet } from '@/components/NewTripSheet';
 import { VehicleForm } from '@/components/VehicleForm';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
@@ -23,7 +22,7 @@ import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/li
 export default function Report() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { trips, archivedTrips, vehicles, savedLocations, loading: tripsLoading, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
+  const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
   const { preferences, updatePreference } = usePreferences();
   
@@ -865,12 +864,7 @@ ${IKTRACKER_URL}`
         )}
 
 
-        {tripsLoading ? (
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Trajets passés</h3>
-            <TripCardSkeleton count={5} />
-          </div>
-        ) : Object.keys(groupedByMonth).length === 0 ? (
+        {Object.keys(groupedByMonth).length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
             <p className="text-muted-foreground">Aucun trajet enregistré</p>

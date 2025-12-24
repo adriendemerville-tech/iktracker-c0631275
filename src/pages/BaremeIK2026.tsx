@@ -159,7 +159,6 @@ const BaremeIK2026 = () => {
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
-        <main>
         {/* Hero Section */}
         <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
@@ -724,7 +723,6 @@ const BaremeIK2026 = () => {
             </div>
           </div>
         </section>
-        </main>
 
         <MarketingFooter />
         <MarketingPWANotification />
