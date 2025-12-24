@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,13 +14,8 @@ import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/tri
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
 import { VehicleCard } from '@/components/VehicleCard';
-import { NewTripSheet } from '@/components/NewTripSheet';
-import { VehicleForm } from '@/components/VehicleForm';
 import { TourButton } from '@/components/TourButton';
-import { TourLogSheet } from '@/components/TourLogSheet';
-import { FocusTourView } from '@/components/FocusTourView';
 import { GeolocationBanner } from '@/components/GeolocationBanner';
-import { GeolocationTutorialModal } from '@/components/GeolocationTutorialModal';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,15 +31,30 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
-import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
-import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
+import { useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
 import { loadZip, preloadZip } from '@/lib/pdf-utils';
 import { printReport, generatePrintableHTML } from '@/lib/print-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+// Lazy loaded components - not needed for initial render
+const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
+const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
+const TourLogSheet = lazy(() => import('@/components/TourLogSheet').then(m => ({ default: m.TourLogSheet })));
+const FocusTourView = lazy(() => import('@/components/FocusTourView').then(m => ({ default: m.FocusTourView })));
+const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
+const OnboardingTutorial = lazy(() => import('@/components/OnboardingTutorial').then(m => ({ default: m.OnboardingTutorial })));
+const GeolocationTutorialModal = lazy(() => import('@/components/GeolocationTutorialModal').then(m => ({ default: m.GeolocationTutorialModal })));
+const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
+
+// Minimal loading fallback for sheets/modals
+const SheetLoader = memo(() => null);
+
+// QR Code placeholder with exact dimensions
+const QRPlaceholder = memo(() => (
+  <div className="w-[140px] h-[140px] bg-muted/50 rounded animate-pulse" />
+));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -559,12 +569,14 @@ ${IKTRACKER_MENTION}
           {/* QR Code */}
           <div className="flex justify-center py-4">
             <div className="bg-white p-3 rounded-xl">
-              <QRCodeSVG 
-                value="https://iktracker.fr/install" 
-                size={140}
-                level="M"
-                includeMargin={false}
-              />
+              <Suspense fallback={<QRPlaceholder />}>
+                <QRCodeSVG 
+                  value="https://iktracker.fr/install" 
+                  size={140}
+                  level="M"
+                  includeMargin={false}
+                />
+              </Suspense>
             </div>
           </div>
           <p className="text-center text-xs text-muted-foreground -mt-2">
@@ -578,15 +590,17 @@ ${IKTRACKER_MENTION}
       </AlertDialog>
 
       {/* Focus Tour View - Full screen immersive mode */}
-      <FocusTourView
-        isActive={isTourActive}
-        totalDistanceKm={totalDistanceKm}
-        detectedStopsCount={Math.max(0, tourStops.length - 1)}
-        wakeLockActive={wakeLockActive}
-        lowBattery={lowBattery}
-        tourStartTime={tourStops[0]?.timestamp}
-        onStop={() => setShowTourLog(true)}
-      />
+      <Suspense fallback={<SheetLoader />}>
+        <FocusTourView
+          isActive={isTourActive}
+          totalDistanceKm={totalDistanceKm}
+          detectedStopsCount={Math.max(0, tourStops.length - 1)}
+          wakeLockActive={wakeLockActive}
+          lowBattery={lowBattery}
+          tourStartTime={tourStops[0]?.timestamp}
+          onStop={() => setShowTourLog(true)}
+        />
+      </Suspense>
 
       {/* Desktop Sidebar - hidden on mobile */}
       <DesktopSidebar 
@@ -602,10 +616,12 @@ ${IKTRACKER_MENTION}
 
       {/* Onboarding Tutorial - Desktop only */}
       {!isMobile && (
-        <OnboardingTutorial 
-          isVisible={showTutorial} 
-          onComplete={completeTutorial} 
-        />
+        <Suspense fallback={<SheetLoader />}>
+          <OnboardingTutorial 
+            isVisible={showTutorial} 
+            onComplete={completeTutorial} 
+          />
+        </Suspense>
       )}
 
       <div className="min-h-screen bg-background font-urbanist cursor-default select-none md:pl-16">
@@ -878,12 +894,14 @@ ${IKTRACKER_MENTION}
           )}
 
           {/* Archived trips section */}
-          <ArchivedTripsSection
-            archivedTrips={archivedTrips}
-            vehicles={vehicles}
-            onRestore={restoreTrip}
-            onPermanentDelete={permanentlyDeleteTrip}
-          />
+          <Suspense fallback={<SheetLoader />}>
+            <ArchivedTripsSection
+              archivedTrips={archivedTrips}
+              vehicles={vehicles}
+              onRestore={restoreTrip}
+              onPermanentDelete={permanentlyDeleteTrip}
+            />
+          </Suspense>
         </section>
       </main>
 
@@ -970,65 +988,73 @@ ${IKTRACKER_MENTION}
       </div>
 
       {/* New trip sheet */}
-      <NewTripSheet
-        open={showNewTrip}
-        onOpenChange={setShowNewTrip}
-        savedLocations={savedLocations}
-        vehicles={vehicles}
-        onAddLocation={addLocation}
-        onDeleteLocation={deleteLocation}
-        onUpdateLocation={updateLocation}
-        onAddVehicle={handleAddVehicle}
-        onCreateTrip={addTrip}
-        getTotalAnnualKm={getTotalAnnualKm}
-      />
+      <Suspense fallback={<SheetLoader />}>
+        <NewTripSheet
+          open={showNewTrip}
+          onOpenChange={setShowNewTrip}
+          savedLocations={savedLocations}
+          vehicles={vehicles}
+          onAddLocation={addLocation}
+          onDeleteLocation={deleteLocation}
+          onUpdateLocation={updateLocation}
+          onAddVehicle={handleAddVehicle}
+          onCreateTrip={addTrip}
+          getTotalAnnualKm={getTotalAnnualKm}
+        />
+      </Suspense>
 
       {/* Vehicle form */}
-      <VehicleForm
-        open={showVehicleForm}
-        onOpenChange={setShowVehicleForm}
-        editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
-        onSave={(vehicleData) => {
-          if (editingVehicle) {
-            updateVehicle(editingVehicle, vehicleData);
-          } else {
-            addVehicle(vehicleData);
-          }
-        }}
-      />
+      <Suspense fallback={<SheetLoader />}>
+        <VehicleForm
+          open={showVehicleForm}
+          onOpenChange={setShowVehicleForm}
+          editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
+          onSave={(vehicleData) => {
+            if (editingVehicle) {
+              updateVehicle(editingVehicle, vehicleData);
+            } else {
+              addVehicle(vehicleData);
+            }
+          }}
+        />
+      </Suspense>
 
       {/* Tour log sheet */}
-      <TourLogSheet
-        open={showTourLog}
-        onOpenChange={setShowTourLog}
-        isActive={isTourActive}
-        isLoading={isTourLoading}
-        stops={tourStops}
-        totalDistanceKm={totalDistanceKm}
-        wakeLockActive={wakeLockActive}
-        lowBattery={lowBattery}
-        onStart={startTour}
-        onFinish={handleFinishTour}
-        onClear={clearTour}
-        hasHistory={!!lastTour}
-        onShowHistory={() => {
-          setShowTourLog(false);
-          setShowTourHistory(true);
-        }}
-      />
+      <Suspense fallback={<SheetLoader />}>
+        <TourLogSheet
+          open={showTourLog}
+          onOpenChange={setShowTourLog}
+          isActive={isTourActive}
+          isLoading={isTourLoading}
+          stops={tourStops}
+          totalDistanceKm={totalDistanceKm}
+          wakeLockActive={wakeLockActive}
+          lowBattery={lowBattery}
+          onStart={startTour}
+          onFinish={handleFinishTour}
+          onClear={clearTour}
+          hasHistory={!!lastTour}
+          onShowHistory={() => {
+            setShowTourLog(false);
+            setShowTourHistory(true);
+          }}
+        />
+      </Suspense>
 
       {/* Tour history sheet */}
-      <TourLogSheet
-        open={showTourHistory}
-        onOpenChange={setShowTourHistory}
-        isActive={false}
-        isLoading={false}
-        stops={lastTour || []}
-        onStart={() => {}}
-        onFinish={() => {}}
-        onClear={() => setLastTour(null)}
-        isHistory
-      />
+      <Suspense fallback={<SheetLoader />}>
+        <TourLogSheet
+          open={showTourHistory}
+          onOpenChange={setShowTourHistory}
+          isActive={false}
+          isLoading={false}
+          stops={lastTour || []}
+          onStart={() => {}}
+          onFinish={() => {}}
+          onClear={() => setLastTour(null)}
+          isHistory
+        />
+      </Suspense>
 
       {/* Delete vehicle confirmation */}
       <AlertDialog open={!!vehicleToDelete} onOpenChange={(open) => !open && setVehicleToDelete(null)}>
@@ -1062,11 +1088,13 @@ ${IKTRACKER_MENTION}
       </AlertDialog>
 
       {/* Geolocation Tutorial Modal */}
-      <GeolocationTutorialModal
-        open={showTutorialModal}
-        onClose={closeTutorialModal}
-        isGpsDisabled={isGpsDisabled}
-      />
+      <Suspense fallback={<SheetLoader />}>
+        <GeolocationTutorialModal
+          open={showTutorialModal}
+          onClose={closeTutorialModal}
+          isGpsDisabled={isGpsDisabled}
+        />
+      </Suspense>
     </div>
     </>
 
