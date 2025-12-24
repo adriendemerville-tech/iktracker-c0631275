@@ -229,25 +229,109 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks - separated for better caching
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-router': ['react-router-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-ui-core': ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select'],
-          'vendor-ui-extra': ['@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip', '@radix-ui/react-accordion'],
-          'vendor-charts': ['recharts'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-pdf': ['jspdf', 'jspdf-autotable'],
-          'vendor-supabase': ['@supabase/supabase-js'],
-          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+        // Dynamic chunk naming for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        manualChunks: (id) => {
+          // Core React - loaded first, rarely changes
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          // React Router - core navigation
+          if (id.includes('node_modules/react-router')) {
+            return 'vendor-router';
+          }
+          // Supabase - authentication & data
+          if (id.includes('node_modules/@supabase/')) {
+            return 'vendor-supabase';
+          }
+          // TanStack Query - data fetching
+          if (id.includes('node_modules/@tanstack/')) {
+            return 'vendor-query';
+          }
+          // Core UI components - frequently used
+          if (id.includes('node_modules/@radix-ui/react-dialog') ||
+              id.includes('node_modules/@radix-ui/react-popover') ||
+              id.includes('node_modules/@radix-ui/react-select') ||
+              id.includes('node_modules/@radix-ui/react-slot') ||
+              id.includes('node_modules/@radix-ui/react-portal')) {
+            return 'vendor-ui-core';
+          }
+          // Secondary UI components - less frequently used
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'vendor-ui-extra';
+          }
+          // Forms - only needed on form pages
+          if (id.includes('node_modules/react-hook-form') ||
+              id.includes('node_modules/@hookform/') ||
+              id.includes('node_modules/zod')) {
+            return 'vendor-forms';
+          }
+          // Framer Motion - animations
+          if (id.includes('node_modules/framer-motion')) {
+            return 'vendor-motion';
+          }
+          // Charts - only on report/profile pages
+          if (id.includes('node_modules/recharts') ||
+              id.includes('node_modules/d3-') ||
+              id.includes('node_modules/victory-')) {
+            return 'vendor-charts';
+          }
+          // PDF/Export - lazy loaded on demand
+          if (id.includes('node_modules/jspdf') ||
+              id.includes('node_modules/jszip') ||
+              id.includes('node_modules/pako')) {
+            return 'vendor-pdf';
+          }
+          // Date utilities
+          if (id.includes('node_modules/date-fns')) {
+            return 'vendor-date';
+          }
+          // QR Code - specific feature
+          if (id.includes('node_modules/qrcode')) {
+            return 'vendor-qr';
+          }
+          // Drag and drop - admin only
+          if (id.includes('node_modules/@dnd-kit/')) {
+            return 'vendor-dnd';
+          }
+          // Lucide icons - used everywhere but can be split
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons';
+          }
+          // Class utilities
+          if (id.includes('node_modules/clsx') ||
+              id.includes('node_modules/tailwind-merge') ||
+              id.includes('node_modules/class-variance-authority')) {
+            return 'vendor-utils';
+          }
+          // Canvas confetti - signup celebration only
+          if (id.includes('node_modules/canvas-confetti')) {
+            return 'vendor-confetti';
+          }
+          // Remaining node_modules go to a general vendor chunk
+          if (id.includes('node_modules/')) {
+            return 'vendor-misc';
+          }
         },
+      },
+      // Tree-shaking optimization
+      treeshake: {
+        moduleSideEffects: 'no-external',
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
       },
     },
     // Increase chunk size warning limit
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 400,
     // Minification settings for smaller bundles
     minify: 'esbuild',
     target: 'es2020',
+    // Additional optimizations
+    cssCodeSplit: true,
+    sourcemap: false,
+    // Reduce bundle size
+    reportCompressedSize: true,
   },
 }));
