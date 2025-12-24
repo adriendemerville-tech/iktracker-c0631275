@@ -72,8 +72,7 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB to accommodate larger bundles
-        // Use index.html as fallback for SPA navigation (React Router handles routing)
-        navigateFallback: "/index.html",
+        navigateFallback: "/offline",
         navigateFallbackAllowlist: [/^\/(?!api|functions|.*\.\w+$).*/],
         navigateFallbackDenylist: [/^\/api/, /^\/functions/, /\.\w+$/],
         runtimeCaching: [
@@ -235,110 +234,86 @@ export default defineConfig(({ mode }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: (id) => {
-          // Core React ecosystem - MUST stay together to avoid initialization errors
-          if (
-            id.includes('node_modules/react/') || 
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-router') ||
-            id.includes('node_modules/scheduler/')
-          ) {
+          // Core React - loaded first, rarely changes
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
             return 'vendor-react';
           }
-          
-          // All Radix UI components together (they share internal dependencies)
+          // React Router - core navigation
+          if (id.includes('node_modules/react-router')) {
+            return 'vendor-router';
+          }
+          // Supabase - authentication & data
+          if (id.includes('node_modules/@supabase/')) {
+            return 'vendor-supabase';
+          }
+          // TanStack Query - data fetching
+          if (id.includes('node_modules/@tanstack/')) {
+            return 'vendor-query';
+          }
+          // Core UI components - frequently used
+          if (id.includes('node_modules/@radix-ui/react-dialog') ||
+              id.includes('node_modules/@radix-ui/react-popover') ||
+              id.includes('node_modules/@radix-ui/react-select') ||
+              id.includes('node_modules/@radix-ui/react-slot') ||
+              id.includes('node_modules/@radix-ui/react-portal')) {
+            return 'vendor-ui-core';
+          }
+          // Secondary UI components - less frequently used
           if (id.includes('node_modules/@radix-ui/')) {
-            return 'vendor-ui';
+            return 'vendor-ui-extra';
           }
-          
-          // React-dependent UI libraries - keep with UI to avoid circular deps
-          if (
-            id.includes('node_modules/sonner') ||
-            id.includes('node_modules/vaul') ||
-            id.includes('node_modules/cmdk') ||
-            id.includes('node_modules/next-themes') ||
-            id.includes('node_modules/react-day-picker') ||
-            id.includes('node_modules/embla-carousel') ||
-            id.includes('node_modules/input-otp') ||
-            id.includes('node_modules/react-resizable-panels') ||
-            id.includes('node_modules/react-error-boundary') ||
-            id.includes('node_modules/react-helmet-async')
-          ) {
-            return 'vendor-ui';
-          }
-          
-          // Data layer - Supabase & TanStack Query
-          if (id.includes('node_modules/@supabase/') || id.includes('node_modules/@tanstack/')) {
-            return 'vendor-data';
-          }
-          
-          // Forms
-          if (
-            id.includes('node_modules/react-hook-form') ||
-            id.includes('node_modules/@hookform/') ||
-            id.includes('node_modules/zod')
-          ) {
+          // Forms - only needed on form pages
+          if (id.includes('node_modules/react-hook-form') ||
+              id.includes('node_modules/@hookform/') ||
+              id.includes('node_modules/zod')) {
             return 'vendor-forms';
           }
-          
-          // Animations
+          // Framer Motion - animations
           if (id.includes('node_modules/framer-motion')) {
             return 'vendor-motion';
           }
-          
-          // Charts - lazy loaded
-          if (
-            id.includes('node_modules/recharts') ||
-            id.includes('node_modules/d3-') ||
-            id.includes('node_modules/victory-')
-          ) {
+          // Charts - only on report/profile pages
+          if (id.includes('node_modules/recharts') ||
+              id.includes('node_modules/d3-') ||
+              id.includes('node_modules/victory-')) {
             return 'vendor-charts';
           }
-          
-          // PDF/Export - lazy loaded
-          if (
-            id.includes('node_modules/jspdf') ||
-            id.includes('node_modules/jszip') ||
-            id.includes('node_modules/pako')
-          ) {
+          // PDF/Export - lazy loaded on demand
+          if (id.includes('node_modules/jspdf') ||
+              id.includes('node_modules/jszip') ||
+              id.includes('node_modules/pako')) {
             return 'vendor-pdf';
           }
-          
           // Date utilities
           if (id.includes('node_modules/date-fns')) {
             return 'vendor-date';
           }
-          
-          // Icons
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-icons';
-          }
-          
-          // Small utilities - keep together
-          if (
-            id.includes('node_modules/clsx') ||
-            id.includes('node_modules/tailwind-merge') ||
-            id.includes('node_modules/class-variance-authority')
-          ) {
-            return 'vendor-utils';
-          }
-          
-          // DnD - admin only
-          if (id.includes('node_modules/@dnd-kit/')) {
-            return 'vendor-dnd';
-          }
-          
-          // QR Code
+          // QR Code - specific feature
           if (id.includes('node_modules/qrcode')) {
             return 'vendor-qr';
           }
-          
-          // Confetti
+          // Drag and drop - admin only
+          if (id.includes('node_modules/@dnd-kit/')) {
+            return 'vendor-dnd';
+          }
+          // Lucide icons - used everywhere but can be split
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons';
+          }
+          // Class utilities
+          if (id.includes('node_modules/clsx') ||
+              id.includes('node_modules/tailwind-merge') ||
+              id.includes('node_modules/class-variance-authority')) {
+            return 'vendor-utils';
+          }
+          // Canvas confetti - signup celebration only
           if (id.includes('node_modules/canvas-confetti')) {
             return 'vendor-confetti';
           }
-          
-          // All other node_modules - let Vite handle automatically
-          // This avoids circular dependency issues
+          // Remaining node_modules go to a general vendor chunk
+          if (id.includes('node_modules/')) {
+            return 'vendor-misc';
+          }
         },
       },
       // Tree-shaking optimization
