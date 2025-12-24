@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
+import { usePrefetch } from "@/hooks/usePrefetch";
 import { 
   ArrowRight,
   CheckCircle2,
@@ -97,7 +98,7 @@ const Landing = () => {
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker('landing');
-
+  const prefetchApp = usePrefetch('/app');
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -161,7 +162,7 @@ const Landing = () => {
               
               {user && (
                 <div className="lg:hidden mb-8">
-                  <Link to="/app">
+                  <Link to="/app" {...prefetchApp}>
                     <Button size="lg" variant="gradient" className="w-full sm:w-auto group">
                       <LayoutDashboard className="h-5 w-5 mr-2" />
                       Mon tableau de bord
@@ -194,7 +195,7 @@ const Landing = () => {
                   <p className="text-muted-foreground mb-6">
                     Accédez à votre tableau de bord pour gérer vos trajets.
                   </p>
-                  <Link to="/app">
+                  <Link to="/app" {...prefetchApp}>
                     <Button size="lg" variant="gradient" className="w-full group">
                       <LayoutDashboard className="h-5 w-5 mr-2" />
                       Tableau de bord
