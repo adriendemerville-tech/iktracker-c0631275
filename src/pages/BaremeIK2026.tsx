@@ -73,7 +73,7 @@ const BaremeIK2026 = () => {
           content="Barème des indemnités kilométriques 2025 reconduit en 2026. Simulateur IK gratuit, tableau des taux par CV et calcul automatique de vos frais kilométriques professionnels." 
         />
         <meta name="keywords" content="indemnités kilométriques 2026, indemnités kilométriques 2025, barème des indemnités kilométriques 2025, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
-        <link rel="canonical" href="https://iktracker.lovable.app/bareme-ik-2026" />
+        <link rel="canonical" href="https://iktracker.fr/bareme-ik-2026" />
         <meta property="og:title" content="Barème indemnités kilométriques 2026 - Simulateur et calcul IK" />
         <meta property="og:description" content="Tableau complet du barème IK 2026 basé sur le barème des indemnités kilométriques 2025. Simulateur gratuit pour calculer vos IK." />
         <meta property="og:type" content="article" />

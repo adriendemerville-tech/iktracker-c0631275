@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,17 +50,6 @@ const Signup = () => {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    document.title = 'Créer un compte gratuit | IKtracker';
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Créez votre compte IKtracker gratuit en 2 minutes. Commencez à automatiser le suivi de vos indemnités kilométriques dès aujourd\'hui.');
-    }
-    return () => {
-      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
-    };
-  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -136,7 +126,13 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
+    <>
+      <Helmet>
+        <title>Créer un compte gratuit | IKtracker</title>
+        <meta name="description" content="Créez votre compte IKtracker gratuit en 2 minutes. Commencez à automatiser le suivi de vos indemnités kilométriques dès aujourd'hui." />
+        <link rel="canonical" href="https://iktracker.fr/signup" />
+      </Helmet>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-950 to-slate-900" />
       
@@ -346,7 +342,8 @@ const Signup = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
