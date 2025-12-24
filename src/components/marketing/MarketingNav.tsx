@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, LayoutDashboard, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { usePrefetch } from '@/hooks/usePrefetch';
 
 interface MarketingNavProps {
   user?: { email?: string } | null;
@@ -13,7 +12,6 @@ interface MarketingNavProps {
 export function MarketingNav({ user, loading }: MarketingNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const prefetchApp = usePrefetch('/app');
 
   const links = [
     { label: 'Mode Tournée', href: '/mode-tournee' },
@@ -86,7 +84,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
 
             {!loading && (
               user ? (
-                <Link to="/app" {...prefetchApp}>
+                <Link to="/app">
                   <Button variant="gradient" size="sm" className="group" aria-label="Accéder au tableau de bord">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Dashboard</span>

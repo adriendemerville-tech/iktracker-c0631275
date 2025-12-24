@@ -18,8 +18,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const loadPdfUtils = () => import('@/lib/pdf-utils');
+import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
 
 export default function Report() {
   const navigate = useNavigate();
@@ -307,13 +306,12 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = async () => {
-    const { loadPDFLibraries } = await loadPdfUtils();
     const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF({ orientation: 'portrait' });
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 14;
-    const pdfDateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const dateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     const generatedDate = new Date().toLocaleDateString('fr-FR');
 
     // Load logo
@@ -353,7 +351,7 @@ ${IKTRACKER_MENTION}
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
     doc.setFont('helvetica', 'normal');
-    doc.text(pdfDateStr, titleX, 26);
+    doc.text(dateStr, titleX, 26);
 
     // Generated date (right aligned)
     doc.setFontSize(9);
@@ -512,22 +510,21 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
-      const { loadZip } = await loadPdfUtils();
       const JSZip = await loadZip();
       const zip = new JSZip();
-      const exportDateStr = new Date().toISOString().split('T')[0];
-
+      const dateStr = new Date().toISOString().split('T')[0];
+      
       // Add README
       const readmeContent = generateReadmeContent();
       zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
       
       // Add CSV
       const csvContent = generateCSVContent();
-      zip.file(`releve-ik-${exportDateStr}.csv`, csvContent);
+      zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
       // Add PDF
       const pdfContent = await generatePDF();
-      zip.file(`releve-ik-${exportDateStr}.pdf`, pdfContent);
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfContent);
       
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -535,7 +532,7 @@ ${IKTRACKER_MENTION}
       // Download
       const link = document.createElement('a');
       link.href = URL.createObjectURL(zipBlob);
-      link.download = `releve-ik-${exportDateStr}.zip`;
+      link.download = `releve-ik-${dateStr}.zip`;
       link.click();
       
       toast.success("Export réussi", {
@@ -558,28 +555,27 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
-      const { loadZip } = await loadPdfUtils();
       const JSZip = await loadZip();
       const zip = new JSZip();
-      const exportDateStr = new Date().toISOString().split('T')[0];
-
+      const dateStr = new Date().toISOString().split('T')[0];
+      
       // Add README
       const readmeContent = generateReadmeContent();
       zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
       
       // Add CSV
       const csvContent = generateCSVContent();
-      zip.file(`releve-ik-${exportDateStr}.csv`, csvContent);
+      zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
       // Add PDF
       const pdfContent = await generatePDF();
-      zip.file(`releve-ik-${exportDateStr}.pdf`, pdfContent);
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfContent);
       
       // Generate ZIP and download
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(zipBlob);
-      link.download = `releve-ik-${exportDateStr}.zip`;
+      link.download = `releve-ik-${dateStr}.zip`;
       link.click();
 
       // Get user identity for signature
@@ -661,7 +657,7 @@ ${IKTRACKER_URL}`
             </Link>
             <h1 className="text-lg font-semibold">Relevé des trajets</h1>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { loadPdfUtils().then(({ preloadPDFLibraries, preloadZip }) => { preloadPDFLibraries(); preloadZip(); }); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
+              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">

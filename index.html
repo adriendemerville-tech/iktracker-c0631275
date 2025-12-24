@@ -480,18 +480,24 @@
     </div>
     <script type="module" src="/src/main.tsx" defer></script>
     
-    <!-- Speculation Rules API for instant navigation (default) -->
+    <!-- Speculation Rules API for instant navigation -->
     <script type="speculationrules">
     {
+      "prerender": [
+        {
+          "where": { "href_matches": ["/signup", "/auth"] },
+          "eagerness": "moderate"
+        }
+      ],
       "prefetch": [
         {
-          "where": { "href_matches": ["/signup", "/auth", "/mode-tournee", "/calendrier", "/expert-comptable", "/install"] },
+          "where": { "href_matches": ["/mode-tournee", "/calendrier", "/expert-comptable", "/install"] },
           "eagerness": "moderate"
         }
       ]
     }
     </script>
-
+    
     <!-- Defer service worker registration until after page load -->
     <script>
       if ('serviceWorker' in navigator) {

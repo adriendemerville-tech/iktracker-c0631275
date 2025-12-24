@@ -43,9 +43,8 @@ import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
+import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const loadPdfUtils = () => import('@/lib/pdf-utils');
 
 const Index = () => {
   const navigate = useNavigate();
@@ -495,7 +494,6 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = async () => {
-    const { loadPDFLibraries } = await loadPdfUtils();
     const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const pageWidth = doc.internal.pageSize.width;
@@ -870,7 +868,6 @@ ${IKTRACKER_MENTION}
 
     setIsExporting(true);
     try {
-      const { loadZip } = await loadPdfUtils();
       const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
@@ -1047,7 +1044,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={exportZip}
-                  onMouseEnter={() => { loadPdfUtils().then(({ preloadPDFLibraries, preloadZip }) => { preloadPDFLibraries(); preloadZip(); }); }}
+                  onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   data-tutorial="download"
@@ -1061,7 +1058,7 @@ ${IKTRACKER_MENTION}
                 variant="ghost" 
                 size="icon"
                 onClick={exportZip}
-                onMouseEnter={() => { loadPdfUtils().then(({ preloadPDFLibraries, preloadZip }) => { preloadPDFLibraries(); preloadZip(); }); }}
+                onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }}
                 disabled={trips.length === 0 || isExporting}
                 className="text-white/70 hover:text-white hover:bg-white/10"
                 data-tutorial="download"
