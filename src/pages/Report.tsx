@@ -18,7 +18,8 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
+
+const loadPdfUtils = () => import('@/lib/pdf-utils');
 
 export default function Report() {
   const navigate = useNavigate();
@@ -510,10 +511,10 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
+      const { loadZip } = await loadPdfUtils();
       const JSZip = await loadZip();
       const zip = new JSZip();
-      const dateStr = new Date().toISOString().split('T')[0];
-      
+
       // Add README
       const readmeContent = generateReadmeContent();
       zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
@@ -555,10 +556,10 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
+      const { loadZip } = await loadPdfUtils();
       const JSZip = await loadZip();
       const zip = new JSZip();
-      const dateStr = new Date().toISOString().split('T')[0];
-      
+
       // Add README
       const readmeContent = generateReadmeContent();
       zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
@@ -657,7 +658,7 @@ ${IKTRACKER_URL}`
             </Link>
             <h1 className="text-lg font-semibold">Relevé des trajets</h1>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
+              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { loadPdfUtils().then(({ preloadPDFLibraries, preloadZip }) => { preloadPDFLibraries(); preloadZip(); }); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">

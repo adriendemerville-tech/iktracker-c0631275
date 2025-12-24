@@ -62,7 +62,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { loadPDFLibraries } from '@/lib/pdf-utils';
+const loadPdfUtils = () => import('@/lib/pdf-utils');
 import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
 import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -592,10 +592,10 @@ export function AdminStats() {
   ], [marketingStats, marketingStatsLoading, period]);
 
   const exportToPDF = async () => {
+    const { loadPDFLibraries } = await loadPdfUtils();
     const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    
+
     // Title
     doc.setFontSize(18);
     doc.text('Statistiques Admin', pageWidth / 2, 20, { align: 'center' });
