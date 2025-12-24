@@ -72,7 +72,8 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB to accommodate larger bundles
-        navigateFallback: "/offline",
+        // Use index.html as fallback for SPA navigation (React Router handles routing)
+        navigateFallback: "/index.html",
         navigateFallbackAllowlist: [/^\/(?!api|functions|.*\.\w+$).*/],
         navigateFallbackDenylist: [/^\/api/, /^\/functions/, /\.\w+$/],
         runtimeCaching: [
