@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -6,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { AppCarousel } from "@/components/marketing/AppCarousel";
-import { CalendarSyncDemo } from "@/components/marketing/CalendarSyncDemo";
 import { 
   FileSpreadsheet, 
   Mail, 
@@ -24,6 +23,12 @@ import {
   Car,
   FileText
 } from "lucide-react";
+
+// Lazy load heavy demo components
+const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
+const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
+
+const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
 
 const ExpertComptable = () => {
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
@@ -126,7 +131,9 @@ const ExpertComptable = () => {
             <h2 className="text-3xl font-bold">L'application en images</h2>
             <p className="text-muted-foreground">Interface simple pour vos clients</p>
           </div>
-          <AppCarousel />
+          <Suspense fallback={<DemoLoader />}>
+            <AppCarousel />
+          </Suspense>
         </div>
       </section>
 
@@ -154,7 +161,9 @@ const ExpertComptable = () => {
                 </Button>
               </Link>
             </div>
-            <CalendarSyncDemo />
+            <Suspense fallback={<DemoLoader />}>
+              <CalendarSyncDemo />
+            </Suspense>
           </div>
         </div>
       </section>

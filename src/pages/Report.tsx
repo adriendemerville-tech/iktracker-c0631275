@@ -1,13 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useTrips } from '@/hooks/useTrips';
 import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
 import { TripCard } from '@/components/TripCard';
-import { NewTripSheet } from '@/components/NewTripSheet';
-import { VehicleForm } from '@/components/VehicleForm';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
-import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -19,6 +17,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { loadZip, preloadZip } from '@/lib/pdf-utils';
 import { printReport, generatePrintableHTML } from '@/lib/print-utils';
+
+// Lazy load heavy components
+const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
+const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
+const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
+
+const SheetLoader = () => <div className="p-4 text-center text-muted-foreground">Chargement...</div>;
 
 export default function Report() {
   const navigate = useNavigate();
@@ -460,6 +465,12 @@ ${IKTRACKER_URL}`
 
   return (
     <>
+      <Helmet>
+        <title>Relevé des trajets | IKtracker - Suivi kilométrique</title>
+        <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2025." />
+        <link rel="canonical" href="https://iktracker.fr/releve" />
+      </Helmet>
+      
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
         <DesktopSidebar 
@@ -729,12 +740,14 @@ ${IKTRACKER_URL}`
         )}
 
         {/* Archived trips section - above barème */}
-        <ArchivedTripsSection
-          archivedTrips={archivedTrips}
-          vehicles={vehicles}
-          onRestore={restoreTrip}
-          onPermanentDelete={permanentlyDeleteTrip}
-        />
+        <Suspense fallback={<SheetLoader />}>
+          <ArchivedTripsSection
+            archivedTrips={archivedTrips}
+            vehicles={vehicles}
+            onRestore={restoreTrip}
+            onPermanentDelete={permanentlyDeleteTrip}
+          />
+        </Suspense>
 
         <div className="bg-card rounded-md shadow-md overflow-hidden">
           <button
@@ -795,37 +808,41 @@ ${IKTRACKER_URL}`
       </div>
 
       {/* New trip sheet */}
-      <NewTripSheet
-        open={showNewTrip}
-        onOpenChange={(open) => {
-          setShowNewTrip(open);
-          if (!open) setEditingTrip(null);
-        }}
-        savedLocations={savedLocations}
-        vehicles={vehicles}
-        editTrip={editingTrip}
-        onAddLocation={addLocation}
-        onDeleteLocation={deleteLocation}
-        onUpdateLocation={updateLocation}
-        onAddVehicle={handleAddVehicle}
-        onCreateTrip={addTrip}
-        onUpdateTrip={updateTrip}
-        getTotalAnnualKm={getTotalAnnualKm}
-      />
+      <Suspense fallback={null}>
+        <NewTripSheet
+          open={showNewTrip}
+          onOpenChange={(open) => {
+            setShowNewTrip(open);
+            if (!open) setEditingTrip(null);
+          }}
+          savedLocations={savedLocations}
+          vehicles={vehicles}
+          editTrip={editingTrip}
+          onAddLocation={addLocation}
+          onDeleteLocation={deleteLocation}
+          onUpdateLocation={updateLocation}
+          onAddVehicle={handleAddVehicle}
+          onCreateTrip={addTrip}
+          onUpdateTrip={updateTrip}
+          getTotalAnnualKm={getTotalAnnualKm}
+        />
+      </Suspense>
 
       {/* Vehicle form */}
-      <VehicleForm
-        open={showVehicleForm}
-        onOpenChange={setShowVehicleForm}
-        editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
-        onSave={(vehicleData) => {
-          if (editingVehicle) {
-            updateVehicle(editingVehicle, vehicleData);
-          } else {
-            addVehicle(vehicleData);
-          }
-        }}
+      <Suspense fallback={null}>
+        <VehicleForm
+          open={showVehicleForm}
+          onOpenChange={setShowVehicleForm}
+          editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
+          onSave={(vehicleData) => {
+            if (editingVehicle) {
+              updateVehicle(editingVehicle, vehicleData);
+            } else {
+              addVehicle(vehicleData);
+            }
+          }}
         />
+      </Suspense>
       </div>
     </>
   );
