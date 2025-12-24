@@ -495,6 +495,7 @@ ${IKTRACKER_MENTION}
   };
 
   const generatePDF = async () => {
+    const { loadPDFLibraries } = await loadPdfUtils();
     const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const pageWidth = doc.internal.pageSize.width;
@@ -869,6 +870,7 @@ ${IKTRACKER_MENTION}
 
     setIsExporting(true);
     try {
+      const { loadZip } = await loadPdfUtils();
       const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
