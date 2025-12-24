@@ -1,14 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { TourModeDemo } from "@/components/marketing/TourModeDemo";
-import { TourModeMockup } from "@/components/marketing/TourModeMockup";
-import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
-import { AppCarousel } from "@/components/marketing/AppCarousel";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +18,14 @@ import {
   Car,
   Users
 } from "lucide-react";
+
+// Lazy load heavy demo components
+const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
+const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
+const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
+const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
+
+const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
 
 const AnimatedSection = ({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
@@ -149,7 +153,9 @@ export default function ModeTournee() {
               </AnimatedSection>
 
               <AnimatedSection delay={200} className="flex justify-center">
-                <TourModeMockup />
+                <Suspense fallback={<DemoLoader />}>
+                  <TourModeMockup />
+                </Suspense>
               </AnimatedSection>
             </div>
           </div>
@@ -168,7 +174,9 @@ export default function ModeTournee() {
             </AnimatedSection>
 
             <AnimatedSection delay={200}>
-              <TourModeDemo className="max-w-4xl mx-auto" />
+              <Suspense fallback={<DemoLoader />}>
+                <TourModeDemo className="max-w-4xl mx-auto" />
+              </Suspense>
             </AnimatedSection>
           </div>
         </section>
@@ -208,7 +216,9 @@ export default function ModeTournee() {
             </AnimatedSection>
 
             <AnimatedSection>
-              <AppCarousel className="max-w-5xl mx-auto" />
+              <Suspense fallback={<DemoLoader />}>
+                <AppCarousel className="max-w-5xl mx-auto" />
+              </Suspense>
             </AnimatedSection>
           </div>
         </section>
