@@ -65,7 +65,67 @@ const Install = () => {
       <Helmet>
         <title>Installer IKtracker | Application PWA gratuite iOS et Android</title>
         <meta name="description" content="Installez IKtracker sur votre smartphone iOS ou Android en 2 minutes. Application PWA gratuite, sans App Store. Guide d'installation complet." />
+        <meta name="keywords" content="installer IKtracker, PWA indemnités kilométriques, application iOS IK, Android frais kilométriques, installer sans App Store, application gratuite mobile" />
         <link rel="canonical" href="https://iktracker.fr/install" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Installer IKtracker | Application PWA iOS et Android" />
+        <meta property="og:description" content="Installez IKtracker en 2 minutes sur votre smartphone. Application PWA gratuite, sans App Store." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://iktracker.fr/install" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="IKtracker" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Installer IKtracker | PWA iOS et Android" />
+        <meta name="twitter:description" content="Installation rapide en 2 minutes. Application gratuite, sans App Store." />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        
+        {/* Geo */}
+        <meta name="geo.region" content="FR" />
+        <meta name="geo.placename" content="France" />
+        <meta name="language" content="fr" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Installer IKtracker",
+            "description": "Guide d'installation de l'application PWA IKtracker sur iOS et Android",
+            "url": "https://iktracker.fr/install",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "IKtracker",
+              "url": "https://iktracker.fr"
+            },
+            "mainEntity": {
+              "@type": "HowTo",
+              "name": "Comment installer IKtracker",
+              "step": [
+                {
+                  "@type": "HowToStep",
+                  "name": "Ouvrir iktracker.fr",
+                  "text": "Accédez à iktracker.fr depuis votre navigateur mobile"
+                },
+                {
+                  "@type": "HowToStep",
+                  "name": "Ajouter à l'écran d'accueil",
+                  "text": "Cliquez sur Partager puis 'Ajouter à l'écran d'accueil'"
+                },
+                {
+                  "@type": "HowToStep",
+                  "name": "Lancer l'application",
+                  "text": "L'icône IKtracker apparaît sur votre écran d'accueil"
+                }
+              ],
+              "totalTime": "PT2M"
+            }
+          })}
+        </script>
       </Helmet>
       
       <MarketingNav />
