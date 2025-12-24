@@ -480,12 +480,12 @@
     </div>
     <script type="module" src="/src/main.tsx" defer></script>
     
-    <!-- Speculation Rules API for instant navigation -->
+    <!-- Speculation Rules API for instant navigation (default) -->
     <script type="speculationrules">
     {
       "prerender": [
         {
-          "where": { "href_matches": ["/signup", "/auth"] },
+          "where": { "href_matches": ["/app", "/signup", "/auth"] },
           "eagerness": "moderate"
         }
       ],
@@ -497,7 +497,7 @@
       ]
     }
     </script>
-    
+
     <!-- Defer service worker registration until after page load -->
     <script>
       if ('serviceWorker' in navigator) {
