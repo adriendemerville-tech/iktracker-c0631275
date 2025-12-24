@@ -104,6 +104,7 @@ export const ArchivedTripsSection = ({
                       className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
                       onClick={() => onRestore(trip.id)}
                       title="Restaurer"
+                      aria-label="Restaurer le trajet"
                     >
                       <RotateCcw className="w-4 h-4" />
                     </Button>
@@ -113,6 +114,7 @@ export const ArchivedTripsSection = ({
                       className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => setTripToDelete(trip.id)}
                       title="Supprimer définitivement"
+                      aria-label="Supprimer définitivement le trajet"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

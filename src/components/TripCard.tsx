@@ -163,6 +163,7 @@ export const TripCard = memo(function TripCard({
                 e.stopPropagation();
                 onEdit(trip);
               }}
+              aria-label="Modifier le trajet"
             >
               <Pencil className="w-3.5 h-3.5" />
             </Button>
@@ -208,6 +209,7 @@ export const TripCard = memo(function TripCard({
                 e.stopPropagation();
                 onDelete(trip.id);
               }}
+              aria-label="Supprimer le trajet"
             >
               <X className="w-1 h-1" />
             </Button>

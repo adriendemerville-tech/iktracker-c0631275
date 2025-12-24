@@ -185,6 +185,7 @@ export const DesktopSidebar = ({
               }`}
               onClick={item.onClick}
               title={item.label}
+              aria-label={item.label}
               data-tutorial={item.tutorialId}
             >
               <item.icon className={`w-5 h-5 transition-colors ${
@@ -205,6 +206,7 @@ export const DesktopSidebar = ({
           className="w-12 h-12 rounded-xl hover:bg-destructive/10"
           onClick={handleSignOut}
           title="Déconnexion"
+          aria-label="Se déconnecter"
         >
           <LogOut className="w-5 h-5 text-muted-foreground" />
         </Button>

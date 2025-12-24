@@ -101,6 +101,7 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
         size="icon"
         className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background"
         onClick={goToPrevious}
+        aria-label="Image précédente"
       >
         <ChevronLeft className="h-6 w-6" />
       </Button>
@@ -109,6 +110,7 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
         size="icon"
         className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background"
         onClick={goToNext}
+        aria-label="Image suivante"
       >
         <ChevronRight className="h-6 w-6" />
       </Button>
