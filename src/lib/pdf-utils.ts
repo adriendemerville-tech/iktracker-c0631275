@@ -1,24 +1,18 @@
-// Dynamic PDF utilities - loaded on demand to reduce initial bundle size
+// Dynamic utilities - loaded on demand to reduce initial bundle size
+// PDF generation now uses native browser print (see print-utils.ts)
 
-let pdfLibrariesPromise: Promise<{ jsPDF: any; autoTable: any }> | null = null;
 let zipPromise: Promise<any> | null = null;
 
-// Preload PDF libraries (call on hover for better UX)
+// Legacy exports - kept for backward compatibility during transition
+// These now throw errors to catch any remaining usage
 export function preloadPDFLibraries() {
-  if (!pdfLibrariesPromise) {
-    pdfLibrariesPromise = Promise.all([
-      import('jspdf'),
-      import('jspdf-autotable')
-    ]).then(([jsPDFModule, autoTableModule]) => ({
-      jsPDF: jsPDFModule.default,
-      autoTable: autoTableModule.default
-    }));
-  }
-  return pdfLibrariesPromise;
+  console.warn('PDF libraries have been removed. Use printReport from print-utils.ts instead.');
+  return Promise.resolve({ jsPDF: null, autoTable: null });
 }
 
 export async function loadPDFLibraries() {
-  return preloadPDFLibraries();
+  console.warn('PDF libraries have been removed. Use printReport from print-utils.ts instead.');
+  return { jsPDF: null, autoTable: null };
 }
 
 // Preload ZIP library

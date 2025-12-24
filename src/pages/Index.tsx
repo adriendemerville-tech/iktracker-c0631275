@@ -42,7 +42,8 @@ import { ArchivedTripsSection } from '@/components/ArchivedTripsSection';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OnboardingTutorial, useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
-import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
+import { loadZip, preloadZip } from '@/lib/pdf-utils';
+import { printReport, generatePrintableHTML } from '@/lib/print-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
@@ -491,371 +492,24 @@ ${IKTRACKER_MENTION}
     return '\uFEFF' + csv;
   };
 
-  const generatePDF = async () => {
-    const { jsPDF, autoTable } = await loadPDFLibraries();
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    const margin = 15;
-    const contentWidth = pageWidth - 2 * margin;
-    
-    // Date formatting
-    const now = new Date();
-    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    const currentMonth = monthNames[now.getMonth()];
-    const currentYear = now.getFullYear();
-
-    // Load logo (same as app/home)
-    let logoBase64: string | null = null;
-    try {
-      const response = await fetch('/logo-iktracker-250.webp');
-      const blob = await response.blob();
-      logoBase64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
-    } catch (e) {
-      console.warn('Could not load logo for PDF');
-    }
-
-    // Colors
-    const primaryBlue = { r: 38, g: 97, b: 217 };
-    const darkText = { r: 30, g: 41, b: 59 };
-    const mutedText = { r: 100, g: 116, b: 139 };
-    const lightGray = { r: 248, g: 250, b: 252 };
-    const borderGray = { r: 226, g: 232, b: 240 };
-
-    // Recalculate IK for proper cumulative calculation
-    const grouped = new Map<string, typeof trips>();
-    trips.forEach(trip => {
-      const year = new Date(trip.startTime).getFullYear();
-      const key = `${trip.vehicleId}-${year}`;
-      if (!grouped.has(key)) grouped.set(key, []);
-      grouped.get(key)!.push(trip);
+  // Generate HTML content for export (replaces heavy PDF library)
+  const generateHTMLContent = () => {
+    return generatePrintableHTML({
+      trips,
+      vehicles,
+      totalKm,
+      logoUrl: '/logo-iktracker-250.webp',
     });
+  };
 
-    const recalculatedTrips: (typeof trips[0] & { recalculatedIK: number })[] = [];
-    grouped.forEach((vehicleTrips, key) => {
-      const vehicleId = key.split('-')[0];
-      const vehicle = getVehicle(vehicleId);
-      const sorted = [...vehicleTrips].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-      let cumulativeKm = 0;
-      sorted.forEach(trip => {
-        const prevCumulativeKm = cumulativeKm;
-        cumulativeKm += trip.distance;
-        if (!vehicle) {
-          recalculatedTrips.push({ ...trip, recalculatedIK: trip.ikAmount });
-          return;
-        }
-        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
-        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower);
-        recalculatedTrips.push({ ...trip, recalculatedIK: ikAfter - ikBefore });
-      });
+  // Direct print function (opens browser print dialog)
+  const handlePrint = () => {
+    printReport({
+      trips,
+      vehicles,
+      totalKm,
+      logoUrl: '/logo-iktracker-250.webp',
     });
-
-    const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
-    const sortedTrips = [...recalculatedTrips].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
-    // === HEADER SECTION ===
-    // Dark header band
-    doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, pageWidth, 6, 'F');
-
-    let currentY = 14;
-
-    // Header row with logo, title and stats
-    // Logo
-    if (logoBase64) {
-      doc.addImage(logoBase64, 'PNG', margin, currentY - 2, 12, 12);
-    }
-    
-    // Title and subtitle
-    doc.setTextColor(darkText.r, darkText.g, darkText.b);
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Relevé IK', margin + 16, currentY + 3);
-    doc.setFontSize(9);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${currentMonth} ${currentYear}`, margin + 16, currentY + 8);
-
-    // Stats on right side
-    const statsX = pageWidth - margin - 120;
-    
-    // Distance card
-    doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-    doc.roundedRect(statsX, currentY - 4, 55, 16, 2, 2, 'F');
-    doc.setFontSize(7);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.text('Distance totale', statsX + 4, currentY);
-    doc.setFontSize(12);
-    doc.setTextColor(darkText.r, darkText.g, darkText.b);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${totalKm.toLocaleString('fr-FR')} km`, statsX + 4, currentY + 8);
-    
-    // Indemnités card
-    doc.setFillColor(lightGray.r, lightGray.g, lightGray.b);
-    doc.roundedRect(statsX + 60, currentY - 4, 55, 16, 2, 2, 'F');
-    doc.setFontSize(7);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Indemnités', statsX + 64, currentY);
-    doc.setFontSize(12);
-    doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, statsX + 64, currentY + 8);
-
-    currentY += 18;
-
-    // === VEHICLE INFO ===
-    const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-    if (vehicle) {
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
-      doc.roundedRect(margin, currentY, contentWidth, 12, 2, 2, 'FD');
-      
-      const vehicleName = `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`;
-      doc.setTextColor(darkText.r, darkText.g, darkText.b);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.text(vehicleName, margin + 6, currentY + 7);
-      
-      doc.setFontSize(8);
-      doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-      doc.setFont('helvetica', 'normal');
-      const vehicleDetails = `${vehicle.fiscalPower} CV${vehicle.licensePlate ? ' • ' + vehicle.licensePlate : ''}`;
-      doc.text(vehicleDetails, margin + 60, currentY + 7);
-
-      currentY += 16;
-    }
-
-    // === TRIPS TABLE ===
-    // Create table data with address including postal code and city
-    const tableData = sortedTrips.map(t => {
-      const tripDate = new Date(t.startTime);
-      const day = tripDate.getDate().toString().padStart(2, '0');
-      const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
-      
-      // Format address: keep street, postal code and city
-      const formatAddress = (str: string, max: number) => {
-        // Split by comma and take relevant parts
-        const parts = str.split(',').map(p => p.trim());
-        let result = parts[0]; // Street name
-        
-        // Try to find postal code and city (usually in format "12345 City")
-        for (let i = 1; i < parts.length; i++) {
-          const part = parts[i];
-          // Match French postal code pattern (5 digits followed by city name)
-          const postalMatch = part.match(/(\d{5})\s+(.+)/);
-          if (postalMatch) {
-            result += `, ${postalMatch[1]} ${postalMatch[2]}`;
-            break;
-          }
-          // If it looks like just a city or contains a postal code
-          if (part.match(/^\d{5}/) || (part.length > 2 && !part.match(/france/i))) {
-            result += `, ${part}`;
-            break;
-          }
-        }
-        
-        return result.length > max ? result.substring(0, max - 1) + '…' : result;
-      };
-      
-      const startAddr = formatAddress(t.startLocation.name, 45);
-      const endAddr = formatAddress(t.endLocation.name, 45);
-      
-      // Purpose/motif
-      const motif = t.purpose || '-';
-      
-      return [
-        `${day}/${month}`,
-        startAddr,
-        endAddr,
-        motif.length > 25 ? motif.substring(0, 24) + '…' : motif,
-        `${Math.round(t.distance)} km`,
-        `${t.recalculatedIK.toFixed(2)} €`,
-      ];
-    });
-
-    autoTable(doc, {
-      startY: currentY,
-      head: [['Date', 'Départ', 'Arrivée', 'Motif', 'Distance', 'IK']],
-      body: tableData,
-      styles: { 
-        fontSize: 8, 
-        cellPadding: { top: 3, right: 4, bottom: 3, left: 4 },
-        textColor: [darkText.r, darkText.g, darkText.b],
-        lineWidth: 0,
-        overflow: 'ellipsize',
-        font: 'helvetica',
-      },
-      headStyles: { 
-        fillColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 7,
-      },
-      bodyStyles: {
-        fillColor: [255, 255, 255],
-      },
-      alternateRowStyles: { 
-        fillColor: [lightGray.r, lightGray.g, lightGray.b],
-      },
-      columnStyles: {
-        0: { cellWidth: 18, halign: 'center' },
-        1: { cellWidth: 75 },
-        2: { cellWidth: 75 },
-        3: { cellWidth: 50 },
-        4: { cellWidth: 22, halign: 'right' },
-        5: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b] },
-      },
-      margin: { left: margin, right: margin },
-      tableLineColor: [borderGray.r, borderGray.g, borderGray.b],
-      tableLineWidth: 0.1,
-    });
-
-    currentY = (doc as any).lastAutoTable.finalY + 8;
-
-    // === TOTAL SECTION ===
-    doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
-    doc.setLineWidth(0.3);
-    doc.line(margin, currentY, pageWidth - margin, currentY);
-    currentY += 6;
-    
-    doc.setFontSize(10);
-    doc.setTextColor(darkText.r, darkText.g, darkText.b);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Total à déclarer', margin, currentY);
-    
-    doc.setFontSize(14);
-    doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, pageWidth - margin, currentY, { align: 'right' });
-
-    // === PAGE 2: BARÈME FISCAL ===
-    doc.addPage();
-    
-    // Dark header band (same as page 1)
-    doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, pageWidth, 6, 'F');
-
-    let baremeY = 16;
-
-    // Header with logo
-    if (logoBase64) {
-      doc.addImage(logoBase64, 'PNG', margin, baremeY - 2, 10, 10);
-    }
-    
-    doc.setTextColor(darkText.r, darkText.g, darkText.b);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Barème kilométrique fiscal 2025', margin + 14, baremeY + 4);
-
-    baremeY += 16;
-
-    // Explanation text
-    doc.setFontSize(8);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'normal');
-    const explanationText = "Le barème kilométrique permet de calculer les frais de déplacement professionnels déductibles. Le montant varie selon la puissance fiscale du véhicule et le nombre de kilomètres parcourus sur l'année.";
-    const splitText = doc.splitTextToSize(explanationText, contentWidth);
-    doc.text(splitText, margin, baremeY);
-    
-    baremeY += splitText.length * 4 + 8;
-
-    // Barème table data
-    const baremeTableData = IK_BAREME_2024.map(b => [
-      b.cv === '7+' ? '7 CV et plus' : `${b.cv} CV`,
-      `d × ${b.upTo5000.rate} €`,
-      `(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed} €`,
-      `d × ${b.over20000.rate} €`,
-    ]);
-
-    autoTable(doc, {
-      startY: baremeY,
-      head: [['Puissance fiscale', 'Jusqu\'à 5 000 km', 'De 5 001 à 20 000 km', 'Au-delà de 20 000 km']],
-      body: baremeTableData,
-      styles: { 
-        fontSize: 9, 
-        cellPadding: 5,
-        textColor: [darkText.r, darkText.g, darkText.b],
-      },
-      headStyles: { 
-        fillColor: [primaryBlue.r, primaryBlue.g, primaryBlue.b],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 8,
-      },
-      bodyStyles: {
-        fillColor: [255, 255, 255],
-      },
-      alternateRowStyles: { 
-        fillColor: [lightGray.r, lightGray.g, lightGray.b],
-      },
-      columnStyles: {
-        0: { fontStyle: 'bold', cellWidth: 40 },
-        1: { halign: 'center', cellWidth: 50 },
-        2: { halign: 'center', cellWidth: 70 },
-        3: { halign: 'center', cellWidth: 50 },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    baremeY = (doc as any).lastAutoTable.finalY + 10;
-
-    // Legend
-    doc.setFontSize(7);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'italic');
-    doc.text('d = distance parcourue en kilomètres', margin, baremeY);
-
-    baremeY += 8;
-
-    // Electric vehicle bonus info
-    doc.setFillColor(239, 246, 255);
-    doc.roundedRect(margin, baremeY, 200, 18, 2, 2, 'F');
-    
-    doc.setFontSize(8);
-    doc.setTextColor(primaryBlue.r, primaryBlue.g, primaryBlue.b);
-    doc.setFont('helvetica', 'bold');
-    doc.text('⚡ Bonus véhicule électrique', margin + 6, baremeY + 6);
-    
-    doc.setFontSize(7);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Les véhicules 100% électriques bénéficient d\'une majoration de 20% sur le montant des indemnités kilométriques.', margin + 6, baremeY + 12);
-
-    baremeY += 24;
-
-    // Source info
-    doc.setFontSize(6);
-    doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-    doc.text('Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l\'évaluation des frais de déplacement relatifs à l\'utilisation d\'un véhicule.', margin, baremeY);
-
-    // === FOOTER ON ALL PAGES ===
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      
-      // Marketing tagline at bottom
-      doc.setFontSize(7);
-      doc.setTextColor(mutedText.r, mutedText.g, mutedText.b);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Simplifiez votre suivi kilométrique avec IKtracker', margin, pageHeight - 12);
-      
-      // Footer line
-      doc.setDrawColor(borderGray.r, borderGray.g, borderGray.b);
-      doc.setLineWidth(0.2);
-      doc.line(margin, pageHeight - 9, pageWidth - margin, pageHeight - 9);
-      
-      // Footer text
-      doc.setFontSize(6);
-      doc.text('Généré par IKtracker  •  iktracker.fr  •  Conforme au barème fiscal 2025', margin, pageHeight - 6);
-      doc.text(`Page ${i}/${pageCount}`, pageWidth - margin, pageHeight - 6, { align: 'right' });
-    }
-
-    return doc.output('arraybuffer');
   };
 
   const exportZip = async () => {
@@ -871,7 +525,7 @@ ${IKTRACKER_MENTION}
       const dateStr = new Date().toISOString().split('T')[0];
       zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());
       zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
-      zip.file(`releve-ik-${dateStr}.pdf`, await generatePDF());
+      zip.file(`releve-ik-${dateStr}.html`, generateHTMLContent());
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const link = document.createElement('a');
@@ -879,7 +533,7 @@ ${IKTRACKER_MENTION}
       link.download = `releve-ik-${dateStr}.zip`;
       link.click();
 
-      toast.success("Export réussi", { description: "Le fichier ZIP contient le CSV et le PDF" });
+      toast.success("Export réussi", { description: "Le fichier ZIP contient le CSV et le relevé HTML" });
     } catch (error) {
       console.error('Export error:', error);
       toast.error("Erreur lors de l'export");
@@ -1042,7 +696,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={exportZip}
-                  onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }}
+                  onMouseEnter={() => { preloadZip(); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   data-tutorial="download"
@@ -1056,7 +710,7 @@ ${IKTRACKER_MENTION}
                 variant="ghost" 
                 size="icon"
                 onClick={exportZip}
-                onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }}
+                onMouseEnter={() => { preloadZip(); }}
                 disabled={trips.length === 0 || isExporting}
                 className="text-white/70 hover:text-white hover:bg-white/10"
                 data-tutorial="download"
