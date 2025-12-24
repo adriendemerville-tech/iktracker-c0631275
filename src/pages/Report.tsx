@@ -468,7 +468,7 @@ ${IKTRACKER_URL}`
       <Helmet>
         <title>Relevé des trajets | IKtracker - Suivi kilométrique</title>
         <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2025." />
-        <link rel="canonical" href="https://iktracker.fr/releve" />
+        <link rel="canonical" href="https://iktracker.fr/report" />
       </Helmet>
       
       {/* Desktop Sidebar - hidden on mobile */}

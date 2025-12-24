@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,17 +13,6 @@ import { AuthForm } from '@/components/AuthForm';
 const DEPLOYED_DOMAIN = 'iktracker.lovable.app';
 
 const Auth = () => {
-  // SEO meta tags
-  useEffect(() => {
-    document.title = 'Connexion | IKtracker';
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques. Inscription gratuite.');
-    }
-    return () => {
-      document.title = 'IKtracker - Calcul automatique des indemnités kilométriques';
-    };
-  }, []);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -129,7 +119,13 @@ const Auth = () => {
   // Show OAuth success screen on deployed domain
   if (showOAuthSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
+      <>
+        <Helmet>
+          <title>Connexion | IKtracker</title>
+          <meta name="description" content="Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques." />
+          <link rel="canonical" href="https://iktracker.fr/auth" />
+        </Helmet>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
         <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -155,7 +151,8 @@ const Auth = () => {
             </p>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </>
     );
   }
 
@@ -209,7 +206,13 @@ const Auth = () => {
   // Login form - Premium SaaS design
   if (showLoginForm) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
+      <>
+        <Helmet>
+          <title>Connexion | IKtracker</title>
+          <meta name="description" content="Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques." />
+          <link rel="canonical" href="https://iktracker.fr/auth" />
+        </Helmet>
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
         
@@ -307,7 +310,8 @@ const Auth = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
