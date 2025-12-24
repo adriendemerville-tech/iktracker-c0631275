@@ -233,87 +233,45 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        manualChunks: (id) => {
-          // Core React - loaded first, rarely changes
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'vendor-react';
-          }
-          // React Router - core navigation
-          if (id.includes('node_modules/react-router')) {
-            return 'vendor-router';
-          }
-          // Supabase - authentication & data
-          if (id.includes('node_modules/@supabase/')) {
-            return 'vendor-supabase';
-          }
-          // TanStack Query - data fetching
-          if (id.includes('node_modules/@tanstack/')) {
-            return 'vendor-query';
-          }
-          // Core UI components - frequently used
-          if (id.includes('node_modules/@radix-ui/react-dialog') ||
-              id.includes('node_modules/@radix-ui/react-popover') ||
-              id.includes('node_modules/@radix-ui/react-select') ||
-              id.includes('node_modules/@radix-ui/react-slot') ||
-              id.includes('node_modules/@radix-ui/react-portal')) {
-            return 'vendor-ui-core';
-          }
-          // Secondary UI components - less frequently used
-          if (id.includes('node_modules/@radix-ui/')) {
-            return 'vendor-ui-extra';
-          }
-          // Forms - only needed on form pages
-          if (id.includes('node_modules/react-hook-form') ||
-              id.includes('node_modules/@hookform/') ||
-              id.includes('node_modules/zod')) {
-            return 'vendor-forms';
-          }
-          // Framer Motion - animations
-          if (id.includes('node_modules/framer-motion')) {
-            return 'vendor-motion';
-          }
-          // Charts - only on report/profile pages
-          if (id.includes('node_modules/recharts') ||
-              id.includes('node_modules/d3-') ||
-              id.includes('node_modules/victory-')) {
-            return 'vendor-charts';
-          }
-          // PDF/Export - lazy loaded on demand
-          if (id.includes('node_modules/jspdf') ||
-              id.includes('node_modules/jszip') ||
-              id.includes('node_modules/pako')) {
-            return 'vendor-pdf';
-          }
-          // Date utilities
-          if (id.includes('node_modules/date-fns')) {
-            return 'vendor-date';
-          }
-          // QR Code - specific feature
-          if (id.includes('node_modules/qrcode')) {
-            return 'vendor-qr';
-          }
-          // Drag and drop - admin only
-          if (id.includes('node_modules/@dnd-kit/')) {
-            return 'vendor-dnd';
-          }
-          // Lucide icons - used everywhere but can be split
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-icons';
-          }
-          // Class utilities
-          if (id.includes('node_modules/clsx') ||
-              id.includes('node_modules/tailwind-merge') ||
-              id.includes('node_modules/class-variance-authority')) {
-            return 'vendor-utils';
-          }
-          // Canvas confetti - signup celebration only
-          if (id.includes('node_modules/canvas-confetti')) {
-            return 'vendor-confetti';
-          }
-          // Remaining node_modules go to a general vendor chunk
-          if (id.includes('node_modules/')) {
-            return 'vendor-misc';
-          }
+        manualChunks: {
+          // Core React ecosystem - must stay together to avoid initialization issues
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            'react-helmet-async',
+          ],
+          // Data layer
+          'vendor-data': [
+            '@supabase/supabase-js',
+            '@tanstack/react-query',
+          ],
+          // UI components (Radix) - keep together to avoid circular deps
+          'vendor-ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-label',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-separator',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-alert-dialog',
+          ],
+          // Heavy features - lazy loaded
+          'vendor-charts': ['recharts'],
+          'vendor-pdf': ['jspdf', 'jspdf-autotable', 'jszip', 'pako'],
+          'vendor-motion': ['framer-motion'],
         },
       },
       // Tree-shaking is enabled by default in production builds
