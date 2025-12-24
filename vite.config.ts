@@ -270,7 +270,7 @@ export default defineConfig(({ mode }) => ({
           ],
           // Heavy features - lazy loaded
           'vendor-charts': ['recharts'],
-          'vendor-pdf': ['jspdf', 'jspdf-autotable', 'jszip', 'pako'],
+          'vendor-zip': ['jszip', 'pako'],
           'vendor-motion': ['framer-motion'],
         },
       },
