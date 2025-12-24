@@ -316,12 +316,7 @@ export default defineConfig(({ mode }) => ({
           }
         },
       },
-      // Tree-shaking optimization
-      treeshake: {
-        moduleSideEffects: 'no-external',
-        propertyReadSideEffects: false,
-        tryCatchDeoptimization: false,
-      },
+      // Tree-shaking is enabled by default in production builds
     },
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 400,
