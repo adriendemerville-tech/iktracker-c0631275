@@ -195,13 +195,13 @@ export default function Calendrier() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <Link to="/#auth-section">
+                  <Link to="/#auth-section" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="gradient" className="group">
                       Connecter mon calendrier
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                     </Button>
                   </Link>
-                  <Link to="/mode-tournee">
+                  <Link to="/mode-tournee" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="outline">
                       Découvrir le mode Tournée
                     </Button>
@@ -209,16 +209,18 @@ export default function Calendrier() {
                 </div>
 
                 {/* Supported calendars */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4" role="list" aria-label="Calendriers compatibles">
                   <span className="text-sm text-muted-foreground">Compatible avec :</span>
                   {calendars.map((cal, i) => (
                     <div 
                       key={i}
+                      role="listitem"
                       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border"
                     >
                       <div 
                         className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold"
                         style={{ backgroundColor: cal.color }}
+                        aria-hidden="true"
                       >
                         {cal.logo}
                       </div>
