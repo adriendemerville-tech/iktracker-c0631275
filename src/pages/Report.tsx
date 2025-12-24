@@ -15,7 +15,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { loadZip, preloadZip } from '@/lib/pdf-utils';
+import { loadZip, preloadZip, htmlToPdfBlob } from '@/lib/pdf-utils';
 import { printReport, generatePrintableHTML } from '@/lib/print-utils';
 
 // Lazy load heavy components
@@ -351,9 +351,13 @@ ${IKTRACKER_MENTION}
       const csvContent = generateCSVContent();
       zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
-      // Add HTML file (can be opened in browser and printed as PDF)
+      // Generate HTML content
       const htmlContent = generateHTMLContent();
-      zip.file(`releve-ik-${dateStr}.html`, htmlContent);
+      
+      // Convert HTML to PDF
+      toast.info("Génération du PDF...", { duration: 2000 });
+      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
       
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -365,7 +369,7 @@ ${IKTRACKER_MENTION}
       link.click();
       
       toast.success("Export réussi", {
-        description: "Le fichier ZIP contient le CSV et le relevé HTML",
+        description: "Le fichier ZIP contient le PDF et le CSV",
       });
     } catch (error) {
       console.error('Export error:', error);
@@ -396,9 +400,11 @@ ${IKTRACKER_MENTION}
       const csvContent = generateCSVContent();
       zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
-      // Add HTML file (can be opened in browser and printed as PDF)
+      // Generate HTML content and convert to PDF
+      toast.info("Génération du PDF...", { duration: 2000 });
       const htmlContent = generateHTMLContent();
-      zip.file(`releve-ik-${dateStr}.html`, htmlContent);
+      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
       
       // Generate ZIP and download
       const zipBlob = await zip.generateAsync({ type: 'blob' });

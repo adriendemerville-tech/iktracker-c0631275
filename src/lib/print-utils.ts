@@ -139,7 +139,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   <style>
     @page {
       size: A4 landscape;
-      margin: 15mm 20mm 15mm 20mm;
+      margin: 12mm;
     }
     
     * {
@@ -154,13 +154,13 @@ function generateReportHTML(options: PrintReportOptions): string {
       color: #1e293b;
       background: white;
       line-height: 1.3;
-      padding: 0;
-      max-width: 257mm; /* A4 landscape width minus margins */
+      padding: 12mm;
+      margin: 0;
+      max-width: 100%;
     }
     
     .page {
       width: 100%;
-      max-width: 257mm;
       page-break-after: always;
       padding: 0;
     }
