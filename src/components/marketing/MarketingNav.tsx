@@ -85,21 +85,21 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
             {!loading && (
               user ? (
                 <Link to="/app">
-                  <Button variant="gradient" size="sm" className="group">
+                  <Button variant="gradient" size="sm" className="group" aria-label="Accéder au tableau de bord">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Dashboard</span>
                   </Button>
                 </Link>
               ) : (
                 <>
-                  <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                  <Button variant="outline" size="sm" asChild className="hidden sm:flex" aria-label="Se connecter à son compte">
                     <Link to="/auth">
                       <LogIn className="h-4 w-4 mr-2" />
                       Connexion
                     </Link>
                   </Button>
                   <Link to="/signup">
-                    <Button variant="gradient" size="sm">
+                    <Button variant="gradient" size="sm" aria-label="Créer un compte gratuit">
                       S'inscrire
                     </Button>
                   </Link>
