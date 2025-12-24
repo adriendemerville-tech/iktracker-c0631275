@@ -535,6 +535,29 @@
   contain: layout style;
 }
 
+/* Contain paint for sections - reduces rendering work */
+.contain-paint {
+  contain: paint;
+}
+
+/* Full containment for off-screen sections - maximum performance */
+.contain-strict {
+  contain: strict;
+}
+
+/* Content visibility for below-fold sections - skip rendering until needed */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Section containment for main page sections */
+.section-contained {
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
 /* Reserve space for images before they load */
 img {
   content-visibility: auto;
@@ -565,4 +588,14 @@ img {
 /* Ensure smooth transitions without layout shift */
 .transition-opacity-only {
   transition: opacity 0.3s ease-out;
+}
+
+/* GPU acceleration for animated elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Reduce layout recalculations */
+.isolate-layout {
+  isolation: isolate;
 }
