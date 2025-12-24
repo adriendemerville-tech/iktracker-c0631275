@@ -17,7 +17,8 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { loadPDFLibraries, loadZip, preloadPDFLibraries, preloadZip } from '@/lib/pdf-utils';
+import { loadZip, preloadZip } from '@/lib/pdf-utils';
+import { printReport, generatePrintableHTML } from '@/lib/print-utils';
 
 export default function Report() {
   const navigate = useNavigate();
@@ -304,200 +305,24 @@ ${IKTRACKER_MENTION}
     return '\uFEFF' + csv; // BOM for Excel
   };
 
-  const generatePDF = async () => {
-    const { jsPDF, autoTable } = await loadPDFLibraries();
-    const doc = new jsPDF({ orientation: 'portrait' });
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    const margin = 14;
-    const dateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    const generatedDate = new Date().toLocaleDateString('fr-FR');
-
-    // Load logo
-    let logoBase64: string | null = null;
-    try {
-      const response = await fetch('/logo-iktracker-250.webp');
-      const blob = await response.blob();
-      logoBase64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
-    } catch (e) {
-      console.warn('Could not load logo for PDF');
-    }
-
-    // === HEADER SECTION ===
-    // Blue line at top
-    doc.setFillColor(38, 97, 217);
-    doc.rect(0, 0, pageWidth, 4, 'F');
-
-    // Add logo if available
-    const logoSize = 12;
-    const titleX = logoBase64 ? margin + logoSize + 4 : margin;
-    
-    if (logoBase64) {
-      doc.addImage(logoBase64, 'PNG', margin, 10, logoSize, logoSize);
-    }
-
-    // Title (adjusted position based on logo)
-    doc.setFontSize(22);
-    doc.setTextColor(38, 97, 217);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Relevé IKtracker', titleX, 18);
-
-    // Subtitle
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont('helvetica', 'normal');
-    doc.text(dateStr, titleX, 26);
-
-    // Generated date (right aligned)
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Généré le ${generatedDate}`, pageWidth - margin, 18, { align: 'right' });
-    doc.text('Barème fiscal 2025', pageWidth - margin, 24, { align: 'right' });
-
-    // === OWNER & VEHICLE INFO BOX ===
-    const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-    if (vehicle) {
-      const ownerName = `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim();
-      
-      doc.setFillColor(248, 249, 250);
-      doc.roundedRect(margin, 35, pageWidth - 2 * margin, 28, 3, 3, 'F');
-      
-      // First row - Owner name prominent
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text('Propriétaire', margin + 8, 42);
-      doc.text('Puissance fiscale', margin + 80, 42);
-      
-      doc.setFontSize(11);
-      doc.setTextColor(30, 30, 30);
-      doc.setFont('helvetica', 'bold');
-      doc.text(ownerName || '-', margin + 8, 50);
-      doc.text(`${vehicle.fiscalPower} CV`, margin + 80, 50);
-      
-      // Second row - Vehicle details
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text('Véhicule', margin + 8, 56);
-      doc.text('Immatriculation', margin + 80, 56);
-      
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60);
-      doc.setFont('helvetica', 'normal');
-      const vehicleName = `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`;
-      doc.text(vehicleName, margin + 8, 62);
-      doc.text(vehicle.licensePlate || '-', margin + 80, 62);
-    }
-
-    // === TRIPS TABLE ===
-    const sortedTrips = [...recalculatedTrips].sort(
-      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-    );
-    const tableData = sortedTrips.map(t => {
-      return [
-        new Date(t.startTime).toLocaleDateString('fr-FR'),
-        `${t.startLocation.name} → ${t.endLocation.name}`,
-        `${t.distance.toFixed(1)} km`,
-        `${t.recalculatedIK.toFixed(2)} €`,
-      ];
+  // Generate HTML content for PDF (used in ZIP export)
+  const generateHTMLContent = () => {
+    return generatePrintableHTML({
+      trips,
+      vehicles,
+      totalKm,
+      logoUrl: '/logo-iktracker-250.webp',
     });
+  };
 
-    autoTable(doc, {
-      startY: vehicle ? 70 : 38,
-      head: [['Date', 'Trajet', 'Distance', 'Indemnité']],
-      body: tableData,
-      styles: { 
-        fontSize: 9, 
-        cellPadding: 4,
-        lineColor: [230, 230, 230],
-        lineWidth: 0.1,
-      },
-      headStyles: { 
-        fillColor: [248, 249, 250],
-        textColor: [100, 100, 100],
-        fontStyle: 'bold',
-        fontSize: 8,
-      },
-      bodyStyles: {
-        textColor: [30, 30, 30],
-      },
-      alternateRowStyles: { 
-        fillColor: [255, 255, 255] 
-      },
-      columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 'auto' },
-        2: { cellWidth: 25, halign: 'right' },
-        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' },
-      },
+  // Direct print function (opens browser print dialog)
+  const handlePrint = () => {
+    printReport({
+      trips,
+      vehicles,
+      totalKm,
+      logoUrl: '/logo-iktracker-250.webp',
     });
-
-    let currentY = (doc as any).lastAutoTable.finalY + 10;
-
-    // === TOTALS BOX ===
-    const totalsBoxWidth = 70;
-    const totalsBoxX = pageWidth - margin - totalsBoxWidth;
-    
-    // Light blue background for totals
-    doc.setFillColor(239, 246, 255);
-    doc.roundedRect(totalsBoxX, currentY, totalsBoxWidth, 28, 3, 3, 'F');
-    
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Total du mois', totalsBoxX + totalsBoxWidth / 2, currentY + 8, { align: 'center' });
-    
-    doc.setFontSize(14);
-    doc.setTextColor(38, 97, 217);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${totalKm.toFixed(0)} km • ${recalculatedTotalIK.toFixed(2)} €`, totalsBoxX + totalsBoxWidth / 2, currentY + 20, { align: 'center' });
-
-    currentY += 40;
-
-    // === BARÈME SECTION (if fits on page) ===
-    if (currentY < pageHeight - 80) {
-      doc.setFontSize(11);
-      doc.setTextColor(30, 30, 30);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Barème kilométrique fiscal 2025', margin, currentY);
-      
-      const baremeData = IK_BAREME_2024.map(b => [
-        b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`,
-        `${b.upTo5000.rate} €/km`,
-        `${b.from5001To20000.rate} €/km + ${b.from5001To20000.fixed} €`,
-        `${b.over20000.rate} €/km`,
-      ]);
-
-      autoTable(doc, {
-        startY: currentY + 5,
-        head: [['Puissance', '≤ 5 000 km', '5 001 - 20 000 km', '> 20 000 km']],
-        body: baremeData,
-        styles: { fontSize: 8, cellPadding: 3 },
-        headStyles: { fillColor: [100, 116, 139], textColor: 255 },
-        alternateRowStyles: { fillColor: [248, 249, 250] },
-      });
-    }
-
-    // === FOOTER ON ALL PAGES ===
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      
-      // Footer line
-      doc.setDrawColor(230, 230, 230);
-      doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
-      
-      // Footer text
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 150);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Document généré par IKtracker • iktracker.lovable.app • Conforme au barème fiscal 2025', pageWidth / 2, pageHeight - 12, { align: 'center' });
-      doc.text(`Page ${i}/${pageCount}`, pageWidth - margin, pageHeight - 12, { align: 'right' });
-    }
-
-    return doc.output('arraybuffer');
   };
 
   const exportZip = async () => {
@@ -521,9 +346,9 @@ ${IKTRACKER_MENTION}
       const csvContent = generateCSVContent();
       zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
-      // Add PDF
-      const pdfContent = await generatePDF();
-      zip.file(`releve-ik-${dateStr}.pdf`, pdfContent);
+      // Add HTML file (can be opened in browser and printed as PDF)
+      const htmlContent = generateHTMLContent();
+      zip.file(`releve-ik-${dateStr}.html`, htmlContent);
       
       // Generate ZIP
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -535,7 +360,7 @@ ${IKTRACKER_MENTION}
       link.click();
       
       toast.success("Export réussi", {
-        description: "Le fichier ZIP contient le CSV et le PDF",
+        description: "Le fichier ZIP contient le CSV et le relevé HTML",
       });
     } catch (error) {
       console.error('Export error:', error);
@@ -566,9 +391,9 @@ ${IKTRACKER_MENTION}
       const csvContent = generateCSVContent();
       zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
-      // Add PDF
-      const pdfContent = await generatePDF();
-      zip.file(`releve-ik-${dateStr}.pdf`, pdfContent);
+      // Add HTML file (can be opened in browser and printed as PDF)
+      const htmlContent = generateHTMLContent();
+      zip.file(`releve-ik-${dateStr}.html`, htmlContent);
       
       // Generate ZIP and download
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -656,7 +481,7 @@ ${IKTRACKER_URL}`
             </Link>
             <h1 className="text-lg font-semibold">Relevé des trajets</h1>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { preloadPDFLibraries(); preloadZip(); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
+              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { preloadZip(); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">
