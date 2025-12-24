@@ -595,6 +595,7 @@ export function AdminStats() {
     const { loadPDFLibraries } = await loadPdfUtils();
     const { jsPDF, autoTable } = await loadPDFLibraries();
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
     // Title
     doc.setFontSize(18);
