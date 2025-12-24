@@ -35,7 +35,7 @@ import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
-import { loadZip, preloadZip } from '@/lib/pdf-utils';
+import { loadZip, preloadZip, htmlToPdfBlob } from '@/lib/pdf-utils';
 import { printReport, generatePrintableHTML } from '@/lib/print-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -534,9 +534,14 @@ ${IKTRACKER_MENTION}
       const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
+
       zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());
       zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
-      zip.file(`releve-ik-${dateStr}.html`, generateHTMLContent());
+
+      toast.info("Génération du PDF...", { duration: 2000 });
+      const htmlContent = generateHTMLContent();
+      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const link = document.createElement('a');
@@ -544,7 +549,7 @@ ${IKTRACKER_MENTION}
       link.download = `releve-ik-${dateStr}.zip`;
       link.click();
 
-      toast.success("Export réussi", { description: "Le fichier ZIP contient le CSV et le relevé HTML" });
+      toast.success("Export réussi", { description: "Le fichier ZIP contient le PDF et le CSV" });
     } catch (error) {
       console.error('Export error:', error);
       toast.error("Erreur lors de l'export");
