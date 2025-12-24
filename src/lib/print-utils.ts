@@ -139,7 +139,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   <style>
     @page {
       size: A4 landscape;
-      margin: 10mm 12mm;
+      margin: 15mm 20mm 15mm 20mm;
     }
     
     * {
@@ -150,15 +150,19 @@ function generateReportHTML(options: PrintReportOptions): string {
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      font-size: 9pt;
+      font-size: 8pt;
       color: #1e293b;
       background: white;
-      line-height: 1.4;
+      line-height: 1.3;
+      padding: 0;
+      max-width: 257mm; /* A4 landscape width minus margins */
     }
     
     .page {
       width: 100%;
+      max-width: 257mm;
       page-break-after: always;
+      padding: 0;
     }
     
     .page:last-child {
@@ -257,18 +261,22 @@ function generateReportHTML(options: PrintReportOptions): string {
     /* Table styles */
     table {
       width: 100%;
+      max-width: 100%;
       border-collapse: collapse;
-      font-size: 8pt;
+      font-size: 7pt;
+      table-layout: fixed;
     }
     
     thead th {
       background: #2661d9;
       color: white;
       font-weight: 700;
-      font-size: 7pt;
+      font-size: 6pt;
       text-transform: uppercase;
-      padding: 2mm 2mm;
+      padding: 1.5mm 1.5mm;
       text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     thead th.num-col {
@@ -276,8 +284,11 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     tbody td {
-      padding: 2mm 2mm;
+      padding: 1.5mm 1.5mm;
       border-bottom: 0.1mm solid #e2e8f0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
     .alt-row {
@@ -285,20 +296,22 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .date-col {
-      width: 15mm;
+      width: 12mm;
       text-align: center;
     }
     
     .addr-col {
       width: auto;
+      max-width: 80mm;
     }
     
     .motif-col {
-      width: 40mm;
+      width: 35mm;
+      max-width: 35mm;
     }
     
     .num-col {
-      width: 18mm;
+      width: 15mm;
       text-align: right;
     }
     
@@ -310,7 +323,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     /* Barème table */
     .cv-col {
       font-weight: 700;
-      width: 25mm;
+      width: 22mm;
     }
     
     .bareme-col {
