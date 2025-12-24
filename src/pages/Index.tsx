@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTrips } from '@/hooks/useTrips';
@@ -623,6 +624,14 @@ ${IKTRACKER_MENTION}
           />
         </Suspense>
       )}
+
+      {/* SEO for protected app page */}
+      <Helmet>
+        <title>Tableau de bord | IKtracker - Suivi des indemnités kilométriques</title>
+        <meta name="description" content="Gérez vos trajets professionnels, suivez vos kilomètres et calculez vos indemnités kilométriques automatiquement avec IKtracker." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/app" />
+      </Helmet>
 
       <div className="min-h-screen bg-background font-urbanist cursor-default select-none md:pl-16">
       {/* Header - Fintech Dark */}
