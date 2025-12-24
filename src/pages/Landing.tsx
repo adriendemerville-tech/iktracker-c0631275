@@ -139,7 +139,7 @@ const Landing = () => {
       <MarketingNav user={user} loading={loading} />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden">
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden contain-layout">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -213,7 +213,7 @@ const Landing = () => {
       </section>
 
       {/* Pain Point Section - Excel */}
-      <section className="py-16 md:py-24 bg-muted/30 relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-muted/30 relative overflow-hidden section-contained">
         {/* Excel grid background */}
         <div className="absolute inset-0 opacity-[0.03]">
           <div className="absolute inset-0" style={{
@@ -257,7 +257,7 @@ const Landing = () => {
       </section>
 
       {/* Features Grid - Icons only */}
-      <section className="py-12 md:py-24 px-4">
+      <section className="py-12 md:py-24 px-4 section-contained">
         <div className="container mx-auto">
           <div className="text-center mb-8 md:mb-16">
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Tout ce dont vous avez besoin</h2>
@@ -287,7 +287,7 @@ const Landing = () => {
       </section>
 
       {/* Phone Mockup Demo */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30 section-contained">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1">
@@ -320,7 +320,7 @@ const Landing = () => {
       </section>
 
       {/* Tour Mode Demo */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 section-contained">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="space-y-4 md:space-y-6">
@@ -355,7 +355,7 @@ const Landing = () => {
       </section>
 
       {/* Calendar Sync Demo */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section className="py-16 md:py-24 bg-muted/30 section-contained">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1">
@@ -392,7 +392,7 @@ const Landing = () => {
       </section>
 
       {/* PDF Report Section - iOS Style */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-muted/20 to-background">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-muted/20 to-background section-contained">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="space-y-4 md:space-y-6">
@@ -593,7 +593,7 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 bg-primary text-primary-foreground">
+      <section className="py-32 bg-primary text-primary-foreground section-contained">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-2xl mx-auto space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold">Prêt à simplifier vos trajets ?</h2>
@@ -632,7 +632,7 @@ const Landing = () => {
       </section>
 
       {/* Testimonial / Disclaimer Section */}
-      <section className="py-12 md:py-16 px-4 bg-muted/50">
+      <section className="py-12 md:py-16 px-4 bg-muted/50 section-contained">
         <div className="container mx-auto max-w-3xl">
           <div className="bg-background border border-border rounded-2xl p-6 md:p-10">
             <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-foreground mb-4 md:mb-6 font-display">
