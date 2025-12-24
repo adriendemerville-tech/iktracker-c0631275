@@ -245,6 +245,8 @@ const Auth = () => {
                       width={40}
                       height={40}
                       className="w-10 h-10"
+                      loading="eager"
+                      fetchPriority="high"
                     />
                     <span className="text-xl font-semibold text-white">IKtracker</span>
                   </div>
@@ -283,6 +285,8 @@ const Auth = () => {
                     width={40}
                     height={40}
                     className="w-10 h-10"
+                    loading="eager"
+                    fetchPriority="high"
                   />
                   <span className="text-xl font-semibold text-white">IKtracker</span>
                 </div>
