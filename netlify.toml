@@ -83,6 +83,13 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+# IMPORTANT: SPA routes (ex: /calendrier) are rewritten to /index.html,
+# but can still be cached under their original path without this rule.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # === SERVICE WORKER (no cache) ===
 
 [[headers]]
