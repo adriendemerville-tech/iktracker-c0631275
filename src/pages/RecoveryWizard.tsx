@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Monitor, ExternalLink, Upload, MapPin, Check, Sparkles, ChevronRight, FileArchive, AlertCircle, ArrowLeft, Loader2, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -511,9 +512,15 @@ export default function RecoveryWizard() {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
-      {/* Desktop Sidebar - sticky */}
-      {!isMobile && <DesktopSidebar />}
+    <>
+      <Helmet>
+        <title>Récupérer mes trajets | IKtracker</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/recovery" />
+      </Helmet>
+      <div className="min-h-screen bg-slate-950 flex">
+        {/* Desktop Sidebar - sticky */}
+        {!isMobile && <DesktopSidebar />}
 
       {/* Hidden file input */}
       <input
@@ -967,5 +974,6 @@ export default function RecoveryWizard() {
         </Button>
       </aside>
     </div>
+    </>
   );
 }

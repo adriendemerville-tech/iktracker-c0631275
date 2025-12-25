@@ -1,4 +1,5 @@
 import { WifiOff, RefreshCw, Home } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 
 const Offline = () => {
@@ -11,7 +12,12 @@ const Offline = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
+    <>
+      <Helmet>
+        <title>Hors ligne | IKtracker</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-8">
         {/* Icon animé */}
         <div className="relative mx-auto w-32 h-32">
@@ -80,6 +86,7 @@ const Offline = () => {
         </p>
       </div>
     </div>
+    </>
   );
 };
 

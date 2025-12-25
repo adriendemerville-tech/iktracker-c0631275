@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -307,7 +308,13 @@ const Admin = () => {
   const adminCount = userRoles.length;
 
   return (
-    <div className="min-h-screen bg-background cursor-default">
+    <>
+      <Helmet>
+        <title>Administration | IKtracker</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/admin" />
+      </Helmet>
+      <div className="min-h-screen bg-background cursor-default">
       {/* Header */}
       <header className="bg-gradient-primary text-primary-foreground px-4 pt-12 pb-6 rounded-b-[2rem]">
         <div className="max-w-4xl mx-auto">
@@ -682,6 +689,7 @@ const Admin = () => {
         </Tabs>
       </main>
     </div>
+    </>
   );
 };
 
