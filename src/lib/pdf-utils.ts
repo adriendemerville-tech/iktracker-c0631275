@@ -40,17 +40,25 @@ export async function loadHtml2Pdf() {
 export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const html2pdf = await loadHtml2Pdf();
 
-  // html2canvas/html2pdf are much more reliable when we render the *body content*
-  // with the embedded <style> rules applied in the same document.
+  // Render into the current document (same window) to avoid html2canvas blank captures.
+  // We scope global selectors (html/body/:root) to a dedicated container.
   const parsed = new DOMParser().parseFromString(html, 'text/html');
-  const combinedStyles = Array.from(parsed.querySelectorAll('style'))
+
+  const rawStyles = Array.from(parsed.querySelectorAll('style'))
     .map((s) => s.textContent || '')
     .join('\n');
 
-  const container = document.createElement('div');
+  const scopedStyles = rawStyles
+    // scope html/body/root rules to our container
+    .replace(/(^|[,{\s])html(?=\b)/g, '$1.pdf-root')
+    .replace(/(^|[,{\s])body(?=\b)/g, '$1.pdf-root')
+    .replace(/(^|[,{\s]):root(?=\b)/g, '$1.pdf-root');
 
-  // Keep it rendered (so html2canvas can capture it) but not visible to the user.
-  // Using opacity:0 makes the capture transparent -> blank PDF.
+  const container = document.createElement('div');
+  container.className = 'pdf-root';
+
+  // Keep it rendered (so html2canvas can capture it) but not noticeable for the user.
+  // IMPORTANT: avoid opacity/visibility hidden -> can lead to a blank canvas.
   container.style.position = 'fixed';
   container.style.left = '0';
   container.style.top = '0';
@@ -59,11 +67,13 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   container.style.minHeight = '794px';
   container.style.background = 'white';
   container.style.pointerEvents = 'none';
-  container.style.overflow = 'hidden';
+  container.style.zIndex = '0';
+  container.style.overflow = 'visible';
 
-  if (combinedStyles.trim()) {
+
+  if (scopedStyles.trim()) {
     const styleEl = document.createElement('style');
-    styleEl.textContent = combinedStyles;
+    styleEl.textContent = scopedStyles;
     container.appendChild(styleEl);
   }
 
@@ -75,8 +85,8 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Give the browser a tick to layout
-  await wait(50);
+  // Give the browser time to layout + apply styles
+  await wait(100);
 
   // Wait for fonts (best-effort)
   try {
@@ -85,19 +95,18 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     // ignore
   }
 
-
-  // Wait for images inside the container (best-effort, with a timeout)
+  // Wait for images (best-effort, with timeout)
   const images = Array.from(container.querySelectorAll('img'));
   const waitImages = Promise.all(
     images.map((img) => {
-      if (img.complete) return Promise.resolve();
+      if ((img as HTMLImageElement).complete) return Promise.resolve();
       return new Promise<void>((resolve) => {
         img.addEventListener('load', () => resolve(), { once: true });
         img.addEventListener('error', () => resolve(), { once: true });
       });
     })
   );
-  await Promise.race([waitImages, wait(1500)]);
+  await Promise.race([waitImages, wait(2000)]);
 
   try {
     const pdfBlob = await html2pdf()
@@ -129,4 +138,6 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     document.body.removeChild(container);
   }
 }
+
+
 
