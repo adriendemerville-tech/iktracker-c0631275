@@ -161,7 +161,7 @@ export function DraggableMarketingCards({ cards, storageKey = 'marketing-cards-o
 
   if (!isDesktop) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 auto-rows-fr [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(3n+1)]:col-span-3 md:[&>*:last-child:nth-child(3n+2)]:col-span-2 lg:[&>*:last-child]:col-span-1 lg:[&>*:last-child:nth-child(6n+1)]:col-span-6 lg:[&>*:last-child:nth-child(6n+2)]:col-span-5 lg:[&>*:last-child:nth-child(6n+3)]:col-span-4 lg:[&>*:last-child:nth-child(6n+4)]:col-span-3 lg:[&>*:last-child:nth-child(6n+5)]:col-span-2">
         {orderedCards.map((card) => (
           <SortableCard key={card.id} card={card} isDesktop={false} />
         ))}
@@ -176,7 +176,7 @@ export function DraggableMarketingCards({ cards, storageKey = 'marketing-cards-o
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={orderedCards.map(c => c.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 auto-rows-fr [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(3n+1)]:col-span-3 md:[&>*:last-child:nth-child(3n+2)]:col-span-2 lg:[&>*:last-child]:col-span-1 lg:[&>*:last-child:nth-child(6n+1)]:col-span-6 lg:[&>*:last-child:nth-child(6n+2)]:col-span-5 lg:[&>*:last-child:nth-child(6n+3)]:col-span-4 lg:[&>*:last-child:nth-child(6n+4)]:col-span-3 lg:[&>*:last-child:nth-child(6n+5)]:col-span-2">
           {orderedCards.map((card) => (
             <SortableCard key={card.id} card={card} isDesktop={true} />
           ))}
