@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, Suspense, lazy } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -177,6 +178,12 @@ const Profile = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Mon profil | IKtracker</title>
+        <meta name="description" content="Gérez votre profil IKtracker : véhicules, adresses favorites, préférences et paramètres de compte." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/profile" />
+      </Helmet>
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
         <DesktopSidebar 
