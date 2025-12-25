@@ -751,7 +751,7 @@ export function AdminStats() {
                 <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={marketingViewsByDay}>
+                  <LineChart data={marketingViewsByDay}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
@@ -762,9 +762,25 @@ export function AdminStats() {
                         borderRadius: '8px'
                       }}
                     />
-                    <Bar dataKey="views" fill="hsl(var(--primary))" name="Visites" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="unique_visitors" fill="hsl(var(--chart-2))" name="Visiteurs uniques" radius={[4, 4, 0, 0]} />
-                  </BarChart>
+                    <Line 
+                      type="monotone" 
+                      dataKey="views" 
+                      name="Visites"
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
+                      activeDot={{ r: 5, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="unique_visitors" 
+                      name="Visiteurs uniques"
+                      stroke="hsl(var(--chart-2))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-2))', strokeWidth: 0, r: 3 }}
+                      activeDot={{ r: 5, stroke: 'hsl(var(--chart-2))', strokeWidth: 2 }}
+                    />
+                  </LineChart>
                 </ResponsiveContainer>
               )}
             </CardContent>
