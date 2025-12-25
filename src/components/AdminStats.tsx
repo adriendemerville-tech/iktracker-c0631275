@@ -768,8 +768,8 @@ export function AdminStats() {
                       name="Visites"
                       stroke="hsl(var(--primary))" 
                       strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
-                      activeDot={{ r: 5, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                      dot={false}
+                      activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
                     />
                     <Line 
                       type="monotone" 
@@ -777,8 +777,8 @@ export function AdminStats() {
                       name="Visiteurs uniques"
                       stroke="hsl(var(--chart-2))" 
                       strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--chart-2))', strokeWidth: 0, r: 3 }}
-                      activeDot={{ r: 5, stroke: 'hsl(var(--chart-2))', strokeWidth: 2 }}
+                      dot={false}
+                      activeDot={{ r: 4, stroke: 'hsl(var(--chart-2))', strokeWidth: 2 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
