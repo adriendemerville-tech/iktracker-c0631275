@@ -67,7 +67,9 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   container.style.minHeight = '794px';
   container.style.background = 'white';
   container.style.pointerEvents = 'none';
-  container.style.zIndex = '-1';
+  // Keep it on top (but almost invisible) to avoid blank renders.
+  container.style.zIndex = '2147483647';
+  container.style.opacity = '0.01';
   container.style.overflow = 'visible';
 
 
@@ -77,8 +79,13 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     container.appendChild(styleEl);
   }
 
+  const bodyHtml = (parsed.body?.innerHTML || '').trim();
+  if (!bodyHtml) {
+    throw new Error('Relevé HTML vide');
+  }
+
   const bodyEl = document.createElement('div');
-  bodyEl.innerHTML = parsed.body.innerHTML;
+  bodyEl.innerHTML = bodyHtml;
   container.appendChild(bodyEl);
 
   document.body.appendChild(container);
