@@ -523,6 +523,24 @@ ${IKTRACKER_MENTION}
     });
   };
 
+  // Debug: open the HTML report in a new tab to verify it's not empty
+  const previewHTMLReport = () => {
+    try {
+      const htmlContent = generateHTMLContent();
+      const w = window.open('', '_blank');
+      if (!w) {
+        toast.error("Popup bloqué", { description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé" });
+        return;
+      }
+      w.document.open();
+      w.document.write(htmlContent);
+      w.document.close();
+    } catch (e) {
+      toast.error("Impossible de générer l'aperçu HTML");
+      console.error(e);
+    }
+  };
+
   const exportZip = async () => {
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
@@ -552,7 +570,8 @@ ${IKTRACKER_MENTION}
       toast.success("Export réussi", { description: "Le fichier ZIP contient le PDF et le CSV" });
     } catch (error) {
       console.error('Export error:', error);
-      toast.error("Erreur lors de l'export");
+      const message = error instanceof Error ? error.message : "Erreur lors de l'export";
+      toast.error("Erreur lors de l'export", { description: message });
     } finally {
       setIsExporting(false);
     }
@@ -737,21 +756,45 @@ ${IKTRACKER_MENTION}
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={previewHTMLReport}
+                  disabled={trips.length === 0}
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  aria-label="Prévisualiser le relevé HTML"
+                  title="Prévisualiser le relevé HTML"
+                >
+                  <FileText className="w-5 h-5" />
+                </Button>
               </>
             )}
             {!isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={exportZip}
-                onMouseEnter={() => { preloadZip(); }}
-                disabled={trips.length === 0 || isExporting}
-                className="text-white/70 hover:text-white hover:bg-white/10"
-                data-tutorial="download"
-                aria-label="Télécharger le relevé"
-              >
-                <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-              </Button>
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={exportZip}
+                  onMouseEnter={() => { preloadZip(); }}
+                  disabled={trips.length === 0 || isExporting}
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  data-tutorial="download"
+                  aria-label="Télécharger le relevé"
+                >
+                  <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={previewHTMLReport}
+                  disabled={trips.length === 0}
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  aria-label="Prévisualiser le relevé HTML"
+                  title="Prévisualiser le relevé HTML"
+                >
+                  <FileText className="w-5 h-5" />
+                </Button>
+              </>
             )}
             <div className="relative" data-tutorial="profile">
               <Button 
