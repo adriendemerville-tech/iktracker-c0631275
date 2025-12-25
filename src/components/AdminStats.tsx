@@ -868,7 +868,7 @@ export function AdminStats() {
                 case 'main-stats':
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} isCard={false}>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(3n+1)]:col-span-3 md:[&>*:last-child:nth-child(3n+2)]:col-span-2 lg:[&>*:last-child:nth-child(6n+1)]:col-span-6 lg:[&>*:last-child:nth-child(6n+2)]:col-span-5 lg:[&>*:last-child:nth-child(6n+3)]:col-span-4 lg:[&>*:last-child:nth-child(6n+4)]:col-span-3 lg:[&>*:last-child:nth-child(6n+5)]:col-span-2">
                         {/* Online users - real-time */}
                         <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
                           <CardContent className="p-4">
@@ -1018,14 +1018,14 @@ export function AdminStats() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         {downloadStatsLoading ? (
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(4n+1)]:col-span-4 md:[&>*:last-child:nth-child(4n+2)]:col-span-3 md:[&>*:last-child:nth-child(4n+3)]:col-span-2">
                             <Skeleton className="h-16" />
                             <Skeleton className="h-16" />
                             <Skeleton className="h-16" />
                             <Skeleton className="h-16" />
                           </div>
                         ) : (
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(4n+1)]:col-span-4 md:[&>*:last-child:nth-child(4n+2)]:col-span-3 md:[&>*:last-child:nth-child(4n+3)]:col-span-2">
                             <div className="text-center p-3 bg-muted/50 rounded-lg">
                               <p className="text-2xl font-bold text-primary">{downloadStats?.total_clicks || 0}</p>
                               <p className="text-xs text-muted-foreground">Clics totaux</p>
@@ -1103,14 +1103,14 @@ export function AdminStats() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         {shareStatsLoading ? (
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-3 gap-4 [&>*:last-child:nth-child(3n+1)]:col-span-3 [&>*:last-child:nth-child(3n+2)]:col-span-2">
                             <Skeleton className="h-16" />
                             <Skeleton className="h-16" />
                             <Skeleton className="h-16" />
                           </div>
                         ) : (
                           <>
-                            <div className="grid grid-cols-2 gap-4 mb-2">
+                            <div className="grid grid-cols-2 gap-4 mb-2 [&>*:last-child:nth-child(2n+1)]:col-span-2">
                               <div className="text-center p-3 bg-muted/50 rounded-lg">
                                 <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
                                 <p className="text-xs text-muted-foreground">Partages totaux</p>
