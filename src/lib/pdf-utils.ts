@@ -58,16 +58,16 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   container.className = 'pdf-root';
 
   // Keep it rendered (so html2canvas can capture it) but not noticeable for the user.
-  // IMPORTANT: avoid opacity/visibility hidden -> can lead to a blank canvas.
+  // IMPORTANT: avoid display:none/visibility:hidden -> can lead to a blank canvas.
+  // Also avoid moving it far off-screen with transforms (can produce blank renders in some browsers).
   container.style.position = 'fixed';
   container.style.left = '0';
   container.style.top = '0';
-  container.style.transform = 'translateX(-200vw)';
   container.style.width = '1122px'; // A4 landscape @ 96dpi
   container.style.minHeight = '794px';
   container.style.background = 'white';
   container.style.pointerEvents = 'none';
-  container.style.zIndex = '0';
+  container.style.zIndex = '-1';
   container.style.overflow = 'visible';
 
 
@@ -84,9 +84,12 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   document.body.appendChild(container);
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
   // Give the browser time to layout + apply styles
-  await wait(100);
+  await nextFrame();
+  await nextFrame();
+  await wait(200);
 
   // Wait for fonts (best-effort)
   try {
@@ -109,7 +112,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   await Promise.race([waitImages, wait(2000)]);
 
   try {
-    const pdfBlob = await html2pdf()
+    const worker = html2pdf()
       .set({
         margin: 10,
         filename: 'releve-ik.pdf',
@@ -120,6 +123,8 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
           backgroundColor: '#ffffff',
           letterRendering: true,
           logging: false,
+          scrollX: 0,
+          scrollY: 0,
           windowWidth: 1122,
           windowHeight: 794,
         },
@@ -131,8 +136,9 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
       })
       .from(container)
-      .outputPdf('blob');
+      .toPdf();
 
+    const pdfBlob = await worker.get('pdf').then((pdf: any) => pdf.output('blob'));
     return pdfBlob;
   } finally {
     document.body.removeChild(container);
