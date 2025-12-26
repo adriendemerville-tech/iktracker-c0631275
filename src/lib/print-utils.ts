@@ -426,16 +426,10 @@ function generateReportHTML(options: PrintReportOptions): string {
       color: #94a3b8;
     }
     
-    .action-buttons {
+    .back-button {
       position: fixed;
       top: 12mm;
       left: 12mm;
-      display: flex;
-      gap: 2mm;
-      z-index: 1000;
-    }
-    
-    .action-button {
       background: #0f172a;
       color: white;
       border: none;
@@ -447,25 +441,18 @@ function generateReportHTML(options: PrintReportOptions): string {
       display: flex;
       align-items: center;
       gap: 2mm;
+      z-index: 1000;
       text-decoration: none;
       transition: background 0.2s;
     }
     
-    .action-button:hover {
+    .back-button:hover {
       background: #1e293b;
     }
     
-    .action-button svg {
+    .back-button svg {
       width: 14px;
       height: 14px;
-    }
-    
-    .print-button {
-      background: #2563eb;
-    }
-    
-    .print-button:hover {
-      background: #1d4ed8;
     }
     
     @media print {
@@ -478,30 +465,20 @@ function generateReportHTML(options: PrintReportOptions): string {
         display: none;
       }
       
-      .action-buttons {
+      .back-button {
         display: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="action-buttons">
-    <a href="/" class="action-button">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m12 19-7-7 7-7"/>
-        <path d="M19 12H5"/>
-      </svg>
-      Retour
-    </a>
-    <button onclick="window.print()" class="action-button print-button">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 6 2 18 2 18 9"/>
-        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-        <rect width="12" height="8" x="6" y="14"/>
-      </svg>
-      Imprimer / PDF
-    </button>
-  </div>
+  <a href="/" class="back-button">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12 19-7-7 7-7"/>
+      <path d="M19 12H5"/>
+    </svg>
+    Retour
+  </a>
   
   <!-- Page 1: Trips -->
   <div class="page">
