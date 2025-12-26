@@ -426,6 +426,35 @@ function generateReportHTML(options: PrintReportOptions): string {
       color: #94a3b8;
     }
     
+    .back-button {
+      position: fixed;
+      top: 12mm;
+      left: 12mm;
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 2mm;
+      padding: 2mm 4mm;
+      font-size: 9pt;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      z-index: 1000;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    
+    .back-button:hover {
+      background: #1e293b;
+    }
+    
+    .back-button svg {
+      width: 14px;
+      height: 14px;
+    }
+    
     @media print {
       body {
         -webkit-print-color-adjust: exact;
@@ -435,10 +464,22 @@ function generateReportHTML(options: PrintReportOptions): string {
       .no-print {
         display: none;
       }
+      
+      .back-button {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
+  <a href="/" class="back-button">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12 19-7-7 7-7"/>
+      <path d="M19 12H5"/>
+    </svg>
+    Retour
+  </a>
+  
   <!-- Page 1: Trips -->
   <div class="page">
     <div class="header-band"></div>
