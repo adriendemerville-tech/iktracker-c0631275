@@ -756,17 +756,19 @@ ${IKTRACKER_MENTION}
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={previewHTMLReport}
-                  disabled={trips.length === 0}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
-                  aria-label="Prévisualiser le relevé HTML"
-                  title="Prévisualiser le relevé HTML"
-                >
-                  <FileText className="w-5 h-5" />
-                </Button>
+                {!isMobile && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={previewHTMLReport}
+                    disabled={trips.length === 0}
+                    className="text-white/70 hover:text-white hover:bg-white/10"
+                    aria-label="Prévisualiser le relevé HTML"
+                    title="Prévisualiser le relevé HTML"
+                  >
+                    <FileText className="w-5 h-5" />
+                  </Button>
+                )}
               </>
             )}
             {!isAdmin && (
@@ -783,17 +785,19 @@ ${IKTRACKER_MENTION}
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={previewHTMLReport}
-                  disabled={trips.length === 0}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
-                  aria-label="Prévisualiser le relevé HTML"
-                  title="Prévisualiser le relevé HTML"
-                >
-                  <FileText className="w-5 h-5" />
-                </Button>
+                {!isMobile && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={previewHTMLReport}
+                    disabled={trips.length === 0}
+                    className="text-white/70 hover:text-white hover:bg-white/10"
+                    aria-label="Prévisualiser le relevé HTML"
+                    title="Prévisualiser le relevé HTML"
+                  >
+                    <FileText className="w-5 h-5" />
+                  </Button>
+                )}
               </>
             )}
             <div className="relative" data-tutorial="profile">
