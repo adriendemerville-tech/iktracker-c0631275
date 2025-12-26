@@ -57,22 +57,21 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const container = document.createElement('div');
   container.className = 'pdf-root';
 
-  // IMPORTANT
-  // - Do NOT use opacity < 1: html2canvas captures it, resulting in a "blank" looking PDF.
-  // - Keep it off-screen (not display:none/visibility:hidden) so it still renders.
-  const minWidth = 1122; // A4 landscape @ 96dpi (approx)
-  const minHeight = 794;
-
+  // Keep it rendered (so html2canvas can capture it) but not noticeable for the user.
+  // IMPORTANT: avoid display:none/visibility:hidden -> can lead to a blank canvas.
+  // Also avoid moving it far off-screen with transforms (can produce blank renders in some browsers).
   container.style.position = 'fixed';
-  container.style.left = '-10000px';
+  container.style.left = '0';
   container.style.top = '0';
-  container.style.width = `${Math.max(window.innerWidth, minWidth)}px`;
-  container.style.minHeight = `${Math.max(window.innerHeight, minHeight)}px`;
-  container.style.background = '#ffffff';
+  container.style.width = '1122px'; // A4 landscape @ 96dpi
+  container.style.minHeight = '794px';
+  container.style.background = 'white';
   container.style.pointerEvents = 'none';
-  container.style.zIndex = '-1';
-  container.style.opacity = '1';
+  // Keep it on top (but almost invisible) to avoid blank renders.
+  container.style.zIndex = '2147483647';
+  container.style.opacity = '0.01';
   container.style.overflow = 'visible';
+
 
   if (scopedStyles.trim()) {
     const styleEl = document.createElement('style');
@@ -120,29 +119,9 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   await Promise.race([waitImages, wait(2000)]);
 
   try {
-    // Remove preview-only UI from the capture
-    container.querySelector('.action-buttons')?.remove();
-
-    // Each .page becomes one PDF page (1 canvas screenshot per HTML page)
-    const pageEls = Array.from(container.querySelectorAll<HTMLElement>('.page'));
-
-    // If there is a footer outside the last .page, attach it to the last capture.
-    const footerEl = container.querySelector<HTMLElement>('.footer');
-
-    const targets: HTMLElement[] = pageEls.length ? [...pageEls] : [container];
-    if (pageEls.length && footerEl) {
-      const lastPage = pageEls[pageEls.length - 1];
-      const wrapper = document.createElement('div');
-      wrapper.className = 'pdf-page-wrapper';
-      wrapper.appendChild(lastPage.cloneNode(true));
-      wrapper.appendChild(footerEl.cloneNode(true));
-      targets[targets.length - 1] = wrapper;
-    }
-
-    // Create a jsPDF instance via html2pdf (we'll draw canvases ourselves to ensure 1:1 pages)
-    const base = await html2pdf()
+    const worker = html2pdf()
       .set({
-        margin: 0,
+        margin: 10,
         filename: 'releve-ik.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
@@ -153,89 +132,24 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
           logging: false,
           scrollX: 0,
           scrollY: 0,
+          windowWidth: 1122,
+          windowHeight: 794,
         },
         jsPDF: {
           unit: 'mm',
           format: 'a4',
           orientation: 'landscape',
         },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
       })
-      .from(targets[0])
+      .from(container)
       .toPdf();
 
-    const pdf = await base.get('pdf');
-
-    // Ensure we keep exactly the same number of PDF pages as HTML pages
-    while (pdf.getNumberOfPages() > 1) {
-      pdf.deletePage(pdf.getNumberOfPages());
-    }
-
-    for (let i = 0; i < targets.length; i++) {
-      const target = targets[i];
-
-      // If we created a wrapper for the last page, it is not in the DOM; temporarily mount it
-      let mountedWrapper: HTMLElement | null = null;
-      if (!target.isConnected) {
-        mountedWrapper = target;
-        container.appendChild(mountedWrapper);
-      }
-
-      try {
-        const w = Math.max(target.scrollWidth, minWidth);
-        const h = Math.max(target.scrollHeight, minHeight);
-
-        const canvasWorker = await html2pdf()
-          .set({
-            margin: 0,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-              scale: 2,
-              useCORS: true,
-              backgroundColor: '#ffffff',
-              letterRendering: true,
-              logging: false,
-              scrollX: 0,
-              scrollY: 0,
-              windowWidth: w,
-              windowHeight: h,
-              width: w,
-              height: h,
-            },
-            jsPDF: {
-              unit: 'mm',
-              format: 'a4',
-              orientation: 'landscape',
-            },
-          })
-          .from(target)
-          .toCanvas();
-
-        const canvas = await canvasWorker.get('canvas');
-        const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        pdf.setPage(i + 1);
-        const pageW = pdf.internal.pageSize.getWidth();
-        const pageH = pdf.internal.pageSize.getHeight();
-
-        // Fill the full page to avoid clipped/partial captures
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
-      } finally {
-        if (mountedWrapper) {
-          container.removeChild(mountedWrapper);
-        }
-      }
-    }
-
-    const pdfBlob = pdf.output('blob');
+    const pdfBlob = await worker.get('pdf').then((pdf: any) => pdf.output('blob'));
     return pdfBlob;
   } finally {
     document.body.removeChild(container);
   }
-
 }
 
 
