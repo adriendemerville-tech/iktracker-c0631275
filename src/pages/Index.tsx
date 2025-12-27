@@ -111,6 +111,7 @@ const Index = () => {
   const [showTourLog, setShowTourLog] = useState(false);
   const [showTourHistory, setShowTourHistory] = useState(false);
   const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
+  const [showFinishButton, setShowFinishButton] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
@@ -161,7 +162,8 @@ const Index = () => {
 
   const handleTourButtonClick = () => {
     if (isTourActive) {
-      setShowTourLog(true);
+      // Toggle finish button visibility when tour is active
+      setShowFinishButton(prev => !prev);
       return;
     }
 
@@ -177,10 +179,16 @@ const Index = () => {
     }
 
     // Mobile: start the tour
+    setShowFinishButton(false);
     startTour();
     toast.success("Tournée démarrée", {
       description: "Les arrêts seront détectés automatiquement",
     });
+  };
+
+  const handleFinishButtonClick = () => {
+    setShowFinishButton(false);
+    handleFinishTour();
   };
 
   const handleFinishTour = async () => {
@@ -969,7 +977,17 @@ ${IKTRACKER_MENTION}
       </main>
 
       {/* Tour button - floating above mobile nav (hidden on desktop, now in sidebar) */}
-      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:hidden">
+      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:hidden flex flex-col items-center gap-3">
+        {/* Finish button - appears above tour button when active */}
+        {isTourActive && showFinishButton && (
+          <button
+            onClick={handleFinishButtonClick}
+            className="w-14 h-14 rounded-xl bg-destructive text-destructive-foreground font-semibold text-sm shadow-lg shadow-destructive/30 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-2"
+            aria-label="Terminer la tournée"
+          >
+            Terminer
+          </button>
+        )}
         <TourButton
           isActive={isTourActive}
           isLoading={isTourLoading}
