@@ -976,6 +976,15 @@ ${IKTRACKER_MENTION}
         </section>
       </main>
 
+      {/* Backdrop to close finish button */}
+      {isTourActive && showFinishButton && (
+        <div 
+          className="fixed inset-0 z-[9] md:hidden" 
+          onClick={() => setShowFinishButton(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Tour button - floating above mobile nav (hidden on desktop, now in sidebar) */}
       <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:hidden flex flex-col items-center gap-3">
         {/* Finish button - appears above tour button when active */}
