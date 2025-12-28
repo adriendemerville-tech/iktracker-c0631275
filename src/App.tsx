@@ -37,6 +37,8 @@ const BaremeIK2026 = lazy(() => import("./pages/BaremeIK2026"));
 const Offline = lazy(() => import("./pages/Offline"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -247,6 +249,8 @@ const AppRoutes = () => {
         <Route path="/calendrier" element={<Suspense fallback={<PageLoader />}><Calendrier /></Suspense>} />
         <Route path="/bareme-ik-2026" element={<Suspense fallback={<PageLoader />}><BaremeIK2026 /></Suspense>} />
         <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
+        <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+        <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
         <Route
           path="/recovery"
           element={
