@@ -39,6 +39,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -237,6 +238,16 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <QueryErrorBoundary>
                 <Suspense fallback={<PageLoader />}><Admin /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/admin"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><BlogAdmin /></Suspense>
               </QueryErrorBoundary>
             </ProtectedRoute>
           }
