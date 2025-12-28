@@ -30,7 +30,8 @@ import {
   UserPlus,
   UserMinus,
   Crown,
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -352,6 +353,19 @@ const Admin = () => {
               <p className="text-2xl font-bold">{adminCount}</p>
               <p className="text-xs opacity-80">Admins</p>
             </div>
+          </div>
+          
+          {/* Quick actions */}
+          <div className="mt-4">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate('/app/admin')}
+              className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Gérer le blog
+            </Button>
           </div>
         </div>
       </header>
