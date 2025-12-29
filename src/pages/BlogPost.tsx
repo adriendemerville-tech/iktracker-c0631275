@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -24,6 +25,7 @@ interface BlogPost {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { isAdmin } = useAdmin();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -120,13 +122,25 @@ export default function BlogPost() {
 
       <div className="min-h-screen bg-background">
         <article className="container mx-auto px-4 py-12 max-w-3xl">
-          <Link 
-            to="/blog" 
-            className="inline-flex items-center text-primary hover:underline text-sm mb-8"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour au blog
-          </Link>
+          <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+            <Link 
+              to="/blog" 
+              className="inline-flex items-center text-primary hover:underline text-sm"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Retour au blog
+            </Link>
+            
+            {/* Admin: Edit Button */}
+            {isAdmin && (
+              <Link to={`/blog/edit/${post.id}`}>
+                <Button variant="outline" size="sm">
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Modifier
+                </Button>
+              </Link>
+            )}
+          </div>
 
           <header className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -169,7 +183,7 @@ export default function BlogPost() {
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          <footer className="mt-12 pt-8 border-t border-border">
+          <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
             <Link 
               to="/blog" 
               className="inline-flex items-center text-primary hover:underline"
@@ -177,6 +191,15 @@ export default function BlogPost() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voir tous les articles
             </Link>
+            
+            {isAdmin && (
+              <Link to={`/blog/edit/${post.id}`}>
+                <Button variant="ghost" size="sm">
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Modifier cet article
+                </Button>
+              </Link>
+            )}
           </footer>
         </article>
       </div>

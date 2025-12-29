@@ -40,6 +40,7 @@ const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
+const BlogEditor = lazy(() => import("./pages/BlogEditor"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -262,6 +263,16 @@ const AppRoutes = () => {
         <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
         <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
         <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
+        <Route
+          path="/blog/edit/:id?"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><BlogEditor /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/recovery"
           element={

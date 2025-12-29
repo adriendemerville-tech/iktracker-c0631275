@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -21,6 +24,7 @@ interface BlogPost {
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isAdmin } = useAdmin();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -57,6 +61,18 @@ export default function Blog() {
             <p className="text-muted-foreground text-lg">
               Conseils, actualités et guides sur les indemnités kilométriques
             </p>
+            
+            {/* Admin: New Article Button */}
+            {isAdmin && (
+              <div className="mt-6">
+                <Link to="/blog/edit">
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nouvel article
+                  </Button>
+                </Link>
+              </div>
+            )}
           </header>
 
           {loading ? (
@@ -77,6 +93,14 @@ export default function Blog() {
           ) : posts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Aucun article pour le moment.</p>
+              {isAdmin && (
+                <Link to="/blog/edit" className="mt-4 inline-block">
+                  <Button variant="outline">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Créer le premier article
+                  </Button>
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-6">
