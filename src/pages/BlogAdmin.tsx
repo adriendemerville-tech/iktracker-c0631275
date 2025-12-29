@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, FileText, Save
+  Key, Copy, RefreshCw, FileText, Save, Upload, X, Image as ImageIcon
 } from 'lucide-react';
 import {
   Dialog,
@@ -108,6 +108,9 @@ export default function BlogAdmin() {
   const [newKeyName, setNewKeyName] = useState('');
   const [creatingKey, setCreatingKey] = useState(false);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
+
+  // Image upload state
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -339,6 +342,57 @@ export default function BlogAdmin() {
     toast.success('Copié dans le presse-papier');
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Veuillez sélectionner une image');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('L\'image ne doit pas dépasser 5MB');
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      // Generate unique filename
+      const ext = file.name.split('.').pop();
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+
+      const { data, error } = await supabase.storage
+        .from('blog-images')
+        .upload(filename, file, {
+          cacheControl: '31536000',
+          upsert: false,
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(data.path);
+
+      setPostForm(prev => ({ ...prev, featured_image_url: urlData.publicUrl }));
+      toast.success('Image uploadée');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
+      toast.error('Erreur upload: ' + message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = () => {
+    setPostForm(prev => ({ ...prev, featured_image_url: '' }));
+  };
+
   if (adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -472,12 +526,57 @@ export default function BlogAdmin() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="image">URL Image de couverture</Label>
+                        <Label>Image de couverture</Label>
+                        {postForm.featured_image_url ? (
+                          <div className="relative">
+                            <img 
+                              src={postForm.featured_image_url} 
+                              alt="Preview" 
+                              className="w-full h-48 object-cover rounded-lg border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2"
+                              onClick={removeImage}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                            <input
+                              type="file"
+                              id="image-upload"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                              disabled={uploadingImage}
+                            />
+                            <label 
+                              htmlFor="image-upload" 
+                              className="cursor-pointer flex flex-col items-center gap-2"
+                            >
+                              {uploadingImage ? (
+                                <RefreshCw className="h-8 w-8 text-muted-foreground animate-spin" />
+                              ) : (
+                                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                              )}
+                              <span className="text-sm text-muted-foreground">
+                                {uploadingImage ? 'Upload en cours...' : 'Cliquez pour uploader une image'}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                PNG, JPG, WebP (max 5MB)
+                              </span>
+                            </label>
+                          </div>
+                        )}
                         <Input
-                          id="image"
                           value={postForm.featured_image_url}
                           onChange={(e) => setPostForm(prev => ({ ...prev, featured_image_url: e.target.value }))}
-                          placeholder="https://..."
+                          placeholder="Ou collez une URL..."
+                          className="mt-2"
                         />
                       </div>
                       <div className="space-y-2">
