@@ -360,7 +360,7 @@ const Admin = () => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => navigate('/app/admin')}
+              onClick={() => navigate('/blog/edit')}
               className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0"
             >
               <FileText className="w-4 h-4 mr-2" />
