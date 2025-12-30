@@ -72,35 +72,51 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Protected endpoints (API key required)
+    // Protected endpoints (API key or Bearer token required)
     const apiKey = req.headers.get('x-api-key')
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key required' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+    const authHeader = req.headers.get('authorization')
+    const webhookToken = Deno.env.get('BLOG_WEBHOOK_TOKEN')
+    
+    // Check Bearer token first (for external webhooks)
+    let isWebhookAuth = false
+    if (authHeader?.startsWith('Bearer ')) {
+      const bearerToken = authHeader.substring(7)
+      if (webhookToken && bearerToken === webhookToken) {
+        isWebhookAuth = true
+        console.log('Webhook authentication successful via Bearer token')
+      }
     }
+    
+    // If not webhook auth, check x-api-key
+    if (!isWebhookAuth) {
+      if (!apiKey) {
+        return new Response(JSON.stringify({ error: 'API key or Bearer token required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
 
-    // Validate API key
-    const { data: keyData, error: keyError } = await supabase
-      .from('blog_api_keys')
-      .select('id')
-      .eq('api_key', apiKey)
-      .eq('is_active', true)
-      .single()
+      // Validate API key from database
+      const { data: keyData, error: keyError } = await supabase
+        .from('blog_api_keys')
+        .select('id')
+        .eq('api_key', apiKey)
+        .eq('is_active', true)
+        .single()
 
-    if (keyError || !keyData) {
-      return new Response(JSON.stringify({ error: 'Invalid API key' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      if (keyError || !keyData) {
+        return new Response(JSON.stringify({ error: 'Invalid API key' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Update last_used_at
+      await supabase
+        .from('blog_api_keys')
+        .update({ last_used_at: new Date().toISOString() })
+        .eq('id', keyData.id)
     }
-
-    // Update last_used_at
-    await supabase
-      .from('blog_api_keys')
-      .update({ last_used_at: new Date().toISOString() })
-      .eq('id', keyData.id)
 
     // Handle protected operations
     if (resource === 'posts') {
