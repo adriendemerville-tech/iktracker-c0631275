@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -43,6 +44,7 @@ interface BlogPost {
 export default function BlogEditor() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   
   const [loading, setLoading] = useState(!!id);
@@ -61,12 +63,19 @@ export default function BlogEditor() {
     status: 'draft' as BlogPostStatus,
   });
 
-  // Redirect non-admins
+  // Access control
   useEffect(() => {
-    if (!adminLoading && !isAdmin) {
-      navigate('/blog');
+    if (adminLoading) return;
+
+    if (!user) {
+      navigate('/auth', { replace: true });
+      return;
     }
-  }, [isAdmin, adminLoading, navigate]);
+
+    if (!isAdmin) {
+      navigate('/blog', { replace: true });
+    }
+  }, [adminLoading, user, isAdmin, navigate]);
 
   // Load existing post if editing
   useEffect(() => {
@@ -270,7 +279,9 @@ export default function BlogEditor() {
   return (
     <>
       <Helmet>
-        <title>{existingPost ? 'Modifier l\'article' : 'Nouvel article'} - Blog IKtracker</title>
+        <title>{existingPost ? "Modifier l'article" : "Nouvel article"} - Blog IKtracker</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`https://iktracker.fr/blog/edit${id ? `/${id}` : ''}`} />
       </Helmet>
 
       <div className="min-h-screen bg-background">
