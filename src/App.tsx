@@ -244,6 +244,26 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/admin/blog"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><BlogAdmin /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/edit/:id?"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><BlogEditor /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/app/admin"
           element={
             <ProtectedRoute>
