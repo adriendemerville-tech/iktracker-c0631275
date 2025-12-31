@@ -17,6 +17,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
     { label: 'Mode Tournée', href: '/mode-tournee' },
     { label: 'Calendrier', href: '/calendrier' },
     { label: 'Barème des indemnités', href: '/bareme-ik-2026', isNew: true },
+    { label: 'Blog', href: '/blog' },
     { label: 'Installation', href: '/install' },
     { label: 'Expert-Comptable', href: '/expert-comptable' },
   ];
