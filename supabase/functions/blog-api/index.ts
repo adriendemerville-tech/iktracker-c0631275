@@ -132,6 +132,9 @@ Deno.serve(async (req) => {
           })
         }
 
+        // Auto-set published_at if not provided by CMS
+        const published_at = body.published_at || new Date().toISOString()
+
         const postData: Record<string, unknown> = {
           title,
           slug: postSlug,
@@ -141,11 +144,10 @@ Deno.serve(async (req) => {
           featured_image_url,
           author_name,
           status: status || 'draft',
+          published_at,
         }
 
-        if (status === 'published') {
-          postData.published_at = new Date().toISOString()
-        }
+        console.log('Creating post with published_at:', published_at)
 
         const { data, error } = await supabase
           .from('blog_posts')
