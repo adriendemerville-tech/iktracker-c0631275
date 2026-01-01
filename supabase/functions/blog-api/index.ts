@@ -123,7 +123,13 @@ Deno.serve(async (req) => {
       if (req.method === 'POST') {
         // Create new post
         const body = await req.json()
-        const { title, slug: postSlug, subtitle, content, meta_description, featured_image_url, author_name, status } = body
+        const { title, slug: postSlug, subtitle, meta_description, featured_image_url, author_name, status } = body
+        
+        // Support multiple content field names from different CMS systems
+        const content = body.content || body.markdown || body.body || body.text || ''
+        
+        console.log('Received body fields:', Object.keys(body))
+        console.log('Content field resolved from:', body.content ? 'content' : body.markdown ? 'markdown' : body.body ? 'body' : body.text ? 'text' : 'none')
 
         if (!title || !postSlug) {
           return new Response(JSON.stringify({ error: 'Title and slug are required' }), {
@@ -139,7 +145,7 @@ Deno.serve(async (req) => {
           title,
           slug: postSlug,
           subtitle,
-          content: content || '',
+          content,
           meta_description,
           featured_image_url,
           author_name,
@@ -148,6 +154,7 @@ Deno.serve(async (req) => {
         }
 
         console.log('Creating post with published_at:', published_at)
+        console.log('Content length:', content.length)
 
         const { data, error } = await supabase
           .from('blog_posts')
@@ -172,7 +179,12 @@ Deno.serve(async (req) => {
       if (req.method === 'PUT' && slug) {
         // Update post
         const body = await req.json()
-        const { title, subtitle, content, meta_description, featured_image_url, author_name, status } = body
+        const { title, subtitle, meta_description, featured_image_url, author_name, status } = body
+        
+        // Support multiple content field names from different CMS systems
+        const content = body.content ?? body.markdown ?? body.body ?? body.text
+
+        console.log('Update - Received body fields:', Object.keys(body))
 
         const updateData: Record<string, unknown> = {}
         if (title !== undefined) updateData.title = title
