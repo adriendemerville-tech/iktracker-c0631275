@@ -6,6 +6,21 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 }
 
+function resolveField(body: Record<string, any>, keys: string[]) {
+  for (const key of keys) {
+    if (body[key] !== undefined && body[key] !== null) {
+      return { key, value: body[key] }
+    }
+  }
+  return { key: null as string | null, value: undefined as any }
+}
+
+function asString(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (value === null || value === undefined) return ''
+  return String(value)
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -121,15 +136,15 @@ Deno.serve(async (req) => {
     // Handle protected operations
     if (resource === 'posts') {
       if (req.method === 'POST') {
-        // Create new post
+        // Create or update post (CMS sync)
         const body = await req.json()
-        const { title, slug: postSlug, subtitle, meta_description, featured_image_url, author_name, status } = body
-        
-        // Support multiple content field names from different CMS systems
-        const content = body.content || body.markdown || body.body || body.text || ''
-        
+
         console.log('Received body fields:', Object.keys(body))
-        console.log('Content field resolved from:', body.content ? 'content' : body.markdown ? 'markdown' : body.body ? 'body' : body.text ? 'text' : 'none')
+
+        const title = body.title
+        const postSlug = body.slug
+        const statusResolved = resolveField(body, ['status', 'state', 'postStatus'])
+        const status = statusResolved.value ?? 'draft'
 
         if (!title || !postSlug) {
           return new Response(JSON.stringify({ error: 'Title and slug are required' }), {
@@ -138,32 +153,84 @@ Deno.serve(async (req) => {
           })
         }
 
-        // Auto-set published_at if not provided by CMS
-        const published_at = body.published_at || new Date().toISOString()
+        const subtitleResolved = resolveField(body, ['subtitle', 'subTitle', 'sub_title', 'sousTitre', 'sous_titre'])
+        const metaResolved = resolveField(body, ['meta_description', 'metaDescription', 'meta', 'seoDescription', 'description'])
+        const imageResolved = resolveField(body, [
+          'featured_image_url',
+          'featuredImageUrl',
+          'featuredImageURL',
+          'heroImageUrl',
+          'hero_image_url',
+          'coverImageUrl',
+          'imageUrl',
+          'image_url',
+        ])
+        const authorResolved = resolveField(body, ['author_name', 'authorName', 'author', 'auteur', 'byline'])
+
+        // Support multiple content field names from different CMS systems
+        const contentResolved = resolveField(body, [
+          'content_markdown',
+          'contentMarkdown',
+          'content_md',
+          'contentMd',
+          'markdown',
+          'content',
+          'body',
+          'text',
+          // fallback if some CMS only sends HTML
+          'content_html',
+          'contentHtml',
+        ])
+        const content = asString(contentResolved.value)
+
+        // Published date mapping
+        const publishedResolved = resolveField(body, [
+          'published_at',
+          'publishedAt',
+          'published_time',
+          'publishedTime',
+          // CMS often provides createdAt only
+          'createdAt',
+          'created_at',
+        ])
+        const publishedCandidate = asString(publishedResolved.value).trim()
+        const published_at = publishedCandidate
+          ? publishedCandidate
+          : status === 'published'
+            ? new Date().toISOString()
+            : null
+
+        console.log('Resolved CMS fields:', {
+          statusFrom: statusResolved.key,
+          subtitleFrom: subtitleResolved.key,
+          metaFrom: metaResolved.key,
+          imageFrom: imageResolved.key,
+          authorFrom: authorResolved.key,
+          contentFrom: contentResolved.key,
+          publishedFrom: publishedResolved.key,
+          contentLength: content.length,
+        })
 
         const postData: Record<string, unknown> = {
           title,
           slug: postSlug,
-          subtitle,
+          subtitle: subtitleResolved.value ?? null,
           content,
-          meta_description,
-          featured_image_url,
-          author_name,
-          status: status || 'draft',
+          meta_description: metaResolved.value ?? null,
+          featured_image_url: imageResolved.value ?? null,
+          author_name: authorResolved.value ?? null,
+          status,
           published_at,
         }
 
-        console.log('Creating post with published_at:', published_at)
-        console.log('Content length:', content.length)
-
         const { data, error } = await supabase
           .from('blog_posts')
-          .insert(postData)
+          .upsert(postData, { onConflict: 'slug' })
           .select()
           .single()
 
         if (error) {
-          console.error('Error creating post:', error)
+          console.error('Error upserting post:', error)
           return new Response(JSON.stringify({ error: 'Failed to create post', details: error.message }), {
             status: 500,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -179,35 +246,93 @@ Deno.serve(async (req) => {
       if (req.method === 'PUT' && slug) {
         // Update post
         const body = await req.json()
-        const { title, subtitle, meta_description, featured_image_url, author_name, status } = body
-        
-        // Support multiple content field names from different CMS systems
-        const content = body.content ?? body.markdown ?? body.body ?? body.text
 
         console.log('Update - Received body fields:', Object.keys(body))
 
         const updateData: Record<string, unknown> = {}
-        if (title !== undefined) updateData.title = title
-        if (subtitle !== undefined) updateData.subtitle = subtitle
-        if (content !== undefined) updateData.content = content
-        if (meta_description !== undefined) updateData.meta_description = meta_description
-        if (featured_image_url !== undefined) updateData.featured_image_url = featured_image_url
-        if (author_name !== undefined) updateData.author_name = author_name
-        if (status !== undefined) {
-          updateData.status = status
-          if (status === 'published') {
-            // Check if already published
+
+        const titleResolved = resolveField(body, ['title'])
+        if (titleResolved.value !== undefined) updateData.title = titleResolved.value
+
+        const subtitleResolved = resolveField(body, ['subtitle', 'subTitle', 'sub_title', 'sousTitre', 'sous_titre'])
+        if (subtitleResolved.value !== undefined) updateData.subtitle = subtitleResolved.value
+
+        const metaResolved = resolveField(body, ['meta_description', 'metaDescription', 'meta', 'seoDescription', 'description'])
+        if (metaResolved.value !== undefined) updateData.meta_description = metaResolved.value
+
+        const imageResolved = resolveField(body, [
+          'featured_image_url',
+          'featuredImageUrl',
+          'featuredImageURL',
+          'heroImageUrl',
+          'hero_image_url',
+          'coverImageUrl',
+          'imageUrl',
+          'image_url',
+        ])
+        if (imageResolved.value !== undefined) updateData.featured_image_url = imageResolved.value
+
+        const authorResolved = resolveField(body, ['author_name', 'authorName', 'author', 'auteur', 'byline'])
+        if (authorResolved.value !== undefined) updateData.author_name = authorResolved.value
+
+        const contentResolved = resolveField(body, [
+          'content_markdown',
+          'contentMarkdown',
+          'content_md',
+          'contentMd',
+          'markdown',
+          'content',
+          'body',
+          'text',
+          'content_html',
+          'contentHtml',
+        ])
+        if (contentResolved.value !== undefined) updateData.content = asString(contentResolved.value)
+
+        const publishedResolved = resolveField(body, [
+          'published_at',
+          'publishedAt',
+          'published_time',
+          'publishedTime',
+          'createdAt',
+          'created_at',
+        ])
+        if (publishedResolved.value !== undefined) {
+          const candidate = asString(publishedResolved.value).trim()
+          updateData.published_at = candidate || null
+        }
+
+        const statusResolved = resolveField(body, ['status', 'state', 'postStatus'])
+        if (statusResolved.value !== undefined) {
+          updateData.status = statusResolved.value
+
+          if (statusResolved.value === 'published') {
             const { data: existing } = await supabase
               .from('blog_posts')
               .select('published_at')
               .eq('slug', slug)
               .single()
-            
-            if (!existing?.published_at) {
+
+            const alreadyPublishedAt = existing?.published_at
+            const incomingPublishedAt = updateData.published_at
+
+            if (!alreadyPublishedAt && (incomingPublishedAt === undefined || incomingPublishedAt === null || incomingPublishedAt === '')) {
               updateData.published_at = new Date().toISOString()
             }
           }
         }
+
+        console.log('Update - Resolved CMS fields:', {
+          titleFrom: titleResolved.key,
+          subtitleFrom: subtitleResolved.key,
+          metaFrom: metaResolved.key,
+          imageFrom: imageResolved.key,
+          authorFrom: authorResolved.key,
+          contentFrom: contentResolved.key,
+          publishedFrom: publishedResolved.key,
+          statusFrom: statusResolved.key,
+          hasUpdateData: Object.keys(updateData).length,
+        })
 
         const { data, error } = await supabase
           .from('blog_posts')
