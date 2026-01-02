@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { convertToWebP } from '@/lib/image-utils';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
   Key, Copy, RefreshCw, FileText, Save, Upload, X, Image as ImageIcon
@@ -361,15 +362,18 @@ export default function BlogAdmin() {
     setUploadingImage(true);
 
     try {
-      // Generate unique filename
-      const ext = file.name.split('.').pop();
-      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      // Convert image to WebP with 80% quality
+      const webpFile = await convertToWebP(file, 0.8);
+      
+      // Generate unique filename with .webp extension
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
 
       const { data, error } = await supabase.storage
         .from('blog-images')
-        .upload(filename, file, {
+        .upload(filename, webpFile, {
           cacheControl: '31536000',
           upsert: false,
+          contentType: 'image/webp',
         });
 
       if (error) throw error;
@@ -380,7 +384,7 @@ export default function BlogAdmin() {
         .getPublicUrl(data.path);
 
       setPostForm(prev => ({ ...prev, featured_image_url: urlData.publicUrl }));
-      toast.success('Image uploadée');
+      toast.success('Image convertie en WebP et uploadée');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Erreur inconnue';
       toast.error('Erreur upload: ' + message);
