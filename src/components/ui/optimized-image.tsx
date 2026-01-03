@@ -11,6 +11,39 @@ interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   eager?: boolean;
   // Aspect ratio for placeholder (e.g., "16/9", "1/1", "4/3")
   aspectRatio?: string;
+  // Enable responsive images with srcset
+  responsive?: boolean;
+}
+
+// Generate responsive srcset for Supabase storage images
+function generateSrcSet(src: string): string | undefined {
+  // Only apply to Supabase storage URLs
+  if (!src.includes('supabase.co/storage')) {
+    return undefined;
+  }
+  
+  // Define breakpoints for responsive images
+  const widths = [320, 480, 640, 768, 1024, 1280];
+  
+  // For Supabase, we can use image transformation via URL params
+  // Format: /render/image/public/{bucket}/{path}?width=X&quality=Y
+  const srcSet = widths.map(w => {
+    // Check if it's a direct object URL or render URL
+    if (src.includes('/object/public/')) {
+      // Convert to render URL for transformation
+      const renderUrl = src.replace('/object/public/', '/render/image/public/');
+      const separator = renderUrl.includes('?') ? '&' : '?';
+      return `${renderUrl}${separator}width=${w}&quality=75 ${w}w`;
+    }
+    return `${src} ${w}w`;
+  }).join(', ');
+  
+  return srcSet;
+}
+
+// Generate sizes attribute for responsive images
+function generateSizes(): string {
+  return '(max-width: 480px) 100vw, (max-width: 768px) 90vw, (max-width: 1024px) 80vw, 720px';
 }
 
 export function OptimizedImage({
@@ -22,6 +55,7 @@ export function OptimizedImage({
   placeholderClassName,
   eager = false,
   aspectRatio,
+  responsive = true,
   ...props
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -58,6 +92,14 @@ export function OptimizedImage({
       ? { aspectRatio: `${width}/${height}` }
       : undefined;
 
+  // Generate optimized src for initial load (smaller for mobile)
+  const optimizedSrc = src.includes('supabase.co/storage') && src.includes('/object/public/')
+    ? src.replace('/object/public/', '/render/image/public/') + (src.includes('?') ? '&' : '?') + 'width=720&quality=75'
+    : src;
+
+  const srcSet = responsive ? generateSrcSet(src) : undefined;
+  const sizes = responsive && srcSet ? generateSizes() : undefined;
+
   return (
     <div 
       ref={imgRef} 
@@ -75,10 +117,12 @@ export function OptimizedImage({
         />
       )}
       
-      {/* Actual image with explicit dimensions */}
+      {/* Actual image with responsive srcset */}
       {isInView && (
         <img
-          src={src}
+          src={optimizedSrc}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={alt}
           width={width}
           height={height}
