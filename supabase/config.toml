@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.blog-api]
 verify_jwt = false
+
+[functions.convert-blog-images]
+verify_jwt = false
