@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { convertToWebP } from '@/lib/image-utils';
+import { ContentEditor } from '@/components/blog/ContentEditor';
 import { 
   ArrowLeft, Save, Eye, EyeOff, RefreshCw, 
   Image as ImageIcon, X, ExternalLink
@@ -483,14 +484,12 @@ export default function BlogEditor() {
 
               {/* Content */}
               <div className="space-y-2">
-                <Label htmlFor="content">Contenu (HTML)</Label>
-                <Textarea
-                  id="content"
+                <Label htmlFor="content">Contenu (Markdown/HTML)</Label>
+                <ContentEditor
                   value={form.content}
-                  onChange={(e) => setForm(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="<p>Contenu de l'article en HTML...</p>"
+                  onChange={(content) => setForm(prev => ({ ...prev, content }))}
+                  placeholder="Contenu de l'article en Markdown ou HTML..."
                   rows={16}
-                  className="font-mono text-sm"
                 />
               </div>
 
