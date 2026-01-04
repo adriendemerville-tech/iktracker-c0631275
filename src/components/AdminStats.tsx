@@ -62,7 +62,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { loadPDFLibraries } from '@/lib/pdf-utils';
+// PDF export has been removed - export to CSV only
 import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
 import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -591,52 +591,7 @@ export function AdminStats() {
     },
   ], [marketingStats, marketingStatsLoading, period]);
 
-  const exportToPDF = async () => {
-    const { jsPDF, autoTable } = await loadPDFLibraries();
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    
-    // Title
-    doc.setFontSize(18);
-    doc.text('Statistiques Admin', pageWidth / 2, 20, { align: 'center' });
-    
-    // Period info
-    doc.setFontSize(12);
-    doc.text(`Période: ${periodConfig[period].label} (${dateRange.start_date} - ${dateRange.end_date})`, pageWidth / 2, 30, { align: 'center' });
-    doc.text(`Exporté le: ${format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}`, pageWidth / 2, 38, { align: 'center' });
-
-    // Stats table
-    autoTable(doc, {
-      startY: 50,
-      head: [['Métrique', 'Valeur']],
-      body: [
-        ['Utilisateurs', formatNumber(stats?.total_users || 0)],
-        ['Trajets', formatNumber(stats?.total_trips || 0)],
-        ['Total IK', formatCurrency(stats?.total_ik || 0)],
-        ['Distance totale', formatKm(stats?.total_km || 0)],
-        ['Visites simultanées (actuel)', onlineUsers.toString()],
-      ],
-      theme: 'striped',
-      headStyles: { fillColor: [59, 130, 246] },
-    });
-
-    // Registrations table
-    if (registrations.length > 0) {
-      const finalY = (doc as any).lastAutoTable?.finalY || 100;
-      doc.setFontSize(14);
-      doc.text('Nouveaux inscrits par jour', 14, finalY + 15);
-      
-      autoTable(doc, {
-        startY: finalY + 20,
-        head: [['Date', 'Nombre']],
-        body: registrations.map(r => [r.day, r.count.toString()]),
-        theme: 'striped',
-        headStyles: { fillColor: [59, 130, 246] },
-      });
-    }
-
-    doc.save(`stats-admin-${period}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-  };
+  // PDF export removed - use CSV instead
 
   const exportToCSV = () => {
     // Stats CSV
@@ -694,16 +649,6 @@ export function AdminStats() {
             ))}
           </ToggleGroup>
           <div className="flex items-center gap-1 ml-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={exportToPDF}
-              disabled={statsLoading}
-              className="gap-1.5"
-            >
-              <FileText className="w-4 h-4" />
-              PDF
-            </Button>
             <Button 
               variant="outline" 
               size="sm" 

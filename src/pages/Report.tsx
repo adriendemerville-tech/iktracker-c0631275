@@ -15,8 +15,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { loadZip, preloadZip, htmlToPdfBlob } from '@/lib/pdf-utils';
-import { printReport, generatePrintableHTML } from '@/lib/print-utils';
+// PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
 
 // Lazy load heavy components
 const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
@@ -311,7 +310,8 @@ ${IKTRACKER_MENTION}
   };
 
   // Generate HTML content for PDF (used in ZIP export)
-  const generateHTMLContent = () => {
+  const generateHTMLContent = async () => {
+    const { generatePrintableHTML } = await import('@/lib/print-utils');
     return generatePrintableHTML({
       trips,
       vehicles,
@@ -321,7 +321,8 @@ ${IKTRACKER_MENTION}
   };
 
   // Direct print function (opens browser print dialog)
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const { printReport } = await import('@/lib/print-utils');
     printReport({
       trips,
       vehicles,
@@ -331,9 +332,9 @@ ${IKTRACKER_MENTION}
   };
 
   // Debug: open the HTML report in a new tab to verify it's not empty
-  const previewHTMLReport = () => {
+  const previewHTMLReport = async () => {
     try {
-      const htmlContent = generateHTMLContent();
+      const htmlContent = await generateHTMLContent();
       const w = window.open('', '_blank');
       if (!w) {
         toast.error("Popup bloqué", { description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé" });
@@ -357,6 +358,7 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
+      const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
@@ -370,7 +372,7 @@ ${IKTRACKER_MENTION}
       zip.file(`releve-ik-${dateStr}.csv`, csvContent);
       
       // Generate HTML content
-      const htmlContent = generateHTMLContent();
+      const htmlContent = await generateHTMLContent();
       
       // Convert HTML to PDF
       toast.info("Génération du PDF...", { duration: 2000 });
@@ -407,6 +409,7 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
+      const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
@@ -421,7 +424,7 @@ ${IKTRACKER_MENTION}
       
       // Generate HTML content and convert to PDF
       toast.info("Génération du PDF...", { duration: 2000 });
-      const htmlContent = generateHTMLContent();
+      const htmlContent = await generateHTMLContent();
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
       
@@ -527,7 +530,7 @@ ${IKTRACKER_URL}`
               >
                 <FileText className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { preloadZip(); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
+              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { import('@/lib/pdf-utils'); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">
