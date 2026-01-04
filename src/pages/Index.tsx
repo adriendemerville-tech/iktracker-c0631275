@@ -35,8 +35,7 @@ import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
-import { loadZip, preloadZip, htmlToPdfBlob } from '@/lib/pdf-utils';
-import { printReport, generatePrintableHTML } from '@/lib/print-utils';
+// PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Lazy loaded components - not needed for initial render
@@ -512,7 +511,8 @@ ${IKTRACKER_MENTION}
   };
 
   // Generate HTML content for export (replaces heavy PDF library)
-  const generateHTMLContent = () => {
+  const generateHTMLContent = async () => {
+    const { generatePrintableHTML } = await import('@/lib/print-utils');
     return generatePrintableHTML({
       trips,
       vehicles,
@@ -522,7 +522,8 @@ ${IKTRACKER_MENTION}
   };
 
   // Direct print function (opens browser print dialog)
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const { printReport } = await import('@/lib/print-utils');
     printReport({
       trips,
       vehicles,
@@ -532,9 +533,9 @@ ${IKTRACKER_MENTION}
   };
 
   // Debug: open the HTML report in a new tab to verify it's not empty
-  const previewHTMLReport = () => {
+  const previewHTMLReport = async () => {
     try {
-      const htmlContent = generateHTMLContent();
+      const htmlContent = await generateHTMLContent();
       const w = window.open('', '_blank');
       if (!w) {
         toast.error("Popup bloqué", { description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé" });
@@ -557,6 +558,7 @@ ${IKTRACKER_MENTION}
 
     setIsExporting(true);
     try {
+      const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const JSZip = await loadZip();
       const zip = new JSZip();
       const dateStr = new Date().toISOString().split('T')[0];
@@ -565,7 +567,7 @@ ${IKTRACKER_MENTION}
       zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
 
       toast.info("Génération du PDF...", { duration: 2000 });
-      const htmlContent = generateHTMLContent();
+      const htmlContent = await generateHTMLContent();
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
 
@@ -756,7 +758,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={exportZip}
-                  onMouseEnter={() => { preloadZip(); }}
+                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   data-tutorial="download"
@@ -783,7 +785,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={exportZip}
-                  onMouseEnter={() => { preloadZip(); }}
+                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white/70 hover:text-white hover:bg-white/10"
                   data-tutorial="download"
