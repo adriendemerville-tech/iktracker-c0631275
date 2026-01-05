@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
@@ -115,7 +115,17 @@ const Index = () => {
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [hidePendingTrips, setHidePendingTrips] = useState(() => {
+    return localStorage.getItem('iktracker_hide_pending') === 'true';
+  });
   const isMobile = useIsMobile();
+  
+  // Persist hide pending preference
+  const toggleHidePendingTrips = () => {
+    const newValue = !hidePendingTrips;
+    setHidePendingTrips(newValue);
+    localStorage.setItem('iktracker_hide_pending', String(newValue));
+  };
   const { showTutorial, completeTutorial, startTutorial } = useTutorial();
   
   const {
@@ -857,27 +867,36 @@ ${IKTRACKER_MENTION}
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="w-5 h-5 text-purple-300" />
               <h2 className="text-lg font-semibold text-purple-100">À compléter</h2>
-              <Badge className="ml-auto bg-purple-400/20 text-purple-200 border-purple-400/30 hover:bg-purple-400/30">
+              <Badge className="bg-purple-400/20 text-purple-200 border-purple-400/30 hover:bg-purple-400/30">
                 {trips.filter(t => t.status === 'pending_location').length}
               </Badge>
+              <button
+                onClick={toggleHidePendingTrips}
+                className="ml-auto p-1.5 rounded-md bg-purple-400/20 hover:bg-purple-400/30 text-purple-200 transition-colors"
+                title={hidePendingTrips ? "Afficher les trajets" : "Masquer les trajets"}
+              >
+                {hidePendingTrips ? <ChevronDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+              </button>
             </div>
-            <div className="space-y-3">
-              {trips
-                .filter(t => t.status === 'pending_location')
-                .map((trip) => (
-                  <TripCard 
-                    key={trip.id} 
-                    trip={trip} 
-                    vehicle={getVehicle(trip.vehicleId)}
-                    savedLocations={savedLocations}
-                    showTripTime={preferences.showTripTime}
-                    onTripUpdated={() => {
-                      // Reload page to refresh trips after completion
-                      window.location.reload();
-                    }}
-                  />
-                ))}
-            </div>
+            {!hidePendingTrips && (
+              <div className="space-y-3">
+                {trips
+                  .filter(t => t.status === 'pending_location')
+                  .map((trip) => (
+                    <TripCard 
+                      key={trip.id} 
+                      trip={trip} 
+                      vehicle={getVehicle(trip.vehicleId)}
+                      savedLocations={savedLocations}
+                      showTripTime={preferences.showTripTime}
+                      onTripUpdated={() => {
+                        // Reload page to refresh trips after completion
+                        window.location.reload();
+                      }}
+                    />
+                  ))}
+              </div>
+            )}
           </section>
         )}
 
