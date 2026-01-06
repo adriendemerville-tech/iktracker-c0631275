@@ -12,11 +12,13 @@ interface DraggableStatsSectionProps {
   children: ReactNode;
   className?: string;
   isCard?: boolean;
+  isDraggable?: boolean; // Explicitly control if drag handle should be shown
 }
 
-export function DraggableStatsSection({ id, children, className = '', isCard = true }: DraggableStatsSectionProps) {
+export function DraggableStatsSection({ id, children, className = '', isCard = true, isDraggable = true }: DraggableStatsSectionProps) {
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
+  const canDrag = isDesktop && isDraggable;
 
   const {
     attributes,
@@ -25,7 +27,7 @@ export function DraggableStatsSection({ id, children, className = '', isCard = t
     transform,
     transition,
     isDragging,
-  } = useSortable({ id, disabled: !isDesktop });
+  } = useSortable({ id, disabled: !canDrag });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -50,13 +52,15 @@ export function DraggableStatsSection({ id, children, className = '', isCard = t
       style={style}
       className={`relative group ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${className}`}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-3 right-3 z-10 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors"
-      >
-        <Move className="w-3.5 h-3.5 text-muted-foreground" />
-      </div>
+      {canDrag && (
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute top-3 right-3 z-10 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors"
+        >
+          <Move className="w-3.5 h-3.5 text-muted-foreground" />
+        </div>
+      )}
       {children}
     </Wrapper>
   );
