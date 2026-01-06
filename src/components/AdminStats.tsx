@@ -61,6 +61,7 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
+  rectSortingStrategy,
 } from '@dnd-kit/sortable';
 
 // PDF export has been removed - export to CSV only
@@ -168,6 +169,12 @@ const DEFAULT_SECTION_ORDER = [
   'top-users',
 ];
 
+const DEFAULT_MARKETING_SECTION_ORDER = [
+  'marketing-views-chart',
+  'marketing-signup-clicks-chart',
+  'marketing-stats-by-page',
+];
+
 export function AdminStats() {
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [period, setPeriod] = useState<PeriodFilter>('month');
@@ -186,6 +193,22 @@ export function AdminStats() {
       }
     }
     return DEFAULT_SECTION_ORDER;
+  });
+
+  // Marketing blocks ordering (charts + table)
+  const [marketingSectionOrder, setMarketingSectionOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem('admin-marketing-section-order');
+    if (saved) {
+      try {
+        const savedOrder = JSON.parse(saved) as string[];
+        const filtered = savedOrder.filter((id) => DEFAULT_MARKETING_SECTION_ORDER.includes(id));
+        const missing = DEFAULT_MARKETING_SECTION_ORDER.filter((id) => !filtered.includes(id));
+        return [...filtered, ...missing];
+      } catch {
+        return DEFAULT_MARKETING_SECTION_ORDER;
+      }
+    }
+    return DEFAULT_MARKETING_SECTION_ORDER;
   });
 
   const sensors = useSensors(
@@ -207,6 +230,19 @@ export function AdminStats() {
         const newIndex = items.indexOf(over.id as string);
         const newOrder = arrayMove(items, oldIndex, newIndex);
         localStorage.setItem('admin-stats-section-order', JSON.stringify(newOrder));
+        return newOrder;
+      });
+    }
+  };
+
+  const handleMarketingSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setMarketingSectionOrder((items) => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        localStorage.setItem('admin-marketing-section-order', JSON.stringify(newOrder));
         return newOrder;
       });
     }
@@ -694,141 +730,160 @@ export function AdminStats() {
         {/* Marketing Stats Cards - Draggable on desktop */}
         <DraggableMarketingCards cards={marketingCardsData} />
 
-        {/* Marketing charts row */}
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
-          {/* Views by day chart */}
-          <DraggableStatsSection id="marketing-views-chart" isCard={true} isDraggable={false}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
-                Visites par jour
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {marketingViewsLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : marketingViewsByDay.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={marketingViewsByDay}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="views" 
-                      name="Visites"
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="unique_visitors" 
-                      name="Visiteurs uniques"
-                      stroke="hsl(var(--chart-2))" 
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 4, stroke: 'hsl(var(--chart-2))', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </DraggableStatsSection>
+        {/* Marketing charts + table - Draggable (desktop only handle, but sortable context always present) */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleMarketingSectionDragEnd}
+        >
+          <SortableContext items={marketingSectionOrder} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {marketingSectionOrder.map((blockId) => {
+                switch (blockId) {
+                  case 'marketing-views-chart':
+                    return (
+                      <DraggableStatsSection key={blockId} id={blockId}>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <BarChart3 className="w-5 h-5 text-blue-500" />
+                            Visites par jour
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {marketingViewsLoading ? (
+                            <Skeleton className="h-[200px] w-full" />
+                          ) : marketingViewsByDay.length === 0 ? (
+                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+                          ) : (
+                            <ResponsiveContainer width="100%" height={200}>
+                              <LineChart data={marketingViewsByDay}>
+                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                                <YAxis tick={{ fontSize: 10 }} />
+                                <Tooltip
+                                  contentStyle={{
+                                    backgroundColor: 'hsl(var(--background))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '8px',
+                                  }}
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="views"
+                                  name="Visites"
+                                  stroke="hsl(var(--primary))"
+                                  strokeWidth={2}
+                                  dot={false}
+                                  activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="unique_visitors"
+                                  name="Visiteurs uniques"
+                                  stroke="hsl(var(--chart-2))"
+                                  strokeWidth={2}
+                                  dot={false}
+                                  activeDot={{ r: 4, stroke: 'hsl(var(--chart-2))', strokeWidth: 2 }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          )}
+                        </CardContent>
+                      </DraggableStatsSection>
+                    );
 
-          {/* Signup clicks by day chart */}
-          <DraggableStatsSection id="marketing-signup-clicks-chart" isCard={true} isDraggable={false}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-emerald-500" />
-                Clics inscription par jour
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {signupClicksLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : signupClicksByDay.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={signupClicksByDay}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="clicks" 
-                      name="Clics inscription"
-                      stroke="hsl(142, 76%, 36%)" 
-                      strokeWidth={2}
-                      dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
-                      activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </DraggableStatsSection>
-        </div>
+                  case 'marketing-signup-clicks-chart':
+                    return (
+                      <DraggableStatsSection key={blockId} id={blockId}>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <UserPlus className="w-5 h-5 text-emerald-500" />
+                            Clics inscription par jour
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {signupClicksLoading ? (
+                            <Skeleton className="h-[200px] w-full" />
+                          ) : signupClicksByDay.length === 0 ? (
+                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+                          ) : (
+                            <ResponsiveContainer width="100%" height={200}>
+                              <LineChart data={signupClicksByDay}>
+                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                                <Tooltip
+                                  contentStyle={{
+                                    backgroundColor: 'hsl(var(--background))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '8px',
+                                  }}
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="clicks"
+                                  name="Clics inscription"
+                                  stroke="hsl(142, 76%, 36%)"
+                                  strokeWidth={2}
+                                  dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
+                                  activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          )}
+                        </CardContent>
+                      </DraggableStatsSection>
+                    );
 
-        {/* Stats by page table */}
-        <div className="grid md:grid-cols-1 gap-4">
-          <DraggableStatsSection id="marketing-stats-by-page" isCard={true} isDraggable={false}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="w-5 h-5 text-green-500" />
-                Stats par page
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {marketingByPageLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : marketingByPage.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-              ) : (
-                <div className="overflow-x-auto max-h-[200px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Page</TableHead>
-                        <TableHead className="text-right">Vues</TableHead>
-                        <TableHead className="text-right">CTA</TableHead>
-                        <TableHead className="text-right">Simul.</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {marketingByPage.map((page) => (
-                        <TableRow key={page.page}>
-                          <TableCell className="font-medium text-xs">{page.page}</TableCell>
-                          <TableCell className="text-right">{formatNumber(page.views)}</TableCell>
-                          <TableCell className="text-right">{formatNumber(page.cta_clicks)}</TableCell>
-                          <TableCell className="text-right">{formatNumber(page.simulations)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </DraggableStatsSection>
-        </div>
+                  case 'marketing-stats-by-page':
+                    return (
+                      <DraggableStatsSection key={blockId} id={blockId} className="md:col-span-2">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-green-500" />
+                            Stats par page
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {marketingByPageLoading ? (
+                            <Skeleton className="h-[200px] w-full" />
+                          ) : marketingByPage.length === 0 ? (
+                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+                          ) : (
+                            <div className="overflow-x-auto max-h-[200px]">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Page</TableHead>
+                                    <TableHead className="text-right">Vues</TableHead>
+                                    <TableHead className="text-right">CTA</TableHead>
+                                    <TableHead className="text-right">Simul.</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {marketingByPage.map((page) => (
+                                    <TableRow key={page.page}>
+                                      <TableCell className="font-medium text-xs">{page.page}</TableCell>
+                                      <TableCell className="text-right">{formatNumber(page.views)}</TableCell>
+                                      <TableCell className="text-right">{formatNumber(page.cta_clicks)}</TableCell>
+                                      <TableCell className="text-right">{formatNumber(page.simulations)}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          )}
+                        </CardContent>
+                      </DraggableStatsSection>
+                    );
+
+                  default:
+                    return null;
+                }
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
       </div>
 
       {/* Draggable sections */}

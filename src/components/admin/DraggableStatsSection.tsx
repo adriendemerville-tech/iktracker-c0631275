@@ -38,9 +38,9 @@ export function DraggableStatsSection({ id, children, className = '', isCard = t
 
   if (!isDesktop) {
     return isCard ? (
-      <Card className={className}>{children}</Card>
+      <Card className={`w-full ${className}`}>{children}</Card>
     ) : (
-      <div className={className}>{children}</div>
+      <div className={`w-full ${className}`}>{children}</div>
     );
   }
 
@@ -50,7 +50,7 @@ export function DraggableStatsSection({ id, children, className = '', isCard = t
     <Wrapper
       ref={setNodeRef}
       style={style}
-      className={`relative group ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${className}`}
+      className={`w-full relative group ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${className}`}
     >
       {canDrag && (
         <div
