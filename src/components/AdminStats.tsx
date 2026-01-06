@@ -42,7 +42,8 @@ import {
   Tablet,
   BarChart3,
   Calculator,
-  UserPlus
+  UserPlus,
+  Map
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -449,6 +450,20 @@ export function AdminStats() {
       const { data, error } = await supabase.rpc('get_recent_signups', { limit_count: 10 });
       if (error) throw error;
       return data as unknown as RecentSignup[];
+    },
+    refetchInterval: 60 * 60 * 1000, // 1 hour
+  });
+
+  // Fetch total tours count (excluding admins) - refresh every hour
+  const { data: totalToursCount = 0, isLoading: toursCountLoading } = useQuery({
+    queryKey: ['admin-total-tours', period],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_total_tours_count', {
+        start_date: dateRange.start_date,
+        end_date: dateRange.end_date,
+      });
+      if (error) throw error;
+      return data as number;
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
@@ -875,6 +890,24 @@ export function AdminStats() {
                             ) : (
                               <>
                                 <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
+                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
+
+                        {/* Total tours */}
+                        <Card className="bg-gradient-to-br from-teal-500/10 to-teal-600/5 border-teal-500/20">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Map className="w-5 h-5 text-teal-500" />
+                              <span className="text-xs text-muted-foreground">Tournées</span>
+                            </div>
+                            {toursCountLoading ? (
+                              <Skeleton className="h-8 w-16" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold text-teal-600">{formatNumber(totalToursCount)}</p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
