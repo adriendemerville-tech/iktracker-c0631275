@@ -697,7 +697,7 @@ export function AdminStats() {
         {/* Marketing charts row */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           {/* Views by day chart */}
-          <DraggableStatsSection id="marketing-views-chart" isCard={true}>
+          <DraggableStatsSection id="marketing-views-chart" isCard={true} isDraggable={false}>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-blue-500" />
@@ -747,7 +747,7 @@ export function AdminStats() {
           </DraggableStatsSection>
 
           {/* Signup clicks by day chart */}
-          <DraggableStatsSection id="marketing-signup-clicks-chart" isCard={true}>
+          <DraggableStatsSection id="marketing-signup-clicks-chart" isCard={true} isDraggable={false}>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-emerald-500" />
@@ -790,7 +790,7 @@ export function AdminStats() {
 
         {/* Stats by page table */}
         <div className="grid md:grid-cols-1 gap-4">
-          <DraggableStatsSection id="marketing-stats-by-page" isCard={true}>
+          <DraggableStatsSection id="marketing-stats-by-page" isCard={true} isDraggable={false}>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <FileText className="w-5 h-5 text-green-500" />
