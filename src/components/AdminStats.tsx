@@ -737,7 +737,7 @@ export function AdminStats() {
           onDragEnd={handleMarketingSectionDragEnd}
         >
           <SortableContext items={marketingSectionOrder} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 [&>*:last-child:nth-child(2n+1)]:md:col-span-2">
               {marketingSectionOrder.map((blockId) => {
                 switch (blockId) {
                   case 'marketing-views-chart':
