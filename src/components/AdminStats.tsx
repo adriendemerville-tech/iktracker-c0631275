@@ -44,7 +44,8 @@ import {
   BarChart3,
   Calculator,
   UserPlus,
-  Map
+  Map,
+  RefreshCw
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -686,6 +687,30 @@ export function AdminStats() {
 
   // PDF export removed - use CSV instead
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshAllStats = useCallback(async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-stats-prev'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-registrations'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-top-users'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-download-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-download-clicks-by-day'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-share-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-shares-by-day'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-marketing-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-marketing-views-by-day'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-signup-clicks-by-day'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-marketing-by-page'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] }),
+    ]);
+    // Small delay to show animation
+    setTimeout(() => setIsRefreshing(false), 500);
+  }, [queryClient]);
+
   const exportToCSV = () => {
     // Stats CSV
     const statsRows = [
@@ -742,6 +767,16 @@ export function AdminStats() {
             ))}
           </ToggleGroup>
           <div className="flex items-center gap-1 ml-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={refreshAllStats}
+              disabled={isRefreshing}
+              className="gap-1.5"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Actualisation...' : 'Actualiser'}
+            </Button>
             <Button 
               variant="outline" 
               size="sm" 
