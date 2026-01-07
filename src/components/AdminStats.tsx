@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -176,11 +177,52 @@ const DEFAULT_MARKETING_SECTION_ORDER = [
 ];
 
 export function AdminStats() {
+  const queryClient = useQueryClient();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [period, setPeriod] = useState<PeriodFilter>('month');
   const [topUserSort, setTopUserSort] = useState<TopUserSort>('trips');
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
+
+  // Refresh all admin stats at 7:00 AM every day
+  useEffect(() => {
+    const scheduleRefresh = () => {
+      const now = new Date();
+      const next7AM = new Date(now);
+      next7AM.setHours(7, 0, 0, 0);
+      
+      // If it's already past 7 AM today, schedule for tomorrow
+      if (now >= next7AM) {
+        next7AM.setDate(next7AM.getDate() + 1);
+      }
+      
+      const msUntil7AM = next7AM.getTime() - now.getTime();
+      
+      return setTimeout(() => {
+        // Invalidate all admin queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-stats-prev'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-registrations'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-top-users'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-download-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-download-clicks-by-day'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-share-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-shares-by-day'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-marketing-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-marketing-views-by-day'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-signup-clicks-by-day'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-marketing-by-page'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] });
+        
+        // Schedule next refresh
+        scheduleRefresh();
+      }, msUntil7AM);
+    };
+    
+    const timerId = scheduleRefresh();
+    return () => clearTimeout(timerId);
+  }, [queryClient]);
   
   // Section ordering for drag and drop
   const [sectionOrder, setSectionOrder] = useState<string[]>(() => {
