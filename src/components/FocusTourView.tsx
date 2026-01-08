@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Signal, Sun, Moon, Car, BatteryLow, Monitor, Smartphone } from 'lucide-react';
+import { Signal, Sun, Moon, Car, BatteryLow, Square } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useNightMode } from '@/hooks/useNightMode';
 
 interface FocusTourViewProps {
@@ -37,7 +47,17 @@ export function FocusTourView({
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
+  const [showStopConfirm, setShowStopConfirm] = useState(false);
   const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
+
+  const handleStopClick = () => {
+    setShowStopConfirm(true);
+  };
+
+  const handleConfirmStop = () => {
+    setShowStopConfirm(false);
+    onStop();
+  };
 
   // Determine display mode based on distance
   // < 0.1 km (100m): show "DÉPART" with green-orange gradient
@@ -136,10 +156,11 @@ export function FocusTourView({
         )}
       </div>
 
-      {/* CENTER: Tour button with exact TourButton active design */}
+      {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
+        {/* Car button - triggers confirmation */}
         <button
-          onClick={onStop}
+          onClick={handleStopClick}
           className="relative w-40 h-40 rounded-full flex items-center justify-center bg-gradient-primary text-orange-500 shadow-2xl transition-transform active:scale-95"
           aria-label="Arrêter la tournée"
         >
@@ -168,6 +189,16 @@ export function FocusTourView({
               animation: 'car-drive 0.2s ease-in-out infinite',
             }}
           />
+        </button>
+        
+        {/* Stop button - large, easy to tap while driving */}
+        <button
+          onClick={handleStopClick}
+          className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-destructive text-destructive-foreground font-semibold text-lg shadow-lg shadow-destructive/30 transition-transform active:scale-95"
+          aria-label="Arrêter la tournée"
+        >
+          <Square className="w-6 h-6 fill-current" />
+          <span>Terminer</span>
         </button>
         
         <span className="text-gray-500 text-sm font-urbanist">
@@ -239,6 +270,29 @@ export function FocusTourView({
           )}
         </div>
       </div>
+
+      {/* Stop confirmation dialog */}
+      <AlertDialog open={showStopConfirm} onOpenChange={setShowStopConfirm}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">Terminer la tournée ?</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              Le trajet sera enregistré avec {detectedStopsCount} étape{detectedStopsCount !== 1 ? 's' : ''} et {displayedKm.toFixed(1)} km.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3">
+            <AlertDialogCancel className="flex-1 h-14 text-base">
+              Continuer
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmStop}
+              className="flex-1 h-14 text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Terminer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
