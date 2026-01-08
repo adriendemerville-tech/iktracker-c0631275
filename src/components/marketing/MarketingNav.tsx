@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, LayoutDashboard, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useMarketingTracker } from '@/hooks/useMarketingTracker';
 
 interface MarketingNavProps {
   user?: { email?: string } | null;
@@ -10,6 +11,7 @@ interface MarketingNavProps {
 }
 
 export function MarketingNav({ user, loading }: MarketingNavProps) {
+  const { trackSignupClick } = useMarketingTracker('nav');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -157,7 +159,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                         Connexion
                       </Link>
                     </Button>
-                    <Link to="/signup" className="focus-visible-ring rounded-lg">
+                    <Link to="/signup" className="focus-visible-ring rounded-lg" onClick={trackSignupClick}>
                       <Button variant="gradient" size="sm">
                         S'inscrire
                       </Button>

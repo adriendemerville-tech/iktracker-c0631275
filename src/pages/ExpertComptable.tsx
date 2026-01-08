@@ -32,7 +32,7 @@ const DemoLoader = () => <div className="h-64 flex items-center justify-center t
 
 const ExpertComptable = () => {
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
-  const { trackCTAClick } = useMarketingTracker('expert-comptable');
+  const { trackCTAClick, trackSignupClick } = useMarketingTracker('expert-comptable');
   
   return (
     <div className="min-h-screen bg-background select-text">
@@ -118,7 +118,7 @@ const ExpertComptable = () => {
               Exports standardisés. Calcul automatique. Gain de temps garanti.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Link to="/signup">
+              <Link to="/signup" onClick={trackSignupClick}>
                 <Button size="lg" variant="gradient" className="gap-2">
                   Recommander à mes clients
                   <ArrowRight className="h-5 w-5" />
@@ -429,7 +429,7 @@ const ExpertComptable = () => {
         <div className="container mx-auto px-4 text-center space-y-6">
           <h2 className="text-3xl font-bold">Recommandez IKtracker à vos clients</h2>
           <p className="text-lg opacity-90">Gratuit, français, et fiable.</p>
-          <Link to="/signup">
+          <Link to="/signup" onClick={trackSignupClick}>
             <Button size="lg" variant="secondary" className="gap-2">
               Outil 100% gratuit
               <ArrowRight className="h-5 w-5" />
