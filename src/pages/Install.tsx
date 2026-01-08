@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useMarketingTracker } from '@/hooks/useMarketingTracker';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const Install = () => {
+  const { trackSignupClick } = useMarketingTracker('install');
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
 
@@ -308,7 +310,7 @@ const Install = () => {
             <p className="text-sm opacity-80">Scannez ce QR code avec votre téléphone</p>
           </div>
           
-          <Link to="/signup">
+          <Link to="/signup" onClick={trackSignupClick}>
             <Button size="lg" variant="secondary" className="gap-2">
               Créer mon compte
               <ArrowRight className="h-5 w-5" />
