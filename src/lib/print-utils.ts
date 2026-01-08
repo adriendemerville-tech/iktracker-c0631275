@@ -3,11 +3,18 @@
 
 import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 
+interface UserInfo {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface PrintReportOptions {
   trips: Trip[];
   vehicles: Vehicle[];
   totalKm: number;
   logoUrl?: string;
+  userInfo?: UserInfo;
 }
 
 interface RecalculatedTrip extends Trip {
@@ -83,12 +90,25 @@ function formatAddress(str: string, max: number): string {
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, logoUrl } = options;
+  const { trips, vehicles, totalKm, logoUrl, userInfo } = options;
   
   const now = new Date();
   const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
   const currentMonth = monthNames[now.getMonth()];
   const currentYear = now.getFullYear();
+  
+  // Format edition date
+  const editionDate = now.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  
+  // Build user info string
+  const userName = userInfo?.firstName || userInfo?.lastName
+    ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
+    : null;
+  const userEmail = userInfo?.email || null;
   
   const recalculatedTrips = recalculateTrips(trips, vehicles);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
@@ -256,6 +276,42 @@ function generateReportHTML(options: PrintReportOptions): string {
     .vehicle-details {
       color: #64748b;
       font-size: 8pt;
+    }
+    
+    /* User info section */
+    .user-info-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4mm;
+      padding: 2mm 0;
+      border-bottom: 0.2mm solid #e2e8f0;
+    }
+    
+    .user-info-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+    }
+    
+    .user-info-name {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .user-info-email {
+      font-size: 8pt;
+      color: #64748b;
+    }
+    
+    .user-info-right {
+      text-align: right;
+    }
+    
+    .edition-date {
+      font-size: 7pt;
+      color: #94a3b8;
     }
     
     /* Table styles */
@@ -483,6 +539,17 @@ function generateReportHTML(options: PrintReportOptions): string {
   <!-- Page 1: Trips -->
   <div class="page">
     <div class="header-band"></div>
+    
+    <!-- User info & edition date -->
+    <div class="user-info-section">
+      <div class="user-info-left">
+        ${userName ? `<div class="user-info-name">${userName}</div>` : ''}
+        ${userEmail ? `<div class="user-info-email">${userEmail}</div>` : ''}
+      </div>
+      <div class="user-info-right">
+        <div class="edition-date">Édité le ${editionDate}</div>
+      </div>
+    </div>
     
     <div class="header">
       <div class="header-left">

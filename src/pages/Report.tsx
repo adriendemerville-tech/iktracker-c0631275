@@ -309,6 +309,13 @@ ${IKTRACKER_MENTION}
     return '\uFEFF' + csv; // BOM for Excel
   };
 
+  // Build user info from auth user
+  const userInfo = useMemo(() => ({
+    email: user?.email,
+    firstName: user?.user_metadata?.first_name,
+    lastName: user?.user_metadata?.last_name,
+  }), [user]);
+
   // Generate HTML content for PDF (used in ZIP export)
   const generateHTMLContent = async () => {
     const { generatePrintableHTML } = await import('@/lib/print-utils');
@@ -317,6 +324,7 @@ ${IKTRACKER_MENTION}
       vehicles,
       totalKm,
       logoUrl: '/logo-iktracker-250.webp',
+      userInfo,
     });
   };
 
@@ -328,6 +336,7 @@ ${IKTRACKER_MENTION}
       vehicles,
       totalKm,
       logoUrl: '/logo-iktracker-250.webp',
+      userInfo,
     });
   };
 
