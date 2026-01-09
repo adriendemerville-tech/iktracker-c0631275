@@ -249,8 +249,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
     // Check permission first
     const hasPermission = await checkPermission();
-    if (!hasPermission && permissionStatus === 'denied') {
-      setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres.');
+    if (!hasPermission) {
+      setError("Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.");
       setIsLoading(false);
       return;
     }
@@ -323,7 +323,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       },
       {
         enableHighAccuracy: true,
-        timeout: 20000,
+        timeout: 60000,
       }
     );
   }, [checkPosition, trackingInterval, checkPermission, permissionStatus]);
