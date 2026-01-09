@@ -14,12 +14,14 @@ import { useNightMode } from '@/hooks/useNightMode';
 
 interface FocusTourViewProps {
   isActive: boolean;
+  isLoading?: boolean;
   totalDistanceKm: number;
   detectedStopsCount: number; // Number of detected stops (excludes departure)
   wakeLockActive: boolean;
   lowBattery: boolean;
   tourStartTime?: Date;
   onFinish: () => void; // Directly finish and save the tour
+  onCancel?: () => void; // Cancel during loading
 }
 
 // Hook to detect if on desktop (width >= 1024px)
@@ -38,12 +40,14 @@ function useIsDesktop() {
 
 export function FocusTourView({
   isActive,
+  isLoading,
   totalDistanceKm,
   detectedStopsCount,
   wakeLockActive,
   lowBattery,
   tourStartTime,
   onFinish,
+  onCancel,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
@@ -123,9 +127,33 @@ export function FocusTourView({
     return `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
   };
 
-  // Tour is now blocked at startTour level on desktop, so this component
-  // will only render on mobile when isActive is true
-  if (!isActive) return null;
+  // Show when active OR loading
+  if (!isActive && !isLoading) return null;
+
+  // Loading state - waiting for GPS
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center gap-6 px-6">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-gray-800" />
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-orange-500 animate-spin" />
+          <Signal className="absolute inset-0 m-auto w-10 h-10 text-orange-500" />
+        </div>
+        <div className="text-center">
+          <p className="text-xl font-urbanist font-bold text-white">Démarrage de la tournée...</p>
+          <p className="text-gray-400 mt-2">Acquisition du signal GPS</p>
+        </div>
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="mt-8 px-6 py-3 rounded-xl bg-gray-800 text-gray-300 font-medium"
+          >
+            Annuler
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-between py-12 px-6">

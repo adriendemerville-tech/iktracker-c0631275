@@ -637,12 +637,14 @@ ${IKTRACKER_MENTION}
       <Suspense fallback={<SheetLoader />}>
         <FocusTourView
           isActive={isTourActive}
+          isLoading={isTourLoading}
           totalDistanceKm={totalDistanceKm}
           detectedStopsCount={Math.max(0, tourStops.length - 1)}
           wakeLockActive={wakeLockActive}
           lowBattery={lowBattery}
           tourStartTime={tourStops[0]?.timestamp}
           onFinish={handleFinishTour}
+          onCancel={clearTour}
         />
       </Suspense>
 
