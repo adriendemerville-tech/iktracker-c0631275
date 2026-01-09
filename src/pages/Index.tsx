@@ -111,6 +111,7 @@ const Index = () => {
   const [showTourHistory, setShowTourHistory] = useState(false);
   const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
   const [showStopTourConfirm, setShowStopTourConfirm] = useState(false);
+  const [tourStartRequested, setTourStartRequested] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
@@ -131,6 +132,7 @@ const Index = () => {
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
+    error: tourError,
     stops: tourStops,
     totalDistanceKm,
     currentPosition,
@@ -169,6 +171,26 @@ const Index = () => {
     }
   }, []);
 
+  // Only show the "tour started" toast when GPS start actually succeeds
+  useEffect(() => {
+    if (!tourStartRequested) return;
+
+    if (isTourActive) {
+      toast.success("Tournée démarrée", {
+        description: "Les arrêts seront détectés automatiquement",
+      });
+      setTourStartRequested(false);
+      return;
+    }
+
+    if (!isTourLoading && !isTourActive && tourError) {
+      toast.error("Impossible de démarrer la tournée", {
+        description: tourError,
+      });
+      setTourStartRequested(false);
+    }
+  }, [tourStartRequested, isTourActive, isTourLoading, tourError]);
+
   const handleTourButtonClick = () => {
     if (isTourActive) {
       // Show confirmation dialog when tour is active
@@ -188,10 +210,8 @@ const Index = () => {
     }
 
     // Mobile: start the tour
+    setTourStartRequested(true);
     startTour();
-    toast.success("Tournée démarrée", {
-      description: "Les arrêts seront détectés automatiquement",
-    });
   };
 
   const handleConfirmStopTour = () => {
@@ -644,7 +664,10 @@ ${IKTRACKER_MENTION}
           lowBattery={lowBattery}
           tourStartTime={tourStops[0]?.timestamp}
           onFinish={handleFinishTour}
-          onCancel={clearTour}
+          onCancel={() => {
+            setTourStartRequested(false);
+            clearTour();
+          }}
         />
       </Suspense>
 
