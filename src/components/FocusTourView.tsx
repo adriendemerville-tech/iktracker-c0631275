@@ -19,7 +19,7 @@ interface FocusTourViewProps {
   wakeLockActive: boolean;
   lowBattery: boolean;
   tourStartTime?: Date;
-  onStop: () => void;
+  onFinish: () => void; // Directly finish and save the tour
 }
 
 // Hook to detect if on desktop (width >= 1024px)
@@ -43,7 +43,7 @@ export function FocusTourView({
   wakeLockActive,
   lowBattery,
   tourStartTime,
-  onStop,
+  onFinish,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
@@ -56,7 +56,7 @@ export function FocusTourView({
 
   const handleConfirmStop = () => {
     setShowStopConfirm(false);
-    onStop();
+    onFinish();
   };
 
   // Determine display mode based on distance

@@ -643,7 +643,7 @@ ${IKTRACKER_MENTION}
           wakeLockActive={wakeLockActive}
           lowBattery={lowBattery}
           tourStartTime={tourStops[0]?.timestamp}
-          onStop={() => setShowTourLog(true)}
+          onFinish={handleFinishTour}
         />
       </Suspense>
 
