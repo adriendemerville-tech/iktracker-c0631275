@@ -110,7 +110,7 @@ const Index = () => {
   const [showTourLog, setShowTourLog] = useState(false);
   const [showTourHistory, setShowTourHistory] = useState(false);
   const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
-  const [showFinishButton, setShowFinishButton] = useState(false);
+  const [showStopTourConfirm, setShowStopTourConfirm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
@@ -171,8 +171,8 @@ const Index = () => {
 
   const handleTourButtonClick = () => {
     if (isTourActive) {
-      // Toggle finish button visibility when tour is active
-      setShowFinishButton(prev => !prev);
+      // Show confirmation dialog when tour is active
+      setShowStopTourConfirm(true);
       return;
     }
 
@@ -188,15 +188,14 @@ const Index = () => {
     }
 
     // Mobile: start the tour
-    setShowFinishButton(false);
     startTour();
     toast.success("Tournée démarrée", {
       description: "Les arrêts seront détectés automatiquement",
     });
   };
 
-  const handleFinishButtonClick = () => {
-    setShowFinishButton(false);
+  const handleConfirmStopTour = () => {
+    setShowStopTourConfirm(false);
     handleFinishTour();
   };
 
@@ -1177,6 +1176,29 @@ ${IKTRACKER_MENTION}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Stop tour confirmation */}
+      <AlertDialog open={showStopTourConfirm} onOpenChange={setShowStopTourConfirm}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">Terminer la tournée ?</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              Le trajet sera enregistré avec {Math.max(0, tourStops.length - 1)} étape{tourStops.length !== 2 ? 's' : ''} et {totalDistanceKm.toFixed(1)} km.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3">
+            <AlertDialogCancel className="flex-1 h-14 text-base">
+              Continuer
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmStopTour}
+              className="flex-1 h-14 text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Terminer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
