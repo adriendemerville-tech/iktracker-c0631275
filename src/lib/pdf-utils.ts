@@ -40,28 +40,36 @@ export async function loadHtml2Pdf() {
 export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const html2pdf = await loadHtml2Pdf();
 
-  // Render into the current document (same window) to avoid html2canvas blank captures.
-  // We scope global selectors (html/body/:root) to a dedicated container.
+  // 1. Sauvegarder la position de scroll actuelle pour ne pas désorienter l'utilisateur
+  const originalScrollY = window.scrollY;
+  const originalScrollX = window.scrollX;
+
   const parsed = new DOMParser().parseFromString(html, 'text/html');
 
+  // CORRECTION 1 : Récupérer TOUS les styles (y compris externes <link>)
+  // On clone les nœuds de style du document actuel pour être sûr d'avoir Tailwind/CSS
+  const currentStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))
+    .map(node => node.cloneNode(true));
+
+  // On récupère aussi les styles inlines du HTML fourni
   const rawStyles = Array.from(parsed.querySelectorAll('style'))
     .map((s) => s.textContent || '')
     .join('\n');
 
+  // Note : Le scoping (.replace...) est risqué et peut casser des classes comme "body-text". 
+  // Je le garde car c'est ta logique, mais c'est une source potentielle de bugs d'affichage.
   const scopedStyles = rawStyles
-    // scope html/body/root rules to our container
     .replace(/(^|[,{\s])html(?=\b)/g, '$1.pdf-root')
     .replace(/(^|[,{\s])body(?=\b)/g, '$1.pdf-root')
     .replace(/(^|[,{\s]):root(?=\b)/g, '$1.pdf-root');
 
-  // Overlay to prevent the user from seeing the rendered report while we capture it.
-  // NOTE: the overlay is NOT part of the captured element (we capture `container` only).
+  // Overlay : On le garde pour l'UX, mais on va s'assurer qu'il ne bloque pas le rendu
   const overlay = document.createElement('div');
   overlay.setAttribute('data-pdf-overlay', 'true');
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
   overlay.style.background = 'rgba(255, 255, 255, 0.98)';
-  overlay.style.zIndex = '2147483647';
+  overlay.style.zIndex = '2147483647'; // Très haut
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
@@ -73,20 +81,21 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const container = document.createElement('div');
   container.className = 'pdf-root';
 
-  // Keep it rendered in the viewport (important for mobile Chrome html2canvas),
-  // but block user interaction/visibility with the overlay above.
-  // IMPORTANT: avoid display:none/visibility:hidden -> can lead to a blank canvas.
-  container.style.position = 'fixed';
+  // CORRECTION 2 : Absolute + Top 0 + Z-Index Supérieur
+  // On utilise absolute pour éviter les bugs de 'fixed' dans html2canvas
+  container.style.position = 'absolute';
   container.style.left = '0';
   container.style.top = '0';
   container.style.width = '1122px'; // A4 landscape @ 96dpi
-  container.style.minHeight = '794px';
+  container.style.minHeight = '794px'; // Force une hauteur min
   container.style.background = 'white';
-  container.style.pointerEvents = 'none';
-  container.style.zIndex = '2147483646';
+  // CORRECTION 3 : Le container doit être AU-DESSUS de l'overlay pour être "paint" par le navigateur
+  container.style.zIndex = '2147483648';
   container.style.opacity = '1';
   container.style.overflow = 'visible';
 
+  // Injection des styles du document actuel (Tailwind, etc.)
+  currentStyles.forEach(node => container.appendChild(node));
 
   if (scopedStyles.trim()) {
     const styleEl = document.createElement('style');
@@ -106,13 +115,17 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   document.body.appendChild(overlay);
   document.body.appendChild(container);
 
+  // CORRECTION 4 : Scroll forcé en haut (0,0) pour aligner le canvas
+  window.scrollTo(0, 0);
+
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
-  // Give the browser time to layout + apply styles
   await nextFrame();
   await nextFrame();
-  await wait(200);
+
+  // Attendre un peu plus longtemps pour le layout
+  await wait(500);
 
   // Wait for fonts (best-effort)
   try {
@@ -121,7 +134,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     // ignore
   }
 
-  // Wait for images (best-effort, with timeout)
+  // Wait for images
   const images = Array.from(container.querySelectorAll('img'));
   const waitImages = Promise.all(
     images.map((img) => {
@@ -132,7 +145,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       });
     })
   );
-  await Promise.race([waitImages, wait(2000)]);
+  await Promise.race([waitImages, wait(3000)]);
 
   try {
     const worker = html2pdf()
@@ -145,7 +158,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
           useCORS: true,
           backgroundColor: '#ffffff',
           letterRendering: true,
-          logging: false,
+          logging: true, // Active les logs pour débugger si besoin
           scrollX: 0,
           scrollY: 0,
           windowWidth: 1122,
@@ -163,7 +176,6 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     const pdfBlob = await worker.get('pdf').then((pdf: any) => pdf.output('blob'));
 
-    // Basic sanity check: an almost-empty PDF is usually a blank capture
     if (!pdfBlob || pdfBlob.size < 1500) {
       throw new Error('PDF vide (capture blanche)');
     }
@@ -172,6 +184,9 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   } finally {
     if (document.body.contains(container)) document.body.removeChild(container);
     if (document.body.contains(overlay)) document.body.removeChild(overlay);
+
+    // Restaurer le scroll utilisateur
+    window.scrollTo(originalScrollX, originalScrollY);
   }
 }
 
