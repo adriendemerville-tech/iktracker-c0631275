@@ -54,21 +54,37 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     .replace(/(^|[,{\s])body(?=\b)/g, '$1.pdf-root')
     .replace(/(^|[,{\s]):root(?=\b)/g, '$1.pdf-root');
 
+  // Overlay to prevent the user from seeing the rendered report while we capture it.
+  // NOTE: the overlay is NOT part of the captured element (we capture `container` only).
+  const overlay = document.createElement('div');
+  overlay.setAttribute('data-pdf-overlay', 'true');
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(255, 255, 255, 0.98)';
+  overlay.style.zIndex = '2147483647';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+  overlay.style.fontSize = '14px';
+  overlay.style.color = '#0f172a';
+  overlay.textContent = 'Génération du PDF…';
+
   const container = document.createElement('div');
   container.className = 'pdf-root';
 
-  // Keep it rendered (so html2canvas can capture it) but out of user view.
+  // Keep it rendered in the viewport (important for mobile Chrome html2canvas),
+  // but block user interaction/visibility with the overlay above.
   // IMPORTANT: avoid display:none/visibility:hidden -> can lead to a blank canvas.
-  // We position it off-screen to the left, fully visible for html2canvas but not seen by user.
   container.style.position = 'fixed';
-  container.style.left = '-9999px';
+  container.style.left = '0';
   container.style.top = '0';
   container.style.width = '1122px'; // A4 landscape @ 96dpi
   container.style.minHeight = '794px';
   container.style.background = 'white';
   container.style.pointerEvents = 'none';
-  container.style.zIndex = '1';
-  container.style.opacity = '1'; // Must be fully visible for html2canvas
+  container.style.zIndex = '2147483646';
+  container.style.opacity = '1';
   container.style.overflow = 'visible';
 
 
@@ -87,6 +103,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   bodyEl.innerHTML = bodyHtml;
   container.appendChild(bodyEl);
 
+  document.body.appendChild(overlay);
   document.body.appendChild(container);
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -145,9 +162,16 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       .toPdf();
 
     const pdfBlob = await worker.get('pdf').then((pdf: any) => pdf.output('blob'));
+
+    // Basic sanity check: an almost-empty PDF is usually a blank capture
+    if (!pdfBlob || pdfBlob.size < 1500) {
+      throw new Error('PDF vide (capture blanche)');
+    }
+
     return pdfBlob;
   } finally {
-    document.body.removeChild(container);
+    if (document.body.contains(container)) document.body.removeChild(container);
+    if (document.body.contains(overlay)) document.body.removeChild(overlay);
   }
 }
 
