@@ -57,19 +57,18 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const container = document.createElement('div');
   container.className = 'pdf-root';
 
-  // Keep it rendered (so html2canvas can capture it) but not noticeable for the user.
+  // Keep it rendered (so html2canvas can capture it) but out of user view.
   // IMPORTANT: avoid display:none/visibility:hidden -> can lead to a blank canvas.
-  // Also avoid moving it far off-screen with transforms (can produce blank renders in some browsers).
+  // We position it off-screen to the left, fully visible for html2canvas but not seen by user.
   container.style.position = 'fixed';
-  container.style.left = '0';
+  container.style.left = '-9999px';
   container.style.top = '0';
   container.style.width = '1122px'; // A4 landscape @ 96dpi
   container.style.minHeight = '794px';
   container.style.background = 'white';
   container.style.pointerEvents = 'none';
-  // Keep it on top (but almost invisible) to avoid blank renders.
-  container.style.zIndex = '2147483647';
-  container.style.opacity = '0.01';
+  container.style.zIndex = '1';
+  container.style.opacity = '1'; // Must be fully visible for html2canvas
   container.style.overflow = 'visible';
 
 
