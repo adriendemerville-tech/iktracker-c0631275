@@ -1,0 +1,25 @@
+# IKtracker - Automatisez facilement vos indemnités kilométriques | Outil gratuit et facile pour indépendants
+
+> Cette page fournit un outil gratuit pour aider indépendants, libéraux et artisans à enregistrer, calculer et exporter automatiquement leurs indemnités kilométriques, avec un barème à jour et une interface simple.
+
+IKtracker est une solution en ligne dédiée aux professionnels souhaitant automatiser le suivi et le calcul de leurs déplacements professionnels. Elle facilite la gestion des indemnités kilométriques, en intégrant un barème à jour pour 2025 et une synchronisation avec un calendrier, le tout dans une interface conviviale.
+
+## Core Content
+
+- Fonctionnalités principales : enregistrement, calcul automatique, exportation des indemnités kilométriques
+- Comment utiliser l'outil : étape par étape
+- Barème IK 2025 intégré
+- Synchronisation avec le calendrier professionnel
+- Éligibilité : indépendants, libéraux, artisans
+
+## Resources
+
+- Site officiel de IKtracker : [https://iktracker.fr](https://iktracker.fr)
+- Guide d'utilisation : disponible sur la plateforme
+- Contact et support : lien vers la page de contact
+
+## Optional
+
+- Témoignages d'utilisateurs
+- FAQ sur l'utilisation et la légalité des indemnités kilométriques
+- Articles liés à la fiscalité des déplacements professionnels
