@@ -1,20 +1,31 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { 
+  isBrowser, 
+  isBot, 
+  safeSessionStorage, 
+  safeRandomUUID, 
+  getWindowWidth 
+} from '@/lib/ssr-utils';
 
 // Generate or retrieve session ID
-const getSessionId = () => {
-  let sessionId = sessionStorage.getItem('marketing_session_id');
+const getSessionId = (): string => {
+  if (!isBrowser()) return 'ssr-session';
+  
+  let sessionId = safeSessionStorage.getItem('marketing_session_id');
   if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    sessionStorage.setItem('marketing_session_id', sessionId);
+    sessionId = safeRandomUUID();
+    safeSessionStorage.setItem('marketing_session_id', sessionId);
   }
   return sessionId;
 };
 
 // Detect device type
 const getDeviceType = (): 'mobile' | 'tablet' | 'desktop' => {
-  const width = window.innerWidth;
-  const userAgent = navigator.userAgent.toLowerCase();
+  if (!isBrowser()) return 'desktop';
+  
+  const width = getWindowWidth();
+  const userAgent = (navigator?.userAgent || '').toLowerCase();
   
   // Check for mobile/tablet user agents
   const isMobileUA = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
@@ -27,8 +38,10 @@ const getDeviceType = (): 'mobile' | 'tablet' | 'desktop' => {
 
 // Check if current user is admin (cached per session)
 const checkIsAdmin = async (): Promise<boolean> => {
+  if (!isBrowser()) return false;
+  
   // Check session cache first
-  const cached = sessionStorage.getItem('is_admin_user');
+  const cached = safeSessionStorage.getItem('is_admin_user');
   if (cached !== null) {
     return cached === 'true';
   }
@@ -51,7 +64,7 @@ const checkIsAdmin = async (): Promise<boolean> => {
 
     const isAdmin = data === true;
     // Cache for this session
-    sessionStorage.setItem('is_admin_user', String(isAdmin));
+    safeSessionStorage.setItem('is_admin_user', String(isAdmin));
     return isAdmin;
   } catch {
     return false;
@@ -68,6 +81,9 @@ export function useMarketingTracker(page: string) {
 
   // Track page view on mount - deferred to avoid blocking critical path
   useEffect(() => {
+    // Skip tracking for bots and SSR
+    if (!isBrowser() || isBot()) return;
+    
     if (hasTrackedPageView.current) return;
     hasTrackedPageView.current = true;
     
@@ -86,6 +102,9 @@ export function useMarketingTracker(page: string) {
   }, [page]);
 
   const trackEvent = useCallback(async (options: TrackEventOptions) => {
+    // Skip tracking for bots and SSR
+    if (!isBrowser() || isBot()) return;
+    
     try {
       // Get current user session
       const { data: { session } } = await supabase.auth.getSession();
@@ -103,8 +122,8 @@ export function useMarketingTracker(page: string) {
         page: options.page,
         device_type: getDeviceType(),
         session_id: getSessionId(),
-        referrer: document.referrer || null,
-        user_agent: navigator.userAgent,
+        referrer: document?.referrer || null,
+        user_agent: navigator?.userAgent || 'unknown',
         user_id: userId,
       });
     } catch (error) {

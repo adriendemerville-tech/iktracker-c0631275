@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { isBrowser, isBot } from '@/lib/ssr-utils';
 
 interface UseWakeLockReturn {
   isActive: boolean;
@@ -18,11 +19,19 @@ export function useWakeLock(): UseWakeLockReturn {
 
   // Check support on mount
   useEffect(() => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot()) {
+      setIsSupported(false);
+      return;
+    }
     setIsSupported('wakeLock' in navigator);
   }, []);
 
   // Monitor battery level
   useEffect(() => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot()) return;
+
     const checkBattery = async () => {
       if ('getBattery' in navigator) {
         try {
@@ -53,6 +62,9 @@ export function useWakeLock(): UseWakeLockReturn {
 
   // Re-acquire wake lock when visibility changes
   useEffect(() => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot()) return;
+
     const handleVisibilityChange = async () => {
       if (wakeLockRef.current !== null && document.visibilityState === 'visible') {
         // Try to re-acquire the wake lock when tab becomes visible again
@@ -77,6 +89,11 @@ export function useWakeLock(): UseWakeLockReturn {
   }, []);
 
   const request = useCallback(async (): Promise<boolean> => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot()) {
+      return false;
+    }
+
     if (!isSupported) {
       setError('Wake Lock non supporté sur ce navigateur');
       return false;

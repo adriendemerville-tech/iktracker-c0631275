@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { isBrowser, isBot } from '@/lib/ssr-utils';
 
 // Re-export distance functions from centralized module
 export { 
@@ -23,7 +24,15 @@ export function useGeolocation() {
 
   const getCurrentPosition = useCallback(() => {
     return new Promise<{ lat: number; lng: number }>((resolve, reject) => {
-      if (!navigator.geolocation) {
+      // Skip for SSR and bots
+      if (!isBrowser() || isBot()) {
+        const error = 'Géolocalisation non disponible';
+        setState(s => ({ ...s, error, loading: false }));
+        reject(new Error(error));
+        return;
+      }
+
+      if (!navigator?.geolocation) {
         const error = 'La géolocalisation n\'est pas supportée';
         setState(s => ({ ...s, error, loading: false }));
         reject(new Error(error));
