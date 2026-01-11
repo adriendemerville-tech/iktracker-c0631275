@@ -18,3 +18,6 @@ Sitemap: https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap
 
 # Sitemap statique de secours
 Sitemap: https://iktracker.fr/sitemap.xml
+
+# Fichier LLM.txt pour le référencement par les LLMs
+LLM: https://iktracker.fr/llm.txt
