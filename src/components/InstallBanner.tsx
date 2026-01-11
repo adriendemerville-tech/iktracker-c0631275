@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Truck, X } from 'lucide-react';
+import { isBrowser, isBot, safeLocalStorage, safeMatchMedia } from '@/lib/ssr-utils';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -19,22 +20,27 @@ export const InstallBanner = () => {
 
   // Check if running in standalone mode (installed PWA)
   const checkStandaloneMode = (): boolean => {
+    if (!isBrowser()) return false;
+    
     // Check display-mode media query
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (safeMatchMedia('(display-mode: standalone)')) {
       return true;
     }
     // Check iOS standalone mode
-    if ((navigator as any).standalone === true) {
+    if ((navigator as any)?.standalone === true) {
       return true;
     }
     // Check if launched from home screen on Android
-    if (window.matchMedia('(display-mode: fullscreen)').matches) {
+    if (safeMatchMedia('(display-mode: fullscreen)')) {
       return true;
     }
     return false;
   };
 
   useEffect(() => {
+    // Skip for SSR and bots - critical for crawler compatibility
+    if (!isBrowser() || isBot()) return;
+
     // Check if running in standalone mode - don't show banner if already installed
     if (checkStandaloneMode()) {
       setIsStandalone(true);
@@ -42,7 +48,7 @@ export const InstallBanner = () => {
     }
 
     // Check if dismissed within the last 7 days
-    const dismissedTimestamp = localStorage.getItem('pwa-install-dismissed-timestamp');
+    const dismissedTimestamp = safeLocalStorage.getItem('pwa-install-dismissed-timestamp');
     if (dismissedTimestamp) {
       const dismissedDate = new Date(parseInt(dismissedTimestamp, 10));
       const now = new Date();
@@ -53,12 +59,12 @@ export const InstallBanner = () => {
         return;
       } else {
         // Clear old dismissal
-        localStorage.removeItem('pwa-install-dismissed-timestamp');
+        safeLocalStorage.removeItem('pwa-install-dismissed-timestamp');
       }
     }
 
     // Detect platform
-    const ua = navigator.userAgent;
+    const ua = navigator?.userAgent || '';
     const isIOS = /iPad|iPhone|iPod/.test(ua);
     const isMac = /Macintosh/.test(ua);
     const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
@@ -139,7 +145,7 @@ export const InstallBanner = () => {
     setShowHelp(false);
     setDismissed(true);
     // Store timestamp for 7-day dismissal
-    localStorage.setItem('pwa-install-dismissed-timestamp', Date.now().toString());
+    safeLocalStorage.setItem('pwa-install-dismissed-timestamp', Date.now().toString());
   };
 
   const renderHelpContent = () => {
@@ -224,8 +230,8 @@ export const InstallBanner = () => {
     }
   };
 
-  // Don't show if: already in standalone mode, dismissed, not supported, or banner hidden
-  if (isStandalone || !showBanner || dismissed || !isSupported) {
+  // Don't render anything for SSR/bots or if banner shouldn't show
+  if (!isBrowser() || isBot() || isStandalone || !showBanner || dismissed || !isSupported) {
     return null;
   }
 

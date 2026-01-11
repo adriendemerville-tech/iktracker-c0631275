@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { isBrowser, isBot, safeLocalStorage, safeSessionStorage } from '@/lib/ssr-utils';
 
 type PermissionState = 'granted' | 'denied' | 'prompt' | 'unavailable' | 'unknown';
 
@@ -27,10 +28,10 @@ export function useGeolocationPermission() {
 
   // Check if banner was permanently dismissed or max sessions reached
   const wasDismissed = useCallback(() => {
-    const dismissed = localStorage.getItem(STORAGE_KEY) === 'true';
+    const dismissed = safeLocalStorage.getItem(STORAGE_KEY) === 'true';
     if (dismissed) return true;
     
-    const sessionCount = parseInt(localStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
+    const sessionCount = parseInt(safeLocalStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
     return sessionCount >= MAX_SESSIONS;
   }, []);
 
@@ -38,7 +39,7 @@ export function useGeolocationPermission() {
   const shouldShowThisSession = useCallback(() => {
     if (wasDismissed()) return false;
     
-    const sessionCount = parseInt(localStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
+    const sessionCount = parseInt(safeLocalStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
     
     // Show only on even sessions (0, 2, 4) = every other session
     // Session 0 -> show, Session 1 -> hide, Session 2 -> show, etc.
@@ -47,22 +48,36 @@ export function useGeolocationPermission() {
 
   // Increment session count on mount (once per session)
   useEffect(() => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot()) return;
+
     const sessionKey = 'iktracker_geolocation_session_tracked';
-    const alreadyTracked = sessionStorage.getItem(sessionKey);
+    const alreadyTracked = safeSessionStorage.getItem(sessionKey);
     
     if (!alreadyTracked) {
-      const currentCount = parseInt(localStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
-      localStorage.setItem(SESSION_COUNT_KEY, String(currentCount + 1));
-      sessionStorage.setItem(sessionKey, 'true');
+      const currentCount = parseInt(safeLocalStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
+      safeLocalStorage.setItem(SESSION_COUNT_KEY, String(currentCount + 1));
+      safeSessionStorage.setItem(sessionKey, 'true');
     }
   }, []);
 
   // Check permission status using Permissions API
   const checkPermission = useCallback(async () => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot()) {
+      setState(s => ({
+        ...s,
+        permission: 'unavailable',
+        isLoading: false,
+        showBanner: false,
+      }));
+      return;
+    }
+
     setState(s => ({ ...s, isLoading: true }));
 
     // Check if geolocation is supported
-    if (!navigator.geolocation) {
+    if (!navigator?.geolocation) {
       setState(s => ({
         ...s,
         permission: 'unavailable',
@@ -117,12 +132,15 @@ export function useGeolocationPermission() {
 
   // Request permission by triggering getCurrentPosition
   const requestPermission = useCallback(() => {
+    // Skip for SSR and bots
+    if (!isBrowser() || isBot() || !navigator?.geolocation) return;
+
     setState(s => ({ ...s, isLoading: true, error: null }));
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // Success - permission granted, permanently dismiss banner
-        localStorage.setItem(STORAGE_KEY, 'true');
+        safeLocalStorage.setItem(STORAGE_KEY, 'true');
         setState(s => ({
           ...s,
           permission: 'granted',
@@ -194,8 +212,8 @@ export function useGeolocationPermission() {
 
   // Reset dismissed state (useful for testing)
   const resetDismissed = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(SESSION_COUNT_KEY);
+    safeLocalStorage.removeItem(STORAGE_KEY);
+    safeLocalStorage.removeItem(SESSION_COUNT_KEY);
     checkPermission();
   }, [checkPermission]);
 
