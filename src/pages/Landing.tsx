@@ -131,7 +131,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
       <Helmet>
-        <title>IKtracker - Suivi kilométrique automatique et indemnités IK | Gratuit</title>
+        <title>Indemnités Kilométriques: Calcul Rapide pour Indépendants</title>
         <meta name="description" content="Automatisez vos indemnités kilométriques gratuitement. Application pour freelances, infirmiers libéraux et indépendants en France. Calcul IK selon barème fiscal 2025." />
         <link rel="canonical" href="https://iktracker.fr/" />
       </Helmet>
