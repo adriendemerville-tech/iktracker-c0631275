@@ -271,7 +271,7 @@ ${IKTRACKER_MENTION}
     rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
     
     rows.push([]);
-    rows.push(['Barème kilométrique fiscal 2025']);
+    rows.push(['Barème kilométrique fiscal 2026']);
     rows.push(['CV', "Jusqu'à 5000 km", '5001 à 20000 km', 'Au-delà de 20000 km']);
     IK_BAREME_2024.forEach(b => {
       rows.push([
@@ -504,7 +504,7 @@ ${IKTRACKER_URL}`
     <>
       <Helmet>
         <title>Relevé des trajets | IKtracker - Suivi kilométrique</title>
-        <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2025." />
+        <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2026." />
         <link rel="canonical" href="https://iktracker.fr/report" />
       </Helmet>
       
@@ -806,7 +806,7 @@ ${IKTRACKER_URL}`
                 <Calculator className="w-5 h-5 text-primary" />
               </div>
               <div className="text-left">
-                <p className="font-medium">Barème IK 2025</p>
+                <p className="font-medium">Barème IK 2026</p>
                 <p className="text-sm text-muted-foreground">Indemnités kilométriques</p>
               </div>
             </div>
