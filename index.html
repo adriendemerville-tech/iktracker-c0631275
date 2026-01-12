@@ -42,7 +42,12 @@
     <link rel="apple-touch-startup-image" href="/splash/splash-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" fetchpriority="low">
     <link rel="apple-touch-startup-image" href="/splash/splash-2048x2732.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" fetchpriority="low">
     <link rel="apple-touch-startup-image" href="/splash/splash-1170x2532.png" fetchpriority="low">
-    <!-- Canonical is defined dynamically per page via React Helmet -->
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://iktracker.fr/" />
+    
+    <!-- Sitemap -->
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     
     <!-- LLM.txt for AI crawlers -->
     <link rel="llms" href="/llm.txt" type="text/plain" title="LLM Information">
@@ -83,11 +88,17 @@
     <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
     <meta name="twitter:image:alt" content="Logo IKtracker - Application gratuite de calcul des indemnités kilométriques" />
     
-    <!-- Additional SEO -->
+    <!-- GEO Tags for France -->
     <meta name="geo.region" content="FR" />
     <meta name="geo.placename" content="France" />
+    <meta name="geo.position" content="46.603354;1.888334" />
+    <meta name="ICBM" content="46.603354, 1.888334" />
     <meta name="language" content="French" />
+    <meta name="content-language" content="fr-FR" />
     <meta name="revisit-after" content="7 days" />
+    <meta name="coverage" content="France" />
+    <meta name="distribution" content="France" />
+    <meta name="target" content="France" />
     
     <!-- Preload critical fonts directly (faster than stylesheet) -->
     <link rel="preload" href="https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2" as="font" type="font/woff2" crossorigin>
@@ -354,6 +365,18 @@
       "totalTime": "PT2M"
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Accueil",
+        "item": "https://iktracker.fr/"
+      }]
+    }
+    </script>
     
     <!-- Critical CSS for above-the-fold content - prevents render blocking -->
     <style>
@@ -459,32 +482,98 @@
 
   <body>
     <div id="root">
-      <!-- Static App Shell - LCP visible immediately before JS loads -->
+      <!-- Static App Shell - SEO optimized content visible before JS loads -->
       <header class="shell-header">
-        <nav class="shell-nav">
-          <a href="/" class="shell-logo">
-            <img src="/logo-iktracker-250.webp" alt="IKtracker" width="32" height="32" fetchpriority="high">
+        <nav class="shell-nav" aria-label="Navigation principale">
+          <a href="/" class="shell-logo" title="IKtracker - Accueil">
+            <img src="/logo-iktracker-250.webp" alt="IKtracker - Application gratuite de calcul des indemnités kilométriques" width="32" height="32" fetchpriority="high">
             <span>IKtracker</span>
           </a>
         </nav>
       </header>
-      <section class="shell-hero">
-        <div class="shell-hero-container">
-          <div class="shell-hero-grid">
-            <div class="shell-hero-content">
-              <div class="shell-badge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                100% Gratuit
+      
+      <main>
+        <!-- Hero Section -->
+        <section class="shell-hero" aria-labelledby="main-heading">
+          <div class="shell-hero-container">
+            <div class="shell-hero-grid">
+              <div class="shell-hero-content">
+                <div class="shell-badge" aria-label="Application gratuite">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  100% Gratuit
+                </div>
+                <h1 id="main-heading" class="shell-h1">
+                  Calcul des indemnités kilométriques<br>
+                  <span class="text-gradient">automatique et gratuit</span>
+                </h1>
+                <p class="shell-subtitle">
+                  IKtracker est l'application gratuite pour calculer, enregistrer et exporter vos indemnités kilométriques (IK) professionnelles. 
+                  Synchronisez votre calendrier Google ou Outlook et générez automatiquement vos relevés fiscaux conformes au barème 2026.
+                </p>
               </div>
-              <h1 class="shell-h1">Vos trajets pro.<br><span class="text-gradient">Automatiquement.</span></h1>
-              <p class="shell-subtitle">Enregistrez, calculez et exportez vos indemnités kilométriques en quelques clics.</p>
-            </div>
-            <div class="shell-form">
-              <div class="shell-spinner"></div>
+              <div class="shell-form" aria-label="Formulaire de connexion en chargement">
+                <div class="shell-spinner" role="status" aria-label="Chargement"></div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+        
+        <!-- SEO Content Section - Visible for crawlers -->
+        <section class="seo-content" style="padding: 2rem 1rem; max-width: 1200px; margin: 0 auto;">
+          <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: hsl(var(--foreground));">
+            Pourquoi utiliser IKtracker pour vos indemnités kilométriques ?
+          </h2>
+          <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1.5rem; line-height: 1.7;">
+            Les <strong>indemnités kilométriques</strong> permettent aux professionnels de déduire leurs frais de déplacement lors de leur déclaration fiscale. 
+            IKtracker automatise ce processus fastidieux en se connectant directement à votre calendrier professionnel. 
+            Fini les tableaux Excel et les calculs manuels : notre application calcule automatiquement les distances via Google Maps et applique le <strong>barème kilométrique 2026</strong> officiel.
+          </p>
+          
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: hsl(var(--foreground));">
+            Fonctionnalités principales
+          </h3>
+          <ul style="color: hsl(var(--muted-foreground)); margin-bottom: 1.5rem; line-height: 1.8; padding-left: 1.5rem;">
+            <li><strong>Synchronisation calendrier :</strong> Connectez Google Calendar ou Microsoft Outlook en quelques clics</li>
+            <li><strong>Calcul automatique :</strong> Les distances sont calculées avec l'API Google Maps pour une précision maximale</li>
+            <li><strong>Barème fiscal 2026 :</strong> Application automatique du barème officiel selon la puissance fiscale de votre véhicule</li>
+            <li><strong>Mode tournée :</strong> Fonctionnalité dédiée aux infirmiers libéraux et professionnels itinérants</li>
+            <li><strong>Export comptable :</strong> Générez des relevés PDF et CSV conformes pour votre expert-comptable</li>
+            <li><strong>Véhicules électriques :</strong> Majoration automatique de 20% selon la législation en vigueur</li>
+          </ul>
+          
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: hsl(var(--foreground));">
+            Pour qui est IKtracker ?
+          </h3>
+          <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1.5rem; line-height: 1.7;">
+            IKtracker est conçu pour tous les <strong>professionnels indépendants</strong> en France qui utilisent leur véhicule personnel pour leurs déplacements professionnels :
+            <strong>infirmiers libéraux (IDEL)</strong>, kinésithérapeutes, médecins, <strong>artisans</strong>, consultants, agents immobiliers, commerciaux et <strong>chefs d'entreprise TNS</strong>.
+            L'application est 100% gratuite, sans publicité et sans abonnement caché.
+          </p>
+          
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: hsl(var(--foreground));">
+            Questions fréquentes sur les indemnités kilométriques
+          </h3>
+          <dl style="color: hsl(var(--muted-foreground)); line-height: 1.7;">
+            <dt style="font-weight: 600; color: hsl(var(--foreground)); margin-top: 1rem;">Comment calculer ses indemnités kilométriques en 2026 ?</dt>
+            <dd style="margin-left: 0; margin-bottom: 0.75rem;">
+              Le calcul des IK dépend de deux facteurs : la puissance fiscale de votre véhicule (en CV) et le nombre de kilomètres parcourus dans l'année. 
+              IKtracker applique automatiquement le barème officiel et génère des relevés conformes aux exigences de l'administration fiscale.
+            </dd>
+            
+            <dt style="font-weight: 600; color: hsl(var(--foreground)); margin-top: 1rem;">IKtracker est-il vraiment gratuit ?</dt>
+            <dd style="margin-left: 0; margin-bottom: 0.75rem;">
+              Oui, IKtracker est 100% gratuit. Pas de version premium, pas de publicité, pas de collecte de données à des fins commerciales. 
+              L'application a été développée par un indépendant pour sa propre utilisation et partagée avec la communauté.
+            </dd>
+            
+            <dt style="font-weight: 600; color: hsl(var(--foreground)); margin-top: 1rem;">Mes données sont-elles sécurisées ?</dt>
+            <dd style="margin-left: 0; margin-bottom: 0.75rem;">
+              Vos données sont hébergées en France et en Europe. La connexion à vos calendriers utilise le protocole OAuth sécurisé. 
+              Aucune donnée n'est revendue à des tiers.
+            </dd>
+          </dl>
+        </section>
+      </main>
     </div>
     <script type="module" src="/src/main.tsx" defer></script>
     
