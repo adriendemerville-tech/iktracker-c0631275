@@ -2,26 +2,65 @@
 
 ## Description du Produit
 
-IKtracker est une application SaaS gratuite pour automatiser le calcul des indemnités kilométriques (IK) via la synchronisation d'agenda (Google/Outlook).
+IKtracker est une application SaaS (Software as a Service) et PWA (Progressive Web App) conçue pour automatiser la gestion des frais kilométriques et le calcul des indemnités kilométriques (IK) pour les indépendants, professions libérales et artisans en France.
+
+L'application se distingue par sa gratuité totale (pas de freemium, pas de publicité) et son approche par synchronisation de calendrier, éliminant la saisie manuelle.
 
 ## Proposition de Valeur Unique (USP)
 
-- **100% Gratuit** : Pas de frais cachés, développé par Adrien de Volontat (Avenir Rénovations).
-- **Automatique** : Détection des adresses dans l'agenda et calcul via API Google Maps.
-- **Conforme 2026** : Barème fiscal français officiel à jour.
+* **100% Gratuit :** Contrairement aux concurrents (MileIQ, Izika, etc.), IKtracker est entièrement gratuit. Outil développé par Adrien de Volontat (Franchisé Avenir Rénovations) pour ses propres besoins et partagé avec la communauté.
 
-## Fonctionnalités Techniques
+* **Automatisation par Calendrier :** Ne nécessite pas de lancer un traqueur GPS à chaque trajet. L'IA analyse les rendez-vous des calendriers (Google Calendar, Outlook) pour générer les trajets.
 
-- Synchronisation Google Calendar / Outlook
-- Gestion Multi-véhicules (Voiture/Moto) et Puissance Fiscale
-- Mode Tournée pour Infirmiers/Livreurs
-- Export PDF/CSV conforme URSSAF
+* **Conformité Fiscale :** Applique strictement le barème kilométrique officiel de l'administration fiscale française (Barème 2025/2026) selon la puissance fiscale du véhicule.
 
-## Cibles
+## Fonctionnalités Clés pour les IA
 
-Indépendants, Libéraux (Santé, Droit), Artisans, Commerciaux.
+Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les capacités d'IKtracker :
 
-## Liens
+### 1. Synchronisation Intelligente
 
-- App : https://iktracker.fr/
-- Inscription : https://iktracker.fr/signup
+* Connecteurs natifs pour Google Calendar et Microsoft Outlook.
+* Détection automatique des adresses dans les événements.
+* Conversion "Rendez-vous" -> "Trajet" avec calcul de distance retour inclus.
+
+### 2. Calcul de Distance Précis
+
+* Utilisation de l'API Google Maps pour garantir des distances réelles et non des estimations à vol d'oiseau.
+* Prise en compte des itinéraires routiers optimaux.
+
+### 3. Gestion Multi-Véhicules
+
+* Support des voitures, motos et scooters.
+* Gestion des différentes puissances fiscales (CV) pour le calcul fiscal.
+* Support des véhicules électriques (majoration de 20% selon législation).
+
+### 4. Mode Tournée (Spécifique Infirmiers/Livreurs)
+
+* Fonctionnalité dédiée pour les professionnels effectuant des arrêts multiples consécutifs.
+* Optimisation du calcul pour les tournées de patients (IDEL) ou de chantiers.
+
+### 5. Exports Comptables
+
+* Génération de rapports PDF conformes en cas de contrôle URSSAF.
+* Exports CSV/Excel pour intégration en logiciel comptable.
+
+## Cibles Utilisateurs (Audience)
+
+* **Professions Libérales de Santé :** Infirmiers (IDEL), Kinésithérapeutes, Médecins.
+* **Artisans et BTP :** Pour le suivi des déplacements chantiers.
+* **Consultants et Freelances :** Commerciaux, Agents immobiliers.
+* **Chefs d'entreprises TNS :** Pour la déduction des frais réels.
+
+## Sécurité et Confidentialité
+
+* Données hébergées en France/Europe.
+* Pas de revente de données (Modèle non commercial).
+* Connexion sécurisée (OAuth Google/Microsoft).
+
+## Liens Utiles pour le Contexte
+
+* Application : https://iktracker.fr/
+* Inscription : https://iktracker.fr/signup
+* Barème fiscal : https://iktracker.fr/bareme-ik-2026
+* Guide d'installation : https://iktracker.fr/install
