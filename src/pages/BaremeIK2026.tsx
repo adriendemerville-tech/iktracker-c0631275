@@ -70,12 +70,12 @@ const BaremeIK2026 = () => {
         <title>Barème indemnités kilométriques 2026 (IK) : calcul et tableau fiscal | IKtracker</title>
         <meta 
           name="description" 
-          content="Barème des indemnités kilométriques 2025 reconduit en 2026. Simulateur IK gratuit, tableau des taux par CV et calcul automatique de vos frais kilométriques professionnels." 
+          content="Barème officiel des indemnités kilométriques 2026. Simulateur IK gratuit, tableau des taux par CV et calcul automatique de vos frais kilométriques professionnels." 
         />
-        <meta name="keywords" content="indemnités kilométriques 2026, indemnités kilométriques 2025, barème des indemnités kilométriques 2025, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
+        <meta name="keywords" content="indemnités kilométriques 2026, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
         <link rel="canonical" href="https://iktracker.fr/bareme-ik-2026" />
         <meta property="og:title" content="Barème indemnités kilométriques 2026 - Simulateur et calcul IK" />
-        <meta property="og:description" content="Tableau complet du barème IK 2026 basé sur le barème des indemnités kilométriques 2025. Simulateur gratuit pour calculer vos IK." />
+        <meta property="og:description" content="Tableau complet du barème IK 2026. Simulateur gratuit pour calculer vos indemnités kilométriques." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:url" content="https://iktracker.lovable.app/bareme-ik-2026" />
@@ -90,7 +90,7 @@ const BaremeIK2026 = () => {
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": "Barème des indemnités kilométriques 2026 : guide complet et simulateur",
-            "description": "Découvrez le barème IK 2026 basé sur les indemnités kilométriques 2025. Tableau des taux, simulateur gratuit et conseils fiscaux.",
+            "description": "Découvrez le barème IK 2026 officiel. Tableau des taux, simulateur gratuit et conseils fiscaux.",
             "author": {
               "@type": "Organization",
               "name": "IKtracker"
@@ -124,12 +124,12 @@ const BaremeIK2026 = () => {
                 "name": "Quel est le barème des indemnités kilométriques 2026 ?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Le barème des indemnités kilométriques 2026 reprend les taux du barème 2025. Pour un véhicule de 5 CV, le taux est de 0.603 €/km jusqu'à 5000 km, puis (d × 0.339) + 1320 € jusqu'à 20000 km, et 0.405 €/km au-delà."
+                  "text": "Le barème des indemnités kilométriques 2026 est le barème officiel. Pour un véhicule de 5 CV, le taux est de 0.603 €/km jusqu'à 5000 km, puis (d × 0.339) + 1320 € jusqu'à 20000 km, et 0.405 €/km au-delà."
                 }
               },
               {
                 "@type": "Question",
-                "name": "Comment calculer ses indemnités kilométriques 2025 et 2026 ?",
+                "name": "Comment calculer ses indemnités kilométriques 2026 ?",
                 "acceptedAnswer": {
                   "@type": "Answer",
                   "text": "Le calcul des IK dépend de la puissance fiscale du véhicule (CV) et du nombre de kilomètres parcourus. Utilisez le simulateur IKtracker pour un calcul automatique selon le barème officiel."
@@ -137,10 +137,10 @@ const BaremeIK2026 = () => {
               },
               {
                 "@type": "Question",
-                "name": "Le barème IK 2026 est-il différent du barème 2025 ?",
+                "name": "Le barème IK 2026 est-il le barème officiel ?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Non, le barème des IK 2026 devrait être identique au barème des indemnités kilométriques 2025, compte tenu de la stabilisation des prix du carburant et des contraintes budgétaires de l'État."
+                  "text": "Oui, le barème des IK 2026 est le barème officiel applicable pour les déclarations fiscales de l'année 2026."
                 }
               },
               {
@@ -148,7 +148,7 @@ const BaremeIK2026 = () => {
                 "name": "Les véhicules électriques bénéficient-ils d'un avantage pour les IK ?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Oui, depuis 2021 et confirmé pour 2025-2026, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques. Attention : les véhicules hybrides et hybrides rechargeables ne bénéficient pas de cet avantage."
+                  "text": "Oui, depuis 2021 et confirmé pour 2026, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques. Attention : les véhicules hybrides et hybrides rechargeables ne bénéficient pas de cet avantage."
                 }
               }
             ]
@@ -173,8 +173,8 @@ const BaremeIK2026 = () => {
                 <span className="text-gradient">calcul et tableau fiscal officiel</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Le <strong>barème des indemnités kilométriques 2025</strong> sera reconduit en 2026. 
-                Découvrez les taux applicables, notre simulateur gratuit et comment calculer vos <strong>indemnités kilométriques 2026</strong>.
+                Le <strong>barème des indemnités kilométriques 2026</strong> est le barème officiel applicable. 
+                Découvrez les taux, notre simulateur gratuit et comment calculer vos <strong>indemnités kilométriques 2026</strong>.
               </p>
             </div>
           </div>
@@ -187,12 +187,12 @@ const BaremeIK2026 = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
                   <Info className="h-5 w-5" />
-                  Barème IK 2026 : reconduction du barème des indemnités kilométriques 2025
+                  Barème IK 2026 : barème officiel des indemnités kilométriques
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-foreground">
                 <p>
-                  <strong>Le barème des indemnités kilométriques 2025 devrait être reconduit à l'identique pour 2026.</strong> Cette stabilité permet aux contribuables de planifier leurs déclarations fiscales avec les mêmes taux que l'année précédente.
+                  <strong>Le barème des indemnités kilométriques 2026 est le barème officiel applicable.</strong> Ces taux permettent aux contribuables de calculer leurs frais de déplacement professionnels pour leurs déclarations fiscales.
                 </p>
                 
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
@@ -230,16 +230,16 @@ const BaremeIK2026 = () => {
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Tableau du barème des indemnités kilométriques 2025-2026
+                Tableau du barème des indemnités kilométriques 2026
               </h2>
               <p className="text-muted-foreground">
-                Voici le <strong>barème des IK 2026</strong> (identique au barème 2025) avec les taux par puissance fiscale et kilomètres parcourus.
+                Voici le <strong>barème des IK 2026</strong> officiel avec les taux par puissance fiscale et kilomètres parcourus.
               </p>
             </div>
 
             <Card>
               <CardContent className="p-0 overflow-x-auto">
-                <Table aria-label="Barème des indemnités kilométriques 2025-2026">
+                <Table aria-label="Barème des indemnités kilométriques 2026">
                   <caption className="sr-only">
                     Tableau des taux d'indemnités kilométriques par puissance fiscale et distance parcourue
                   </caption>
@@ -296,7 +296,7 @@ const BaremeIK2026 = () => {
                 Véhicules électriques : majoration de 20% des indemnités kilométriques
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Depuis 2021 et confirmé pour les <strong>indemnités kilométriques 2025</strong> et 2026, les véhicules 100% électriques bénéficient d'un avantage fiscal significatif.
+                Depuis 2021 et confirmé pour les <strong>indemnités kilométriques 2026</strong>, les véhicules 100% électriques bénéficient d'un avantage fiscal significatif.
               </p>
             </div>
 

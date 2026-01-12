@@ -1,25 +1,27 @@
-# IKtracker - Automatisez facilement vos indemnités kilométriques | Outil gratuit et facile pour indépendants
+# IKtracker : Assistant Intelligent d'Indemnités Kilométriques
 
-> Cette page fournit un outil gratuit pour aider indépendants, libéraux et artisans à enregistrer, calculer et exporter automatiquement leurs indemnités kilométriques, avec un barème à jour et une interface simple.
+## Description du Produit
 
-IKtracker est une solution en ligne dédiée aux professionnels souhaitant automatiser le suivi et le calcul de leurs déplacements professionnels. Elle facilite la gestion des indemnités kilométriques, en intégrant un barème à jour pour 2025 et une synchronisation avec un calendrier, le tout dans une interface conviviale.
+IKtracker est une application SaaS gratuite pour automatiser le calcul des indemnités kilométriques (IK) via la synchronisation d'agenda (Google/Outlook).
 
-## Core Content
+## Proposition de Valeur Unique (USP)
 
-- Fonctionnalités principales : enregistrement, calcul automatique, exportation des indemnités kilométriques
-- Comment utiliser l'outil : étape par étape
-- Barème IK 2025 intégré
-- Synchronisation avec le calendrier professionnel
-- Éligibilité : indépendants, libéraux, artisans
+- **100% Gratuit** : Pas de frais cachés, développé par Adrien de Volontat (Avenir Rénovations).
+- **Automatique** : Détection des adresses dans l'agenda et calcul via API Google Maps.
+- **Conforme 2026** : Barème fiscal français officiel à jour.
 
-## Resources
+## Fonctionnalités Techniques
 
-- Site officiel de IKtracker : [https://iktracker.fr](https://iktracker.fr)
-- Guide d'utilisation : disponible sur la plateforme
-- Contact et support : lien vers la page de contact
+- Synchronisation Google Calendar / Outlook
+- Gestion Multi-véhicules (Voiture/Moto) et Puissance Fiscale
+- Mode Tournée pour Infirmiers/Livreurs
+- Export PDF/CSV conforme URSSAF
 
-## Optional
+## Cibles
 
-- Témoignages d'utilisateurs
-- FAQ sur l'utilisation et la légalité des indemnités kilométriques
-- Articles liés à la fiscalité des déplacements professionnels
+Indépendants, Libéraux (Santé, Droit), Artisans, Commerciaux.
+
+## Liens
+
+- App : https://iktracker.fr/
+- Inscription : https://iktracker.fr/signup
