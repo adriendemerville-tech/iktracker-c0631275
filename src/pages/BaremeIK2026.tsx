@@ -24,7 +24,8 @@ import {
   Users,
   Zap,
   AlertTriangle,
-  Fuel
+  Fuel,
+  Bike
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
@@ -286,6 +287,166 @@ const BaremeIK2026 = () => {
                         </TableCell>
                       </TableRow>
                     ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              <strong>d</strong> = distance parcourue en kilomètres sur l'année
+            </p>
+
+            {/* Moto Table */}
+            <div className="text-center mb-8 mt-16">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                Barème kilométrique 2026 pour motos thermiques (&gt; 50 cm³)
+              </h2>
+              <p className="text-muted-foreground">
+                Voici le <strong>barème des IK 2026 pour les motos</strong> de plus de 50 cm³.
+              </p>
+            </div>
+
+            <Card>
+              <CardContent className="p-0 overflow-x-auto">
+                <Table aria-label="Barème des indemnités kilométriques 2026 pour motos">
+                  <caption className="sr-only">
+                    Tableau des taux d'indemnités kilométriques pour motos par puissance fiscale et distance parcourue
+                  </caption>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead scope="col" className="font-bold">Puissance</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">Jusqu'à 3 000 km</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">De 3 001 à 6 000 km</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">Au-delà de 6 000 km</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="bg-background">
+                      <TableCell scope="row" className="font-semibold">
+                        <div className="flex items-center gap-2">
+                          <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
+                          1 ou 2 CV
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,395 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          (d × 0,099) + 891 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,248 €
+                        </code>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="bg-muted/20">
+                      <TableCell scope="row" className="font-semibold">
+                        <div className="flex items-center gap-2">
+                          <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
+                          3, 4, 5 CV
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,468 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          (d × 0,082) + 1 158 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,275 €
+                        </code>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="bg-background">
+                      <TableCell scope="row" className="font-semibold">
+                        <div className="flex items-center gap-2">
+                          <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
+                          Plus de 5 CV
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,606 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          (d × 0,079) + 1 583 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,343 €
+                        </code>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              <strong>d</strong> = distance parcourue en kilomètres sur l'année
+            </p>
+
+            {/* Cyclomoteur Table */}
+            <div className="text-center mb-8 mt-16">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                Barème kilométrique 2026 pour cyclomoteurs thermiques (&lt; 50 cm³)
+              </h2>
+              <p className="text-muted-foreground">
+                Voici le <strong>barème des IK 2026 pour les cyclomoteurs</strong> et scooters de moins de 50 cm³.
+              </p>
+            </div>
+
+            <Card>
+              <CardContent className="p-0 overflow-x-auto">
+                <Table aria-label="Barème des indemnités kilométriques 2026 pour cyclomoteurs">
+                  <caption className="sr-only">
+                    Tableau des taux d'indemnités kilométriques pour cyclomoteurs par distance parcourue
+                  </caption>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead scope="col" className="font-bold">Type</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">Jusqu'à 3 000 km</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">De 3 001 à 6 000 km</TableHead>
+                      <TableHead scope="col" className="text-center font-bold">Au-delà de 6 000 km</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="bg-background">
+                      <TableCell scope="row" className="font-semibold">
+                        <div className="flex items-center gap-2">
+                          <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
+                          Cyclomoteurs et scooters &lt; 50 cm³
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,315 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          (d × 0,079) + 711 €
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
+                          d × 0,198 €
+                        </code>
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>
