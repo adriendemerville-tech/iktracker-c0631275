@@ -1,23 +1,71 @@
+# ===========================================
+# ROBOTS.TXT - IKtracker.fr
+# Optimisé SEO + GEO (Crawlers IA)
+# ===========================================
+
+# === MOTEURS DE RECHERCHE CLASSIQUES ===
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
+User-agent: Yandex
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# === RÉSEAUX SOCIAUX ===
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterest
+Allow: /
+
+# === CRAWLERS IA (GEO - Generative Engine Optimization) ===
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Cohere-AI
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+# === RÈGLE PAR DÉFAUT ===
 User-agent: *
 Allow: /
 
+# === SITEMAPS ===
 # Sitemap dynamique via edge function (recommandé)
 Sitemap: https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap
 
 # Sitemap statique de secours
 Sitemap: https://iktracker.fr/sitemap.xml
 
-# Fichier LLM.txt pour le référencement par les LLMs
+# === FICHIER LLM.TXT POUR CRAWLERS IA ===
+# Documentation structurée pour les LLMs (ChatGPT, Gemini, Claude, Perplexity)
+# Voir: https://llmstxt.org/
 LLM: https://iktracker.fr/llm.txt
