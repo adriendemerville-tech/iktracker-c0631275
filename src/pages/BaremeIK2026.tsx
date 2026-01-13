@@ -88,68 +88,69 @@ const BaremeIK2026 = () => {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": "Barème des indemnités kilométriques 2026 : guide complet et simulateur",
-            "description": "Découvrez le barème IK 2026 officiel. Tableau des taux, simulateur gratuit et conseils fiscaux.",
-            "author": {
-              "@type": "Organization",
-              "name": "IKtracker"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "IKtracker",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://iktracker.fr/logo-iktracker-250.webp"
-              }
-            },
-            "datePublished": "2024-12-01",
-            "dateModified": "2024-12-19",
-            "mainEntityOfPage": "https://iktracker.lovable.app/bareme-ik-2026",
-            "inLanguage": "fr-FR",
-            "about": {
-              "@type": "Thing",
-              "name": "Indemnités kilométriques",
-              "description": "Barème fiscal permettant de calculer les frais de déplacement professionnels"
-            }
-          })}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
+            "@graph": [
               {
-                "@type": "Question",
-                "name": "Quel est le barème des indemnités kilométriques 2026 ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Le barème des indemnités kilométriques 2026 est le barème officiel. Pour un véhicule de 5 CV, le taux est de 0.603 €/km jusqu'à 5000 km, puis (d × 0.339) + 1320 € jusqu'à 20000 km, et 0.405 €/km au-delà."
+                "@type": "Article",
+                "headline": "Barème des indemnités kilométriques 2026 : guide complet et simulateur",
+                "description": "Découvrez le barème IK 2026 officiel. Tableau des taux, simulateur gratuit et conseils fiscaux.",
+                "author": {
+                  "@type": "Organization",
+                  "name": "IKtracker"
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "IKtracker",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://iktracker.fr/logo-iktracker-250.webp"
+                  }
+                },
+                "datePublished": "2024-12-01",
+                "dateModified": "2024-12-19",
+                "mainEntityOfPage": "https://iktracker.fr/bareme-ik-2026",
+                "inLanguage": "fr-FR",
+                "about": {
+                  "@type": "Thing",
+                  "name": "Indemnités kilométriques",
+                  "description": "Barème fiscal permettant de calculer les frais de déplacement professionnels"
                 }
               },
               {
-                "@type": "Question",
-                "name": "Comment calculer ses indemnités kilométriques 2026 ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Le calcul des IK dépend de la puissance fiscale du véhicule (CV) et du nombre de kilomètres parcourus. Utilisez le simulateur IKtracker pour un calcul automatique selon le barème officiel."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Le barème IK 2026 est-il le barème officiel ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Oui, le barème des IK 2026 est le barème officiel applicable pour les déclarations fiscales de l'année 2026."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Les véhicules électriques bénéficient-ils d'un avantage pour les IK ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Oui, depuis 2021 et confirmé pour 2026, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques. Attention : les véhicules hybrides et hybrides rechargeables ne bénéficient pas de cet avantage."
-                }
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "Quel est le barème des indemnités kilométriques 2026 ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Le barème des indemnités kilométriques 2026 est le barème officiel. Pour un véhicule de 5 CV, le taux est de 0.603 €/km jusqu'à 5000 km, puis (d × 0.339) + 1320 € jusqu'à 20000 km, et 0.405 €/km au-delà."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Comment calculer ses indemnités kilométriques 2026 ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Le calcul des IK dépend de la puissance fiscale du véhicule (CV) et du nombre de kilomètres parcourus. Utilisez le simulateur IKtracker pour un calcul automatique selon le barème officiel."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Le barème IK 2026 est-il le barème officiel ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Oui, le barème des IK 2026 est le barème officiel applicable pour les déclarations fiscales de l'année 2026."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Les véhicules électriques bénéficient-ils d'un avantage pour les IK ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Oui, depuis 2021 et confirmé pour 2026, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques. Attention : les véhicules hybrides et hybrides rechargeables ne bénéficient pas de cet avantage."
+                    }
+                  }
+                ]
               }
             ]
           })}
