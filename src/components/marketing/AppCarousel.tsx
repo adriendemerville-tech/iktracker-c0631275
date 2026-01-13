@@ -116,11 +116,14 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
       </Button>
 
       {/* Dots Indicator */}
-      <div className="flex justify-center gap-2 mt-6">
-        {slides.map((_, index) => (
+      <div className="flex justify-center gap-2 mt-6" role="tablist" aria-label="Navigation du carrousel">
+        {slides.map((slide, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
+            role="tab"
+            aria-selected={index === currentIndex}
+            aria-label={`Aller à la diapositive ${index + 1}: ${slide.title}`}
             className={cn(
               "w-3 h-3 rounded-full transition-all duration-300",
               index === currentIndex 
