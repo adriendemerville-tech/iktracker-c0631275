@@ -134,6 +134,71 @@ const Landing = () => {
         <title>IKtracker - Automatisation des Indemnités Kilométriques | Agenda vers Excel (Barème 2026)</title>
         <meta name="description" content="Automatisez vos indemnités kilométriques via notre mode tournée et votre Agenda. Application 100% gratuite, sécurisée et conforme au barème fiscal 2026 pour indépendants et libéraux." />
         <link rel="canonical" href="https://iktracker.fr/" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "WebApplication",
+                "name": "IKtracker",
+                "description": "Application gratuite de calcul et suivi des indemnités kilométriques",
+                "url": "https://iktracker.fr/",
+                "applicationCategory": "BusinessApplication",
+                "operatingSystem": "Web, iOS, Android",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "EUR"
+                }
+              },
+              {
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "IKtracker est-il vraiment gratuit ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Oui, IKtracker est 100% gratuit. Aucune carte bancaire n'est requise et toutes les fonctionnalités sont accessibles sans frais : enregistrement des trajets, calcul automatique des IK, export PDF et CSV."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Comment fonctionne le calcul des indemnités kilométriques ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "IKtracker applique automatiquement le barème fiscal officiel 2026 en fonction de la puissance fiscale de votre véhicule et du nombre de kilomètres parcourus. Le calcul prend en compte les 3 tranches (jusqu'à 5000 km, de 5001 à 20000 km, au-delà) et la majoration de 20% pour les véhicules électriques."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Puis-je utiliser IKtracker sur mon téléphone ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Oui, IKtracker est une Progressive Web App (PWA) installable sur iPhone et Android. Elle fonctionne hors-ligne et permet d'enregistrer vos trajets en déplacement grâce au GPS intégré."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Comment synchroniser mon calendrier avec IKtracker ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "IKtracker se connecte à Google Calendar et Outlook pour importer automatiquement vos rendez-vous professionnels. L'application crée les trajets correspondants avec calcul automatique des distances et des indemnités."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Mes données sont-elles sécurisées ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Oui, vos données sont chiffrées et stockées de manière sécurisée. IKtracker est conforme au RGPD et vos informations ne sont jamais partagées avec des tiers. Vous pouvez exporter ou supprimer vos données à tout moment."
+                    }
+                  }
+                ]
+              }
+            ]
+          })}
+        </script>
       </Helmet>
       
       <MarketingNav user={user} loading={loading} />
