@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Lazy import supabase to avoid blocking initial render
+const getSupabase = () => import('@/integrations/supabase/client').then(m => m.supabase);
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
 
@@ -25,9 +27,10 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleOAuthLogin = async () => {
+  const handleOAuthLogin = useCallback(async () => {
     setOauthLoading('google');
     try {
+      const supabase = await getSupabase();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
       });
@@ -36,13 +39,14 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
-  };
+  }, [toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const supabase = await getSupabase();
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -90,7 +94,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
     } finally {
       setLoading(false);
     }
-  };
+  }, [mode, email, password, toast, onSuccess, navigate]);
 
   const getButtonText = () => {
     switch (mode) {
