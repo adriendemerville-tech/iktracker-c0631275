@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Signal, Sun, Moon, Car, BatteryLow, Square } from 'lucide-react';
+import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useNightMode } from '@/hooks/useNightMode';
+import { cn } from '@/lib/utils';
 
 interface FocusTourViewProps {
   isActive: boolean;
@@ -20,6 +21,8 @@ interface FocusTourViewProps {
   wakeLockActive: boolean;
   lowBattery: boolean;
   tourStartTime?: Date;
+  gpsSignalStrength?: 'excellent' | 'good' | 'poor' | 'lost';
+  gpsAccuracy?: number | null;
   onFinish: () => void; // Directly finish and save the tour
   onCancel?: () => void; // Cancel during loading
 }
@@ -46,6 +49,8 @@ export function FocusTourView({
   wakeLockActive,
   lowBattery,
   tourStartTime,
+  gpsSignalStrength = 'lost',
+  gpsAccuracy,
   onFinish,
   onCancel,
 }: FocusTourViewProps) {
@@ -127,6 +132,24 @@ export function FocusTourView({
     return `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
   };
 
+  // Get GPS signal icon and color
+  const getGpsSignalDisplay = () => {
+    switch (gpsSignalStrength) {
+      case 'excellent':
+        return { icon: Signal, color: 'text-green-500', label: 'Excellent' };
+      case 'good':
+        return { icon: Signal, color: 'text-green-400', label: 'Bon' };
+      case 'poor':
+        return { icon: SignalLow, color: 'text-yellow-500', label: 'Faible' };
+      case 'lost':
+      default:
+        return { icon: SignalZero, color: 'text-red-500', label: 'Perdu' };
+    }
+  };
+
+  const gpsDisplay = getGpsSignalDisplay();
+  const GpsIcon = gpsDisplay.icon;
+
   // Show when active OR loading
   if (!isActive && !isLoading) return null;
 
@@ -157,23 +180,44 @@ export function FocusTourView({
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-between py-12 px-6">
-      {/* GPS Signal indicator */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        {isNightMode && (
-          <Moon className="w-4 h-4 text-indigo-400" />
-        )}
-        <Signal className="w-4 h-4 text-green-500" />
+      {/* Top status bar */}
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        {/* Left side - Wake lock indicator */}
+        <div className="flex items-center gap-2">
+          {wakeLockActive && (
+            <div className="flex items-center gap-1.5">
+              <Sun className="w-4 h-4 text-yellow-400" />
+            </div>
+          )}
+        </div>
+        
+        {/* Center - Live tracking indicator */}
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/20 rounded-full">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span>
+          <span className="text-red-400 text-xs font-medium uppercase tracking-wide">Live</span>
+        </div>
+        
+        {/* Right side - GPS Signal and Night mode */}
+        <div className="flex items-center gap-2">
+          {isNightMode && (
+            <Moon className="w-4 h-4 text-indigo-400" />
+          )}
+          <div className="flex items-center gap-1">
+            <GpsIcon className={cn("w-4 h-4", gpsDisplay.color)} />
+            {gpsAccuracy !== null && gpsAccuracy !== undefined && (
+              <span className={cn("text-xs font-mono", gpsDisplay.color)}>
+                {gpsAccuracy.toFixed(0)}m
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Wake lock indicator */}
-      {wakeLockActive && (
-        <div className="absolute top-4 left-4 flex items-center gap-1.5">
-          <Sun className="w-4 h-4 text-yellow-400" />
-        </div>
-      )}
-
       {/* TOP: Current time and tour duration */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mt-8">
         <span className="font-urbanist text-6xl font-bold text-gray-400 tracking-tight">
           {formatTime(currentTime)}
         </span>
@@ -240,6 +284,27 @@ export function FocusTourView({
           <BatteryLow className="w-6 h-6 text-orange-400" />
           <span className="text-orange-400 text-base font-urbanist">
             Batterie faible
+          </span>
+        </div>
+      )}
+
+      {/* GPS signal warning when poor or lost */}
+      {(gpsSignalStrength === 'poor' || gpsSignalStrength === 'lost') && !lowBattery && (
+        <div className={cn(
+          "border rounded-xl px-5 py-2.5 flex items-center gap-3",
+          gpsSignalStrength === 'lost' 
+            ? "bg-red-500/20 border-red-500/40" 
+            : "bg-yellow-500/20 border-yellow-500/40"
+        )}>
+          <Radio className={cn(
+            "w-6 h-6",
+            gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
+          )} />
+          <span className={cn(
+            "text-base font-urbanist",
+            gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
+          )}>
+            {gpsSignalStrength === 'lost' ? 'Signal GPS perdu' : 'Signal GPS faible'}
           </span>
         </div>
       )}
