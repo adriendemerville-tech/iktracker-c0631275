@@ -1,17 +1,16 @@
-import { useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { supabase } from '@/integrations/supabase/client';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { ArrowLeft, Pencil, Clock, User, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-// Lazy load heavy dependencies - deferred for FCP
-const supabasePromise = import('@/integrations/supabase/client').then(m => m.supabase);
-const ReactMarkdown = lazy(() => import('react-markdown'));
-const remarkGfmPromise = import('remark-gfm').then(m => m.default);
 
 interface BlogPost {
   id: string;
@@ -44,26 +43,10 @@ function extractFirstParagraph(content: string): string {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin } = useAdmin();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [remarkGfm, setRemarkGfm] = useState<typeof import('remark-gfm').default | null>(null);
-
-  // Defer admin check and remarkGfm loading
-  useEffect(() => {
-    remarkGfmPromise.then(setRemarkGfm);
-    supabasePromise.then(async (supabase) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data } = await supabase.rpc('has_role', { 
-          _user_id: session.user.id, 
-          _role: 'admin' 
-        });
-        setIsAdmin(data === true);
-      }
-    });
-  }, []);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -73,7 +56,6 @@ export default function BlogPost() {
         return;
       }
 
-      const supabase = await supabasePromise;
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
@@ -341,24 +323,22 @@ export default function BlogPost() {
               prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-semibold
               prose-td:border prose-td:border-border prose-td:p-3"
           >
-            <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-              <ReactMarkdown 
-                remarkPlugins={remarkGfm ? [remarkGfm] : []}
-                components={{
-                  // Optimize images in markdown content
-                  img: ({ src, alt }) => (
-                    <OptimizedImage
-                      src={src || ''}
-                      alt={alt || ''}
-                      className="rounded-lg my-6"
-                      aspectRatio="16/9"
-                    />
-                  )
-                }}
-              >
-                {post.content}
-              </ReactMarkdown>
-            </Suspense>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                // Optimize images in markdown content
+                img: ({ src, alt }) => (
+                  <OptimizedImage
+                    src={src || ''}
+                    alt={alt || ''}
+                    className="rounded-lg my-6"
+                    aspectRatio="16/9"
+                  />
+                )
+              }}
+            >
+              {post.content}
+            </ReactMarkdown>
           </div>
 
           <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">

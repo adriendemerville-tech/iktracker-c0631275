@@ -1,18 +1,14 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { supabase } from '@/integrations/supabase/client';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-// Lazy load heavy dependencies
-const supabasePromise = import('@/integrations/supabase/client').then(m => m.supabase);
-
-// Lazy load footer
-const MarketingFooter = lazy(() => import('@/components/marketing/MarketingFooter').then(m => ({ default: m.MarketingFooter })));
 
 interface BlogPost {
   id: string;
@@ -28,29 +24,10 @@ interface BlogPost {
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Defer admin check
-  useEffect(() => {
-    import('@/hooks/useAdmin').then(({ useAdmin }) => {
-      // We'll use a simpler approach - check once on mount
-    });
-    // Simple admin check deferred
-    supabasePromise.then(async (supabase) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data } = await supabase.rpc('has_role', { 
-          _user_id: session.user.id, 
-          _role: 'admin' 
-        });
-        setIsAdmin(data === true);
-      }
-    });
-  }, []);
+  const { isAdmin } = useAdmin();
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const supabase = await supabasePromise;
       const { data, error } = await supabase
         .from('blog_posts')
         .select('id, slug, title, subtitle, meta_description, featured_image_url, author_name, published_at')
