@@ -287,9 +287,17 @@ ${IKTRACKER_MENTION}
     rows.push([IKTRACKER_MENTION]);
     rows.push([IKTRACKER_URL]);
 
-    // Build header info section
+    // Build header info section with user info
+    const userName = userInfo.firstName || userInfo.lastName
+      ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
+      : '';
+    
     const headerInfo = [
       IKTRACKER_MENTION,
+      '',
+      '=== INFORMATIONS UTILISATEUR ===',
+      userName ? `Nom;${userName}` : '',
+      userInfo.email ? `Email;${userInfo.email}` : '',
       '',
       '=== INFORMATIONS CONDUCTEUR ET VÉHICULE ===',
       `Propriétaire;${ownerName}`,
@@ -298,7 +306,7 @@ ${IKTRACKER_MENTION}
       `Immatriculation;${licensePlate}`,
       '',
       '=== DÉTAIL DES TRAJETS ===',
-    ];
+    ].filter(line => line !== '');
 
     const csv = [
       ...headerInfo,
@@ -550,6 +558,31 @@ ${IKTRACKER_URL}`
         </header>
 
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-3 md:space-y-4">
+        
+        {/* User info section */}
+        {(userInfo.firstName || userInfo.lastName || userInfo.email) && (
+          <div className="bg-card rounded-md p-3 md:p-4 shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <UserCircle className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                {(userInfo.firstName || userInfo.lastName) && (
+                  <p className="font-semibold text-foreground truncate">
+                    {userInfo.firstName} {userInfo.lastName}
+                  </p>
+                )}
+                {userInfo.email && (
+                  <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
+                    <Mail className="w-3 h-3" />
+                    {userInfo.email}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground">Récapitulatif</h2>
           <div className="grid grid-cols-3 gap-3 md:gap-4 text-center">
