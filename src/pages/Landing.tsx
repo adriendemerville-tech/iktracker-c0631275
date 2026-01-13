@@ -19,7 +19,8 @@ import {
   FileText,
   Check,
   Star,
-  Smartphone
+  Smartphone,
+  Plus
 } from "lucide-react";
 
 // Lazy load AuthForm - not needed for initial LCP
@@ -701,7 +702,56 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonial / Disclaimer Section */}
+      {/* FAQ Section */}
+      <section className="py-16 md:py-24 px-4 section-contained" aria-labelledby="faq-heading">
+        <div className="container mx-auto max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 id="faq-heading" className="text-2xl md:text-3xl lg:text-4xl font-bold">Questions fréquentes</h2>
+            <p className="text-muted-foreground mt-3">Tout ce que vous devez savoir sur IKtracker</p>
+          </div>
+          
+          <div className="space-y-4">
+            {[
+              {
+                question: "IKtracker est-il vraiment gratuit ?",
+                answer: "Oui, IKtracker est 100% gratuit. Aucune carte bancaire n'est requise et toutes les fonctionnalités sont accessibles sans frais : enregistrement des trajets, calcul automatique des IK, export PDF et CSV."
+              },
+              {
+                question: "Comment fonctionne le calcul des indemnités kilométriques ?",
+                answer: "IKtracker applique automatiquement le barème fiscal officiel 2026 en fonction de la puissance fiscale de votre véhicule et du nombre de kilomètres parcourus. Le calcul prend en compte les 3 tranches et la majoration de 20% pour les véhicules électriques."
+              },
+              {
+                question: "Puis-je utiliser IKtracker sur mon téléphone ?",
+                answer: "Oui, IKtracker est une Progressive Web App (PWA) installable sur iPhone et Android. Elle fonctionne hors-ligne et permet d'enregistrer vos trajets en déplacement grâce au GPS intégré."
+              },
+              {
+                question: "Comment synchroniser mon calendrier avec IKtracker ?",
+                answer: "IKtracker se connecte à Google Calendar et Outlook pour importer automatiquement vos rendez-vous professionnels. L'application crée les trajets correspondants avec calcul automatique des distances."
+              },
+              {
+                question: "Mes données sont-elles sécurisées ?",
+                answer: "Oui, vos données sont chiffrées et stockées de manière sécurisée. IKtracker est conforme au RGPD et vos informations ne sont jamais partagées avec des tiers."
+              }
+            ].map((faq, index) => (
+              <details 
+                key={index} 
+                className="group bg-card border border-border rounded-xl overflow-hidden"
+              >
+                <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-muted/50 transition-colors list-none">
+                  <span className="font-semibold text-foreground pr-4">{faq.question}</span>
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-transform group-open:rotate-45">
+                    <Plus className="h-4 w-4" />
+                  </span>
+                </summary>
+                <div className="px-5 pb-5 text-muted-foreground leading-relaxed">
+                  {faq.answer}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 md:py-16 px-4 bg-muted/50 section-contained">
         <div className="container mx-auto max-w-3xl">
           <div className="bg-background border border-border rounded-2xl p-6 md:p-10">
