@@ -9,6 +9,7 @@ import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { getOptimizedImageUrl, getResponsiveSrcSet, imagePresets } from '@/lib/image-transform';
 
 interface BlogPost {
   id: string;
@@ -133,10 +134,14 @@ export default function Blog() {
                       <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-muted">
                         {featuredPost.featured_image_url ? (
                           <img 
-                            src={featuredPost.featured_image_url} 
+                            src={getOptimizedImageUrl(featuredPost.featured_image_url, imagePresets.featured) || ''} 
+                            srcSet={getResponsiveSrcSet(featuredPost.featured_image_url, [600, 900, 1200]) || ''}
+                            sizes="(max-width: 1024px) 100vw, 50vw"
                             alt={featuredPost.title}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
@@ -202,10 +207,13 @@ export default function Blog() {
                             <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-muted mb-4">
                               {post.featured_image_url ? (
                                 <img 
-                                  src={post.featured_image_url} 
+                                  src={getOptimizedImageUrl(post.featured_image_url, imagePresets.card) || ''} 
+                                  srcSet={getResponsiveSrcSet(post.featured_image_url, [400, 600, 800]) || ''}
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                   alt={post.title}
                                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                   loading="lazy"
+                                  decoding="async"
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
