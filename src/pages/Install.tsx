@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense, memo } from 'react';
 import { useMarketingTracker } from '@/hooks/useMarketingTracker';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -6,12 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { AnimatedPhoneMockup } from "@/components/marketing/AnimatedPhoneMockup";
-import { AppCarousel } from "@/components/marketing/AppCarousel";
-import { TourModeDemo } from "@/components/marketing/TourModeDemo";
-import { QRCodeSVG } from 'qrcode.react';
 import { 
   Smartphone, 
   Monitor, 
@@ -27,6 +21,17 @@ import {
   Globe,
   ArrowRight
 } from 'lucide-react';
+
+// Lazy load heavy components
+const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
+const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
+const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
+const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
+const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
+
+const FooterPlaceholder = memo(() => <div className="h-64 bg-muted/30 animate-pulse" />);
+const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -170,7 +175,9 @@ const Install = () => {
               )}
             </div>
             <div className="animate-scale-in">
-              <AnimatedPhoneMockup screen="dashboard" />
+              <Suspense fallback={<DemoLoader />}>
+                <AnimatedPhoneMockup screen="dashboard" />
+              </Suspense>
             </div>
           </div>
         </div>
@@ -279,7 +286,9 @@ const Install = () => {
             <h2 id="app-preview-heading" className="text-3xl font-bold">Aperçu de l'application</h2>
             <p className="text-muted-foreground">Une expérience native sur votre mobile</p>
           </div>
-          <AppCarousel />
+          <Suspense fallback={<DemoLoader />}>
+            <AppCarousel />
+          </Suspense>
         </div>
       </section>
 
@@ -299,7 +308,9 @@ const Install = () => {
                 </Button>
               </Link>
             </div>
-            <TourModeDemo />
+            <Suspense fallback={<DemoLoader />}>
+              <TourModeDemo />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -313,14 +324,16 @@ const Install = () => {
           {/* QR Code for desktop users */}
           <div className="hidden md:flex flex-col items-center gap-3 py-4" aria-label="QR code pour accéder à cette page sur mobile">
             <div className="bg-white p-4 rounded-xl shadow-lg">
-              <QRCodeSVG 
-                value="https://iktracker.fr/install" 
-                size={160}
-                level="M"
-                includeMargin={false}
-                role="img"
-                aria-label="QR code vers iktracker.fr/install"
-              />
+              <Suspense fallback={<div className="w-40 h-40 bg-muted animate-pulse" />}>
+                <QRCodeSVG 
+                  value="https://iktracker.fr/install" 
+                  size={160}
+                  level="M"
+                  includeMargin={false}
+                  role="img"
+                  aria-label="QR code vers iktracker.fr/install"
+                />
+              </Suspense>
             </div>
             <p className="text-sm opacity-80">Scannez ce QR code avec votre téléphone</p>
           </div>
@@ -335,8 +348,12 @@ const Install = () => {
         </section>
       </main>
 
-      <MarketingFooter />
-      <MarketingPWANotification />
+      <Suspense fallback={<FooterPlaceholder />}>
+        <MarketingFooter />
+      </Suspense>
+      <Suspense fallback={null}>
+        <MarketingPWANotification />
+      </Suspense>
     </div>
   );
 };

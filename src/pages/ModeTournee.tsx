@@ -1,10 +1,8 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, memo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 import {
@@ -24,8 +22,11 @@ const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").th
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
+const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 
 const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
+const FooterPlaceholder = memo(() => <div className="h-64 bg-muted/30 animate-pulse" />);
 
 const AnimatedSection = ({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
@@ -334,8 +335,12 @@ export default function ModeTournee() {
         </section>
       </main>
 
-      <MarketingFooter />
-      <MarketingPWANotification />
+      <Suspense fallback={<FooterPlaceholder />}>
+        <MarketingFooter />
+      </Suspense>
+      <Suspense fallback={null}>
+        <MarketingPWANotification />
+      </Suspense>
     </div>
   );
 }
