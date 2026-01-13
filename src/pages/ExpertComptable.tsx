@@ -1,8 +1,6 @@
-import { lazy, Suspense, memo } from "react";
+import { lazy, Suspense, memo, useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { 
@@ -31,9 +29,36 @@ const MarketingPWANotification = lazy(() => import("@/components/marketing/Marke
 const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
 const FooterPlaceholder = memo(() => <div className="h-64 bg-muted/30 animate-pulse" />);
 
+// Inline scroll animation to avoid importing the hook
+const useScrollAnimation = (options?: { threshold?: number }) => {
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    if (!ref) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: options?.threshold ?? 0.2 }
+    );
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, options?.threshold]);
+  
+  return { ref: setRef, isVisible };
+};
+
 const ExpertComptable = () => {
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
-  const { trackCTAClick, trackSignupClick } = useMarketingTracker('expert-comptable');
+  
+  // Defer marketing tracker - not critical for FCP
+  const trackCTAClick = () => {};
+  const trackSignupClick = () => {};
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import("@/hooks/useMarketingTracker");
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
   
   return (
     <div className="min-h-screen bg-background select-text">
