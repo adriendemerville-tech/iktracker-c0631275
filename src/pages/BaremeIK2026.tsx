@@ -1,9 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +27,15 @@ import {
   Fuel
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+
+// Lazy load below-the-fold components to reduce initial bundle
+const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
+
+// Placeholder for lazy components
+const FooterPlaceholder = memo(() => (
+  <div className="h-64 bg-muted/30 animate-pulse" />
+));
 
 const BaremeIK2026 = () => {
   const { user, loading } = useAuth();
@@ -728,8 +735,12 @@ const BaremeIK2026 = () => {
           </div>
         </section>
 
-        <MarketingFooter />
-        <MarketingPWANotification />
+        <Suspense fallback={<FooterPlaceholder />}>
+          <MarketingFooter />
+        </Suspense>
+        <Suspense fallback={null}>
+          <MarketingPWANotification />
+        </Suspense>
       </div>
     </>
   );
