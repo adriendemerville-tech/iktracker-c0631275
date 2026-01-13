@@ -57,12 +57,12 @@ export default function Blog() {
       <div className="min-h-screen bg-background">
         <MarketingNav />
         
-        <main className="pt-20 pb-16">
+        <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-none">
           {/* Hero Header */}
-          <section className="border-b border-border bg-gradient-to-b from-muted/30 to-background">
+          <section className="border-b border-border bg-gradient-to-b from-muted/30 to-background" aria-labelledby="hero-heading">
             <div className="container mx-auto px-4 py-12 md:py-16">
               <div className="max-w-3xl mx-auto text-center">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
+                <h1 id="hero-heading" className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
                   Le Blog
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground">

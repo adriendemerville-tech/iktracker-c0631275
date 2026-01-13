@@ -167,8 +167,9 @@ const BaremeIK2026 = () => {
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
-        {/* Hero Section */}
-        <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden">
+        <main id="main-content" tabIndex={-1} className="outline-none">
+          {/* Hero Section */}
+          <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
           <div className="container mx-auto relative z-10 max-w-4xl">
             <div className="text-center animate-fade-in">
@@ -176,7 +177,7 @@ const BaremeIK2026 = () => {
                 <Calculator className="h-4 w-4" />
                 Barème fiscal 2026
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight mb-6">
+              <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight mb-6">
                 Barème des indemnités kilométriques 2026 :<br />
                 <span className="text-gradient">calcul et tableau fiscal officiel</span>
               </h1>
@@ -734,6 +735,7 @@ const BaremeIK2026 = () => {
             </div>
           </div>
         </section>
+        </main>
 
         <Suspense fallback={<FooterPlaceholder />}>
           <MarketingFooter />
