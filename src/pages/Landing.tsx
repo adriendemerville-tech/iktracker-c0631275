@@ -410,7 +410,7 @@ const Landing = () => {
                 Générez un relevé complet de vos trajets conforme au barème fiscal, prêt à envoyer à votre comptable.
               </p>
               <ul className="space-y-2 md:space-y-3">
-                {["Format PDF ou Excel", "Barème fiscal 2025", "Envoi direct par email"].map((item, i) => (
+                {["Format PDF ou Excel", "Barème fiscal 2026", "Envoi direct par email"].map((item, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <Check className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-sm md:text-base">{item}</span>
@@ -444,7 +444,7 @@ const Landing = () => {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Relevé IK</p>
-                        <p className="text-xs text-gray-500">Décembre 2025</p>
+                        <p className="text-xs text-gray-500">Décembre 2026</p>
                       </div>
                     </div>
                     <img 

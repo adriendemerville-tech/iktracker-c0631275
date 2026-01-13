@@ -607,7 +607,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     
     <div class="header-left" style="margin-bottom: 4mm;">
       ${logoUrl ? `<img src="${logoUrl}" alt="IKtracker" class="logo" style="display: inline-block; vertical-align: middle; margin-right: 3mm;">` : ''}
-      <span class="bareme-title" style="display: inline-block; vertical-align: middle;">Barème kilométrique fiscal 2025</span>
+      <span class="bareme-title" style="display: inline-block; vertical-align: middle;">Barème kilométrique fiscal 2026</span>
     </div>
     
     <p class="bareme-explanation">
@@ -646,7 +646,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   <div class="footer">
     <div class="footer-tagline">Simplifiez votre suivi kilométrique avec IKtracker</div>
     <div class="footer-line">
-      <span class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2025</span>
+      <span class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2026</span>
     </div>
   </div>
 </body>
