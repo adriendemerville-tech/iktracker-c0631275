@@ -251,68 +251,45 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        manualChunks(id) {
-          // Core React - minimum needed for first paint
-          if (id.includes('react-dom') || id.includes('react/jsx-runtime') || id.includes('node_modules/react/')) {
-            return 'vendor-core';
-          }
-          
-          // React Router - needed for navigation
-          if (id.includes('react-router') || id.includes('@remix-run/router')) {
-            return 'vendor-router';
-          }
-          
-          // Supabase - can be deferred slightly
-          if (id.includes('@supabase/')) {
-            return 'vendor-supabase';
-          }
-          
-          // React Query - can be deferred
-          if (id.includes('@tanstack/react-query')) {
-            return 'vendor-query';
-          }
-          
-          // Radix UI primitives - split into smaller chunks
-          if (id.includes('@radix-ui/react-dialog') || id.includes('@radix-ui/react-alert-dialog')) {
-            return 'vendor-dialog';
-          }
-          if (id.includes('@radix-ui/react-popover') || id.includes('@radix-ui/react-tooltip') || id.includes('@radix-ui/react-dropdown-menu')) {
-            return 'vendor-popover';
-          }
-          if (id.includes('@radix-ui/react-select') || id.includes('@radix-ui/react-radio-group') || id.includes('@radix-ui/react-checkbox')) {
-            return 'vendor-forms';
-          }
-          if (id.includes('@radix-ui/')) {
-            return 'vendor-radix';
-          }
-          
-          // Heavy features - lazy loaded only
-          if (id.includes('recharts') || id.includes('d3-')) {
-            return 'vendor-charts';
-          }
-          if (id.includes('jszip') || id.includes('pako')) {
-            return 'vendor-zip';
-          }
-          if (id.includes('framer-motion')) {
-            return 'vendor-motion';
-          }
-          if (id.includes('qrcode.react')) {
-            return 'vendor-qrcode';
-          }
-          if (id.includes('html2pdf') || id.includes('jspdf') || id.includes('html2canvas')) {
-            return 'vendor-pdf';
-          }
-          if (id.includes('date-fns') || id.includes('react-day-picker')) {
-            return 'vendor-dates';
-          }
-          if (id.includes('react-helmet')) {
-            return 'vendor-helmet';
-          }
-          
-          // Remaining node_modules
-          if (id.includes('node_modules')) {
-            return 'vendor-misc';
-          }
+        manualChunks: {
+          // Core React ecosystem - must stay together to avoid initialization issues
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            'react-helmet-async',
+          ],
+          // Data layer
+          'vendor-data': [
+            '@supabase/supabase-js',
+            '@tanstack/react-query',
+          ],
+          // UI components (Radix) - keep together to avoid circular deps
+          'vendor-ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-label',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-separator',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-alert-dialog',
+          ],
+          // Heavy features - lazy loaded
+          'vendor-charts': ['recharts'],
+          'vendor-zip': ['jszip', 'pako'],
+          'vendor-motion': ['framer-motion'],
         },
       },
       // Tree-shaking is enabled by default in production builds

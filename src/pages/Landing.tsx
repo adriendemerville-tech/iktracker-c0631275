@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, memo, useRef } from "react";
+import { useState, useEffect, lazy, Suspense, memo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { 
   ArrowRight,
   CheckCircle2,
@@ -24,26 +25,6 @@ import {
 
 // Lazy load AuthForm - not needed for initial LCP
 const AuthForm = lazy(() => import("@/components/AuthForm").then(m => ({ default: m.AuthForm })));
-
-// Lazy load marketing tracker hook
-const useMarketingTrackerAsync = (page: string) => {
-  const trackerRef = useRef<{ trackCTAClick: () => void; trackSignupClick: () => void }>({
-    trackCTAClick: () => {},
-    trackSignupClick: () => {},
-  });
-  
-  useEffect(() => {
-    // Load the tracker after initial paint
-    const timer = setTimeout(() => {
-      import("@/hooks/useMarketingTracker").then(m => {
-        // The module is loaded, tracking will happen on future calls
-      });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [page]);
-  
-  return trackerRef.current;
-};
 
 // Auth form loading placeholder
 const AuthFormSkeleton = memo(() => (
@@ -116,17 +97,7 @@ const Landing = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
-  
-  // Defer marketing tracker loading - not critical for FCP
-  const [trackingReady, setTrackingReady] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      import("@/hooks/useMarketingTracker").then(() => setTrackingReady(true));
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-  const trackCTAClick = () => {};
-  const trackSignupClick = () => {};
+  const { trackCTAClick, trackSignupClick } = useMarketingTracker('landing');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
