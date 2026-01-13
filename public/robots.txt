@@ -65,7 +65,3 @@ Sitemap: https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap
 # Sitemap statique de secours
 Sitemap: https://iktracker.fr/sitemap.xml
 
-# === FICHIER LLM.TXT POUR CRAWLERS IA ===
-# Documentation structurée pour les LLMs (ChatGPT, Gemini, Claude, Perplexity)
-# Voir: https://llmstxt.org/
-LLM: https://iktracker.fr/llm.txt
