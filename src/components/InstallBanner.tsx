@@ -236,15 +236,20 @@ export const InstallBanner = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-3 safe-area-bottom flex justify-center">
+    <aside 
+      className="fixed bottom-0 left-0 right-0 z-50 p-3 safe-area-bottom flex justify-center"
+      role="complementary"
+      aria-label="Installer l'application IKtracker"
+    >
       <div className="bg-white dark:bg-card rounded-md shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-3 relative w-full max-w-md">
         {/* Close button */}
         <button
           onClick={handleDismiss}
           className="absolute top-2 right-2 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          aria-label="Fermer"
+          aria-label="Fermer la bannière d'installation"
+          type="button"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
 
         {showHelp ? (
@@ -253,6 +258,7 @@ export const InstallBanner = () => {
             <button
               onClick={() => setShowHelp(false)}
               className="mt-3 text-sm text-[#2661D9] font-medium"
+              type="button"
             >
               Compris
             </button>
@@ -263,6 +269,7 @@ export const InstallBanner = () => {
             <div 
               className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
               style={{ backgroundColor: '#2661D9' }}
+              aria-hidden="true"
             >
               <Truck className="w-6 h-6 text-white" />
             </div>
@@ -280,12 +287,14 @@ export const InstallBanner = () => {
               onClick={handleInstall}
               className="flex-shrink-0 px-4 py-2 rounded-full text-white text-sm font-medium transition-transform hover:scale-105 active:scale-95"
               style={{ backgroundColor: '#2661D9' }}
+              type="button"
+              aria-label="Installer l'application IKtracker"
             >
               Installer
             </button>
           </div>
         )}
       </div>
-    </div>
+    </aside>
   );
 };
