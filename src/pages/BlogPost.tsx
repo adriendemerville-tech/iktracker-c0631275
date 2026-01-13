@@ -230,7 +230,8 @@ export default function BlogPost() {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <article className="container mx-auto px-4 py-12 max-w-3xl">
+        <main id="main-content" tabIndex={-1} className="outline-none">
+          <article className="container mx-auto px-4 py-12 max-w-3xl">
           {/* Breadcrumb navigation */}
           <nav aria-label="Fil d'Ariane" className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -358,7 +359,8 @@ export default function BlogPost() {
               </Link>
             )}
           </footer>
-        </article>
+          </article>
+        </main>
       </div>
     </>
   );
