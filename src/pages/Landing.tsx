@@ -131,8 +131,8 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
       <Helmet>
-        <title>Indemnités Kilométriques: Calcul Rapide pour Indépendants</title>
-        <meta name="description" content="Automatisez vos indemnités kilométriques gratuitement. Application pour freelances, infirmiers libéraux et indépendants en France. Calcul IK selon barème fiscal 2025." />
+        <title>IKtracker - Automatisation des Indemnités Kilométriques | Agenda vers Excel (Barème 2026)</title>
+        <meta name="description" content="Automatisez vos indemnités kilométriques via notre mode tournée et votre Agenda. Application 100% gratuite, sécurisée et conforme au barème fiscal 2026 pour indépendants et libéraux." />
         <link rel="canonical" href="https://iktracker.fr/" />
       </Helmet>
       
@@ -156,9 +156,9 @@ const Landing = () => {
               </div>
               {/* LCP Element - H1 must render instantly without any animation */}
               <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
-                Vos trajets pro.
+                Calcul des indemnités kilométriques
                 <br />
-                <span className="text-gradient">Automatiquement.</span>
+                <span className="text-gradient">automatique et gratuit</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
                 Enregistrez, calculez et exportez vos indemnités kilométriques en quelques clics.
