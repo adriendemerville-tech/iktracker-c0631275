@@ -138,13 +138,17 @@ const Index = () => {
     currentPosition,
     wakeLockActive,
     lowBattery,
+    gpsAccuracy,
+    gpsSignalStrength,
+    tourStartTime,
     startTour,
     stopTour,
     clearTour,
   } = useTourTracker({
     stopDurationThreshold: preferences.stopDetectionMinutes * 60,
     locationRadius: preferences.locationRadiusMeters,
-    trackingInterval: 30000, // Check every 30 seconds
+    trackingInterval: 10000, // Capture GPS point every 10 seconds
+    accuracyThreshold: 50, // Filter points with accuracy > 50m
   });
 
   // Check for saved trip on reconnection
@@ -662,7 +666,9 @@ ${IKTRACKER_MENTION}
           detectedStopsCount={Math.max(0, tourStops.length - 1)}
           wakeLockActive={wakeLockActive}
           lowBattery={lowBattery}
-          tourStartTime={tourStops[0]?.timestamp}
+          tourStartTime={tourStartTime || tourStops[0]?.timestamp}
+          gpsSignalStrength={gpsSignalStrength}
+          gpsAccuracy={gpsAccuracy}
           onFinish={handleFinishTour}
           onCancel={() => {
             setTourStartRequested(false);
