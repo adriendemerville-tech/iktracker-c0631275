@@ -38,14 +38,14 @@ const ExpertComptable = () => {
     <div className="min-h-screen bg-background select-text">
       <Helmet>
         <title>IKtracker pour Experts-Comptables | Export IK PDF et Excel</title>
-        <meta name="description" content="Recommandez IKtracker à vos clients : exports standardisés PDF/Excel, calcul automatique des indemnités kilométriques selon barème fiscal 2025. Gratuit." />
-        <meta name="keywords" content="expert-comptable IK, export PDF indemnités kilométriques, Excel frais kilométriques, barème fiscal 2025, comptabilité IK, relevé kilométrique client" />
+        <meta name="description" content="Recommandez IKtracker à vos clients : exports standardisés PDF/Excel, calcul automatique des indemnités kilométriques selon barème fiscal 2026. Gratuit." />
+        <meta name="keywords" content="expert-comptable IK, export PDF indemnités kilométriques, Excel frais kilométriques, barème fiscal 2026, comptabilité IK, relevé kilométrique client" />
         <link rel="canonical" href="https://iktracker.fr/expert-comptable" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
         <meta property="og:title" content="IKtracker pour Experts-Comptables | Export IK PDF et Excel" />
-        <meta property="og:description" content="Exports standardisés PDF/Excel pour vos clients. Calcul automatique selon barème fiscal 2025. Gratuit." />
+        <meta property="og:description" content="Exports standardisés PDF/Excel pour vos clients. Calcul automatique selon barème fiscal 2026. Gratuit." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://iktracker.fr/expert-comptable" />
         <meta property="og:locale" content="fr_FR" />
@@ -55,7 +55,7 @@ const ExpertComptable = () => {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="IKtracker pour Experts-Comptables" />
-        <meta name="twitter:description" content="Exports standardisés PDF/Excel pour vos clients. Barème fiscal 2025 inclus." />
+        <meta name="twitter:description" content="Exports standardisés PDF/Excel pour vos clients. Barème fiscal 2026 inclus." />
         <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
@@ -246,7 +246,7 @@ const ExpertComptable = () => {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Relevé IK</p>
-                        <p className="text-xs text-gray-500">Décembre 2025</p>
+                        <p className="text-xs text-gray-500">Décembre 2026</p>
                       </div>
                     </div>
                     <img src="/logo-iktracker-250.webp" alt="Logo IKtracker" className="h-6 w-6 object-contain opacity-60" />
