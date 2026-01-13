@@ -177,81 +177,94 @@ const Install = () => {
       </section>
 
       {/* Benefits */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-muted/30" aria-labelledby="benefits-heading">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <h3 id="benefits-heading" className="sr-only">Avantages de l'application PWA</h3>
+          <ul className="grid grid-cols-2 lg:grid-cols-4 gap-4" role="list">
             {[
               { icon: Zap, title: "Accès instantané" },
               { icon: Wifi, title: "Mode hors-ligne" },
               { icon: Bell, title: "Notifications" },
               { icon: Download, title: "Sans App Store" },
             ].map((item, i) => (
-              <Card key={i} className="border-border animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-                <CardContent className="p-4 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <item.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h4 className="font-semibold">{item.title}</h4>
-                </CardContent>
-              </Card>
+              <li key={i}>
+                <Card className="border-border animate-fade-in h-full" style={{ animationDelay: `${i * 100}ms` }}>
+                  <CardContent className="p-4 text-center">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3" aria-hidden="true">
+                      <item.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h4 className="font-semibold">{item.title}</h4>
+                  </CardContent>
+                </Card>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
       {/* Installation Steps */}
-      <section className="py-20">
+      <section className="py-20" aria-labelledby="install-steps-heading">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Comment installer</h2>
+          <h2 id="install-steps-heading" className="text-3xl font-bold text-center mb-12">Comment installer</h2>
           
           <Tabs defaultValue="iphone" className="w-full max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList className="grid w-full grid-cols-2 mb-8" aria-label="Choisir votre appareil">
               <TabsTrigger value="iphone" className="gap-2">
-                🍎 iPhone / iPad
+                <span aria-hidden="true">🍎</span> iPhone / iPad
               </TabsTrigger>
               <TabsTrigger value="android" className="gap-2">
-                🤖 Android
+                <span aria-hidden="true">🤖</span> Android
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="iphone">
               <Card>
-                <CardContent className="p-6 space-y-4">
-                  {[
-                    { icon: Globe, text: "Ouvrez Safari (obligatoire sur iOS)" },
-                    { icon: Share, text: "Appuyez sur le bouton Partager" },
-                    { icon: Plus, text: "Sélectionnez 'Sur l'écran d'accueil'" },
-                    { icon: CheckCircle2, text: "Confirmez l'ajout" },
-                  ].map((step, i) => (
-                    <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
-                        {i + 1}
-                      </div>
-                      <step.icon className="h-5 w-5 text-primary shrink-0" />
-                      <span className="font-medium">{step.text}</span>
-                    </div>
-                  ))}
+                <CardHeader className="sr-only">
+                  <CardTitle>Instructions pour iPhone et iPad</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <ol className="space-y-4" aria-label="Étapes d'installation pour iOS">
+                    {[
+                      { icon: Globe, text: "Ouvrez Safari (obligatoire sur iOS)" },
+                      { icon: Share, text: "Appuyez sur le bouton Partager" },
+                      { icon: Plus, text: "Sélectionnez 'Sur l'écran d'accueil'" },
+                      { icon: CheckCircle2, text: "Confirmez l'ajout" },
+                    ].map((step, i) => (
+                      <li key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
+                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0" aria-hidden="true">
+                          {i + 1}
+                        </div>
+                        <step.icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
+                        <span className="font-medium">{step.text}</span>
+                      </li>
+                    ))}
+                  </ol>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="android">
               <Card>
-                <CardContent className="p-6 space-y-4">
-                  {[
-                    { icon: Chrome, text: "Ouvrez Chrome" },
-                    { icon: MoreVertical, text: "Appuyez sur le menu ⋮" },
-                    { icon: Download, text: "Sélectionnez 'Installer l'application'" },
-                    { icon: CheckCircle2, text: "Confirmez l'installation" },
-                  ].map((step, i) => (
-                    <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
-                        {i + 1}
-                      </div>
-                      <step.icon className="h-5 w-5 text-primary shrink-0" />
-                      <span className="font-medium">{step.text}</span>
-                    </div>
-                  ))}
+                <CardHeader className="sr-only">
+                  <CardTitle>Instructions pour Android</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <ol className="space-y-4" aria-label="Étapes d'installation pour Android">
+                    {[
+                      { icon: Chrome, text: "Ouvrez Chrome" },
+                      { icon: MoreVertical, text: "Appuyez sur le menu ⋮" },
+                      { icon: Download, text: "Sélectionnez 'Installer l'application'" },
+                      { icon: CheckCircle2, text: "Confirmez l'installation" },
+                    ].map((step, i) => (
+                      <li key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 animate-fade-in" style={{ animationDelay: `${i * 150}ms` }}>
+                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0" aria-hidden="true">
+                          {i + 1}
+                        </div>
+                        <step.icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
+                        <span className="font-medium">{step.text}</span>
+                      </li>
+                    ))}
+                  </ol>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -260,10 +273,10 @@ const Install = () => {
       </section>
 
       {/* App Preview Carousel */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30" aria-labelledby="app-preview-heading">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 space-y-4">
-            <h2 className="text-3xl font-bold">Aperçu de l'application</h2>
+            <h2 id="app-preview-heading" className="text-3xl font-bold">Aperçu de l'application</h2>
             <p className="text-muted-foreground">Une expérience native sur votre mobile</p>
           </div>
           <AppCarousel />
@@ -271,18 +284,18 @@ const Install = () => {
       </section>
 
       {/* Tour Mode Demo */}
-      <section className="py-20">
+      <section className="py-20" aria-labelledby="tour-mode-heading">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold">Découvrez le Mode Tournée</h2>
+              <h2 id="tour-mode-heading" className="text-3xl font-bold">Découvrez le Mode Tournée</h2>
               <p className="text-lg text-muted-foreground">
                 Enregistrez plusieurs arrêts en un seul trajet avec le suivi GPS en temps réel.
               </p>
-              <Link to="/mode-tournee">
+              <Link to="/mode-tournee" aria-label="En savoir plus sur le Mode Tournée">
                 <Button variant="outline" className="gap-2">
                   En savoir plus
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </Link>
             </div>
@@ -292,28 +305,30 @@ const Install = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      <section className="py-20 bg-primary text-primary-foreground" aria-labelledby="cta-heading">
         <div className="container mx-auto px-4 text-center space-y-6">
-          <h2 className="text-3xl font-bold">Prêt à installer ?</h2>
+          <h2 id="cta-heading" className="text-3xl font-bold">Prêt à installer ?</h2>
           <p className="text-lg opacity-90">Ouvrez cette page sur votre mobile et suivez les instructions.</p>
           
           {/* QR Code for desktop users */}
-          <div className="hidden md:flex flex-col items-center gap-3 py-4">
+          <div className="hidden md:flex flex-col items-center gap-3 py-4" aria-label="QR code pour accéder à cette page sur mobile">
             <div className="bg-white p-4 rounded-xl shadow-lg">
               <QRCodeSVG 
                 value="https://iktracker.fr/install" 
                 size={160}
                 level="M"
                 includeMargin={false}
+                role="img"
+                aria-label="QR code vers iktracker.fr/install"
               />
             </div>
             <p className="text-sm opacity-80">Scannez ce QR code avec votre téléphone</p>
           </div>
           
-          <Link to="/signup" onClick={trackSignupClick}>
+          <Link to="/signup" onClick={trackSignupClick} aria-label="Créer mon compte IKtracker">
             <Button size="lg" variant="secondary" className="gap-2">
               Créer mon compte
-              <ArrowRight className="h-5 w-5" />
+              <ArrowRight className="h-5 w-5" aria-hidden="true" />
             </Button>
           </Link>
         </div>
