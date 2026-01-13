@@ -379,9 +379,19 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         // Re-request wake lock
         await wakeLock.request();
         
-        // Restart watchPosition if not running
-        if (watchIdRef.current === null) {
-          startWatching();
+        // Restart watchPosition if not running - inline logic to avoid circular deps
+        if (watchIdRef.current === null && navigator.geolocation) {
+          watchIdRef.current = navigator.geolocation.watchPosition(
+            processPosition,
+            (err) => {
+              console.error('Watch position error on resume:', err);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 15000,
+              maximumAge: 0,
+            }
+          );
         }
         
         toast.info('Suivi GPS repris', {
@@ -393,7 +403,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isActive, wakeLock]);
+  }, [isActive, wakeLock, processPosition]);
 
   // Start watching position
   const startWatching = useCallback(() => {
@@ -570,12 +580,24 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   // Resume tour if it was active (for page refresh recovery)
   useEffect(() => {
-    if (isActive && watchIdRef.current === null) {
+    if (isActive && watchIdRef.current === null && navigator.geolocation) {
       console.log('Resuming tour tracking after page reload');
-      startWatching();
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        processPosition,
+        (err) => {
+          console.error('Watch position error on resume:', err);
+          updateGpsSignal(null);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0,
+        }
+      );
+      resetGpsTimeout();
       wakeLock.request();
     }
-  }, [isActive, startWatching, wakeLock]);
+  }, [isActive, processPosition, resetGpsTimeout, updateGpsSignal, wakeLock]);
 
   // Check permission on mount
   useEffect(() => {
