@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTrips } from '@/hooks/useTrips';
-import { useTourTracker, TourStop } from '@/hooks/useTourTracker';
+import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -150,6 +150,77 @@ const Index = () => {
     trackingInterval: 10000, // Capture GPS point every 10 seconds
     accuracyThreshold: 50, // Filter points with accuracy > 50m
   });
+
+  // Check for interrupted tours and create pending trips
+  useEffect(() => {
+    const recoverInterruptedTour = async () => {
+      const interrupted = getInterruptedTour();
+      if (!interrupted || vehicles.length === 0) return;
+      
+      console.log('Recovering interrupted tour:', interrupted);
+      
+      // Only recover if we have at least one stop
+      if (interrupted.stops && interrupted.stops.length >= 1) {
+        const firstStop = interrupted.stops[0];
+        const vehicleId = vehicles[0].id;
+        const isTour = interrupted.stops.length >= 2;
+        
+        // Convert TourStop[] to TourStopData[] for storage
+        const tourStopsData = isTour ? interrupted.stops.map((stop: TourStop) => ({
+          id: stop.id,
+          timestamp: stop.timestamp instanceof Date ? stop.timestamp.toISOString() : stop.timestamp,
+          lat: stop.lat,
+          lng: stop.lng,
+          address: stop.address,
+          city: stop.city,
+          duration: stop.duration,
+        })) : undefined;
+
+        try {
+          // Create a trip with pending_location status
+          await addTrip({
+            vehicleId,
+            startLocation: {
+              id: firstStop.id,
+              name: firstStop.city || firstStop.address || 'Position',
+              address: firstStop.address || '',
+              lat: firstStop.lat,
+              lng: firstStop.lng,
+              type: 'other',
+            },
+            endLocation: {
+              id: crypto.randomUUID(),
+              name: 'À compléter',
+              address: '',
+              type: 'other',
+            },
+            distance: interrupted.totalDistance || 0,
+            baseDistance: interrupted.totalDistance || 0,
+            roundTrip: false,
+            purpose: isTour ? 'Tournée interrompue' : 'Trajet interrompu',
+            startTime: firstStop.timestamp instanceof Date ? firstStop.timestamp : new Date(firstStop.timestamp),
+            endTime: new Date(),
+            tourStops: tourStopsData,
+            status: 'pending_location', // Mark as pending so user can complete it
+          });
+          
+          toast.info("Tournée interrompue récupérée", {
+            description: "Un trajet à compléter a été créé avec les données disponibles.",
+            duration: 8000,
+          });
+          
+          console.log('Interrupted tour recovered as pending trip');
+        } catch (e) {
+          console.error('Failed to recover interrupted tour:', e);
+        }
+      }
+      
+      // Clear the interrupted tour data
+      clearInterruptedTour();
+    };
+
+    recoverInterruptedTour();
+  }, [vehicles, addTrip]);
 
   // Check for saved trip on reconnection
   useEffect(() => {
