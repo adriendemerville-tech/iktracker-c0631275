@@ -637,7 +637,7 @@ const BaremeIK2026 = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Automatisez le calcul de vos IK tout au long de l'année avec IKtracker
                   </p>
-                  <Link to="/#auth-section">
+                  <Link to="/signup">
                     <Button variant="gradient" size="lg" className="gap-2">
                       Accéder à l'outil
                       <ArrowRight className="h-4 w-4" />
@@ -846,7 +846,7 @@ const BaremeIK2026 = () => {
             </div>
 
             <div className="text-center">
-              <Link to="/#auth-section">
+              <Link to="/signup">
                 <Button variant="gradient" size="lg" className="gap-2">
                   Accéder à l'outil
                   <ArrowRight className="h-4 w-4" />
