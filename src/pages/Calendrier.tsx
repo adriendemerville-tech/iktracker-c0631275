@@ -195,7 +195,7 @@ export default function Calendrier() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <Link to="/#auth-section" className="focus-visible-ring rounded-lg">
+                  <Link to="/signup" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="gradient" className="group">
                       Connecter mon calendrier
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
@@ -344,7 +344,7 @@ export default function Calendrier() {
                   Connectez votre calendrier et laissez IKtracker faire le reste. 100% gratuit.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
-                  <Link to="/#auth-section">
+                  <Link to="/signup">
                     <Button size="xl" variant="gradient" className="group">
                       Créer mon compte gratuit
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
