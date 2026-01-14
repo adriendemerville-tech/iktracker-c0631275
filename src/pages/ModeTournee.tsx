@@ -182,7 +182,7 @@ export default function ModeTournee() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <Link to="/#auth-section" className="focus-visible-ring rounded-lg">
+                  <Link to="/signup" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="gradient" className="group">
                       Accéder à l'outil
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
@@ -317,7 +317,7 @@ export default function ModeTournee() {
                   Sans carte bancaire. Compte créé en 2 minutes.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
-                  <Link to="/#auth-section">
+                  <Link to="/signup">
                     <Button size="xl" variant="gradient" className="group">
                       Accéder à l'outil
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
