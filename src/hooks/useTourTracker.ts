@@ -45,6 +45,7 @@ const STORAGE_KEYS = {
   TOUR_GPS_POINTS: 'tour_gps_points',
   TOUR_TOTAL_DISTANCE: 'tour_total_distance',
   TOUR_PENDING_STOP: 'tour_pending_stop',
+  TOUR_INTERRUPTED: 'tour_interrupted', // Flag for interrupted tours that need recovery
 };
 
 // Save data to localStorage immediately for data persistence
@@ -72,6 +73,51 @@ function clearTourStorage() {
   Object.values(STORAGE_KEYS).forEach(key => {
     localStorage.removeItem(key);
   });
+}
+
+// Mark tour as interrupted for recovery
+function markTourInterrupted(reason: string) {
+  const interruptedData = {
+    reason,
+    timestamp: new Date().toISOString(),
+    stops: loadTourData(STORAGE_KEYS.TOUR_STOPS, []),
+    totalDistance: loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0),
+    startTime: loadTourData(STORAGE_KEYS.TOUR_START_TIME, null),
+  };
+  saveTourData(STORAGE_KEYS.TOUR_INTERRUPTED, interruptedData);
+  // Clear active flag but keep data for recovery
+  saveTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
+}
+
+// Check if there's an interrupted tour to recover
+export function getInterruptedTour(): { 
+  reason: string; 
+  timestamp: string; 
+  stops: TourStop[]; 
+  totalDistance: number;
+  startTime: string | null;
+} | null {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.TOUR_INTERRUPTED);
+    if (data) {
+      const parsed = JSON.parse(data);
+      // Only return if it has valid data (at least start time)
+      if (parsed.startTime) {
+        return {
+          ...parsed,
+          stops: parsed.stops.map((s: any) => ({ ...s, timestamp: new Date(s.timestamp) })),
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to get interrupted tour:', e);
+  }
+  return null;
+}
+
+// Clear interrupted tour data after recovery
+export function clearInterruptedTour() {
+  localStorage.removeItem(STORAGE_KEYS.TOUR_INTERRUPTED);
 }
 
 export function useTourTracker(options: UseTourTrackerOptions = {}) {
@@ -159,7 +205,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     }
   }, []);
 
-  // Reset GPS timeout - show warning if no signal for 30s
+  // Reset GPS timeout - show warning if no signal for 30s, mark interrupted after 2 min
   const resetGpsTimeout = useCallback(() => {
     if (gpsTimeoutRef.current) {
       clearTimeout(gpsTimeoutRef.current);
@@ -170,8 +216,20 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         description: 'Vérifiez que le GPS est activé et que vous êtes en extérieur.',
         duration: 5000,
       });
+      
+      // After 2 minutes of no GPS signal, mark tour as interrupted
+      setTimeout(() => {
+        if (isActive && gpsSignalStrength === 'lost') {
+          console.log('Tour interrupted due to prolonged GPS loss');
+          markTourInterrupted('gps_lost');
+          toast.error('Tournée interrompue', {
+            description: 'Signal GPS perdu. Votre trajet sera à compléter.',
+            duration: 8000,
+          });
+        }
+      }, 90000); // Additional 90s after initial 30s = 2 min total
     }, 30000);
-  }, [updateGpsSignal]);
+  }, [updateGpsSignal, isActive, gpsSignalStrength]);
 
   // Check geolocation permission status
   const checkPermission = useCallback(async () => {
@@ -418,9 +476,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         if (err.code === 1) {
           setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
           setPermissionStatus('denied');
-          toast.error('GPS refusé', {
-            description: 'Autorisez l\'accès à la localisation dans les paramètres.',
-          });
+          // Mark tour as interrupted if it was active
+          if (isActive) {
+            markTourInterrupted('permission_denied');
+            toast.error('Tournée interrompue', {
+              description: 'Permission GPS retirée. Votre trajet sera à compléter.',
+              duration: 8000,
+            });
+          } else {
+            toast.error('GPS refusé', {
+              description: 'Autorisez l\'accès à la localisation dans les paramètres.',
+            });
+          }
         } else if (err.code === 2) {
           toast.warning('GPS indisponible', {
             description: 'Vérifiez que le GPS est activé.',
