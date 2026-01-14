@@ -559,32 +559,7 @@ ${IKTRACKER_URL}`
 
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-3 md:space-y-4">
         
-        {/* User info section */}
-        {(userInfo.firstName || userInfo.lastName || userInfo.email) && (
-          <div className="bg-card rounded-md p-3 md:p-4 shadow-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <UserCircle className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                {(userInfo.firstName || userInfo.lastName) && (
-                  <p className="font-semibold text-foreground truncate">
-                    {userInfo.firstName} {userInfo.lastName}
-                  </p>
-                )}
-                {userInfo.email && (
-                  <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
-                    <Mail className="w-3 h-3" />
-                    {userInfo.email}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        
-        <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground">Récapitulatif</h2>
+        <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3 max-w-sm mx-auto">
           <div className="grid grid-cols-3 gap-3 md:gap-4 text-center">
             <div>
               <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
