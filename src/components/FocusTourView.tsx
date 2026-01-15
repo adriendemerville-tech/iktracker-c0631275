@@ -201,13 +201,9 @@ export function FocusTourView({
           )}
         </div>
         
-        {/* Center - Live tracking indicator */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/20 rounded-full">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-          </span>
-          <span className="text-red-400 text-xs font-medium uppercase tracking-wide">Live</span>
+        {/* Center - GPS tracking indicator (minimal) */}
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full">
+          <GpsIcon className={cn("w-4 h-4", gpsDisplay.color)} />
         </div>
         
         {/* Right side - GPS Signal and Night mode */}
@@ -240,46 +236,54 @@ export function FocusTourView({
 
       {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
-        {/* Car button - triggers confirmation */}
+        {/* Car button - triggers confirmation - Green gradient when active */}
         <button
           onClick={handleStopClick}
-          className="relative w-40 h-40 rounded-full flex items-center justify-center bg-gradient-primary text-orange-500 shadow-2xl transition-transform active:scale-95"
+          className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-95"
+          style={{
+            background: 'linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 100%)',
+          }}
           aria-label="Arrêter la tournée"
         >
-          {/* Rotating gradient border - 30% wider */}
+          {/* Rotating gradient border - green tones */}
           <span 
             className="absolute inset-[-6px] rounded-full overflow-hidden"
             style={{
-              background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
+              background: 'conic-gradient(from 0deg, #22c55e, #166534, #22c55e, #84cc16, #22c55e)',
               animation: 'rotate-gradient 2s linear infinite',
             }}
           >
-            <span className="absolute inset-[6px] rounded-full bg-gradient-primary" />
+            <span 
+              className="absolute inset-[6px] rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 100%)',
+              }}
+            />
           </span>
           
-          {/* Speed lines behind the car - 50% bigger */}
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+          {/* Speed lines behind the car - 50% bigger, white for contrast */}
+          <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white">
             <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
             <span className="w-10 h-1.5 bg-current opacity-40 rounded-full -ml-1" />
             <span className="w-5 h-1.5 bg-current opacity-50 rounded-full" />
           </span>
           
-          {/* Car icon with driving animation - 50% bigger */}
+          {/* Car icon with driving animation - 50% bigger, white for contrast on green */}
           <Car 
-            className="w-24 h-24 relative z-10"
+            className="w-24 h-24 relative z-10 text-white"
             style={{
               animation: 'car-drive 0.2s ease-in-out infinite',
             }}
           />
         </button>
         
-        {/* Stop button - large, easy to tap while driving */}
+        {/* Stop button - elegant, compact design */}
         <button
           onClick={handleStopClick}
-          className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-destructive text-destructive-foreground font-semibold text-lg shadow-lg shadow-destructive/30 transition-transform active:scale-95"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-gray-300 font-medium text-sm hover:bg-white/20 transition-all active:scale-95"
           aria-label="Arrêter la tournée"
         >
-          <Square className="w-6 h-6 fill-current" />
+          <Square className="w-4 h-4 fill-current" />
           <span>Terminer</span>
         </button>
         
