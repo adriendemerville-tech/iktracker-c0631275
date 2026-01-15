@@ -5,7 +5,6 @@ let zipPromise: Promise<any> | null = null;
 let html2pdfPromise: Promise<any> | null = null;
 
 // Legacy exports - kept for backward compatibility during transition
-// These now throw errors to catch any remaining usage
 export function preloadPDFLibraries() {
   console.warn('PDF libraries have been removed. Use printReport from print-utils.ts instead.');
   return Promise.resolve({ jsPDF: null, autoTable: null });
@@ -40,61 +39,60 @@ export async function loadHtml2Pdf() {
 export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const html2pdf = await loadHtml2Pdf();
 
-  // 1. Sauvegarder la position de scroll actuelle pour ne pas désorienter l'utilisateur
+  // 1. Sauvegarder la position de scroll actuelle
   const originalScrollY = window.scrollY;
   const originalScrollX = window.scrollX;
 
   const parsed = new DOMParser().parseFromString(html, 'text/html');
 
-  // CORRECTION 1 : Récupérer TOUS les styles (y compris externes <link>)
-  // On clone les nœuds de style du document actuel pour être sûr d'avoir Tailwind/CSS
+  // Récupérer les styles
   const currentStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))
     .map(node => node.cloneNode(true));
 
-  // On récupère aussi les styles inlines du HTML fourni
   const rawStyles = Array.from(parsed.querySelectorAll('style'))
     .map((s) => s.textContent || '')
     .join('\n');
 
-  // Note : Le scoping (.replace...) est risqué et peut casser des classes comme "body-text". 
-  // Je le garde car c'est ta logique, mais c'est une source potentielle de bugs d'affichage.
   const scopedStyles = rawStyles
     .replace(/(^|[,{\s])html(?=\b)/g, '$1.pdf-root')
     .replace(/(^|[,{\s])body(?=\b)/g, '$1.pdf-root')
     .replace(/(^|[,{\s]):root(?=\b)/g, '$1.pdf-root');
 
-  // Overlay : On le garde pour l'UX, mais on va s'assurer qu'il ne bloque pas le rendu
+  // CORRECTION 1 : Z-Index sûrs (inférieurs à 2147483647)
   const overlay = document.createElement('div');
   overlay.setAttribute('data-pdf-overlay', 'true');
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
-  overlay.style.background = 'rgba(255, 255, 255, 0.98)';
-  overlay.style.zIndex = '2147483647'; // Très haut
+  overlay.style.background = 'white'; // Opaque pour cacher le site derrière
+  overlay.style.zIndex = '9998'; // Juste en dessous du container
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
-  overlay.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
-  overlay.style.fontSize = '14px';
-  overlay.style.color = '#0f172a';
-  overlay.textContent = 'Génération du PDF…';
+  overlay.style.fontFamily = 'system-ui, sans-serif';
+  overlay.innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size: 24px; margin-bottom: 10px;">📄</div>
+      <div style="font-size: 14px; color: #333;">Génération du PDF...</div>
+    </div>
+  `;
 
   const container = document.createElement('div');
   container.className = 'pdf-root';
 
-  // CORRECTION 2 : Absolute + Top 0 + Z-Index Supérieur
-  // On utilise absolute pour éviter les bugs de 'fixed' dans html2canvas
-  container.style.position = 'absolute';
+  // CORRECTION 2 : Position Fixed + Top Left 0
+  // "Fixed" garantit que le container est collé à l'écran, peu importe le scroll
+  container.style.position = 'fixed';
   container.style.left = '0';
   container.style.top = '0';
-  container.style.width = '1122px'; // A4 landscape @ 96dpi
-  container.style.minHeight = '794px'; // Force une hauteur min
-  container.style.background = 'white';
-  // CORRECTION 3 : Le container doit être AU-DESSUS de l'overlay pour être "paint" par le navigateur
-  container.style.zIndex = '2147483648';
-  container.style.opacity = '1';
-  container.style.overflow = 'visible';
+  container.style.width = '1122px'; // Largeur A4 Paysage
+  container.style.zIndex = '9999'; // AU-DESSUS de l'overlay pour être "vu" par la caméra
 
-  // Injection des styles du document actuel (Tailwind, etc.)
+  // CORRECTION 3 : Styles forcés pour éviter la transparence
+  container.style.backgroundColor = '#ffffff';
+  container.style.color = '#000000';
+  container.style.visibility = 'visible'; // Force la visibilité
+
+  // Injection des styles
   currentStyles.forEach(node => container.appendChild(node));
 
   if (scopedStyles.trim()) {
@@ -112,10 +110,11 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   bodyEl.innerHTML = bodyHtml;
   container.appendChild(bodyEl);
 
+  // Montage dans le DOM
   document.body.appendChild(overlay);
   document.body.appendChild(container);
 
-  // CORRECTION 4 : Scroll forcé en haut (0,0) pour aligner le canvas
+  // Scroll en haut (au cas où)
   window.scrollTo(0, 0);
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -124,8 +123,8 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   await nextFrame();
   await nextFrame();
 
-  // Attendre un peu plus longtemps pour le layout
-  await wait(500);
+  // Attendre un peu pour le layout
+  await wait(300);
 
   // Wait for fonts (best-effort)
   try {
@@ -158,7 +157,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
           useCORS: true,
           backgroundColor: '#ffffff',
           letterRendering: true,
-          logging: true, // Active les logs pour débugger si besoin
+          logging: false,
           scrollX: 0,
           scrollY: 0,
           windowWidth: 1122,
@@ -189,6 +188,3 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     window.scrollTo(originalScrollX, originalScrollY);
   }
 }
-
-
-
