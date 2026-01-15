@@ -708,3 +708,25 @@ export function printReport(options: PrintReportOptions): void {
 export function generatePrintableHTML(options: PrintReportOptions): string {
   return generateReportHTML(options);
 }
+
+// Export directly to PDF file download
+export async function exportToPDF(options: PrintReportOptions): Promise<void> {
+  const html = generateReportHTML(options);
+  
+  // Dynamically import htmlToPdfBlob from pdf-utils
+  const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
+  
+  const pdfBlob = await htmlToPdfBlob(html);
+  
+  // Trigger download
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const url = URL.createObjectURL(pdfBlob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `releve-ik-${dateStr}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
