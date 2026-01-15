@@ -156,10 +156,13 @@ function generateReportHTML(options: PrintReportOptions): string {
 <head>
   <meta charset="UTF-8">
   <title>Relevé IK - ${currentMonth} ${currentYear}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     @page {
       size: A4 landscape;
-      margin: 12mm;
+      margin: 10mm;
     }
     
     * {
@@ -169,12 +172,12 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
       font-size: 8pt;
       color: #1e293b;
       background: white;
-      line-height: 1.3;
-      padding: 12mm;
+      line-height: 1.4;
+      padding: 10mm;
       margin: 0;
       max-width: 100%;
     }
@@ -189,129 +192,99 @@ function generateReportHTML(options: PrintReportOptions): string {
       page-break-after: avoid;
     }
     
-    /* Header band */
-    .header-band {
-      background: #0f172a;
-      height: 5mm;
-      width: 100%;
+    /* Title styling */
+    .main-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18pt;
+      font-weight: 700;
+      color: #1e293b;
       margin-bottom: 4mm;
     }
     
-    /* Header section */
-    .header {
+    /* User info header */
+    .user-header {
+      margin-bottom: 5mm;
+    }
+    
+    .user-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11pt;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 1mm;
+    }
+    
+    .user-email {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 9pt;
+      color: #64748b;
+    }
+    
+    .edition-date {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 8pt;
+      color: #94a3b8;
+      margin-bottom: 5mm;
+    }
+    
+    /* Section title */
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 6mm 0 4mm 0;
+    }
+    
+    /* Stats badges */
+    .stats-row {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 4mm;
+      gap: 4mm;
+      margin-bottom: 5mm;
     }
     
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 3mm;
+    .stat-badge {
+      background: #f1f5f9;
+      border-radius: 3mm;
+      padding: 3mm 5mm;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 1mm;
     }
     
-    .logo {
-      width: 10mm;
-      height: 10mm;
-      object-fit: contain;
+    .stat-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 7pt;
+      color: #64748b;
+      font-weight: 500;
     }
     
-    .title {
+    .stat-value {
+      font-family: 'Urbanist', sans-serif;
       font-size: 14pt;
       font-weight: 700;
       color: #1e293b;
     }
     
-    .subtitle {
-      font-size: 9pt;
-      color: #64748b;
-      margin-top: 1mm;
-    }
-    
-    .stats-container {
-      display: flex;
-      gap: 3mm;
-    }
-    
-    .stat-card {
-      background: #f8fafc;
-      border-radius: 2mm;
-      padding: 2mm 4mm;
-      min-width: 35mm;
-    }
-    
-    .stat-label {
-      font-size: 7pt;
-      color: #64748b;
-      margin-bottom: 1mm;
-    }
-    
-    .stat-value {
-      font-size: 11pt;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    
     .stat-value.primary {
-      color: #2661d9;
+      color: #2661D9;
     }
     
-    /* Vehicle info */
-    .vehicle-info {
-      background: white;
-      border: 0.3mm solid #e2e8f0;
-      border-radius: 2mm;
-      padding: 2mm 4mm;
-      margin-bottom: 4mm;
-      display: flex;
-      gap: 8mm;
-    }
-    
-    .vehicle-name {
+    /* Vehicle header */
+    .vehicle-header {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10pt;
       font-weight: 700;
-      font-size: 9pt;
-    }
-    
-    .vehicle-details {
-      color: #64748b;
-      font-size: 8pt;
-    }
-    
-    /* User info section */
-    .user-info-section {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 4mm;
-      padding: 2mm 0;
-      border-bottom: 0.2mm solid #e2e8f0;
-    }
-    
-    .user-info-left {
-      display: flex;
-      flex-direction: column;
-      gap: 1mm;
-    }
-    
-    .user-info-name {
-      font-size: 9pt;
-      font-weight: 600;
       color: #1e293b;
+      margin-bottom: 3mm;
+      padding: 2mm 0;
+      border-bottom: 0.3mm solid #e2e8f0;
     }
     
-    .user-info-email {
-      font-size: 8pt;
+    .vehicle-cv {
+      font-weight: 400;
       color: #64748b;
-    }
-    
-    .user-info-right {
-      text-align: right;
-    }
-    
-    .edition-date {
-      font-size: 7pt;
-      color: #94a3b8;
+      margin-left: 2mm;
     }
     
     /* Table styles */
@@ -319,178 +292,205 @@ function generateReportHTML(options: PrintReportOptions): string {
       width: 100%;
       max-width: 100%;
       border-collapse: collapse;
-      font-size: 7pt;
+      font-size: 7.5pt;
       table-layout: fixed;
+      border: 0.2mm solid #e2e8f0;
+      border-radius: 2mm;
+      overflow: hidden;
     }
     
     thead th {
-      background: #2661d9;
+      background: #2661D9;
       color: white;
-      font-weight: 700;
-      font-size: 6pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 6.5pt;
       text-transform: uppercase;
-      padding: 1.5mm 1.5mm;
+      letter-spacing: 0.3px;
+      padding: 2mm 2mm;
       text-align: left;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      border: none;
     }
     
     thead th.num-col {
       text-align: right;
     }
     
-    tbody td {
-      padding: 1.5mm 1.5mm;
-      border-bottom: 0.1mm solid #e2e8f0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    tbody tr {
+      background: white;
     }
     
-    .alt-row {
+    tbody tr.alt-row {
       background: #f8fafc;
     }
     
+    tbody td {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 2mm 2mm;
+      border-bottom: 0.15mm solid #e2e8f0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
     .date-col {
-      width: 12mm;
+      width: 14mm;
       text-align: center;
+      font-family: 'Urbanist', sans-serif;
+      font-weight: 500;
     }
     
     .addr-col {
       width: auto;
-      max-width: 80mm;
+      max-width: 75mm;
+      font-size: 7pt;
     }
     
     .motif-col {
-      width: 35mm;
-      max-width: 35mm;
+      width: 40mm;
+      max-width: 40mm;
+      font-size: 7pt;
+      color: #475569;
     }
     
     .num-col {
-      width: 15mm;
+      width: 16mm;
       text-align: right;
+      font-family: 'Urbanist', sans-serif;
+      font-weight: 600;
     }
     
     .ik-col {
+      color: #2661D9;
       font-weight: 700;
-      color: #2661d9;
-    }
-    
-    /* Barème table */
-    .cv-col {
-      font-weight: 700;
-      width: 22mm;
-    }
-    
-    .bareme-col {
-      text-align: center;
-      width: auto;
     }
     
     /* Total section */
     .total-section {
-      margin-top: 4mm;
-      padding-top: 3mm;
-      border-top: 0.3mm solid #e2e8f0;
+      margin-top: 5mm;
+      padding: 4mm 5mm;
+      background: #f8fafc;
+      border-radius: 3mm;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border: 0.3mm solid #e2e8f0;
     }
     
     .total-label {
-      font-size: 10pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11pt;
+      font-weight: 700;
       color: #1e293b;
     }
     
     .total-value {
-      font-size: 14pt;
+      font-family: 'Urbanist', sans-serif;
+      font-size: 16pt;
       font-weight: 700;
-      color: #2661d9;
+      color: #2661D9;
     }
     
-    /* Page 2 - Barème */
-    .bareme-title {
-      font-size: 12pt;
-      font-weight: 700;
-      margin-bottom: 3mm;
+    /* Barème table */
+    .cv-col {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      width: 28mm;
     }
     
+    .bareme-col {
+      font-family: 'Urbanist', sans-serif;
+      text-align: center;
+      width: auto;
+    }
+    
+    /* Barème explanation */
     .bareme-explanation {
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 8pt;
       color: #64748b;
-      margin-bottom: 4mm;
-      max-width: 200mm;
+      margin-bottom: 5mm;
+      max-width: 220mm;
+      line-height: 1.5;
     }
     
     .legend {
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 7pt;
       color: #64748b;
       font-style: italic;
       margin-top: 3mm;
     }
     
+    /* Electric bonus */
     .electric-bonus {
       background: #eff6ff;
-      border-radius: 2mm;
-      padding: 3mm 4mm;
-      margin-top: 4mm;
-      max-width: 180mm;
+      border: 0.2mm solid #bfdbfe;
+      border-radius: 3mm;
+      padding: 4mm 5mm;
+      margin-top: 5mm;
+      max-width: 200mm;
     }
     
     .electric-bonus-title {
-      font-size: 8pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 9pt;
       font-weight: 700;
-      color: #2661d9;
-      margin-bottom: 1mm;
+      color: #2661D9;
+      margin-bottom: 2mm;
     }
     
     .electric-bonus-text {
-      font-size: 7pt;
-      color: #64748b;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 8pt;
+      color: #475569;
+      line-height: 1.4;
     }
     
     .source {
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 6pt;
       color: #94a3b8;
-      margin-top: 4mm;
+      margin-top: 5mm;
+      line-height: 1.4;
     }
     
     /* Footer */
     .footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 0 12mm;
+      margin-top: 8mm;
+      padding-top: 4mm;
+      border-top: 0.2mm solid #e2e8f0;
     }
     
     .footer-tagline {
-      font-size: 7pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 8pt;
       color: #64748b;
+      font-style: italic;
       margin-bottom: 2mm;
     }
     
-    .footer-line {
-      border-top: 0.2mm solid #e2e8f0;
-      padding-top: 2mm;
-      display: flex;
-      justify-content: space-between;
-    }
-    
     .footer-text {
-      font-size: 6pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 7pt;
       color: #94a3b8;
     }
     
     .back-button {
       position: fixed;
-      top: 12mm;
-      left: 12mm;
-      background: #0f172a;
+      top: 10mm;
+      left: 10mm;
+      background: #1e293b;
       color: white;
       border: none;
       border-radius: 2mm;
       padding: 2mm 4mm;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 9pt;
       font-weight: 600;
       cursor: pointer;
@@ -503,7 +503,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .back-button:hover {
-      background: #1e293b;
+      background: #334155;
     }
     
     .back-button svg {
@@ -515,20 +515,17 @@ function generateReportHTML(options: PrintReportOptions): string {
       body {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        padding: 0;
       }
       
-      .no-print {
-        display: none;
-      }
-      
-      .back-button {
-        display: none;
+      .no-print, .back-button {
+        display: none !important;
       }
     }
   </style>
 </head>
 <body>
-  <a href="/" class="back-button">
+  <a href="/" class="back-button no-print">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="m12 19-7-7 7-7"/>
       <path d="M19 12H5"/>
@@ -538,47 +535,39 @@ function generateReportHTML(options: PrintReportOptions): string {
   
   <!-- Page 1: Trips -->
   <div class="page">
-    <div class="header-band"></div>
+    <!-- Main title -->
+    <h1 class="main-title">Relevé IK - ${currentMonth} ${currentYear}</h1>
     
-    <!-- User info & edition date -->
-    <div class="user-info-section">
-      <div class="user-info-left">
-        ${userName ? `<div class="user-info-name">${userName}</div>` : ''}
-        ${userEmail ? `<div class="user-info-email">${userEmail}</div>` : ''}
+    <!-- User info -->
+    <div class="user-header">
+      ${userName ? `<div class="user-name">${userName}</div>` : ''}
+      ${userEmail ? `<div class="user-email">${userEmail}</div>` : ''}
+    </div>
+    
+    <!-- Edition date -->
+    <div class="edition-date">Édité le ${editionDate}</div>
+    
+    <!-- Stats badges -->
+    <h2 class="section-title">Relevé IK</h2>
+    <div class="stats-row">
+      <div class="stat-badge">
+        <span class="stat-label">Distance totale</span>
+        <span class="stat-value">${totalKm.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km</span>
       </div>
-      <div class="user-info-right">
-        <div class="edition-date">Édité le ${editionDate}</div>
+      <div class="stat-badge">
+        <span class="stat-label">Indemnités</span>
+        <span class="stat-value primary">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
       </div>
     </div>
     
-    <div class="header">
-      <div class="header-left">
-        ${logoUrl ? `<img src="${logoUrl}" alt="IKtracker" class="logo">` : ''}
-        <div>
-          <div class="title">Relevé IK</div>
-          <div class="subtitle">${currentMonth} ${currentYear}</div>
-        </div>
-      </div>
-      
-      <div class="stats-container">
-        <div class="stat-card">
-          <div class="stat-label">Distance totale</div>
-          <div class="stat-value">${totalKm.toLocaleString('fr-FR')} km</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Indemnités</div>
-          <div class="stat-value primary">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
-        </div>
-      </div>
-    </div>
-    
+    <!-- Vehicle header -->
     ${vehicle ? `
-    <div class="vehicle-info">
-      <span class="vehicle-name">${vehicleName}</span>
-      <span class="vehicle-details">${vehicleDetails}</span>
+    <div class="vehicle-header">
+      ${vehicleName.toUpperCase()}<span class="vehicle-cv">${vehicleDetails}</span>
     </div>
     ` : ''}
     
+    <!-- Trips table -->
     <table>
       <thead>
         <tr>
@@ -595,20 +584,22 @@ function generateReportHTML(options: PrintReportOptions): string {
       </tbody>
     </table>
     
+    <!-- Total section -->
     <div class="total-section">
       <span class="total-label">Total à déclarer</span>
       <span class="total-value">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-tagline">Simplifiez votre suivi kilométrique avec IKtracker</div>
+      <div class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2026</div>
     </div>
   </div>
   
   <!-- Page 2: Barème -->
   <div class="page">
-    <div class="header-band"></div>
-    
-    <div class="header-left" style="margin-bottom: 4mm;">
-      ${logoUrl ? `<img src="${logoUrl}" alt="IKtracker" class="logo" style="display: inline-block; vertical-align: middle; margin-right: 3mm;">` : ''}
-      <span class="bareme-title" style="display: inline-block; vertical-align: middle;">Barème kilométrique fiscal 2026</span>
-    </div>
+    <h1 class="main-title">Barème kilométrique fiscal 2026</h1>
     
     <p class="bareme-explanation">
       Le barème kilométrique permet de calculer les frais de déplacement professionnels déductibles. 
@@ -641,12 +632,11 @@ function generateReportHTML(options: PrintReportOptions): string {
     <p class="source">
       Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l'évaluation des frais de déplacement relatifs à l'utilisation d'un véhicule.
     </p>
-  </div>
-  
-  <div class="footer">
-    <div class="footer-tagline">Simplifiez votre suivi kilométrique avec IKtracker</div>
-    <div class="footer-line">
-      <span class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2026</span>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-tagline">Simplifiez votre suivi kilométrique avec IKtracker</div>
+      <div class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2026</div>
     </div>
   </div>
 </body>
