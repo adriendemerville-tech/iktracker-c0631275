@@ -152,6 +152,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   const watchIdRef = useRef<number | null>(null);
   const pendingStopRef = useRef<PendingStop | null>(null);
+  const [pendingStop, setPendingStop] = useState<PendingStop | null>(null);
   const lastPositionRef = useRef<{ lat: number; lng: number } | null>(null);
   const maxDistanceReachedRef = useRef<number>(loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0));
   const lastPointTimeRef = useRef<number>(0);
@@ -161,7 +162,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   useEffect(() => {
     const stored = loadTourData<PendingStop | null>(STORAGE_KEYS.TOUR_PENDING_STOP, null);
     if (stored) {
-      pendingStopRef.current = { ...stored, arrivalTime: new Date(stored.arrivalTime) };
+      const restoredStop = { ...stored, arrivalTime: new Date(stored.arrivalTime) };
+      pendingStopRef.current = restoredStop;
+      setPendingStop(restoredStop);
     }
   }, []);
 
@@ -392,12 +395,14 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             pendingStopRef.current.city
           );
           pendingStopRef.current = null;
+          setPendingStop(null);
           saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
         }
       } else {
         // Moved away - reset pending stop timer
         console.log(`Moved away from pending stop location (${distanceFromPending.toFixed(0)}m)`);
         pendingStopRef.current = null;
+        setPendingStop(null);
         saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
       }
     }
@@ -405,7 +410,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     // Check if we should start tracking a new potential stop
     if (!pendingStopRef.current) {
       // Start a new pending stop
-      const pendingStop: PendingStop = {
+      const newPendingStop: PendingStop = {
         lat,
         lng,
         arrivalTime: now,
@@ -415,16 +420,19 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       try {
         const geocodeResult = await reverseGeocode(lat, lng);
         if (geocodeResult) {
-          pendingStop.address = geocodeResult.fullAddress;
-          pendingStop.city = geocodeResult.city;
+          newPendingStop.address = geocodeResult.fullAddress;
+          newPendingStop.city = geocodeResult.city;
+          // Update state with geocoded address
+          setPendingStop({ ...newPendingStop });
         }
       } catch (e) {
         console.warn('Failed to geocode position:', e);
       }
 
-      pendingStopRef.current = pendingStop;
-      saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, pendingStop);
-      console.log(`Started tracking potential stop at: ${pendingStop.city || pendingStop.address || 'Unknown'}`);
+      pendingStopRef.current = newPendingStop;
+      setPendingStop(newPendingStop);
+      saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, newPendingStop);
+      console.log(`Started tracking potential stop at: ${newPendingStop.city || newPendingStop.address || 'Unknown'}`);
     }
   }, [accuracyThreshold, addGpsPoint, addStop, locationRadius, resetGpsTimeout, stopDurationThreshold, updateGpsSignal, updateTotalDistance]);
 
@@ -697,6 +705,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     tourStartTime,
     wakeLockActive: wakeLock.isActive,
     lowBattery: wakeLock.lowBattery,
+    pendingStop,
     startTour,
     stopTour,
     clearTour,

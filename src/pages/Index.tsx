@@ -141,6 +141,7 @@ const Index = () => {
     gpsAccuracy,
     gpsSignalStrength,
     tourStartTime,
+    pendingStop,
     startTour,
     stopTour,
     clearTour,
@@ -740,6 +741,7 @@ ${IKTRACKER_MENTION}
           tourStartTime={tourStartTime || tourStops[0]?.timestamp}
           gpsSignalStrength={gpsSignalStrength}
           gpsAccuracy={gpsAccuracy}
+          pendingStop={pendingStop}
           onFinish={handleFinishTour}
           onCancel={() => {
             setTourStartRequested(false);

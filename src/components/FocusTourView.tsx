@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio } from 'lucide-react';
+import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +13,14 @@ import {
 import { useNightMode } from '@/hooks/useNightMode';
 import { cn } from '@/lib/utils';
 
+interface PendingStop {
+  lat: number;
+  lng: number;
+  arrivalTime: Date;
+  address?: string;
+  city?: string;
+}
+
 interface FocusTourViewProps {
   isActive: boolean;
   isLoading?: boolean;
@@ -23,6 +31,7 @@ interface FocusTourViewProps {
   tourStartTime?: Date;
   gpsSignalStrength?: 'excellent' | 'good' | 'poor' | 'lost';
   gpsAccuracy?: number | null;
+  pendingStop?: PendingStop | null;
   onFinish: () => void; // Directly finish and save the tour
   onCancel?: () => void; // Cancel during loading
 }
@@ -51,6 +60,7 @@ export function FocusTourView({
   tourStartTime,
   gpsSignalStrength = 'lost',
   gpsAccuracy,
+  pendingStop,
   onFinish,
   onCancel,
 }: FocusTourViewProps) {
@@ -306,6 +316,21 @@ export function FocusTourView({
           )}>
             {gpsSignalStrength === 'lost' ? 'Signal GPS perdu' : 'Signal GPS faible'}
           </span>
+        </div>
+      )}
+
+      {/* Pending stop notification */}
+      {pendingStop && (
+        <div className="bg-amber-500/20 border border-amber-500/40 rounded-xl px-5 py-3 flex items-center gap-3 animate-fade-in">
+          <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
+          <div className="flex flex-col">
+            <span className="text-amber-300 text-sm font-urbanist font-medium">
+              Arrêt détecté{pendingStop.city ? ` à ${pendingStop.city}` : pendingStop.address ? ` à ${pendingStop.address.split(',')[0]}` : ''}
+            </span>
+            <span className="text-amber-500/70 text-xs font-urbanist">
+              Validation en cours...
+            </span>
+          </div>
         </div>
       )}
 
