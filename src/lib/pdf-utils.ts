@@ -37,26 +37,18 @@ export async function loadHtml2Pdf() {
 
 // Convert HTML string to PDF blob
 export async function htmlToPdfBlob(html: string): Promise<Blob> {
+  console.log("Contenu HTML reçu pour le PDF:", (html || "").substring(0, 500));
+
+  if (!html || html.trim().length < 100) {
+    console.error("Erreur: Le HTML envoyé au PDF est vide ou trop court.");
+    throw new Error("Contenu du rapport invalide");
+  }
+
   const html2pdf = await loadHtml2Pdf();
 
   // 1. Sauvegarder la position de scroll actuelle
   const originalScrollY = window.scrollY;
   const originalScrollX = window.scrollX;
-
-  const parsed = new DOMParser().parseFromString(html, 'text/html');
-
-  // Récupérer les styles
-  const currentStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))
-    .map(node => node.cloneNode(true));
-
-  const rawStyles = Array.from(parsed.querySelectorAll('style'))
-    .map((s) => s.textContent || '')
-    .join('\n');
-
-  const scopedStyles = rawStyles
-    .replace(/(^|[,{\s])html(?=\b)/g, '$1.pdf-root')
-    .replace(/(^|[,{\s])body(?=\b)/g, '$1.pdf-root')
-    .replace(/(^|[,{\s]):root(?=\b)/g, '$1.pdf-root');
 
   // CORRECTION 1 : Z-Index sûrs (inférieurs à 2147483647)
   const overlay = document.createElement('div');
@@ -76,43 +68,23 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     </div>
   `;
 
-  const container = document.createElement('div');
-  container.className = 'pdf-root';
+  // Rendu plus "agressif" : iframe temporaire hors-écran (mais visible) pour forcer le calcul des styles
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('data-pdf-iframe', 'true');
+  Object.assign(iframe.style, {
+    position: 'absolute',
+    left: '-10000px',
+    top: '0',
+    width: '1122px',
+    height: '794px',
+    border: '0',
+    background: 'white',
+    opacity: '1',
+    pointerEvents: 'none',
+  } as CSSStyleDeclaration);
 
-  // CORRECTION 2 : Position Fixed + Top Left 0
-  // "Fixed" garantit que le container est collé à l'écran, peu importe le scroll
-  container.style.position = 'fixed';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '1122px'; // Largeur A4 Paysage
-  container.style.zIndex = '9999'; // AU-DESSUS de l'overlay pour être "vu" par la caméra
-
-  // CORRECTION 3 : Styles forcés pour éviter la transparence
-  container.style.backgroundColor = '#ffffff';
-  container.style.color = '#000000';
-  container.style.visibility = 'visible'; // Force la visibilité
-
-  // Injection des styles
-  currentStyles.forEach(node => container.appendChild(node));
-
-  if (scopedStyles.trim()) {
-    const styleEl = document.createElement('style');
-    styleEl.textContent = scopedStyles;
-    container.appendChild(styleEl);
-  }
-
-  const bodyHtml = (parsed.body?.innerHTML || '').trim();
-  if (!bodyHtml) {
-    throw new Error('Relevé HTML vide');
-  }
-
-  const bodyEl = document.createElement('div');
-  bodyEl.innerHTML = bodyHtml;
-  container.appendChild(bodyEl);
-
-  // Montage dans le DOM
   document.body.appendChild(overlay);
-  document.body.appendChild(container);
+  document.body.appendChild(iframe);
 
   // Scroll en haut (au cas où)
   window.scrollTo(0, 0);
@@ -120,33 +92,85 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
-  await nextFrame();
-  await nextFrame();
-
-  // Attendre un peu pour le layout
-  await wait(300);
-
-  // Wait for fonts (best-effort)
   try {
-    await (document as any).fonts?.ready;
-  } catch {
-    // ignore
-  }
+    const iframeDoc = iframe.contentDocument;
+    if (!iframeDoc) {
+      throw new Error('Impossible de créer le document iframe pour le PDF');
+    }
 
-  // Wait for images
-  const images = Array.from(container.querySelectorAll('img'));
-  const waitImages = Promise.all(
-    images.map((img) => {
-      if ((img as HTMLImageElement).complete) return Promise.resolve();
-      return new Promise<void>((resolve) => {
-        img.addEventListener('load', () => resolve(), { once: true });
-        img.addEventListener('error', () => resolve(), { once: true });
-      });
-    })
-  );
-  await Promise.race([waitImages, wait(3000)]);
+    // Construire une page complète dans l'iframe
+    iframeDoc.open();
+    iframeDoc.write('<!doctype html><html><head></head><body></body></html>');
+    iframeDoc.close();
 
-  try {
+    // Injecter les styles actuels (Tailwind + CSS global) dans l'iframe
+    const currentStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map((node) => node.cloneNode(true));
+    currentStyles.forEach((node) => iframeDoc.head.appendChild(node));
+
+    // Parser le HTML reçu (permet de récupérer body proprement)
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+
+    // Injecter aussi les <style> contenus dans le HTML du rapport
+    const rawStyles = Array.from(parsed.querySelectorAll('style'))
+      .map((s) => s.textContent || '')
+      .join('\n');
+    if (rawStyles.trim()) {
+      const styleEl = iframeDoc.createElement('style');
+      styleEl.textContent = rawStyles;
+      iframeDoc.head.appendChild(styleEl);
+    }
+
+    const bodyHtml = (parsed.body?.innerHTML || '').trim();
+    if (!bodyHtml) {
+      throw new Error('Relevé HTML vide');
+    }
+
+    // Container de rendu dans l'iframe (équivalent au bloc demandé)
+    const container = iframeDoc.createElement('div');
+    container.id = 'pdf-render-temp';
+    Object.assign(container.style, {
+      width: '1122px',
+      background: 'white',
+      color: 'black',
+    } as CSSStyleDeclaration);
+    container.innerHTML = bodyHtml;
+    iframeDoc.body.appendChild(container);
+
+    // Forcer le re-calcul des styles
+    try {
+      (iframe.contentWindow || window).getComputedStyle(container).opacity;
+    } catch {
+      // ignore
+    }
+
+    // Laisser le temps au layout / Tailwind / polices / images de se stabiliser
+    await nextFrame();
+    await nextFrame();
+
+    // Délai augmenté (1500ms)
+    await wait(1500);
+
+    // Wait for fonts (best-effort)
+    try {
+      await (iframeDoc as any).fonts?.ready;
+    } catch {
+      // ignore
+    }
+
+    // Wait for images
+    const images = Array.from(container.querySelectorAll('img'));
+    const waitImages = Promise.all(
+      images.map((img) => {
+        if ((img as HTMLImageElement).complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.addEventListener('load', () => resolve(), { once: true });
+          img.addEventListener('error', () => resolve(), { once: true });
+        });
+      })
+    );
+    await Promise.race([waitImages, wait(4000)]);
+
     const worker = html2pdf()
       .set({
         margin: 10,
@@ -181,10 +205,11 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     return pdfBlob;
   } finally {
-    if (document.body.contains(container)) document.body.removeChild(container);
+    if (document.body.contains(iframe)) document.body.removeChild(iframe);
     if (document.body.contains(overlay)) document.body.removeChild(overlay);
 
     // Restaurer le scroll utilisateur
     window.scrollTo(originalScrollX, originalScrollY);
   }
 }
+
