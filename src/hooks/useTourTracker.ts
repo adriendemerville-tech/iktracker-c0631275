@@ -436,16 +436,137 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     }
   }, [accuracyThreshold, addGpsPoint, addStop, locationRadius, resetGpsTimeout, stopDurationThreshold, updateGpsSignal, updateTotalDistance]);
 
-  // Handle visibility change - sync when returning to foreground
+  // Handle visibility change - sync when returning to foreground with gap filling
   useEffect(() => {
+    let lastVisibilityHiddenAt: number | null = null;
+    
     const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'hidden') {
+        // Record when we went to background
+        lastVisibilityHiddenAt = Date.now();
+        return;
+      }
+      
       if (document.visibilityState === 'visible' && isActive) {
-        console.log('App returned to foreground - syncing tour data');
+        console.log('App returned to foreground - initiating gap filling');
         
         // Re-request wake lock
         await wakeLock.request();
         
-        // Restart watchPosition if not running - inline logic to avoid circular deps
+        // Force immediate position acquisition for gap filling
+        if (navigator.geolocation && lastPositionRef.current) {
+          const lastKnownPosition = lastPositionRef.current;
+          const timeInBackground = lastVisibilityHiddenAt ? Date.now() - lastVisibilityHiddenAt : 0;
+          
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude: lat, longitude: lng, accuracy } = position.coords;
+              
+              // Reset GPS timeout and update signal
+              resetGpsTimeout();
+              updateGpsSignal(accuracy);
+              
+              // Calculate distance from last known position
+              const distanceFromLast = getDistanceInMeters(
+                lastKnownPosition.lat,
+                lastKnownPosition.lng,
+                lat,
+                lng
+              );
+              
+              console.log(`Gap filling: ${distanceFromLast.toFixed(0)}m from last position, ${(timeInBackground / 1000 / 60).toFixed(1)}min in background`);
+              
+              // Gap filling: If moved > 500m AND was in background > 2 minutes
+              if (distanceFromLast > 500 && timeInBackground > 2 * 60 * 1000) {
+                try {
+                  console.log('Calculating driving distance for gap filling...');
+                  const drivingDistance = await calculateDrivingDistance(
+                    lastKnownPosition.lat,
+                    lastKnownPosition.lng,
+                    lat,
+                    lng
+                  );
+                  
+                  // Add the gap distance to total
+                  setTotalDistanceKm((prev) => {
+                    const newTotal = prev + drivingDistance;
+                    maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
+                    return Math.max(newTotal, maxDistanceReachedRef.current);
+                  });
+                  
+                  toast.success('Retour de veille', {
+                    description: `Trajet mis à jour (+${drivingDistance.toFixed(1)} km)`,
+                    duration: 4000,
+                  });
+                  
+                  console.log(`Gap filled: +${drivingDistance.toFixed(2)}km added`);
+                } catch (e) {
+                  console.warn('Failed to calculate gap distance:', e);
+                  // Fallback: use straight line distance as approximation
+                  const fallbackKm = distanceFromLast / 1000;
+                  setTotalDistanceKm((prev) => {
+                    const newTotal = prev + fallbackKm;
+                    maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
+                    return Math.max(newTotal, maxDistanceReachedRef.current);
+                  });
+                  toast.info('Retour de veille', {
+                    description: `Distance estimée (+${fallbackKm.toFixed(1)} km)`,
+                    duration: 4000,
+                  });
+                }
+              }
+              
+              // Update last position reference
+              lastPositionRef.current = { lat, lng };
+              setCurrentPosition({ lat, lng });
+              
+              // Force pending stop update with new position
+              // Clear old pending stop since we moved
+              if (distanceFromLast > locationRadius && pendingStopRef.current) {
+                console.log('Moved away during background - resetting pending stop');
+                pendingStopRef.current = null;
+                setPendingStop(null);
+                saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
+              }
+              
+              // Start new pending stop at current location with geocoding
+              const newPendingStop: PendingStop = {
+                lat,
+                lng,
+                arrivalTime: new Date(),
+              };
+              
+              try {
+                const geocodeResult = await reverseGeocode(lat, lng);
+                if (geocodeResult) {
+                  newPendingStop.address = geocodeResult.fullAddress;
+                  newPendingStop.city = geocodeResult.city;
+                }
+              } catch (e) {
+                console.warn('Failed to geocode wake position:', e);
+              }
+              
+              pendingStopRef.current = newPendingStop;
+              setPendingStop(newPendingStop);
+              saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, newPendingStop);
+              console.log(`Wake position tracked: ${newPendingStop.city || newPendingStop.address || 'Unknown'}`);
+              
+              // Add GPS point
+              addGpsPoint(lat, lng, accuracy);
+            },
+            (err) => {
+              console.error('Gap filling getCurrentPosition error:', err);
+              updateGpsSignal(null);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0,
+            }
+          );
+        }
+        
+        // Restart watchPosition if not running
         if (watchIdRef.current === null && navigator.geolocation) {
           watchIdRef.current = navigator.geolocation.watchPosition(
             processPosition,
@@ -460,16 +581,14 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           );
         }
         
-        toast.info('Suivi GPS repris', {
-          description: 'Le tracking continue en arrière-plan.',
-          duration: 3000,
-        });
+        // Reset timeout for next background period
+        lastVisibilityHiddenAt = null;
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isActive, wakeLock, processPosition]);
+  }, [isActive, wakeLock, processPosition, resetGpsTimeout, updateGpsSignal, addGpsPoint, locationRadius]);
 
   // Start watching position
   const startWatching = useCallback(() => {
