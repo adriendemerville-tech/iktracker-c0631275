@@ -236,28 +236,22 @@ export function FocusTourView({
 
       {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
-        {/* Car button - triggers confirmation - Green gradient when active */}
+        {/* Car button - triggers confirmation - Blue to green gradient over 10s */}
         <button
           onClick={handleStopClick}
-          className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-95"
-          style={{
-            background: 'linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 100%)',
-          }}
+          className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 car-button-gradient"
           aria-label="Arrêter la tournée"
         >
-          {/* Rotating gradient border - green tones */}
+          {/* Rotating gradient border - original yellow-orange tones, 3x slower & more subtle */}
           <span 
-            className="absolute inset-[-6px] rounded-full overflow-hidden"
+            className="absolute inset-[-6px] rounded-full overflow-hidden opacity-50"
             style={{
-              background: 'conic-gradient(from 0deg, #22c55e, #166534, #22c55e, #84cc16, #22c55e)',
-              animation: 'rotate-gradient 2s linear infinite',
+              background: 'conic-gradient(from 0deg, #f97316, #fbbf24, #f97316, #ef4444, #f97316)',
+              animation: 'rotate-gradient 6s linear infinite',
             }}
           >
             <span 
-              className="absolute inset-[6px] rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 100%)',
-              }}
+              className="absolute inset-[6px] rounded-full car-button-gradient"
             />
           </span>
           
@@ -268,7 +262,7 @@ export function FocusTourView({
             <span className="w-5 h-1.5 bg-current opacity-50 rounded-full" />
           </span>
           
-          {/* Car icon with driving animation - 50% bigger, white for contrast on green */}
+          {/* Car icon with driving animation - 50% bigger, white for contrast */}
           <Car 
             className="w-24 h-24 relative z-10 text-white"
             style={{
@@ -323,13 +317,12 @@ export function FocusTourView({
         </div>
       )}
 
-      {/* Pending stop notification */}
-      {pendingStop && (
+      {/* Pending stop notification - only shown from the 2nd stop onwards */}
+      {pendingStop && detectedStopsCount >= 1 && (
         <div className="bg-amber-500/20 border border-amber-500/40 rounded-xl px-5 py-3 flex items-center gap-3 animate-fade-in">
-          <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
           <div className="flex flex-col">
             <span className="text-amber-300 text-sm font-urbanist font-medium">
-              Arrêt détecté{pendingStop.city ? ` à ${pendingStop.city}` : pendingStop.address ? ` à ${pendingStop.address.split(',')[0]}` : ''}
+              Arrêt détecté
             </span>
             <span className="text-amber-500/70 text-xs font-urbanist">
               Validation en cours...
