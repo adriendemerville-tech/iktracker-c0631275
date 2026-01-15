@@ -638,3 +638,18 @@ img {
 .isolate-layout {
   isolation: isolate;
 }
+
+/* Tour mode - Car button blue to green gradient over 10 seconds */
+@keyframes car-button-gradient-anim {
+  0% {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
+  }
+  100% {
+    background: linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 100%);
+  }
+}
+
+.car-button-gradient {
+  animation: car-button-gradient-anim 10s ease-in-out forwards;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
+}
