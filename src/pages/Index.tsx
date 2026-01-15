@@ -969,10 +969,12 @@ ${IKTRACKER_MENTION}
           >
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="w-5 h-5 text-purple-300" />
-              <h2 className="text-lg font-semibold text-purple-100">À compléter</h2>
-              <Badge className="bg-purple-400/20 text-purple-200 border-purple-400/30 hover:bg-purple-400/30">
-                {trips.filter(t => t.status === 'pending_location').length}
-              </Badge>
+              <h2 className="text-lg font-semibold text-purple-100 flex items-center gap-2">
+                Trajets à compléter
+                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
+                  {trips.filter(t => t.status === 'pending_location').length}
+                </span>
+              </h2>
               <button
                 onClick={toggleHidePendingTrips}
                 className="ml-auto p-1.5 rounded-md bg-purple-400/20 hover:bg-purple-400/30 text-purple-200 transition-colors"
@@ -985,6 +987,7 @@ ${IKTRACKER_MENTION}
               <div className="space-y-3">
                 {trips
                   .filter(t => t.status === 'pending_location')
+                  .slice(0, 4)
                   .map((trip) => (
                     <TripCard 
                       key={trip.id} 

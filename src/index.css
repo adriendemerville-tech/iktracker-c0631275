@@ -639,17 +639,17 @@ img {
   isolation: isolate;
 }
 
-/* Tour mode - Car button blue to green gradient over 10 seconds */
+/* Car button gradient animation - stay blue 15s, then blue to green over 10s */
 @keyframes car-button-gradient-anim {
-  0% {
+  0%, 60% {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
   }
   100% {
-    background: linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 100%);
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
   }
 }
 
 .car-button-gradient {
-  animation: car-button-gradient-anim 10s ease-in-out forwards;
+  animation: car-button-gradient-anim 25s ease-in-out forwards;
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
 }
