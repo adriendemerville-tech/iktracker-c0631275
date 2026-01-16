@@ -99,13 +99,15 @@ export const TripCard = memo(function TripCard({
         className={cn(
           "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative",
           isTour && "cursor-pointer hover:bg-muted/50 transition-colors",
-          isPending ? "border-violet-500/40 bg-violet-500/5" : "border-border/50"
+          isPending 
+            ? "border-violet-500/50 bg-violet-600 text-white" 
+            : "border-border/50"
         )}
         onClick={handleCardClick}
       >
         {/* Pending location badge */}
         {isPending && (
-          <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-500 rounded-full shadow-sm flex items-center justify-center">
+          <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-400 rounded-full shadow-sm flex items-center justify-center border-2 border-white">
             <MapPinOff className="w-3.5 h-3.5 text-white" />
           </div>
         )}
@@ -119,10 +121,13 @@ export const TripCard = memo(function TripCard({
 
         {/* Ligne 1: Date | Tournée ou Départ → Arrivée | Bouton edit */}
         <div className="flex items-center gap-3 mb-2">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+          <div className={cn(
+            "flex items-center gap-1.5 text-xs shrink-0",
+            isPending ? "text-white/80" : "text-muted-foreground"
+          )}>
             <span>{formatDate(trip.startTime)}</span>
             {showTripTime && hasRealTime(trip.startTime) && (
-              <span className="text-muted-foreground/70">
+              <span className={isPending ? "text-white/60" : "text-muted-foreground/70"}>
                 {formatTime(trip.startTime)}
               </span>
             )}
@@ -132,33 +137,36 @@ export const TripCard = memo(function TripCard({
           {isTour ? (
             // Tour display: "Tournée (X étapes)"
             <div className="flex-1 flex items-center gap-2 min-w-0">
-              <Truck className="w-4 h-4 text-primary shrink-0" />
+              <Truck className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
               <span className="font-medium text-sm">Tournée</span>
-              <span className="text-xs text-muted-foreground">
+              <span className={cn("text-xs", isPending ? "text-white/70" : "text-muted-foreground")}>
                 ({trip.tourStops!.length} étapes)
               </span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto shrink-0" />
+              <ChevronRight className={cn("w-4 h-4 ml-auto shrink-0", isPending ? "text-white/70" : "text-muted-foreground")} />
             </div>
           ) : (
             // Regular trip display: Départ → Arrivée
             <div className="flex-1 flex items-center gap-1.5 min-w-0">
-              <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.startLocation.type))} />
+              <MapPin className={cn("w-3.5 h-3.5 shrink-0", isPending ? "text-white" : getLocationIcon(trip.startLocation.type))} />
               <span className="font-medium text-sm truncate">{startCityName}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <MapPin className={cn("w-3.5 h-3.5 shrink-0", getLocationIcon(trip.endLocation.type))} />
+              <ArrowRight className={cn("w-3.5 h-3.5 shrink-0", isPending ? "text-white/70" : "text-muted-foreground")} />
+              <MapPin className={cn("w-3.5 h-3.5 shrink-0", isPending ? "text-white" : getLocationIcon(trip.endLocation.type))} />
               <span className="font-medium text-sm truncate">{endCityName}</span>
             </div>
           )}
           
           {/* Calendar icon if trip is from calendar event */}
           {trip.calendarEventId && (
-            <Calendar className="w-4 h-4 text-primary shrink-0" />
+            <Calendar className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
           )}
           {onEdit && !isTour && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-transparent shrink-0"
+              className={cn(
+                "h-7 w-7 hover:bg-transparent shrink-0",
+                isPending ? "text-white/80 hover:text-white" : "text-muted-foreground hover:text-primary"
+              )}
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(trip);
