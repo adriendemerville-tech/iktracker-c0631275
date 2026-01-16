@@ -65,7 +65,13 @@ const Signup = () => {
       if (event === 'SIGNED_IN' && session) {
         fireConfetti();
         toast({ title: 'Compte créé avec succès ! 🎉', description: 'Bienvenue sur IKtracker !' });
-        setTimeout(() => navigate('/app', { replace: true }), 800);
+        // Check if this is a new signup (no theme onboarding completed)
+        const themeOnboardingComplete = localStorage.getItem('theme-onboarding-complete');
+        if (!themeOnboardingComplete) {
+          setTimeout(() => navigate('/theme-onboarding', { replace: true }), 800);
+        } else {
+          setTimeout(() => navigate('/app', { replace: true }), 800);
+        }
       }
     });
 
@@ -103,7 +109,8 @@ const Signup = () => {
       if (error) throw error;
       fireConfetti();
       toast({ title: 'Inscription réussie 🎉', description: 'Vous pouvez maintenant utiliser l\'application.' });
-      setTimeout(() => navigate('/app'), 800);
+      // Redirect to theme onboarding for new signups
+      setTimeout(() => navigate('/theme-onboarding'), 800);
     } catch (error: any) {
       let message = error.message;
       if (error.message.includes('User already registered')) {
