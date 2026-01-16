@@ -31,52 +31,23 @@ export function getOptimizedImageUrl(
     return url;
   }
   
-  const {
-    width,
-    height,
-    quality = 80,
-    format = 'webp',
-    resize = 'cover'
-  } = options;
-  
-  // Build transformation parameters
-  const params: string[] = [];
-  
-  if (width) params.push(`width=${width}`);
-  if (height) params.push(`height=${height}`);
-  params.push(`quality=${quality}`);
-  params.push(`format=${format}`);
-  params.push(`resize=${resize}`);
-  
-  // Convert public URL to render URL with transformations
-  // From: .../storage/v1/object/public/bucket/path
-  // To: .../storage/v1/render/image/public/bucket/path?...
-  const transformedUrl = url.replace(
-    '/storage/v1/object/public/',
-    '/storage/v1/render/image/public/'
-  );
-  
-  const separator = transformedUrl.includes('?') ? '&' : '?';
-  
-  return `${transformedUrl}${separator}${params.join('&')}`;
+  // Return the original URL directly - Supabase image transformation 
+  // requires a Pro plan and may not be available on all projects
+  // The original public URL will work correctly
+  return url;
 }
 
 /**
  * Get srcset for responsive images with WebP optimization
+ * Note: Returns null since Supabase image transformation requires Pro plan
  */
 export function getResponsiveSrcSet(
   url: string | null | undefined,
   widths: number[] = [400, 800, 1200]
 ): string | null {
-  if (!url) return null;
-  
-  return widths
-    .map(w => {
-      const optimizedUrl = getOptimizedImageUrl(url, { width: w, quality: 80 });
-      return optimizedUrl ? `${optimizedUrl} ${w}w` : null;
-    })
-    .filter(Boolean)
-    .join(', ');
+  // Supabase image transformation requires Pro plan
+  // Return null to use standard img src
+  return null;
 }
 
 /**
