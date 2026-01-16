@@ -26,6 +26,7 @@ const Report = lazy(() => import("./pages/Report"));
 const Profile = lazy(() => import("./pages/Profile"));
 // Lazy loaded routes - loaded on demand
 const Signup = lazy(() => import("./pages/Signup"));
+const ThemeOnboarding = lazy(() => import("./pages/ThemeOnboarding"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -203,6 +204,16 @@ const AppRoutes = () => {
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
         <Route path="/signup" element={<SmartSignup />} />
+        <Route 
+          path="/theme-onboarding" 
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<AuthLoadingScreen />}>
+                <ThemeOnboarding />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/app"
           element={
