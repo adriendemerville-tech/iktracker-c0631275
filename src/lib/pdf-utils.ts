@@ -50,13 +50,13 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const originalScrollY = window.scrollY;
   const originalScrollX = window.scrollX;
 
-  // CORRECTION 1 : Z-Index sûrs (inférieurs à 2147483647)
+  // Overlay de chargement (pour masquer le site derrière)
   const overlay = document.createElement('div');
   overlay.setAttribute('data-pdf-overlay', 'true');
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
-  overlay.style.background = 'white'; // Opaque pour cacher le site derrière
-  overlay.style.zIndex = '9998'; // Juste en dessous du container
+  overlay.style.background = 'white';
+  overlay.style.zIndex = '9998';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
@@ -68,23 +68,26 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     </div>
   `;
 
-  // Rendu plus "agressif" : iframe temporaire hors-écran (mais visible) pour forcer le calcul des styles
-  const iframe = document.createElement('iframe');
-  iframe.setAttribute('data-pdf-iframe', 'true');
-  Object.assign(iframe.style, {
-    position: 'absolute',
+  // IMPORTANT:
+  // On ne rend PLUS le HTML dans une iframe.
+  // html2pdf/html2canvas gère très mal les noeuds issus d'un autre document (styles perdus / rendu texte brut).
+  // On rend donc le HTML dans le document courant, hors-écran, puis on capture ce noeud.
+  const renderRoot = document.createElement('div');
+  renderRoot.setAttribute('data-pdf-root', 'true');
+  Object.assign(renderRoot.style, {
+    position: 'fixed',
     left: '-10000px',
     top: '0',
     width: '1122px',
-    height: '794px',
-    border: '0',
     background: 'white',
+    color: 'black',
     opacity: '1',
     pointerEvents: 'none',
+    zIndex: '9999',
   } as CSSStyleDeclaration);
 
   document.body.appendChild(overlay);
-  document.body.appendChild(iframe);
+  document.body.appendChild(renderRoot);
 
   // Scroll en haut (au cas où)
   window.scrollTo(0, 0);
@@ -92,77 +95,76 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
+  // Styles/links temporaires ajoutés dans le head (pour les retirer ensuite)
+  const injectedHeadNodes: HTMLElement[] = [];
+
   try {
-    const iframeDoc = iframe.contentDocument;
-    if (!iframeDoc) {
-      throw new Error('Impossible de créer le document iframe pour le PDF');
-    }
-
-    // Construire une page complète dans l'iframe
-    iframeDoc.open();
-    iframeDoc.write('<!doctype html><html><head></head><body></body></html>');
-    iframeDoc.close();
-
-    // Injecter les styles actuels (Tailwind + CSS global) dans l'iframe
-    const currentStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map((node) => node.cloneNode(true));
-    currentStyles.forEach((node) => iframeDoc.head.appendChild(node));
-
-    // Parser le HTML reçu (permet de récupérer body proprement)
     const parsed = new DOMParser().parseFromString(html, 'text/html');
-
-    // Injecter aussi les <style> contenus dans le HTML du rapport
-    const rawStyles = Array.from(parsed.querySelectorAll('style'))
-      .map((s) => s.textContent || '')
-      .join('\n');
-    if (rawStyles.trim()) {
-      const styleEl = iframeDoc.createElement('style');
-      styleEl.textContent = rawStyles;
-      iframeDoc.head.appendChild(styleEl);
-    }
 
     const bodyHtml = (parsed.body?.innerHTML || '').trim();
     if (!bodyHtml) {
       throw new Error('Relevé HTML vide');
     }
 
-    // Container de rendu dans l'iframe (équivalent au bloc demandé)
-    const container = iframeDoc.createElement('div');
-    container.id = 'pdf-render-temp';
-    Object.assign(container.style, {
-      width: '1122px',
-      background: 'white',
-      color: 'black',
-    } as CSSStyleDeclaration);
-    container.innerHTML = bodyHtml;
-    iframeDoc.body.appendChild(container);
-
-    // Forcer le re-calcul des styles
-    try {
-      (iframe.contentWindow || window).getComputedStyle(container).opacity;
-    } catch {
-      // ignore
+    // Injecter les styles du document HTML (si présents)
+    const rawStyles = Array.from(parsed.querySelectorAll('style'))
+      .map((s) => s.textContent || '')
+      .join('\n');
+    if (rawStyles.trim()) {
+      const styleEl = document.createElement('style');
+      styleEl.setAttribute('data-pdf-style', 'true');
+      styleEl.textContent = rawStyles;
+      document.head.appendChild(styleEl);
+      injectedHeadNodes.push(styleEl);
     }
 
-    // Laisser le temps au layout / Tailwind / polices / images de se stabiliser
+    // Injecter aussi les éventuels <link rel="stylesheet"> du HTML (best-effort)
+    const linkEls = Array.from(parsed.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+    const linkLoads = linkEls.map((l) => {
+      const href = l.getAttribute('href');
+      if (!href) return Promise.resolve();
+
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.setAttribute('data-pdf-link', 'true');
+      document.head.appendChild(link);
+      injectedHeadNodes.push(link as any);
+
+      return new Promise<void>((resolve) => {
+        link.addEventListener('load', () => resolve(), { once: true });
+        link.addEventListener('error', () => resolve(), { once: true });
+      });
+    });
+
+    // Monter le HTML dans le root de rendu
+    renderRoot.innerHTML = bodyHtml;
+
+    // Forcer un recalcul du layout
+    renderRoot.getBoundingClientRect();
+
+    // Laisser le temps au CSS / layout / images de se stabiliser
     await nextFrame();
     await nextFrame();
 
-    // Délai augmenté (1500ms)
-    await wait(1500);
+    // Attendre les stylesheets externes (best-effort)
+    await Promise.race([Promise.all(linkLoads), wait(2000)]);
+
+    // Petit délai supplémentaire
+    await wait(250);
 
     // Wait for fonts (best-effort)
     try {
-      await (iframeDoc as any).fonts?.ready;
+      await (document as any).fonts?.ready;
     } catch {
       // ignore
     }
 
-    // Wait for images
-    const images = Array.from(container.querySelectorAll('img'));
+    // Wait for images inside renderRoot
+    const images = Array.from(renderRoot.querySelectorAll('img')) as HTMLImageElement[];
     const waitImages = Promise.all(
       images.map((img) => {
-        if ((img as HTMLImageElement).complete) return Promise.resolve();
+        if (img.complete) return Promise.resolve();
         return new Promise<void>((resolve) => {
           img.addEventListener('load', () => resolve(), { once: true });
           img.addEventListener('error', () => resolve(), { once: true });
@@ -170,6 +172,8 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       })
     );
     await Promise.race([waitImages, wait(4000)]);
+
+    const windowHeight = Math.max(794, Math.min(6000, renderRoot.scrollHeight || 794));
 
     const worker = html2pdf()
       .set({
@@ -180,12 +184,11 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
-          letterRendering: true,
           logging: false,
           scrollX: 0,
           scrollY: 0,
           windowWidth: 1122,
-          windowHeight: 794,
+          windowHeight,
         },
         jsPDF: {
           unit: 'mm',
@@ -194,7 +197,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
         },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
       })
-      .from(container)
+      .from(renderRoot)
       .toPdf();
 
     const pdfBlob = await worker.get('pdf').then((pdf: any) => pdf.output('blob'));
@@ -205,7 +208,16 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     return pdfBlob;
   } finally {
-    if (document.body.contains(iframe)) document.body.removeChild(iframe);
+    // Cleanup
+    injectedHeadNodes.forEach((n) => {
+      try {
+        n.remove();
+      } catch {
+        // ignore
+      }
+    });
+
+    if (document.body.contains(renderRoot)) document.body.removeChild(renderRoot);
     if (document.body.contains(overlay)) document.body.removeChild(overlay);
 
     // Restaurer le scroll utilisateur
