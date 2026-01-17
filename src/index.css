@@ -639,10 +639,10 @@ img {
   isolation: isolate;
 }
 
-/* Car button gradient animation - blue then progressive transition to green over 5s */
+/* Car button gradient animation - mauve then progressive transition to green over 5s with 5s delay */
 @keyframes car-button-gradient-anim {
   0% {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
   }
   100% {
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
@@ -650,8 +650,8 @@ img {
 }
 
 .car-button-gradient {
-  animation: car-button-gradient-anim 5s ease-in-out forwards;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
+  animation: car-button-gradient-anim 5s ease-in-out 5s forwards;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
 }
 
 /* Tour button rotating golden border */

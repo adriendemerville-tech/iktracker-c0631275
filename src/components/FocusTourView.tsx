@@ -226,16 +226,6 @@ export function FocusTourView({
             className="absolute inset-[-1px] rounded-full car-button-gradient"
           />
           
-          {/* Subtle outer glow */}
-          <span 
-            className="absolute inset-[-8px] rounded-full opacity-30"
-            style={{
-              background: 'conic-gradient(from 180deg, transparent 0%, #F59E0B 25%, transparent 50%, #FBBF24 75%, transparent 100%)',
-              animation: 'rotate-gradient 6s linear infinite reverse',
-              filter: 'blur(8px)',
-            }}
-          />
-          
           {/* Speed lines behind the car - white for contrast */}
           <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white">
             <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
