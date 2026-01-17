@@ -559,7 +559,7 @@ ${IKTRACKER_URL}`
 
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-3 md:space-y-4">
         
-        <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3 max-w-sm mx-auto">
+        <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3">
           <div className="grid grid-cols-3 gap-3 md:gap-4 text-center">
             <div>
               <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
@@ -625,7 +625,7 @@ ${IKTRACKER_URL}`
               <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <Input
                 type="email"
-                placeholder="Email de votre comptable"
+                placeholder="Email du destinataire"
                 value={preferences.accountantEmail}
                 onChange={(e) => updatePreference('accountantEmail', e.target.value)}
                 className="flex-1"
@@ -634,13 +634,13 @@ ${IKTRACKER_URL}`
           )}
           <Button 
             variant="outline" 
-            size="lg" 
-            className="max-w-sm w-full bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
+            size="default" 
+            className="bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
             onClick={sendToAccountant} 
             disabled={trips.length === 0 || isExporting}
           >
-            <Send className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-            Envoyer le relevé à mon comptable
+            <Send className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
+            Envoyer le relevé
           </Button>
         </div>
 
