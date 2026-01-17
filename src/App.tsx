@@ -13,6 +13,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
 import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 // Critical route - Landing loaded immediately for fast initial load
 import Landing from "./pages/Landing";
@@ -327,6 +328,7 @@ const AppContent = () => {
   
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <AppRoutes />
     </BrowserRouter>
   );
