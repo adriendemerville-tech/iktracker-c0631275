@@ -577,10 +577,16 @@ function generateReportHTML(options: PrintReportOptions): string {
       line-height: 1.4;
     }
     
-    .back-button {
+    .top-actions {
       position: fixed;
       top: 4mm;
       left: 4mm;
+      display: flex;
+      gap: 2mm;
+      z-index: 1000;
+    }
+    
+    .action-button {
       background: #64748b;
       color: white;
       border: none;
@@ -593,18 +599,17 @@ function generateReportHTML(options: PrintReportOptions): string {
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
       text-decoration: none;
       opacity: 0.7;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s, background 0.2s;
     }
     
-    .back-button:hover {
+    .action-button:hover {
       opacity: 1;
       background: #475569;
     }
     
-    .back-button svg {
+    .action-button svg {
       width: 12px;
       height: 12px;
     }
@@ -616,18 +621,27 @@ function generateReportHTML(options: PrintReportOptions): string {
         padding: 0;
       }
       
-      .no-print, .back-button {
+      .no-print, .top-actions {
         display: none !important;
       }
     }
   </style>
 </head>
 <body>
-  <a href="/" class="back-button no-print" title="Retour">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m12 19-7-7 7-7"/>
-    </svg>
-  </a>
+  <div class="top-actions no-print">
+    <a href="/" class="action-button" title="Retour">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 19-7-7 7-7"/>
+      </svg>
+    </a>
+    <button onclick="window.print()" class="action-button" title="Imprimer (Ctrl+P)">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect width="12" height="8" x="6" y="14"/>
+      </svg>
+    </button>
+  </div>
   
   <!-- Page 1: Main Report -->
   <div class="page">
