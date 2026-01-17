@@ -825,24 +825,26 @@ ${IKTRACKER_URL}`
       </main>
 
       {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)]">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center gap-3">
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 md:px-6 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex justify-center gap-2 md:gap-3">
           <Link to="/profile#mes-adresses">
             <Button 
               variant="outline" 
-              size="lg"
+              size="default"
+              className="h-10 md:h-11 px-3 md:px-4 text-sm"
             >
-              <Home className="w-5 h-5" />
+              <Home className="w-4 h-4 md:w-5 md:h-5" />
               Mes adresses
             </Button>
           </Link>
           <Button 
             variant="gradient" 
-            size="lg"
+            size="default"
+            className="h-10 md:h-11 px-3 md:px-4 text-sm"
             onClick={() => setShowNewTrip(true)}
             disabled={vehicles.length === 0}
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 md:w-5 md:h-5" />
             Nouveau trajet
           </Button>
         </div>
