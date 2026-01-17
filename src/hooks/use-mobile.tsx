@@ -1,14 +1,22 @@
 import * as React from "react";
-import { isBrowser, getWindowWidth, safeMatchMedia } from "@/lib/ssr-utils";
+import { isBrowser, getWindowWidth } from "@/lib/ssr-utils";
 
 const MOBILE_BREAKPOINT = 768;
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(() => {
-    // Initial state based on SSR-safe check
-    if (!isBrowser()) return undefined;
-    return getWindowWidth() < MOBILE_BREAKPOINT;
-  });
+  // Always try to get an initial value if in browser
+  const getInitialValue = (): boolean => {
+    if (!isBrowser()) return false;
+    // Use multiple detection methods for reliability
+    const width = getWindowWidth();
+    if (width > 0) return width < MOBILE_BREAKPOINT;
+    // Fallback: check touch support and user agent
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return hasTouch && mobileUA;
+  };
+
+  const [isMobile, setIsMobile] = React.useState<boolean>(getInitialValue);
 
   React.useEffect(() => {
     if (!isBrowser()) return;
@@ -18,9 +26,10 @@ export function useIsMobile() {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
     mql.addEventListener("change", onChange);
+    // Ensure we have the correct value on mount
     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  return !!isMobile;
+  return isMobile;
 }
