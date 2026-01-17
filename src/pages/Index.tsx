@@ -1133,15 +1133,15 @@ ${IKTRACKER_MENTION}
       <div className="fixed bottom-0 left-0 right-0 py-4 px-5 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-4">
           <Link to="/report" className="w-full">
-            <Button variant="secondary" size="lg" className="w-full h-[54px] px-6 text-base shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
-              <FileText className="w-5 h-5" />
+            <Button variant="secondary" size="lg" className="w-full h-12 px-5 text-sm shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
+              <FileText className="w-4 h-4" />
               Relevé
             </Button>
           </Link>
           <Button 
             variant="gradient" 
             size="lg"
-            className="w-full h-[54px] px-6 text-base animate-cta-pulse shadow-[0_4px_8px_-2px_rgba(0,0,0,0.2)]"
+            className="w-full h-12 px-5 text-sm animate-cta-pulse shadow-[0_4px_8px_-2px_rgba(0,0,0,0.2)]"
             onClick={() => {
               if (vehicles.length === 0) {
                 toast.info("Ajoutez d'abord un véhicule", {
