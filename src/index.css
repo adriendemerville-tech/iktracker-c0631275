@@ -653,3 +653,40 @@ img {
   animation: car-button-gradient-anim 25s ease-in-out forwards;
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
 }
+
+/* Tour button rotating golden border */
+@keyframes rotate-golden-border {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tour button gradient animations */
+@keyframes tour-gradient-idle {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes tour-gradient-active {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-tour-gradient-idle {
+  animation: tour-gradient-idle 4s ease-in-out infinite;
+}
+
+.animate-tour-gradient-active {
+  animation: tour-gradient-active 2s ease-in-out infinite;
+}

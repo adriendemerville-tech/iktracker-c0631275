@@ -7,6 +7,8 @@ interface UserInfo {
   email?: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
+  address?: string;
 }
 
 interface PrintReportOptions {
@@ -90,7 +92,7 @@ function formatAddress(str: string, max: number): string {
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, logoUrl, userInfo } = options;
+  const { trips, vehicles, totalKm, userInfo } = options;
   
   const now = new Date();
   const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -104,35 +106,42 @@ function generateReportHTML(options: PrintReportOptions): string {
     year: 'numeric',
   });
   
-  // Build user info string
+  // Build user info
   const userName = userInfo?.firstName || userInfo?.lastName
     ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
     : null;
   const userEmail = userInfo?.email || null;
   
+  // Get vehicle owner info
+  const vehicle = vehicles.length > 0 ? vehicles[0] : null;
+  const ownerName = vehicle?.ownerFirstName || vehicle?.ownerLastName
+    ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
+    : userName;
+  const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
+  const vehicleDetails = vehicle ? `${vehicle.fiscalPower} CV${vehicle.licensePlate ? ' • ' + vehicle.licensePlate : ''}${vehicle.isElectric ? ' • Électrique (+20%)' : ''}` : '';
+  
   const recalculatedTrips = recalculateTrips(trips, vehicles);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
-  
-  const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-  const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
-  const vehicleDetails = vehicle ? `${vehicle.fiscalPower} CV${vehicle.licensePlate ? ' • ' + vehicle.licensePlate : ''}` : '';
 
   const tripRows = recalculatedTrips.map((t, i) => {
     const tripDate = new Date(t.startTime);
     const day = tripDate.getDate().toString().padStart(2, '0');
     const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
-    const startAddr = formatAddress(t.startLocation.name, 50);
-    const endAddr = formatAddress(t.endLocation.name, 50);
+    const year = tripDate.getFullYear().toString().slice(-2);
+    const startAddr = formatAddress(t.startLocation.name, 40);
+    const endAddr = formatAddress(t.endLocation.name, 40);
     const motif = t.purpose || '-';
     const isAlt = i % 2 === 1;
     
     return `
       <tr class="${isAlt ? 'alt-row' : ''}">
-        <td class="date-col">${day}/${month}</td>
+        <td class="date-col">${day}/${month}/${year}</td>
         <td class="addr-col">${startAddr}</td>
         <td class="addr-col">${endAddr}</td>
-        <td class="motif-col">${motif.length > 30 ? motif.substring(0, 29) + '…' : motif}</td>
-        <td class="num-col">${Math.round(t.distance)} km</td>
+        <td class="motif-col">${motif.length > 25 ? motif.substring(0, 24) + '…' : motif}</td>
+        <td class="num-col">${Math.round(t.distance)}</td>
+        <td class="num-col cumul-col">${Math.round(t.cumulativeKm)}</td>
+        <td class="num-col rate-col">${t.appliedRate.toFixed(3)}</td>
         <td class="num-col ik-col">${t.recalculatedIK.toFixed(2)} €</td>
       </tr>
     `;
@@ -142,10 +151,10 @@ function generateReportHTML(options: PrintReportOptions): string {
     const isAlt = i % 2 === 1;
     return `
       <tr class="${isAlt ? 'alt-row' : ''}">
-        <td class="cv-col">${b.cv === '7+' ? '7 CV et plus' : b.cv + ' CV'}</td>
-        <td class="bareme-col">d × ${b.upTo5000.rate} €</td>
-        <td class="bareme-col">(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed} €</td>
-        <td class="bareme-col">d × ${b.over20000.rate} €</td>
+        <td class="cv-col">${b.cv === '7+' ? '7 CV et +' : b.cv + ' CV'}</td>
+        <td class="bareme-col">d × ${b.upTo5000.rate}</td>
+        <td class="bareme-col">(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed}</td>
+        <td class="bareme-col">d × ${b.over20000.rate}</td>
       </tr>
     `;
   }).join('');
@@ -158,11 +167,11 @@ function generateReportHTML(options: PrintReportOptions): string {
   <title>Relevé IK - ${currentMonth} ${currentYear}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     @page {
       size: A4 landscape;
-      margin: 10mm;
+      margin: 12mm;
     }
     
     * {
@@ -172,14 +181,13 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      font-size: 8pt;
-      color: #1e293b;
-      background: white;
-      line-height: 1.4;
-      padding: 10mm;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 9pt;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.5;
+      padding: 12mm;
       margin: 0;
-      max-width: 100%;
     }
     
     .page {
@@ -192,124 +200,196 @@ function generateReportHTML(options: PrintReportOptions): string {
       page-break-after: avoid;
     }
     
-    /* Title styling */
-    .main-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 18pt;
+    /* Header with logo and branding */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6mm;
+      padding-bottom: 4mm;
+      border-bottom: 2px solid #2661D9;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+    }
+    
+    .brand-logo {
+      width: 12mm;
+      height: 12mm;
+      background: linear-gradient(135deg, #2661D9 0%, #1E4BA8 100%);
+      border-radius: 3mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .brand-logo svg {
+      width: 8mm;
+      height: 8mm;
+      fill: white;
+    }
+    
+    .brand-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16pt;
       font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 4mm;
+      color: #2661D9;
+      letter-spacing: -0.5px;
     }
     
-    /* User info header */
-    .user-header {
-      margin-bottom: 5mm;
+    .brand-tagline {
+      font-size: 7pt;
+      color: #64748b;
+      margin-top: 1mm;
     }
     
-    .user-name {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11pt;
-      font-weight: 600;
-      color: #1e293b;
+    .doc-info {
+      text-align: right;
+    }
+    
+    .doc-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0f172a;
       margin-bottom: 1mm;
     }
     
-    .user-email {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 9pt;
+    .doc-date {
+      font-size: 8pt;
       color: #64748b;
     }
     
-    .edition-date {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 8pt;
-      color: #94a3b8;
-      margin-bottom: 5mm;
-    }
-    
-    /* Section title */
-    .section-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 12pt;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 6mm 0 4mm 0;
-    }
-    
-    /* Stats badges */
-    .stats-row {
+    /* Identity section */
+    .identity-section {
       display: flex;
-      gap: 4mm;
-      margin-bottom: 5mm;
+      gap: 6mm;
+      margin-bottom: 6mm;
     }
     
-    .stat-badge {
-      background: #f1f5f9;
+    .identity-card {
+      flex: 1;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #e2e8f0;
       border-radius: 3mm;
-      padding: 3mm 5mm;
-      display: inline-flex;
-      flex-direction: column;
-      gap: 1mm;
+      padding: 4mm;
     }
     
-    .stat-label {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+    .identity-card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 8pt;
+      font-weight: 600;
+      color: #2661D9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .identity-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 1mm 0;
+    }
+    
+    .identity-label {
       font-size: 7pt;
       color: #64748b;
+    }
+    
+    .identity-value {
+      font-size: 8pt;
       font-weight: 500;
+      color: #0f172a;
     }
     
-    .stat-value {
-      font-family: 'Urbanist', sans-serif;
-      font-size: 14pt;
-      font-weight: 700;
-      color: #1e293b;
+    /* Summary cards */
+    .summary-section {
+      display: flex;
+      gap: 4mm;
+      margin-bottom: 6mm;
     }
     
-    .stat-value.primary {
-      color: #2661D9;
+    .summary-card {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 3mm;
+      padding: 4mm;
+      text-align: center;
     }
     
-    /* Vehicle header */
-    .vehicle-header {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 10pt;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 3mm;
-      padding: 2mm 0;
-      border-bottom: 0.3mm solid #e2e8f0;
+    .summary-card.primary {
+      background: linear-gradient(135deg, #2661D9 0%, #1E4BA8 100%);
+      border: none;
+      color: white;
     }
     
-    .vehicle-cv {
-      font-weight: 400;
+    .summary-card.primary .summary-label {
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .summary-card.primary .summary-value {
+      color: white;
+    }
+    
+    .summary-label {
+      font-size: 7pt;
       color: #64748b;
-      margin-left: 2mm;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1mm;
+    }
+    
+    .summary-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18pt;
+      font-weight: 700;
+      color: #0f172a;
     }
     
     /* Table styles */
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10pt;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 3mm;
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+    }
+    
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 12px;
+      background: #2661D9;
+      border-radius: 2px;
+    }
+    
     table {
       width: 100%;
-      max-width: 100%;
       border-collapse: collapse;
       font-size: 7.5pt;
       table-layout: fixed;
-      border: 0.2mm solid #e2e8f0;
-      border-radius: 2mm;
-      overflow: hidden;
+      margin-bottom: 4mm;
     }
     
     thead th {
-      background: #2661D9;
+      background: #0f172a;
       color: white;
-      font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 600;
       font-size: 6.5pt;
       text-transform: uppercase;
       letter-spacing: 0.3px;
-      padding: 2mm 2mm;
+      padding: 2.5mm 2mm;
       text-align: left;
-      border: none;
     }
     
     thead th.num-col {
@@ -325,44 +405,47 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     tbody td {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      padding: 2mm 2mm;
-      border-bottom: 0.15mm solid #e2e8f0;
+      padding: 2mm;
+      border-bottom: 1px solid #f1f5f9;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       vertical-align: middle;
     }
     
-    tbody tr:last-child td {
-      border-bottom: none;
-    }
-    
     .date-col {
-      width: 14mm;
-      text-align: center;
-      font-family: 'Urbanist', sans-serif;
+      width: 18mm;
+      font-family: 'Space Grotesk', sans-serif;
       font-weight: 500;
     }
     
     .addr-col {
       width: auto;
-      max-width: 75mm;
       font-size: 7pt;
     }
     
     .motif-col {
-      width: 40mm;
-      max-width: 40mm;
+      width: 35mm;
       font-size: 7pt;
-      color: #475569;
+      color: #64748b;
     }
     
     .num-col {
-      width: 16mm;
+      width: 14mm;
       text-align: right;
-      font-family: 'Urbanist', sans-serif;
-      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+    }
+    
+    .cumul-col {
+      color: #64748b;
+      font-weight: 400;
+    }
+    
+    .rate-col {
+      color: #64748b;
+      font-weight: 400;
+      font-size: 6.5pt;
     }
     
     .ik-col {
@@ -370,127 +453,143 @@ function generateReportHTML(options: PrintReportOptions): string {
       font-weight: 700;
     }
     
-    /* Total section */
-    .total-section {
-      margin-top: 5mm;
-      padding: 4mm 5mm;
-      background: #f8fafc;
-      border-radius: 3mm;
+    /* Total row */
+    .total-row {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 2mm;
+      margin-top: 3mm;
+      padding: 3mm 4mm;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border: 0.3mm solid #e2e8f0;
     }
     
     .total-label {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11pt;
-      font-weight: 700;
-      color: #1e293b;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10pt;
+      font-weight: 600;
+      color: #0f172a;
     }
     
-    .total-value {
-      font-family: 'Urbanist', sans-serif;
-      font-size: 16pt;
+    .total-values {
+      display: flex;
+      gap: 6mm;
+      align-items: center;
+    }
+    
+    .total-km {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12pt;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    .total-ik {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14pt;
       font-weight: 700;
       color: #2661D9;
+      padding: 2mm 4mm;
+      background: #2661D9;
+      color: white;
+      border-radius: 2mm;
     }
     
     /* Barème table */
+    .bareme-section {
+      margin-top: 6mm;
+    }
+    
     .cv-col {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      width: 25mm;
       font-weight: 600;
-      width: 28mm;
     }
     
     .bareme-col {
-      font-family: 'Urbanist', sans-serif;
       text-align: center;
-      width: auto;
+      font-family: 'Space Grotesk', sans-serif;
     }
     
-    /* Barème explanation */
-    .bareme-explanation {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 8pt;
-      color: #64748b;
-      margin-bottom: 5mm;
-      max-width: 220mm;
-      line-height: 1.5;
-    }
-    
-    .legend {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+    .bareme-note {
       font-size: 7pt;
       color: #64748b;
       font-style: italic;
-      margin-top: 3mm;
+      margin-top: 2mm;
     }
     
     /* Electric bonus */
     .electric-bonus {
-      background: #eff6ff;
-      border: 0.2mm solid #bfdbfe;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 1px solid #a7f3d0;
       border-radius: 3mm;
-      padding: 4mm 5mm;
-      margin-top: 5mm;
-      max-width: 200mm;
+      padding: 3mm 4mm;
+      margin-top: 4mm;
+      display: flex;
+      align-items: center;
+      gap: 3mm;
     }
     
-    .electric-bonus-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 9pt;
-      font-weight: 700;
-      color: #2661D9;
-      margin-bottom: 2mm;
+    .electric-icon {
+      font-size: 14pt;
     }
     
-    .electric-bonus-text {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+    .electric-text {
       font-size: 8pt;
-      color: #475569;
-      line-height: 1.4;
+      color: #065f46;
     }
     
-    .source {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 6pt;
-      color: #94a3b8;
-      margin-top: 5mm;
-      line-height: 1.4;
+    .electric-text strong {
+      font-weight: 600;
     }
     
     /* Footer */
     .footer {
       margin-top: 8mm;
       padding-top: 4mm;
-      border-top: 0.2mm solid #e2e8f0;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
-    .footer-tagline {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 8pt;
-      color: #64748b;
-      font-style: italic;
-      margin-bottom: 2mm;
-    }
-    
-    .footer-text {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+    .footer-left {
       font-size: 7pt;
+      color: #64748b;
+    }
+    
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      font-size: 7pt;
+      color: #64748b;
+    }
+    
+    .footer-url {
+      color: #2661D9;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    /* Legal text */
+    .legal-text {
+      font-size: 6pt;
       color: #94a3b8;
+      margin-top: 4mm;
+      line-height: 1.4;
     }
     
     .back-button {
       position: fixed;
       top: 10mm;
       left: 10mm;
-      background: #1e293b;
+      background: #0f172a;
       color: white;
       border: none;
       border-radius: 2mm;
       padding: 2mm 4mm;
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 9pt;
       font-weight: 600;
       cursor: pointer;
@@ -499,11 +598,10 @@ function generateReportHTML(options: PrintReportOptions): string {
       gap: 2mm;
       z-index: 1000;
       text-decoration: none;
-      transition: background 0.2s;
     }
     
     .back-button:hover {
-      background: #334155;
+      background: #1e293b;
     }
     
     .back-button svg {
@@ -533,41 +631,68 @@ function generateReportHTML(options: PrintReportOptions): string {
     Retour
   </a>
   
-  <!-- Page 1: Trips -->
+  <!-- Page 1: Main Report -->
   <div class="page">
-    <!-- Main title -->
-    <h1 class="main-title">Relevé IK - ${currentMonth} ${currentYear}</h1>
-    
-    <!-- User info -->
-    <div class="user-header">
-      ${userName ? `<div class="user-name">${userName}</div>` : ''}
-      ${userEmail ? `<div class="user-email">${userEmail}</div>` : ''}
-    </div>
-    
-    <!-- Edition date -->
-    <div class="edition-date">Édité le ${editionDate}</div>
-    
-    <!-- Stats badges -->
-    <h2 class="section-title">Relevé IK</h2>
-    <div class="stats-row">
-      <div class="stat-badge">
-        <span class="stat-label">Distance totale</span>
-        <span class="stat-value">${totalKm.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km</span>
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.7 11.5 1 12 1 13v3c0 .6.4 1 1 1h2"/>
+            <circle cx="7" cy="17" r="2"/>
+            <circle cx="17" cy="17" r="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-text">IKtracker</div>
+          <div class="brand-tagline">Suivi des indemnités kilométriques</div>
+        </div>
       </div>
-      <div class="stat-badge">
-        <span class="stat-label">Indemnités</span>
-        <span class="stat-value primary">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+      <div class="doc-info">
+        <div class="doc-title">Relevé des Frais Kilométriques</div>
+        <div class="doc-date">Édité le ${editionDate}</div>
       </div>
     </div>
     
-    <!-- Vehicle header -->
-    ${vehicle ? `
-    <div class="vehicle-header">
-      ${vehicleName.toUpperCase()}<span class="vehicle-cv">${vehicleDetails}</span>
+    <!-- Identity Section -->
+    <div class="identity-section">
+      <div class="identity-card">
+        <div class="identity-card-title">👤 Titulaire</div>
+        ${ownerName ? `<div class="identity-row"><span class="identity-label">Nom</span><span class="identity-value">${ownerName}</span></div>` : ''}
+        ${userEmail ? `<div class="identity-row"><span class="identity-label">Email</span><span class="identity-value">${userEmail}</span></div>` : ''}
+      </div>
+      <div class="identity-card">
+        <div class="identity-card-title">🚗 Véhicule</div>
+        ${vehicleName ? `<div class="identity-row"><span class="identity-label">Modèle</span><span class="identity-value">${vehicleName}</span></div>` : ''}
+        ${vehicle?.fiscalPower ? `<div class="identity-row"><span class="identity-label">Puissance fiscale</span><span class="identity-value">${vehicle.fiscalPower} CV</span></div>` : ''}
+        ${vehicle?.licensePlate ? `<div class="identity-row"><span class="identity-label">Immatriculation</span><span class="identity-value">${vehicle.licensePlate}</span></div>` : ''}
+        ${vehicle?.isElectric ? `<div class="identity-row"><span class="identity-label">Type</span><span class="identity-value">🔋 Électrique (+20%)</span></div>` : ''}
+      </div>
+      <div class="identity-card">
+        <div class="identity-card-title">📅 Période</div>
+        <div class="identity-row"><span class="identity-label">Mois</span><span class="identity-value">${currentMonth} ${currentYear}</span></div>
+        <div class="identity-row"><span class="identity-label">Trajets</span><span class="identity-value">${trips.length}</span></div>
+      </div>
     </div>
-    ` : ''}
     
-    <!-- Trips table -->
+    <!-- Summary Cards -->
+    <div class="summary-section">
+      <div class="summary-card">
+        <div class="summary-label">Distance totale</div>
+        <div class="summary-value">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Nombre de trajets</div>
+        <div class="summary-value">${trips.length}</div>
+      </div>
+      <div class="summary-card primary">
+        <div class="summary-label">Indemnités à déclarer</div>
+        <div class="summary-value">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
+      </div>
+    </div>
+    
+    <!-- Trips Table -->
+    <div class="section-title">Détail des trajets</div>
     <table>
       <thead>
         <tr>
@@ -575,7 +700,9 @@ function generateReportHTML(options: PrintReportOptions): string {
           <th class="addr-col">Départ</th>
           <th class="addr-col">Arrivée</th>
           <th class="motif-col">Motif</th>
-          <th class="num-col">Distance</th>
+          <th class="num-col">Km</th>
+          <th class="num-col">Cumul</th>
+          <th class="num-col">Taux</th>
           <th class="num-col">IK</th>
         </tr>
       </thead>
@@ -584,59 +711,88 @@ function generateReportHTML(options: PrintReportOptions): string {
       </tbody>
     </table>
     
-    <!-- Total section -->
-    <div class="total-section">
+    <!-- Total Row -->
+    <div class="total-row">
       <span class="total-label">Total à déclarer</span>
-      <span class="total-value">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+      <div class="total-values">
+        <span class="total-km">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</span>
+        <span class="total-ik">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+      </div>
     </div>
     
     <!-- Footer -->
     <div class="footer">
-      <div class="footer-tagline">Simplifiez votre suivi kilométrique avec IKtracker</div>
-      <div class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2026</div>
+      <div class="footer-left">
+        Document généré automatiquement • Conforme au barème fiscal 2026
+      </div>
+      <div class="footer-right">
+        <a href="https://iktracker.fr" class="footer-url">iktracker.fr</a>
+      </div>
     </div>
   </div>
   
   <!-- Page 2: Barème -->
   <div class="page">
-    <h1 class="main-title">Barème kilométrique fiscal 2026</h1>
-    
-    <p class="bareme-explanation">
-      Le barème kilométrique permet de calculer les frais de déplacement professionnels déductibles. 
-      Le montant varie selon la puissance fiscale du véhicule et le nombre de kilomètres parcourus sur l'année.
-    </p>
-    
-    <table>
-      <thead>
-        <tr>
-          <th class="cv-col">Puissance fiscale</th>
-          <th class="bareme-col">Jusqu'à 5 000 km</th>
-          <th class="bareme-col">De 5 001 à 20 000 km</th>
-          <th class="bareme-col">Au-delà de 20 000 km</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${baremeRows}
-      </tbody>
-    </table>
-    
-    <p class="legend">d = distance parcourue en kilomètres</p>
-    
-    <div class="electric-bonus">
-      <div class="electric-bonus-title">⚡ Bonus véhicule électrique</div>
-      <div class="electric-bonus-text">
-        Les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques.
+    <div class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.7 11.5 1 12 1 13v3c0 .6.4 1 1 1h2"/>
+            <circle cx="7" cy="17" r="2"/>
+            <circle cx="17" cy="17" r="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-text">IKtracker</div>
+          <div class="brand-tagline">Suivi des indemnités kilométriques</div>
+        </div>
+      </div>
+      <div class="doc-info">
+        <div class="doc-title">Barème Kilométrique 2026</div>
+        <div class="doc-date">Annexe au relevé</div>
       </div>
     </div>
     
-    <p class="source">
-      Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l'évaluation des frais de déplacement relatifs à l'utilisation d'un véhicule.
-    </p>
+    <div class="bareme-section">
+      <div class="section-title">Barème fiscal applicable</div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th class="cv-col">Puissance fiscale</th>
+            <th class="bareme-col">Jusqu'à 5 000 km</th>
+            <th class="bareme-col">De 5 001 à 20 000 km</th>
+            <th class="bareme-col">Au-delà de 20 000 km</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${baremeRows}
+        </tbody>
+      </table>
+      
+      <p class="bareme-note">d = distance parcourue en kilomètres. Les montants sont en euros.</p>
+      
+      <div class="electric-bonus">
+        <span class="electric-icon">⚡</span>
+        <div class="electric-text">
+          <strong>Véhicules électriques :</strong> Les véhicules 100% électriques bénéficient d'une majoration de 20% sur le montant des indemnités kilométriques calculées.
+        </div>
+      </div>
+    </div>
     
-    <!-- Footer -->
+    <div class="legal-text">
+      Source : Arrêté du 27 mars 2024 fixant le barème forfaitaire permettant l'évaluation des frais de déplacement relatifs à l'utilisation d'un véhicule par les bénéficiaires de traitements et salaires optant pour le régime des frais réels déductibles.
+      <br><br>
+      Ce document est généré automatiquement par IKtracker et constitue un récapitulatif des trajets professionnels effectués. Il appartient au déclarant de vérifier l'exactitude des informations et de les conserver conformément aux obligations fiscales en vigueur.
+    </div>
+    
     <div class="footer">
-      <div class="footer-tagline">Simplifiez votre suivi kilométrique avec IKtracker</div>
-      <div class="footer-text">Généré par IKtracker • iktracker.fr • Conforme au barème fiscal 2026</div>
+      <div class="footer-left">
+        Document généré automatiquement • Conforme au barème fiscal 2026
+      </div>
+      <div class="footer-right">
+        <a href="https://iktracker.fr" class="footer-url">iktracker.fr</a>
+      </div>
     </div>
   </div>
 </body>
