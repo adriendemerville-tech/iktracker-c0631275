@@ -579,31 +579,34 @@ function generateReportHTML(options: PrintReportOptions): string {
     
     .back-button {
       position: fixed;
-      top: 10mm;
-      left: 10mm;
-      background: #0f172a;
+      top: 4mm;
+      left: 4mm;
+      background: #64748b;
       color: white;
       border: none;
-      border-radius: 2mm;
-      padding: 2mm 4mm;
+      border-radius: 50%;
+      width: 8mm;
+      height: 8mm;
+      padding: 0;
       font-family: 'Inter', sans-serif;
-      font-size: 9pt;
-      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 2mm;
+      justify-content: center;
       z-index: 1000;
       text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
     }
     
     .back-button:hover {
-      background: #1e293b;
+      opacity: 1;
+      background: #475569;
     }
     
     .back-button svg {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
     }
     
     @media print {
@@ -620,12 +623,10 @@ function generateReportHTML(options: PrintReportOptions): string {
   </style>
 </head>
 <body>
-  <a href="/" class="back-button no-print">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <a href="/" class="back-button no-print" title="Retour">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="m12 19-7-7 7-7"/>
-      <path d="M19 12H5"/>
     </svg>
-    Retour
   </a>
   
   <!-- Page 1: Main Report -->
