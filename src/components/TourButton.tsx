@@ -50,26 +50,24 @@ export function TourButton({
         }}
       />
 
-      {/* Rotating golden border - always visible but different styles */}
-      <span 
-        className="absolute inset-[-3px] rounded-full overflow-hidden"
-        style={{
-          background: 'conic-gradient(from 0deg, #FFD700, #FFBF00, #FFD700, #FFC300, #FFD700)',
-          animation: 'rotate-golden-border 2.5s linear infinite',
-          boxShadow: isActive 
-            ? '0 0 20px 4px rgba(255, 215, 0, 0.6), 0 0 40px 8px rgba(255, 191, 0, 0.3)'
-            : '0 0 16px 3px rgba(255, 215, 0, 0.5), 0 0 30px 6px rgba(255, 191, 0, 0.25)',
-        }}
-      >
+      {/* Rotating golden border - only visible when tour is active */}
+      {isActive && (
         <span 
-          className="absolute inset-[3px] rounded-full"
+          className="absolute inset-[-3px] rounded-full overflow-hidden"
           style={{
-            background: isActive 
-              ? 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)'
-              : 'linear-gradient(135deg, #2661D9 0%, #1E4BA8 100%)',
+            background: 'conic-gradient(from 0deg, #FFD700, #FFBF00, #FFD700, #FFC300, #FFD700)',
+            animation: 'rotate-golden-border 2.5s linear infinite',
+            boxShadow: '0 0 20px 4px rgba(255, 215, 0, 0.6), 0 0 40px 8px rgba(255, 191, 0, 0.3)',
           }}
-        />
-      </span>
+        >
+          <span 
+            className="absolute inset-[3px] rounded-full"
+            style={{
+              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+            }}
+          />
+        </span>
+      )}
       
       {/* Loading spinner - minimal ring */}
       {isLoading && (
