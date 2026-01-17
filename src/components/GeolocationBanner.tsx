@@ -28,7 +28,7 @@ export function GeolocationBanner({
       </div>
       
       <p className="flex-1 text-sm text-foreground/90">
-        L'activation de la localisation est nécessaire pour automatiser vos trajets.
+        Localisation nécessaire pour détecter les trajets
       </p>
       
       <Button
