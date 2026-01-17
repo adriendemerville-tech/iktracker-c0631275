@@ -943,7 +943,6 @@ ${IKTRACKER_MENTION}
             }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-5 h-5 text-purple-300" />
               <h2 className="text-lg font-semibold text-purple-100 flex items-center gap-2">
                 Trajets à compléter
                 <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
