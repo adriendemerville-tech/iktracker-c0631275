@@ -555,21 +555,101 @@ ${IKTRACKER_URL}`
           </div>
         </header>
 
-        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-3 md:space-y-4">
+        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-4 md:space-y-6">
         
-        <div className="bg-card rounded-md p-3 md:p-4 shadow-md space-y-2 md:space-y-3">
-          <div className="grid grid-cols-3 gap-3 md:gap-4 text-center">
+        {/* Identity Cards - Premium Design */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {/* Titulaire Card */}
+          <div className="bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-2 rounded-lg">
+                <UserCircle className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold tracking-wider text-gray-500 dark:text-muted-foreground uppercase mb-2">Titulaire</p>
+                <p className="font-semibold text-gray-900 dark:text-foreground truncate">
+                  {vehicles[0]?.ownerFirstName && vehicles[0]?.ownerLastName 
+                    ? `${vehicles[0].ownerFirstName} ${vehicles[0].ownerLastName}`
+                    : user?.user_metadata?.first_name && user?.user_metadata?.last_name
+                    ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
+                    : 'Non renseigné'}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-muted-foreground truncate">
+                  {user?.email || '-'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Véhicule Card */}
+          <div className="bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-2 rounded-lg">
+                <Car className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold tracking-wider text-gray-500 dark:text-muted-foreground uppercase mb-2">Véhicule</p>
+                {vehicles.length > 0 ? (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400 dark:text-muted-foreground">Modèle</span>
+                      <span className="font-semibold text-gray-900 dark:text-foreground truncate ml-2">
+                        {vehicles[0].make && vehicles[0].model 
+                          ? `${vehicles[0].make} ${vehicles[0].model}` 
+                          : '-'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400 dark:text-muted-foreground">Puissance</span>
+                      <span className="font-semibold text-gray-900 dark:text-foreground">{vehicles[0].fiscalPower} CV</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400 dark:text-muted-foreground">Immat</span>
+                      <span className="font-semibold text-gray-900 dark:text-foreground">{vehicles[0].licensePlate || '-'}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-muted-foreground">Aucun véhicule</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Période Card */}
+          <div className="bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-2 rounded-lg">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold tracking-wider text-gray-500 dark:text-muted-foreground uppercase mb-2">Période</p>
+                <p className="font-semibold text-gray-900 dark:text-foreground capitalize">
+                  {trips.length > 0 
+                    ? new Date(trips[trips.length - 1]?.startTime).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                    : new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-muted-foreground">
+                  {trips.length} trajet{trips.length !== 1 ? 's' : ''} enregistré{trips.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Summary Stats Card */}
+        <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm border border-gray-100 dark:border-border space-y-3 md:space-y-4">
+          <div className="grid grid-cols-3 gap-4 md:gap-6 text-center">
             <div>
-              <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
-              <p className="text-xs font-urbanist font-semibold text-muted-foreground">trajets</p>
+              <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
+              <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">trajets</p>
             </div>
             <div>
-              <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight">{totalKm.toFixed(0)}</p>
-              <p className="text-xs font-urbanist font-semibold text-muted-foreground">km</p>
+              <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">{totalKm.toFixed(0)}</p>
+              <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">km</p>
             </div>
             <div>
-              <p className="text-xl md:text-2xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
-              <p className="text-xs font-urbanist font-semibold text-muted-foreground">IK</p>
+              <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
+              <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">IK</p>
             </div>
           </div>
           
