@@ -639,9 +639,9 @@ img {
   isolation: isolate;
 }
 
-/* Car button gradient animation - stay blue 15s, then blue to green over 10s */
+/* Car button gradient animation - blue then progressive transition to green over 5s */
 @keyframes car-button-gradient-anim {
-  0%, 60% {
+  0% {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
   }
   100% {
@@ -650,7 +650,7 @@ img {
 }
 
 .car-button-gradient {
-  animation: car-button-gradient-anim 25s ease-in-out forwards;
+  animation: car-button-gradient-anim 5s ease-in-out forwards;
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #2563eb 100%);
 }
 
