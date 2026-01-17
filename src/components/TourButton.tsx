@@ -26,53 +26,78 @@ export function TourButton({
       className={cn(
         "w-16 h-16 rounded-full flex items-center justify-center relative",
         "focus:outline-none focus:ring-4 focus:ring-offset-2",
-        "transition-all duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)]",
+        "transition-all duration-500",
         isActive
-          ? "bg-gradient-primary text-orange-500 focus:ring-accent/50 scale-100"
-          : "bg-gradient-primary text-white focus:ring-primary/50 hover:scale-105 animate-cta-pulse shadow-[0_0_16px_2px_rgba(59,130,246,0.35)]",
+          ? "focus:ring-[#25D366]/50"
+          : "focus:ring-primary/50 hover:scale-105",
         isLoading && "opacity-70 cursor-wait"
       )}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
-      {/* Rotating gradient border - only when active */}
-      {isActive && (
+      {/* Background with gradient animation */}
+      <span 
+        className={cn(
+          "absolute inset-0 rounded-full transition-all duration-1000",
+          isActive 
+            ? "animate-tour-gradient-active" 
+            : "animate-tour-gradient-idle"
+        )}
+        style={{
+          background: isActive 
+            ? 'linear-gradient(135deg, #25D366 0%, #128C7E 50%, #25D366 100%)'
+            : 'linear-gradient(135deg, #2661D9 0%, #1E4BA8 50%, #2661D9 100%)',
+          backgroundSize: '200% 200%',
+        }}
+      />
+
+      {/* Rotating golden border - always visible but different styles */}
+      <span 
+        className={cn(
+          "absolute inset-[-3px] rounded-full overflow-hidden",
+          isActive ? "opacity-100" : "opacity-70"
+        )}
+        style={{
+          background: 'conic-gradient(from 0deg, #FFD700, #FFA500, #FFD700, #DAA520, #FFD700)',
+          animation: 'rotate-golden-border 2.5s linear infinite',
+          boxShadow: '0 0 12px 2px rgba(255, 215, 0, 0.4)',
+        }}
+      >
         <span 
-          className="absolute inset-[-3px] rounded-full overflow-hidden"
+          className="absolute inset-[3px] rounded-full"
           style={{
-            background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-            animation: 'rotate-gradient 3s linear infinite',
+            background: isActive 
+              ? 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)'
+              : 'linear-gradient(135deg, #2661D9 0%, #1E4BA8 100%)',
           }}
-        >
-          <span className="absolute inset-[3px] rounded-full bg-gradient-primary" />
-        </span>
-      )}
+        />
+      </span>
       
       {/* Loading spinner - minimal ring */}
       {isLoading && (
         <span className="absolute inset-0 flex items-center justify-center z-20">
-          <span className="w-14 h-14 rounded-full border-2 border-transparent border-t-primary animate-[spin_0.5s_linear_infinite]" />
+          <span className="w-14 h-14 rounded-full border-2 border-transparent border-t-white animate-[spin_0.5s_linear_infinite]" />
         </span>
       )}
       
       {/* Speed lines - fade in/out based on active state, animated with car */}
       <span className={cn(
-        "absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 transition-opacity duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)] z-10",
+        "absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 transition-opacity duration-500 z-10",
         isActive && !isLoading ? "opacity-100 animate-speed-lines" : "opacity-0"
       )}>
-        <span className="w-2 h-0.5 bg-current opacity-70 rounded-full" />
-        <span className="w-3 h-0.5 bg-current opacity-50 rounded-full -ml-0.5" />
-        <span className="w-2.5 h-0.5 bg-current opacity-60 rounded-full -ml-1" />
+        <span className="w-2 h-0.5 bg-white/70 rounded-full" />
+        <span className="w-3 h-0.5 bg-white/50 rounded-full -ml-0.5" />
+        <span className="w-2.5 h-0.5 bg-white/60 rounded-full -ml-1" />
       </span>
       
       {/* Dot in front when inactive */}
       {!isActive && !isLoading && (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full" />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full z-10" />
       )}
       
       {/* Car icon with driving animation when active */}
       <Car 
         className={cn(
-          "w-7 h-7 relative z-10 transition-colors duration-[8000ms] ease-[cubic-bezier(0.4,0,0.1,1)]",
+          "w-7 h-7 relative z-10 text-white transition-all duration-500",
           isLoading && "opacity-50"
         )}
         style={isActive && !isLoading ? {
@@ -90,7 +115,7 @@ export function TourButton({
       {/* Distance badge - bottom left */}
       {isActive && displayDistance > 0 && (
         <span 
-          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md z-20"
+          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-[#25D366] text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md z-20"
         >
           {displayDistance}
         </span>

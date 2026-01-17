@@ -205,10 +205,7 @@ const Index = () => {
             status: 'pending_location', // Mark as pending so user can complete it
           });
           
-          toast.info("Tournée interrompue récupérée", {
-            description: "Un trajet à compléter a été créé avec les données disponibles.",
-            duration: 8000,
-          });
+          toast.info("Tournée récupérée", { duration: 3000 });
           
           console.log('Interrupted tour recovered as pending trip');
         } catch (e) {
@@ -252,9 +249,7 @@ const Index = () => {
     if (!tourStartRequested) return;
 
     if (isTourActive) {
-      toast.success("Tournée démarrée", {
-        description: "Les arrêts seront détectés automatiquement",
-      });
+      toast.success("Tournée démarrée", { duration: 2000 });
       setTourStartRequested(false);
       return;
     }
