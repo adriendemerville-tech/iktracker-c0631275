@@ -207,7 +207,7 @@ function generateReportHTML(options: PrintReportOptions): string {
       align-items: flex-start;
       margin-bottom: 6mm;
       padding-bottom: 4mm;
-      border-bottom: 2px solid #2661D9;
+      border-bottom: 2px solid #2563EB;
     }
     
     .brand {
@@ -217,31 +217,21 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .brand-logo {
-      width: 12mm;
-      height: 12mm;
-      background: linear-gradient(135deg, #2661D9 0%, #1E4BA8 100%);
-      border-radius: 3mm;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .brand-logo svg {
-      width: 8mm;
-      height: 8mm;
-      fill: white;
+      width: 14mm;
+      height: 14mm;
+      object-fit: contain;
     }
     
     .brand-text {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 16pt;
+      font-size: 18pt;
       font-weight: 700;
-      color: #2661D9;
+      color: #2563EB;
       letter-spacing: -0.5px;
     }
     
     .brand-tagline {
-      font-size: 7pt;
+      font-size: 8pt;
       color: #64748b;
       margin-top: 1mm;
     }
@@ -280,12 +270,18 @@ function generateReportHTML(options: PrintReportOptions): string {
     
     .identity-card-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 8pt;
+      font-size: 9pt;
       font-weight: 600;
-      color: #2661D9;
+      color: #2563EB;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 2mm;
+      padding-bottom: 2mm;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+    }
       padding-bottom: 2mm;
       border-bottom: 1px solid #e2e8f0;
     }
@@ -316,21 +312,21 @@ function generateReportHTML(options: PrintReportOptions): string {
     
     .summary-card {
       flex: 1;
-      background: #ffffff;
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 3mm;
-      padding: 4mm;
+      padding: 5mm 4mm;
       text-align: center;
     }
     
     .summary-card.primary {
-      background: linear-gradient(135deg, #2661D9 0%, #1E4BA8 100%);
+      background: #2563EB;
       border: none;
       color: white;
     }
     
     .summary-card.primary .summary-label {
-      color: rgba(255,255,255,0.8);
+      color: rgba(255,255,255,0.9);
     }
     
     .summary-card.primary .summary-value {
@@ -339,23 +335,24 @@ function generateReportHTML(options: PrintReportOptions): string {
     
     .summary-label {
       font-size: 7pt;
+      font-weight: 500;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 1mm;
+      margin-bottom: 2mm;
     }
     
     .summary-value {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 18pt;
+      font-size: 22pt;
       font-weight: 700;
       color: #0f172a;
+      line-height: 1;
     }
     
-    /* Table styles */
     .section-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 10pt;
+      font-size: 11pt;
       font-weight: 600;
       color: #0f172a;
       margin-bottom: 3mm;
@@ -368,8 +365,8 @@ function generateReportHTML(options: PrintReportOptions): string {
       content: '';
       display: inline-block;
       width: 3px;
-      height: 12px;
-      background: #2661D9;
+      height: 14px;
+      background: #2563EB;
       border-radius: 2px;
     }
     
@@ -449,8 +446,9 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .ik-col {
-      color: #2661D9;
+      color: #2563EB;
       font-weight: 700;
+    }
     }
     
     /* Total row */
@@ -489,10 +487,9 @@ function generateReportHTML(options: PrintReportOptions): string {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 14pt;
       font-weight: 700;
-      color: #2661D9;
-      padding: 2mm 4mm;
-      background: #2661D9;
       color: white;
+      padding: 2mm 4mm;
+      background: #2563EB;
       border-radius: 2mm;
     }
     
@@ -567,7 +564,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .footer-url {
-      color: #2661D9;
+      color: #2563EB;
       font-weight: 500;
       text-decoration: none;
     }
@@ -636,13 +633,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     <!-- Header -->
     <div class="header">
       <div class="brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.7 11.5 1 12 1 13v3c0 .6.4 1 1 1h2"/>
-            <circle cx="7" cy="17" r="2"/>
-            <circle cx="17" cy="17" r="2"/>
-          </svg>
-        </div>
+        <img src="https://iktracker.fr/logo-iktracker-250.webp" alt="IKtracker" class="brand-logo" />
         <div>
           <div class="brand-text">IKtracker</div>
           <div class="brand-tagline">Suivi des indemnités kilométriques</div>
@@ -735,13 +726,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   <div class="page">
     <div class="header">
       <div class="brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.7 11.5 1 12 1 13v3c0 .6.4 1 1 1h2"/>
-            <circle cx="7" cy="17" r="2"/>
-            <circle cx="17" cy="17" r="2"/>
-          </svg>
-        </div>
+        <img src="https://iktracker.fr/logo-iktracker-250.webp" alt="IKtracker" class="brand-logo" />
         <div>
           <div class="brand-text">IKtracker</div>
           <div class="brand-tagline">Suivi des indemnités kilométriques</div>
