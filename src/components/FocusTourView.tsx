@@ -206,33 +206,44 @@ export function FocusTourView({
 
       {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
-        {/* Car button - triggers confirmation - Blue to green gradient over 10s */}
+        {/* Car button - triggers confirmation - Premium gradient */}
         <button
           onClick={handleStopClick}
           className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 car-button-gradient"
           aria-label="Arrêter la tournée"
         >
-          {/* Rotating gradient border - amber #D97706 */}
+          {/* Elegant rotating glow border */}
           <span 
-            className="absolute inset-[-6px] rounded-full overflow-hidden opacity-100"
+            className="absolute inset-[-4px] rounded-full"
             style={{
-              background: 'conic-gradient(from 0deg, #D97706, #F59E0B, #D97706, #B45309, #D97706)',
-              animation: 'rotate-gradient 6s linear infinite',
+              background: 'conic-gradient(from 0deg, transparent 0%, #F59E0B 10%, #FBBF24 20%, transparent 30%, transparent 70%, #F59E0B 80%, #FBBF24 90%, transparent 100%)',
+              animation: 'rotate-gradient 4s linear infinite',
+              filter: 'blur(2px)',
             }}
-          >
-            <span 
-              className="absolute inset-[6px] rounded-full car-button-gradient"
-            />
-          </span>
+          />
+          {/* Inner mask to create ring effect */}
+          <span 
+            className="absolute inset-[-1px] rounded-full car-button-gradient"
+          />
           
-          {/* Speed lines behind the car - 50% bigger, white for contrast */}
+          {/* Subtle outer glow */}
+          <span 
+            className="absolute inset-[-8px] rounded-full opacity-30"
+            style={{
+              background: 'conic-gradient(from 180deg, transparent 0%, #F59E0B 25%, transparent 50%, #FBBF24 75%, transparent 100%)',
+              animation: 'rotate-gradient 6s linear infinite reverse',
+              filter: 'blur(8px)',
+            }}
+          />
+          
+          {/* Speed lines behind the car - white for contrast */}
           <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white">
             <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
             <span className="w-10 h-1.5 bg-current opacity-40 rounded-full -ml-1" />
             <span className="w-5 h-1.5 bg-current opacity-50 rounded-full" />
           </span>
           
-          {/* Car icon with driving animation - 50% bigger, white for contrast */}
+          {/* Car icon with driving animation */}
           <Car 
             className="w-24 h-24 relative z-10 text-white"
             style={{
