@@ -864,15 +864,6 @@ ${IKTRACKER_MENTION}
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={() => navigate('/admin?tab=users')}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
-                  aria-label="Gestion des utilisateurs"
-                >
-                  <Shield className="w-5 h-5" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
                   onClick={exportZip}
                   onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
