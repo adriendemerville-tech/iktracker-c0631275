@@ -842,25 +842,6 @@ ${IKTRACKER_MENTION}
                 >
                   <BarChart3 className="w-5 h-5" />
                 </Button>
-                <div className="relative">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => navigate('/admin')}
-                    className="text-white/70 hover:text-white hover:bg-white/10"
-                    aria-label="Feedbacks utilisateurs"
-                  >
-                    <MessageSquareMore className="w-5 h-5" />
-                  </Button>
-                  {pendingFeedbacksCount > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
-                    >
-                      {pendingFeedbacksCount}
-                    </Badge>
-                  )}
-                </div>
                 <Button 
                   variant="ghost" 
                   size="icon"
