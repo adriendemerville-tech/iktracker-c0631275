@@ -105,15 +105,20 @@ function generateReportHTML(options: PrintReportOptions): string {
     year: 'numeric',
   });
   
-  const userName = userInfo?.firstName || userInfo?.lastName
+  // Build user display info - prioritize userInfo, fallback to vehicle owner
+  const userDisplayName = userInfo?.firstName || userInfo?.lastName
     ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
     : null;
   const userEmail = userInfo?.email || null;
   
   const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-  const ownerName = vehicle?.ownerFirstName || vehicle?.ownerLastName
-    ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
-    : userName;
+  
+  // For titulaire: use userInfo first, fallback to vehicle owner
+  const titulaireNom = userDisplayName || 
+    (vehicle?.ownerFirstName || vehicle?.ownerLastName
+      ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
+      : null);
+  
   const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
   const vehicleDetails = vehicle ? `${vehicle.fiscalPower} CV${vehicle.licensePlate ? ' • ' + vehicle.licensePlate : ''}${vehicle.isElectric ? ' • Électrique (+20%)' : ''}` : '';
   
@@ -121,25 +126,26 @@ function generateReportHTML(options: PrintReportOptions): string {
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
   // Generate trip rows - columns: Date, Départ, Arrivée, Motif, Km, Cumul, IK
+  // Using fixed column widths to prevent misalignment across pages
   const tripRows = recalculatedTrips.map((t, i) => {
     const tripDate = new Date(t.startTime);
     const day = tripDate.getDate().toString().padStart(2, '0');
     const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
     const year = tripDate.getFullYear().toString().slice(-2);
-    const startAddr = formatAddress(t.startLocation.name, 35);
-    const endAddr = formatAddress(t.endLocation.name, 35);
+    const startAddr = formatAddress(t.startLocation.name, 32);
+    const endAddr = formatAddress(t.endLocation.name, 32);
     const motif = t.purpose || '-';
     const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
     
     return `
-      <tr style="background-color: ${bgColor};">
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${startAddr}</td>
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${endAddr}</td>
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${motif.length > 20 ? motif.substring(0, 19) + '…' : motif}</td>
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px;">${Math.round(t.distance)}</td>
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px;">${Math.round(t.cumulativeKm)}</td>
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
+      <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; width: 170px; min-width: 170px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${startAddr}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; width: 170px; min-width: 170px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${endAddr}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 140px; min-width: 140px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${motif.length > 22 ? motif.substring(0, 21) + '…' : motif}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px; width: 50px; min-width: 50px;">${Math.round(t.distance)}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 55px; min-width: 55px;">${Math.round(t.cumulativeKm)}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 70px; min-width: 70px;">${t.recalculatedIK.toFixed(2)} €</td>
       </tr>
     `;
   }).join('');
@@ -287,7 +293,7 @@ function generateReportHTML(options: PrintReportOptions): string {
                 </table>
               </td>
             </tr>
-            ${ownerName ? `<tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${ownerName}</td></tr></table></td></tr>` : ''}
+            ${titulaireNom ? `<tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${titulaireNom}</td></tr></table></td></tr>` : ''}
             ${userEmail ? `<tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${userEmail}</td></tr></table></td></tr>` : ''}
           </table>
         </td>
@@ -366,16 +372,16 @@ function generateReportHTML(options: PrintReportOptions): string {
     </div>
     
     <!-- Trips Table -->
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed;">
       <thead>
         <tr style="background: #111827;">
-          <th style="padding: 12px 10px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">Date</th>
-          <th style="padding: 12px 10px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">Départ</th>
-          <th style="padding: 12px 10px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">Arrivée</th>
-          <th style="padding: 12px 10px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">Motif</th>
-          <th style="padding: 12px 10px; text-align: right; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">Km</th>
-          <th style="padding: 12px 10px; text-align: right; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">Cumul</th>
-          <th style="padding: 12px 10px; text-align: right; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;">IK</th>
+          <th style="padding: 12px 8px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 70px;">Date</th>
+          <th style="padding: 12px 8px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 170px;">Départ</th>
+          <th style="padding: 12px 8px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 170px;">Arrivée</th>
+          <th style="padding: 12px 8px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 140px;">Motif</th>
+          <th style="padding: 12px 8px; text-align: right; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 50px;">Km</th>
+          <th style="padding: 12px 8px; text-align: right; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 55px;">Cumul</th>
+          <th style="padding: 12px 8px; text-align: right; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 70px;">IK</th>
         </tr>
       </thead>
       <tbody>
