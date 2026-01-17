@@ -258,9 +258,9 @@ export function FocusTourView({
 
       {/* Low battery warning - centered between button and counters */}
       {lowBattery && (
-        <div className="bg-orange-500/20 border border-orange-500/40 rounded-xl px-5 py-2.5 flex items-center gap-3">
+        <div className="w-[80%] max-w-xs bg-orange-500/20 border border-orange-500/40 rounded-xl px-5 py-2.5 flex items-center justify-center gap-3">
           <BatteryLow className="w-6 h-6 text-orange-400" />
-          <span className="text-orange-400 text-base font-urbanist">
+          <span className="text-orange-400 text-base font-urbanist text-center">
             Batterie faible
           </span>
         </div>
@@ -269,7 +269,7 @@ export function FocusTourView({
       {/* GPS signal warning when poor or lost */}
       {(gpsSignalStrength === 'poor' || gpsSignalStrength === 'lost') && !lowBattery && (
         <div className={cn(
-          "border rounded-xl px-5 py-2.5 flex items-center gap-3",
+          "w-[80%] max-w-xs border rounded-xl px-5 py-2.5 flex items-center justify-center gap-3",
           gpsSignalStrength === 'lost' 
             ? "bg-red-500/20 border-red-500/40" 
             : "bg-yellow-500/20 border-yellow-500/40"
@@ -279,7 +279,7 @@ export function FocusTourView({
             gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
           )} />
           <span className={cn(
-            "text-base font-urbanist",
+            "text-base font-urbanist text-center",
             gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
           )}>
             {gpsSignalStrength === 'lost' ? 'Signal GPS perdu' : 'Signal GPS faible'}
@@ -289,12 +289,12 @@ export function FocusTourView({
 
       {/* Pending stop notification - only shown from the 2nd stop onwards */}
       {pendingStop && detectedStopsCount >= 1 && (
-        <div className="bg-amber-500/20 border border-amber-500/40 rounded-xl px-5 py-3 flex items-center gap-3 animate-fade-in">
-          <div className="flex flex-col">
-            <span className="text-amber-300 text-sm font-urbanist font-medium">
+        <div className="w-[80%] max-w-xs bg-amber-500/20 border border-amber-500/40 rounded-xl px-5 py-3 flex items-center justify-center gap-3 animate-fade-in">
+          <div className="flex flex-col items-center">
+            <span className="text-amber-300 text-sm font-urbanist font-medium text-center">
               Arrêt détecté
             </span>
-            <span className="text-amber-500/70 text-xs font-urbanist">
+            <span className="text-amber-500/70 text-xs font-urbanist text-center">
               Validation en cours...
             </span>
           </div>
