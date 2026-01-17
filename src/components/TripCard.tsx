@@ -159,14 +159,11 @@ export const TripCard = memo(function TripCard({
           {trip.calendarEventId && (
             <Calendar className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
           )}
-          {onEdit && !isTour && (
+          {onEdit && !isTour && !isPending && (
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "h-7 w-7 hover:bg-transparent shrink-0",
-                isPending ? "text-white/80 hover:text-white" : "text-muted-foreground hover:text-primary"
-              )}
+              className="h-7 w-7 hover:bg-transparent shrink-0 text-muted-foreground hover:text-primary"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(trip);
