@@ -214,7 +214,7 @@ export function FocusTourView({
         >
           {/* Rotating gradient border - amber #D97706, 3x slower & more subtle */}
           <span 
-            className="absolute inset-[-6px] rounded-full overflow-hidden opacity-50"
+            className="absolute inset-[-6px] rounded-full overflow-hidden opacity-25"
             style={{
               background: 'conic-gradient(from 0deg, #D97706, #F59E0B, #D97706, #B45309, #D97706)',
               animation: 'rotate-gradient 6s linear infinite',
