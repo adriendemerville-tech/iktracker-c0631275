@@ -212,14 +212,9 @@ export function FocusTourView({
           className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 car-button-gradient"
           aria-label="Arrêter la tournée"
         >
-          {/* Elegant rotating glow border */}
+          {/* Golden border - solid first, then rotates after green transition */}
           <span 
-            className="absolute inset-[-4px] rounded-full"
-            style={{
-              background: 'conic-gradient(from 0deg, transparent 0%, #F59E0B 10%, #FBBF24 20%, transparent 30%, transparent 70%, #F59E0B 80%, #FBBF24 90%, transparent 100%)',
-              animation: 'rotate-gradient 4s linear infinite',
-              filter: 'blur(2px)',
-            }}
+            className="absolute inset-[-4px] rounded-full car-button-golden-border"
           />
           {/* Inner mask to create ring effect */}
           <span 

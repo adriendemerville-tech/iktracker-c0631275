@@ -662,6 +662,26 @@ img {
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
   opacity: 0;
   animation: car-button-fade-to-green 5s ease-in-out 5s forwards;
+  z-index: 1;
+}
+
+/* Golden border - solid at first, then rotates after green transition */
+@keyframes golden-border-start-rotate {
+  0% {
+    background: #F59E0B;
+  }
+  0.1% {
+    background: conic-gradient(from 0deg, transparent 0%, #F59E0B 10%, #FBBF24 20%, transparent 30%, transparent 70%, #F59E0B 80%, #FBBF24 90%, transparent 100%);
+  }
+  100% {
+    background: conic-gradient(from 360deg, transparent 0%, #F59E0B 10%, #FBBF24 20%, transparent 30%, transparent 70%, #F59E0B 80%, #FBBF24 90%, transparent 100%);
+  }
+}
+
+.car-button-golden-border {
+  background: #F59E0B;
+  opacity: 1;
+  animation: golden-border-start-rotate 4s linear 10s infinite;
 }
 
 /* Tour button rotating golden border */
