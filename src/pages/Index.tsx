@@ -1133,14 +1133,14 @@ ${IKTRACKER_MENTION}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
           <Link to="/report">
-            <Button variant="secondary" size="lg" className="w-full shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
-              <FileText className="w-5 h-5" />
-              Voir le relevé
+            <Button variant="secondary" size="default" className="shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
+              <FileText className="w-4 h-4" />
+              Relevé
             </Button>
           </Link>
           <Button 
             variant="gradient" 
-            size="lg"
+            size="default"
             className="animate-cta-pulse shadow-[0_4px_8px_-2px_rgba(0,0,0,0.2)]"
             onClick={() => {
               if (vehicles.length === 0) {
@@ -1156,8 +1156,8 @@ ${IKTRACKER_MENTION}
               }
             }}
           >
-            <Plus className="w-5 h-5" />
-            Nouveau trajet
+            <Plus className="w-4 h-4" />
+            Trajet
           </Button>
         </div>
       </div>
