@@ -20,46 +20,13 @@ interface ImageTransformOptions {
  */
 export function getOptimizedImageUrl(
   url: string | null | undefined,
-  options: ImageTransformOptions = {}
+  _options: ImageTransformOptions = {}
 ): string | null {
   if (!url) return null;
   
-  // Already a WebP image - return as-is
-  if (url.endsWith('.webp')) {
-    return url;
-  }
-  
-  // Check if it's a Supabase Storage URL with object/public path
-  const isSupabaseStorage = url.includes('supabase.co/storage/v1/object/public/');
-  
-  if (!isSupabaseStorage) {
-    // Return as-is for non-Supabase URLs
-    return url;
-  }
-  
-  // Convert to render/image endpoint for WebP transformation
-  // This works on Supabase projects that support image transformation
-  try {
-    const transformedUrl = url.replace(
-      '/storage/v1/object/public/',
-      '/storage/v1/render/image/public/'
-    );
-    
-    // Build query parameters for transformation
-    const params = new URLSearchParams();
-    
-    if (options.width) params.set('width', options.width.toString());
-    if (options.height) params.set('height', options.height.toString());
-    if (options.quality) params.set('quality', options.quality.toString());
-    params.set('format', options.format || 'webp');
-    if (options.resize) params.set('resize', options.resize);
-    
-    const separator = transformedUrl.includes('?') ? '&' : '?';
-    return `${transformedUrl}${separator}${params.toString()}`;
-  } catch {
-    // Fallback to original URL if transformation fails
-    return url;
-  }
+  // Return URL as-is - image transformation requires Supabase Pro plan
+  // Images are already converted to WebP on upload via convertToWebP()
+  return url;
 }
 
 /**
@@ -67,27 +34,12 @@ export function getOptimizedImageUrl(
  */
 export function getResponsiveSrcSet(
   url: string | null | undefined,
-  widths: number[] = [400, 800, 1200]
+  _widths: number[] = [400, 800, 1200]
 ): string | null {
+  // Image transformation requires Supabase Pro plan
+  // Return null to skip srcset - browser will use original image
   if (!url) return null;
-  
-  // Already a WebP - create srcset with render/image endpoint
-  const isSupabaseStorage = url.includes('supabase.co/storage/v1/');
-  
-  if (!isSupabaseStorage) {
-    return null;
-  }
-  
-  try {
-    const srcSetParts = widths.map(width => {
-      const optimizedUrl = getOptimizedImageUrl(url, { width, quality: 80, format: 'webp' });
-      return `${optimizedUrl} ${width}w`;
-    });
-    
-    return srcSetParts.join(', ');
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 /**
