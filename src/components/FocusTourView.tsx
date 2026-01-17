@@ -212,9 +212,9 @@ export function FocusTourView({
           className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 car-button-gradient"
           aria-label="Arrêter la tournée"
         >
-          {/* Rotating gradient border - amber #D97706, very subtle */}
+          {/* Rotating gradient border - amber #D97706 */}
           <span 
-            className="absolute inset-[-6px] rounded-full overflow-hidden opacity-10"
+            className="absolute inset-[-6px] rounded-full overflow-hidden opacity-100"
             style={{
               background: 'conic-gradient(from 0deg, #D97706, #F59E0B, #D97706, #B45309, #D97706)',
               animation: 'rotate-gradient 6s linear infinite',
