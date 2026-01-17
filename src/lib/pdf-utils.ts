@@ -76,14 +76,14 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   renderRoot.setAttribute('data-pdf-root', 'true');
   Object.assign(renderRoot.style, {
     position: 'fixed',
-    left: '-10000px',
+    left: '0',
     top: '0',
     width: '1122px',
     background: 'white',
     color: 'black',
     opacity: '1',
     pointerEvents: 'none',
-    zIndex: '9999',
+    zIndex: '0',
   } as CSSStyleDeclaration);
 
   document.body.appendChild(overlay);

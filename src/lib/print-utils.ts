@@ -98,7 +98,8 @@ function extractCity(address: string): string {
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo } = options;
+  const { trips, vehicles, totalKm, userInfo, logoUrl } = options;
+  const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
   const now = new Date();
   const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -233,7 +234,7 @@ function generateReportHTML(options: PrintReportOptions): string {
           <table>
             <tr>
               <td style="vertical-align: middle; padding-right: 12px;">
-                <img src="https://iktracker.fr/logo-iktracker-250.webp" alt="IKtracker" style="width: 48px; height: 48px; object-fit: contain;" />
+                <img src="${logoSrc}" alt="IKtracker" style="width: 48px; height: 48px; object-fit: contain;" />
               </td>
               <td style="vertical-align: middle;">
                 <div style="font-size: 22px; font-weight: 700; color: #2563eb; letter-spacing: -0.5px;">IKtracker</div>
