@@ -128,8 +128,8 @@ function generateReportHTML(options: PrintReportOptions): string {
     const day = tripDate.getDate().toString().padStart(2, '0');
     const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
     const year = tripDate.getFullYear().toString().slice(-2);
-    const startAddr = formatAddress(t.startLocation.name, 40);
-    const endAddr = formatAddress(t.endLocation.name, 40);
+    const startAddr = formatAddress(t.startLocation.name, 45);
+    const endAddr = formatAddress(t.endLocation.name, 45);
     const motif = t.purpose || '-';
     const isAlt = i % 2 === 1;
     
@@ -138,10 +138,9 @@ function generateReportHTML(options: PrintReportOptions): string {
         <td class="date-col">${day}/${month}/${year}</td>
         <td class="addr-col">${startAddr}</td>
         <td class="addr-col">${endAddr}</td>
-        <td class="motif-col">${motif.length > 25 ? motif.substring(0, 24) + '…' : motif}</td>
+        <td class="motif-col">${motif.length > 30 ? motif.substring(0, 29) + '…' : motif}</td>
         <td class="num-col">${Math.round(t.distance)}</td>
         <td class="num-col cumul-col">${Math.round(t.cumulativeKm)}</td>
-        <td class="num-col rate-col">${t.appliedRate.toFixed(3)}</td>
         <td class="num-col ik-col">${t.recalculatedIK.toFixed(2)} €</td>
       </tr>
     `;
@@ -257,50 +256,67 @@ function generateReportHTML(options: PrintReportOptions): string {
     .identity-section {
       display: flex;
       gap: 6mm;
-      margin-bottom: 6mm;
+      margin-bottom: 8mm;
     }
     
     .identity-card {
       flex: 1;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      border: 1px solid #e2e8f0;
-      border-radius: 3mm;
-      padding: 4mm;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 4mm;
+      padding: 6mm;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .identity-card-header {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      margin-bottom: 4mm;
+    }
+    
+    .identity-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 10mm;
+      height: 10mm;
+      background: #eff6ff;
+      color: #2563EB;
+      border-radius: 2.5mm;
+      font-size: 12pt;
     }
     
     .identity-card-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 9pt;
+      font-size: 7pt;
       font-weight: 600;
-      color: #2563EB;
+      color: #6b7280;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 2mm;
-      padding-bottom: 2mm;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      gap: 2mm;
+      letter-spacing: 0.8px;
     }
-      padding-bottom: 2mm;
-      border-bottom: 1px solid #e2e8f0;
+    
+    .identity-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2mm;
     }
     
     .identity-row {
       display: flex;
       justify-content: space-between;
-      padding: 1mm 0;
+      align-items: center;
+      padding: 1.5mm 0;
     }
     
     .identity-label {
-      font-size: 7pt;
-      color: #64748b;
+      font-size: 7.5pt;
+      color: #9ca3af;
     }
     
     .identity-value {
-      font-size: 8pt;
+      font-size: 9pt;
       font-weight: 500;
-      color: #0f172a;
+      color: #111827;
     }
     
     /* Summary cards */
@@ -428,7 +444,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .num-col {
-      width: 14mm;
+      width: 16mm;
       text-align: right;
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 500;
@@ -439,16 +455,10 @@ function generateReportHTML(options: PrintReportOptions): string {
       font-weight: 400;
     }
     
-    .rate-col {
-      color: #64748b;
-      font-weight: 400;
-      font-size: 6.5pt;
-    }
-    
     .ik-col {
       color: #2563EB;
       font-weight: 700;
-    }
+      width: 20mm;
     }
     
     /* Total row */
@@ -663,21 +673,36 @@ function generateReportHTML(options: PrintReportOptions): string {
     <!-- Identity Section -->
     <div class="identity-section">
       <div class="identity-card">
-        <div class="identity-card-title">👤 Titulaire</div>
-        ${ownerName ? `<div class="identity-row"><span class="identity-label">Nom</span><span class="identity-value">${ownerName}</span></div>` : ''}
-        ${userEmail ? `<div class="identity-row"><span class="identity-label">Email</span><span class="identity-value">${userEmail}</span></div>` : ''}
+        <div class="identity-card-header">
+          <div class="identity-icon">👤</div>
+          <div class="identity-card-title">Titulaire</div>
+        </div>
+        <div class="identity-content">
+          ${ownerName ? `<div class="identity-row"><span class="identity-label">Nom</span><span class="identity-value">${ownerName}</span></div>` : ''}
+          ${userEmail ? `<div class="identity-row"><span class="identity-label">Email</span><span class="identity-value">${userEmail}</span></div>` : ''}
+        </div>
       </div>
       <div class="identity-card">
-        <div class="identity-card-title">🚗 Véhicule</div>
-        ${vehicleName ? `<div class="identity-row"><span class="identity-label">Modèle</span><span class="identity-value">${vehicleName}</span></div>` : ''}
-        ${vehicle?.fiscalPower ? `<div class="identity-row"><span class="identity-label">Puissance fiscale</span><span class="identity-value">${vehicle.fiscalPower} CV</span></div>` : ''}
-        ${vehicle?.licensePlate ? `<div class="identity-row"><span class="identity-label">Immatriculation</span><span class="identity-value">${vehicle.licensePlate}</span></div>` : ''}
-        ${vehicle?.isElectric ? `<div class="identity-row"><span class="identity-label">Type</span><span class="identity-value">🔋 Électrique (+20%)</span></div>` : ''}
+        <div class="identity-card-header">
+          <div class="identity-icon">🚗</div>
+          <div class="identity-card-title">Véhicule</div>
+        </div>
+        <div class="identity-content">
+          ${vehicleName ? `<div class="identity-row"><span class="identity-label">Modèle</span><span class="identity-value">${vehicleName}</span></div>` : ''}
+          ${vehicle?.fiscalPower ? `<div class="identity-row"><span class="identity-label">Puissance</span><span class="identity-value">${vehicle.fiscalPower} CV</span></div>` : ''}
+          ${vehicle?.licensePlate ? `<div class="identity-row"><span class="identity-label">Immat.</span><span class="identity-value">${vehicle.licensePlate}</span></div>` : ''}
+          ${vehicle?.isElectric ? `<div class="identity-row"><span class="identity-label">Type</span><span class="identity-value">🔋 Électrique (+20%)</span></div>` : ''}
+        </div>
       </div>
       <div class="identity-card">
-        <div class="identity-card-title">📅 Période</div>
-        <div class="identity-row"><span class="identity-label">Mois</span><span class="identity-value">${currentMonth} ${currentYear}</span></div>
-        <div class="identity-row"><span class="identity-label">Trajets</span><span class="identity-value">${trips.length}</span></div>
+        <div class="identity-card-header">
+          <div class="identity-icon">📅</div>
+          <div class="identity-card-title">Période</div>
+        </div>
+        <div class="identity-content">
+          <div class="identity-row"><span class="identity-label">Mois</span><span class="identity-value">${currentMonth} ${currentYear}</span></div>
+          <div class="identity-row"><span class="identity-label">Trajets</span><span class="identity-value">${trips.length}</span></div>
+        </div>
       </div>
     </div>
     
@@ -708,7 +733,6 @@ function generateReportHTML(options: PrintReportOptions): string {
           <th class="motif-col">Motif</th>
           <th class="num-col">Km</th>
           <th class="num-col">Cumul</th>
-          <th class="num-col">Taux</th>
           <th class="num-col">IK</th>
         </tr>
       </thead>
