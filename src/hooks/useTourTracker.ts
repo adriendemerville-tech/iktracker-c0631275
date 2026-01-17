@@ -601,7 +601,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         updateGpsSignal(null);
         
         if (err.code === 1) {
-          setError('Géolocalisation refusée. Activez-la dans les paramètres.');
+          setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
           setPermissionStatus('denied');
           // Mark tour as interrupted if it was active
           if (isActive) {
@@ -652,7 +652,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     // Check permission first
     const hasPermission = await checkPermission();
     if (!hasPermission) {
-      setError('Géolocalisation refusée. Activez-la dans les paramètres.');
+      setError("Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.");
       setIsLoading(false);
       return;
     }
@@ -710,7 +710,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       (err) => {
         console.error('Geolocation error:', err);
         if (err.code === 1) {
-          setError('Géolocalisation refusée. Activez-la dans les paramètres.');
+          setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
           setPermissionStatus('denied');
         } else if (err.code === 2) {
           setError('Position indisponible. Vérifiez que le GPS est activé.');

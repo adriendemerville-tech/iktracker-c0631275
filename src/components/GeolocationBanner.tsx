@@ -20,7 +20,6 @@ export function GeolocationBanner({
       className={cn(
         'relative flex items-center gap-3 px-4 py-3 bg-primary/10 border border-primary/20 rounded-lg',
         'animate-in slide-in-from-top-2 duration-300',
-        'mx-[10%] md:mx-0',
         className
       )}
     >
@@ -28,8 +27,8 @@ export function GeolocationBanner({
         <MapPin className="w-5 h-5 text-primary" />
       </div>
       
-      <p className="flex-1 text-sm text-foreground/90 line-clamp-2">
-        Activer la localisation
+      <p className="flex-1 text-sm text-foreground/90">
+        Localisation nécessaire pour détecter les trajets
       </p>
       
       <Button
