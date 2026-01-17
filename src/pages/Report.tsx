@@ -530,10 +530,8 @@ ${IKTRACKER_URL}`
       <div className="min-h-screen bg-background pb-28 cursor-default md:pl-16">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2 md:py-4">
           <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
-            <Link to="/app">
-              <Button variant="ghost" size="icon" aria-label="Retour à l'accueil">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
+            <Link to="/app" aria-label="Retour à l'accueil">
+              <ArrowLeft className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </Link>
             <h1 className="text-lg font-semibold">Relevé des trajets</h1>
             <div className="flex items-center gap-1">
