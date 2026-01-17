@@ -834,7 +834,7 @@ ${IKTRACKER_URL}`
               className="h-10 md:h-11 px-3 md:px-4 text-sm"
             >
               <Home className="w-4 h-4 md:w-5 md:h-5" />
-              Mes adresses
+              Adresses
             </Button>
           </Link>
           <Button 
@@ -845,7 +845,7 @@ ${IKTRACKER_URL}`
             disabled={vehicles.length === 0}
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5" />
-            Nouveau trajet
+            Trajet
           </Button>
         </div>
       </div>
