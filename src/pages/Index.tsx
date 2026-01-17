@@ -263,9 +263,7 @@ const Index = () => {
     }
 
     if (!isTourLoading && !isTourActive && tourError) {
-      toast.error("Impossible de démarrer la tournée", {
-        description: tourError,
-      });
+      toast.error("Activer la localisation");
       setTourStartRequested(false);
     }
   }, [tourStartRequested, isTourActive, isTourLoading, tourError]);
