@@ -214,11 +214,11 @@ export function FocusTourView({
         >
           {/* Golden border container - solid first, then rotates after green transition */}
           <span 
-            className="absolute inset-[-4px] rounded-full car-button-golden-border"
+            className="absolute inset-[-4px] rounded-full car-button-golden-border z-0"
           />
-          {/* Inner mask to create ring effect */}
+          {/* Inner mask to create ring effect - covers the golden border except the edge */}
           <span 
-            className="absolute inset-0 rounded-full car-button-gradient"
+            className="absolute inset-0 rounded-full car-button-gradient z-[1]"
           />
           
           {/* Speed lines behind the car - white for contrast */}
