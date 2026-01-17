@@ -201,17 +201,12 @@ export function FocusTourView({
           )}
         </div>
         
-        {/* Center - GPS tracking indicator (minimal) */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full">
-          <GpsIcon className={cn("w-4 h-4", gpsDisplay.color)} />
-        </div>
-        
         {/* Right side - GPS Signal and Night mode */}
         <div className="flex items-center gap-2">
           {isNightMode && (
             <Moon className="w-4 h-4 text-indigo-400" />
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full">
             <GpsIcon className={cn("w-4 h-4", gpsDisplay.color)} />
             {gpsAccuracy !== null && gpsAccuracy !== undefined && (
               <span className={cn("text-xs font-mono", gpsDisplay.color)}>
