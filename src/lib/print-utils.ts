@@ -255,66 +255,66 @@ function generateReportHTML(options: PrintReportOptions): string {
     /* Identity section */
     .identity-section {
       display: flex;
-      gap: 6mm;
-      margin-bottom: 8mm;
+      gap: 4mm;
+      margin-bottom: 5mm;
     }
     
     .identity-card {
       flex: 1;
       background: #ffffff;
       border: 1px solid #e5e7eb;
-      border-radius: 4mm;
-      padding: 6mm;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border-radius: 3mm;
+      padding: 3mm 4mm;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
     
     .identity-card-header {
       display: flex;
       align-items: center;
-      gap: 3mm;
-      margin-bottom: 4mm;
+      gap: 2mm;
+      margin-bottom: 2mm;
     }
     
     .identity-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 10mm;
-      height: 10mm;
+      width: 7mm;
+      height: 7mm;
       background: #eff6ff;
       color: #2563EB;
-      border-radius: 2.5mm;
-      font-size: 12pt;
+      border-radius: 1.5mm;
+      font-size: 9pt;
     }
     
     .identity-card-title {
-      font-size: 7pt;
+      font-size: 6.5pt;
       font-weight: 600;
       color: #6b7280;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.6px;
     }
     
     .identity-content {
       display: flex;
       flex-direction: column;
-      gap: 2mm;
+      gap: 0.5mm;
     }
     
     .identity-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5mm 0;
+      padding: 0.5mm 0;
     }
     
     .identity-label {
-      font-size: 7.5pt;
+      font-size: 7pt;
       color: #9ca3af;
     }
     
     .identity-value {
-      font-size: 9pt;
+      font-size: 8pt;
       font-weight: 500;
       color: #111827;
     }
