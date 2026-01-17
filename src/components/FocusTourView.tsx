@@ -383,20 +383,17 @@ export function FocusTourView({
 
       {/* Stop confirmation dialog */}
       <AlertDialog open={showStopConfirm} onOpenChange={setShowStopConfirm}>
-        <AlertDialogContent className="max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Terminer la tournée ?</AlertDialogTitle>
-            <AlertDialogDescription className="text-base">
-              Le trajet sera enregistré avec {detectedStopsCount} étape{detectedStopsCount !== 1 ? 's' : ''} et {displayedKm.toFixed(1)} km.
-            </AlertDialogDescription>
+        <AlertDialogContent className="max-w-[280px] p-5 rounded-2xl">
+          <AlertDialogHeader className="pb-1">
+            <AlertDialogTitle className="text-lg font-semibold text-center">Terminer la tournée ?</AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row gap-3">
-            <AlertDialogCancel className="flex-1 h-14 text-base">
+          <AlertDialogFooter className="flex-row gap-2 pt-3">
+            <AlertDialogCancel className="flex-1 h-10 text-sm rounded-xl">
               Continuer
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmStop}
-              className="flex-1 h-14 text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="flex-1 h-10 text-sm rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Terminer
             </AlertDialogAction>
