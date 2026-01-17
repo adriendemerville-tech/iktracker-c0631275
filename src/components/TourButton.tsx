@@ -52,14 +52,13 @@ export function TourButton({
 
       {/* Rotating golden border - always visible but different styles */}
       <span 
-        className={cn(
-          "absolute inset-[-3px] rounded-full overflow-hidden",
-          isActive ? "opacity-100" : "opacity-70"
-        )}
+        className="absolute inset-[-3px] rounded-full overflow-hidden"
         style={{
-          background: 'conic-gradient(from 0deg, #FFD700, #FFA500, #FFD700, #DAA520, #FFD700)',
+          background: 'conic-gradient(from 0deg, #FFD700, #FFBF00, #FFD700, #FFC300, #FFD700)',
           animation: 'rotate-golden-border 2.5s linear infinite',
-          boxShadow: '0 0 12px 2px rgba(255, 215, 0, 0.4)',
+          boxShadow: isActive 
+            ? '0 0 20px 4px rgba(255, 215, 0, 0.6), 0 0 40px 8px rgba(255, 191, 0, 0.3)'
+            : '0 0 16px 3px rgba(255, 215, 0, 0.5), 0 0 30px 6px rgba(255, 191, 0, 0.25)',
         }}
       >
         <span 
