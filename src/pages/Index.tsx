@@ -152,11 +152,22 @@ const Index = () => {
     accuracyThreshold: 50, // Filter points with accuracy > 50m
   });
 
-  // Check for interrupted tours and create pending trips
+  // Track if we've already recovered an interrupted tour this session
+  const [hasRecoveredTour, setHasRecoveredTour] = useState(false);
+
+  // Check for interrupted tours and create pending trips - only once
   useEffect(() => {
+    // Don't recover if already done this session or no vehicles
+    if (hasRecoveredTour || vehicles.length === 0) return;
+    
     const recoverInterruptedTour = async () => {
       const interrupted = getInterruptedTour();
-      if (!interrupted || vehicles.length === 0) return;
+      if (!interrupted) return;
+      
+      // Mark as recovered BEFORE processing to prevent duplicates
+      setHasRecoveredTour(true);
+      // Clear the interrupted tour data immediately to prevent re-processing
+      clearInterruptedTour();
       
       console.log('Recovering interrupted tour:', interrupted);
       
@@ -212,13 +223,10 @@ const Index = () => {
           console.error('Failed to recover interrupted tour:', e);
         }
       }
-      
-      // Clear the interrupted tour data
-      clearInterruptedTour();
     };
 
     recoverInterruptedTour();
-  }, [vehicles, addTrip]);
+  }, [vehicles, addTrip, hasRecoveredTour]);
 
   // Check for saved trip on reconnection
   useEffect(() => {
