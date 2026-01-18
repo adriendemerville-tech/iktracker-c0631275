@@ -174,6 +174,7 @@ const DEFAULT_SECTION_ORDER = [
 const DEFAULT_MARKETING_SECTION_ORDER = [
   'marketing-views-chart',
   'marketing-signup-clicks-chart',
+  'bareme-simulations-chart',
   'marketing-stats-by-page',
 ];
 
@@ -518,6 +519,20 @@ export function AdminStats() {
       const { data, error } = await supabase.rpc('get_marketing_stats_by_page', { days_back: daysBack });
       if (error) throw error;
       return data as unknown as MarketingStatsByPage[];
+    },
+    refetchInterval: 60 * 60 * 1000, // 1 hour
+  });
+
+  // Fetch bareme simulations by day (last 5 days) - refresh every hour
+  const { data: baremeSimulationsByDay = [], isLoading: baremeSimulationsLoading } = useQuery({
+    queryKey: ['admin-bareme-simulations-by-day'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_bareme_simulations_by_day', { days_back: 5 });
+      if (error) throw error;
+      return (data as unknown as { day: string; count: number }[]).map(d => ({
+        day: format(new Date(d.day), 'dd/MM', { locale: fr }),
+        count: Number(d.count),
+      }));
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
@@ -904,6 +919,49 @@ export function AdminStats() {
                                   strokeWidth={2}
                                   dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
                                   activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          )}
+                        </CardContent>
+                      </DraggableStatsSection>
+                    );
+
+                  case 'bareme-simulations-chart':
+                    return (
+                      <DraggableStatsSection key={blockId} id={blockId}>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Calculator className="w-5 h-5 text-purple-500" />
+                            Simulations barème (5 jours)
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {baremeSimulationsLoading ? (
+                            <Skeleton className="h-[200px] w-full" />
+                          ) : baremeSimulationsByDay.length === 0 ? (
+                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+                          ) : (
+                            <ResponsiveContainer width="100%" height={200}>
+                              <LineChart data={baremeSimulationsByDay}>
+                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                                <Tooltip
+                                  contentStyle={{
+                                    backgroundColor: 'hsl(var(--background))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '8px',
+                                  }}
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="count"
+                                  name="Simulations"
+                                  stroke="hsl(270, 70%, 50%)"
+                                  strokeWidth={2}
+                                  dot={{ fill: 'hsl(270, 70%, 50%)', strokeWidth: 0, r: 3 }}
+                                  activeDot={{ r: 5, stroke: 'hsl(270, 70%, 50%)', strokeWidth: 2 }}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
