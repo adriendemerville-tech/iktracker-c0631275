@@ -880,7 +880,7 @@ ${IKTRACKER_MENTION}
                   variant="ghost" 
                   size="icon"
                   onClick={() => navigate('/admin?tab=stats')}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   title="Dashboard statistiques"
                   aria-label="Dashboard statistiques"
                 >
@@ -892,7 +892,7 @@ ${IKTRACKER_MENTION}
                   onClick={exportZip}
                   onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   data-tutorial="download"
                   aria-label="Télécharger le relevé"
                 >
@@ -903,7 +903,7 @@ ${IKTRACKER_MENTION}
                   size="icon"
                   onClick={previewHTMLReport}
                   disabled={trips.length === 0}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   aria-label="Prévisualiser le relevé HTML"
                   title="Prévisualiser le relevé HTML"
                 >
@@ -919,7 +919,7 @@ ${IKTRACKER_MENTION}
                   onClick={exportZip}
                   onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   data-tutorial="download"
                   aria-label="Télécharger le relevé"
                 >
@@ -930,7 +930,7 @@ ${IKTRACKER_MENTION}
                   size="icon"
                   onClick={previewHTMLReport}
                   disabled={trips.length === 0}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   aria-label="Prévisualiser le relevé HTML"
                   title="Prévisualiser le relevé HTML"
                 >
@@ -943,7 +943,7 @@ ${IKTRACKER_MENTION}
                 variant="ghost" 
                 size="icon"
                 onClick={() => navigate('/profile')}
-                className="text-white/70 hover:text-white hover:bg-white/10 w-10 h-10"
+                className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15 w-10 h-10"
                 aria-label="Accéder au profil"
               >
                 <UserCircle className="w-20 h-20" />
