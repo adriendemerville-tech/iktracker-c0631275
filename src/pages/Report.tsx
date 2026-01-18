@@ -567,7 +567,7 @@ ${IKTRACKER_URL}`;
             <Link to="/app" aria-label="Retour à l'accueil">
               <ArrowLeft className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </Link>
-            <h1 className="text-lg font-semibold">Relevé des trajets</h1>
+            <h1 className="text-lg font-semibold">Mes trajets</h1>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
