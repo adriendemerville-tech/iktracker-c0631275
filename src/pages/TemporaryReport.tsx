@@ -282,6 +282,26 @@ https://iktracker.fr`;
             <Button
               variant="outline"
               size="sm"
+              onClick={handleShareLink}
+              disabled={state.status !== "ready"}
+              className={appleButtonClass}
+            >
+              {isCopied ? (
+                <>
+                  <Check className="h-4 w-4 text-green-400" />
+                  <span className="hidden sm:inline">Copié !</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Copier le lien</span>
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handlePrint}
               disabled={state.status !== "ready"}
               className={appleButtonClass}
