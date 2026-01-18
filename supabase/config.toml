@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.convert-blog-images]
 verify_jwt = false
+
+[functions.view-report]
+verify_jwt = false

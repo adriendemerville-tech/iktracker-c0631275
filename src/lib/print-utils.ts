@@ -101,6 +101,10 @@ function generateReportHTML(options: PrintReportOptions): string {
   const { trips, vehicles, totalKm, userInfo, logoUrl } = options;
   const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
+  // Get Supabase config for the share link feature
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+  
   const now = new Date();
   const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
   const currentMonth = monthNames[now.getMonth()];
@@ -350,7 +354,7 @@ function generateReportHTML(options: PrintReportOptions): string {
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
         Imprimer
       </button>
-      <button class="btn-email" onclick="window.location.href='mailto:?subject=Relevé IK&body=Veuillez trouver ci-joint mon relevé de frais kilométriques.'">
+      <button class="btn-email" onclick="sendByEmail()" id="btn-email">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         Envoyer par mail
       </button>
@@ -359,6 +363,22 @@ function generateReportHTML(options: PrintReportOptions): string {
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
+    // User info embedded from the app
+    const USER_INFO = {
+      firstName: '${userInfo?.firstName || ''}',
+      lastName: '${userInfo?.lastName || ''}',
+      email: '${userInfo?.email || ''}'
+    };
+    const SUPABASE_URL = '${supabaseUrl}';
+    const SUPABASE_KEY = '${supabaseKey}';
+    
+    function getUserDisplayName() {
+      if (USER_INFO.firstName || USER_INFO.lastName) {
+        return (USER_INFO.firstName + ' ' + USER_INFO.lastName).trim();
+      }
+      return '';
+    }
+
     async function downloadPDF() {
       const btn = document.getElementById('btn-pdf');
       const originalText = btn.innerHTML;
@@ -385,6 +405,84 @@ function generateReportHTML(options: PrintReportOptions): string {
       } catch (e) {
         console.error('Erreur PDF:', e);
         alert('Erreur lors de la génération du PDF');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+    
+    async function sendByEmail() {
+      const btn = document.getElementById('btn-email');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Préparation...';
+      btn.disabled = true;
+      
+      try {
+        let shareLink = '';
+        
+        // Try to create a share link if Supabase is configured
+        if (SUPABASE_URL && SUPABASE_KEY) {
+          try {
+            // Get the HTML content to share (without the action bar)
+            const actionBar = document.querySelector('.action-bar');
+            actionBar.style.display = 'none';
+            const htmlContent = document.documentElement.outerHTML;
+            actionBar.style.display = 'flex';
+            
+            // Get auth token from localStorage if available
+            const authData = localStorage.getItem('sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token');
+            const accessToken = authData ? JSON.parse(authData)?.access_token : null;
+            
+            if (accessToken) {
+              const response = await fetch(SUPABASE_URL + '/rest/v1/report_shares', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': 'Bearer ' + accessToken,
+                  'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                  user_id: JSON.parse(authData)?.user?.id,
+                  html_content: htmlContent
+                })
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data && data[0] && data[0].id) {
+                  shareLink = SUPABASE_URL + '/functions/v1/view-report?id=' + data[0].id;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Could not create share link:', e);
+          }
+        }
+        
+        // Build email body
+        const userName = getUserDisplayName();
+        let body = 'Bonjour,\\n\\n';
+        body += 'Veuillez trouver ci-dessous mon relevé de frais kilométriques.\\n\\n';
+        
+        if (shareLink) {
+          body += 'Vous pouvez consulter le relevé en ligne via ce lien (valide 7 jours) :\\n';
+          body += shareLink + '\\n\\n';
+        }
+        
+        body += 'Bien à vous,';
+        
+        if (userName) {
+          body += '\\n\\n' + userName;
+        }
+        
+        const subject = 'Relevé des frais kilométriques' + (userName ? ' - ' + userName : '');
+        
+        window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body.replace(/\\\\n/g, '\\n'));
+        
+      } catch (e) {
+        console.error('Erreur envoi mail:', e);
+        alert('Erreur lors de la préparation de l\\'email');
       } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
