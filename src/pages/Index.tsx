@@ -1078,7 +1078,7 @@ ${IKTRACKER_MENTION}
       {/* Tour button - floating above mobile nav (hidden on desktop, now in sidebar) */}
       {/* Only show when tour is NOT active (FocusTourView takes over when active) */}
       {!isTourActive && (
-        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-10 md:hidden flex flex-col items-center gap-3">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-10 md:hidden flex flex-col items-center gap-3">
           <TourButton
             isActive={isTourActive}
             isLoading={isTourLoading}
