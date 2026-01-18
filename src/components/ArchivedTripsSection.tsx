@@ -54,16 +54,16 @@ export const ArchivedTripsSection = ({
     <>
       <Accordion type="single" collapsible className="mt-6">
         <AccordionItem value="archived" className="border-none">
-          <AccordionTrigger className="py-3 px-2 text-muted-foreground hover:text-foreground hover:no-underline rounded-lg hover:bg-muted/50">
+          <AccordionTrigger className="py-3 px-2 text-foreground hover:text-foreground hover:no-underline rounded-lg hover:bg-muted/50">
             <div className="flex items-center gap-2">
-              <Archive className="w-4 h-4" />
+              <Archive className="w-4 h-4 text-foreground" />
               <span>Archivés ({archivedTrips.length})</span>
             </div>
           </AccordionTrigger>
           
           <AccordionContent className="space-y-2 pt-2">
             <p className="text-xs text-muted-foreground px-2 mb-3">
-              Les trajets archivés sont conservés 30 jours avant suppression définitive.
+              Les trajets archivés sont conservés 30 jours.
             </p>
             
             {archivedTrips.map((trip) => (
