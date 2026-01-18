@@ -349,10 +349,6 @@ function generateReportHTML(options: PrintReportOptions): string {
       <!-- Empty - removed back button -->
     </div>
     <div class="right-actions">
-      <button class="btn-link" onclick="copyShareLink()" id="btn-link" style="display: none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        <span id="btn-link-text">Copier le lien</span>
-      </button>
       <button class="btn-pdf" onclick="downloadPDF()" id="btn-pdf">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Télécharger PDF
@@ -364,6 +360,10 @@ function generateReportHTML(options: PrintReportOptions): string {
       <button class="btn-email" onclick="sendByEmail()" id="btn-email">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         Envoyer par mail
+      </button>
+      <button class="btn-link" onclick="copyShareLink()" id="btn-link" style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span id="btn-link-text">Copier le lien</span>
       </button>
     </div>
   </div>
@@ -466,7 +466,7 @@ function generateReportHTML(options: PrintReportOptions): string {
                 const data = await response.json();
                 if (data && data[0] && data[0].id) {
                   // Use a friendly URL on the current domain (proxied via /public/_redirects)
-                  shareLink = window.location.origin + '/temporaryreleve/' + data[0].id;
+                  shareLink = window.location.origin + '/temporaryreport/' + data[0].id;
                 }
               }
             }
@@ -545,7 +545,7 @@ function generateReportHTML(options: PrintReportOptions): string {
                 const data = await response.json();
                 if (data && data[0] && data[0].id) {
                   // Use a friendly URL on the current domain (proxied via /public/_redirects)
-                  currentShareLink = window.location.origin + '/temporaryreleve/' + data[0].id;
+                  currentShareLink = window.location.origin + '/temporaryreport/' + data[0].id;
                 }
               }
             }
