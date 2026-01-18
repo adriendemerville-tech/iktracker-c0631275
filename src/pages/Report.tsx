@@ -481,7 +481,7 @@ ${IKTRACKER_MENTION}
         throw new Error("Impossible de créer le lien de partage");
       }
       
-      const shareLink = `${window.location.origin}/temporaryreleve/${shareData.id}`;
+      const shareLink = `https://www.iktracker.fr/temporaryreport/${shareData.id}`;
 
       // Get user identity for signature
       const vehicle = vehicles.length > 0 ? vehicles[0] : null;

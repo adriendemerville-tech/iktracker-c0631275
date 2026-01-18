@@ -210,7 +210,8 @@ export default function TemporaryReleve() {
   };
 
   const handleSendEmail = () => {
-    const shareUrl = window.location.href;
+    // Construct clean URL for email
+    const shareUrl = `https://www.iktracker.fr/temporaryreport/${id}`;
     const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
     
