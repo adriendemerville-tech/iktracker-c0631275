@@ -22,6 +22,42 @@ function asyncCssPlugin(): Plugin {
   };
 }
 
+// Plugin to add high-priority modulepreload for critical vendor chunks
+function criticalChunkPreloadPlugin(): Plugin {
+  return {
+    name: 'critical-chunk-preload',
+    enforce: 'post',
+    transformIndexHtml(html, ctx) {
+      // Only in production builds
+      if (!ctx.bundle) return html;
+      
+      // Find critical vendor chunks that should be preloaded with high priority
+      const criticalChunks = ['vendor-react', 'vendor-router'];
+      const preloadLinks: string[] = [];
+      
+      for (const [fileName, chunk] of Object.entries(ctx.bundle)) {
+        if (chunk.type === 'chunk') {
+          // Check if this is a critical vendor chunk
+          const isCritical = criticalChunks.some(name => fileName.includes(name));
+          if (isCritical) {
+            preloadLinks.push(`<link rel="modulepreload" href="/${fileName}" fetchpriority="high">`);
+          }
+        }
+      }
+      
+      // Insert preload links right after the opening head tag
+      if (preloadLinks.length > 0) {
+        return html.replace(
+          '<head>',
+          `<head>\n    <!-- Critical vendor chunks preload -->\n    ${preloadLinks.join('\n    ')}`
+        );
+      }
+      
+      return html;
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -32,6 +68,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     asyncCssPlugin(), // Add async CSS loading for better FCP
+    criticalChunkPreloadPlugin(), // Add high-priority preload for critical vendors
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: null, // Disable auto-injection, we'll register manually after load
@@ -241,9 +278,10 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Enable module preload polyfill for better browser support
+    // Disable modulePreload polyfill - modern browsers support it natively
+    // This reduces initial JS and chain length
     modulePreload: {
-      polyfill: true,
+      polyfill: false,
     },
     rollupOptions: {
       output: {
