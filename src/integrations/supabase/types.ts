@@ -523,6 +523,16 @@ export type Database = {
           views: number
         }[]
       }
+      get_monthly_stats: {
+        Args: { months_back?: number }
+        Returns: {
+          month: string
+          total_ik: number
+          total_km: number
+          total_trips: number
+          total_users: number
+        }[]
+      }
       get_recent_signups: {
         Args: { limit_count?: number }
         Returns: {
