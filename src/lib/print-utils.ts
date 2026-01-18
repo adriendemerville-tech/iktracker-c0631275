@@ -196,19 +196,26 @@ function generateReportHTML(options: PrintReportOptions): string {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
       font-size: 12px;
       color: #1a1a1a;
-      background: #fff;
+      background: #f5f5f5;
       line-height: 1.4;
-      padding: 0;
+      padding: 40px 60px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     
     .page {
       width: 100%;
-      padding: 0;
+      padding: 30px 40px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
       page-break-after: always;
     }
     
     .page:last-child {
       page-break-after: avoid;
+      margin-bottom: 0;
     }
     
     @media print {
@@ -216,10 +223,16 @@ function generateReportHTML(options: PrintReportOptions): string {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         padding: 0;
+        background: #fff;
+        max-width: none;
       }
       
       .page {
         padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        margin-bottom: 0;
       }
     }
   </style>
