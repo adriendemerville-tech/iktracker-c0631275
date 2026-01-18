@@ -14,7 +14,7 @@ type ViewState =
   | { status: "error"; message: string }
   | { status: "ready"; html: string };
 
-export default function TemporaryReleve() {
+export default function TemporaryReport() {
   const { id } = useParams<{ id: string }>();
   const [state, setState] = useState<ViewState>({ status: "loading" });
   const [isCopied, setIsCopied] = useState(false);
@@ -187,8 +187,8 @@ export default function TemporaryReleve() {
   };
 
   const handleShareLink = async () => {
-    // Use clean /temporaryreport/ URL
-    const shareUrl = `https://www.iktracker.fr/temporaryreport/${id}`;
+    // Use clean /temporaryreport/ URL (without www)
+    const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
     
     try {
       // Fallback to clipboard
@@ -211,8 +211,8 @@ export default function TemporaryReleve() {
   };
 
   const handleSendEmail = () => {
-    // Construct clean URL for email
-    const shareUrl = `https://www.iktracker.fr/temporaryreport/${id}`;
+    // Construct clean URL for email (without www)
+    const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
     const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
     
