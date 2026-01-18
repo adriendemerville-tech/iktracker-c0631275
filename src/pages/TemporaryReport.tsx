@@ -144,8 +144,27 @@ export default function TemporaryReport() {
     try {
       const dateStr = new Date().toISOString().split("T")[0];
       
-      // Generate PDF using the same function as in Index.tsx
-      const pdfBlob = await htmlToPdfBlob(state.html);
+      // Get the actual HTML content from the iframe for proper rendering
+      const iframe = document.querySelector('iframe[title="Relevé IK"]') as HTMLIFrameElement;
+      let htmlForPdf = state.html;
+      
+      if (iframe?.contentDocument) {
+        // Clone the iframe content and remove action bars/scripts for clean PDF
+        const clonedDoc = iframe.contentDocument.cloneNode(true) as Document;
+        
+        // Remove action bar if present
+        const actionBar = clonedDoc.querySelector('.action-bar');
+        if (actionBar) actionBar.remove();
+        
+        // Remove all scripts
+        clonedDoc.querySelectorAll('script').forEach(s => s.remove());
+        
+        // Get the cleaned HTML
+        htmlForPdf = clonedDoc.documentElement.outerHTML;
+      }
+      
+      // Generate PDF using the cleaned HTML
+      const pdfBlob = await htmlToPdfBlob(htmlForPdf);
       
       // Generate CSV
       const trips = extractTripsFromHtml(state.html);
@@ -247,8 +266,9 @@ https://iktracker.fr`;
         <title>{title}</title>
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={window.location.href} />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icon-192.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </Helmet>
 
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
@@ -268,26 +288,7 @@ https://iktracker.fr`;
 
           {/* Boutons d'action à droite - style gris premium */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShareLink}
-              disabled={state.status !== "ready"}
-              className={appleButtonClass}
-            >
-              {isCopied ? (
-                <>
-                  <Check className="h-4 w-4 text-green-400" />
-                  <span className="hidden sm:inline">Copié !</span>
-                </>
-              ) : (
-                <>
-                  <Share2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Copier le lien</span>
-                </>
-              )}
-            </Button>
-
+            {/* Télécharger en premier */}
             <Button
               variant="outline"
               size="sm"
@@ -296,7 +297,7 @@ https://iktracker.fr`;
               className={appleButtonClass}
             >
               <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
-              <span className="hidden sm:inline">Télécharger PDF</span>
+              <span className="hidden sm:inline">Télécharger</span>
             </Button>
 
             <Button
@@ -319,6 +320,27 @@ https://iktracker.fr`;
             >
               <Send className="h-4 w-4" />
               <span className="hidden sm:inline">Envoyer par mail</span>
+            </Button>
+
+            {/* Copier le lien en dernier */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareLink}
+              disabled={state.status !== "ready"}
+              className={appleButtonClass}
+            >
+              {isCopied ? (
+                <>
+                  <Check className="h-4 w-4 text-green-400" />
+                  <span className="hidden sm:inline">Copié !</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Copier le lien</span>
+                </>
+              )}
             </Button>
           </div>
         </div>
