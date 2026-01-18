@@ -218,7 +218,88 @@ function generateReportHTML(options: PrintReportOptions): string {
       margin-bottom: 0;
     }
     
+    .action-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    
+    .action-bar .left-actions,
+    .action-bar .right-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .action-bar button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+    
+    .action-bar button:hover {
+      transform: translateY(-1px);
+    }
+    
+    .action-bar button:active {
+      transform: translateY(0);
+    }
+    
+    .btn-back {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    
+    .btn-back:hover {
+      background: #e5e7eb;
+    }
+    
+    .btn-print {
+      background: #2563eb;
+      color: #fff;
+    }
+    
+    .btn-print:hover {
+      background: #1d4ed8;
+    }
+    
+    .btn-email {
+      background: #10b981;
+      color: #fff;
+    }
+    
+    .btn-email:hover {
+      background: #059669;
+    }
+    
+    .content-wrapper {
+      margin-top: 70px;
+    }
+    
     @media print {
+      .action-bar {
+        display: none !important;
+      }
+      
+      .content-wrapper {
+        margin-top: 0;
+      }
+      
       body {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -238,6 +319,27 @@ function generateReportHTML(options: PrintReportOptions): string {
   </style>
 </head>
 <body>
+  <!-- Action Bar (hidden in print) -->
+  <div class="action-bar">
+    <div class="left-actions">
+      <button class="btn-back" onclick="window.history.back()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Retour
+      </button>
+    </div>
+    <div class="right-actions">
+      <button class="btn-print" onclick="window.print()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+        Imprimer
+      </button>
+      <button class="btn-email" onclick="window.location.href='mailto:?subject=Relevé IK&body=Veuillez trouver ci-joint mon relevé de frais kilométriques.'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Envoyer par mail
+      </button>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
   <!-- Page 1: Main Report -->
   <div class="page">
     <!-- Header -->
@@ -478,6 +580,7 @@ function generateReportHTML(options: PrintReportOptions): string {
       </tr>
     </table>
   </div>
+  </div><!-- end content-wrapper -->
 </body>
 </html>
 `;
