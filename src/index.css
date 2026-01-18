@@ -646,23 +646,30 @@ img {
    T=10s+: Synchronized radar + rotating border animations
 ============================================ */
 
+/* ============================================
+   TOUR PREMIUM BUTTON - "The Sandwich Method"
+   Layer 1 (bottom): ::before - Orange rotating border (z-index: -1)
+   Layer 2 (middle): Button - Solid opaque green background
+   Layer 3 (top): ::after - Dark green radar sweep (z-index: 1)
+   Layer 4 (topmost): Car icon content (z-index: 2)
+============================================ */
+
 .tour-premium-button {
-  /* Initial state: Blue gradient with gradient border */
-  background: linear-gradient(135deg, #7485ED 0%, #5666D8 100%);
-  border: 4px solid transparent;
-  background-clip: padding-box;
+  /* Initial state: Blue gradient */
+  background: #5666D8;
+  border: none;
   transition: background 4s ease-in-out;
   overflow: visible;
   isolation: isolate;
   position: relative;
 }
 
-/* Gradient border using ::before pseudo-element */
+/* Static orange border - initial phase */
 .tour-premium-button::before {
   content: '';
   position: absolute;
   inset: -4px;
-  border-radius: inherit;
+  border-radius: 50%;
   background: linear-gradient(135deg, #FFAB40 0%, #FF5722 100%);
   z-index: -1;
   pointer-events: none;
@@ -670,20 +677,20 @@ img {
 
 /* Transitioning phase: Blue to green over 4s */
 .tour-premium-button--transitioning {
-  background: linear-gradient(135deg, #25D366 0%, #25D366 100%);
+  background: #25D366;
 }
 
-/* Final phase: Green background, rotating border + radar */
+/* Final phase: Solid opaque green background */
 .tour-premium-button--final {
-  background: linear-gradient(135deg, #25D366 0%, #25D366 100%);
+  background: #25D366;
 }
 
-/* Rotating gradient border - only in final phase */
+/* EXTERNAL: Rotating orange border - only in final phase */
 .tour-premium-button--final::before {
   content: '';
   position: absolute;
   inset: -4px;
-  border-radius: inherit;
+  border-radius: 50%;
   background: conic-gradient(
     from 0deg,
     #FFAB40 0%,
@@ -697,25 +704,25 @@ img {
   animation: tour-border-spin 3s linear infinite;
 }
 
-/* Emerald radar overlay - synchronized with border, only in final phase */
+/* INTERNAL: Dark green radar sweep - only in final phase */
 .tour-premium-button--final::after {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  border-radius: 50%;
   background: conic-gradient(
     from 0deg,
     transparent 0%,
     transparent 200deg,
-    rgba(10, 80, 50, 0.1) 280deg,
-    rgba(5, 60, 35, 0.4) 360deg
+    rgba(6, 95, 70, 0.2) 280deg,
+    #065F46 360deg
   );
-  animation: tour-border-spin 3s linear infinite;
-  z-index: 15;
+  z-index: 1;
   pointer-events: none;
+  animation: tour-border-spin 3s linear infinite;
 }
 
-/* Single animation for both border and radar - perfectly synchronized */
+/* Single animation for perfect synchronization */
 @keyframes tour-border-spin {
   from {
     transform: rotate(0deg);
