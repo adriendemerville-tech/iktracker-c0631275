@@ -187,7 +187,8 @@ export default function TemporaryReleve() {
   };
 
   const handleShareLink = async () => {
-    const shareUrl = window.location.href;
+    // Use clean /temporaryreport/ URL
+    const shareUrl = `https://www.iktracker.fr/temporaryreport/${id}`;
     
     try {
       // Fallback to clipboard
@@ -270,12 +271,32 @@ https://iktracker.lovable.app`;
             <Button
               variant="outline"
               size="sm"
+              onClick={handleShareLink}
+              disabled={state.status !== "ready"}
+              className={appleButtonClass}
+            >
+              {isCopied ? (
+                <>
+                  <Check className="h-4 w-4 text-green-400" />
+                  <span className="hidden sm:inline">Copié !</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Copier le lien</span>
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleDownload}
               disabled={state.status !== "ready" || isDownloading}
               className={appleButtonClass}
             >
               <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
-              <span className="hidden sm:inline">Télécharger</span>
+              <span className="hidden sm:inline">Télécharger PDF</span>
             </Button>
 
             <Button
@@ -297,27 +318,7 @@ https://iktracker.lovable.app`;
               className={appleButtonClass}
             >
               <Send className="h-4 w-4" />
-              <span className="hidden sm:inline">Envoyer</span>
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShareLink}
-              disabled={state.status !== "ready"}
-              className={appleButtonClass}
-            >
-              {isCopied ? (
-                <>
-                  <Check className="h-4 w-4 text-green-400" />
-                  <span className="hidden sm:inline">Copié !</span>
-                </>
-              ) : (
-                <>
-                  <Share2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Copier</span>
-                </>
-              )}
+              <span className="hidden sm:inline">Envoyer par mail</span>
             </Button>
           </div>
         </div>
