@@ -366,6 +366,92 @@ ${IKTRACKER_MENTION}
     }
   };
 
+  // Download PDF directly using htmlToPdfBlob
+  const handleDownloadPdf = async () => {
+    if (trips.length === 0) {
+      toast.error("Aucun trajet à exporter");
+      return;
+    }
+
+    setIsExporting(true);
+    
+    // Create elegant loading overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'download-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        width: 48px;
+        height: 48px;
+        border: 3px solid rgba(255,255,255,0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <span style="color: white; font-size: 16px; font-weight: 500;">Génération du PDF...</span>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    `;
+    document.body.appendChild(overlay);
+    
+    try {
+      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
+      const dateStr = new Date().toISOString().split('T')[0];
+      
+      // Generate HTML content
+      const htmlContent = await generateHTMLContent();
+      
+      // Convert HTML to PDF
+      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      
+      // Download PDF
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const pdfLink = document.createElement('a');
+      pdfLink.href = pdfUrl;
+      pdfLink.download = `releve-ik-${dateStr}.pdf`;
+      document.body.appendChild(pdfLink);
+      pdfLink.click();
+      document.body.removeChild(pdfLink);
+      URL.revokeObjectURL(pdfUrl);
+      
+      // Also download CSV
+      const csvContent = generateCSVContent();
+      const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+      
+      await new Promise(r => setTimeout(r, 300));
+      
+      const csvUrl = URL.createObjectURL(csvBlob);
+      const csvLink = document.createElement('a');
+      csvLink.href = csvUrl;
+      csvLink.download = `releve-ik-${dateStr}.csv`;
+      document.body.appendChild(csvLink);
+      csvLink.click();
+      document.body.removeChild(csvLink);
+      URL.revokeObjectURL(csvUrl);
+      
+      toast.success("PDF et CSV téléchargés");
+    } catch (error) {
+      console.error('Download error:', error);
+      const message = error instanceof Error ? error.message : "Erreur lors du téléchargement";
+      toast.error("Erreur lors du téléchargement", { description: message });
+    } finally {
+      // Remove overlay
+      const existingOverlay = document.getElementById('download-overlay');
+      if (existingOverlay) existingOverlay.remove();
+      setIsExporting(false);
+    }
+  };
+
   const exportZip = async () => {
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
@@ -579,8 +665,8 @@ ${IKTRACKER_URL}`;
               >
                 <FileText className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={previewHTMLReport} disabled={trips.length === 0} aria-label="Télécharger le relevé">
-                <Download className="w-5 h-5" />
+              <Button variant="ghost" size="icon" onClick={handleDownloadPdf} disabled={trips.length === 0 || isExporting} aria-label="Télécharger le relevé">
+                <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">
                 <UserCircle className="w-5 h-5" />
