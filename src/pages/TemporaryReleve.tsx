@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Printer, Download, Share2, Check, Copy } from "lucide-react";
+import { Printer, Download, Share2, Check } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
+import { htmlToPdfBlob } from "@/lib/pdf-utils";
 
 type ViewState =
   | { status: "loading" }
@@ -71,22 +72,80 @@ export default function TemporaryReleve() {
     }
   };
 
+  // Parse HTML to extract trip data for CSV export
+  const extractTripsFromHtml = (html: string): { date: string; depart: string; arrivee: string; km: string; ik: string }[] => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = doc.querySelectorAll('table tbody tr');
+    const trips: { date: string; depart: string; arrivee: string; km: string; ik: string }[] = [];
+    
+    rows.forEach((row) => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 5) {
+        trips.push({
+          date: cells[0]?.textContent?.trim() || '',
+          depart: cells[1]?.textContent?.trim() || '',
+          arrivee: cells[2]?.textContent?.trim() || '',
+          km: cells[3]?.textContent?.trim() || '',
+          ik: cells[4]?.textContent?.trim() || '',
+        });
+      }
+    });
+    
+    return trips;
+  };
+
+  const generateCsvBlob = (trips: { date: string; depart: string; arrivee: string; km: string; ik: string }[]): Blob => {
+    const headers = ['Date', 'Départ', 'Arrivée', 'Distance (km)', 'Indemnité (€)'];
+    const csvContent = [
+      headers.join(';'),
+      ...trips.map(trip => 
+        [trip.date, `"${trip.depart}"`, `"${trip.arrivee}"`, trip.km, trip.ik].join(';')
+      )
+    ].join('\n');
+    
+    return new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' });
+  };
+
   const handleDownload = async () => {
     if (state.status !== "ready") return;
     
     setIsDownloading(true);
     try {
-      // Create a blob from the HTML content and download it
-      const blob = new Blob([state.html], { type: "text/html;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `releve-ik-${new Date().toISOString().split("T")[0]}.html`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      toast.success("Téléchargement démarré");
+      const dateStr = new Date().toISOString().split("T")[0];
+      
+      // Generate PDF
+      toast.info("Génération du PDF en cours...");
+      const pdfBlob = await htmlToPdfBlob(state.html);
+      
+      // Generate CSV
+      const trips = extractTripsFromHtml(state.html);
+      const csvBlob = generateCsvBlob(trips);
+      
+      // Download PDF
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const pdfLink = document.createElement("a");
+      pdfLink.href = pdfUrl;
+      pdfLink.download = `releve-ik-${dateStr}.pdf`;
+      document.body.appendChild(pdfLink);
+      pdfLink.click();
+      document.body.removeChild(pdfLink);
+      URL.revokeObjectURL(pdfUrl);
+      
+      // Small delay before CSV download
+      await new Promise(r => setTimeout(r, 300));
+      
+      // Download CSV
+      const csvUrl = URL.createObjectURL(csvBlob);
+      const csvLink = document.createElement("a");
+      csvLink.href = csvUrl;
+      csvLink.download = `releve-ik-${dateStr}.csv`;
+      document.body.appendChild(csvLink);
+      csvLink.click();
+      document.body.removeChild(csvLink);
+      URL.revokeObjectURL(csvUrl);
+      
+      toast.success("PDF et CSV téléchargés");
     } catch (error) {
       console.error("Download error:", error);
       toast.error("Erreur lors du téléchargement");
@@ -128,6 +187,9 @@ export default function TemporaryReleve() {
     }
   };
 
+  // Premium gray button styling
+  const grayButtonClass = "gap-2 bg-gray-500/15 border-gray-400/20 text-gray-600 hover:bg-gray-500/25 hover:text-gray-700 backdrop-blur-sm transition-all";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
@@ -136,7 +198,7 @@ export default function TemporaryReleve() {
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
           {/* Logo à gauche - lien vers landing */}
           <Link 
@@ -151,14 +213,14 @@ export default function TemporaryReleve() {
             />
           </Link>
 
-          {/* Boutons d'action à droite */}
+          {/* Boutons d'action à droite - style gris premium */}
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={handlePrint}
               disabled={state.status !== "ready"}
-              className="gap-2"
+              className={grayButtonClass}
             >
               <Printer className="h-4 w-4" />
               <span className="hidden sm:inline">Imprimer</span>
@@ -169,7 +231,7 @@ export default function TemporaryReleve() {
               size="sm"
               onClick={handleDownload}
               disabled={state.status !== "ready" || isDownloading}
-              className="gap-2"
+              className={grayButtonClass}
             >
               <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
               <span className="hidden sm:inline">Télécharger</span>
@@ -180,7 +242,7 @@ export default function TemporaryReleve() {
               size="sm"
               onClick={handleShareLink}
               disabled={state.status !== "ready"}
-              className="gap-2"
+              className={grayButtonClass}
             >
               {isCopied ? (
                 <>
