@@ -6,40 +6,199 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Clean the HTML to remove action bar, scripts, and make it read-only
-function cleanHtmlForSharing(html: string): string {
-  let cleaned = html;
+// Generate a clean, standalone HTML page for sharing
+function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
+  // Extract the content-wrapper div content from the original HTML
+  const contentMatch = htmlContent.match(/<div class="content-wrapper">([\s\S]*?)<\/div>\s*<\/div><!-- end content-wrapper -->/i);
   
-  // Remove the action-bar div completely
-  cleaned = cleaned.replace(/<div class="action-bar">[\s\S]*?<\/div>\s*<\/div>/i, '');
+  // If we can't find the content wrapper, try a simpler extraction
+  let pageContent = '';
+  if (contentMatch && contentMatch[1]) {
+    pageContent = contentMatch[1];
+  } else {
+    // Fallback: extract everything between the first .page div
+    const pageMatch = htmlContent.match(/(<div class="page">[\s\S]*<\/div>)\s*<\/div>/i);
+    if (pageMatch) {
+      pageContent = pageMatch[1];
+    }
+  }
+
+  const expiresDateStr = expiresAt.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relevé IK Partagé - IKtracker</title>
+  <meta name="description" content="Relevé de frais kilométriques partagé via IKtracker">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="https://iktracker.lovable.app/favicon.png">
+  <link rel="apple-touch-icon" href="https://iktracker.lovable.app/apple-touch-icon.png">
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 15mm;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      color: #1a1a1a;
+      background: #f5f5f5;
+      line-height: 1.4;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .share-banner {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      padding: 14px 20px;
+      text-align: center;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    .share-banner svg {
+      flex-shrink: 0;
+    }
+    
+    .share-banner-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .share-banner-main {
+      font-weight: 600;
+    }
+    
+    .share-banner-expires {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+    
+    .content-area {
+      padding: 40px 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page {
+      width: 100%;
+      padding: 30px 40px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    
+    .page:last-child {
+      margin-bottom: 0;
+    }
+    
+    .footer-link {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    
+    .footer-link a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+    
+    @media print {
+      .share-banner, .footer-link {
+        display: none !important;
+      }
+      
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      
+      .content-area {
+        padding: 0;
+        max-width: none;
+      }
+      
+      .page {
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        margin-bottom: 0;
+        page-break-after: always;
+      }
+      
+      .page:last-child {
+        page-break-after: avoid;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .content-area {
+        padding: 20px;
+      }
+      
+      .page {
+        padding: 20px;
+      }
+      
+      .share-banner {
+        flex-direction: column;
+        padding: 12px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="share-banner">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" x2="8" y1="13" y2="13"/>
+      <line x1="16" x2="8" y1="17" y2="17"/>
+      <line x1="10" x2="8" y1="9" y2="9"/>
+    </svg>
+    <div class="share-banner-text">
+      <span class="share-banner-main">Relevé de frais kilométriques partagé via IKtracker</span>
+      <span class="share-banner-expires">Ce lien expire le ${expiresDateStr}</span>
+    </div>
+  </div>
   
-  // Remove all script tags (including the html2pdf CDN and our custom scripts)
-  cleaned = cleaned.replace(/<script[\s\S]*?<\/script>/gi, '');
+  <div class="content-area">
+    ${pageContent}
+  </div>
   
-  // Remove the spin animation style if present
-  cleaned = cleaned.replace(/<style>\s*@keyframes spin[\s\S]*?<\/style>/gi, '');
-  
-  // Fix the content-wrapper margin (remove the top margin since action bar is gone)
-  cleaned = cleaned.replace(/\.content-wrapper\s*\{[^}]*margin-top:\s*70px[^}]*\}/i, 
-    '.content-wrapper { margin-top: 0; }');
-  
-  // Add a read-only banner at the top
-  const readOnlyBanner = `
-  <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 20px; text-align: center; font-family: system-ui, sans-serif; font-size: 14px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-    <span style="display: inline-flex; align-items: center; gap: 8px;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-      Relevé de frais kilométriques partagé via <strong style="margin-left: 4px;">IKtracker</strong>
-    </span>
-  </div>`;
-  
-  // Add margin-top to body to account for the banner
-  cleaned = cleaned.replace(/<body([^>]*)>/i, `<body$1>${readOnlyBanner}<div style="margin-top: 50px;">`);
-  cleaned = cleaned.replace(/<\/body>/i, '</div></body>');
-  
-  // Update title to indicate it's a shared report
-  cleaned = cleaned.replace(/<title>([^<]*)<\/title>/i, '<title>$1 (Partagé)</title>');
-  
-  return cleaned;
+  <div class="footer-link">
+    Généré avec <a href="https://iktracker.fr" target="_blank" rel="noopener">IKtracker</a> - Suivi des indemnités kilométriques
+  </div>
+</body>
+</html>`;
 }
 
 serve(async (req) => {
@@ -54,16 +213,7 @@ serve(async (req) => {
 
     if (!shareId) {
       return new Response(
-        `<!DOCTYPE html>
-        <html lang="fr">
-        <head><meta charset="UTF-8"><title>Erreur</title></head>
-        <body style="font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5;">
-          <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h1 style="color: #dc2626; margin-bottom: 16px;">Lien invalide</h1>
-            <p style="color: #6b7280;">Le lien de partage est invalide ou manquant.</p>
-          </div>
-        </body>
-        </html>`,
+        generateErrorPage("Lien invalide", "Le lien de partage est invalide ou manquant."),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
@@ -86,17 +236,7 @@ serve(async (req) => {
     if (error || !share) {
       console.error("Error fetching share:", error);
       return new Response(
-        `<!DOCTYPE html>
-        <html lang="fr">
-        <head><meta charset="UTF-8"><title>Rapport introuvable</title></head>
-        <body style="font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5;">
-          <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h1 style="color: #dc2626; margin-bottom: 16px;">Rapport introuvable</h1>
-            <p style="color: #6b7280;">Ce rapport n'existe pas ou a expiré.</p>
-            <p style="color: #9ca3af; font-size: 14px; margin-top: 16px;">Les liens de partage sont valides pendant 7 jours.</p>
-          </div>
-        </body>
-        </html>`,
+        generateErrorPage("Rapport introuvable", "Ce rapport n'existe pas ou a expiré.", "Les liens de partage sont valides pendant 7 jours."),
         {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
@@ -108,17 +248,12 @@ serve(async (req) => {
     const expiresAt = new Date(share.expires_at);
     if (expiresAt < new Date()) {
       return new Response(
-        `<!DOCTYPE html>
-        <html lang="fr">
-        <head><meta charset="UTF-8"><title>Lien expiré</title></head>
-        <body style="font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5;">
-          <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h1 style="color: #f59e0b; margin-bottom: 16px;">Lien expiré</h1>
-            <p style="color: #6b7280;">Ce lien de partage a expiré le ${expiresAt.toLocaleDateString('fr-FR')}.</p>
-            <p style="color: #9ca3af; font-size: 14px; margin-top: 16px;">Les liens de partage sont valides pendant 7 jours.</p>
-          </div>
-        </body>
-        </html>`,
+        generateErrorPage(
+          "Lien expiré", 
+          `Ce lien de partage a expiré le ${expiresAt.toLocaleDateString('fr-FR')}.`,
+          "Les liens de partage sont valides pendant 7 jours.",
+          "#f59e0b"
+        ),
         {
           status: 410,
           headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
@@ -126,7 +261,7 @@ serve(async (req) => {
       );
     }
 
-    // Increment access count (best effort, don't fail if this errors)
+    // Increment access count (best effort)
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (serviceRoleKey) {
       const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -136,27 +271,17 @@ serve(async (req) => {
         .eq("id", shareId);
     }
 
-    // Clean the HTML for sharing (remove action bar, scripts, add read-only banner)
-    const cleanedHtml = cleanHtmlForSharing(share.html_content);
+    // Generate clean share page
+    const cleanHtml = generateCleanSharePage(share.html_content, expiresAt);
 
-    // Return the cleaned HTML content
-    return new Response(cleanedHtml, {
+    return new Response(cleanHtml, {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
     });
   } catch (error) {
     console.error("Error in view-report function:", error);
     return new Response(
-      `<!DOCTYPE html>
-      <html lang="fr">
-      <head><meta charset="UTF-8"><title>Erreur</title></head>
-      <body style="font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5;">
-        <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <h1 style="color: #dc2626; margin-bottom: 16px;">Erreur</h1>
-          <p style="color: #6b7280;">Une erreur est survenue lors du chargement du rapport.</p>
-        </div>
-      </body>
-      </html>`,
+      generateErrorPage("Erreur", "Une erreur est survenue lors du chargement du rapport."),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
@@ -164,3 +289,73 @@ serve(async (req) => {
     );
   }
 });
+
+function generateErrorPage(title: string, message: string, subMessage?: string, color: string = "#dc2626"): string {
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} - IKtracker</title>
+  <link rel="icon" type="image/png" href="https://iktracker.lovable.app/favicon.png">
+  <link rel="apple-touch-icon" href="https://iktracker.lovable.app/apple-touch-icon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    .container {
+      text-align: center;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 20px;
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      background: ${color}15;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon svg { color: ${color}; }
+    h1 { color: ${color}; margin-bottom: 16px; font-size: 24px; }
+    p { color: #6b7280; line-height: 1.6; }
+    .sub { color: #9ca3af; font-size: 14px; margin-top: 16px; }
+    .link { margin-top: 24px; }
+    .link a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" x2="12" y1="8" y2="12"/>
+        <line x1="12" x2="12.01" y1="16" y2="16"/>
+      </svg>
+    </div>
+    <h1>${title}</h1>
+    <p>${message}</p>
+    ${subMessage ? `<p class="sub">${subMessage}</p>` : ''}
+    <p class="link"><a href="https://iktracker.fr">Découvrir IKtracker →</a></p>
+  </div>
+</body>
+</html>`;
+}
