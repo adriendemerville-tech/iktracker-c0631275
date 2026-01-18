@@ -135,6 +135,14 @@ interface RecentSignup {
   created_at: string;
 }
 
+interface MonthlyStats {
+  month: string;
+  total_users: number;
+  total_trips: number;
+  total_km: number;
+  total_ik: number;
+}
+
 type PeriodFilter = 'week' | 'month' | 'year' | 'all';
 type TopUserSort = 'trips' | 'km' | 'ik';
 
@@ -558,6 +566,23 @@ export function AdminStats() {
       });
       if (error) throw error;
       return data as number;
+    },
+    refetchInterval: 60 * 60 * 1000, // 1 hour
+  });
+
+  // Fetch monthly stats for 5-month trend chart - refresh every hour
+  const { data: monthlyStats = [], isLoading: monthlyStatsLoading } = useQuery({
+    queryKey: ['admin-monthly-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_monthly_stats', { months_back: 5 });
+      if (error) throw error;
+      return (data as unknown as MonthlyStats[]).map(d => ({
+        month: d.month,
+        users: Number(d.total_users),
+        trips: Number(d.total_trips),
+        km: Math.round(Number(d.total_km)),
+        ik: Math.round(Number(d.total_ik)),
+      }));
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
@@ -1312,30 +1337,43 @@ export function AdminStats() {
                   );
 
                 case 'comparison-chart':
-                  if (period === 'all') return null;
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
-                          Comparaison : {periodConfig[period].label} actuel vs {getPrevPeriodLabel()}
+                          Évolution sur 5 mois
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        {statsLoading || prevStatsLoading ? (
-                          <Skeleton className="h-[250px] w-full" />
-                        ) : comparisonData.length > 0 ? (
-                          <ResponsiveContainer width="100%" height={250}>
-                            <BarChart data={comparisonData} layout="vertical">
-                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
-                              <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                              <YAxis 
-                                type="category" 
-                                dataKey="name" 
+                        {monthlyStatsLoading ? (
+                          <Skeleton className="h-[280px] w-full" />
+                        ) : monthlyStats.length === 0 ? (
+                          <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
+                        ) : (
+                          <ResponsiveContainer width="100%" height={280}>
+                            <LineChart data={monthlyStats}>
+                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                              <XAxis 
+                                dataKey="month" 
                                 tick={{ fontSize: 11 }} 
                                 tickLine={false} 
                                 axisLine={false}
-                                width={100}
+                              />
+                              <YAxis 
+                                yAxisId="left"
+                                tick={{ fontSize: 10 }} 
+                                tickLine={false} 
+                                axisLine={false}
+                                allowDecimals={false}
+                              />
+                              <YAxis 
+                                yAxisId="right"
+                                orientation="right"
+                                tick={{ fontSize: 10 }} 
+                                tickLine={false} 
+                                axisLine={false}
+                                allowDecimals={false}
                               />
                               <Tooltip 
                                 contentStyle={{ 
@@ -1344,30 +1382,57 @@ export function AdminStats() {
                                   borderRadius: '8px',
                                   fontSize: '12px',
                                 }}
-                                formatter={(value: number, name: string) => [
-                                  new Intl.NumberFormat('fr-FR').format(value),
-                                  name === 'current' ? periodConfig[period].label : getPrevPeriodLabel()
-                                ]}
+                                formatter={(value: number, name: string) => {
+                                  const labels: Record<string, string> = {
+                                    users: 'Utilisateurs actifs',
+                                    trips: 'Trajets',
+                                    km: 'Distance (km)',
+                                    ik: 'IK (€)',
+                                  };
+                                  return [new Intl.NumberFormat('fr-FR').format(value), labels[name] || name];
+                                }}
                               />
                               <Legend 
-                                formatter={(value) => value === 'current' ? periodConfig[period].label : getPrevPeriodLabel()}
+                                formatter={(value) => {
+                                  const labels: Record<string, string> = {
+                                    users: 'Utilisateurs',
+                                    trips: 'Trajets',
+                                    km: 'Km',
+                                    ik: 'IK (€)',
+                                  };
+                                  return labels[value] || value;
+                                }}
                               />
-                              <Bar 
-                                dataKey="current" 
-                                fill="hsl(var(--primary))" 
-                                radius={[12, 12, 12, 12]}
-                                name="current"
+                              <Line 
+                                yAxisId="left"
+                                type="monotone" 
+                                dataKey="users" 
+                                stroke="hsl(var(--primary))" 
+                                strokeWidth={2}
+                                dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
+                                activeDot={{ r: 5 }}
                               />
-                              <Bar 
-                                dataKey="previous" 
-                                fill="hsl(var(--muted-foreground))" 
-                                radius={[12, 12, 12, 12]}
-                                opacity={0.5}
-                                name="previous"
+                              <Line 
+                                yAxisId="left"
+                                type="monotone" 
+                                dataKey="trips" 
+                                stroke="hsl(142, 76%, 36%)" 
+                                strokeWidth={2}
+                                dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
+                                activeDot={{ r: 5 }}
                               />
-                            </BarChart>
+                              <Line 
+                                yAxisId="right"
+                                type="monotone" 
+                                dataKey="ik" 
+                                stroke="hsl(45, 93%, 47%)" 
+                                strokeWidth={2}
+                                dot={{ fill: 'hsl(45, 93%, 47%)', strokeWidth: 0, r: 3 }}
+                                activeDot={{ r: 5 }}
+                              />
+                            </LineChart>
                           </ResponsiveContainer>
-                        ) : null}
+                        )}
                       </CardContent>
                     </DraggableStatsSection>
                   );
