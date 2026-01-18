@@ -230,35 +230,58 @@ export function FocusTourView({
 
       {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
-        {/* Car button - Premium animated button */}
-        <button
-          onClick={handleStopClick}
-          className={cn(
-            "tour-premium-button relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl active:scale-95",
-            animationPhase === 'transitioning' && "tour-premium-button--transitioning",
-            animationPhase === 'final' && "tour-premium-button--final"
-          )}
-          aria-label="Arrêter la tournée"
-        >
-          {/* Speed lines - only visible in final phase */}
-          <span className={cn(
-            "absolute left-5 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 transition-opacity duration-500",
-            animationPhase === 'final' ? "opacity-100" : "opacity-0"
-          )}>
-            <span className="w-4 h-1 bg-white/60 rounded-full" />
-            <span className="w-6 h-1 bg-white/40 rounded-full -ml-1" />
-            <span className="w-5 h-1 bg-white/50 rounded-full -ml-0.5" />
-          </span>
+        {/* Car button - Premium animated button with rotating gradient border */}
+        <div className="relative">
+          {/* Rotating gradient border */}
+          <div 
+            className="absolute inset-0 rounded-full animate-spin-slow"
+            style={{
+              width: 'calc(100% + 10px)',
+              height: 'calc(100% + 10px)',
+              top: '-5px',
+              left: '-5px',
+              background: 'conic-gradient(from 0deg, #FFAB40, #FF5722, #FFAB40)',
+            }}
+          />
+          {/* Inner black circle to create border effect */}
+          <div 
+            className="absolute rounded-full bg-black"
+            style={{
+              inset: '0px',
+              zIndex: 1,
+            }}
+          />
           
-          {/* White dot in front of car - visible before final phase */}
-          <span className={cn(
-            "absolute right-7 top-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full z-10 transition-opacity duration-500",
-            animationPhase === 'final' ? "opacity-0" : "opacity-100"
-          )} />
-          
-          {/* Car icon - static, no animations */}
-          <Car className="w-24 h-24 relative z-20 text-white" />
-        </button>
+          <button
+            onClick={handleStopClick}
+            className={cn(
+              "tour-premium-button relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl active:scale-95",
+              animationPhase === 'transitioning' && "tour-premium-button--transitioning",
+              animationPhase === 'final' && "tour-premium-button--final"
+            )}
+            style={{ zIndex: 2 }}
+            aria-label="Arrêter la tournée"
+          >
+            {/* Speed lines - only visible in final phase */}
+            <span className={cn(
+              "absolute left-5 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 transition-opacity duration-500",
+              animationPhase === 'final' ? "opacity-100" : "opacity-0"
+            )}>
+              <span className="w-4 h-1 bg-white/60 rounded-full" />
+              <span className="w-6 h-1 bg-white/40 rounded-full -ml-1" />
+              <span className="w-5 h-1 bg-white/50 rounded-full -ml-0.5" />
+            </span>
+            
+            {/* White dot in front of car - visible before final phase */}
+            <span className={cn(
+              "absolute right-7 top-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full z-10 transition-opacity duration-500",
+              animationPhase === 'final' ? "opacity-0" : "opacity-100"
+            )} />
+            
+            {/* Car icon - static, no animations */}
+            <Car className="w-24 h-24 relative z-20 text-white" />
+          </button>
+        </div>
         
         {/* Stop button - elegant, compact design */}
         <button

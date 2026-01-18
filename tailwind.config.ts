@@ -111,6 +111,10 @@ export default {
           "0%, 100%": { transform: "scale(1.1)", opacity: "0.3" },
           "50%": { transform: "scale(1.25)", opacity: "0.1" },
         },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -122,6 +126,7 @@ export default {
         "counter-up": "counter-up 0.5s ease-out",
         "pulse-glow": "pulse-glow 2.5s ease-in-out infinite",
         "pulse-glow-delayed": "pulse-glow-delayed 2.5s ease-in-out infinite 0.5s",
+        "spin-slow": "spin-slow 3s linear infinite",
       },
       boxShadow: {
         'glow': 'var(--shadow-glow)',
