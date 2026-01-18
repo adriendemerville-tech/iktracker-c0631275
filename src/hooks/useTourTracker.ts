@@ -215,8 +215,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     }
     gpsTimeoutRef.current = setTimeout(() => {
       updateGpsSignal(null);
-      toast.warning('Signal GPS perdu', {
-        description: 'Vérifiez que le GPS est activé et que vous êtes en extérieur.',
+      toast.warning('GPS perdu', {
+        description: 'Activez le GPS ou sortez.',
         duration: 5000,
       });
       
@@ -226,7 +226,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           console.log('Tour interrupted due to prolonged GPS loss');
           markTourInterrupted('gps_lost');
           toast.error('Tournée interrompue', {
-            description: 'Signal GPS perdu. Votre trajet sera à compléter.',
+            description: 'GPS perdu. Trajet à compléter.',
             duration: 8000,
           });
         }
@@ -620,8 +620,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             description: 'Vérifiez que le GPS est activé.',
           });
         } else if (err.code === 3) {
-          toast.warning('Signal GPS perdu', {
-            description: 'Tentative de reconnexion...',
+          toast.warning('GPS perdu', {
+            description: 'Reconnexion...',
           });
         }
       },
