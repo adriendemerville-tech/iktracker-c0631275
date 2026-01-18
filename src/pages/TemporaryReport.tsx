@@ -271,17 +271,6 @@ https://iktracker.fr`;
             <Button
               variant="outline"
               size="sm"
-              onClick={handleDownload}
-              disabled={state.status !== "ready" || isDownloading}
-              className={appleButtonClass}
-            >
-              <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
-              <span className="hidden sm:inline">Télécharger PDF</span>
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
               onClick={handleShareLink}
               disabled={state.status !== "ready"}
               className={appleButtonClass}
@@ -297,6 +286,17 @@ https://iktracker.fr`;
                   <span className="hidden sm:inline">Copier le lien</span>
                 </>
               )}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              disabled={state.status !== "ready" || isDownloading}
+              className={appleButtonClass}
+            >
+              <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
+              <span className="hidden sm:inline">Télécharger PDF</span>
             </Button>
 
             <Button
