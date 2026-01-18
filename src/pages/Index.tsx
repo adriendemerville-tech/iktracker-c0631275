@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
@@ -670,6 +670,31 @@ ${IKTRACKER_MENTION}
     }
   };
 
+  // Download PDF directly
+  const downloadPdf = async () => {
+    if (trips.length === 0) {
+      toast.error("Aucun trajet à exporter");
+      return;
+    }
+    
+    try {
+      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
+      const htmlContent = await generateCleanHTMLForPdf();
+      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      const dateStr = new Date().toISOString().split('T')[0];
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = `releve-ik-${dateStr}.pdf`;
+      link.click();
+
+      toast.success("PDF téléchargé");
+    } catch (error) {
+      console.error('PDF export error:', error);
+      const message = error instanceof Error ? error.message : "Erreur lors de l'export";
+      toast.error("Erreur lors de l'export", { description: message });
+    }
+  };
 
   return (
     <>
@@ -821,6 +846,18 @@ ${IKTRACKER_MENTION}
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={downloadPdf}
+                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
+                  disabled={trips.length === 0}
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
+                  aria-label="Télécharger le relevé PDF"
+                  title="Télécharger le relevé PDF"
+                >
+                  <Download className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={previewHTMLReport}
                   disabled={trips.length === 0}
                   className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
@@ -833,6 +870,18 @@ ${IKTRACKER_MENTION}
             )}
             {!isAdmin && (
               <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={downloadPdf}
+                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
+                  disabled={trips.length === 0}
+                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
+                  aria-label="Télécharger le relevé PDF"
+                  title="Télécharger le relevé PDF"
+                >
+                  <Download className="w-5 h-5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
