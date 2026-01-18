@@ -76,11 +76,14 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   renderRoot.setAttribute('data-pdf-root', 'true');
   Object.assign(renderRoot.style, {
     position: 'absolute',
-    left: '0',
+    // IMPORTANT: on le place hors-écran (mais visible) pour éviter toute interaction
+    // avec le layout/overlay, tout en restant "capturable" par html2canvas.
+    left: '-10000px',
     top: '0',
     width: '1122px',
     background: 'white',
     color: 'black',
+    opacity: '1',
     zIndex: '9999',
     pointerEvents: 'none',
   } as CSSStyleDeclaration);
@@ -139,7 +142,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     // Monter le HTML dans le root de rendu
     renderRoot.innerHTML = bodyHtml;
 
-    // Forcer un recalcul du layout
+    // Diagnostic rapide: si on a 0 hauteur, la capture sera blanche
     renderRoot.getBoundingClientRect();
 
     // Laisser le temps au CSS / layout / images de se stabiliser
@@ -174,32 +177,38 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     const windowHeight = Math.max(794, Math.min(6000, renderRoot.scrollHeight || 794));
 
-    const worker = html2pdf()
-      .set({
-        margin: 10,
-        filename: 'releve-ik.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 1122,
-          windowHeight,
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'landscape',
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-      })
-      .from(renderRoot)
-      .toPdf();
+    const options = {
+      margin: 10,
+      filename: 'releve-ik.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 1122,
+        windowHeight,
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'landscape',
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
 
-    const pdfBlob = await worker.get('pdf').then((pdf: any) => pdf.output('blob'));
+    // IMPORTANT: selon les versions, outputPdf('blob') est plus fiable que get('pdf').output('blob')
+    const worker = html2pdf().set(options).from(renderRoot);
+
+    const pdfBlob: Blob = typeof (worker as any).outputPdf === 'function'
+      ? await (worker as any).outputPdf('blob')
+      : await (worker as any)
+          .toCanvas()
+          .toPdf()
+          .get('pdf')
+          .then((pdf: any) => pdf.output('blob'));
 
     if (!pdfBlob || pdfBlob.size < 1500) {
       throw new Error('PDF vide (capture blanche)');
