@@ -579,8 +579,8 @@ ${IKTRACKER_URL}`;
               >
                 <FileText className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={exportZip} onMouseEnter={() => { import('@/lib/pdf-utils'); }} disabled={trips.length === 0 || isExporting} aria-label="Télécharger les trajets">
-                <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
+              <Button variant="ghost" size="icon" onClick={previewHTMLReport} disabled={trips.length === 0} aria-label="Télécharger le relevé">
+                <Download className="w-5 h-5" />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">
                 <UserCircle className="w-5 h-5" />
