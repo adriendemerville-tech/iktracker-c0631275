@@ -1024,7 +1024,7 @@ ${IKTRACKER_MENTION}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base md:text-lg font-semibold">Derniers trajets</h2>
             {trips.length > 3 && (
-              <Link to="/report" className="text-sm text-primary font-medium flex items-center">
+              <Link to="/mestrajets" className="text-sm text-primary font-medium flex items-center">
                 Voir tout
                 <ChevronRight className="w-4 h-4" />
               </Link>
@@ -1093,7 +1093,7 @@ ${IKTRACKER_MENTION}
       <div className="hidden md:block">
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-3">
           {/* Voir le relevé */}
-          <Link to="/report" data-tutorial="report">
+          <Link to="/mestrajets" data-tutorial="report">
             <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
               <FileText className="w-4 h-4" />
               Voir le relevé
@@ -1131,7 +1131,7 @@ ${IKTRACKER_MENTION}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="grid grid-cols-2 gap-3 w-1/2 min-w-[200px]">
-            <Link to="/report">
+            <Link to="/mestrajets">
               <Button variant="secondary" size="default" className="w-full h-10 px-3 text-sm shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
                 <FileText className="w-4 h-4" />
                 Relevé
