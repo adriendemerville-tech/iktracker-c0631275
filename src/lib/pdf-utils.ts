@@ -70,30 +70,32 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     </div>
   `;
 
-  // Container pour le rendu - doit rester DANS le viewport (sinon capture blanche)
-  // NOTE: on évite opacity/visibility:hidden car html2canvas capturerait du transparent.
+  // Container pour le rendu - DOIT être visible et dans le viewport pour html2canvas
   const renderRoot = document.createElement('div');
   renderRoot.setAttribute('data-pdf-root', 'true');
   Object.assign(renderRoot.style, {
-    position: 'absolute',
+    position: 'fixed',
     left: '0',
     top: '0',
     // Largeur adaptée au format A4 paysage
     width: '1122px',
     minHeight: '794px',
-    background: '#f5f5f5',
-    color: 'black',
-    zIndex: '99998',
+    background: '#ffffff',
+    color: '#000000',
+    zIndex: '99997',
     overflow: 'visible',
     padding: '40px 60px',
     boxSizing: 'border-box',
+    // Force visibility for html2canvas
+    opacity: '1',
+    visibility: 'visible',
   });
+
+  // Scroll en haut AVANT d'ajouter les éléments
+  window.scrollTo(0, 0);
 
   document.body.appendChild(renderRoot);
   document.body.appendChild(overlay); // Overlay AU-DESSUS pour cacher visuellement
-
-  // Scroll en haut
-  window.scrollTo(0, 0);
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -198,18 +200,22 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     });
 
     const options = {
-      margin: 0,
+      margin: 10,
       filename: 'releve-ik.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: 'jpeg', quality: 0.95 },
       html2canvas: {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#f5f5f5',
-        logging: true,
+        backgroundColor: '#ffffff',
+        logging: false,
         scrollX: 0,
         scrollY: 0,
         windowWidth: 1122,
         windowHeight: contentHeight,
+        // Force le rendu de l'élément même s'il est partiellement caché
+        foreignObjectRendering: false,
+        allowTaint: true,
+        removeContainer: false,
       },
       jsPDF: {
         unit: 'mm',
@@ -219,22 +225,20 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
 
-    // Certains environnements produisent un PDF blanc si l'élément est recouvert.
-    // On masque temporairement l'overlay pendant la capture.
-    const overlayPrevDisplay = overlay.style.display;
+    // Masquer l'overlay pendant la capture pour éviter le PDF blanc
     overlay.style.display = 'none';
+    
+    // Attendre plusieurs frames pour s'assurer que le DOM est stable
     await nextFrame();
+    await nextFrame();
+    await wait(200);
 
     try {
-      const worker = html2pdf().set(options).from(renderRoot);
-
-      const pdfBlob: Blob = typeof (worker as any).outputPdf === 'function'
-        ? await (worker as any).outputPdf('blob')
-        : await (worker as any)
-            .toCanvas()
-            .toPdf()
-            .get('pdf')
-            .then((pdf: any) => pdf.output('blob'));
+      // Utiliser la méthode directe de html2pdf
+      const pdfBlob: Blob = await html2pdf()
+        .set(options)
+        .from(renderRoot)
+        .outputPdf('blob');
 
       console.log("PDF blob size:", pdfBlob?.size);
 
@@ -244,7 +248,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
       return pdfBlob;
     } finally {
-      overlay.style.display = overlayPrevDisplay;
+      overlay.style.display = 'flex';
     }
   } finally {
     // Cleanup
