@@ -860,7 +860,7 @@ ${IKTRACKER_URL}`;
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 md:px-6 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto grid grid-cols-2 gap-3">
+        <div className="max-w-[280px] md:max-w-sm mx-auto grid grid-cols-2 gap-3">
           <Link to="/profile#mes-adresses">
             <Button 
               variant="outline" 
