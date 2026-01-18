@@ -71,19 +71,18 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   // IMPORTANT:
   // On ne rend PLUS le HTML dans une iframe.
   // html2pdf/html2canvas gère très mal les noeuds issus d'un autre document (styles perdus / rendu texte brut).
-  // On rend donc le HTML dans le document courant, hors-écran, puis on capture ce noeud.
+  // On rend donc le HTML dans le document courant, puis on capture ce noeud.
   const renderRoot = document.createElement('div');
   renderRoot.setAttribute('data-pdf-root', 'true');
   Object.assign(renderRoot.style, {
-    position: 'fixed',
+    position: 'absolute',
     left: '0',
     top: '0',
     width: '1122px',
     background: 'white',
     color: 'black',
-    opacity: '1',
+    zIndex: '9999',
     pointerEvents: 'none',
-    zIndex: '0',
   } as CSSStyleDeclaration);
 
   document.body.appendChild(overlay);
