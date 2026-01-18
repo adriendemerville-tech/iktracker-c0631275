@@ -452,17 +452,48 @@ ${IKTRACKER_MENTION}
       link.download = `releve-ik-${dateStr}.zip`;
       link.click();
 
+      // Create a share link for the temporary report preview
+      let shareLink = '';
+      try {
+        // Generate printable HTML for sharing
+        const { generatePrintableHTML } = await import('@/lib/print-utils');
+        const shareHtmlContent = generatePrintableHTML({
+          trips,
+          vehicles,
+          totalKm,
+          logoUrl: '/logo-iktracker-250.webp',
+          userInfo,
+        });
+        
+        // Create the share in the database
+        const { data: shareData, error: shareError } = await supabase
+          .from('report_shares')
+          .insert({
+            user_id: user?.id,
+            html_content: shareHtmlContent,
+          })
+          .select('id')
+          .single();
+        
+        if (!shareError && shareData?.id) {
+          shareLink = `${window.location.origin}/temporaryreleve/${shareData.id}`;
+        }
+      } catch (e) {
+        console.warn('Could not create share link:', e);
+      }
+
       // Get user identity for signature
       const vehicle = vehicles.length > 0 ? vehicles[0] : null;
       const ownerName = vehicle && (vehicle.ownerFirstName || vehicle.ownerLastName) 
         ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
         : user?.email?.split('@')[0] || 'Votre client';
 
-      // Compose email
+      // Compose email with share link
       const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
       const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
-      const body = encodeURIComponent(
-`Bonjour,
+      
+      // Build body with optional share link
+      let emailBody = `Bonjour,
 
 Veuillez trouver ci-joint mon relevé des indemnités kilométriques pour la période en cours.
 
@@ -470,8 +501,18 @@ Ce relevé comprend :
 - Le détail de mes ${trips.length} trajets professionnels
 - Le total des kilomètres parcourus : ${totalKm.toFixed(0)} km
 - Le montant total des indemnités : ${recalculatedTotalIK.toFixed(2)} €
+`;
 
-Le fichier ZIP contient un PDF récapitulatif ainsi qu'un fichier CSV pour import dans votre logiciel comptable.
+      // Always add the share link section if available
+      if (shareLink) {
+        emailBody += `
+📎 Consultez le relevé en ligne (valide 7 jours) :
+${shareLink}
+
+`;
+      }
+
+      emailBody += `Le fichier ZIP contient un PDF récapitulatif ainsi qu'un fichier CSV pour import dans votre logiciel comptable.
 
 Je reste à votre disposition pour toute question.
 
@@ -480,8 +521,9 @@ ${ownerName}
 
 ---
 Document généré via IKtracker
-${IKTRACKER_URL}`
-      );
+${IKTRACKER_URL}`;
+
+      const body = encodeURIComponent(emailBody);
 
       // Open mailto after a short delay to ensure download started
       setTimeout(() => {
@@ -498,7 +540,9 @@ ${IKTRACKER_URL}`
       }
 
       toast.success("Fichier téléchargé", {
-        description: "Joignez-le à l'email qui va s'ouvrir",
+        description: shareLink 
+          ? "Le lien de prévisualisation a été ajouté à l'email" 
+          : "Joignez-le à l'email qui va s'ouvrir",
       });
     } catch (error) {
       console.error('Export error:', error);
