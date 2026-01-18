@@ -305,6 +305,19 @@ function generateReportHTML(options: PrintReportOptions): string {
       background: #059669;
     }
     
+    .btn-link {
+      background: #8b5cf6;
+      color: #fff;
+    }
+    
+    .btn-link:hover {
+      background: #7c3aed;
+    }
+    
+    .btn-link.copied {
+      background: #22c55e;
+    }
+    
     .content-wrapper {
       margin-top: 70px;
     }
@@ -346,6 +359,10 @@ function generateReportHTML(options: PrintReportOptions): string {
       </button>
     </div>
     <div class="right-actions">
+      <button class="btn-link" onclick="copyShareLink()" id="btn-link" style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span id="btn-link-text">Copier le lien</span>
+      </button>
       <button class="btn-pdf" onclick="downloadPDF()" id="btn-pdf">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Télécharger PDF
@@ -390,9 +407,16 @@ function generateReportHTML(options: PrintReportOptions): string {
         const actionBar = document.querySelector('.action-bar');
         actionBar.style.display = 'none';
         
+        // Generate filename with date
+        const today = new Date();
+        const dateStr = today.getFullYear() + '-' + 
+          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+          String(today.getDate()).padStart(2, '0');
+        const filename = 'releve-ik-' + dateStr + '.pdf';
+        
         const opt = {
-          margin: 0,
-          filename: 'releve-ik.pdf',
+          margin: [10, 5, 10, 5], // top, left, bottom, right in mm
+          filename: filename,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true, backgroundColor: '#f5f5f5' },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
@@ -487,6 +511,92 @@ function generateReportHTML(options: PrintReportOptions): string {
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
+    }
+    
+    // Store the current share link globally
+    let currentShareLink = '';
+    
+    async function copyShareLink() {
+      const btn = document.getElementById('btn-link');
+      const btnText = document.getElementById('btn-link-text');
+      
+      if (!currentShareLink) {
+        // Need to create a share link first
+        btn.disabled = true;
+        btnText.textContent = 'Création...';
+        
+        try {
+          if (SUPABASE_URL && SUPABASE_KEY) {
+            const actionBar = document.querySelector('.action-bar');
+            actionBar.style.display = 'none';
+            const htmlContent = document.documentElement.outerHTML;
+            actionBar.style.display = 'flex';
+            
+            const authData = localStorage.getItem('sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token');
+            const accessToken = authData ? JSON.parse(authData)?.access_token : null;
+            
+            if (accessToken) {
+              const response = await fetch(SUPABASE_URL + '/rest/v1/report_shares', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': 'Bearer ' + accessToken,
+                  'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                  user_id: JSON.parse(authData)?.user?.id,
+                  html_content: htmlContent
+                })
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data && data[0] && data[0].id) {
+                  currentShareLink = SUPABASE_URL + '/functions/v1/view-report?id=' + data[0].id;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Could not create share link:', e);
+        }
+        
+        btn.disabled = false;
+      }
+      
+      if (currentShareLink) {
+        try {
+          await navigator.clipboard.writeText(currentShareLink);
+          btn.classList.add('copied');
+          btnText.textContent = 'Copié !';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btnText.textContent = 'Copier le lien';
+          }, 2000);
+        } catch (e) {
+          // Fallback for older browsers
+          const textarea = document.createElement('textarea');
+          textarea.value = currentShareLink;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          btn.classList.add('copied');
+          btnText.textContent = 'Copié !';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btnText.textContent = 'Copier le lien';
+          }, 2000);
+        }
+      } else {
+        alert('Impossible de créer le lien de partage. Veuillez réessayer.');
+      }
+    }
+    
+    // Show the copy link button after page load (only if Supabase is configured)
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      document.getElementById('btn-link').style.display = 'inline-flex';
     }
   </script>
   <style>
