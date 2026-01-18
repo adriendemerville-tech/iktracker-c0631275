@@ -299,6 +299,33 @@ export type Database = {
         }
         Relationships: []
       }
+      report_shares: {
+        Row: {
+          accessed_count: number
+          created_at: string
+          expires_at: string
+          html_content: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          accessed_count?: number
+          created_at?: string
+          expires_at?: string
+          html_content: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          accessed_count?: number
+          created_at?: string
+          expires_at?: string
+          html_content?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       share_events: {
         Row: {
           id: string
@@ -486,6 +513,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_shares: { Args: never; Returns: undefined }
       get_admin_stats: {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
