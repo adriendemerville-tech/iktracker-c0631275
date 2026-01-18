@@ -232,7 +232,7 @@ Cordialement
 
 ---
 Document généré via IKtracker
-https://iktracker.lovable.app`;
+https://iktracker.fr`;
 
     const body = encodeURIComponent(emailBody);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
