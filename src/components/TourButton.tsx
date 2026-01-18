@@ -46,19 +46,15 @@ export function TourButton({
         />
       )}
 
-      {/* Background with gradient */}
+      {/* Background with smooth color transition */}
       <span 
-        className={cn(
-          "absolute inset-0 rounded-full transition-all duration-1000 z-[1]",
-          isActive 
-            ? "animate-tour-gradient-active" 
-            : "animate-tour-gradient-idle"
-        )}
+        className="absolute inset-0 rounded-full z-[1]"
         style={{
           background: isActive 
             ? 'linear-gradient(135deg, #25D366 0%, #128C7E 50%, #25D366 100%)'
-            : 'linear-gradient(135deg, #2661D9 0%, #1E4BA8 50%, #2661D9 100%)',
+            : 'linear-gradient(135deg, #6476E8 0%, #5264D6 50%, #6476E8 100%)',
           backgroundSize: '200% 200%',
+          transition: 'background 800ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       />
       
