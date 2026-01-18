@@ -670,29 +670,66 @@ ${IKTRACKER_MENTION}
     }
   };
 
-  // Download PDF directly
+  // Download PDF directly - loads report HTML from view-report edge function
   const downloadPdf = async () => {
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
     }
     
+    const toastId = toast.loading("Génération du PDF...");
+    
     try {
-      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Vous devez être connecté");
+      }
+      
+      // 1. Create temporary share to get report HTML
       const htmlContent = await generateCleanHTMLForPdf();
-      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
+      
+      const { data: shareData, error: shareError } = await supabase
+        .from('report_shares')
+        .insert({ html_content: htmlContent, expires_at: expiresAt, user_id: user.id })
+        .select('id')
+        .single();
+      
+      if (shareError || !shareData) {
+        throw new Error("Impossible de préparer le relevé");
+      }
+      
+      // 2. Fetch the formatted HTML from view-report edge function
+      const { data: reportHtml, error: fetchError } = await supabase.functions.invoke("view-report", {
+        body: { id: shareData.id },
+        headers: { Accept: "text/html" },
+      });
+      
+      if (fetchError || !reportHtml) {
+        throw new Error("Impossible de charger le contenu du relevé");
+      }
+      
+      // 3. Convert HTML to PDF
+      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
+      const pdfBlob = await htmlToPdfBlob(reportHtml);
       const dateStr = new Date().toISOString().split('T')[0];
       
+      // 4. Download PDF
       const link = document.createElement('a');
       link.href = URL.createObjectURL(pdfBlob);
       link.download = `releve-ik-${dateStr}.pdf`;
       link.click();
+      URL.revokeObjectURL(link.href);
+      
+      // 5. Cleanup temporary share
+      await supabase.from('report_shares').delete().eq('id', shareData.id);
 
-      toast.success("PDF téléchargé");
+      toast.success("PDF téléchargé", { id: toastId });
     } catch (error) {
       console.error('PDF export error:', error);
       const message = error instanceof Error ? error.message : "Erreur lors de l'export";
-      toast.error("Erreur lors de l'export", { description: message });
+      toast.error("Erreur lors de l'export", { id: toastId, description: message });
     }
   };
 
