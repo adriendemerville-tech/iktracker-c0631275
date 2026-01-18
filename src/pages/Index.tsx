@@ -619,7 +619,7 @@ ${IKTRACKER_MENTION}
     return '\uFEFF' + csv;
   };
 
-  // Generate HTML content for export (replaces heavy PDF library)
+  // Generate HTML content for interactive preview (with action bar)
   const generateHTMLContent = async () => {
     const { generatePrintableHTML } = await import('@/lib/print-utils');
     return generatePrintableHTML({
@@ -627,6 +627,17 @@ ${IKTRACKER_MENTION}
       vehicles,
       totalKm,
       logoUrl: '/logo-iktracker-250.webp',
+    });
+  };
+
+  // Generate clean HTML for PDF export (without action bar, optimized for html2pdf)
+  const generateCleanHTMLForPdf = async () => {
+    const { generateCleanPdfHTML } = await import('@/lib/print-utils');
+    return generateCleanPdfHTML({
+      trips,
+      vehicles,
+      totalKm,
+      logoUrl: 'https://iktracker.lovable.app/logo-iktracker-250.webp',
     });
   };
 
@@ -705,7 +716,7 @@ ${IKTRACKER_MENTION}
       zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());
       zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
 
-      const htmlContent = await generateHTMLContent();
+      const htmlContent = await generateCleanHTMLForPdf();
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
 
