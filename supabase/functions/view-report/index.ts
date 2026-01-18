@@ -3,14 +3,22 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Helper to create HTML response with correct headers
 function htmlResponse(html: string, status = 200): Response {
-  return new Response(html, {
+  const headers = new Headers();
+
+  // NOTE: we use lowercase header names + an encoded body to avoid platforms
+  // defaulting to text/plain (which makes browsers show raw HTML).
+  headers.set("content-type", "text/html; charset=utf-8");
+  headers.set("access-control-allow-origin", "*");
+  headers.set(
+    "access-control-allow-headers",
+    "authorization, x-client-info, apikey, content-type",
+  );
+  headers.set("cache-control", "no-cache, no-store, must-revalidate");
+  headers.set("x-ik-response-type", "html");
+
+  return new Response(new TextEncoder().encode(html), {
     status,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-    },
+    headers,
   });
 }
 
@@ -292,7 +300,19 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const shareId = url.searchParams.get("id");
+
+    // Support both:
+    // - GET /view-report?id=...
+    // - POST /view-report  { "id": "..." }
+    let shareId = url.searchParams.get("id");
+    if (!shareId && req.method === "POST") {
+      try {
+        const body = await req.json().catch(() => ({}));
+        if (body && typeof body.id === "string") shareId = body.id;
+      } catch {
+        // ignore
+      }
+    }
 
     console.log("View report request for ID:", shareId);
 

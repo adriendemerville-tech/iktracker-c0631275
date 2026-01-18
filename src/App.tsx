@@ -23,6 +23,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Index = lazy(() => import("./pages/Index"));
 const Report = lazy(() => import("./pages/Report"));
+const TemporaryReleve = lazy(() => import("./pages/TemporaryReleve"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ThemeOnboarding = lazy(() => import("./pages/ThemeOnboarding"));
@@ -206,6 +207,14 @@ const AppRoutes = () => {
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
         <Route path="/signup" element={<SmartSignup />} />
+        <Route
+          path="/temporaryreleve/:id"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <TemporaryReleve />
+            </Suspense>
+          }
+        />
         <Route 
           path="/theme-onboarding" 
           element={
