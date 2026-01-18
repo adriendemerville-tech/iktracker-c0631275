@@ -219,6 +219,7 @@ export default function TemporaryReleve() {
 Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques pour la période en cours.
 
 📎 Consultez le relevé en ligne (valide 7 jours) :
+
 ${shareUrl}
 
 Ce lien vous permet de visualiser, télécharger ou imprimer le relevé complet.
