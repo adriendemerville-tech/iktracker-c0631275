@@ -52,7 +52,7 @@ export function TourButton({
         style={{
           background: isActive 
             ? 'linear-gradient(135deg, #25D366 0%, #128C7E 50%, #25D366 100%)'
-            : 'linear-gradient(135deg, #6476E8 0%, #5264D6 50%, #6476E8 100%)',
+            : 'linear-gradient(135deg, #7485ED 0%, #5666D8 100%)',
           backgroundSize: '200% 200%',
           transition: 'background 800ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
