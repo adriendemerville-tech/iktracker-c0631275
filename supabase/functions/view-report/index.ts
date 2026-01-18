@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// Helper to create HTML response with correct headers
+function htmlResponse(html: string, status = 200): Response {
+  return new Response(html, {
+    status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+    },
+  });
+}
 
 // Generate a clean, standalone HTML page for sharing
 function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
@@ -201,96 +209,7 @@ function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
 </html>`;
 }
 
-serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const url = new URL(req.url);
-    const shareId = url.searchParams.get("id");
-
-    if (!shareId) {
-      return new Response(
-        generateErrorPage("Lien invalide", "Le lien de partage est invalide ou manquant."),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
-        }
-      );
-    }
-
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Fetch the shared report
-    const { data: share, error } = await supabase
-      .from("report_shares")
-      .select("*")
-      .eq("id", shareId)
-      .maybeSingle();
-
-    if (error || !share) {
-      console.error("Error fetching share:", error);
-      return new Response(
-        generateErrorPage("Rapport introuvable", "Ce rapport n'existe pas ou a expiré.", "Les liens de partage sont valides pendant 7 jours."),
-        {
-          status: 404,
-          headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
-        }
-      );
-    }
-
-    // Check if expired
-    const expiresAt = new Date(share.expires_at);
-    if (expiresAt < new Date()) {
-      return new Response(
-        generateErrorPage(
-          "Lien expiré", 
-          `Ce lien de partage a expiré le ${expiresAt.toLocaleDateString('fr-FR')}.`,
-          "Les liens de partage sont valides pendant 7 jours.",
-          "#f59e0b"
-        ),
-        {
-          status: 410,
-          headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
-        }
-      );
-    }
-
-    // Increment access count (best effort)
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (serviceRoleKey) {
-      const adminClient = createClient(supabaseUrl, serviceRoleKey);
-      await adminClient
-        .from("report_shares")
-        .update({ accessed_count: (share.accessed_count || 0) + 1 })
-        .eq("id", shareId);
-    }
-
-    // Generate clean share page
-    const cleanHtml = generateCleanSharePage(share.html_content, expiresAt);
-
-    return new Response(cleanHtml, {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
-    });
-  } catch (error) {
-    console.error("Error in view-report function:", error);
-    return new Response(
-      generateErrorPage("Erreur", "Une erreur est survenue lors du chargement du rapport."),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
-      }
-    );
-  }
-});
-
-function generateErrorPage(title: string, message: string, subMessage?: string, color: string = "#dc2626"): string {
+function generateErrorPage(title: string, message: string, subMessage?: string, color = "#dc2626"): string {
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -359,3 +278,86 @@ function generateErrorPage(title: string, message: string, subMessage?: string, 
 </body>
 </html>`;
 }
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { 
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      }
+    });
+  }
+
+  try {
+    const url = new URL(req.url);
+    const shareId = url.searchParams.get("id");
+
+    console.log("View report request for ID:", shareId);
+
+    if (!shareId) {
+      return htmlResponse(
+        generateErrorPage("Lien invalide", "Le lien de partage est invalide ou manquant."),
+        400
+      );
+    }
+
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Fetch the shared report
+    const { data: share, error } = await supabase
+      .from("report_shares")
+      .select("*")
+      .eq("id", shareId)
+      .maybeSingle();
+
+    if (error || !share) {
+      console.error("Error fetching share:", error);
+      return htmlResponse(
+        generateErrorPage("Rapport introuvable", "Ce rapport n'existe pas ou a expiré.", "Les liens de partage sont valides pendant 7 jours."),
+        404
+      );
+    }
+
+    // Check if expired
+    const expiresAt = new Date(share.expires_at);
+    if (expiresAt < new Date()) {
+      return htmlResponse(
+        generateErrorPage(
+          "Lien expiré", 
+          `Ce lien de partage a expiré le ${expiresAt.toLocaleDateString('fr-FR')}.`,
+          "Les liens de partage sont valides pendant 7 jours.",
+          "#f59e0b"
+        ),
+        410
+      );
+    }
+
+    // Increment access count (best effort)
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (serviceRoleKey) {
+      const adminClient = createClient(supabaseUrl, serviceRoleKey);
+      await adminClient
+        .from("report_shares")
+        .update({ accessed_count: (share.accessed_count || 0) + 1 })
+        .eq("id", shareId);
+    }
+
+    console.log("Generating clean share page for report");
+
+    // Generate clean share page
+    const cleanHtml = generateCleanSharePage(share.html_content, expiresAt);
+
+    return htmlResponse(cleanHtml, 200);
+  } catch (error) {
+    console.error("Error in view-report function:", error);
+    return htmlResponse(
+      generateErrorPage("Erreur", "Une erreur est survenue lors du chargement du rapport."),
+      500
+    );
+  }
+});
