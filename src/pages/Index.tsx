@@ -670,7 +670,8 @@ ${IKTRACKER_MENTION}
     }
   };
 
-  const exportZip = async () => {
+  // Download PDF directly (header button)
+  const downloadPdf = async () => {
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
@@ -678,63 +679,23 @@ ${IKTRACKER_MENTION}
 
     setIsExporting(true);
     
-    // Create elegant loading overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'export-overlay';
-    overlay.style.cssText = `
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    `;
-    overlay.innerHTML = `
-      <div style="
-        width: 48px;
-        height: 48px;
-        border: 3px solid rgba(255,255,255,0.2);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      "></div>
-      <span style="color: white; font-size: 16px; font-weight: 500;">Génération du relevé...</span>
-      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-    `;
-    document.body.appendChild(overlay);
-    
     try {
-      const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
-      const JSZip = await loadZip();
-      const zip = new JSZip();
-      const dateStr = new Date().toISOString().split('T')[0];
-
-      zip.file('LISEZ-MOI-IKtracker.txt', generateReadmeContent());
-      zip.file(`releve-ik-${dateStr}.csv`, generateCSVContent());
-
+      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const htmlContent = await generateCleanHTMLForPdf();
       const pdfBlob = await htmlToPdfBlob(htmlContent);
-      zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
-
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const dateStr = new Date().toISOString().split('T')[0];
+      
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(zipBlob);
-      link.download = `releve-ik-${dateStr}.zip`;
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = `releve-ik-${dateStr}.pdf`;
       link.click();
 
-      toast.success("Export réussi", { description: "Le fichier ZIP contient le PDF et le CSV" });
+      toast.success("PDF téléchargé");
     } catch (error) {
-      console.error('Export error:', error);
+      console.error('PDF export error:', error);
       const message = error instanceof Error ? error.message : "Erreur lors de l'export";
       toast.error("Erreur lors de l'export", { description: message });
     } finally {
-      // Remove overlay
-      const existingOverlay = document.getElementById('export-overlay');
-      if (existingOverlay) existingOverlay.remove();
       setIsExporting(false);
     }
   };
@@ -889,12 +850,12 @@ ${IKTRACKER_MENTION}
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={exportZip}
+                  onClick={downloadPdf}
                   onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   data-tutorial="download"
-                  aria-label="Télécharger le relevé"
+                  aria-label="Télécharger le relevé PDF"
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
@@ -916,12 +877,12 @@ ${IKTRACKER_MENTION}
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={exportZip}
+                  onClick={downloadPdf}
                   onMouseEnter={() => { import('@/lib/pdf-utils'); }}
                   disabled={trips.length === 0 || isExporting}
                   className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                   data-tutorial="download"
-                  aria-label="Télécharger le relevé"
+                  aria-label="Télécharger le relevé PDF"
                 >
                   <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
                 </Button>
