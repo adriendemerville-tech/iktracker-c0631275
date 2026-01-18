@@ -956,7 +956,7 @@ ${IKTRACKER_URL}`;
               disabled={vehicles.length === 0}
             >
               <Plus className="w-4 h-4" />
-              Trajet
+              Nouveau
             </Button>
           </div>
         </div>
