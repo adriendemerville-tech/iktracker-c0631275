@@ -266,15 +266,6 @@ function generateReportHTML(options: PrintReportOptions): string {
       transform: translateY(0);
     }
     
-    .btn-back {
-      background: #6B7280;
-      color: #fff;
-    }
-    
-    .btn-back:hover {
-      background: #4B5563;
-    }
-    
     .btn-pdf {
       background: #6B7280;
       color: #fff;
@@ -355,10 +346,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   <!-- Action Bar (hidden in print) -->
   <div class="action-bar">
     <div class="left-actions">
-      <button class="btn-back" onclick="window.history.back()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-        Retour
-      </button>
+      <!-- Empty - removed back button -->
     </div>
     <div class="right-actions">
       <button class="btn-link" onclick="copyShareLink()" id="btn-link" style="display: none;">

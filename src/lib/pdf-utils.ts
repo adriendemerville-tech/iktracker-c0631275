@@ -1,19 +1,7 @@
-// Dynamic utilities - loaded on demand to reduce initial bundle size
-// PDF generation uses html2pdf.js for better quality
+// PDF and ZIP utilities - loaded on demand to reduce initial bundle size
 
 let zipPromise: Promise<any> | null = null;
 let html2pdfPromise: Promise<any> | null = null;
-
-// Legacy exports - kept for backward compatibility during transition
-export function preloadPDFLibraries() {
-  console.warn('PDF libraries have been removed. Use printReport from print-utils.ts instead.');
-  return Promise.resolve({ jsPDF: null, autoTable: null });
-}
-
-export async function loadPDFLibraries() {
-  console.warn('PDF libraries have been removed. Use printReport from print-utils.ts instead.');
-  return { jsPDF: null, autoTable: null };
-}
 
 // Preload ZIP library
 export function preloadZip() {
@@ -28,7 +16,7 @@ export async function loadZip() {
 }
 
 // Load html2pdf library for converting HTML to PDF
-export async function loadHtml2Pdf() {
+async function loadHtml2Pdf() {
   if (!html2pdfPromise) {
     html2pdfPromise = import('html2pdf.js').then(m => m.default);
   }
@@ -37,10 +25,7 @@ export async function loadHtml2Pdf() {
 
 // Convert HTML string to PDF blob
 export async function htmlToPdfBlob(html: string): Promise<Blob> {
-  console.log("Contenu HTML reçu pour le PDF:", (html || "").substring(0, 500));
-
   if (!html || html.trim().length < 100) {
-    console.error("Erreur: Le HTML envoyé au PDF est vide ou trop court.");
     throw new Error("Contenu du rapport invalide");
   }
 
@@ -191,13 +176,6 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     // Calculer la hauteur réelle du contenu
     const contentHeight = Math.max(794, renderRoot.scrollHeight || 794);
-    const rect = renderRoot.getBoundingClientRect();
-    console.log("PDF render diagnostics:", {
-      scrollHeight: renderRoot.scrollHeight,
-      contentHeight,
-      rect,
-      textLength: (renderRoot.innerText || '').length,
-    });
 
     const options = {
       margin: 10,
@@ -240,10 +218,8 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
         .from(renderRoot)
         .outputPdf('blob');
 
-      console.log("PDF blob size:", pdfBlob?.size);
-
       if (!pdfBlob || pdfBlob.size < 1500) {
-        throw new Error('PDF vide (capture blanche) - taille: ' + (pdfBlob?.size || 0));
+        throw new Error('PDF vide - taille: ' + (pdfBlob?.size || 0));
       }
 
       return pdfBlob;
