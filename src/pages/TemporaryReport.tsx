@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Printer, Download, Share2, Check, Send } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
@@ -33,28 +32,39 @@ export default function TemporaryReport() {
 
       setState({ status: "loading" });
 
-      const { data, error } = await supabase.functions.invoke("view-report", {
-        body: { id },
-        headers: {
-          Accept: "text/html",
-        },
-      });
+      try {
+        // Use direct fetch with GET for faster loading (no SDK overhead, cacheable)
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const response = await fetch(
+          `${supabaseUrl}/functions/v1/view-report?id=${encodeURIComponent(id)}`,
+          {
+            method: "GET",
+            headers: {
+              "Accept": "text/html",
+            },
+          }
+        );
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (error) {
+        if (!response.ok) {
+          setState({ status: "error", message: "Impossible de charger le relevé." });
+          return;
+        }
+
+        const html = await response.text();
+        
+        if (!html.trim().startsWith("<!DOCTYPE") && !html.includes("<html")) {
+          setState({ status: "error", message: "Contenu du relevé invalide." });
+          return;
+        }
+
+        setState({ status: "ready", html });
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Error loading report:", error);
         setState({ status: "error", message: "Impossible de charger le relevé." });
-        return;
       }
-
-      // view-report renvoie du texte (HTML) ; on l'affiche dans un iframe via srcDoc
-      const html = typeof data === "string" ? data : String(data ?? "");
-      if (!html.trim().startsWith("<!DOCTYPE") && !html.includes("<html")) {
-        setState({ status: "error", message: "Contenu du relevé invalide." });
-        return;
-      }
-
-      setState({ status: "ready", html });
     }
 
     load();
