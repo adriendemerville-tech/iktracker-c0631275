@@ -48,7 +48,7 @@ export function TourButton({
 
       {/* Background with smooth color transition */}
       <span 
-        className="absolute inset-0 rounded-full z-[1]"
+        className="absolute inset-0 rounded-full z-[1] border border-white"
         style={{
           background: isActive 
             ? 'linear-gradient(135deg, #25D366 0%, #128C7E 50%, #25D366 100%)'
