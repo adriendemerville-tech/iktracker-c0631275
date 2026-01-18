@@ -2,22 +2,38 @@
   publish = "dist"
   command = "npm run build"
 
-# === IMMUTABLE ASSETS (max cache 1 year) ===
-
-# Hashed JS/CSS in /assets folder
+# === GLOBAL SECURITY HEADERS ===
 [[headers]]
-  for = "/assets/*"
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# === IMMUTABLE HASHED ASSETS (1 year cache) ===
+# JS files in /assets/ folder (Vite outputs hashed filenames)
+[[headers]]
+  for = "/assets/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Also match nested paths in assets
 [[headers]]
-  for = "/assets/**"
+  for = "/assets/**/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# === IMAGES ===
+# CSS files in /assets/ folder
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
+[[headers]]
+  for = "/assets/**/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# === IMAGES (1 year cache) ===
 [[headers]]
   for = "/*.webp"
   [headers.values]
@@ -48,14 +64,33 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Images in subdirectories
 [[headers]]
   for = "/splash/*.png"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# === FONTS ===
+# Assets folder images
+[[headers]]
+  for = "/assets/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
+[[headers]]
+  for = "/assets/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# === FONTS (1 year cache) ===
 [[headers]]
   for = "/*.woff2"
   [headers.values]
@@ -66,8 +101,17 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# === HTML (no cache, must revalidate) ===
+[[headers]]
+  for = "/assets/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
+[[headers]]
+  for = "/assets/*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# === HTML (no cache, must revalidate) ===
 [[headers]]
   for = "/"
   [headers.values]
@@ -84,21 +128,23 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 
 # === SERVICE WORKER (no cache) ===
-
 [[headers]]
   for = "/sw.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# === PWA MANIFEST ===
+[[headers]]
+  for = "/workbox-*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
+# === PWA MANIFEST (24h cache) ===
 [[headers]]
   for = "/manifest.webmanifest"
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# === SEO FILES ===
-
+# === SEO FILES (24h cache) ===
 [[headers]]
   for = "/robots.txt"
   [headers.values]
@@ -109,8 +155,12 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# === SPA FALLBACK ===
+[[headers]]
+  for = "/llm.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
 
+# === SPA FALLBACK ===
 [[redirects]]
   from = "/*"
   to = "/index.html"
