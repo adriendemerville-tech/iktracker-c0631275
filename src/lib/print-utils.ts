@@ -475,7 +475,8 @@ function generateReportHTML(options: PrintReportOptions): string {
               if (response.ok) {
                 const data = await response.json();
                 if (data && data[0] && data[0].id) {
-                  shareLink = SUPABASE_URL + '/functions/v1/view-report?id=' + data[0].id;
+                  // Use a friendly URL on the current domain (proxied via /public/_redirects)
+                  shareLink = window.location.origin + '/temporaryreleve/' + data[0].id;
                 }
               }
             }
@@ -553,7 +554,8 @@ function generateReportHTML(options: PrintReportOptions): string {
               if (response.ok) {
                 const data = await response.json();
                 if (data && data[0] && data[0].id) {
-                  currentShareLink = SUPABASE_URL + '/functions/v1/view-report?id=' + data[0].id;
+                  // Use a friendly URL on the current domain (proxied via /public/_redirects)
+                  currentShareLink = window.location.origin + '/temporaryreleve/' + data[0].id;
                 }
               }
             }
