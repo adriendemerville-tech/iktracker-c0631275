@@ -183,6 +183,8 @@ function generateReportHTML(options: PrintReportOptions): string {
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="https://iktracker.lovable.app/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://iktracker.lovable.app/favicon-48x48.png">
   <title>Relevé IK - ${currentMonth} ${currentYear}</title>
   <style>
     @page {

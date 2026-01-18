@@ -196,6 +196,8 @@ export default function TemporaryReleve() {
         <title>{title}</title>
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={window.location.href} />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
       </Helmet>
 
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
