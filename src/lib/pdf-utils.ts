@@ -80,12 +80,16 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     // avec le layout/overlay, tout en restant "capturable" par html2canvas.
     left: '-10000px',
     top: '0',
+    // Largeur adaptée au format A4 paysage avec les marges de l'aperçu
     width: '1122px',
-    background: 'white',
+    background: '#f5f5f5',
     color: 'black',
     opacity: '1',
     zIndex: '9999',
     pointerEvents: 'none',
+    // Marges identiques à l'aperçu HTML
+    padding: '40px 60px',
+    boxSizing: 'border-box',
   } as CSSStyleDeclaration);
 
   document.body.appendChild(overlay);
@@ -142,6 +146,18 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     // Monter le HTML dans le root de rendu
     renderRoot.innerHTML = bodyHtml;
 
+    // IMPORTANT: Appliquer les styles visuels de l'aperçu (pas les styles @media print)
+    // On force les styles "écran" sur les .page pour avoir le même rendu que l'aperçu
+    const pageElements = renderRoot.querySelectorAll('.page');
+    pageElements.forEach((page) => {
+      const el = page as HTMLElement;
+      el.style.padding = '30px 40px';
+      el.style.background = '#fff';
+      el.style.borderRadius = '8px';
+      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+      el.style.marginBottom = '30px';
+    });
+
     // Diagnostic rapide: si on a 0 hauteur, la capture sera blanche
     renderRoot.getBoundingClientRect();
 
@@ -178,13 +194,13 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     const windowHeight = Math.max(794, Math.min(6000, renderRoot.scrollHeight || 794));
 
     const options = {
-      margin: 10,
+      margin: 0, // Pas de marge supplémentaire, les marges sont dans le HTML
       filename: 'releve-ik.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#f5f5f5', // Fond gris comme l'aperçu
         logging: false,
         scrollX: 0,
         scrollY: 0,
