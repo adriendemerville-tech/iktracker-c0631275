@@ -18,8 +18,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border group-[.toaster]:border-black group-[.toaster]:shadow-lg group-[.toaster]:text-sm group-[.toaster]:whitespace-nowrap",
-          description: "group-[.toast]:text-muted-foreground group-[.toast]:text-sm",
+            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border group-[.toaster]:border-black group-[.toaster]:shadow-lg group-[.toaster]:text-sm group-[.toaster]:whitespace-normal group-[.toaster]:max-w-[calc(100vw-2rem)] group-[.toaster]:mx-4 group-[.toaster]:break-words",
+          description: "group-[.toast]:text-muted-foreground group-[.toast]:text-sm group-[.toast]:whitespace-normal group-[.toast]:break-words",
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },

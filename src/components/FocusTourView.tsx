@@ -297,7 +297,7 @@ export function FocusTourView({
             "text-base font-urbanist text-center",
             gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
           )}>
-            {gpsSignalStrength === 'lost' ? 'Signal GPS perdu' : 'Signal GPS faible'}
+            {gpsSignalStrength === 'lost' ? 'GPS perdu' : 'GPS faible'}
           </span>
         </div>
       )}
