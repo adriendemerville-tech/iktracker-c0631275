@@ -75,18 +75,26 @@ function clearTourStorage() {
   });
 }
 
-// Mark tour as interrupted for recovery
+// Mark tour as interrupted for recovery and clear active state
 function markTourInterrupted(reason: string) {
-  const interruptedData = {
-    reason,
-    timestamp: new Date().toISOString(),
-    stops: loadTourData(STORAGE_KEYS.TOUR_STOPS, []),
-    totalDistance: loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0),
-    startTime: loadTourData(STORAGE_KEYS.TOUR_START_TIME, null),
-  };
-  saveTourData(STORAGE_KEYS.TOUR_INTERRUPTED, interruptedData);
-  // Clear active flag but keep data for recovery
-  saveTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
+  const stops = loadTourData(STORAGE_KEYS.TOUR_STOPS, []);
+  const totalDistance = loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0);
+  const startTime = loadTourData(STORAGE_KEYS.TOUR_START_TIME, null);
+  
+  // Only save interrupted data if we have meaningful data
+  if (startTime && (stops.length > 0 || totalDistance > 0)) {
+    const interruptedData = {
+      reason,
+      timestamp: new Date().toISOString(),
+      stops,
+      totalDistance,
+      startTime,
+    };
+    saveTourData(STORAGE_KEYS.TOUR_INTERRUPTED, interruptedData);
+  }
+  
+  // Always clear active state and tour data
+  clearTourStorage();
 }
 
 // Check if there's an interrupted tour to recover
@@ -128,24 +136,28 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     accuracyThreshold = 50, // 50 meters - max accuracy to accept
   } = options;
 
-  // Restore state from localStorage on init
-  const [isActive, setIsActive] = useState(() => loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false));
-  const [stops, setStops] = useState<TourStop[]>(() => {
-    const stored = loadTourData<TourStop[]>(STORAGE_KEYS.TOUR_STOPS, []);
-    return stored.map(s => ({ ...s, timestamp: new Date(s.timestamp) }));
+  // CRITICAL: On init, if there's a stored "active" tour, mark it as interrupted
+  // This ensures no orphan tours persist when the app loads outside FocusTourView
+  const [isActive, setIsActive] = useState(() => {
+    const wasActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
+    if (wasActive) {
+      // Tour was left active - mark as interrupted for recovery
+      console.log('Found orphan active tour on init - marking as interrupted');
+      markTourInterrupted('app_closed');
+      return false;
+    }
+    return false;
   });
-  const [gpsPoints, setGpsPoints] = useState<GpsPoint[]>(() => loadTourData(STORAGE_KEYS.TOUR_GPS_POINTS, []));
+  const [stops, setStops] = useState<TourStop[]>([]);
+  const [gpsPoints, setGpsPoints] = useState<GpsPoint[]>([]);
   const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
-  const [totalDistanceKm, setTotalDistanceKm] = useState<number>(() => loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0));
+  const [totalDistanceKm, setTotalDistanceKm] = useState<number>(0);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [gpsSignalStrength, setGpsSignalStrength] = useState<'excellent' | 'good' | 'poor' | 'lost'>('lost');
-  const [tourStartTime, setTourStartTime] = useState<Date | null>(() => {
-    const stored = loadTourData<string | null>(STORAGE_KEYS.TOUR_START_TIME, null);
-    return stored ? new Date(stored) : null;
-  });
+  const [tourStartTime, setTourStartTime] = useState<Date | null>(null);
 
   // Wake Lock integration
   const wakeLock = useWakeLock();
@@ -154,21 +166,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const pendingStopRef = useRef<PendingStop | null>(null);
   const [pendingStop, setPendingStop] = useState<PendingStop | null>(null);
   const lastPositionRef = useRef<{ lat: number; lng: number } | null>(null);
-  const maxDistanceReachedRef = useRef<number>(loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0));
+  const maxDistanceReachedRef = useRef<number>(0);
   const lastPointTimeRef = useRef<number>(0);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Restore pending stop from localStorage on init
-  useEffect(() => {
-    const stored = loadTourData<PendingStop | null>(STORAGE_KEYS.TOUR_PENDING_STOP, null);
-    if (stored) {
-      const restoredStop = { ...stored, arrivalTime: new Date(stored.arrivalTime) };
-      pendingStopRef.current = restoredStop;
-      setPendingStop(restoredStop);
-    }
-  }, []);
-
-  // Persist state changes to localStorage
+  // Persist state changes to localStorage (only when tour is active)
   useEffect(() => {
     saveTourData(STORAGE_KEYS.TOUR_ACTIVE, isActive);
   }, [isActive]);
@@ -772,26 +774,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     };
   }, [gpsPoints, stops, totalDistanceKm, tourStartTime]);
 
-  // Resume tour if it was active (for page refresh recovery)
-  useEffect(() => {
-    if (isActive && watchIdRef.current === null && navigator.geolocation) {
-      console.log('Resuming tour tracking after page reload');
-      watchIdRef.current = navigator.geolocation.watchPosition(
-        processPosition,
-        (err) => {
-          console.error('Watch position error on resume:', err);
-          updateGpsSignal(null);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0,
-        }
-      );
-      resetGpsTimeout();
-      wakeLock.request();
-    }
-  }, [isActive, processPosition, resetGpsTimeout, updateGpsSignal, wakeLock]);
+  // NOTE: We no longer resume tours on page reload
+  // Tours are only valid during an active FocusTourView session
+  // Any tour that was "active" on page load has already been marked as interrupted
 
   // Check permission on mount
   useEffect(() => {
