@@ -655,16 +655,6 @@ ${IKTRACKER_URL}`;
             </Link>
             <h1 className="text-lg font-semibold">Mes trajets</h1>
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={previewHTMLReport}
-                disabled={trips.length === 0}
-                aria-label="Prévisualiser le relevé HTML"
-                title="Prévisualiser le relevé HTML"
-              >
-                <FileText className="w-5 h-5" />
-              </Button>
               <Button variant="ghost" size="icon" onClick={handleDownloadPdf} disabled={trips.length === 0 || isExporting} aria-label="Télécharger le relevé">
                 <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
               </Button>
