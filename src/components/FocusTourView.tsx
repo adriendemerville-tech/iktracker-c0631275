@@ -212,12 +212,16 @@ export function FocusTourView({
           className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95"
           aria-label="Arrêter la tournée"
         >
-          {/* Thin golden border */}
+          {/* Thin golden border - static initially */}
           <span 
             className="absolute inset-[-2px] rounded-full z-0"
             style={{
               background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #F59E0B 100%)',
             }}
+          />
+          {/* Rotating flow border - appears after green transition */}
+          <span 
+            className="absolute inset-[-2px] rounded-full z-0 car-button-flow-border"
           />
           {/* Main button background */}
           <span 
