@@ -498,6 +498,7 @@ ${IKTRACKER_MENTION}
 Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques pour la période en cours.
 
 📎 Consultez le relevé en ligne (valide 7 jours) :
+
 ${shareLink}
 
 Ce relevé comprend :
