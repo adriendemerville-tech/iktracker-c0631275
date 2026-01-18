@@ -187,8 +187,8 @@ export default function TemporaryReleve() {
     }
   };
 
-  // Premium gray button styling
-  const grayButtonClass = "gap-2 bg-gray-500/15 border-gray-400/20 text-gray-600 hover:bg-gray-500/25 hover:text-gray-700 backdrop-blur-sm transition-all";
+  // Premium Apple-style button styling - dark with white text
+  const appleButtonClass = "gap-2 bg-neutral-800/90 border-neutral-700/50 text-white hover:bg-neutral-700/90 backdrop-blur-sm transition-all shadow-sm font-medium";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -222,7 +222,7 @@ export default function TemporaryReleve() {
               size="sm"
               onClick={handlePrint}
               disabled={state.status !== "ready"}
-              className={grayButtonClass}
+              className={appleButtonClass}
             >
               <Printer className="h-4 w-4" />
               <span className="hidden sm:inline">Imprimer</span>
@@ -233,7 +233,7 @@ export default function TemporaryReleve() {
               size="sm"
               onClick={handleDownload}
               disabled={state.status !== "ready" || isDownloading}
-              className={grayButtonClass}
+              className={appleButtonClass}
             >
               <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
               <span className="hidden sm:inline">Télécharger</span>
@@ -244,11 +244,11 @@ export default function TemporaryReleve() {
               size="sm"
               onClick={handleShareLink}
               disabled={state.status !== "ready"}
-              className={grayButtonClass}
+              className={appleButtonClass}
             >
               {isCopied ? (
                 <>
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-green-400" />
                   <span className="hidden sm:inline">Copié !</span>
                 </>
               ) : (

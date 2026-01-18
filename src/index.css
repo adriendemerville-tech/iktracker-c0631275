@@ -641,58 +641,82 @@ img {
 
 /* ============================================
    TOUR PREMIUM BUTTON - Premium Animation Sequence
-   T=0-6s: Blue gradient + Orange gradient border (like IKtracker logo)
-   T=6-10s: Transition to WhatsApp green gradient
-   T=10s+: Subtle emerald radar effect (no orange glow)
+   T=0-6s: Blue gradient (static, no animation)
+   T=6-10s: Smooth 4s transition to WhatsApp green
+   T=10s+: Synchronized radar + rotating border animations
 ============================================ */
 
 .tour-premium-button {
-  /* Gradient border technique: orange gradient visible through transparent border */
-  background: 
-    linear-gradient(135deg, #7485ED 0%, #5666D8 100%) padding-box,
-    linear-gradient(135deg, #FFAB40 0%, #FF5722 100%) border-box;
+  /* Initial state: Blue gradient with gradient border */
+  background: linear-gradient(135deg, #7485ED 0%, #5666D8 100%);
   border: 4px solid transparent;
+  background-clip: padding-box;
   transition: background 4s ease-in-out;
   overflow: visible;
   isolation: isolate;
   position: relative;
 }
 
-/* Transitioning phase: Start the color transition to green */
+/* Gradient border using ::before pseudo-element */
+.tour-premium-button::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #FFAB40 0%, #FF5722 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Transitioning phase: Blue to green over 4s */
 .tour-premium-button--transitioning {
-  background: 
-    linear-gradient(135deg, #25D366 0%, #25D366 100%) padding-box,
-    linear-gradient(135deg, #FFAB40 0%, #FF5722 100%) border-box;
-  border: 4px solid transparent;
+  background: linear-gradient(135deg, #25D366 0%, #25D366 100%);
 }
 
-/* Final phase: Green with gradient border maintained */
+/* Final phase: Green background, rotating border + radar */
 .tour-premium-button--final {
-  background: 
-    linear-gradient(135deg, #25D366 0%, #25D366 100%) padding-box,
-    linear-gradient(135deg, #FFAB40 0%, #FF5722 100%) border-box;
-  border: 4px solid transparent;
+  background: linear-gradient(135deg, #25D366 0%, #25D366 100%);
 }
 
-/* Emerald radar overlay - subtle ton-sur-ton effect, only in final phase */
+/* Rotating gradient border - only in final phase */
 .tour-premium-button--final::before {
   content: '';
   position: absolute;
-  inset: 4px;
+  inset: -4px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    #FFAB40 0%,
+    #FF5722 25%,
+    #FFAB40 50%,
+    #FF5722 75%,
+    #FFAB40 100%
+  );
+  z-index: -1;
+  pointer-events: none;
+  animation: tour-border-spin 3s linear infinite;
+}
+
+/* Emerald radar overlay - synchronized with border, only in final phase */
+.tour-premium-button--final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   border-radius: inherit;
   background: conic-gradient(
     from 0deg,
     transparent 0%,
-    transparent 55%,
-    rgba(10, 80, 50, 0.1) 78%,
-    rgba(5, 60, 35, 0.4) 100%
+    transparent 200deg,
+    rgba(10, 80, 50, 0.1) 280deg,
+    rgba(5, 60, 35, 0.4) 360deg
   );
-  animation: tour-radar-sweep 3s linear infinite;
+  animation: tour-border-spin 3s linear infinite;
   z-index: 15;
   pointer-events: none;
 }
 
-@keyframes tour-radar-sweep {
+/* Single animation for both border and radar - perfectly synchronized */
+@keyframes tour-border-spin {
   from {
     transform: rotate(0deg);
   }
