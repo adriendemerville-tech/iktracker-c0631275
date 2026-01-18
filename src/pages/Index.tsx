@@ -1096,7 +1096,7 @@ ${IKTRACKER_MENTION}
           <Link to="/mestrajets" data-tutorial="report">
             <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
               <FileText className="w-4 h-4" />
-              Voir le relevé
+              Mes Trajets
             </Button>
           </Link>
 
@@ -1122,7 +1122,7 @@ ${IKTRACKER_MENTION}
             disabled={vehicles.length === 0}
           >
             <Plus className="w-4 h-4" />
-            Nouveau trajet
+            Nouveau
           </Button>
         </div>
       </div>
