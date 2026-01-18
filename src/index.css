@@ -693,14 +693,32 @@ img {
   box-shadow: 0 0 16px 2px rgba(37, 211, 102, 0.5);
 }
 
-/* Tour button rotating golden border */
-@keyframes rotate-golden-border {
+/* Flow border that appears and rotates after green transition */
+@keyframes flow-border-rotate {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
   }
+}
+
+.car-button-flow-border {
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    #25D366 15%,
+    #FBBF24 30%,
+    transparent 45%,
+    transparent 55%,
+    #25D366 70%,
+    #FBBF24 85%,
+    transparent 100%
+  );
+  animation: 
+    car-button-fade-to-green 1s ease-in-out 5s forwards,
+    flow-border-rotate 0.8s linear 5s infinite;
 }
 
 /* Tour button gradient animations */
