@@ -651,7 +651,7 @@ img {
 
 .car-button-gradient {
   position: relative;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+  background: linear-gradient(135deg, #6476E8 0%, #5264D6 50%, #6476E8 100%);
 }
 
 .car-button-gradient::after {
@@ -659,14 +659,14 @@ img {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 50%, #25D366 100%);
   opacity: 0;
-  animation: car-button-fade-to-green 5s ease-in-out 5s forwards;
+  animation: car-button-fade-to-green 3s ease-in-out 2s forwards;
   z-index: 1;
 }
 
-/* Golden border - solid at first, then rotates after green transition */
-@keyframes golden-border-rotate {
+/* Green border - solid at first, then rotates after green transition */
+@keyframes green-border-rotate {
   from {
     transform: rotate(0deg);
   }
@@ -676,19 +676,21 @@ img {
 }
 
 .car-button-golden-border {
-  background: #F59E0B;
+  background: linear-gradient(135deg, #6476E8 0%, #5264D6 100%);
   opacity: 1;
+  transition: background 3s ease-in-out 2s;
 }
 
-/* After 10s (5s delay + 5s transition), switch to rotating conic gradient */
+/* After transition to green, switch border color */
 .car-button-golden-border::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: conic-gradient(from 0deg, transparent 0%, #F59E0B 10%, #FBBF24 20%, transparent 30%, transparent 70%, #F59E0B 80%, #FBBF24 90%, transparent 100%);
+  background: conic-gradient(from 0deg, #25D366, #128C7E, #0F7B6C, #25D366);
   opacity: 0;
-  animation: car-button-fade-to-green 0.5s ease-in-out 10s forwards, golden-border-rotate 4s linear 10s infinite;
+  animation: car-button-fade-to-green 1s ease-in-out 5s forwards, green-border-rotate 2s linear 5s infinite;
+  box-shadow: 0 0 16px 2px rgba(37, 211, 102, 0.5);
 }
 
 /* Tour button rotating golden border */
