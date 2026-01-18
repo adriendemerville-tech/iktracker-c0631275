@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect, lazy, Suspense, createContext, useContext, useState } from "react";
+import { useEffect, lazy, Suspense, createContext, useContext } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
+import { deferTask } from "@/lib/idle-callback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
@@ -159,11 +160,14 @@ function GoogleMapsPreloader() {
   const location = useLocation();
   
   useEffect(() => {
-    // Preload Google Maps when entering authenticated app routes
+    // Defer Google Maps preload to idle time to improve TTI
     if (location.pathname.startsWith('/app') || 
         location.pathname.startsWith('/profile') ||
         location.pathname.startsWith('/report')) {
-      preloadGoogleMaps();
+      // Use requestIdleCallback to avoid blocking main thread
+      deferTask(() => {
+        preloadGoogleMaps();
+      }, 'medium', 3000);
     }
   }, [location.pathname]);
   
