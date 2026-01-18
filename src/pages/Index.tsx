@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
+import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { useTutorial } from '@/components/OnboardingTutorial';
 import { toast } from '@/components/ui/sonner';
@@ -116,7 +116,7 @@ const Index = () => {
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
-  const [isExporting, setIsExporting] = useState(false);
+  
   const [hidePendingTrips, setHidePendingTrips] = useState(() => {
     return localStorage.getItem('iktracker_hide_pending') === 'true';
   });
@@ -670,35 +670,6 @@ ${IKTRACKER_MENTION}
     }
   };
 
-  // Download PDF directly (header button)
-  const downloadPdf = async () => {
-    if (trips.length === 0) {
-      toast.error("Aucun trajet à exporter");
-      return;
-    }
-
-    setIsExporting(true);
-    
-    try {
-      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
-      const htmlContent = await generateCleanHTMLForPdf();
-      const pdfBlob = await htmlToPdfBlob(htmlContent);
-      const dateStr = new Date().toISOString().split('T')[0];
-      
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(pdfBlob);
-      link.download = `releve-ik-${dateStr}.pdf`;
-      link.click();
-
-      toast.success("PDF téléchargé");
-    } catch (error) {
-      console.error('PDF export error:', error);
-      const message = error instanceof Error ? error.message : "Erreur lors de l'export";
-      toast.error("Erreur lors de l'export", { description: message });
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   return (
     <>
@@ -847,18 +818,6 @@ ${IKTRACKER_MENTION}
                 >
                   <BarChart3 className="w-5 h-5" />
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={downloadPdf}
-                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
-                  disabled={trips.length === 0 || isExporting}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  data-tutorial="download"
-                  aria-label="Télécharger le relevé PDF"
-                >
-                  <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -874,18 +833,6 @@ ${IKTRACKER_MENTION}
             )}
             {!isAdmin && (
               <>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={downloadPdf}
-                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
-                  disabled={trips.length === 0 || isExporting}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  data-tutorial="download"
-                  aria-label="Télécharger le relevé PDF"
-                >
-                  <Download className={`w-5 h-5 ${isExporting ? 'animate-bounce' : ''}`} />
-                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
