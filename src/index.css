@@ -642,8 +642,8 @@ img {
 /* ============================================
    TOUR PREMIUM BUTTON - Premium Animation Sequence
    T=0-6s: Blue-Mauve gradient with gold border
-   T=6-10s: Smooth transition to green
-   T=10s+: Green with rotating border animation
+   T=6-10s: Smooth progressive transition to WhatsApp green
+   T=10s+: WhatsApp green gradient with rotating border animation
 ============================================ */
 
 /* Car button base - Blue-Mauve gradient background with gold border */
@@ -653,24 +653,35 @@ img {
     linear-gradient(135deg, #FFBF00 0%, #FF5722 100%) border-box;
   border: 4px solid transparent;
   border-radius: 50%;
-  transition: all 0.5s ease-in-out;
+  transition: background 4s cubic-bezier(0.25, 0.1, 0.25, 1), border 4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* T=6-10s: Transition phase - morphing to green */
+/* T=6-10s: Transition phase - smooth progressive morph to WhatsApp green */
 .tour-premium-button--transitioning {
   background: 
-    linear-gradient(135deg, #5666D8 0%, #3B82F6 50%, #22C55E 100%) padding-box,
-    linear-gradient(135deg, #FFBF00 0%, #22C55E 100%) border-box;
+    linear-gradient(135deg, 
+      #7485ED 0%, 
+      #6476E8 15%, 
+      #5666D8 30%, 
+      #4B7CC7 45%, 
+      #3D9BA8 60%, 
+      #2FB989 75%, 
+      #25D366 90%, 
+      #128C7E 100%
+    ) padding-box,
+    linear-gradient(135deg, #FFBF00 0%, #25D366 50%, #128C7E 100%) border-box;
   border: 4px solid transparent;
+  transition: background 4s cubic-bezier(0.25, 0.1, 0.25, 1), border 4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* T=10s+: Final green phase with animated rotating border */
+/* T=10s+: Final WhatsApp green phase with animated rotating border */
 .tour-premium-button--final {
   background: 
-    linear-gradient(135deg, #22C55E 0%, #25D366 100%) padding-box,
-    conic-gradient(from var(--tour-border-angle, 0deg), #FFBF00, #FF5722, #FFBF00, #FF5722, #FFBF00) border-box;
+    linear-gradient(135deg, #25D366 0%, #1EBE5D 25%, #17A954 50%, #128C7E 100%) padding-box,
+    conic-gradient(from var(--tour-border-angle, 0deg), #25D366, #128C7E, #0F7B6C, #128C7E, #25D366) border-box;
   border: 4px solid transparent;
   animation: tour-border-rotate 3s linear infinite;
+  transition: background 2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 @property --tour-border-angle {

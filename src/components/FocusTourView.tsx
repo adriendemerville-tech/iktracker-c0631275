@@ -240,6 +240,22 @@ export function FocusTourView({
           )}
           aria-label="Arrêter la tournée"
         >
+          {/* Speed lines - only visible in final phase */}
+          <span className={cn(
+            "absolute left-5 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 transition-opacity duration-500",
+            animationPhase === 'final' ? "opacity-100" : "opacity-0"
+          )}>
+            <span className="w-4 h-1 bg-white/60 rounded-full" />
+            <span className="w-6 h-1 bg-white/40 rounded-full -ml-1" />
+            <span className="w-5 h-1 bg-white/50 rounded-full -ml-0.5" />
+          </span>
+          
+          {/* White dot in front of car - visible before final phase */}
+          <span className={cn(
+            "absolute right-7 top-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full z-10 transition-opacity duration-500",
+            animationPhase === 'final' ? "opacity-0" : "opacity-100"
+          )} />
+          
           {/* Car icon - static, no animations */}
           <Car className="w-24 h-24 relative z-20 text-white" />
         </button>
