@@ -240,20 +240,8 @@ export function FocusTourView({
           )}
           aria-label="Arrêter la tournée"
         >
-          {/* Speed lines behind the car - white for contrast */}
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white pointer-events-none">
-            <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
-            <span className="w-10 h-1.5 bg-current opacity-40 rounded-full -ml-1" />
-            <span className="w-5 h-1.5 bg-current opacity-50 rounded-full" />
-          </span>
-          
-          {/* Car icon with driving animation */}
-          <Car 
-            className="w-24 h-24 relative z-20 text-white"
-            style={{
-              animation: 'car-drive 0.2s ease-in-out infinite',
-            }}
-          />
+          {/* Car icon - static, no animations */}
+          <Car className="w-24 h-24 relative z-20 text-white" />
         </button>
         
         {/* Stop button - elegant, compact design */}

@@ -111,11 +111,40 @@ export default function TemporaryReleve() {
     if (state.status !== "ready") return;
     
     setIsDownloading(true);
+    
+    // Create elegant loading overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'download-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        width: 48px;
+        height: 48px;
+        border: 3px solid rgba(255,255,255,0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <span style="color: white; font-size: 16px; font-weight: 500;">Génération du PDF...</span>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    `;
+    document.body.appendChild(overlay);
+    
     try {
       const dateStr = new Date().toISOString().split("T")[0];
       
-      // Generate PDF
-      toast.info("Génération du PDF en cours...");
+      // Generate PDF using the same function as in Index.tsx
       const pdfBlob = await htmlToPdfBlob(state.html);
       
       // Generate CSV
@@ -150,6 +179,9 @@ export default function TemporaryReleve() {
       console.error("Download error:", error);
       toast.error("Erreur lors du téléchargement");
     } finally {
+      // Remove overlay
+      const existingOverlay = document.getElementById('download-overlay');
+      if (existingOverlay) existingOverlay.remove();
       setIsDownloading(false);
     }
   };

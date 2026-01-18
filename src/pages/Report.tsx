@@ -374,6 +374,35 @@ ${IKTRACKER_MENTION}
 
     setIsExporting(true);
     
+    // Create elegant loading overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'export-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        width: 48px;
+        height: 48px;
+        border: 3px solid rgba(255,255,255,0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <span style="color: white; font-size: 16px; font-weight: 500;">Génération du relevé...</span>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    `;
+    document.body.appendChild(overlay);
+    
     try {
       const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const JSZip = await loadZip();
@@ -392,7 +421,6 @@ ${IKTRACKER_MENTION}
       const htmlContent = await generateHTMLContent();
       
       // Convert HTML to PDF
-      toast.info("Génération du PDF...", { duration: 2000 });
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
       
@@ -413,6 +441,9 @@ ${IKTRACKER_MENTION}
       const message = error instanceof Error ? error.message : "Erreur lors de l'export";
       toast.error("Erreur lors de l'export", { description: message });
     } finally {
+      // Remove overlay
+      const existingOverlay = document.getElementById('export-overlay');
+      if (existingOverlay) existingOverlay.remove();
       setIsExporting(false);
     }
   };
