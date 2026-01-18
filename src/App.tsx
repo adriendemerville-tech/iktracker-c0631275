@@ -215,6 +215,14 @@ const AppRoutes = () => {
             </Suspense>
           }
         />
+        <Route
+          path="/temporaryreport/:id"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <TemporaryReleve />
+            </Suspense>
+          }
+        />
         <Route 
           path="/theme-onboarding" 
           element={
