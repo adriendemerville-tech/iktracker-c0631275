@@ -252,36 +252,48 @@ export default defineConfig(({ mode }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
-          // Core React ecosystem - must stay together to avoid initialization issues
+          // Core React - minimal bundle for initial load
           'vendor-react': [
             'react',
             'react-dom',
-            'react-router-dom',
-            'react-helmet-async',
           ],
-          // Data layer
+          // Router loaded after React hydration
+          'vendor-router': [
+            'react-router-dom',
+          ],
+          // Data layer - loaded when needed
           'vendor-data': [
             '@supabase/supabase-js',
             '@tanstack/react-query',
           ],
-          // UI components (Radix) - keep together to avoid circular deps
-          'vendor-ui': [
+          // SEO - loaded async
+          'vendor-seo': [
+            'react-helmet-async',
+          ],
+          // Critical UI - dialogs, toasts (needed early)
+          'vendor-ui-core': [
+            '@radix-ui/react-slot',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+          ],
+          // Secondary UI - loaded when needed
+          'vendor-ui-forms': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-popover',
             '@radix-ui/react-select',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-toast',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-accordion',
             '@radix-ui/react-checkbox',
             '@radix-ui/react-label',
             '@radix-ui/react-switch',
             '@radix-ui/react-radio-group',
+            '@radix-ui/react-slider',
+          ],
+          // Navigation UI
+          'vendor-ui-nav': [
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-accordion',
             '@radix-ui/react-scroll-area',
             '@radix-ui/react-separator',
-            '@radix-ui/react-slider',
             '@radix-ui/react-progress',
             '@radix-ui/react-avatar',
             '@radix-ui/react-alert-dialog',
@@ -290,6 +302,8 @@ export default defineConfig(({ mode }) => ({
           'vendor-charts': ['recharts'],
           'vendor-zip': ['jszip', 'pako'],
           'vendor-motion': ['framer-motion'],
+          'vendor-qr': ['qrcode.react'],
+          'vendor-pdf': ['html2pdf.js'],
         },
       },
       // Tree-shaking is enabled by default in production builds

@@ -1,6 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense, createContext, useContext, useState } from "react";
@@ -15,17 +12,17 @@ import { LogoutOverlay } from "@/components/LogoutOverlay";
 import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
-// Critical route - Landing loaded immediately for fast initial load
-import Landing from "./pages/Landing";
+// Lazy load UI components that aren't needed for initial render
+const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+const TooltipProvider = lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
 
-// Auth lazy loaded - not needed on initial page load
+// ALL pages lazy loaded - including Landing for better initial bundle
+const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
-
-// Lazy loaded app routes - reduces initial bundle size
 const Index = lazy(() => import("./pages/Index"));
 const Report = lazy(() => import("./pages/Report"));
 const Profile = lazy(() => import("./pages/Profile"));
-// Lazy loaded routes - loaded on demand
 const Signup = lazy(() => import("./pages/Signup"));
 const ThemeOnboarding = lazy(() => import("./pages/ThemeOnboarding"));
 const Admin = lazy(() => import("./pages/Admin"));
@@ -44,12 +41,8 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
 const BlogEditor = lazy(() => import("./pages/BlogEditor"));
 
-// Loading fallback component
-const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
+// Minimal loading fallback - uses static HTML shell from index.html
+const PageLoader = () => null;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,8 +105,12 @@ const SmartLanding = () => {
     return <Navigate to="/app" replace />;
   }
 
-  // Non-authenticated users see the landing page immediately
-  return <Landing />;
+  // Non-authenticated users see the landing page (lazy loaded)
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Landing />
+    </Suspense>
+  );
 };
 
 // Smart auth: redirect authenticated users to /app
@@ -336,13 +333,15 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ErrorBoundary>
-        <Toaster />
-        <Sonner />
-        <AppContent />
-      </ErrorBoundary>
-    </TooltipProvider>
+    <ErrorBoundary>
+      <Suspense fallback={null}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AppContent />
+        </TooltipProvider>
+      </Suspense>
+    </ErrorBoundary>
   </QueryClientProvider>
 );
 
