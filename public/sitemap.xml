@@ -41,6 +41,11 @@
   
   <!-- Pages ressources -->
   <url>
+    <loc>https://iktracker.fr/mestrajets</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://iktracker.fr/bareme-ik-2026</loc>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>

@@ -14,7 +14,7 @@ createRoot(document.getElementById("root")!).render(
 // Defer non-critical initializations to improve TTI
 whenInteractive(() => {
   // Preload common routes during idle time
-  preloadModule(() => import("./pages/Report"));
+  preloadModule(() => import("./pages/MesTrajets"));
   preloadModule(() => import("./pages/Profile"));
   
   // Preload heavy vendor chunks during idle
