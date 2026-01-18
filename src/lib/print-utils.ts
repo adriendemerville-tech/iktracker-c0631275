@@ -267,21 +267,21 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .btn-back {
-      background: #f3f4f6;
-      color: #374151;
+      background: #1d1d1f;
+      color: #fff;
     }
     
     .btn-back:hover {
-      background: #e5e7eb;
+      background: #2d2d30;
     }
     
     .btn-pdf {
-      background: #dc2626;
+      background: #1d1d1f;
       color: #fff;
     }
     
     .btn-pdf:hover {
-      background: #b91c1c;
+      background: #2d2d30;
     }
     
     .btn-pdf:disabled {
@@ -290,30 +290,30 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     .btn-print {
-      background: #2563eb;
+      background: #1d1d1f;
       color: #fff;
     }
     
     .btn-print:hover {
-      background: #1d4ed8;
+      background: #2d2d30;
     }
     
     .btn-email {
-      background: #10b981;
+      background: #1d1d1f;
       color: #fff;
     }
     
     .btn-email:hover {
-      background: #059669;
+      background: #2d2d30;
     }
     
     .btn-link {
-      background: #8b5cf6;
+      background: #1d1d1f;
       color: #fff;
     }
     
     .btn-link:hover {
-      background: #7c3aed;
+      background: #2d2d30;
     }
     
     .btn-link.copied {
