@@ -1130,17 +1130,18 @@ ${IKTRACKER_MENTION}
       {/* Mobile: Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
-          <div className="grid grid-cols-2 gap-3 w-1/2 min-w-[200px]">
-            <Link to="/mestrajets">
-              <Button variant="secondary" size="default" className="w-full h-10 px-3 text-sm shadow-[0_4px_8px_-2px_rgba(0,0,0,0.15)] text-white dark:text-white">
+          <div className="flex gap-3">
+            <Link to="/mestrajets" data-tutorial="report">
+              <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
                 <FileText className="w-4 h-4" />
-                Relevé
+                Mes Trajets
               </Button>
             </Link>
             <Button 
               variant="gradient" 
               size="default"
-              className="w-full h-10 px-3 text-sm animate-cta-pulse shadow-[0_4px_8px_-2px_rgba(0,0,0,0.2)]"
+              className="shadow-lg shadow-primary/30"
+              data-tutorial="add-trip"
               onClick={() => {
                 if (vehicles.length === 0) {
                   toast.info("Ajoutez d'abord un véhicule", {
@@ -1154,9 +1155,10 @@ ${IKTRACKER_MENTION}
                   setShowNewTrip(true);
                 }
               }}
+              disabled={vehicles.length === 0}
             >
               <Plus className="w-4 h-4" />
-              Trajet
+              Nouveau
             </Button>
           </div>
         </div>
