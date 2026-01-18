@@ -1,17 +1,22 @@
-# Cache headers for Netlify
-# This file is a backup - netlify.toml takes precedence
+# Cache headers for static hosting (Netlify, Vercel, Lovable)
+# Security headers apply to all routes
 
-# Security headers for all pages
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
 
-# Hashed assets (JS, CSS) - immutable, maximum cache (1 year)
+# Hashed JS/CSS assets - immutable, 1 year cache
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Images - immutable with long expiry
+/assets/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images - 1 year cache
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
 
@@ -21,23 +26,26 @@
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
 
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
 /*.svg
   Cache-Control: public, max-age=31536000, immutable
 
 /*.ico
   Cache-Control: public, max-age=31536000, immutable
 
-/splash/*.png
+/splash/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Fonts - immutable long cache
+# Fonts - 1 year cache
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
 
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
 
-# HTML - no cache, must revalidate
+# HTML - no cache
 /
   Cache-Control: public, max-age=0, must-revalidate
 
@@ -48,13 +56,20 @@
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
 
-# PWA manifest
+# Workbox chunks - immutable
+/workbox-*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# PWA manifest - 24h cache
 /manifest.webmanifest
   Cache-Control: public, max-age=86400
 
-# SEO files
+# SEO files - 24h cache
 /robots.txt
   Cache-Control: public, max-age=86400
 
 /sitemap.xml
+  Cache-Control: public, max-age=86400
+
+/llm.txt
   Cache-Control: public, max-age=86400
