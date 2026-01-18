@@ -70,12 +70,12 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     </div>
   `;
 
-  // Container pour le rendu - VISIBLE dans le viewport pour html2canvas
+  // Container pour le rendu - doit rester DANS le viewport (sinon capture blanche)
+  // NOTE: on évite opacity/visibility:hidden car html2canvas capturerait du transparent.
   const renderRoot = document.createElement('div');
   renderRoot.setAttribute('data-pdf-root', 'true');
   Object.assign(renderRoot.style, {
-    position: 'fixed',
-    // Positionné dans le viewport mais sous l'overlay
+    position: 'absolute',
     left: '0',
     top: '0',
     // Largeur adaptée au format A4 paysage
@@ -83,7 +83,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     minHeight: '794px',
     background: '#f5f5f5',
     color: 'black',
-    zIndex: '99998', // Sous l'overlay mais visible pour html2canvas
+    zIndex: '99998',
     overflow: 'visible',
     padding: '40px 60px',
     boxSizing: 'border-box',
@@ -189,7 +189,13 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     // Calculer la hauteur réelle du contenu
     const contentHeight = Math.max(794, renderRoot.scrollHeight || 794);
-    console.log("PDF render - content height:", contentHeight, "scrollHeight:", renderRoot.scrollHeight);
+    const rect = renderRoot.getBoundingClientRect();
+    console.log("PDF render diagnostics:", {
+      scrollHeight: renderRoot.scrollHeight,
+      contentHeight,
+      rect,
+      textLength: (renderRoot.innerText || '').length,
+    });
 
     const options = {
       margin: 0,
@@ -199,15 +205,11 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
         scale: 2,
         useCORS: true,
         backgroundColor: '#f5f5f5',
-        logging: true, // Activer le logging pour debug
+        logging: true,
         scrollX: 0,
         scrollY: 0,
         windowWidth: 1122,
         windowHeight: contentHeight,
-        x: 0,
-        y: 0,
-        width: 1122,
-        height: contentHeight,
       },
       jsPDF: {
         unit: 'mm',
@@ -217,21 +219,33 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
 
-    console.log("PDF generation starting with options:", JSON.stringify(options, null, 2));
+    // Certains environnements produisent un PDF blanc si l'élément est recouvert.
+    // On masque temporairement l'overlay pendant la capture.
+    const overlayPrevDisplay = overlay.style.display;
+    overlay.style.display = 'none';
+    await nextFrame();
 
-    // Générer le PDF
-    const pdfBlob: Blob = await html2pdf()
-      .set(options)
-      .from(renderRoot)
-      .outputPdf('blob');
+    try {
+      const worker = html2pdf().set(options).from(renderRoot);
 
-    console.log("PDF blob size:", pdfBlob?.size);
+      const pdfBlob: Blob = typeof (worker as any).outputPdf === 'function'
+        ? await (worker as any).outputPdf('blob')
+        : await (worker as any)
+            .toCanvas()
+            .toPdf()
+            .get('pdf')
+            .then((pdf: any) => pdf.output('blob'));
 
-    if (!pdfBlob || pdfBlob.size < 1500) {
-      throw new Error('PDF vide (capture blanche) - taille: ' + (pdfBlob?.size || 0));
+      console.log("PDF blob size:", pdfBlob?.size);
+
+      if (!pdfBlob || pdfBlob.size < 1500) {
+        throw new Error('PDF vide (capture blanche) - taille: ' + (pdfBlob?.size || 0));
+      }
+
+      return pdfBlob;
+    } finally {
+      overlay.style.display = overlayPrevDisplay;
     }
-
-    return pdfBlob;
   } finally {
     // Cleanup
     injectedHeadNodes.forEach((n) => {
