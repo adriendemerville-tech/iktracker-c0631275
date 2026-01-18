@@ -67,7 +67,31 @@ export function FocusTourView({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
+  const [animationPhase, setAnimationPhase] = useState<'initial' | 'transitioning' | 'final'>('initial');
   const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
+
+  // Track animation phases based on tour start time
+  useEffect(() => {
+    if (!tourStartTime || !isActive) {
+      setAnimationPhase('initial');
+      return;
+    }
+
+    const checkPhase = () => {
+      const elapsed = Date.now() - tourStartTime.getTime();
+      if (elapsed >= 10000) {
+        setAnimationPhase('final');
+      } else if (elapsed >= 6000) {
+        setAnimationPhase('transitioning');
+      } else {
+        setAnimationPhase('initial');
+      }
+    };
+
+    checkPhase();
+    const interval = setInterval(checkPhase, 100);
+    return () => clearInterval(interval);
+  }, [tourStartTime, isActive]);
 
   const handleStopClick = () => {
     setShowStopConfirm(true);
@@ -206,18 +230,18 @@ export function FocusTourView({
 
       {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
-        {/* Car button - triggers confirmation - Blue with gold border */}
+        {/* Car button - Premium animated button */}
         <button
           onClick={handleStopClick}
-          className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95"
-          style={{
-            backgroundColor: '#6476E8',
-            border: '3px solid #FFDF00',
-          }}
+          className={cn(
+            "tour-premium-button relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl active:scale-95",
+            animationPhase === 'transitioning' && "tour-premium-button--transitioning",
+            animationPhase === 'final' && "tour-premium-button--final"
+          )}
           aria-label="Arrêter la tournée"
         >
           {/* Speed lines behind the car - white for contrast */}
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white">
+          <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white pointer-events-none">
             <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
             <span className="w-10 h-1.5 bg-current opacity-40 rounded-full -ml-1" />
             <span className="w-5 h-1.5 bg-current opacity-50 rounded-full" />
@@ -225,7 +249,7 @@ export function FocusTourView({
           
           {/* Car icon with driving animation */}
           <Car 
-            className="w-24 h-24 relative z-10 text-white"
+            className="w-24 h-24 relative z-20 text-white"
             style={{
               animation: 'car-drive 0.2s ease-in-out infinite',
             }}

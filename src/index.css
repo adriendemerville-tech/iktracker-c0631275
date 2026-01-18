@@ -639,34 +639,51 @@ img {
   isolation: isolate;
 }
 
-/* Car button gradient - mauve base with green overlay fading in */
-@keyframes car-button-fade-to-green {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+/* ============================================
+   TOUR PREMIUM BUTTON - Animation Sequence
+   T=0-6s: Blue (#6476E8) + Gold border
+   T=6-10s: Transition to WhatsApp green (#25D366)
+   T=10s+: Radar effect + Rotating orange glow
+============================================ */
+
+.tour-premium-button {
+  background-color: #6476E8;
+  border: 4px solid #FFBF00;
+  transition: background-color 4s ease-in-out;
+  overflow: visible;
+  isolation: isolate;
 }
 
-.car-button-gradient {
-  position: relative;
-  background: linear-gradient(135deg, #6476E8 0%, #5264D6 50%, #6476E8 100%);
+/* Transitioning phase: Start the color transition */
+.tour-premium-button--transitioning {
+  background-color: #25D366;
 }
 
-.car-button-gradient::after {
+/* Final phase: Green with animations */
+.tour-premium-button--final {
+  background-color: #25D366;
+}
+
+/* Radar overlay - only active in final phase */
+.tour-premium-button--final::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, #25D366 0%, #128C7E 50%, #25D366 100%);
-  opacity: 0;
-  animation: car-button-fade-to-green 3s ease-in-out 2s forwards;
-  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 270deg,
+    rgba(0, 0, 0, 0.25) 300deg,
+    rgba(0, 0, 0, 0.15) 330deg,
+    transparent 360deg
+  );
+  animation: tour-radar-sweep 3s linear infinite;
+  z-index: 15;
+  pointer-events: none;
 }
 
-/* Green border - solid at first, then rotates after green transition */
-@keyframes green-border-rotate {
+@keyframes tour-radar-sweep {
   from {
     transform: rotate(0deg);
   }
@@ -675,26 +692,28 @@ img {
   }
 }
 
-.car-button-golden-border {
-  background: linear-gradient(135deg, #6476E8 0%, #5264D6 100%);
-  opacity: 1;
-  transition: background 3s ease-in-out 2s;
-}
-
-/* After transition to green, switch border color */
-.car-button-golden-border::before {
+/* Rotating orange glow border - only in final phase */
+.tour-premium-button--final::after {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -6px;
   border-radius: inherit;
-  background: conic-gradient(from 0deg, #25D366, #128C7E, #0F7B6C, #25D366);
-  opacity: 0;
-  animation: car-button-fade-to-green 1s ease-in-out 5s forwards, green-border-rotate 2s linear 5s infinite;
-  box-shadow: 0 0 16px 2px rgba(37, 211, 102, 0.5);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 180deg,
+    #FFBF00 240deg,
+    #FF8C00 280deg,
+    #FFBF00 320deg,
+    transparent 360deg
+  );
+  animation: tour-border-glow-rotate 2.5s linear infinite;
+  z-index: -1;
+  filter: blur(4px);
+  opacity: 0.8;
 }
 
-/* Tour button rotating golden border */
-@keyframes rotate-golden-border {
+@keyframes tour-border-glow-rotate {
   from {
     transform: rotate(0deg);
   }
@@ -703,31 +722,11 @@ img {
   }
 }
 
-/* Tour button gradient animations */
-@keyframes tour-gradient-idle {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes tour-gradient-active {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.animate-tour-gradient-idle {
-  animation: tour-gradient-idle 4s ease-in-out infinite;
-}
-
-.animate-tour-gradient-active {
-  animation: tour-gradient-active 2s ease-in-out infinite;
+/* Ensure the button itself has the solid border on top */
+.tour-premium-button--final {
+  box-shadow: 
+    0 0 0 4px #FFBF00,
+    0 8px 32px rgba(37, 211, 102, 0.3);
 }
 
 /* Safe area utilities for iOS devices with notch */
