@@ -466,8 +466,8 @@ export default function RecoveryWizard() {
         description: `${data.importedCount} trajets importés pour un total de ${data.totalRefund.toFixed(2)} €`,
       });
 
-      // Navigate to report page
-      navigate('/report');
+      // Navigate to mestrajets page
+      navigate('/mestrajets');
 
     } catch (error) {
       console.error('Import error:', error);

@@ -164,7 +164,7 @@ function GoogleMapsPreloader() {
     // Defer Google Maps preload to idle time to improve TTI
     if (location.pathname.startsWith('/app') || 
         location.pathname.startsWith('/profile') ||
-        location.pathname.startsWith('/report')) {
+        location.pathname.startsWith('/mestrajets')) {
       // Use requestIdleCallback to avoid blocking main thread
       deferTask(() => {
         preloadGoogleMaps();
@@ -236,7 +236,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/report"
+          path="/mestrajets"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -245,6 +245,8 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        {/* Redirect old /report URL to new /mestrajets */}
+        <Route path="/report" element={<Navigate to="/mestrajets" replace />} />
         <Route
           path="/profile"
           element={
