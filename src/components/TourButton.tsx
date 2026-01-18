@@ -34,10 +34,22 @@ export function TourButton({
       )}
       aria-label={isActive ? "Arrêter la tournée" : "Démarrer une tournée"}
     >
-      {/* Background with gradient animation */}
+      {/* Rotating border - clockwise animation when active */}
+      {isActive && (
+        <span 
+          className="absolute inset-[-3px] rounded-full z-0"
+          style={{
+            background: 'conic-gradient(from 0deg, #25D366, #128C7E, #0F7B6C, #25D366)',
+            animation: 'spin 2s linear infinite',
+            boxShadow: '0 0 16px 2px rgba(37, 211, 102, 0.5)',
+          }}
+        />
+      )}
+
+      {/* Background with gradient */}
       <span 
         className={cn(
-          "absolute inset-0 rounded-full transition-all duration-1000",
+          "absolute inset-0 rounded-full transition-all duration-1000 z-[1]",
           isActive 
             ? "animate-tour-gradient-active" 
             : "animate-tour-gradient-idle"
@@ -49,36 +61,17 @@ export function TourButton({
           backgroundSize: '200% 200%',
         }}
       />
-
-      {/* Rotating golden border - only visible when tour is active */}
-      {isActive && (
-        <span 
-          className="absolute inset-[-3px] rounded-full overflow-hidden"
-          style={{
-            background: 'conic-gradient(from 0deg, #FFD700, #FFBF00, #FFD700, #FFC300, #FFD700)',
-            animation: 'rotate-golden-border 2.5s linear infinite',
-            boxShadow: '0 0 20px 4px rgba(255, 215, 0, 0.6), 0 0 40px 8px rgba(255, 191, 0, 0.3)',
-          }}
-        >
-          <span 
-            className="absolute inset-[3px] rounded-full"
-            style={{
-              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-            }}
-          />
-        </span>
-      )}
       
       {/* Loading spinner - minimal ring */}
       {isLoading && (
-        <span className="absolute inset-0 flex items-center justify-center z-20">
+        <span className="absolute inset-0 flex items-center justify-center z-[20]">
           <span className="w-14 h-14 rounded-full border-2 border-transparent border-t-white animate-[spin_0.5s_linear_infinite]" />
         </span>
       )}
       
       {/* Speed lines - fade in/out based on active state, animated with car */}
       <span className={cn(
-        "absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 transition-opacity duration-500 z-10",
+        "absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 transition-opacity duration-500 z-[10]",
         isActive && !isLoading ? "opacity-100 animate-speed-lines" : "opacity-0"
       )}>
         <span className="w-2 h-0.5 bg-white/70 rounded-full" />
@@ -88,13 +81,13 @@ export function TourButton({
       
       {/* Dot in front when inactive */}
       {!isActive && !isLoading && (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full z-10" />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full z-[10]" />
       )}
       
       {/* Car icon with driving animation when active */}
       <Car 
         className={cn(
-          "w-7 h-7 relative z-10 text-white transition-all duration-500",
+          "w-7 h-7 relative z-[10] text-white transition-all duration-500",
           isLoading && "opacity-50"
         )}
         style={isActive && !isLoading ? {
@@ -104,7 +97,7 @@ export function TourButton({
       
       {/* Stops count badge - top right */}
       {isActive && stopsCount > 0 && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold shadow-md z-20">
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold shadow-md z-[20]">
           {stopsCount}
         </span>
       )}
@@ -112,7 +105,7 @@ export function TourButton({
       {/* Distance badge - bottom left */}
       {isActive && displayDistance > 0 && (
         <span 
-          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-[#25D366] text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md z-20"
+          className="absolute -bottom-1 -left-1 min-w-5 h-5 px-1 bg-[#25D366] text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md z-[20]"
         >
           {displayDistance}
         </span>

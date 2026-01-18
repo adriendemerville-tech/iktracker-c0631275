@@ -923,8 +923,8 @@ ${IKTRACKER_MENTION}
 
       {/* Main content */}
       <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36">
-        {/* Geolocation Banner */}
-        {showGeoBanner && (
+        {/* Geolocation Banner - hide if tour is active (permission already granted) */}
+        {showGeoBanner && !isTourActive && (
           <GeolocationBanner
             onActivate={requestPermission}
             onDismiss={dismissBanner}
