@@ -490,6 +490,13 @@ export type Database = {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
       }
+      get_bareme_simulations_by_day: {
+        Args: { days_back?: number }
+        Returns: {
+          count: number
+          day: string
+        }[]
+      }
       get_download_clicks_by_day: {
         Args: { days_back?: number }
         Returns: {
