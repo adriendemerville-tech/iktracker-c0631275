@@ -869,69 +869,29 @@ ${IKTRACKER_MENTION}
             {/* Mobile: Text only */}
             <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-white">IKtracker</h1>
             {isAdmin && (
-              <>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => navigate('/admin?tab=stats')}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  title="Dashboard statistiques"
-                  aria-label="Dashboard statistiques"
-                >
-                  <BarChart3 className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={downloadPdf}
-                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
-                  disabled={trips.length === 0}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  aria-label="Télécharger le relevé PDF"
-                  title="Télécharger le relevé PDF"
-                >
-                  <Download className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={previewHTMLReport}
-                  disabled={trips.length === 0}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  aria-label="Prévisualiser le relevé HTML"
-                  title="Prévisualiser le relevé HTML"
-                >
-                  <FileText className="w-5 h-5" />
-                </Button>
-              </>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/admin?tab=stats')}
+                className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
+                title="Dashboard statistiques"
+                aria-label="Dashboard statistiques"
+              >
+                <BarChart3 className="w-5 h-5" />
+              </Button>
             )}
-            {!isAdmin && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={downloadPdf}
-                  onMouseEnter={() => { import('@/lib/pdf-utils'); }}
-                  disabled={trips.length === 0}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  aria-label="Télécharger le relevé PDF"
-                  title="Télécharger le relevé PDF"
-                >
-                  <Download className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={previewHTMLReport}
-                  disabled={trips.length === 0}
-                  className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
-                  aria-label="Prévisualiser le relevé HTML"
-                  title="Prévisualiser le relevé HTML"
-                >
-                  <FileText className="w-5 h-5" />
-                </Button>
-              </>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={previewHTMLReport}
+              onMouseEnter={() => { import('@/lib/pdf-utils'); }}
+              disabled={trips.length === 0}
+              className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
+              aria-label="Aperçu du relevé"
+              title="Aperçu du relevé"
+            >
+              <Download className="w-5 h-5" />
+            </Button>
             <div className="relative" data-tutorial="profile">
               <Button 
                 variant="ghost" 

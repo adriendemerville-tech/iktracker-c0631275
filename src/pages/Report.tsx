@@ -457,61 +457,31 @@ ${IKTRACKER_MENTION}
     setIsExporting(true);
     
     try {
-      const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
-      const JSZip = await loadZip();
-      const zip = new JSZip();
-      const dateStr = new Date().toISOString().split('T')[0];
+      // Generate printable HTML for sharing
+      const { generatePrintableHTML } = await import('@/lib/print-utils');
+      const shareHtmlContent = generatePrintableHTML({
+        trips,
+        vehicles,
+        totalKm,
+        logoUrl: '/logo-iktracker-250.webp',
+        userInfo,
+      });
       
-      // Add README
-      const readmeContent = generateReadmeContent();
-      zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
+      // Create the share in the database
+      const { data: shareData, error: shareError } = await supabase
+        .from('report_shares')
+        .insert({
+          user_id: user?.id,
+          html_content: shareHtmlContent,
+        })
+        .select('id')
+        .single();
       
-      // Add CSV
-      const csvContent = generateCSVContent();
-      zip.file(`releve-ik-${dateStr}.csv`, csvContent);
-      
-      // Generate HTML content and convert to PDF
-      toast.info("Génération du PDF...", { duration: 2000 });
-      const htmlContent = await generateHTMLContent();
-      const pdfBlob = await htmlToPdfBlob(htmlContent);
-      zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
-      
-      // Generate ZIP and download
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(zipBlob);
-      link.download = `releve-ik-${dateStr}.zip`;
-      link.click();
-
-      // Create a share link for the temporary report preview
-      let shareLink = '';
-      try {
-        // Generate printable HTML for sharing
-        const { generatePrintableHTML } = await import('@/lib/print-utils');
-        const shareHtmlContent = generatePrintableHTML({
-          trips,
-          vehicles,
-          totalKm,
-          logoUrl: '/logo-iktracker-250.webp',
-          userInfo,
-        });
-        
-        // Create the share in the database
-        const { data: shareData, error: shareError } = await supabase
-          .from('report_shares')
-          .insert({
-            user_id: user?.id,
-            html_content: shareHtmlContent,
-          })
-          .select('id')
-          .single();
-        
-        if (!shareError && shareData?.id) {
-          shareLink = `${window.location.origin}/temporaryreleve/${shareData.id}`;
-        }
-      } catch (e) {
-        console.warn('Could not create share link:', e);
+      if (shareError || !shareData?.id) {
+        throw new Error("Impossible de créer le lien de partage");
       }
+      
+      const shareLink = `${window.location.origin}/temporaryreleve/${shareData.id}`;
 
       // Get user identity for signature
       const vehicle = vehicles.length > 0 ? vehicles[0] : null;
@@ -523,27 +493,19 @@ ${IKTRACKER_MENTION}
       const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
       const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
       
-      // Build body with optional share link
-      let emailBody = `Bonjour,
+      const emailBody = `Bonjour,
 
-Veuillez trouver ci-joint mon relevé des indemnités kilométriques pour la période en cours.
+Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques pour la période en cours.
+
+📎 Consultez le relevé en ligne (valide 7 jours) :
+${shareLink}
 
 Ce relevé comprend :
 - Le détail de mes ${trips.length} trajets professionnels
 - Le total des kilomètres parcourus : ${totalKm.toFixed(0)} km
 - Le montant total des indemnités : ${recalculatedTotalIK.toFixed(2)} €
-`;
 
-      // Always add the share link section if available
-      if (shareLink) {
-        emailBody += `
-📎 Consultez le relevé en ligne (valide 7 jours) :
-${shareLink}
-
-`;
-      }
-
-      emailBody += `Le fichier ZIP contient un PDF récapitulatif ainsi qu'un fichier CSV pour import dans votre logiciel comptable.
+Ce lien vous permet de visualiser, télécharger ou imprimer le relevé complet.
 
 Je reste à votre disposition pour toute question.
 
@@ -556,13 +518,11 @@ ${IKTRACKER_URL}`;
 
       const body = encodeURIComponent(emailBody);
 
-      // Open mailto after a short delay to ensure download started
-      setTimeout(() => {
-        const mailto = preferences.accountantEmail 
-          ? `mailto:${encodeURIComponent(preferences.accountantEmail)}?subject=${subject}&body=${body}`
-          : `mailto:?subject=${subject}&body=${body}`;
-        window.location.href = mailto;
-      }, 500);
+      // Open mailto
+      const mailto = preferences.accountantEmail 
+        ? `mailto:${encodeURIComponent(preferences.accountantEmail)}?subject=${subject}&body=${body}`
+        : `mailto:?subject=${subject}&body=${body}`;
+      window.location.href = mailto;
 
       // Mark that we've sent to accountant
       if (preferences.accountantEmail) {
@@ -570,14 +530,12 @@ ${IKTRACKER_URL}`;
         setIsEditingAccountantEmail(false);
       }
 
-      toast.success("Fichier téléchargé", {
-        description: shareLink 
-          ? "Le lien de prévisualisation a été ajouté à l'email" 
-          : "Joignez-le à l'email qui va s'ouvrir",
+      toast.success("Email préparé", {
+        description: "Le lien de prévisualisation a été ajouté à l'email",
       });
     } catch (error) {
       console.error('Export error:', error);
-      toast.error("Erreur lors de l'export");
+      toast.error("Erreur lors de la préparation de l'email");
     } finally {
       setIsExporting(false);
     }

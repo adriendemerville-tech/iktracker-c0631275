@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Printer, Download, Share2, Check } from "lucide-react";
+import { Printer, Download, Share2, Check, Send } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -190,16 +190,6 @@ export default function TemporaryReleve() {
     const shareUrl = window.location.href;
     
     try {
-      // Try native share API first (mobile)
-      if (navigator.share) {
-        await navigator.share({
-          title: "Relevé IK",
-          text: "Consultez mon relevé de frais kilométriques",
-          url: shareUrl,
-        });
-        return;
-      }
-      
       // Fallback to clipboard
       await navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
@@ -217,6 +207,32 @@ export default function TemporaryReleve() {
       toast.success("Lien copié");
       setTimeout(() => setIsCopied(false), 2000);
     }
+  };
+
+  const handleSendEmail = () => {
+    const shareUrl = window.location.href;
+    const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
+    
+    const emailBody = `Bonjour,
+
+Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques pour la période en cours.
+
+📎 Consultez le relevé en ligne (valide 7 jours) :
+${shareUrl}
+
+Ce lien vous permet de visualiser, télécharger ou imprimer le relevé complet.
+
+Je reste à votre disposition pour toute question.
+
+Cordialement
+
+---
+Document généré via IKtracker
+https://iktracker.lovable.app`;
+
+    const body = encodeURIComponent(emailBody);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   // Premium Apple-style button styling - refined dark gray with white text
@@ -252,6 +268,17 @@ export default function TemporaryReleve() {
             <Button
               variant="outline"
               size="sm"
+              onClick={handleDownload}
+              disabled={state.status !== "ready" || isDownloading}
+              className={appleButtonClass}
+            >
+              <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
+              <span className="hidden sm:inline">Télécharger</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handlePrint}
               disabled={state.status !== "ready"}
               className={appleButtonClass}
@@ -263,12 +290,12 @@ export default function TemporaryReleve() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleDownload}
-              disabled={state.status !== "ready" || isDownloading}
+              onClick={handleSendEmail}
+              disabled={state.status !== "ready"}
               className={appleButtonClass}
             >
-              <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
-              <span className="hidden sm:inline">Télécharger</span>
+              <Send className="h-4 w-4" />
+              <span className="hidden sm:inline">Envoyer</span>
             </Button>
             
             <Button
@@ -286,7 +313,7 @@ export default function TemporaryReleve() {
               ) : (
                 <>
                   <Share2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Partager</span>
+                  <span className="hidden sm:inline">Copier</span>
                 </>
               )}
             </Button>
