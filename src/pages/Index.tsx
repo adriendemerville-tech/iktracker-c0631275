@@ -69,6 +69,7 @@ const Index = () => {
     requestPermission,
     dismissBanner,
     closeTutorialModal,
+    markTourStarted,
   } = useGeolocationPermission();
   
   // Fetch pending feedbacks count for admins
@@ -259,6 +260,8 @@ const Index = () => {
     if (isTourActive) {
       toast.success("Tournée démarrée", { duration: 2000 });
       setTourStartRequested(false);
+      // Mark tour as started to hide geolocation banner for this session
+      markTourStarted();
       return;
     }
 
@@ -266,7 +269,7 @@ const Index = () => {
       toast.error("Activer la localisation");
       setTourStartRequested(false);
     }
-  }, [tourStartRequested, isTourActive, isTourLoading, tourError]);
+  }, [tourStartRequested, isTourActive, isTourLoading, tourError, markTourStarted]);
 
   const handleTourButtonClick = () => {
     if (isTourActive) {

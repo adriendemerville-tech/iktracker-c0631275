@@ -14,6 +14,7 @@ interface GeolocationPermissionState {
 
 const STORAGE_KEY = 'iktracker_geolocation_dismissed';
 const SESSION_COUNT_KEY = 'iktracker_geolocation_session_count';
+const TOUR_STARTED_SESSION_KEY = 'iktracker_tour_started_session';
 const MAX_SESSIONS = 6;
 
 export function useGeolocationPermission() {
@@ -26,10 +27,14 @@ export function useGeolocationPermission() {
     isGpsDisabled: false,
   });
 
-  // Check if banner was permanently dismissed or max sessions reached
+  // Check if banner was permanently dismissed, max sessions reached, or tour started this session
   const wasDismissed = useCallback(() => {
     const dismissed = safeLocalStorage.getItem(STORAGE_KEY) === 'true';
     if (dismissed) return true;
+    
+    // Check if tour was started this session
+    const tourStartedThisSession = safeSessionStorage.getItem(TOUR_STARTED_SESSION_KEY) === 'true';
+    if (tourStartedThisSession) return true;
     
     const sessionCount = parseInt(safeLocalStorage.getItem(SESSION_COUNT_KEY) || '0', 10);
     return sessionCount >= MAX_SESSIONS;
@@ -214,8 +219,15 @@ export function useGeolocationPermission() {
   const resetDismissed = useCallback(() => {
     safeLocalStorage.removeItem(STORAGE_KEY);
     safeLocalStorage.removeItem(SESSION_COUNT_KEY);
+    safeSessionStorage.removeItem(TOUR_STARTED_SESSION_KEY);
     checkPermission();
   }, [checkPermission]);
+
+  // Mark tour as started this session (hides banner until next session)
+  const markTourStarted = useCallback(() => {
+    safeSessionStorage.setItem(TOUR_STARTED_SESSION_KEY, 'true');
+    setState(s => ({ ...s, showBanner: false }));
+  }, []);
 
   // Check permission on mount
   useEffect(() => {
@@ -229,5 +241,6 @@ export function useGeolocationPermission() {
     closeTutorialModal,
     resetDismissed,
     checkPermission,
+    markTourStarted,
   };
 }
