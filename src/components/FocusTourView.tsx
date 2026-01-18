@@ -206,21 +206,16 @@ export function FocusTourView({
 
       {/* CENTER: Tour button and stop button */}
       <div className="flex flex-col items-center gap-6">
-        {/* Car button - triggers confirmation - Premium gradient */}
+        {/* Car button - triggers confirmation - Blue with gold border */}
         <button
           onClick={handleStopClick}
-          className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 car-button-gradient"
+          className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95"
+          style={{
+            backgroundColor: '#6476E8',
+            border: '3px solid #FFDF00',
+          }}
           aria-label="Arrêter la tournée"
         >
-          {/* Golden border container - solid first, then rotates after green transition */}
-          <span 
-            className="absolute inset-[-4px] rounded-full car-button-golden-border z-0"
-          />
-          {/* Inner mask to create ring effect - covers the golden border except the edge */}
-          <span 
-            className="absolute inset-0 rounded-full car-button-gradient z-[1]"
-          />
-          
           {/* Speed lines behind the car - white for contrast */}
           <span className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10 text-white">
             <span className="w-7 h-1.5 bg-current opacity-60 rounded-full" />
