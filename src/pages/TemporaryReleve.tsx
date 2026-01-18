@@ -187,8 +187,8 @@ export default function TemporaryReleve() {
     }
   };
 
-  // Premium Apple-style button styling - dark with white text
-  const appleButtonClass = "gap-2 bg-neutral-800/90 border-neutral-700/50 text-white hover:bg-neutral-700/90 backdrop-blur-sm transition-all shadow-sm font-medium";
+  // Premium Apple-style button styling - refined dark gray with white text
+  const appleButtonClass = "gap-2 bg-[#1d1d1f]/95 border-[#424245]/60 text-white hover:bg-[#2d2d30] active:bg-[#3a3a3c] backdrop-blur-xl transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.3)] font-medium rounded-lg";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
