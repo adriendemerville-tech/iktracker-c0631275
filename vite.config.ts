@@ -13,11 +13,26 @@ function asyncCssPlugin(): Plugin {
     transformIndexHtml(html) {
       // Transform CSS links to use media="print" trick for non-blocking load
       // This loads CSS asynchronously then swaps to media="all" when loaded
-      return html.replace(
+      let result = html.replace(
         /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/g,
         `<link rel="preload" href="$1" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="$1"></noscript>`
       );
+      
+      // Add defer to non-critical scripts for better FCP
+      // Entry point script will still block, but other scripts become non-blocking
+      result = result.replace(
+        /<script type="module" crossorigin src="(\/assets\/[^"]+\.js)"><\/script>/g,
+        (match, src) => {
+          // Keep entry script as-is, defer others
+          if (src.includes('index-')) {
+            return match;
+          }
+          return `<script type="module" crossorigin src="${src}" defer></script>`;
+        }
+      );
+      
+      return result;
     },
   };
 }
@@ -299,24 +314,30 @@ export default defineConfig(({ mode }) => ({
           'vendor-router': [
             'react-router-dom',
           ],
-          // Data layer - loaded when needed
-          'vendor-data': [
+          // Data layer - split Supabase and React Query for better parallelization
+          'vendor-supabase': [
             '@supabase/supabase-js',
+          ],
+          'vendor-query': [
             '@tanstack/react-query',
           ],
           // SEO - loaded async
           'vendor-seo': [
             'react-helmet-async',
           ],
-          // Critical UI - dialogs, toasts (needed early)
+          // Critical UI only - minimal for FCP
           'vendor-ui-core': [
             '@radix-ui/react-slot',
+          ],
+          // Toast/Dialog - deferred
+          'vendor-ui-feedback': [
             '@radix-ui/react-toast',
             '@radix-ui/react-tooltip',
-          ],
-          // Secondary UI - loaded when needed
-          'vendor-ui-forms': [
             '@radix-ui/react-dialog',
+            '@radix-ui/react-alert-dialog',
+          ],
+          // Secondary UI - lazy loaded
+          'vendor-ui-forms': [
             '@radix-ui/react-popover',
             '@radix-ui/react-select',
             '@radix-ui/react-checkbox',
@@ -334,9 +355,8 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-separator',
             '@radix-ui/react-progress',
             '@radix-ui/react-avatar',
-            '@radix-ui/react-alert-dialog',
           ],
-          // Heavy features - lazy loaded
+          // Heavy features - lazy loaded only when needed
           'vendor-charts': ['recharts'],
           'vendor-zip': ['jszip', 'pako'],
           'vendor-motion': ['framer-motion'],
@@ -344,7 +364,6 @@ export default defineConfig(({ mode }) => ({
           'vendor-pdf': ['html2pdf.js'],
         },
       },
-      // Tree-shaking is enabled by default in production builds
     },
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 400,
