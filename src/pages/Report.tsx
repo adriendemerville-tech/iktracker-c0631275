@@ -861,12 +861,12 @@ ${IKTRACKER_URL}`;
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
-          <div className="grid grid-cols-2 gap-3 w-1/2 min-w-[200px]">
-            <Link to="/profile#mes-adresses">
+          <div className="grid grid-cols-2 gap-3 w-3/5 min-w-[240px]">
+            <Link to="/profile#mes-adresses" className="w-full">
               <Button 
                 variant="outline" 
                 size="default"
-                className="w-full h-10 px-3 text-sm"
+                className="w-full h-12 px-4 text-sm"
               >
                 <Home className="w-4 h-4" />
                 Adresses
@@ -875,7 +875,7 @@ ${IKTRACKER_URL}`;
             <Button 
               variant="gradient" 
               size="default"
-              className="w-full h-10 px-3 text-sm"
+              className="w-full h-12 px-4 text-sm"
               onClick={() => setShowNewTrip(true)}
               disabled={vehicles.length === 0}
             >
