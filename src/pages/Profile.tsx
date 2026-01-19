@@ -795,8 +795,8 @@ const Profile = () => {
           Partager l'application
         </Button>
 
-        {/* Logout Button */}
-        {user && (
+        {/* Login / Logout Button */}
+        {user ? (
           <Button 
             variant="outline" 
             className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
@@ -804,6 +804,14 @@ const Profile = () => {
           >
             <LogOut className="w-4 h-4 mr-2" />
             Déconnexion
+          </Button>
+        ) : (
+          <Button 
+            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            onClick={() => navigate('/auth')}
+          >
+            <LogOut className="w-4 h-4 mr-2 rotate-180" />
+            Connexion
           </Button>
         )}
 
