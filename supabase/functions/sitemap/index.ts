@@ -6,19 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Static pages configuration
+// Static pages configuration with realistic lastmod dates
+// Update these when content actually changes
 const staticPages = [
-  { url: '/', priority: '1.0', changefreq: 'weekly' },
-  { url: '/signup', priority: '0.9', changefreq: 'monthly' },
-  { url: '/auth', priority: '0.8', changefreq: 'monthly' },
-  { url: '/mode-tournee', priority: '0.9', changefreq: 'monthly' },
-  { url: '/calendrier', priority: '0.9', changefreq: 'monthly' },
-  { url: '/expert-comptable', priority: '0.8', changefreq: 'monthly' },
-  { url: '/install', priority: '0.7', changefreq: 'monthly' },
-  { url: '/bareme-ik-2026', priority: '0.7', changefreq: 'yearly' },
-  { url: '/blog', priority: '0.8', changefreq: 'daily' },
-  { url: '/privacy', priority: '0.3', changefreq: 'yearly' },
-  { url: '/terms', priority: '0.3', changefreq: 'yearly' },
+  { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-01-19' },
+  { url: '/signup', priority: '0.9', changefreq: 'monthly', lastmod: '2026-01-15' },
+  { url: '/auth', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-15' },
+  { url: '/mode-tournee', priority: '0.9', changefreq: 'monthly', lastmod: '2026-01-10' },
+  { url: '/calendrier', priority: '0.9', changefreq: 'monthly', lastmod: '2026-01-10' },
+  { url: '/expert-comptable', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-05' },
+  { url: '/install', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-05' },
+  { url: '/bareme-ik-2026', priority: '0.9', changefreq: 'yearly', lastmod: '2026-01-01' },
+  { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-01-19' },
+  { url: '/privacy', priority: '0.3', changefreq: 'yearly', lastmod: '2025-12-01' },
+  { url: '/terms', priority: '0.3', changefreq: 'yearly', lastmod: '2025-12-01' },
 ];
 
 const BASE_URL = 'https://iktracker.fr';
@@ -45,17 +46,16 @@ serve(async (req) => {
       console.error('Error fetching blog posts:', error);
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Generate static pages entries
+    // Generate static pages entries with their specific lastmod dates
     const staticEntries = staticPages.map(page => `  <url>
     <loc>${BASE_URL}${page.url}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${page.lastmod}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>`).join('\n');
 
     // Generate blog post entries
+    const today = new Date().toISOString().split('T')[0];
     const blogEntries = (blogPosts || []).map(post => {
       const lastmod = post.updated_at 
         ? new Date(post.updated_at).toISOString().split('T')[0]

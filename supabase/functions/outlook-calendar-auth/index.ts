@@ -70,18 +70,39 @@ serve(async (req) => {
             redirectTarget.searchParams.set('oauth_success', 'true');
             redirectTarget.searchParams.set('oauth_provider', 'outlook');
           } else {
-            redirectTarget.searchParams.set('oauth_error', errorMessage || 'Unknown error');
+            // Sanitize error message to prevent XSS
+            const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&]/g, '');
+            redirectTarget.searchParams.set('oauth_error', safeError);
             redirectTarget.searchParams.set('oauth_provider', 'outlook');
           }
           return Response.redirect(redirectTarget.toString(), 302);
         } else {
-          // Desktop mode: use postMessage to parent window
+          // Desktop mode: use postMessage with specific origins, not wildcard
+          const allowedOrigins = ['https://iktracker.fr', 'https://iktracker.lovable.app', 'http://localhost:5173', 'http://localhost:8080'];
+          const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\\\]/g, '');
           if (success) {
-            return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-success'},'*');window.close();</script></body></html>`, {
+            return new Response(`<html><body><script>
+              const origins = ${JSON.stringify(allowedOrigins)};
+              if (window.opener && !window.opener.closed) {
+                origins.forEach(o => { try { window.opener.postMessage({type:'outlook-auth-success'}, o); } catch(e) {} });
+                setTimeout(() => window.close(), 1500);
+              } else {
+                window.location.href = 'https://iktracker.fr/profile?oauth_success=true&oauth_provider=outlook';
+              }
+            </script></body></html>`, {
               headers: { 'Content-Type': 'text/html' },
             });
           } else {
-            return new Response(`<html><body><script>window.opener.postMessage({type:'outlook-auth-error',error:'${errorMessage}'},'*');window.close();</script></body></html>`, {
+            return new Response(`<html><body><script>
+              const origins = ${JSON.stringify(allowedOrigins)};
+              const safeErr = ${JSON.stringify(safeError)};
+              if (window.opener && !window.opener.closed) {
+                origins.forEach(o => { try { window.opener.postMessage({type:'outlook-auth-error', error: safeErr}, o); } catch(e) {} });
+                setTimeout(() => window.close(), 2000);
+              } else {
+                window.location.href = 'https://iktracker.fr/profile?oauth_error=' + encodeURIComponent(safeErr) + '&oauth_provider=outlook';
+              }
+            </script></body></html>`, {
               headers: { 'Content-Type': 'text/html' },
             });
           }
@@ -90,7 +111,9 @@ serve(async (req) => {
 
       if (error) {
         console.error('OAuth error:', error, errorDescription);
-        return returnResponse(false, `${error}: ${errorDescription}`);
+        // Sanitize error messages to prevent XSS
+        const sanitizedError = `${String(error).replace(/[<>"'&]/g, '')}: ${String(errorDescription || '').replace(/[<>"'&]/g, '')}`;
+        return returnResponse(false, sanitizedError);
       }
 
       if (!code || !user_id) {
