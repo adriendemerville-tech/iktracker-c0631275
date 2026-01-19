@@ -116,13 +116,13 @@ interface ProfileKmChartProps {
 }
 
 const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
-  const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308'];
+  const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308', '#06B6D4', '#F43F5E', '#84CC16', '#A855F7', '#FB923C', '#FACC15'];
 
   return (
     // Fixed height container to prevent CLS when chart loads
     <div className="h-48 min-h-[192px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ left: 0, right: 0, bottom: 0, top: 10 }} barSize={32}>
+        <BarChart data={data} margin={{ left: -10, right: -10, bottom: 0, top: 10 }} barCategoryGap="8%">
           <defs>
             <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
               <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.15" />
@@ -135,11 +135,12 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
               </feMerge>
             </filter>
           </defs>
-          <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
+          <XAxis type="category" dataKey="month" tick={{ fontSize: 10 }} interval={0} />
           <YAxis type="number" hide domain={[0, maxKm]} />
           <Bar 
             dataKey="km"
             shape={<KmBarShape />}
+            maxBarSize={24}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
