@@ -28,13 +28,14 @@
     <link rel="preload" href="/founder-adrien-optimized.webp" as="image" type="image/webp">
     
     <!-- Favicon & App Icons (Google Search requires 48px+ favicon, prefers .ico/.svg) -->
-    <link rel="icon" href="/favicon.ico" sizes="48x48">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icon-192.png">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- Cache-bust query is intentional because icons are served with 1y immutable cache in production -->
+    <link rel="icon" href="/favicon.ico?v=20260119" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260119">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png?v=20260119">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=20260119">
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icon-192.png?v=20260119">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260119">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260119">
     
     <!-- iOS Splash Screens - Low priority, loaded async -->
     <link rel="apple-touch-startup-image" href="/splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" fetchpriority="low">
