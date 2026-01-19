@@ -1,18 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug, RefreshCw } from 'lucide-react';
 import { useCalendarConnections } from '@/hooks/useCalendarConnections';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { CalendarSyncNotification } from './CalendarSyncNotification';
 
 // Detect if we're on a mobile device (more reliable than just screen size)
@@ -54,12 +52,6 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
   const [debugLoading, setDebugLoading] = useState(false);
   const [debugResponse, setDebugResponse] = useState<any>(null);
   const [debugError, setDebugError] = useState<any>(null);
-
-  const debugProviderLabel = useMemo(() => {
-    if (debugProvider === 'google') return 'Google Calendar';
-    if (debugProvider === 'outlook') return 'Outlook Calendar';
-    return '';
-  }, [debugProvider]);
 
   const runCalendarDebug = useCallback(async (provider: 'google' | 'outlook') => {
     if (!user) {
