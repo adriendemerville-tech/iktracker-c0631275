@@ -505,7 +505,7 @@ const Index = () => {
   const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
 
   // Export functions
-  const IKTRACKER_URL = 'https://iktracker.lovable.app';
+  const IKTRACKER_URL = 'https://iktracker.fr';
   const IKTRACKER_MENTION = `Généré conformément à la législation par IKtracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
 
   const generateReadmeContent = () => {

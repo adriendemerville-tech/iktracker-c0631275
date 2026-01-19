@@ -183,8 +183,8 @@ function generateReportHTML(options: PrintReportOptions): string {
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/svg+xml" href="https://iktracker.lovable.app/favicon.svg">
-  <link rel="icon" type="image/png" sizes="48x48" href="https://iktracker.lovable.app/favicon-48x48.png">
+  <link rel="icon" type="image/svg+xml" href="https://iktracker.fr/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://iktracker.fr/favicon-48x48.png">
   <title>Relevé IK - ${currentMonth} ${currentYear}</title>
   <style>
     @page {
@@ -1100,7 +1100,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     
     <!-- Footer -->
     <div style="text-align: center; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-      <div style="font-size: 10px; color: #9ca3af;">Généré par IKtracker • iktracker.lovable.app</div>
+      <div style="font-size: 10px; color: #9ca3af;">Généré par IKtracker • iktracker.fr</div>
     </div>
   </div>
 </body>
