@@ -9,7 +9,7 @@ import { Location, TripDraft, Vehicle } from '@/types/trip';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { geocodeAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map, X } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map, X, Pencil } from 'lucide-react';
 import wazeLogo from '@/assets/waze-logo.webp';
 import googleMapsLogo from '@/assets/google-maps-logo.webp';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -666,17 +666,37 @@ export function NewTripSheet({
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
-                <div className="flex items-center gap-3 text-sm mb-2 pr-6">
+                
+                {/* Editable vehicle row */}
+                <button
+                  onClick={() => setStep('vehicle')}
+                  className="flex items-center gap-3 text-sm mb-2 pr-6 w-full hover:opacity-70 transition-opacity group"
+                >
                   <Car className="w-4 h-4 text-primary" />
                   <span className="font-medium">{selectedVehicle?.make} {selectedVehicle?.model}</span>
                   <span className="text-muted-foreground">• {selectedVehicle?.fiscalPower} CV</span>
-                </div>
+                  <Pencil className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+                
+                {/* Editable locations row */}
                 <div className="flex items-center gap-3 text-sm">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{draft.startLocation?.name}</span>
+                  <button
+                    onClick={() => setStep('start')}
+                    className="flex items-center gap-2 hover:opacity-70 transition-opacity group"
+                  >
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span className="font-medium">{draft.startLocation?.name}</span>
+                    <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
                   <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                  <MapPin className="w-4 h-4 text-accent" />
-                  <span className="font-medium">{draft.endLocation?.name}</span>
+                  <button
+                    onClick={() => setStep('end')}
+                    className="flex items-center gap-2 hover:opacity-70 transition-opacity group"
+                  >
+                    <MapPin className="w-4 h-4 text-accent" />
+                    <span className="font-medium">{draft.endLocation?.name}</span>
+                    <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
                 </div>
               </div>
 
