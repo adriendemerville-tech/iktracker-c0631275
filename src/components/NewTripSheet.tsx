@@ -859,7 +859,7 @@ export function NewTripSheet({
                   className="px-8 sm:px-12 py-2.5 sm:py-3 h-10 sm:h-12 text-base sm:text-lg"
                   onClick={handleConfirm}
                 >
-                  {isEditing ? 'Modifier' : 'Enregistrer'}
+                  Enregistrer
                 </Button>
               </div>
             </div>
