@@ -88,7 +88,11 @@ export default function Report() {
     }
   };
 
-  const groupedByMonth = trips.reduce((acc, trip) => {
+  // Separate pending trips from validated trips - pending always shown first
+  const pendingTrips = trips.filter(t => t.status === 'pending_location');
+  const validatedTrips = trips.filter(t => t.status !== 'pending_location');
+
+  const groupedByMonth = validatedTrips.reduce((acc, trip) => {
     const month = new Date(trip.startTime).toLocaleDateString('fr-FR', {
       month: 'long',
       year: 'numeric',
@@ -851,12 +855,43 @@ ${IKTRACKER_URL}`;
         )}
 
 
-        {Object.keys(groupedByMonth).length === 0 ? (
+        {/* Pending trips section - always at top */}
+        {pendingTrips.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+              Trajets à compléter ({pendingTrips.length})
+            </h3>
+            <div className="space-y-3">
+              {pendingTrips.map(trip => {
+                const vehicle = getVehicle(trip.vehicleId);
+                return (
+                  <TripCard
+                    key={trip.id}
+                    trip={trip}
+                    vehicle={vehicle}
+                    showTripTime={preferences.showTripTime}
+                    onEdit={(t) => {
+                      setEditingTrip(t);
+                      setShowNewTrip(true);
+                    }}
+                    onDelete={deleteTrip}
+                    showDelete
+                    savedLocations={savedLocations}
+                    onTripUpdated={() => window.location.reload()}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {Object.keys(groupedByMonth).length === 0 && pendingTrips.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
             <p className="text-muted-foreground">Aucun trajet enregistré</p>
           </div>
-        ) : (
+        ) : Object.keys(groupedByMonth).length > 0 && (
           <>
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Trajets passés</h3>
             {Object.entries(groupedByMonth).map(([month, monthTrips], index) => (

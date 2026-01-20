@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug, RefreshCw } from 'lucide-react';
 import { useCalendarConnections } from '@/hooks/useCalendarConnections';
@@ -91,6 +92,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     dateRange: { startDate: string; endDate: string } | null;
   } | null>(null);
   const [showSyncNotification, setShowSyncNotification] = useState(false);
+  const [monthsBack, setMonthsBack] = useState<string>('0'); // Default: today only (no past import)
 
   const runManualSync = useCallback(async () => {
     if (!user) {
@@ -103,7 +105,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     setShowSyncNotification(false);
 
     const { data, error } = await supabase.functions.invoke('sync-calendar-trips', {
-      body: { trigger: 'manual' },
+      body: { trigger: 'manual', monthsBack: parseInt(monthsBack) },
     });
 
     if (error) {
@@ -125,7 +127,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       queryClient.invalidateQueries({ queryKey: ['trips'] });
       onTripsUpdated?.();
     }
-  }, [user, queryClient, onTripsUpdated]);
+  }, [user, queryClient, onTripsUpdated, monthsBack]);
 
   const googleConnection = getConnection('google');
   const outlookConnection = getConnection('outlook');
@@ -579,23 +581,41 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
 
         {/* Manual Sync Button */}
         {connections.length > 0 && (
-          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-            <div>
+          <div className="flex flex-col gap-3 p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center justify-between">
               <p className="font-medium text-sm">Synchroniser maintenant</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={runManualSync}
+                disabled={syncing}
+              >
+                {syncing ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                Sync
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={runManualSync}
-              disabled={syncing}
-            >
-              {syncing ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <RefreshCw className="w-4 h-4 mr-2" />
-              )}
-              Sync
-            </Button>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="months-back" className="text-xs text-muted-foreground whitespace-nowrap">
+                Importer depuis
+              </Label>
+              <Select value={monthsBack} onValueChange={setMonthsBack}>
+                <SelectTrigger id="months-back" className="h-8 text-xs flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Aujourd'hui seulement</SelectItem>
+                  <SelectItem value="1">1 mois</SelectItem>
+                  <SelectItem value="2">2 mois</SelectItem>
+                  <SelectItem value="3">3 mois</SelectItem>
+                  <SelectItem value="6">6 mois</SelectItem>
+                  <SelectItem value="12">12 mois</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         )}
 

@@ -86,12 +86,20 @@ async function refreshGoogleToken(connection: CalendarConnection, supabase: any)
   }
 }
 
-// Calculate date range for calendar sync: entire previous month + current month + 14 days ahead
-function getCalendarSyncDateRange(): { startDate: Date; endDate: Date } {
+// Calculate date range for calendar sync
+// Default (monthsBack=0): today only + 14 days ahead (prevents re-importing archived trips)
+// With monthsBack > 0: allows importing past events for manual sync
+function getCalendarSyncDateRange(monthsBack: number = 0): { startDate: Date; endDate: Date } {
   const now = new Date();
   
-  // Start of previous month (1st day at 00:00:00)
-  const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
+  let startDate: Date;
+  if (monthsBack > 0) {
+    // User explicitly requested past import - go back X months
+    startDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1, 0, 0, 0);
+  } else {
+    // Default: start from today at midnight (no past import)
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  }
   
   // End window: 14 days from today
   const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14, 23, 59, 59);
@@ -99,19 +107,19 @@ function getCalendarSyncDateRange(): { startDate: Date; endDate: Date } {
   return { startDate, endDate };
 }
 
-// Fetch Google Calendar events: entire previous month + current month up to now + next 14 days
-async function fetchGoogleCalendarEvents(accessToken: string): Promise<{ events: CalendarEvent[]; dateRange: { startDate: string; endDate: string } }> {
-  const { startDate, endDate } = getCalendarSyncDateRange();
+// Fetch Google Calendar events based on monthsBack parameter
+async function fetchGoogleCalendarEvents(accessToken: string, monthsBack: number = 0): Promise<{ events: CalendarEvent[]; dateRange: { startDate: string; endDate: string } }> {
+  const { startDate, endDate } = getCalendarSyncDateRange(monthsBack);
 
   const params = new URLSearchParams({
     timeMin: startDate.toISOString(),
     timeMax: endDate.toISOString(),
     singleEvents: 'true',
     orderBy: 'startTime',
-    maxResults: '500', // Increased to handle more past events
+    maxResults: '500',
   });
 
-  console.log(`Fetching Google Calendar events from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+  console.log(`Fetching Google Calendar events from ${startDate.toISOString()} to ${endDate.toISOString()} (monthsBack=${monthsBack})`);
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
@@ -121,7 +129,6 @@ async function fetchGoogleCalendarEvents(accessToken: string): Promise<{ events:
       },
     }
   );
-
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -577,8 +584,18 @@ serve(async (req) => {
   }
 
   try {
+    // Parse request body to get monthsBack parameter
+    let monthsBack = 0;
+    try {
+      const body = await req.json();
+      monthsBack = body.monthsBack || 0;
+    } catch {
+      // No body or invalid JSON - use default
+    }
+    
     console.log('Starting calendar sync...');
     console.log('Time:', new Date().toISOString());
+    console.log('Months back:', monthsBack);
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -611,8 +628,8 @@ serve(async (req) => {
           continue;
         }
 
-        // Fetch calendar events
-        const { events, dateRange } = await fetchGoogleCalendarEvents(accessToken);
+        // Fetch calendar events (with monthsBack parameter)
+        const { events, dateRange } = await fetchGoogleCalendarEvents(accessToken, monthsBack);
         console.log(`Found ${events.length} events for user ${connection.user_id}`);
 
         // Store date range for response
