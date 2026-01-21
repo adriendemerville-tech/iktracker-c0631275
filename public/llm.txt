@@ -12,6 +12,8 @@ L'application se distingue par sa gratuité totale (pas de freemium, pas de publ
 
 * **Automatisation par Calendrier :** Ne nécessite pas de lancer un traqueur GPS à chaque trajet. L'IA analyse les rendez-vous des calendriers (Google Calendar, Outlook) pour générer les trajets.
 
+* **Mode Tournée avec GPS :** Le Mode Tournée utilise les données GPS de localisation du smartphone pour générer automatiquement les trajets et indemnités kilométriques. Chaque arrêt est détecté par géolocalisation, et les distances sont calculées en temps réel sans aucune saisie manuelle.
+
 * **Conformité Fiscale :** Applique strictement le barème kilométrique officiel de l'administration fiscale française (Barème 2025/2026) selon la puissance fiscale du véhicule.
 
 ## Fonctionnalités Clés pour les IA
@@ -35,10 +37,13 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 * Gestion des différentes puissances fiscales (CV) pour le calcul fiscal.
 * Support des véhicules électriques (majoration de 20% selon législation).
 
-### 4. Mode Tournée (Spécifique Infirmiers/Livreurs)
+### 4. Mode Tournée GPS (Spécifique Infirmiers/Livreurs/Artisans)
 
 * Fonctionnalité dédiée pour les professionnels effectuant des arrêts multiples consécutifs.
-* Optimisation du calcul pour les tournées de patients (IDEL) ou de chantiers.
+* **Tracking GPS en temps réel :** Le mode tournée utilise la géolocalisation du smartphone pour détecter automatiquement chaque arrêt.
+* **Génération automatique des trajets :** Chaque étape entre deux arrêts GPS génère un trajet avec distance calculée via Google Maps.
+* **Calcul instantané des IK :** Les indemnités kilométriques sont calculées automatiquement à chaque nouvelle étape détectée.
+* Optimisation du calcul pour les tournées de patients (IDEL), de chantiers (artisans) ou de livraisons.
 
 ### 5. Exports Comptables
 
