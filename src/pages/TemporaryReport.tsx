@@ -82,74 +82,10 @@ export default function TemporaryReport() {
     }
   };
 
-  // Parse HTML to extract trip data for CSV export
-  const extractTripsFromHtml = (html: string): { date: string; depart: string; arrivee: string; km: string; ik: string }[] => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = doc.querySelectorAll('table tbody tr');
-    const trips: { date: string; depart: string; arrivee: string; km: string; ik: string }[] = [];
-    
-    rows.forEach((row) => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length >= 5) {
-        trips.push({
-          date: cells[0]?.textContent?.trim() || '',
-          depart: cells[1]?.textContent?.trim() || '',
-          arrivee: cells[2]?.textContent?.trim() || '',
-          km: cells[3]?.textContent?.trim() || '',
-          ik: cells[4]?.textContent?.trim() || '',
-        });
-      }
-    });
-    
-    return trips;
-  };
-
-  const generateCsvBlob = (trips: { date: string; depart: string; arrivee: string; km: string; ik: string }[]): Blob => {
-    const headers = ['Date', 'Départ', 'Arrivée', 'Distance (km)', 'Indemnité (€)'];
-    const csvContent = [
-      headers.join(';'),
-      ...trips.map(trip => 
-        [trip.date, `"${trip.depart}"`, `"${trip.arrivee}"`, trip.km, trip.ik].join(';')
-      )
-    ].join('\n');
-    
-    return new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' });
-  };
-
   const handleDownload = async () => {
     if (state.status !== "ready") return;
     
     setIsDownloading(true);
-    
-    // Create elegant loading overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'download-overlay';
-    overlay.style.cssText = `
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    `;
-    overlay.innerHTML = `
-      <div style="
-        width: 48px;
-        height: 48px;
-        border: 3px solid rgba(255,255,255,0.2);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      "></div>
-      <span style="color: white; font-size: 16px; font-weight: 500;">Génération du PDF...</span>
-      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-    `;
-    document.body.appendChild(overlay);
     
     try {
       const dateStr = new Date().toISOString().split("T")[0];
@@ -173,14 +109,10 @@ export default function TemporaryReport() {
         htmlForPdf = clonedDoc.documentElement.outerHTML;
       }
       
-      // Generate PDF using the cleaned HTML
+      // Generate PDF using the cleaned HTML (same function as HTML preview)
       const pdfBlob = await htmlToPdfBlob(htmlForPdf);
       
-      // Generate CSV
-      const trips = extractTripsFromHtml(state.html);
-      const csvBlob = generateCsvBlob(trips);
-      
-      // Download PDF
+      // Download PDF only (no ZIP, no CSV)
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const pdfLink = document.createElement("a");
       pdfLink.href = pdfUrl;
@@ -190,27 +122,11 @@ export default function TemporaryReport() {
       document.body.removeChild(pdfLink);
       URL.revokeObjectURL(pdfUrl);
       
-      // Small delay before CSV download
-      await new Promise(r => setTimeout(r, 300));
-      
-      // Download CSV
-      const csvUrl = URL.createObjectURL(csvBlob);
-      const csvLink = document.createElement("a");
-      csvLink.href = csvUrl;
-      csvLink.download = `releve-ik-${dateStr}.csv`;
-      document.body.appendChild(csvLink);
-      csvLink.click();
-      document.body.removeChild(csvLink);
-      URL.revokeObjectURL(csvUrl);
-      
-      toast.success("PDF et CSV téléchargés");
+      toast.success("PDF téléchargé");
     } catch (error) {
       console.error("Download error:", error);
       toast.error("Erreur lors du téléchargement");
     } finally {
-      // Remove overlay
-      const existingOverlay = document.getElementById('download-overlay');
-      if (existingOverlay) existingOverlay.remove();
       setIsDownloading(false);
     }
   };
