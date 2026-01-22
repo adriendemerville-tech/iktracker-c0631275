@@ -153,11 +153,12 @@ const BaremeIK2026 = () => {
         <MarketingNav user={user} loading={loading} />
 
         <main id="main-content" tabIndex={-1} className="outline-none">
-          {/* Hero Section */}
+          {/* Hero Section - NO animations for instant LCP */}
           <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
           <div className="container mx-auto relative z-10 max-w-4xl">
-            <div className="text-center animate-fade-in">
+            {/* Removed animate-fade-in for instant mobile LCP */}
+            <div className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Calculator className="h-4 w-4" />
                 Barème fiscal 2026
@@ -674,8 +675,8 @@ const BaremeIK2026 = () => {
           </div>
         </section>
 
-        {/* How IK Works Section */}
-        <section className="py-12 px-4 bg-muted/30">
+        {/* How IK Works Section - content-visibility for mobile perf */}
+        <section className="py-12 px-4 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
               Comment calculer ses indemnités kilométriques 2026 ?
@@ -748,8 +749,8 @@ const BaremeIK2026 = () => {
           </div>
         </section>
 
-        {/* Legal Sources */}
-        <section className="py-12 px-4">
+        {/* Legal Sources - content-visibility for mobile perf */}
+        <section className="py-12 px-4" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
               Sources officielles et références légales
@@ -813,8 +814,8 @@ const BaremeIK2026 = () => {
           </div>
         </section>
 
-        {/* Related Links & CTA */}
-        <section className="py-12 px-4 bg-muted/30">
+        {/* Related Links & CTA - content-visibility for mobile perf */}
+        <section className="py-12 px-4 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
               En savoir plus sur IKtracker
