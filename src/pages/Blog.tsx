@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdmin } from '@/hooks/useAdmin';
+import { useAdminLazy } from '@/hooks/useAdminLazy';
+import { useAuthLazy } from '@/hooks/useAuthLazy';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
@@ -25,7 +26,8 @@ interface BlogPost {
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isAdmin } = useAdmin();
+  const { user, loading: authLoading } = useAuthLazy();
+  const { isAdmin } = useAdminLazy();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -56,7 +58,7 @@ export default function Blog() {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <MarketingNav />
+        <MarketingNav user={user} loading={authLoading} />
         
         <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-none">
           {/* Hero Header */}
