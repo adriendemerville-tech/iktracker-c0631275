@@ -9,7 +9,7 @@ import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, User } from 
 import confetti from 'canvas-confetti';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-const RECAPTCHA_SITE_KEY = '6LfS_IIsAAAAAJJ2oNxobsM8KHy4akAIA32Rhbd3';
+const RECAPTCHA_SITE_KEY = '6LeqDVMsAAAAAE_prKZwP9zj8ovr49OFOQnoISsP';
 
 const fireConfetti = () => {
   confetti({
@@ -56,12 +56,22 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleRecaptchaChange = (token: string | null) => {
+  const handleRecaptchaChange = async (token: string | null) => {
     setRecaptchaToken(token);
+    // When invisible reCAPTCHA resolves, proceed with signup
+    if (token) {
+      await performSignup(token);
+    }
   };
 
   const handleRecaptchaExpired = () => {
     setRecaptchaToken(null);
+    setLoading(false);
+  };
+
+  const handleRecaptchaError = () => {
+    setLoading(false);
+    toast({ title: 'Erreur', description: 'Erreur lors de la vérification. Veuillez réessayer.', variant: 'destructive' });
   };
 
   useEffect(() => {
@@ -107,13 +117,25 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!recaptchaToken) {
-      toast({ title: 'Erreur', description: 'Veuillez valider le captcha pour continuer.', variant: 'destructive' });
+    // If we already have a token, proceed with signup
+    if (recaptchaToken) {
+      await performSignup(recaptchaToken);
       return;
     }
     
+    // Execute invisible reCAPTCHA
     setLoading(true);
+    try {
+      recaptchaRef.current?.execute();
+    } catch (error) {
+      setLoading(false);
+      toast({ title: 'Erreur', description: 'Erreur lors de la vérification. Veuillez réessayer.', variant: 'destructive' });
+    }
+  };
 
+  const performSignup = async (token: string) => {
+    setLoading(true);
+    
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -122,14 +144,13 @@ const Signup = () => {
           emailRedirectTo: `${window.location.origin}/app`,
           data: {
             first_name: firstName.trim() || undefined,
-            recaptcha_token: recaptchaToken, // Send token for potential server-side verification
+            recaptcha_token: token,
           },
         },
       });
       if (error) throw error;
       fireConfetti();
       toast({ title: 'Inscription réussie 🎉', description: 'Vous pouvez maintenant utiliser l\'application.' });
-      // Redirect to theme onboarding for new signups
       setTimeout(() => navigate('/theme-onboarding'), 800);
     } catch (error: any) {
       let message = error.message;
@@ -139,7 +160,6 @@ const Signup = () => {
         message = 'Le mot de passe doit contenir au moins 6 caractères';
       }
       toast({ title: 'Erreur', description: message, variant: 'destructive' });
-      // Reset captcha on error
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
     } finally {
@@ -356,21 +376,20 @@ const Signup = () => {
                   </button>
                 </div>
                 
-                {/* reCAPTCHA widget */}
-                <div className="flex justify-center my-4">
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={RECAPTCHA_SITE_KEY}
-                    onChange={handleRecaptchaChange}
-                    onExpired={handleRecaptchaExpired}
-                    theme="dark"
-                  />
-                </div>
+                {/* Invisible reCAPTCHA */}
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  size="invisible"
+                  onChange={handleRecaptchaChange}
+                  onExpired={handleRecaptchaExpired}
+                  onErrored={handleRecaptchaError}
+                />
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
-                  disabled={loading || !recaptchaToken}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white" 
+                  disabled={loading}
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Créer mon compte gratuit
