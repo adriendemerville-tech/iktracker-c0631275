@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Car, Lock, Loader2, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Car, Lock, Loader2, Eye, EyeOff, CheckCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { AuthForm } from '@/components/AuthForm';
 
 // Deployed domain - OAuth redirects here
@@ -255,26 +255,47 @@ const Auth = () => {
                   </div>
                   
                   <h2 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
-                    Gérez vos indemnités<br />
-                    <span className="text-slate-400">en toute simplicité</span>
+                    Automatisez gratuitement*<br />vos <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">indemnités kilométriques</span>
                   </h2>
                   
-                  <p className="text-slate-400 text-base leading-relaxed">
-                    Automatisez le suivi de vos trajets professionnels et générez vos relevés kilométriques en un clic.
+                  <p className="text-slate-400 text-base leading-relaxed mb-8">
+                    Connectez-vous pour suivre vos trajets professionnels.
                   </p>
-                </div>
-                
-                <div className="flex items-center gap-3 pt-8 border-t border-slate-800/50">
-                  <div className="flex -space-x-2">
-                    {[1,2,3].map((i) => (
-                      <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300">
-                        {['A', 'M', 'S'][i-1]}
+                  
+                  {/* Features */}
+                  <div className="space-y-4">
+                    {[
+                      'Calcul selon le barème fiscal',
+                      'Export PDF en un clic',
+                      'Synchronisation avec votre calendrier',
+                      'Mode tournée automatisé sur smartphone, via GPS',
+                    ].map((feature, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                          <CheckCircle2 className="w-3 h-3 text-blue-400" />
+                        </div>
+                        <span className="text-slate-300 text-sm">{feature}</span>
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm text-slate-500">
-                    Rejoint par <span className="text-slate-300">+500 professionnels</span>
+                </div>
+                
+                <div className="mt-auto pt-8 border-t border-slate-800/50 space-y-4">
+                  <p className="text-xs text-slate-500">
+                    *Créé par un indépendant, mis à la dispo de la communauté
                   </p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-2">
+                      {[1,2,3].map((i) => (
+                        <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300">
+                          {['A', 'M', 'S'][i-1]}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-sm text-slate-500">
+                      Rejoint par <span className="text-slate-300">+500 professionnels</span>
+                    </p>
+                  </div>
                 </div>
               </div>
               
