@@ -84,7 +84,7 @@ const ExpertComptable = () => {
         
         {/* Open Graph */}
         <meta property="og:title" content="IKtracker pour Experts-Comptables | Export IK PDF et Excel" />
-        <meta property="og:description" content="Exports standardisés PDF/Excel pour vos clients. Calcul automatique selon barème fiscal 2026. Gratuit." />
+        <meta property="og:description" content="Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://iktracker.fr/expert-comptable" />
         <meta property="og:locale" content="fr_FR" />
@@ -94,7 +94,7 @@ const ExpertComptable = () => {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="IKtracker pour Experts-Comptables" />
-        <meta name="twitter:description" content="Exports standardisés PDF/Excel pour vos clients. Barème fiscal 2026 inclus." />
+        <meta name="twitter:description" content="Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026." />
         <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
