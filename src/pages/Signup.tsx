@@ -219,10 +219,11 @@ const Signup = () => {
                 
                 {/* Features */}
                 <div className="space-y-4">
-                  {[
+                {[
                     'Calcul automatique selon le barème fiscal',
                     'Export PDF et Excel en un clic',
                     'Synchronisation avec votre calendrier',
+                    'Mode tournée automatisé sur smartphone, via GPS',
                   ].map((feature, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
