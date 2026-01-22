@@ -8,6 +8,35 @@ import {
   getWindowWidth 
 } from '@/lib/ssr-utils';
 
+// Get IP address (cached per session)
+const getIPAddress = async (): Promise<string | null> => {
+  if (!isBrowser()) return null;
+  
+  // Check session cache first
+  const cached = safeSessionStorage.getItem('user_ip_address');
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    // Use ipify API to get public IP
+    const response = await fetch('https://api.ipify.org?format=json');
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    const ip = data.ip || null;
+    
+    if (ip) {
+      // Cache for this session
+      safeSessionStorage.setItem('user_ip_address', ip);
+    }
+    
+    return ip;
+  } catch {
+    return null;
+  }
+};
+
 // Generate or retrieve session ID
 const getSessionId = (): string => {
   if (!isBrowser()) return 'ssr-session';
@@ -106,9 +135,13 @@ export function useMarketingTracker(page: string) {
     if (!isBrowser() || isBot()) return;
     
     try {
-      // Get current user session
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id || null;
+      // Get current user session and IP in parallel
+      const [sessionResult, ipAddress] = await Promise.all([
+        supabase.auth.getSession(),
+        getIPAddress()
+      ]);
+      
+      const userId = sessionResult.data.session?.user?.id || null;
 
       // Skip tracking for admin users
       const isAdmin = await checkIsAdmin();
@@ -125,6 +158,7 @@ export function useMarketingTracker(page: string) {
         referrer: document?.referrer || null,
         user_agent: navigator?.userAgent || 'unknown',
         user_id: userId,
+        ip_address: ipAddress,
       });
     } catch (error) {
       // Silently fail - don't impact user experience

@@ -176,6 +176,27 @@ export type Database = {
         }
         Relationships: []
       }
+      excluded_ips: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string
+          reason: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: string
+          reason?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
@@ -272,6 +293,7 @@ export type Database = {
           device_type: string
           event_type: string
           id: string
+          ip_address: string | null
           page: string
           referrer: string | null
           session_id: string | null
@@ -283,6 +305,7 @@ export type Database = {
           device_type?: string
           event_type: string
           id?: string
+          ip_address?: string | null
           page: string
           referrer?: string | null
           session_id?: string | null
@@ -294,6 +317,7 @@ export type Database = {
           device_type?: string
           event_type?: string
           id?: string
+          ip_address?: string | null
           page?: string
           referrer?: string | null
           session_id?: string | null
