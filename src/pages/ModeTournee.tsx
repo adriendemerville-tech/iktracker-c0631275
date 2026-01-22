@@ -177,7 +177,7 @@ export default function ModeTournee() {
                 </h1>
                 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                  Enchaînez 10 clients dans la journée ? Enregistrez tous vos arrêts en un seul trajet. 
+                  Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts en un seul trajet. 
                   Distance totale calculée automatiquement.
                 </p>
 
