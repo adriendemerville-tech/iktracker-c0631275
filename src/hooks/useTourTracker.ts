@@ -46,6 +46,7 @@ const STORAGE_KEYS = {
   TOUR_TOTAL_DISTANCE: 'tour_total_distance',
   TOUR_PENDING_STOP: 'tour_pending_stop',
   TOUR_INTERRUPTED: 'tour_interrupted', // Flag for interrupted tours that need recovery
+  TOUR_LAST_ACTIVITY: 'tour_last_activity', // Timestamp of last activity for session recovery
 };
 
 // Save data to localStorage immediately for data persistence
@@ -136,18 +137,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     accuracyThreshold = 50, // 50 meters - max accuracy to accept
   } = options;
 
-  // CRITICAL: On init, if there's a stored "active" tour, mark it as interrupted
-  // This ensures no orphan tours persist when the app loads outside FocusTourView
-  const [isActive, setIsActive] = useState(() => {
-    const wasActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
-    if (wasActive) {
-      // Tour was left active - mark as interrupted for recovery
-      console.log('Found orphan active tour on init - marking as interrupted');
-      markTourInterrupted('app_closed');
-      return false;
-    }
-    return false;
-  });
+  // Initialize state - DO NOT auto-mark as interrupted here anymore
+  // The new session recovery system in Index.tsx handles this with proper timing logic
+  const [isActive, setIsActive] = useState(false);
   const [stops, setStops] = useState<TourStop[]>([]);
   const [gpsPoints, setGpsPoints] = useState<GpsPoint[]>([]);
   const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -193,6 +185,21 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       saveTourData(STORAGE_KEYS.TOUR_START_TIME, tourStartTime.toISOString());
     }
   }, [tourStartTime]);
+
+  // Update last activity timestamp periodically when tour is active
+  useEffect(() => {
+    if (!isActive) return;
+    
+    // Update immediately when becoming active
+    saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+    
+    // Then update every 30 seconds
+    const intervalId = setInterval(() => {
+      saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+    }, 30000);
+    
+    return () => clearInterval(intervalId);
+  }, [isActive]);
 
   // Calculate GPS signal strength from accuracy
   const updateGpsSignal = useCallback((accuracy: number | null) => {
@@ -795,6 +802,92 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     };
   }, []);
 
+  // Resume tour from saved state (for session recovery)
+  const resumeTour = useCallback(async () => {
+    const savedActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
+    if (!savedActive) {
+      console.log('No saved tour to resume');
+      return false;
+    }
+    
+    // Restore all saved state
+    const savedStops = loadTourData<TourStop[]>(STORAGE_KEYS.TOUR_STOPS, []);
+    const savedGpsPoints = loadTourData<GpsPoint[]>(STORAGE_KEYS.TOUR_GPS_POINTS, []);
+    const savedDistance = loadTourData<number>(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0);
+    const savedStartTime = loadTourData<string | null>(STORAGE_KEYS.TOUR_START_TIME, null);
+    const savedPendingStop = loadTourData<PendingStop | null>(STORAGE_KEYS.TOUR_PENDING_STOP, null);
+    
+    // Reconstruct Date objects
+    const restoredStops = savedStops.map((s: any) => ({
+      ...s,
+      timestamp: new Date(s.timestamp),
+    }));
+    
+    setStops(restoredStops);
+    setGpsPoints(savedGpsPoints);
+    setTotalDistanceKm(savedDistance);
+    maxDistanceReachedRef.current = savedDistance;
+    
+    if (savedStartTime) {
+      setTourStartTime(new Date(savedStartTime));
+    }
+    
+    if (savedPendingStop) {
+      const restoredPending = {
+        ...savedPendingStop,
+        arrivalTime: new Date(savedPendingStop.arrivalTime),
+      };
+      pendingStopRef.current = restoredPending;
+      setPendingStop(restoredPending);
+    }
+    
+    // Check permission and start watching
+    const hasPermission = await checkPermission();
+    if (!hasPermission) {
+      setError("Accès à la géolocalisation refusé.");
+      return false;
+    }
+    
+    // Request wake lock
+    await wakeLock.request();
+    
+    // Start GPS watching
+    startWatching();
+    
+    // Mark as active
+    setIsActive(true);
+    
+    // Update last activity
+    saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+    
+    console.log(`Tour resumed: ${restoredStops.length} stops, ${savedDistance.toFixed(1)} km`);
+    return true;
+  }, [checkPermission, startWatching, wakeLock]);
+
+  // Get saved tour data without resuming (for finalization)
+  const getSavedTourData = useCallback(() => {
+    const savedActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
+    if (!savedActive) return null;
+    
+    const savedStops = loadTourData<TourStop[]>(STORAGE_KEYS.TOUR_STOPS, []);
+    const savedGpsPoints = loadTourData<GpsPoint[]>(STORAGE_KEYS.TOUR_GPS_POINTS, []);
+    const savedDistance = loadTourData<number>(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0);
+    const savedStartTime = loadTourData<string | null>(STORAGE_KEYS.TOUR_START_TIME, null);
+    
+    // Reconstruct Date objects
+    const restoredStops = savedStops.map((s: any) => ({
+      ...s,
+      timestamp: new Date(s.timestamp),
+    }));
+    
+    return {
+      stops: restoredStops,
+      gpsPoints: savedGpsPoints,
+      totalDistanceKm: savedDistance,
+      tourStartTime: savedStartTime ? new Date(savedStartTime) : null,
+    };
+  }, []);
+
   return {
     isActive,
     isLoading,
@@ -814,5 +907,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     stopTour,
     clearTour,
     getTourData,
+    resumeTour,
+    getSavedTourData,
   };
 }
+
+// Export storage keys and utility functions for session recovery
+export const TOUR_STORAGE_KEYS = STORAGE_KEYS;
+export { loadTourData, saveTourData, clearTourStorage };
