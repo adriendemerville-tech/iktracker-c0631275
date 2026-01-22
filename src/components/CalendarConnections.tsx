@@ -86,7 +86,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     setDebugLoading(false);
   }, [user]);
 
-  const [syncing, setSyncing] = useState(false);
+  const [syncingProvider, setSyncingProvider] = useState<'google' | 'outlook' | 'ics' | null>(null);
   const [syncResult, setSyncResult] = useState<{
     totalTripsCreated: number;
     dateRange: { startDate: string; endDate: string } | null;
@@ -94,24 +94,24 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
   const [showSyncNotification, setShowSyncNotification] = useState(false);
   const [monthsBack, setMonthsBack] = useState<string>('0'); // Default: today only (no past import)
 
-  const runManualSync = useCallback(async () => {
+  const runManualSync = useCallback(async (provider: 'google' | 'outlook' | 'ics') => {
     if (!user) {
       toast.error('Vous devez être connecté');
       return;
     }
 
-    setSyncing(true);
+    setSyncingProvider(provider);
     setSyncResult(null);
     setShowSyncNotification(false);
 
     const { data, error } = await supabase.functions.invoke('sync-calendar-trips', {
-      body: { trigger: 'manual', monthsBack: parseInt(monthsBack) },
+      body: { trigger: 'manual', monthsBack: parseInt(monthsBack), provider },
     });
 
     if (error) {
       toast.error('Erreur lors de la synchronisation');
       console.error('[sync-calendar-trips] error:', error);
-      setSyncing(false);
+      setSyncingProvider(null);
       return;
     }
 
@@ -119,7 +119,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       totalTripsCreated: data?.totalTripsCreated || 0,
       dateRange: data?.dateRange || null,
     });
-    setSyncing(false);
+    setSyncingProvider(null);
     setShowSyncNotification(true);
 
     if (data?.totalTripsCreated > 0) {
@@ -367,6 +367,28 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Time selector - shared by all sync buttons */}
+        {connections.length > 0 && (
+          <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/30">
+            <Label htmlFor="months-back" className="text-xs text-muted-foreground whitespace-nowrap">
+              Importer depuis
+            </Label>
+            <Select value={monthsBack} onValueChange={setMonthsBack}>
+              <SelectTrigger id="months-back" className="h-8 text-xs flex-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Aujourd'hui seulement</SelectItem>
+                <SelectItem value="1">1 mois</SelectItem>
+                <SelectItem value="2">2 mois</SelectItem>
+                <SelectItem value="3">3 mois</SelectItem>
+                <SelectItem value="6">6 mois</SelectItem>
+                <SelectItem value="12">12 mois</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {/* Google Calendar */}
         <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
           <div className="flex items-center gap-3">
@@ -382,6 +404,19 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           </div>
           {googleConnection ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => runManualSync('google')}
+                disabled={syncingProvider === 'google'}
+              >
+                {syncingProvider === 'google' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                <span className="ml-1 hidden sm:inline">Sync</span>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -434,6 +469,19 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => runManualSync('outlook')}
+                disabled={syncingProvider === 'outlook'}
+              >
+                {syncingProvider === 'outlook' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                <span className="ml-1 hidden sm:inline">Sync</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => runCalendarDebug('outlook')}
                 disabled={debugLoading && debugProvider === 'outlook'}
                 className="hidden md:flex"
@@ -480,6 +528,19 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           </div>
           {icsConnection ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => runManualSync('ics')}
+                disabled={syncingProvider === 'ics'}
+              >
+                {syncingProvider === 'ics' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                <span className="ml-1 hidden sm:inline">Sync</span>
+              </Button>
               <Switch
                 checked={icsConnection.isActive}
                 onCheckedChange={(checked) => toggleConnection(icsConnection.id, checked)}
@@ -543,46 +604,6 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
           )}
         </div>
 
-
-        {/* Manual Sync Button */}
-        {connections.length > 0 && (
-          <div className="flex flex-col gap-3 p-3 rounded-lg border bg-muted/30">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-sm">Synchroniser maintenant</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={runManualSync}
-                disabled={syncing}
-              >
-                {syncing ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                )}
-                Sync
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="months-back" className="text-xs text-muted-foreground whitespace-nowrap">
-                Importer depuis
-              </Label>
-              <Select value={monthsBack} onValueChange={setMonthsBack}>
-                <SelectTrigger id="months-back" className="h-8 text-xs flex-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">Aujourd'hui seulement</SelectItem>
-                  <SelectItem value="1">1 mois</SelectItem>
-                  <SelectItem value="2">2 mois</SelectItem>
-                  <SelectItem value="3">3 mois</SelectItem>
-                  <SelectItem value="6">6 mois</SelectItem>
-                  <SelectItem value="12">12 mois</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
 
 
         {/* Info about syncing */}
