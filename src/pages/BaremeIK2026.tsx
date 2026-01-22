@@ -100,7 +100,7 @@ const BaremeIK2026 = () => {
         <title>Barème indemnités kilométriques 2026 (IK) : calcul et tableau fiscal | IKtracker</title>
         <meta 
           name="description" 
-          content="Barème officiel des indemnités kilométriques 2026. Utilisez gratuitement notre simulateur IK, tableau des taux par CV et calcul automatique." 
+          content="Barème officiel des indemnités kilométriques 2026. Utilisez en illimité notre simulateur IK, tableau des taux par CV et calcul automatique." 
         />
         <meta name="keywords" content="indemnités kilométriques 2026, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
         <link rel="canonical" href="https://iktracker.fr/bareme-ik-2026" />
