@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import ReCAPTCHA from 'react-google-recaptcha';
+
+const RECAPTCHA_SITE_KEY = '6LfS_IIsAAAAAJJ2oNxobsM8KHy4akAIA32Rhbd3';
 
 const fireConfetti = () => {
   confetti({
@@ -48,8 +51,18 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+  };
+
+  const handleRecaptchaExpired = () => {
+    setRecaptchaToken(null);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -93,6 +106,12 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!recaptchaToken) {
+      toast({ title: 'Erreur', description: 'Veuillez valider le captcha pour continuer.', variant: 'destructive' });
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -103,6 +122,7 @@ const Signup = () => {
           emailRedirectTo: `${window.location.origin}/app`,
           data: {
             first_name: firstName.trim() || undefined,
+            recaptcha_token: recaptchaToken, // Send token for potential server-side verification
           },
         },
       });
@@ -119,6 +139,9 @@ const Signup = () => {
         message = 'Le mot de passe doit contenir au moins 6 caractères';
       }
       toast({ title: 'Erreur', description: message, variant: 'destructive' });
+      // Reset captcha on error
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -328,10 +351,21 @@ const Signup = () => {
                   </button>
                 </div>
                 
+                {/* reCAPTCHA widget */}
+                <div className="flex justify-center my-4">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={RECAPTCHA_SITE_KEY}
+                    onChange={handleRecaptchaChange}
+                    onExpired={handleRecaptchaExpired}
+                    theme="dark"
+                  />
+                </div>
+                
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white" 
-                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                  disabled={loading || !recaptchaToken}
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Créer mon compte gratuit
