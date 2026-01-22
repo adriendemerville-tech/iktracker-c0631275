@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdmin } from '@/hooks/useAdmin';
+import { useAdminLazy } from '@/hooks/useAdminLazy';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { OptimizedImage } from '@/components/ui/optimized-image';
@@ -43,7 +43,7 @@ function extractFirstParagraph(content: string): string {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { isAdmin } = useAdmin();
+  const { isAdmin } = useAdminLazy();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -87,14 +87,30 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-3xl">
-          <Skeleton className="h-8 w-32 mb-8" />
-          <Skeleton className="h-12 w-3/4 mb-4" />
-          <Skeleton className="h-6 w-1/2 mb-8" />
-          <Skeleton className="h-64 w-full mb-8" />
+          {/* Breadcrumb skeleton */}
+          <Skeleton className="h-5 w-48 mb-6" />
+          {/* Back link skeleton */}
+          <Skeleton className="h-5 w-32 mb-8" />
+          {/* Title skeleton - matches h1 height */}
+          <Skeleton className="h-10 md:h-12 w-full mb-4" />
+          <Skeleton className="h-10 md:h-12 w-3/4 mb-4" />
+          {/* Subtitle skeleton */}
+          <Skeleton className="h-7 w-2/3 mb-6" />
+          {/* Meta info skeleton */}
+          <div className="flex items-center gap-4 mb-8">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-28" />
+          </div>
+          {/* Featured image skeleton - preserves aspect ratio for CLS */}
+          <Skeleton className="w-full mb-8 rounded-lg" style={{ aspectRatio: '16/9' }} />
+          {/* Content skeleton */}
           <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-11/12" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-4/5" />
           </div>
         </div>
       </div>
