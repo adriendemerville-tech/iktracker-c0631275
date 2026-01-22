@@ -285,11 +285,12 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
     setConnectingOutlook(true);
 
     try {
-      // Create state with user info - include redirect for mobile
+      // Always use redirect mode for Outlook (no popup) - same as Google on mobile
+      // The redirect_url is where Microsoft will redirect after auth
       const state = btoa(JSON.stringify({
         user_id: user.id,
-        redirect_url: window.location.href,
-        use_redirect: isMobileDevice(),
+        redirect_url: `${window.location.origin}/profile`,
+        use_redirect: true, // Always use redirect for Outlook
       }));
 
       // Get auth URL from edge function
@@ -304,47 +305,11 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
 
       const result = await response.json();
       
-      // On mobile, use direct redirect instead of popup
-      if (isMobileDevice()) {
-        sessionStorage.setItem('oauth_pending', 'outlook');
-        window.location.href = result.url;
-        return;
-      }
-
-      // On desktop, use popup
-      const width = 600;
-      const height = 700;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
+      // Store state in sessionStorage to recover after redirect
+      sessionStorage.setItem('oauth_pending', 'outlook');
       
-      const popup = window.open(
-        result.url,
-        'outlook-oauth',
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
-
-      // Check if popup was blocked
-      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-        toast.error('Le popup a été bloqué. Autorisez les popups pour ce site.');
-        setConnectingOutlook(false);
-        return;
-      }
-
-      // Set a timeout to reset loading state if popup is closed without auth
-      const checkPopupClosed = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(checkPopupClosed);
-          setTimeout(() => {
-            setConnectingOutlook(false);
-          }, 1000);
-        }
-      }, 500);
-
-      // Clear interval after 5 minutes max
-      setTimeout(() => {
-        clearInterval(checkPopupClosed);
-        setConnectingOutlook(false);
-      }, 5 * 60 * 1000);
+      // Direct redirect - user leaves iktracker, goes to Microsoft, then comes back
+      window.location.href = result.url;
 
     } catch (error) {
       console.error('Error initiating Outlook OAuth:', error);
