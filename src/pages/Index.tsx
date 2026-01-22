@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
-import { useTutorial } from '@/components/OnboardingTutorial';
+import { useTutorial } from '@/hooks/useTutorial';
 import { toast } from '@/components/ui/sonner';
 // PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
 import { useIsMobile } from '@/hooks/use-mobile';

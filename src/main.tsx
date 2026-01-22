@@ -12,14 +12,12 @@ createRoot(document.getElementById("root")!).render(
 );
 
 // Defer non-critical initializations to improve TTI
+// Note: Heavy vendor chunks (recharts, framer-motion, html2pdf) are NOT preloaded
+// They load on-demand when their features are used to reduce initial bundle impact
 whenInteractive(() => {
-  // Preload common routes during idle time
+  // Only preload authenticated app routes - not heavy vendor libs
   preloadModule(() => import("./pages/MesTrajets"));
   preloadModule(() => import("./pages/Profile"));
-  
-  // Preload heavy vendor chunks during idle
-  preloadModule(() => import("recharts"));
-  preloadModule(() => import("framer-motion"));
 });
 
 // Defer analytics initialization
