@@ -610,7 +610,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
         {connections.length > 0 && (
           <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <p>
-              📍 Les trajets sont créés automatiquement pour les RDV avec une adresse (champ lieu).
+              Les trajets sont créés automatiquement pour les RDV avec une adresse (champ lieu).
             </p>
           </div>
         )}
