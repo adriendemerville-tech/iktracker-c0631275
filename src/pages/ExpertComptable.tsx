@@ -77,7 +77,7 @@ const ExpertComptable = () => {
     <div className="min-h-screen bg-background select-text">
       <Helmet>
         <title>IKtracker pour Experts-Comptables | Export IK PDF et Excel</title>
-        <meta name="description" content="Recommandez IKtracker à vos clients : exports standardisés PDF/Excel, calcul automatique des indemnités kilométriques selon barème fiscal 2026. Gratuit." />
+        <meta name="description" content="Recommandez gratuitement IKtracker à vos clients : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026." />
         <meta name="keywords" content="expert-comptable IK, export PDF indemnités kilométriques, Excel frais kilométriques, barème fiscal 2026, comptabilité IK, relevé kilométrique client" />
         <link rel="canonical" href="https://iktracker.fr/expert-comptable" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
