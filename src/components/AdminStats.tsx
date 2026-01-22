@@ -69,6 +69,7 @@ import {
 // PDF export has been removed - export to CSV only
 import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
 import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
+import { AdaptiveChart } from '@/components/admin/AdaptiveChart';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdminStatsData {
@@ -531,14 +532,15 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch bareme simulations by day (last 5 days) - refresh every hour
+  // Fetch bareme simulations by day with period filter - refresh every hour
   const { data: baremeSimulationsByDay = [], isLoading: baremeSimulationsLoading } = useQuery({
-    queryKey: ['admin-bareme-simulations-by-day'],
+    queryKey: ['admin-bareme-simulations-by-day', period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_bareme_simulations_by_day', { days_back: 5 });
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_bareme_simulations_by_day', { days_back: daysBack });
       if (error) throw error;
       return (data as unknown as { day: string; count: number }[]).map(d => ({
-        day: format(new Date(d.day), 'dd/MM', { locale: fr }),
+        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
         count: Number(d.count),
       }));
     },
@@ -854,7 +856,7 @@ export function AdminStats() {
           onDragEnd={handleMarketingSectionDragEnd}
         >
           <SortableContext items={marketingSectionOrder} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 [&>*:last-child:nth-child(2n+1)]:md:col-span-2">
+            <div className="grid grid-cols-1 gap-4 mb-6">
               {marketingSectionOrder.map((blockId) => {
                 switch (blockId) {
                   case 'marketing-views-chart':
@@ -867,44 +869,17 @@ export function AdminStats() {
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          {marketingViewsLoading ? (
-                            <Skeleton className="h-[200px] w-full" />
-                          ) : marketingViewsByDay.length === 0 ? (
-                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-                          ) : (
-                            <ResponsiveContainer width="100%" height={200}>
-                              <LineChart data={marketingViewsByDay}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                                <YAxis tick={{ fontSize: 10 }} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: 'hsl(var(--background))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '8px',
-                                  }}
-                                />
-                                <Line
-                                  type="monotone"
-                                  dataKey="views"
-                                  name="Visites"
-                                  stroke="hsl(var(--primary))"
-                                  strokeWidth={2}
-                                  dot={false}
-                                  activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                                />
-                                <Line
-                                  type="monotone"
-                                  dataKey="unique_visitors"
-                                  name="Visiteurs uniques"
-                                  stroke="hsl(var(--chart-2))"
-                                  strokeWidth={2}
-                                  dot={false}
-                                  activeDot={{ r: 4, stroke: 'hsl(var(--chart-2))', strokeWidth: 2 }}
-                                />
-                              </LineChart>
-                            </ResponsiveContainer>
-                          )}
+                          <AdaptiveChart
+                            data={marketingViewsByDay}
+                            xAxisKey="day"
+                            lines={[
+                              { dataKey: 'views', name: 'Visites', stroke: 'hsl(var(--primary))' },
+                              { dataKey: 'unique_visitors', name: 'Visiteurs uniques', stroke: 'hsl(var(--chart-2))' },
+                            ]}
+                            isLoading={marketingViewsLoading}
+                            height={220}
+                            baseDataPoints={14}
+                          />
                         </CardContent>
                       </DraggableStatsSection>
                     );
@@ -919,35 +894,16 @@ export function AdminStats() {
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          {signupClicksLoading ? (
-                            <Skeleton className="h-[200px] w-full" />
-                          ) : signupClicksByDay.length === 0 ? (
-                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-                          ) : (
-                            <ResponsiveContainer width="100%" height={200}>
-                              <LineChart data={signupClicksByDay}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: 'hsl(var(--background))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '8px',
-                                  }}
-                                />
-                                <Line
-                                  type="monotone"
-                                  dataKey="clicks"
-                                  name="Clics inscription"
-                                  stroke="hsl(142, 76%, 36%)"
-                                  strokeWidth={2}
-                                  dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
-                                  activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', strokeWidth: 2 }}
-                                />
-                              </LineChart>
-                            </ResponsiveContainer>
-                          )}
+                          <AdaptiveChart
+                            data={signupClicksByDay}
+                            xAxisKey="day"
+                            lines={[
+                              { dataKey: 'clicks', name: 'Clics inscription', stroke: 'hsl(142, 76%, 36%)', showDots: true },
+                            ]}
+                            isLoading={signupClicksLoading}
+                            height={220}
+                            baseDataPoints={14}
+                          />
                         </CardContent>
                       </DraggableStatsSection>
                     );
@@ -958,39 +914,20 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-purple-500" />
-                            Simulations barème (5 jours)
+                            Simulations IK barème
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          {baremeSimulationsLoading ? (
-                            <Skeleton className="h-[200px] w-full" />
-                          ) : baremeSimulationsByDay.length === 0 ? (
-                            <p className="text-muted-foreground text-center py-8">Aucune donnée</p>
-                          ) : (
-                            <ResponsiveContainer width="100%" height={200}>
-                              <LineChart data={baremeSimulationsByDay}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-                                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-                                <Tooltip
-                                  contentStyle={{
-                                    backgroundColor: 'hsl(var(--background))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '8px',
-                                  }}
-                                />
-                                <Line
-                                  type="monotone"
-                                  dataKey="count"
-                                  name="Simulations"
-                                  stroke="hsl(270, 70%, 50%)"
-                                  strokeWidth={2}
-                                  dot={{ fill: 'hsl(270, 70%, 50%)', strokeWidth: 0, r: 3 }}
-                                  activeDot={{ r: 5, stroke: 'hsl(270, 70%, 50%)', strokeWidth: 2 }}
-                                />
-                              </LineChart>
-                            </ResponsiveContainer>
-                          )}
+                          <AdaptiveChart
+                            data={baremeSimulationsByDay}
+                            xAxisKey="day"
+                            lines={[
+                              { dataKey: 'count', name: 'Simulations', stroke: 'hsl(270, 70%, 50%)', showDots: true },
+                            ]}
+                            isLoading={baremeSimulationsLoading}
+                            height={220}
+                            baseDataPoints={14}
+                          />
                         </CardContent>
                       </DraggableStatsSection>
                     );

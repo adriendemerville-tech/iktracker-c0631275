@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense, memo } from "react";
+import { useState, useMemo, lazy, Suspense, memo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -44,6 +44,22 @@ const BaremeIK2026 = () => {
   const [fiscalPower, setFiscalPower] = useState<string>("5");
   const [annualKm, setAnnualKm] = useState<string>("10000");
   const [isElectric, setIsElectric] = useState<boolean>(false);
+
+  // Track simulation when user interacts with the calculator
+  const hasTrackedSimulation = useRef(false);
+  
+  useEffect(() => {
+    // Track only after user has modified values (not on initial load)
+    const km = parseInt(annualKm) || 0;
+    if (km > 0 && !hasTrackedSimulation.current) {
+      // Debounce tracking - only track after user stops typing
+      const timeoutId = setTimeout(() => {
+        trackIKSimulation();
+        hasTrackedSimulation.current = true;
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [fiscalPower, annualKm, isElectric, trackIKSimulation]);
 
   // Simulate IK calculation with electric vehicle bonus
   const simulation = useMemo(() => {
