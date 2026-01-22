@@ -105,13 +105,16 @@ const BaremeIK2026 = () => {
         <meta name="keywords" content="indemnités kilométriques 2026, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
         <link rel="canonical" href="https://iktracker.fr/bareme-ik-2026" />
         <meta property="og:title" content="Barème indemnités kilométriques 2026 - Simulateur et calcul IK" />
-        <meta property="og:description" content="Tableau complet du barème IK 2026. Simulateur gratuit pour calculer vos indemnités kilométriques." />
+        <meta property="og:description" content="Barème officiel des indemnités kilométriques 2026. Utilisez en illimité notre simulateur IK, tableau des taux par CV et calcul automatique." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.lovable.app/bareme-ik-2026" />
+        <meta property="og:url" content="https://iktracker.fr/bareme-ik-2026" />
+        <meta property="og:site_name" content="IKtracker" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Barème indemnités kilométriques 2026 | IKtracker" />
-        <meta name="twitter:description" content="Découvrez le barème IK 2026 et calculez vos indemnités kilométriques avec notre simulateur gratuit." />
+        <meta name="twitter:description" content="Barème officiel des indemnités kilométriques 2026. Utilisez en illimité notre simulateur IK, tableau des taux par CV et calcul automatique." />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="geo.region" content="FR" />
         <meta name="geo.placename" content="France" />
         <meta name="language" content="fr" />

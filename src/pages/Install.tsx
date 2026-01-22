@@ -78,7 +78,7 @@ const Install = () => {
         
         {/* Open Graph */}
         <meta property="og:title" content="Installer IKtracker | Application PWA iOS et Android" />
-        <meta property="og:description" content="Installez IKtracker en 2 minutes sur votre smartphone. Application PWA gratuite, sans App Store." />
+        <meta property="og:description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://iktracker.fr/install" />
         <meta property="og:locale" content="fr_FR" />
@@ -88,7 +88,7 @@ const Install = () => {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Installer IKtracker | PWA iOS et Android" />
-        <meta name="twitter:description" content="Installation rapide en 2 minutes. Application gratuite, sans App Store." />
+        <meta name="twitter:description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
         <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}

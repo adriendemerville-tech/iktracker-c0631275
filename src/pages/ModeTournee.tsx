@@ -109,7 +109,7 @@ export default function ModeTournee() {
         
         {/* Open Graph */}
         <meta property="og:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
-        <meta property="og:description" content="Enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux." />
+        <meta property="og:description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://iktracker.fr/mode-tournee" />
         <meta property="og:locale" content="fr_FR" />
@@ -119,7 +119,7 @@ export default function ModeTournee() {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
-        <meta name="twitter:description" content="Enregistrez tous vos arrêts clients en un seul trajet. Gratuit pour indépendants." />
+        <meta name="twitter:description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
         <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}

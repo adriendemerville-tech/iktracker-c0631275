@@ -122,7 +122,7 @@ export default function Calendrier() {
         
         {/* Open Graph */}
         <meta property="og:title" content="Synchronisation Calendrier IKtracker | Google Calendar & Outlook" />
-        <meta property="og:description" content="Vos rendez-vous deviennent automatiquement des trajets avec calcul IK. Gratuit." />
+        <meta property="og:description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://iktracker.fr/calendrier" />
         <meta property="og:locale" content="fr_FR" />
@@ -132,7 +132,7 @@ export default function Calendrier() {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Synchronisation Calendrier IKtracker" />
-        <meta name="twitter:description" content="Vos RDV deviennent automatiquement des trajets avec calcul IK. Google Calendar & Outlook." />
+        <meta name="twitter:description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
         <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
