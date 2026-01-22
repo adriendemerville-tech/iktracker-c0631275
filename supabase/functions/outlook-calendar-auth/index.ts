@@ -61,52 +61,24 @@ serve(async (req) => {
 
       const { user_id, redirect_url, use_redirect } = stateData;
       
-      // Helper function to return response based on mode (popup vs redirect)
+      // Helper function to return response - always use redirect for reliability
       const returnResponse = (success: boolean, errorMessage?: string) => {
-        if (use_redirect && redirect_url) {
-          // Mobile mode: redirect back to app with query params
-          const redirectTarget = new URL(redirect_url);
-          if (success) {
-            redirectTarget.searchParams.set('oauth_success', 'true');
-            redirectTarget.searchParams.set('oauth_provider', 'outlook');
-          } else {
-            // Sanitize error message to prevent XSS
-            const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&]/g, '');
-            redirectTarget.searchParams.set('oauth_error', safeError);
-            redirectTarget.searchParams.set('oauth_provider', 'outlook');
-          }
-          return Response.redirect(redirectTarget.toString(), 302);
+        // Determine the base redirect URL
+        const baseUrl = redirect_url || 'https://iktracker.fr/profile';
+        const redirectTarget = new URL(baseUrl);
+        
+        if (success) {
+          redirectTarget.searchParams.set('oauth_success', 'true');
+          redirectTarget.searchParams.set('oauth_provider', 'outlook');
         } else {
-          // Desktop mode: use postMessage with specific origins, not wildcard
-          const allowedOrigins = ['https://iktracker.fr', 'https://iktracker.lovable.app', 'http://localhost:5173', 'http://localhost:8080'];
-          const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\\\]/g, '');
-          if (success) {
-            return new Response(`<html><body><script>
-              const origins = ${JSON.stringify(allowedOrigins)};
-              if (window.opener && !window.opener.closed) {
-                origins.forEach(o => { try { window.opener.postMessage({type:'outlook-auth-success'}, o); } catch(e) {} });
-                setTimeout(() => window.close(), 1500);
-              } else {
-                window.location.href = 'https://iktracker.fr/profile?oauth_success=true&oauth_provider=outlook';
-              }
-            </script></body></html>`, {
-              headers: { 'Content-Type': 'text/html' },
-            });
-          } else {
-            return new Response(`<html><body><script>
-              const origins = ${JSON.stringify(allowedOrigins)};
-              const safeErr = ${JSON.stringify(safeError)};
-              if (window.opener && !window.opener.closed) {
-                origins.forEach(o => { try { window.opener.postMessage({type:'outlook-auth-error', error: safeErr}, o); } catch(e) {} });
-                setTimeout(() => window.close(), 2000);
-              } else {
-                window.location.href = 'https://iktracker.fr/profile?oauth_error=' + encodeURIComponent(safeErr) + '&oauth_provider=outlook';
-              }
-            </script></body></html>`, {
-              headers: { 'Content-Type': 'text/html' },
-            });
-          }
+          // Sanitize error message to prevent XSS
+          const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&]/g, '');
+          redirectTarget.searchParams.set('oauth_error', safeError);
+          redirectTarget.searchParams.set('oauth_provider', 'outlook');
         }
+        
+        console.log('Redirecting to:', redirectTarget.toString());
+        return Response.redirect(redirectTarget.toString(), 302);
       };
 
       if (error) {
