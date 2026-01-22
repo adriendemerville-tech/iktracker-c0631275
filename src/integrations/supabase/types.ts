@@ -49,6 +49,7 @@ export type Database = {
           author_name: string | null
           content: string
           created_at: string
+          display_order: number | null
           featured_image_url: string | null
           id: string
           meta_description: string | null
@@ -63,6 +64,7 @@ export type Database = {
           author_name?: string | null
           content?: string
           created_at?: string
+          display_order?: number | null
           featured_image_url?: string | null
           id?: string
           meta_description?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           author_name?: string | null
           content?: string
           created_at?: string
+          display_order?: number | null
           featured_image_url?: string | null
           id?: string
           meta_description?: string | null
