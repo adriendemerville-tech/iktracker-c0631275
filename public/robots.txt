@@ -1,5 +1,6 @@
 # ===========================================
 # ROBOTS.TXT - IKtracker.fr
+# Outil professionnel de calcul des indemnités kilométriques
 # Optimisé SEO + GEO (Crawlers IA)
 # ===========================================
 
