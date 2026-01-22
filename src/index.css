@@ -704,3 +704,8 @@ img {
 .safe-area-pb {
   padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 }
+
+/* Google Places Autocomplete dropdown - ensure it appears above Sheet/Dialog (z-50) */
+.pac-container {
+  z-index: 9999 !important;
+}
