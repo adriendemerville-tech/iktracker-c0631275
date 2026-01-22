@@ -2,7 +2,7 @@
 
 ## Description du Produit
 
-Automatisez vos indemnités kilométriques via notre mode tournée, votre Agenda et la détection automatisée des trajets grâce au GPS — une application 100% gratuite, sécurisée et conforme au barème fiscal 2026 pour indépendants et libéraux.
+Automatisez vos indemnités kilométriques via notre mode tournée, votre Agenda et la localisation GPS pour la détection des trajets — une application 100% gratuite, sécurisée et conforme au barème fiscal 2026.
 
 IKtracker est une application SaaS (Software as a Service) et PWA (Progressive Web App) conçue pour automatiser la gestion des frais kilométriques et le calcul des indemnités kilométriques (IK) pour les indépendants, professions libérales et artisans en France.
 
