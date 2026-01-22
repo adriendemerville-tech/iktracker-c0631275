@@ -287,7 +287,7 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
 
       <div className="bg-muted rounded-lg p-3 mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium">Décembre 2024</span>
+          <span className="text-sm font-medium">Janvier 2026</span>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-success" />
             <span className="text-xs text-muted-foreground">Synchro</span>

@@ -564,7 +564,7 @@ const BaremeIK2026 = () => {
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Simulateur indemnités kilométriques 2025-2026
+                Simulateur indemnités kilométriques 2026
               </h2>
               <p className="text-muted-foreground">
                 Calculez vos <strong>indemnités kilométriques 2026</strong> en quelques secondes avec notre simulateur basé sur le <strong>barème IK 2026</strong>.
@@ -678,7 +678,7 @@ const BaremeIK2026 = () => {
         <section className="py-12 px-4 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
-              Comment calculer ses indemnités kilométriques 2025 et 2026 ?
+              Comment calculer ses indemnités kilométriques 2026 ?
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
