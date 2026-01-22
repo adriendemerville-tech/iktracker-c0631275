@@ -209,8 +209,7 @@ const Signup = () => {
                 </div>
                 
                 <h2 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
-                  Automatisez vos<br />
-                  <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">indemnités kilométriques</span>
+                  Automatisez gratuitement*<br />vos <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">indemnités kilométriques</span>
                 </h2>
                 
                 <p className="text-slate-400 text-base leading-relaxed mb-8">
@@ -220,8 +219,8 @@ const Signup = () => {
                 {/* Features */}
                 <div className="space-y-4">
                 {[
-                    'Calcul automatique selon le barème fiscal',
-                    'Export PDF et Excel en un clic',
+                    'Calcul selon le barème fiscal',
+                    'Export PDF en un clic',
                     'Synchronisation avec votre calendrier',
                     'Mode tournée automatisé sur smartphone, via GPS',
                   ].map((feature, i) => (
@@ -235,17 +234,22 @@ const Signup = () => {
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 pt-8 border-t border-slate-800/50">
-                <div className="flex -space-x-2">
-                  {[1,2,3].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300">
-                      {['A', 'M', 'S'][i-1]}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-sm text-slate-500">
-                  Rejoint par <span className="text-slate-300">+500 professionnels</span>
+              <div className="mt-auto pt-8 border-t border-slate-800/50 space-y-4">
+                <p className="text-xs text-slate-500">
+                  *Créé par un indépendant, mis à la dispo de la communauté
                 </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    {[1,2,3].map((i) => (
+                      <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300">
+                        {['A', 'M', 'S'][i-1]}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    Rejoint par <span className="text-slate-300">+500 professionnels</span>
+                  </p>
+                </div>
               </div>
             </div>
             
