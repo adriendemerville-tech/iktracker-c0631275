@@ -372,7 +372,7 @@ export default defineConfig(({ mode }) => ({
     target: 'es2020',
     // Additional optimizations
     cssCodeSplit: true,
-    sourcemap: false,
+    sourcemap: true,
     // Reduce bundle size
     reportCompressedSize: true,
   },
