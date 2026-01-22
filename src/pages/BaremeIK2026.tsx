@@ -165,7 +165,7 @@ const BaremeIK2026 = () => {
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Le <strong>barème des indemnités kilométriques 2026</strong> est le barème officiel applicable. 
-                Découvrez les taux, notre simulateur gratuit et comment calculer vos <strong>indemnités kilométriques 2026</strong>.
+                Utilisez gratuitement notre simulateur et calculez vos <strong>indemnités kilométriques 2026</strong>.
               </p>
             </div>
           </div>

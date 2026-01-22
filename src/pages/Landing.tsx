@@ -227,7 +227,7 @@ const Landing = () => {
                 <span className="text-gradient">automatique et gratuit</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
-                Enregistrez, calculez et exportez vos indemnités kilométriques en quelques clics.
+                Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics.
               </p>
               
               {user && (

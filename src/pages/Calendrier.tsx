@@ -190,7 +190,7 @@ export default function Calendrier() {
                 </h1>
                 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                  Connectez Google Calendar ou Outlook. Chaque rendez-vous avec une adresse 
+                  Connectez librement Google Calendar ou Outlook. Chaque rendez-vous avec une adresse 
                   devient automatiquement un trajet avec les IK calculées.
                 </p>
 

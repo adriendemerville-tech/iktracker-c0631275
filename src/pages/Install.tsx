@@ -157,7 +157,7 @@ const Install = () => {
                   <span className="text-primary">30 secondes</span>
                 </h1>
               <p className="text-xl text-muted-foreground">
-                Aucun store requis. Directement sur votre écran d'accueil.
+                Accédez librement à l'app. Aucun store requis, directement sur votre écran d'accueil.
               </p>
               
               {deferredPrompt && !isInstalled && (
