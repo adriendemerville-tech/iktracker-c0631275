@@ -264,11 +264,11 @@ const Auth = () => {
                   
                   {/* Features */}
                   <div className="space-y-4">
-                    {[
+                  {[
                       'Calcul selon le barème fiscal',
                       'Export PDF en un clic',
                       'Synchronisation avec votre calendrier',
-                      'Mode tournée automatisé sur smartphone, via GPS',
+                      'Tournée automatisée sur smartphone, via GPS',
                     ].map((feature, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -282,7 +282,7 @@ const Auth = () => {
                 
                 <div className="mt-auto pt-8 border-t border-slate-800/50 space-y-4">
                   <p className="text-xs text-slate-500">
-                    *Créé par un indépendant, mis à la dispo de la communauté
+                    *Créé par un indépendant, mis à la disposition de la communauté
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="flex -space-x-2">
