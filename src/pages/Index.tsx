@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTrips } from '@/hooks/useTrips';
-import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour } from '@/hooks/useTourTracker';
+import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour, TOUR_STORAGE_KEYS, loadTourData } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -46,6 +46,7 @@ const FocusTourView = lazy(() => import('@/components/FocusTourView').then(m => 
 const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
 const OnboardingTutorial = lazy(() => import('@/components/OnboardingTutorial').then(m => ({ default: m.OnboardingTutorial })));
 const GeolocationTutorialModal = lazy(() => import('@/components/GeolocationTutorialModal').then(m => ({ default: m.GeolocationTutorialModal })));
+const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
 const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
 
 // Minimal loading fallback for sheets/modals
@@ -146,15 +147,99 @@ const Index = () => {
     startTour,
     stopTour,
     clearTour,
+    resumeTour,
+    getSavedTourData,
   } = useTourTracker({
     stopDurationThreshold: preferences.stopDetectionMinutes * 60,
     locationRadius: preferences.locationRadiusMeters,
-    trackingInterval: 10000, // Capture GPS point every 10 seconds
-    accuracyThreshold: 50, // Filter points with accuracy > 50m
+    trackingInterval: 10000,
+    accuracyThreshold: 50,
   });
+
+  // Session recovery state
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+  const [recoveryInactivity, setRecoveryInactivity] = useState('');
+  const [recoveryData, setRecoveryData] = useState<{ stops: TourStop[]; totalDistanceKm: number } | null>(null);
+  const [isRecoveryProcessing, setIsRecoveryProcessing] = useState(false);
+
+  // Time thresholds
+  const TRANSPARENT_THRESHOLD = 4 * 60 * 1000; // 4 minutes
+  const MODAL_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
+
+  // Format inactivity duration
+  const formatInactivity = (ms: number): string => {
+    const minutes = Math.floor(ms / 60000);
+    const hours = Math.floor(minutes / 60);
+    if (hours >= 1) {
+      const remainingMinutes = minutes % 60;
+      return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+    }
+    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  };
 
   // Track if we've already recovered an interrupted tour this session
   const [hasRecoveredTour, setHasRecoveredTour] = useState(false);
+
+  // NEW: Check for session recovery on mount based on inactivity time
+  useEffect(() => {
+    if (hasRecoveredTour || isTourActive) return;
+    
+    const checkSessionRecovery = async () => {
+      const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
+      if (!isActive) return;
+      
+      const lastActivityStr = localStorage.getItem(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY);
+      if (!lastActivityStr) return;
+      
+      const lastActivity = new Date(lastActivityStr).getTime();
+      const inactivity = Date.now() - lastActivity;
+      
+      const savedData = getSavedTourData();
+      if (!savedData) return;
+      
+      if (inactivity < TRANSPARENT_THRESHOLD) {
+        // Case A: < 4 minutes - transparent resume
+        console.log('Session recovery: transparent resume');
+        setTourStartRequested(true);
+        await resumeTour();
+      } else if (inactivity < MODAL_THRESHOLD) {
+        // Case B: 4 min - 2 hours - show modal
+        console.log('Session recovery: show modal');
+        setRecoveryData({ stops: savedData.stops, totalDistanceKm: savedData.totalDistanceKm });
+        setRecoveryInactivity(formatInactivity(inactivity));
+        setShowRecoveryModal(true);
+      } else {
+        // Case C: > 2 hours - auto finalize
+        console.log('Session recovery: auto finalize');
+        setHasRecoveredTour(true);
+        if (savedData.stops.length >= 1 && vehicles.length > 0) {
+          await handleConvertToTrips(savedData.stops);
+        }
+        clearTour();
+      }
+    };
+    
+    checkSessionRecovery();
+  }, [vehicles.length]);
+
+  // Handle recovery modal responses
+  const handleRecoveryResume = async () => {
+    setShowRecoveryModal(false);
+    setTourStartRequested(true);
+    await resumeTour();
+  };
+
+  const handleRecoveryFinalize = async () => {
+    setIsRecoveryProcessing(true);
+    setShowRecoveryModal(false);
+    setHasRecoveredTour(true);
+    
+    if (recoveryData && recoveryData.stops.length >= 1 && vehicles.length > 0) {
+      await handleConvertToTrips(recoveryData.stops);
+    }
+    clearTour();
+    setIsRecoveryProcessing(false);
+  };
 
   // Check for interrupted tours and create pending trips - only once
   useEffect(() => {
@@ -169,8 +254,6 @@ const Index = () => {
       setHasRecoveredTour(true);
       // Clear the interrupted tour data immediately to prevent re-processing
       clearInterruptedTour();
-      
-      console.log('Recovering interrupted tour:', interrupted);
       
       // Only recover if we have at least one stop
       if (interrupted.stops && interrupted.stops.length >= 1) {
