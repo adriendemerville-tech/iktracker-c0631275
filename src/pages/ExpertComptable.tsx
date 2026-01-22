@@ -177,7 +177,7 @@ const ExpertComptable = () => {
             <div className="relative p-8 rounded-2xl bg-card border border-border overflow-hidden">
               <div className="grid md:grid-cols-3 gap-8 relative z-10">
                 {[
-                  { icon: Calculator, title: "Calcul auto", desc: "Barème fiscal 2024" },
+                  { icon: Calculator, title: "Calcul auto", desc: "Barème fiscal 2026" },
                   { icon: FileSpreadsheet, title: "Export", desc: "Excel, PDF, CSV" },
                   { icon: Mail, title: "Envoi", desc: "Direct au comptable" },
                 ].map((step, i) => (
@@ -205,7 +205,7 @@ const ExpertComptable = () => {
               { icon: Euro, title: "100% Gratuit", desc: "Aucun coût pour vos clients" },
               { icon: MapPin, title: "Made in France", desc: "Données hébergées en Europe" },
               { icon: Shield, title: "RGPD Compliant", desc: "Confidentialité garantie" },
-              { icon: Calculator, title: "Barème fiscal 2024", desc: "Mise à jour automatique" },
+              { icon: Calculator, title: "Barème fiscal 2026", desc: "Mise à jour automatique" },
               { icon: Clock, title: "Gain de temps", desc: "Fini les relevés manuscrits" },
               { icon: Users, title: "Multi-clients", desc: "Format standardisé" },
             ].map((item, i) => (
