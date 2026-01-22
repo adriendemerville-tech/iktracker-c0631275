@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 
 const FAREWELL_MESSAGES = [
@@ -82,13 +81,12 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
+    <div
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden animate-fade-in"
       style={{
         background: 'linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)',
+        animationDuration: '0.5s',
+        animationFillMode: 'both',
       }}
     >
       {/* Subtle light reflection at top */}
@@ -116,19 +114,16 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
       />
 
       {/* Content container - logo + message */}
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ 
-          opacity: phase === 'exiting' ? 0 : 1, 
-          y: phase === 'exiting' ? -20 : 0,
-          scale: phase === 'exiting' ? 0.98 : 1
+      <div
+        className="relative z-10 flex flex-col items-center gap-6 animate-fade-in"
+        style={{
+          animationDelay: '0.1s',
+          animationDuration: '0.6s',
+          animationFillMode: 'both',
+          opacity: phase === 'exiting' ? 0 : 1,
+          transform: phase === 'exiting' ? 'translateY(-20px) scale(0.98)' : 'translateY(0) scale(1)',
+          transition: 'opacity 0.3s, transform 0.3s',
         }}
-        transition={{ 
-          duration: 0.6, 
-          ease: [0.4, 0, 0.2, 1],
-          delay: phase === 'entering' ? 0.1 : 0
-        }}
-        className="relative z-10 flex flex-col items-center gap-6"
       >
         {/* Logo */}
         <img
@@ -152,7 +147,7 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
         >
           {fullMessage}
         </h1>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
