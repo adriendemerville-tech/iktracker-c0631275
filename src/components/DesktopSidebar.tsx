@@ -403,8 +403,8 @@ export const DesktopSidebar = ({
             <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-2">
               <Smartphone className="w-7 h-7 text-accent" />
             </div>
-            <p className="text-sm text-muted-foreground font-medium mb-1">Mode tournée : automatisez la détection GPS des trajets</p>
-            <AlertDialogTitle className="text-accent text-xl">Réservé à l'usage mobile</AlertDialogTitle>
+            <p className="text-lg font-semibold mb-1 text-center" style={{ color: '#5666D8' }}>Mode tournée : automatisez la détection GPS des trajets</p>
+            <AlertDialogTitle className="text-accent text-base font-medium text-center">Réservé à l'usage mobile</AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
             </AlertDialogDescription>
