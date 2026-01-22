@@ -600,10 +600,9 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_total_tours_count: {
-        Args: { end_date?: string; start_date?: string }
-        Returns: number
-      }
+      get_total_tours_count:
+        | { Args: { end_date?: string; start_date?: string }; Returns: number }
+        | { Args: { end_date?: string; start_date?: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
