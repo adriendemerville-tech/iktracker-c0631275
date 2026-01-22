@@ -773,19 +773,21 @@ const Profile = () => {
               }
             }
             
+            const shareUrl = 'https://iktracker.fr';
+            
             if (navigator.share) {
               try {
                 await navigator.share({
                   title: 'IKtracker',
                   text: shareText,
-                  url: window.location.origin,
+                  url: shareUrl,
                 });
               } catch (error) {
                 // User cancelled or error
               }
             } else {
               // Fallback: copy to clipboard
-              navigator.clipboard.writeText(`${shareText} ${window.location.origin}`);
+              navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
               const { toast } = await import('@/components/ui/sonner');
               toast.success('Lien copié !');
             }
