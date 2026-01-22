@@ -18,6 +18,8 @@ export default {
         display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
         urbanist: ['Urbanist', 'system-ui', 'sans-serif'],
+        serif: ['Playfair Display', 'Georgia', 'serif'],
+        blog: ['DM Sans', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

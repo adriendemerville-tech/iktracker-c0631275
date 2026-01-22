@@ -7,6 +7,7 @@ import { useAuthLazy } from '@/hooks/useAuthLazy';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
+import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -21,6 +22,7 @@ interface BlogPost {
   featured_image_url: string | null;
   author_name: string | null;
   published_at: string | null;
+  display_order?: number;
 }
 
 export default function Blog() {
@@ -38,7 +40,14 @@ export default function Blog() {
         .order('published_at', { ascending: false });
 
       if (!error && data) {
-        setPosts(data);
+        // Sort by display_order if available, fallback to published_at order
+        const sortedData = [...data].sort((a: any, b: any) => {
+          if (a.display_order !== undefined && b.display_order !== undefined) {
+            return a.display_order - b.display_order;
+          }
+          return 0;
+        });
+        setPosts(sortedData as BlogPost[]);
       }
       setLoading(false);
     };
@@ -47,7 +56,17 @@ export default function Blog() {
   }, []);
 
   const featuredPost = posts[0];
-  const otherPosts = posts.slice(1);
+  const secondaryPosts = posts.slice(1, 3);
+  const remainingPosts = posts.slice(3);
+
+  // Get card size class based on position for editorial layout
+  const getCardSize = (index: number): 'large' | 'medium' | 'small' => {
+    const pattern = [
+      'large', 'medium', 'small', 'small', 'medium', 
+      'small', 'large', 'small', 'medium', 'small'
+    ];
+    return pattern[index % pattern.length] as 'large' | 'medium' | 'small';
+  };
 
   return (
     <>
@@ -57,19 +76,22 @@ export default function Blog() {
         <link rel="canonical" href="https://iktracker.fr/blog" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background font-blog">
         <MarketingNav user={user} loading={authLoading} />
         
         <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-none">
-          {/* Hero Header */}
-          <section className="border-b border-border bg-gradient-to-b from-muted/30 to-background" aria-labelledby="hero-heading">
-            <div className="container mx-auto px-4 py-12 md:py-16">
-              <div className="max-w-3xl mx-auto text-center">
-                <h1 id="hero-heading" className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
-                  Le Blog
+          {/* Hero Header - Editorial style */}
+          <section className="border-b border-border" aria-labelledby="hero-heading">
+            <div className="container mx-auto px-4 py-12 md:py-20">
+              <div className="max-w-4xl">
+                <span className="text-sm font-medium text-primary uppercase tracking-wider">
+                  Actualités & Conseils
+                </span>
+                <h1 id="hero-heading" className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mt-4 tracking-tight leading-[1.1]">
+                  Le Blog<span className="text-primary">.</span>
                 </h1>
-                <p className="text-lg md:text-xl text-muted-foreground">
-                  Actualités, conseils et guides sur les indemnités kilométriques et la gestion de vos frais professionnels
+                <p className="text-lg md:text-xl text-muted-foreground mt-6 max-w-2xl leading-relaxed">
+                  Indemnités kilométriques, fiscalité des indépendants et bonnes pratiques pour optimiser vos frais professionnels.
                 </p>
                 
                 {isAdmin && (
@@ -90,24 +112,19 @@ export default function Blog() {
             {loading ? (
               <div className="space-y-8">
                 {/* Featured skeleton */}
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <Skeleton className="aspect-[16/10] rounded-2xl" />
-                  <div className="space-y-4 py-4">
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-6 w-1/2" />
-                    <Skeleton className="h-20 w-full" />
-                    <Skeleton className="h-4 w-1/3" />
+                <div className="grid lg:grid-cols-5 gap-6">
+                  <div className="lg:col-span-3">
+                    <Skeleton className="aspect-[16/10] rounded-2xl" />
+                  </div>
+                  <div className="lg:col-span-2 space-y-4">
+                    <Skeleton className="aspect-[16/10] rounded-xl" />
+                    <Skeleton className="aspect-[16/10] rounded-xl" />
                   </div>
                 </div>
                 {/* Grid skeleton */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="space-y-4">
-                      <Skeleton className="aspect-[16/10] rounded-xl" />
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-12">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
                   ))}
                 </div>
               </div>
@@ -116,7 +133,7 @@ export default function Blog() {
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                   <Calendar className="w-10 h-10 text-muted-foreground" />
                 </div>
-                <h2 className="text-2xl font-semibold text-foreground mb-2">Aucun article pour le moment</h2>
+                <h2 className="font-serif text-3xl font-bold text-foreground mb-2">Aucun article pour le moment</h2>
                 <p className="text-muted-foreground mb-6">Les premiers articles arrivent bientôt !</p>
                 {isAdmin && (
                   <Link to="/admin/blog/edit">
@@ -129,122 +146,85 @@ export default function Blog() {
               </div>
             ) : (
               <>
-                {/* Featured Article */}
-                {featuredPost && (
-                  <Link to={`/blog/${featuredPost.slug}`} className="group block mb-16">
-                    <article className="grid lg:grid-cols-2 gap-8 items-center">
-                      <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-muted">
+                {/* Featured + Secondary Grid - Editorial Hero */}
+                <div className="grid lg:grid-cols-5 gap-6 mb-12">
+                  {/* Featured Article - Large */}
+                  {featuredPost && (
+                    <Link to={`/blog/${featuredPost.slug}`} className="lg:col-span-3 group block">
+                      <article className="relative h-full min-h-[400px] rounded-2xl overflow-hidden bg-muted">
                         {featuredPost.featured_image_url ? (
                           <img 
                             src={getOptimizedImageUrl(featuredPost.featured_image_url, imagePresets.featured) || ''} 
                             srcSet={getResponsiveSrcSet(featuredPost.featured_image_url, [600, 900, 1200]) || ''}
-                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            sizes="(max-width: 1024px) 100vw, 60vw"
                             alt={featuredPost.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             loading="eager"
                             fetchPriority="high"
                             decoding="async"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                            <span className="text-6xl font-bold text-primary/20">IK</span>
-                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
                         )}
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                          <span className="inline-block px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-full mb-4">
                             À la une
                           </span>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                          {featuredPost.title}
-                        </h2>
-                        {featuredPost.subtitle && (
-                          <p className="text-lg text-muted-foreground">
-                            {featuredPost.subtitle}
-                          </p>
-                        )}
-                        {featuredPost.meta_description && (
-                          <p className="text-muted-foreground line-clamp-3">
-                            {featuredPost.meta_description}
-                          </p>
-                        )}
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pt-2">
-                          {featuredPost.author_name && (
-                            <span className="flex items-center gap-1.5">
-                              <User className="h-4 w-4" />
-                              {featuredPost.author_name}
-                            </span>
+                          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight mb-3 group-hover:text-primary-foreground/90 transition-colors">
+                            {featuredPost.title}
+                          </h2>
+                          {featuredPost.subtitle && (
+                            <p className="text-white/80 text-base md:text-lg mb-4 line-clamp-2">
+                              {featuredPost.subtitle}
+                            </p>
                           )}
-                          {featuredPost.published_at && (
-                            <span className="flex items-center gap-1.5">
-                              <Calendar className="h-4 w-4" />
-                              {format(new Date(featuredPost.published_at), 'dd MMMM yyyy', { locale: fr })}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-4 text-sm text-white/70">
+                            {featuredPost.author_name && (
+                              <span className="flex items-center gap-1.5">
+                                <User className="h-4 w-4" />
+                                {featuredPost.author_name}
+                              </span>
+                            )}
+                            {featuredPost.published_at && (
+                              <span>
+                                {format(new Date(featuredPost.published_at), 'dd MMMM yyyy', { locale: fr })}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="pt-4">
-                          <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
-                            Lire l'article
-                            <ArrowRight className="h-4 w-4" />
-                          </span>
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
-                )}
+                      </article>
+                    </Link>
+                  )}
 
-                {/* Articles Grid */}
-                {otherPosts.length > 0 && (
-                  <>
-                    <div className="border-t border-border pt-12">
-                      <h2 className="text-2xl font-bold text-foreground mb-8">Tous les articles</h2>
-                    </div>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {otherPosts.map((post) => (
-                        <Link key={post.id} to={`/blog/${post.slug}`} className="group block">
-                          <article className="h-full flex flex-col">
-                            <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-muted mb-4">
-                              {post.featured_image_url ? (
-                                <img 
-                                  src={getOptimizedImageUrl(post.featured_image_url, imagePresets.card) || ''} 
-                                  srcSet={getResponsiveSrcSet(post.featured_image_url, [400, 600, 800]) || ''}
-                                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                  alt={post.title}
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                  loading="lazy"
-                                  decoding="async"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                                  <span className="text-4xl font-bold text-primary/20">IK</span>
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="flex-1 flex flex-col">
-                              <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                  {/* Secondary Articles - Stacked */}
+                  {secondaryPosts.length > 0 && (
+                    <div className="lg:col-span-2 flex flex-col gap-4">
+                      {secondaryPosts.map((post) => (
+                        <Link key={post.id} to={`/blog/${post.slug}`} className="group flex-1">
+                          <article className="relative h-full min-h-[180px] rounded-xl overflow-hidden bg-muted">
+                            {post.featured_image_url ? (
+                              <img 
+                                src={getOptimizedImageUrl(post.featured_image_url, imagePresets.card) || ''} 
+                                srcSet={getResponsiveSrcSet(post.featured_image_url, [400, 600]) || ''}
+                                sizes="(max-width: 1024px) 100vw, 40vw"
+                                alt={post.title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 to-secondary/10" />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+                              <h3 className="font-serif text-lg md:text-xl font-bold text-white leading-tight mb-2 group-hover:text-primary-foreground/90 transition-colors line-clamp-2">
                                 {post.title}
                               </h3>
-                              {post.subtitle && (
-                                <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                                  {post.subtitle}
-                                </p>
-                              )}
-                              <div className="mt-auto flex items-center gap-3 text-xs text-muted-foreground pt-3 border-t border-border/50">
-                                {post.author_name && (
-                                  <span className="flex items-center gap-1">
-                                    <User className="h-3.5 w-3.5" />
-                                    {post.author_name}
-                                  </span>
-                                )}
+                              <div className="flex items-center gap-3 text-xs text-white/70">
+                                {post.author_name && <span>{post.author_name}</span>}
                                 {post.published_at && (
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    {format(new Date(post.published_at), 'dd MMM yyyy', { locale: fr })}
-                                  </span>
+                                  <span>{format(new Date(post.published_at), 'dd MMM yyyy', { locale: fr })}</span>
                                 )}
                               </div>
                             </div>
@@ -252,12 +232,72 @@ export default function Blog() {
                         </Link>
                       ))}
                     </div>
+                  )}
+                </div>
+
+                {/* Remaining Articles - Masonry-like Grid */}
+                {remainingPosts.length > 0 && (
+                  <>
+                    <div className="border-t border-border pt-10 mb-8">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground">
+                        Tous les articles
+                      </h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-fr">
+                      {remainingPosts.map((post, index) => {
+                        const size = getCardSize(index);
+                        const isLarge = size === 'large';
+                        const isMedium = size === 'medium';
+                        
+                        return (
+                          <Link 
+                            key={post.id} 
+                            to={`/blog/${post.slug}`} 
+                            className={`group block ${isLarge ? 'md:col-span-2 md:row-span-2' : isMedium ? 'md:row-span-2' : ''}`}
+                          >
+                            <article className={`relative h-full rounded-xl overflow-hidden bg-muted ${isLarge ? 'min-h-[350px]' : isMedium ? 'min-h-[300px]' : 'min-h-[220px]'}`}>
+                              {post.featured_image_url ? (
+                                <img 
+                                  src={getOptimizedImageUrl(post.featured_image_url, isLarge ? imagePresets.featured : imagePresets.card) || ''} 
+                                  srcSet={getResponsiveSrcSet(post.featured_image_url, isLarge ? [600, 900] : [400, 600]) || ''}
+                                  sizes={isLarge ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
+                                  alt={post.title}
+                                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-accent/5" />
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+                              <div className="absolute bottom-0 left-0 right-0 p-4">
+                                <h3 className={`font-serif font-bold text-white leading-tight mb-2 group-hover:text-primary-foreground/90 transition-colors line-clamp-2 ${isLarge ? 'text-xl md:text-2xl' : isMedium ? 'text-lg' : 'text-base'}`}>
+                                  {post.title}
+                                </h3>
+                                {(isLarge || isMedium) && post.subtitle && (
+                                  <p className="text-white/70 text-sm mb-3 line-clamp-2">
+                                    {post.subtitle}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 text-xs text-white/60">
+                                  {post.published_at && (
+                                    <span>{format(new Date(post.published_at), 'dd MMM yyyy', { locale: fr })}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </article>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </>
                 )}
               </>
             )}
           </div>
         </main>
+        
+        <MarketingFooter />
       </div>
     </>
   );

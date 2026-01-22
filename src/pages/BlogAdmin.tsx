@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -13,10 +13,28 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { convertToWebP } from '@/lib/image-utils';
+import { ContentEditor } from '@/components/blog/ContentEditor';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, FileText, Save, Upload, X, Image as ImageIcon
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +80,107 @@ interface BlogPost {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  display_order: number;
+}
+
+// Sortable post card component
+function SortablePostCard({ 
+  post, 
+  onEdit, 
+  onToggleStatus, 
+  onDelete,
+  getStatusBadge 
+}: { 
+  post: BlogPost; 
+  onEdit: (post: BlogPost) => void;
+  onToggleStatus: (post: BlogPost) => void;
+  onDelete: (id: string) => void;
+  getStatusBadge: (status: BlogPostStatus) => React.ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: post.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style} className={isDragging ? 'ring-2 ring-primary' : ''}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+          >
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-1">
+              <h3 className="font-medium text-foreground truncate">
+                {post.title}
+              </h3>
+              {getStatusBadge(post.status)}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              /{post.slug} • {format(new Date(post.created_at), 'dd MMM yyyy', { locale: fr })}
+              {post.author_name && ` • ${post.author_name}`}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onToggleStatus(post)}
+              title={post.status === 'published' ? 'Dépublier' : 'Publier'}
+            >
+              {post.status === 'published' ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onEdit(post)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Supprimer l'article ?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est irréversible. L'article "{post.title}" sera définitivement supprimé.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onDelete(post.id)}>
+                    Supprimer
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 interface ApiKey {
@@ -124,17 +243,52 @@ export default function BlogAdmin() {
     }
   }, [isAdmin, adminLoading, navigate]);
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const fetchPosts = async () => {
     setLoadingPosts(true);
     const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('display_order', { ascending: true });
 
     if (!error && data) {
       setPosts(data as BlogPost[]);
     }
     setLoadingPosts(false);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const oldIndex = posts.findIndex((p) => p.id === active.id);
+      const newIndex = posts.findIndex((p) => p.id === over.id);
+      
+      const newPosts = arrayMove(posts, oldIndex, newIndex);
+      setPosts(newPosts);
+      
+      // Update display_order in database
+      const updates = newPosts.map((post, index) => ({
+        id: post.id,
+        display_order: index + 1,
+      }));
+      
+      for (const update of updates) {
+        await supabase
+          .from('blog_posts')
+          .update({ display_order: update.display_order } as any)
+          .eq('id', update.id);
+      }
+      
+      toast.success('Ordre mis à jour');
+    }
   };
 
   const fetchApiKeys = async () => {
@@ -594,14 +748,12 @@ export default function BlogAdmin() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="content">Contenu (HTML)</Label>
-                        <Textarea
-                          id="content"
+                        <Label>Contenu (Markdown/HTML)</Label>
+                        <ContentEditor
                           value={postForm.content}
-                          onChange={(e) => setPostForm(prev => ({ ...prev, content: e.target.value }))}
-                          placeholder="<p>Contenu de l'article en HTML...</p>"
+                          onChange={(value) => setPostForm(prev => ({ ...prev, content: value }))}
+                          placeholder="Contenu de l'article... Glissez des images pour les insérer automatiquement en WebP."
                           rows={12}
-                          className="font-mono text-sm"
                         />
                       </div>
                     </div>
@@ -640,70 +792,26 @@ export default function BlogAdmin() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-3">
-                  {posts.map((post) => (
-                    <Card key={post.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-1">
-                              <h3 className="font-medium text-foreground truncate">
-                                {post.title}
-                              </h3>
-                              {getStatusBadge(post.status)}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              /{post.slug} • {format(new Date(post.created_at), 'dd MMM yyyy', { locale: fr })}
-                              {post.author_name && ` • ${post.author_name}`}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => togglePostStatus(post)}
-                              title={post.status === 'published' ? 'Dépublier' : 'Publier'}
-                            >
-                              {post.status === 'published' ? (
-                                <EyeOff className="h-4 w-4" />
-                              ) : (
-                                <Eye className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openEditPost(post)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Supprimer l'article ?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Cette action est irréversible. L'article "{post.title}" sera définitivement supprimé.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deletePost(post.id)}>
-                                    Supprimer
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={posts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-3">
+                      {posts.map((post) => (
+                        <SortablePostCard
+                          key={post.id}
+                          post={post}
+                          onEdit={openEditPost}
+                          onToggleStatus={togglePostStatus}
+                          onDelete={deletePost}
+                          getStatusBadge={getStatusBadge}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               )}
             </TabsContent>
 
