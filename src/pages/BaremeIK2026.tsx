@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { IK_BAREME_2024, getIKBareme, calculateTotalAnnualIK } from "@/types/trip";
 import { 
   Calculator, 
@@ -39,7 +39,7 @@ const FooterPlaceholder = memo(() => (
 ));
 
 const BaremeIK2026 = () => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthLazy();
   const { trackCTAClick, trackIKSimulation } = useMarketingTracker('bareme-ik');
   const [fiscalPower, setFiscalPower] = useState<string>("5");
   const [annualKm, setAnnualKm] = useState<string>("10000");
@@ -97,23 +97,23 @@ const BaremeIK2026 = () => {
   return (
     <>
       <Helmet>
-        <title>Barème indemnités kilométriques 2026 (IK) : calcul et tableau fiscal | IKtracker</title>
+        <title>Barème Kilométrique 2026 Officiel : Tableau IK et Simulateur Gratuit | IKtracker</title>
         <meta 
           name="description" 
-          content="Barème officiel des indemnités kilométriques 2026. Utilisez en illimité notre simulateur IK, tableau des taux par CV et calcul automatique." 
+          content="Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique. Outil professionnel conforme au barème fiscal." 
         />
-        <meta name="keywords" content="indemnités kilométriques 2026, barème ik 2026, barème kilométrique 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
+        <meta name="keywords" content="barème kilométrique 2026 officiel, indemnités kilométriques 2026, barème ik 2026, frais kilométriques, calcul IK, barème fiscal véhicule, véhicule électrique IK, majoration 20% électrique" />
         <link rel="canonical" href="https://iktracker.fr/bareme-ik-2026" />
-        <meta property="og:title" content="Barème indemnités kilométriques 2026 - Simulateur et calcul IK" />
-        <meta property="og:description" content="Barème officiel des indemnités kilométriques 2026. Utilisez en illimité notre simulateur IK, tableau des taux par CV et calcul automatique." />
+        <meta property="og:title" content="Barème Kilométrique 2026 Officiel - Simulateur IK Gratuit" />
+        <meta property="og:description" content="Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:url" content="https://iktracker.fr/bareme-ik-2026" />
         <meta property="og:site_name" content="IKtracker" />
         <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Barème indemnités kilométriques 2026 | IKtracker" />
-        <meta name="twitter:description" content="Barème officiel des indemnités kilométriques 2026. Utilisez en illimité notre simulateur IK, tableau des taux par CV et calcul automatique." />
+        <meta name="twitter:title" content="Barème Kilométrique 2026 Officiel | IKtracker" />
+        <meta name="twitter:description" content="Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique." />
         <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="geo.region" content="FR" />
         <meta name="geo.placename" content="France" />
@@ -122,8 +122,8 @@ const BaremeIK2026 = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": "Barème des indemnités kilométriques 2026 : guide complet et simulateur",
-            "description": "Découvrez le barème IK 2026 officiel. Tableau des taux, simulateur gratuit et conseils fiscaux.",
+            "headline": "Barème Kilométrique 2026 Officiel : guide complet et simulateur",
+            "description": "Découvrez le barème kilométrique 2026 officiel. Tableau des taux IK, simulateur gratuit et conseils fiscaux.",
             "author": {
               "@type": "Organization",
               "name": "IKtracker"
@@ -137,13 +137,13 @@ const BaremeIK2026 = () => {
               }
             },
             "datePublished": "2024-12-01",
-            "dateModified": "2024-12-19",
+            "dateModified": "2026-01-22",
             "mainEntityOfPage": "https://iktracker.fr/bareme-ik-2026",
             "inLanguage": "fr-FR",
             "about": {
               "@type": "Thing",
-              "name": "Indemnités kilométriques",
-              "description": "Barème fiscal permettant de calculer les frais de déplacement professionnels"
+              "name": "Barème Kilométrique 2026",
+              "description": "Barème fiscal officiel pour le calcul des frais de déplacement professionnels"
             }
           })}
         </script>
