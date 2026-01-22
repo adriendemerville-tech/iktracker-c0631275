@@ -115,7 +115,7 @@ export default function Calendrier() {
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
         <title>Synchronisation Calendrier IKtracker | Google Calendar & Outlook</title>
-        <meta name="description" content="Synchronisez IKtracker avec Google Calendar ou Outlook. Vos rendez-vous avec adresse deviennent automatiquement des trajets. Gratuit pour indépendants en France." />
+        <meta name="description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK. 100% gratuit." />
         <meta name="keywords" content="synchronisation calendrier, Google Calendar IK, Outlook indemnités kilométriques, import automatique trajets, RDV en trajets, calendrier frais kilométriques" />
         <link rel="canonical" href="https://iktracker.fr/calendrier" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -191,7 +191,7 @@ export default function Calendrier() {
                 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8">
                   Connectez librement Google Calendar ou Outlook. Chaque rendez-vous avec une adresse 
-                  devient automatiquement un trajet avec les IK calculées.
+                  génère automatiquement un trajet avec localisation GPS et IK calculées.
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">

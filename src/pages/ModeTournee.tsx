@@ -102,7 +102,7 @@ export default function ModeTournee() {
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
         <title>Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans</title>
-        <meta name="description" content="Découvrez le mode Tournée d'IKtracker : enregistrez tous vos arrêts clients en un seul trajet. Idéal pour infirmiers libéraux, artisans et commerciaux en France. Gratuit." />
+        <meta name="description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Idéal pour infirmiers libéraux, artisans et commerciaux." />
         <meta name="keywords" content="mode tournée, suivi kilométrique infirmier, indemnités kilométriques artisan, tournée commerciaux, frais kilométriques multi-arrêts, IK libéral, application gratuite tournée" />
         <link rel="canonical" href="https://iktracker.fr/mode-tournee" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -177,7 +177,7 @@ export default function ModeTournee() {
                 </h1>
                 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                  Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts en un seul trajet. 
+                  Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts grâce à la localisation GPS. 
                   Distance totale calculée automatiquement.
                 </p>
 
