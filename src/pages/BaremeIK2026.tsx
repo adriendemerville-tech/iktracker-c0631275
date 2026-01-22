@@ -47,11 +47,17 @@ const BaremeIK2026 = () => {
 
   // Track simulation when user interacts with the calculator
   const hasTrackedSimulation = useRef(false);
+  const isFirstRender = useRef(true);
   
   useEffect(() => {
-    // Track only after user has modified values (not on initial load)
-    const km = parseInt(annualKm) || 0;
-    if (km > 0 && !hasTrackedSimulation.current) {
+    // Skip tracking on first render (initial values)
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    // Track only once per session after user modifies values
+    if (!hasTrackedSimulation.current) {
       // Debounce tracking - only track after user stops typing
       const timeoutId = setTimeout(() => {
         trackIKSimulation();
