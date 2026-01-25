@@ -20,6 +20,7 @@ const staticPages = [
   { url: '/install', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-05' },
   { url: '/bareme-ik-2026', priority: '0.9', changefreq: 'yearly', lastmod: '2026-01-01' },
   { url: '/frais-reels', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-25' },
+  { url: '/lexique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-25' },
   { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-01-25' },
   { url: '/privacy', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
   { url: '/terms', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
