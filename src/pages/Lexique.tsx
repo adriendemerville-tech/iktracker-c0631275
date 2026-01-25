@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Search, Share2, Download, FileText, Link2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Search, Share2, Download, FileText, Link2, Star } from 'lucide-react';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { toast } from 'sonner';
 import { htmlToPdfBlob } from '@/lib/pdf-utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Term {
   term: string;
@@ -270,7 +271,83 @@ export default function Lexique() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Term['category'] | 'all'>('all');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [userId, setUserId] = useState<string | null>(null);
   const location = useLocation();
+
+  // Get current user and load their favorites
+  useEffect(() => {
+    const loadUserAndFavorites = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        // Load favorites from localStorage with user-specific key
+        const storageKey = `lexique_favorites_${user.id}`;
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          try {
+            setFavorites(new Set(JSON.parse(saved)));
+          } catch {
+            // Invalid JSON, reset
+            localStorage.removeItem(storageKey);
+          }
+        }
+      } else {
+        setUserId(null);
+        setFavorites(new Set());
+      }
+    };
+
+    loadUserAndFavorites();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        const storageKey = `lexique_favorites_${session.user.id}`;
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          try {
+            setFavorites(new Set(JSON.parse(saved)));
+          } catch {
+            localStorage.removeItem(storageKey);
+          }
+        }
+      } else {
+        setUserId(null);
+        setFavorites(new Set());
+        setShowFavoritesOnly(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Toggle favorite status
+  const toggleFavorite = useCallback((termSlug: string) => {
+    if (!userId) {
+      toast.error('Connectez-vous pour sauvegarder des favoris');
+      return;
+    }
+
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(termSlug)) {
+        newFavorites.delete(termSlug);
+        toast.success('Retiré des favoris');
+      } else {
+        newFavorites.add(termSlug);
+        toast.success('Ajouté aux favoris');
+      }
+      
+      // Save to localStorage
+      const storageKey = `lexique_favorites_${userId}`;
+      localStorage.setItem(storageKey, JSON.stringify([...newFavorites]));
+      
+      return newFavorites;
+    });
+  }, [userId]);
 
   // Scroll to anchor on page load or hash change
   useEffect(() => {
@@ -760,13 +837,15 @@ export default function Lexique() {
   const filteredTerms = useMemo(() => {
     return lexiqueTerms
       .filter(term => {
+        const termSlug = termToSlug(term.term);
         const matchesSearch = term.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
                              term.definition.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'all' || term.category === selectedCategory;
-        return matchesSearch && matchesCategory;
+        const matchesFavorites = !showFavoritesOnly || favorites.has(termSlug);
+        return matchesSearch && matchesCategory && matchesFavorites;
       })
       .sort((a, b) => a.term.localeCompare(b.term, 'fr'));
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, showFavoritesOnly, favorites]);
 
   // JSON-LD structured data for SGE and LLMs
   const jsonLd = {
@@ -967,18 +1046,29 @@ export default function Lexique() {
               
               <div className="flex flex-wrap justify-center gap-2">
                 <Button
-                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  variant={selectedCategory === 'all' && !showFavoritesOnly ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedCategory('all')}
+                  onClick={() => { setSelectedCategory('all'); setShowFavoritesOnly(false); }}
                 >
                   Tous ({lexiqueTerms.length})
                 </Button>
+                {userId && (
+                  <Button
+                    variant={showFavoritesOnly ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                    className={showFavoritesOnly ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}
+                  >
+                    <Star className={`h-4 w-4 mr-1 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+                    Favoris ({favorites.size})
+                  </Button>
+                )}
                 {(Object.keys(categoryLabels) as Term['category'][]).map(cat => (
                   <Button
                     key={cat}
-                    variant={selectedCategory === cat ? 'default' : 'outline'}
+                    variant={selectedCategory === cat && !showFavoritesOnly ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => { setSelectedCategory(cat); setShowFavoritesOnly(false); }}
                   >
                     {categoryLabels[cat]} ({lexiqueTerms.filter(t => t.category === cat).length})
                   </Button>
@@ -1014,6 +1104,19 @@ export default function Lexique() {
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${categoryColors[term.category]}`}>
                         {categoryLabels[term.category]}
                       </span>
+                      {/* Favorite button */}
+                      <button
+                        onClick={() => toggleFavorite(termSlug)}
+                        className={`p-1.5 rounded-md transition-colors ${
+                          favorites.has(termSlug) 
+                            ? 'text-amber-500 hover:text-amber-600' 
+                            : 'text-muted-foreground hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                        }`}
+                        title={favorites.has(termSlug) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                        aria-label={favorites.has(termSlug) ? `Retirer ${term.term} des favoris` : `Ajouter ${term.term} aux favoris`}
+                      >
+                        <Star className={`h-4 w-4 ${favorites.has(termSlug) ? 'fill-current' : ''}`} />
+                      </button>
                       <button
                         onClick={() => handleCopyTermLink(term.term)}
                         className="ml-auto p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
