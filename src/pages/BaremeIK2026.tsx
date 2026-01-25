@@ -30,7 +30,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 // Lazy load below-the-fold components to reduce initial bundle
-const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 
 // Placeholder for lazy components
@@ -885,7 +885,7 @@ const BaremeIK2026 = () => {
         </main>
 
         <Suspense fallback={<FooterPlaceholder />}>
-          <MarketingFooter />
+          <EnhancedMarketingFooter />
         </Suspense>
         <Suspense fallback={null}>
           <MarketingPWANotification />

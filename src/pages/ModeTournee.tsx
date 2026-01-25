@@ -22,7 +22,7 @@ const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").th
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
-const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 
 const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
@@ -336,7 +336,7 @@ export default function ModeTournee() {
       </main>
 
       <Suspense fallback={<FooterPlaceholder />}>
-        <MarketingFooter />
+        <EnhancedMarketingFooter />
       </Suspense>
       <Suspense fallback={null}>
         <MarketingPWANotification />

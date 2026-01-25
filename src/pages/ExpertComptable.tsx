@@ -25,7 +25,7 @@ const MarketingNav = lazy(() => import("@/components/marketing/MarketingNav").th
 // Lazy load heavy demo components with lower priority
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
-const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 
 // Lightweight placeholders
@@ -481,7 +481,7 @@ const ExpertComptable = () => {
       </main>
 
       <Suspense fallback={<FooterPlaceholder />}>
-        <MarketingFooter />
+        <EnhancedMarketingFooter />
       </Suspense>
       <Suspense fallback={null}>
         <MarketingPWANotification />

@@ -11,6 +11,7 @@ import { OptimizedImage } from '@/components/ui/optimized-image';
 import { ArrowLeft, Pencil, Clock, User, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 
 interface BlogPost {
   id: string;
@@ -377,6 +378,7 @@ export default function BlogPost() {
           </footer>
           </article>
         </main>
+        <EnhancedMarketingFooter />
       </div>
     </>
   );
