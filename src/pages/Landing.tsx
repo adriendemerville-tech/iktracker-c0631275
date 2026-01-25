@@ -131,10 +131,10 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
+      {/* Canonical is now in static index.html for SSR-like SEO visibility */}
       <Helmet>
         <title>IKtracker - Automatisation des Indemnités Kilométriques | Agenda vers Excel (Barème 2026)</title>
         <meta name="description" content="Automatisez gratuitement vos indemnités kilométriques via notre mode tournée, votre Agenda et la localisation GPS. Outil professionnel conforme au barème fiscal 2026." />
-        <link rel="canonical" href="https://iktracker.fr/" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
