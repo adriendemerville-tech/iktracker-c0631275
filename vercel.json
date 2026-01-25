@@ -81,7 +81,7 @@
     {
       "source": "/sitemap.xml",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
@@ -92,6 +92,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap"
+    },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

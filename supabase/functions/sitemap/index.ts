@@ -26,6 +26,42 @@ const staticPages = [
 
 const BASE_URL = 'https://iktracker.fr';
 
+const PAGE_SIZE = 1000;
+
+// Keep the client loosely typed here: the Edge runtime bundler can infer different generic params.
+async function fetchAllPublishedBlogPosts(supabase: any) {
+  const all: Array<{ slug: string; updated_at: string | null; published_at: string | null }> = [];
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('slug, updated_at, published_at')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error('Error fetching blog posts (paged):', error);
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    all.push(...data);
+
+    if (data.length < PAGE_SIZE) {
+      break;
+    }
+
+    from += PAGE_SIZE;
+  }
+
+  return all;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -37,16 +73,8 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all published blog posts
-    const { data: blogPosts, error } = await supabase
-      .from('blog_posts')
-      .select('slug, updated_at, published_at')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching blog posts:', error);
-    }
+    // Fetch ALL published blog posts (pagination to avoid the default 1000 rows limit)
+    const blogPosts = await fetchAllPublishedBlogPosts(supabase);
 
     // Generate static pages entries with their specific lastmod dates
     const staticEntries = staticPages.map(page => `  <url>
@@ -85,14 +113,20 @@ ${blogEntries}
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600',
+        // Important: the hosting layer may also set no-cache, but we ensure it here too.
+        // This prevents browsers/CDNs from serving a stale sitemap when new articles are published.
+        'Cache-Control': 'public, max-age=0, s-maxage=0, must-revalidate',
+        'CDN-Cache-Control': 'public, max-age=0, s-maxage=0, must-revalidate',
       },
     });
   } catch (error) {
     console.error('Error generating sitemap:', error);
     return new Response('Error generating sitemap', { 
       status: 500,
-      headers: corsHeaders 
+      headers: {
+        ...corsHeaders,
+        'Cache-Control': 'no-store',
+      },
     });
   }
 });
