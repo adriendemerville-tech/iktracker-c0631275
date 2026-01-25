@@ -144,7 +144,7 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# === SEO FILES (24h cache) ===
+# === SEO FILES ===
 [[headers]]
   for = "/robots.txt"
   [headers.values]
@@ -153,12 +153,19 @@
 [[headers]]
   for = "/sitemap.xml"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/llm.txt"
   [headers.values]
     Cache-Control = "public, max-age=86400"
+
+# === DYNAMIC SITEMAP (must be BEFORE SPA fallback) ===
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap"
+  status = 200
+  force = true
 
 # === SPA FALLBACK ===
 [[redirects]]
