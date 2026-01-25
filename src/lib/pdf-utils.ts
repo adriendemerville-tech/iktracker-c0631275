@@ -151,8 +151,8 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     // Attendre les stylesheets externes
     await Promise.race([Promise.all(linkLoads), wait(2000)]);
 
-    // Délai supplémentaire pour le rendu complet
-    await wait(300);
+    // Délai supplémentaire pour le rendu complet (important pour le contenu généré dynamiquement)
+    await wait(500);
 
     // Attendre les fonts
     try {

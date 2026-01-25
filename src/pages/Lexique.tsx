@@ -500,8 +500,6 @@ export default function Lexique() {
   <meta charset="UTF-8">
   <title>Lexique des Indemnités Kilométriques - IKtracker</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    
     * {
       margin: 0;
       padding: 0;
@@ -509,7 +507,7 @@ export default function Lexique() {
     }
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       font-size: 11px;
       line-height: 1.5;
       color: #1a1a1a;
