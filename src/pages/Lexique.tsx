@@ -1,7 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Search, Share2, Download, FileText } from 'lucide-react';
-import { useState, useMemo, useCallback } from 'react';
+import { ArrowLeft, BookOpen, Search, Share2, Download, FileText, Link2 } from 'lucide-react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
@@ -12,6 +13,16 @@ interface Term {
   term: string;
   definition: string;
   category: 'acronyme' | 'fiscalité' | 'acteur' | 'norme' | 'concept';
+}
+
+// Generate URL-friendly slug from term name
+function termToSlug(term: string): string {
+  return term
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 const lexiqueTerms: Term[] = [
@@ -259,6 +270,39 @@ export default function Lexique() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Term['category'] | 'all'>('all');
   const [isDownloading, setIsDownloading] = useState(false);
+  const location = useLocation();
+
+  // Scroll to anchor on page load or hash change
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (hash) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight effect
+          element.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+          setTimeout(() => {
+            element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+          }, 2000);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash]);
+
+  // Copy term link to clipboard
+  const handleCopyTermLink = useCallback(async (term: string) => {
+    const slug = termToSlug(term);
+    const url = `https://iktracker.fr/lexique#${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(`Lien copié : ${term}`);
+    } catch {
+      toast.error('Impossible de copier le lien');
+    }
+  }, []);
 
   // Generate PDF with IKtracker branding
   const handleDownloadPdf = useCallback(async () => {
@@ -860,32 +904,44 @@ export default function Lexique() {
             </div>
             
             <div className="space-y-4">
-              {filteredTerms.map((term, index) => (
-                <article 
-                  key={term.term}
-                  className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow"
-                  itemScope
-                  itemType="https://schema.org/DefinedTerm"
-                >
-                  <div className="flex flex-wrap items-start gap-3 mb-3">
-                    <h3 
-                      className="text-xl font-bold text-foreground"
-                      itemProp="name"
-                    >
-                      {term.term}
-                    </h3>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${categoryColors[term.category]}`}>
-                      {categoryLabels[term.category]}
-                    </span>
-                  </div>
-                  <p 
-                    className="text-muted-foreground leading-relaxed"
-                    itemProp="description"
+              {filteredTerms.map((term, index) => {
+                const termSlug = termToSlug(term.term);
+                return (
+                  <article 
+                    key={term.term}
+                    id={termSlug}
+                    className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-all scroll-mt-24"
+                    itemScope
+                    itemType="https://schema.org/DefinedTerm"
                   >
-                    {term.definition}
-                  </p>
-                </article>
-              ))}
+                    <div className="flex flex-wrap items-start gap-3 mb-3">
+                      <h3 
+                        className="text-xl font-bold text-foreground"
+                        itemProp="name"
+                      >
+                        {term.term}
+                      </h3>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${categoryColors[term.category]}`}>
+                        {categoryLabels[term.category]}
+                      </span>
+                      <button
+                        onClick={() => handleCopyTermLink(term.term)}
+                        className="ml-auto p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                        title={`Copier le lien vers "${term.term}"`}
+                        aria-label={`Copier le lien vers ${term.term}`}
+                      >
+                        <Link2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <p 
+                      className="text-muted-foreground leading-relaxed"
+                      itemProp="description"
+                    >
+                      {term.definition}
+                    </p>
+                  </article>
+                );
+              })}
             </div>
 
             {filteredTerms.length === 0 && (
