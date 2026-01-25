@@ -22,6 +22,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
     { label: 'Blog', href: '/blog' },
     { label: 'Installation', href: '/install' },
     { label: 'Expert-Comptable', href: '/expert-comptable' },
+    { label: 'Frais Réels', href: '/frais-reels' },
   ];
 
   const isActive = (href: string) => location.pathname === href;
