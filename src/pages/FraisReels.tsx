@@ -265,7 +265,7 @@ export default function FraisReels() {
                       className="w-full"
                     >
                       <Calculator className="h-5 w-5 mr-2" />
-                      Calculer et comparer
+                      Calculer
                     </Button>
                   </CardContent>
                 </Card>
@@ -288,89 +288,98 @@ export default function FraisReels() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Abattement 10% */}
-                    <div className={cn(
-                      "p-4 rounded-lg border-2 transition-all",
-                      hasCalculated && results.bestOption === 'abattement'
-                        ? "border-primary bg-primary/10"
-                        : "border-muted bg-muted/30"
-                    )}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Percent className="h-5 w-5 text-muted-foreground" />
-                          <span className="font-semibold">Abattement forfaitaire 10%</span>
-                        </div>
-                        {hasCalculated && results.bestOption === 'abattement' && (
-                          <CheckCircle2 className="h-5 w-5 text-primary" />
-                        )}
+                    {!hasCalculated ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <Calculator className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                        <p className="text-muted-foreground">
+                          Remplissez le formulaire et cliquez sur "Calculer" pour voir les résultats
+                        </p>
                       </div>
-                      <p className="text-2xl font-bold text-foreground">
-                        {results.abattement.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Déduction automatique sans justificatif
-                      </p>
-                    </div>
-
-                    {/* Frais réels */}
-                    <div className={cn(
-                      "p-4 rounded-lg border-2 transition-all",
-                      hasCalculated && results.bestOption === 'frais-reels'
-                        ? "border-primary bg-primary/10"
-                        : "border-muted bg-muted/30"
-                    )}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Car className="h-5 w-5 text-muted-foreground" />
-                          <span className="font-semibold">Frais réels kilométriques</span>
+                    ) : (
+                      <>
+                        {/* Abattement 10% */}
+                        <div className={cn(
+                          "p-4 rounded-lg border-2 transition-all",
+                          results.bestOption === 'abattement'
+                            ? "border-primary bg-primary/10"
+                            : "border-muted bg-muted/30"
+                        )}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Percent className="h-5 w-5 text-muted-foreground" />
+                              <span className="font-semibold">Abattement forfaitaire 10%</span>
+                            </div>
+                            {results.bestOption === 'abattement' && (
+                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                          <p className="text-2xl font-bold text-foreground">
+                            {results.abattement.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Déduction automatique sans justificatif
+                          </p>
                         </div>
-                        {hasCalculated && results.bestOption === 'frais-reels' && (
-                          <CheckCircle2 className="h-5 w-5 text-primary" />
-                        )}
-                      </div>
-                      <p className="text-2xl font-bold text-foreground">
-                        {results.fraisReels.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Basé sur le barème kilométrique 2026
-                      </p>
-                    </div>
 
-                    {/* Recommandation */}
-                    {hasCalculated && (
-                      <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                          <div>
-                            <p className="font-semibold text-foreground">
-                              {results.bestOption === 'frais-reels' 
-                                ? "Les frais réels sont plus avantageux !"
-                                : "L'abattement forfaitaire est plus avantageux !"
-                              }
-                            </p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Économie potentielle : <strong className="text-primary">
-                                {results.economie.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
-                              </strong>
-                            </p>
+                        {/* Frais réels */}
+                        <div className={cn(
+                          "p-4 rounded-lg border-2 transition-all",
+                          results.bestOption === 'frais-reels'
+                            ? "border-primary bg-primary/10"
+                            : "border-muted bg-muted/30"
+                        )}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Car className="h-5 w-5 text-muted-foreground" />
+                              <span className="font-semibold">Frais réels kilométriques</span>
+                            </div>
+                            {results.bestOption === 'frais-reels' && (
+                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                          <p className="text-2xl font-bold text-foreground">
+                            {results.fraisReels.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Basé sur le barème kilométrique 2026
+                          </p>
+                        </div>
+
+                        {/* Recommandation */}
+                        <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-semibold text-foreground">
+                                {results.bestOption === 'frais-reels' 
+                                  ? "Les frais réels sont plus avantageux !"
+                                  : "L'abattement forfaitaire est plus avantageux !"
+                                }
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Économie potentielle : <strong className="text-primary">
+                                  {results.economie.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                                </strong>
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
 
-                    {/* CTA */}
-                    {hasCalculated && results.bestOption === 'frais-reels' && (
-                      <div className="pt-4 border-t">
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Automatisez le suivi de vos trajets pour justifier vos frais réels
-                        </p>
-                        <Button asChild variant="gradient" className="w-full">
-                          <Link to="/signup">
-                            Créer mon compte gratuit
-                            <ArrowRight className="h-4 w-4 ml-2" />
-                          </Link>
-                        </Button>
-                      </div>
+                        {/* CTA */}
+                        {results.bestOption === 'frais-reels' && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Automatisez le suivi de vos trajets pour justifier vos frais réels
+                            </p>
+                            <Button asChild variant="gradient" className="w-full">
+                              <Link to="/signup">
+                                Créer mon compte gratuit
+                                <ArrowRight className="h-4 w-4 ml-2" />
+                              </Link>
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </CardContent>
                 </Card>
