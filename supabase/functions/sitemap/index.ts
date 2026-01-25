@@ -6,20 +6,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Static pages configuration with realistic lastmod dates
-// Update these when content actually changes
+// Static pages configuration with priorities as requested:
+// - 1.0 for homepage
+// - 0.8 for main feature pages
+// - 0.5 for legal pages
 const staticPages = [
-  { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-01-19' },
-  { url: '/signup', priority: '0.9', changefreq: 'monthly', lastmod: '2026-01-15' },
-  { url: '/auth', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-15' },
-  { url: '/mode-tournee', priority: '0.9', changefreq: 'monthly', lastmod: '2026-01-10' },
-  { url: '/calendrier', priority: '0.9', changefreq: 'monthly', lastmod: '2026-01-10' },
-  { url: '/expert-comptable', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-05' },
-  { url: '/install', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-05' },
+  { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-01-25' },
+  { url: '/signup', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-15' },
+  { url: '/auth', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-15' },
+  { url: '/mode-tournee', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-10' },
+  { url: '/calendrier', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-10' },
+  { url: '/expert-comptable', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-05' },
+  { url: '/install', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-05' },
   { url: '/bareme-ik-2026', priority: '0.9', changefreq: 'yearly', lastmod: '2026-01-01' },
-  { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-01-19' },
-  { url: '/privacy', priority: '0.3', changefreq: 'yearly', lastmod: '2025-12-01' },
-  { url: '/terms', priority: '0.3', changefreq: 'yearly', lastmod: '2025-12-01' },
+  { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-01-25' },
+  { url: '/privacy', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
+  { url: '/terms', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
 ];
 
 const BASE_URL = 'https://iktracker.fr';
@@ -54,7 +56,7 @@ serve(async (req) => {
     <priority>${page.priority}</priority>
   </url>`).join('\n');
 
-    // Generate blog post entries
+    // Generate blog post entries with priority 0.8 and dynamic lastmod
     const today = new Date().toISOString().split('T')[0];
     const blogEntries = (blogPosts || []).map(post => {
       const lastmod = post.updated_at 
@@ -67,7 +69,7 @@ serve(async (req) => {
     <loc>${BASE_URL}/blog/${post.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>`;
     }).join('\n');
 
