@@ -304,6 +304,96 @@ export default function Lexique() {
     }
   }, []);
 
+  // Build a map of term names to their slugs for linking
+  const termLinkMap = useMemo(() => {
+    const map = new Map<string, string>();
+    lexiqueTerms.forEach(t => {
+      map.set(t.term.toLowerCase(), termToSlug(t.term));
+      // Also add common variations
+      if (t.term === "IK") {
+        map.set("indemnités kilométriques", termToSlug(t.term));
+        map.set("indemnité kilométrique", termToSlug(t.term));
+      }
+      if (t.term === "CV fiscal") {
+        map.set("chevaux fiscaux", termToSlug(t.term));
+        map.set("puissance fiscale", termToSlug("Puissance fiscale"));
+      }
+    });
+    return map;
+  }, []);
+
+  // Render definition with internal links to other terms
+  const renderDefinitionWithLinks = useCallback((definition: string, currentTerm: string) => {
+    // Sort terms by length (longest first) to avoid partial matches
+    const sortedTerms = Array.from(termLinkMap.keys()).sort((a, b) => b.length - a.length);
+    
+    // Create regex pattern for all terms (case insensitive)
+    const pattern = new RegExp(
+      `\\b(${sortedTerms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
+      'gi'
+    );
+
+    const parts: (string | JSX.Element)[] = [];
+    let lastIndex = 0;
+    let match;
+
+    // Reset regex
+    pattern.lastIndex = 0;
+
+    while ((match = pattern.exec(definition)) !== null) {
+      const matchedText = match[0];
+      const matchedLower = matchedText.toLowerCase();
+      const slug = termLinkMap.get(matchedLower);
+      
+      // Don't link to self
+      if (slug === termToSlug(currentTerm)) {
+        continue;
+      }
+
+      // Add text before match
+      if (match.index > lastIndex) {
+        parts.push(definition.slice(lastIndex, match.index));
+      }
+
+      // Add linked term
+      if (slug) {
+        parts.push(
+          <a
+            key={`${match.index}-${slug}`}
+            href={`#${slug}`}
+            className="text-primary hover:underline font-medium"
+            onClick={(e) => {
+              e.preventDefault();
+              const element = document.getElementById(slug);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+                setTimeout(() => {
+                  element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+                }, 2000);
+                // Update URL hash without scrolling
+                window.history.pushState(null, '', `#${slug}`);
+              }
+            }}
+          >
+            {matchedText}
+          </a>
+        );
+      } else {
+        parts.push(matchedText);
+      }
+
+      lastIndex = match.index + matchedText.length;
+    }
+
+    // Add remaining text
+    if (lastIndex < definition.length) {
+      parts.push(definition.slice(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : definition;
+  }, [termLinkMap]);
+
   // Generate PDF with IKtracker branding
   const handleDownloadPdf = useCallback(async () => {
     setIsDownloading(true);
@@ -937,7 +1027,7 @@ export default function Lexique() {
                       className="text-muted-foreground leading-relaxed"
                       itemProp="description"
                     >
-                      {term.definition}
+                      {renderDefinitionWithLinks(term.definition, term.term)}
                     </p>
                   </article>
                 );
