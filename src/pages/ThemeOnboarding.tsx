@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
@@ -15,7 +16,13 @@ const ThemeOnboarding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <>
+      <Helmet>
+        <title>Choisissez votre thème | IKtracker</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/theme-onboarding" />
+      </Helmet>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-slate-950 to-slate-900" />
       
@@ -121,6 +128,7 @@ const ThemeOnboarding = () => {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 };
 
