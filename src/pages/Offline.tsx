@@ -16,6 +16,7 @@ const Offline = () => {
       <Helmet>
         <title>Hors ligne | IKtracker</title>
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/offline" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-8">

@@ -17,6 +17,7 @@ const NotFound = () => {
         <title>Page non trouvée | IKtracker</title>
         <meta name="description" content="Cette page n'existe pas sur IKtracker." />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://iktracker.fr/404" />
       </Helmet>
       
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
