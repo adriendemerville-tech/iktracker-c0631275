@@ -220,11 +220,11 @@ const Landing = () => {
                 <Star className="h-4 w-4" aria-hidden="true" />
                 <span>100% Gratuit</span>
               </div>
-              {/* LCP Element - H1 must render instantly without any animation */}
+              {/* LCP Element - H1 must render instantly without any animation - must match index.html static shell */}
               <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
                 Calcul des indemnités kilométriques
                 <br />
-                <span className="text-gradient">automatique et gratuit</span>
+                <span className="text-gradient">Barème 2026 &amp; GPS Gratuit</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
                 Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics.
