@@ -7,7 +7,7 @@ import { useAuthLazy } from '@/hooks/useAuthLazy';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
-import { MarketingFooter } from '@/components/marketing/MarketingFooter';
+import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -297,7 +297,7 @@ export default function Blog() {
           </div>
         </main>
         
-        <MarketingFooter />
+        <EnhancedMarketingFooter />
       </div>
     </>
   );

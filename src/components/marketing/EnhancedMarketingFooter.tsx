@@ -43,10 +43,7 @@ const faqItems = [
   }
 ];
 
-const regions = [
-  "Paris", "Lyon", "Marseille", "Toulouse", "Bordeaux", "Lille",
-  "Nantes", "Strasbourg", "Nice", "Montpellier", "Rennes", "Grenoble"
-];
+// Regions list removed - now inline text
 
 export function EnhancedMarketingFooter() {
   const navigate = useNavigate();
@@ -80,12 +77,12 @@ export function EnhancedMarketingFooter() {
   ];
 
   const professionLinks = [
-    { label: 'Infirmier libéral (IDEL)', keywords: 'idel, infirmière libérale, soins à domicile' },
-    { label: 'Kinésithérapeute', keywords: 'kiné, rééducation, visites domicile' },
-    { label: 'Artisan du bâtiment', keywords: 'artisan, chantier, déplacement professionnel' },
-    { label: 'Commercial itinérant', keywords: 'commercial, prospection, rendez-vous client' },
-    { label: 'Consultant indépendant', keywords: 'freelance, mission, prestation' },
-    { label: 'Agent immobilier', keywords: 'immobilier, visite, estimation' },
+    { label: 'Infirmier libéral (IDEL)', href: '/blog/indemnites-kilometriques-infirmier-liberal' },
+    { label: 'Kinésithérapeute', href: '/blog/indemnites-kilometriques-kinesitherapeute' },
+    { label: 'Artisan du bâtiment', href: '/blog/indemnites-kilometriques-artisan-batiment' },
+    { label: 'Commercial itinérant', href: '/blog/indemnites-kilometriques-commercial-itinerant' },
+    { label: 'Consultant indépendant', href: '/blog/indemnites-kilometriques-consultant-independant' },
+    { label: 'Agent immobilier', href: '/blog/indemnites-kilometriques-agent-immobilier' },
   ];
 
   return (
@@ -201,14 +198,15 @@ export function EnhancedMarketingFooter() {
             <nav aria-labelledby="footer-professions-heading">
               <h3 id="footer-professions-heading" className="font-semibold text-foreground mb-4">Métiers</h3>
               <ul className="space-y-3" role="list">
-                {professionLinks.map((item, index) => (
-                  <li key={index}>
-                    <span 
-                      className="text-sm text-muted-foreground"
-                      title={item.keywords}
+                {professionLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link 
+                      to={item.href}
+                      onClick={handleLinkClick(item.href)}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                     >
                       {item.label}
-                    </span>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -246,21 +244,10 @@ export function EnhancedMarketingFooter() {
 
           {/* Regions - GEO SEO */}
           <div className="mt-10 pt-8 border-t border-border/50">
-            <h3 className="text-sm font-medium text-foreground mb-4">
-              Disponible partout en France
-            </h3>
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {regions.map((region) => (
-                <span 
-                  key={region} 
-                  className="px-2 py-1 bg-muted rounded-md"
-                  aria-label={`Indemnités kilométriques ${region}`}
-                >
-                  IK {region}
-                </span>
-              ))}
-              <span className="px-2 py-1 bg-muted rounded-md">+ toute la France</span>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Paris, Lille, Nantes, Lyon, Bordeaux, Toulouse, Marseille, Strasbourg... 
+              <span className="font-medium text-foreground"> IKtracker est disponible partout en France, gratuitement.</span>
+            </p>
           </div>
         </div>
       </div>
