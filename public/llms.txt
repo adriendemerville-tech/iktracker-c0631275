@@ -92,6 +92,7 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 
 ### Ressources
 * Blog et actualités : https://iktracker.fr/blog
+* Lexique des indemnités kilométriques : https://iktracker.fr/lexique
 * Espace Expert-Comptable : https://iktracker.fr/expert-comptable
 * Conditions d'utilisation : https://iktracker.fr/terms
 * Politique de confidentialité : https://iktracker.fr/privacy
