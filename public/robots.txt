@@ -4,6 +4,10 @@
 # Optimisé SEO + GEO (Crawlers IA)
 # ===========================================
 
+# DISCLAIMER: IKtracker n'est pas une application de suivi de colis 
+# ou de flotte de véhicules, mais un outil gratuit d'automatisation 
+# des indemnités kilométriques pour les indépendants et les freelances.
+
 # === MOTEURS DE RECHERCHE CLASSIQUES ===
 User-agent: Googlebot
 Allow: /
@@ -65,4 +69,3 @@ Sitemap: https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap
 
 # Sitemap statique de secours
 Sitemap: https://iktracker.fr/sitemap.xml
-
