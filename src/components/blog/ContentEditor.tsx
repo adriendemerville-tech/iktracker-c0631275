@@ -1,10 +1,20 @@
 import { useState, useRef, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { convertToWebP } from '@/lib/image-utils';
-import { Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
+import { Image as ImageIcon, Link as LinkIcon, Loader2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 
 interface ContentEditorProps {
   value: string;
@@ -15,6 +25,10 @@ interface ContentEditorProps {
 
 export function ContentEditor({ value, onChange, placeholder, rows = 16 }: ContentEditorProps) {
   const [uploading, setUploading] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkText, setLinkText] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [cursorPosition, setCursorPosition] = useState<{ start: number; end: number } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,6 +83,56 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
       const newCursorPos = start + markdownImage.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
+  };
+
+  const openLinkDialog = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = value.substring(start, end);
+      setCursorPosition({ start, end });
+      setLinkText(selectedText);
+      setLinkUrl('');
+    } else {
+      setCursorPosition(null);
+      setLinkText('');
+      setLinkUrl('');
+    }
+    setLinkDialogOpen(true);
+  };
+
+  const insertLink = () => {
+    if (!linkUrl.trim()) {
+      toast.error("L'URL est requise");
+      return;
+    }
+
+    const displayText = linkText.trim() || linkUrl;
+    const markdownLink = `[${displayText}](${linkUrl})`;
+
+    if (cursorPosition) {
+      const newValue = value.substring(0, cursorPosition.start) + markdownLink + value.substring(cursorPosition.end);
+      onChange(newValue);
+
+      // Set cursor after inserted link
+      setTimeout(() => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+          textarea.focus();
+          const newCursorPos = cursorPosition.start + markdownLink.length;
+          textarea.setSelectionRange(newCursorPos, newCursorPos);
+        }
+      }, 0);
+    } else {
+      onChange(value + markdownLink);
+    }
+
+    setLinkDialogOpen(false);
+    setLinkText('');
+    setLinkUrl('');
+    setCursorPosition(null);
+    toast.success('Lien inséré');
   };
 
   const handleFileUpload = async (files: FileList | null) => {
@@ -181,8 +245,44 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
 
   return (
     <div className="space-y-2">
+      {/* Link Dialog */}
+      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Insérer un lien</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="link-text">Texte du lien</Label>
+              <Input
+                id="link-text"
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="Texte affiché (optionnel)"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link-url">URL *</Label>
+              <Input
+                id="link-url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://exemple.com"
+                type="url"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Annuler</Button>
+            </DialogClose>
+            <Button onClick={insertLink}>Insérer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Toolbar */}
-      <div className="flex items-center gap-2 p-2 border rounded-t-md bg-muted/50">
+      <div className="flex items-center gap-2 p-2 border rounded-t-md bg-muted/50 flex-wrap">
         <Button
           type="button"
           variant="ghost"
@@ -196,6 +296,16 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
             <ImageIcon className="h-4 w-4 mr-2" />
           )}
           Insérer image
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={openLinkDialog}
+          disabled={uploading}
+        >
+          <LinkIcon className="h-4 w-4 mr-2" />
+          Insérer lien
         </Button>
         <span className="text-xs text-muted-foreground">
           Glissez-déposez ou collez des images (conversion WebP auto)
