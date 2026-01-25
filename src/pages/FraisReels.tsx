@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useAuth } from '@/hooks/useAuth';
 import { useMarketingTracker } from '@/hooks/useMarketingTracker';
 import { 
@@ -19,7 +20,8 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
-  Scale
+  Scale,
+  HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -447,34 +449,117 @@ export default function FraisReels() {
             </div>
           </section>
 
-          {/* SEO Content Section */}
-          <section className="container mx-auto px-4 py-12 md:py-16">
-            <div className="max-w-3xl mx-auto prose prose-lg dark:prose-invert">
-              <h2>Questions fréquentes sur les frais réels et l'abattement</h2>
+          {/* FAQ Section */}
+          <section className="container mx-auto px-4 py-12 md:py-16" aria-labelledby="faq-heading">
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
+                  <HelpCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">FAQ</span>
+                </div>
+                <h2 id="faq-heading" className="text-2xl md:text-3xl font-bold">
+                  Questions fréquentes sur les frais réels
+                </h2>
+              </div>
               
-              <h3>Quand choisir les frais réels plutôt que l'abattement de 10% ?</h3>
-              <p>
-                Les <strong>frais réels kilométriques</strong> sont généralement plus avantageux si vous parcourez 
-                plus de 15 000 km par an pour des raisons professionnelles, ou si votre trajet domicile-travail 
-                est supérieur à 40 km. L'option des <strong>frais réels</strong> permet de déduire l'intégralité 
-                de vos dépenses liées aux déplacements professionnels selon le <strong>barème kilométrique URSSAF</strong>.
-              </p>
+              <Accordion type="single" collapsible className="w-full space-y-4">
+                <AccordionItem value="item-1" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Quand choisir les frais réels plutôt que l'abattement de 10% ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Les <strong className="text-foreground">frais réels kilométriques</strong> sont généralement plus avantageux si vous parcourez 
+                    plus de 15 000 km par an pour des raisons professionnelles, ou si votre trajet domicile-travail 
+                    est supérieur à 40 km. L'option des frais réels permet de déduire l'intégralité 
+                    de vos dépenses liées aux déplacements professionnels selon le <strong className="text-foreground">barème kilométrique URSSAF</strong>.
+                  </AccordionContent>
+                </AccordionItem>
 
-              <h3>Comment justifier ses frais réels auprès de l'administration fiscale ?</h3>
-              <p>
-                Pour bénéficier de la déduction des <strong>frais réels</strong>, vous devez conserver des 
-                <strong> justificatifs fiscaux</strong> précis : un carnet de bord avec la date, le motif et la 
-                distance de chaque trajet professionnel. C'est exactement ce que permet IKtracker : automatiser 
-                ce suivi grâce à la synchronisation de votre agenda et au GPS.
-              </p>
+                <AccordionItem value="item-2" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Comment justifier ses frais réels auprès de l'administration fiscale ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Pour bénéficier de la déduction des frais réels, vous devez conserver des 
+                    <strong className="text-foreground"> justificatifs fiscaux</strong> précis : un carnet de bord avec la date, le motif et la 
+                    distance de chaque trajet professionnel. C'est exactement ce que permet IKtracker : automatiser 
+                    ce suivi grâce à la synchronisation de votre agenda et au GPS.
+                  </AccordionContent>
+                </AccordionItem>
 
-              <h3>Le barème kilométrique 2026 : quels taux ?</h3>
-              <p>
-                Le <strong>barème kilométrique 2026</strong> varie selon la puissance fiscale de votre véhicule 
-                et le nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%. 
-                Ce barème couvre l'ensemble des frais liés à l'utilisation de votre véhicule : carburant, 
-                assurance, entretien et amortissement.
-              </p>
+                <AccordionItem value="item-3" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Le barème kilométrique 2026 : quels sont les taux ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Le <strong className="text-foreground">barème kilométrique 2026</strong> varie selon la puissance fiscale de votre véhicule 
+                    et le nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%. 
+                    Ce barème couvre l'ensemble des frais liés à l'utilisation de votre véhicule : carburant, 
+                    assurance, entretien et amortissement.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-4" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Peut-on cumuler frais réels kilométriques et autres frais professionnels ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Oui, en optant pour les frais réels, vous pouvez déduire l'ensemble de vos frais professionnels : 
+                    <strong className="text-foreground"> indemnités kilométriques</strong>, repas, formation, matériel, etc. 
+                    Attention : le choix des frais réels s'applique à l'ensemble de vos revenus, vous ne pouvez pas 
+                    cumuler abattement forfaitaire sur une partie et frais réels sur l'autre.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-5" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Quelle est la distance maximale déductible pour le trajet domicile-travail ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    En principe, seuls les 40 premiers kilomètres du trajet domicile-travail sont déductibles 
+                    (soit 80 km aller-retour). Au-delà, vous devez justifier de circonstances particulières 
+                    (emploi précaire, mutations, raisons familiales) pour déduire la distance réelle. 
+                    Les déplacements professionnels hors trajet domicile-travail sont intégralement déductibles.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-6" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Comment déclarer ses frais réels sur la déclaration d'impôts ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Sur votre déclaration de revenus (formulaire 2042), vous devez cocher la case "frais réels" 
+                    et indiquer le montant total de vos frais dans la case dédiée. L'administration fiscale 
+                    ne demandera pas systématiquement les justificatifs, mais vous devez les conserver 
+                    pendant 3 ans en cas de contrôle. IKtracker génère automatiquement un rapport PDF 
+                    conforme pour faciliter cette démarche.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-7" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Les véhicules électriques sont-ils avantagés fiscalement ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Oui, les <strong className="text-foreground">véhicules électriques</strong> bénéficient d'une majoration de 20% sur le barème 
+                    kilométrique standard. Par exemple, pour un véhicule de 5 CV parcourant 15 000 km/an, 
+                    l'indemnité passe de 6 420 € à 7 704 € pour un véhicule électrique. Cette mesure 
+                    vise à encourager la transition vers des mobilités plus propres.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-8" className="border rounded-lg px-4 bg-card">
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                    Comment prouver l'usage professionnel de son véhicule personnel ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4">
+                    Vous devez tenir un <strong className="text-foreground">carnet de bord</strong> détaillant chaque déplacement professionnel 
+                    avec : la date, le lieu de départ, la destination, le motif du déplacement et la distance parcourue. 
+                    IKtracker automatise cette tâche en synchronisant votre agenda professionnel et en calculant 
+                    automatiquement les distances via GPS, générant un rapport conforme aux exigences fiscales.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </section>
 
