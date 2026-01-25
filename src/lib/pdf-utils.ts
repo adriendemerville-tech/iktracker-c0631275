@@ -42,7 +42,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     position: 'fixed',
     inset: '0',
     background: 'white',
-    zIndex: '99999',
+    zIndex: '99998', // Juste en dessous du renderRoot pendant la capture
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -55,11 +55,11 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     </div>
   `;
 
-  // Container pour le rendu - DOIT être visible et dans le viewport pour html2canvas
+  // Container pour le rendu - positionné au-dessus de l'overlay pendant la capture
   const renderRoot = document.createElement('div');
   renderRoot.setAttribute('data-pdf-root', 'true');
   Object.assign(renderRoot.style, {
-    position: 'fixed',
+    position: 'absolute',
     left: '0',
     top: '0',
     // Largeur adaptée au format A4 paysage
@@ -67,7 +67,7 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     minHeight: '794px',
     background: '#ffffff',
     color: '#000000',
-    zIndex: '99997',
+    zIndex: '99999', // Au-dessus de l'overlay pour être capturé
     overflow: 'visible',
     padding: '40px 60px',
     boxSizing: 'border-box',
@@ -187,13 +187,17 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
         backgroundColor: '#ffffff',
         logging: false,
         scrollX: 0,
-        scrollY: 0,
+        scrollY: -window.scrollY, // Compenser le scroll de la page
         windowWidth: 1122,
         windowHeight: contentHeight,
+        height: contentHeight, // Forcer la capture de toute la hauteur
+        width: 1122,
         // Force le rendu de l'élément même s'il est partiellement caché
         foreignObjectRendering: false,
         allowTaint: true,
         removeContainer: false,
+        x: 0,
+        y: 0,
       },
       jsPDF: {
         unit: 'mm',
@@ -203,13 +207,13 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
 
-    // Masquer l'overlay pendant la capture pour éviter le PDF blanc
-    overlay.style.display = 'none';
+    // Le renderRoot est maintenant au-dessus de l'overlay (zIndex 99999 vs 99998)
+    // donc pas besoin de masquer l'overlay pendant la capture
     
     // Attendre plusieurs frames pour s'assurer que le DOM est stable
     await nextFrame();
     await nextFrame();
-    await wait(200);
+    await wait(300);
 
     try {
       // Utiliser la méthode directe de html2pdf
@@ -223,8 +227,9 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
       }
 
       return pdfBlob;
-    } finally {
-      overlay.style.display = 'flex';
+    } catch (err) {
+      console.error('html2pdf error:', err);
+      throw err;
     }
   } finally {
     // Cleanup
