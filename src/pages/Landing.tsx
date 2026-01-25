@@ -222,9 +222,9 @@ const Landing = () => {
               </div>
               {/* LCP Element - H1 must render instantly without any animation - must match index.html static shell */}
               <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
-                Calcul des indemnités kilométriques
+                Calcul automatisé des indemnités kilométriques
                 <br />
-                <span className="text-gradient">Barème 2026 &amp; GPS Gratuit</span>
+                <span className="text-gradient">Barème 2026</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
                 Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics.
@@ -243,7 +243,7 @@ const Landing = () => {
               )}
 
               <ul className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-muted-foreground" role="list" aria-label="Avantages">
-                {["Sans carte bancaire", "Installation 2 min", "Export PDF/CSV"].map((item, i) => (
+                {["Sans carte bancaire", "Tournée par GPS", "Export PDF/CSV"].map((item, i) => (
                   <li key={i} className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                     {item}
