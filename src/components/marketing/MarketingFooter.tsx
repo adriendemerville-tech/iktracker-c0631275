@@ -22,6 +22,7 @@ export function MarketingFooter() {
     ],
     resources: [
       { label: 'Expert-Comptable', href: '/expert-comptable' },
+      { label: 'Lexique IK', href: '/lexique' },
       { label: 'Confidentialité', href: '/privacy' },
       { label: 'CGU', href: '/terms' },
     ],
