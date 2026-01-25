@@ -663,6 +663,87 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Expertise Fiscale Section - SEO Content */}
+      <section className="py-16 md:py-24 section-contained" aria-labelledby="expertise-heading">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 id="expertise-heading" className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+                Expertise fiscale et conformité URSSAF
+              </h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+                IKtracker vous accompagne dans la gestion de vos frais réels et l'optimisation fiscale de vos déplacements professionnels.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Conformité Fiscale */}
+              <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Conformité et justificatifs fiscaux</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Chaque trajet enregistré dans IKtracker génère un <strong>justificatif fiscal complet</strong> : 
+                  horodatage précis, adresses de départ et d'arrivée, distance calculée selon le <strong>barème kilométrique URSSAF</strong> en vigueur.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Horodatage automatique de chaque déplacement</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Calcul conforme au barème fiscal officiel 2026</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Export PDF accepté par l'administration fiscale</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Optimisation des Frais Réels */}
+              <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+                  <Calculator className="h-6 w-6 text-accent" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Optimisation fiscale des frais réels</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Grâce au simulateur intégré, comparez instantanément l'<strong>abattement forfaitaire de 10%</strong> avec 
+                  la déduction des <strong>frais réels</strong>. IKtracker calcule automatiquement l'option la plus avantageuse 
+                  pour votre situation.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                    <span>Comparaison abattement 10% vs frais réels</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                    <span>Gestion de flotte multi-véhicules simplifiée</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                    <span>Suivi annuel pour optimisation fiscale continue</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Additional SEO paragraph */}
+            <div className="mt-8 p-6 bg-muted/30 rounded-xl border border-border">
+              <p className="text-sm text-muted-foreground leading-relaxed text-center">
+                IKtracker applique automatiquement le <strong>barème kilométrique URSSAF</strong> mis à jour chaque année. 
+                Que vous soyez salarié déclarant vos frais réels, profession libérale ou gérant de société, 
+                notre outil garantit des justificatifs fiscaux conformes aux exigences de l'administration. 
+                La gestion de flotte et l'optimisation fiscale n'ont jamais été aussi simples.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-32 bg-primary text-primary-foreground section-contained">
         <div className="container mx-auto px-4 text-center">
