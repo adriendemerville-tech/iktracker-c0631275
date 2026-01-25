@@ -46,7 +46,7 @@ const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").th
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
-const MarketingFooter = lazy(() => import("@/components/marketing/MarketingFooter").then(m => ({ default: m.MarketingFooter })));
+const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
 const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
 
 // Lazy load below-the-fold assets - use public path for lazy loading
@@ -803,7 +803,7 @@ const Landing = () => {
       </main>
 
       <Suspense fallback={null}>
-        <MarketingFooter />
+        <EnhancedMarketingFooter />
       </Suspense>
       <Suspense fallback={null}>
         <MarketingPWANotification />
