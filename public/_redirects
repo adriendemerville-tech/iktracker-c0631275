@@ -1,5 +1,5 @@
-# Dynamic sitemap from Supabase Edge Function
-/sitemap.xml https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap 200
+# Dynamic sitemap from backend function (forced even if a static file exists)
+/sitemap.xml https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap 200!
 
 # SPA routing for Netlify - all routes to index.html
 /*    /index.html   200

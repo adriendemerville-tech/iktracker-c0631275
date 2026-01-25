@@ -69,7 +69,7 @@
   Cache-Control: public, max-age=86400
 
 /sitemap.xml
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=0, must-revalidate
 
 /llm.txt
   Cache-Control: public, max-age=86400
