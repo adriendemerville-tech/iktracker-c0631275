@@ -148,7 +148,7 @@ export default function FraisReels() {
               
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
                 Frais réels ou abattement 10% ?
-                <span className="block text-primary mt-2">Calculez la meilleure option</span>
+                <span className="block text-primary mt-2">Calculez la meilleure option en 2026</span>
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
