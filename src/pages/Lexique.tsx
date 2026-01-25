@@ -1,11 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Search, Share2 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { ArrowLeft, BookOpen, Search, Share2, Download, FileText } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { toast } from 'sonner';
+import { htmlToPdfBlob } from '@/lib/pdf-utils';
 
 interface Term {
   term: string;
@@ -257,6 +258,370 @@ const categoryColors: Record<Term['category'], string> = {
 export default function Lexique() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Term['category'] | 'all'>('all');
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Generate PDF with IKtracker branding
+  const handleDownloadPdf = useCallback(async () => {
+    setIsDownloading(true);
+    toast.loading('Génération du PDF...', { id: 'pdf-download' });
+
+    try {
+      const groupedTerms = {
+        acronyme: lexiqueTerms.filter(t => t.category === 'acronyme'),
+        fiscalité: lexiqueTerms.filter(t => t.category === 'fiscalité'),
+        acteur: lexiqueTerms.filter(t => t.category === 'acteur'),
+        norme: lexiqueTerms.filter(t => t.category === 'norme'),
+        concept: lexiqueTerms.filter(t => t.category === 'concept'),
+      };
+
+      const categoryTitles: Record<string, string> = {
+        acronyme: 'Acronymes',
+        fiscalité: 'Fiscalité',
+        acteur: 'Acteurs',
+        norme: 'Normes',
+        concept: 'Concepts',
+      };
+
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Lexique des Indemnités Kilométriques - IKtracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #ffffff;
+    }
+    
+    .page {
+      padding: 30px 40px;
+      background: #fff;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    /* Header with branding */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid #5666D8;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #7485ED 0%, #5666D8 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    
+    .brand-info h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #5666D8;
+      margin-bottom: 2px;
+    }
+    
+    .brand-info p {
+      font-size: 11px;
+      color: #666;
+    }
+    
+    .header-meta {
+      text-align: right;
+      font-size: 10px;
+      color: #888;
+    }
+    
+    .header-meta strong {
+      color: #5666D8;
+    }
+    
+    /* Mission section */
+    .mission {
+      background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 25px;
+      border-left: 4px solid #5666D8;
+    }
+    
+    .mission h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #5666D8;
+      margin-bottom: 8px;
+    }
+    
+    .mission p {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 10px;
+    }
+    
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .feature {
+      background: white;
+      border: 1px solid #e0e4f8;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 10px;
+      color: #5666D8;
+      font-weight: 500;
+    }
+    
+    /* Title */
+    .doc-title {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    
+    .doc-title h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    
+    .doc-title .subtitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: #5666D8;
+      margin-bottom: 8px;
+    }
+    
+    .doc-title p {
+      font-size: 11px;
+      color: #666;
+    }
+    
+    /* Category sections */
+    .category {
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+    }
+    
+    .category-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #5666D8;
+      padding: 8px 14px;
+      background: #f0f3ff;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+    
+    .terms-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    
+    .term {
+      background: #fafbfc;
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      padding: 12px 14px;
+      page-break-inside: avoid;
+    }
+    
+    .term h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    
+    .term p {
+      font-size: 10px;
+      color: #555;
+      line-height: 1.45;
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 30px;
+      padding-top: 18px;
+      border-top: 2px solid #e8eaed;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .footer-logo {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #7485ED 0%, #5666D8 100%);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 10px;
+    }
+    
+    .footer-text {
+      font-size: 10px;
+      color: #666;
+    }
+    
+    .footer-text a {
+      color: #5666D8;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    
+    .footer-legal {
+      font-size: 9px;
+      color: #999;
+      text-align: right;
+    }
+    
+    @media print {
+      .page {
+        padding: 20px;
+      }
+      
+      .category {
+        page-break-inside: avoid;
+      }
+      
+      .term {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Header with IKtracker branding -->
+    <div class="header">
+      <div class="brand">
+        <div class="brand-logo">IK</div>
+        <div class="brand-info">
+          <h1>IKtracker</h1>
+          <p>Outil professionnel de suivi des indemnités kilométriques</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div><strong>iktracker.fr</strong></div>
+        <div>Barème ${new Date().getFullYear()}</div>
+        <div>Généré le ${new Date().toLocaleDateString('fr-FR')}</div>
+      </div>
+    </div>
+    
+    <!-- Mission & Features -->
+    <div class="mission">
+      <h2>🎯 Notre mission</h2>
+      <p>IKtracker simplifie la gestion des indemnités kilométriques pour les indépendants, professions libérales et artisans en France. Notre outil gratuit automatise le calcul des frais kilométriques selon le barème fiscal officiel.</p>
+      <div class="features">
+        <span class="feature">📍 Calcul automatique des distances</span>
+        <span class="feature">📊 Barème fiscal 2026 intégré</span>
+        <span class="feature">🗺️ Mode tournée GPS</span>
+        <span class="feature">📄 Génération de relevés</span>
+        <span class="feature">🔌 Synchronisation calendrier</span>
+        <span class="feature">⚡ Majoration véhicule électrique +20%</span>
+      </div>
+    </div>
+    
+    <!-- Document title -->
+    <div class="doc-title">
+      <h2>Lexique des Indemnités Kilométriques</h2>
+      <div class="subtitle">France • Indemnités kilométriques • 2026</div>
+      <p>${lexiqueTerms.length} termes essentiels pour comprendre les IK et la fiscalité des indépendants</p>
+    </div>
+    
+    <!-- Terms by category -->
+    ${Object.entries(groupedTerms).map(([cat, terms]) => `
+      <div class="category">
+        <div class="category-title">${categoryTitles[cat]} (${terms.length})</div>
+        <div class="terms-grid">
+          ${terms.map(term => `
+            <div class="term">
+              <h4>${term.term}</h4>
+              <p>${term.definition}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-brand">
+        <div class="footer-logo">IK</div>
+        <div class="footer-text">
+          Document généré via <a href="https://iktracker.fr">IKtracker</a><br>
+          L'outil gratuit de suivi des indemnités kilométriques
+        </div>
+      </div>
+      <div class="footer-legal">
+        © ${new Date().getFullYear()} IKtracker<br>
+        Données fiscales conformes au barème officiel
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      const pdfBlob = await htmlToPdfBlob(htmlContent);
+      
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `lexique-ik-iktracker-2026.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('Lexique PDF téléchargé !', { id: 'pdf-download' });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('Erreur lors de la génération du PDF', { id: 'pdf-download' });
+    } finally {
+      setIsDownloading(false);
+    }
+  }, []);
 
   const filteredTerms = useMemo(() => {
     return lexiqueTerms
@@ -432,6 +797,22 @@ export default function Lexique() {
               >
                 <Share2 className="h-4 w-4" />
                 Copier le lien
+              </Button>
+              
+              {/* PDF Download button */}
+              <Button
+                variant="gradient"
+                size="sm"
+                className="gap-2"
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <FileText className="h-4 w-4 animate-pulse" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                Télécharger le PDF
               </Button>
             </div>
           </section>
