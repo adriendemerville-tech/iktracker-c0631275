@@ -1,5 +1,5 @@
-# Dynamic sitemap from backend function (forced even if a static file exists)
+# Dynamic sitemap - MUST be first, with force flag to bypass any static file or SPA fallback
 /sitemap.xml https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap 200!
 
-# SPA routing for Netlify - all routes to index.html
+# SPA routing for Netlify/Lovable - all other routes to index.html
 /*    /index.html   200

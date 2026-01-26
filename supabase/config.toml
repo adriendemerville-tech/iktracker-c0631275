@@ -1,5 +1,8 @@
 project_id = "yarjaudctshlxkatqgeb"
 
+[functions.sitemap]
+verify_jwt = false
+
 [functions.google-calendar-auth]
 verify_jwt = false
 
