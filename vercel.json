@@ -97,11 +97,15 @@
       ]
     }
   ],
-  "rewrites": [
+  "redirects": [
     {
       "source": "/sitemap.xml",
-      "destination": "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap"
-    },
+      "destination": "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap",
+      "statusCode": 308,
+      "permanent": true
+    }
+  ],
+  "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
