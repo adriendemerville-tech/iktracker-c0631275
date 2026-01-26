@@ -1006,7 +1006,7 @@ ${IKTRACKER_MENTION}
       </header>
 
       {/* Main content */}
-      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36">
+      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36 md:pb-4">
         {/* Geolocation Banner - hide if tour is active (permission already granted) */}
         {showGeoBanner && !isTourActive && (
           <GeolocationBanner
@@ -1173,9 +1173,9 @@ ${IKTRACKER_MENTION}
         </div>
       )}
 
-      {/* Desktop: Bottom action buttons */}
-      <div className="hidden md:block">
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-3">
+      {/* Desktop: Bottom action buttons - inline with content flow */}
+      <div className="hidden md:flex justify-center py-8 max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4">
+        <div className="flex gap-3">
           {/* Voir le relevé */}
           <Link to="/mestrajets" data-tutorial="report">
             <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
