@@ -63,9 +63,6 @@ Allow: /
 User-agent: *
 Allow: /
 
-# === SITEMAPS ===
-# Sitemap dynamique via edge function (recommandé)
+# === SITEMAP ===
+# Sitemap dynamique généré par Edge Function
 Sitemap: https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap
-
-# Sitemap statique de secours
-Sitemap: https://iktracker.fr/sitemap.xml
