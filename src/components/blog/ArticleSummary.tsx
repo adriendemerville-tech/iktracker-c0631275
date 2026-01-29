@@ -1,4 +1,6 @@
-import { ListChecks } from 'lucide-react';
+import { ListChecks, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 interface ArticleSummaryProps {
   content: string;
@@ -11,7 +13,7 @@ function extractKeyPoints(content: string): string[] {
   if (bulletMatches && bulletMatches.length >= 3) {
     return bulletMatches
       .slice(0, 3)
-      .map(line => line.replace(/^[-•*]\s+/, '').trim());
+      .map(line => cleanMarkdown(line.replace(/^[-•*]\s+/, '').trim()));
   }
 
   // Otherwise extract from headings or first sentences
@@ -23,7 +25,7 @@ function extractKeyPoints(content: string): string[] {
     if (line.startsWith('## ') && keyPoints.length < 3) {
       const heading = line.replace(/^##\s+/, '').trim();
       if (heading.length > 10 && heading.length < 100) {
-        keyPoints.push(heading);
+        keyPoints.push(cleanMarkdown(heading));
       }
     }
   }
@@ -42,11 +44,7 @@ function extractKeyPoints(content: string): string[] {
       // Get first sentence
       const sentence = para.split(/[.!?]/)[0]?.trim();
       if (sentence && sentence.length > 20 && sentence.length < 120) {
-        // Remove markdown formatting
-        const clean = sentence
-          .replace(/\*\*([^*]+)\*\*/g, '$1')
-          .replace(/\*([^*]+)\*/g, '$1')
-          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+        const clean = cleanMarkdown(sentence);
         if (!keyPoints.includes(clean)) {
           keyPoints.push(clean);
         }
@@ -66,20 +64,59 @@ function extractKeyPoints(content: string): string[] {
   return keyPoints.slice(0, 3);
 }
 
+// Clean markdown formatting from text
+function cleanMarkdown(text: string): string {
+  return text
+    // Remove bold
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    // Remove italic
+    .replace(/\*([^*]+)\*/g, '$1')
+    // Remove links - keep only the text part
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // Remove inline code
+    .replace(/`([^`]+)`/g, '$1')
+    .trim();
+}
+
 export function ArticleSummary({ content }: ArticleSummaryProps) {
   const keyPoints = extractKeyPoints(content);
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
 
   return (
-    <div className="bg-muted/50 border border-border rounded-lg p-4 mb-8">
-      <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-        <ListChecks className="h-4 w-4 text-primary" />
+    <div 
+      ref={ref}
+      className="bg-card/50 dark:bg-slate-900/50 border border-border/50 rounded-xl p-6 mb-8 backdrop-blur-sm"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground mb-5">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+          <ListChecks className="h-4 w-4 text-primary" />
+        </div>
         <span>Points clés de l'article</span>
       </div>
-      <ul className="space-y-2">
+
+      {/* Key Points List */}
+      <ul className="space-y-3">
         {keyPoints.map((point, index) => (
-          <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-            <span className="text-primary font-bold mt-0.5">•</span>
-            <span>{point}</span>
+          <li 
+            key={index} 
+            className={cn(
+              "group flex items-start gap-3 p-3 -mx-3 rounded-lg",
+              "transition-all duration-200 ease-out",
+              "hover:bg-muted/50 hover:translate-x-1",
+              // Staggered animation
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            )}
+            style={{
+              transitionDelay: isVisible ? `${index * 100 + 100}ms` : '0ms'
+            }}
+          >
+            <div className="flex-shrink-0 mt-0.5">
+              <ChevronRight className="h-4 w-4 text-primary transition-transform duration-200 group-hover:translate-x-0.5" />
+            </div>
+            <span className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-200">
+              {point}
+            </span>
           </li>
         ))}
       </ul>
