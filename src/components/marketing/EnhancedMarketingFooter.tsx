@@ -298,6 +298,27 @@ export function EnhancedMarketingFooter() {
               </a>
               {' '}à Saint-Rémy-de-Provence. Partagé gratuitement avec la communauté.
             </p>
+            <p className="text-xs text-muted-foreground/50 mt-2">
+              <a 
+                href="https://mossai.org" 
+                title="MossAI Tools"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-muted-foreground transition-colors"
+              >
+                MossAI Tools
+              </a>
+              {' '}·{' '}
+              <a 
+                href="https://crawlers.fr" 
+                title="Crawlers.fr"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-muted-foreground transition-colors"
+              >
+                Crawlers.fr
+              </a>
+            </p>
           </div>
         </div>
       </div>
