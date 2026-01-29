@@ -66,9 +66,12 @@ export function RelatedArticle({ currentPostId }: RelatedArticleProps) {
   }
 
   return (
-    <Card className="mt-12 overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="my-8 overflow-hidden hover:shadow-lg transition-shadow">
       <CardContent className="p-0">
-        <Link to={`/blog/${relatedPost.slug}`} className="block">
+        <Link 
+          to={`/blog/${relatedPost.slug}`} 
+          className="block"
+        >
           <div className="p-4 bg-muted/30 border-b border-border">
             <span className="text-sm font-medium text-muted-foreground">
               À lire également
@@ -101,7 +104,7 @@ export function RelatedArticle({ currentPostId }: RelatedArticleProps) {
                   {relatedPost.subtitle}
                 </p>
               )}
-              <span className="inline-flex items-center gap-1 text-sm text-primary mt-2 font-medium">
+              <span className="inline-flex items-center gap-1 text-sm text-primary mt-2 font-medium hover:underline">
                 Lire l'article
                 <ArrowRight className="h-3 w-3" />
               </span>

@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { ArticleSummary } from '@/components/blog/ArticleSummary';
-import { RelatedArticle } from '@/components/blog/RelatedArticle';
+import { BlogContentWithRelated } from '@/components/blog/BlogContentWithRelated';
 
 interface BlogPost {
   id: string;
@@ -328,46 +328,10 @@ export default function BlogPost() {
             </div>
           )}
 
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert
-              prose-headings:text-foreground prose-headings:font-display
-              prose-h1:text-3xl prose-h1:mt-8 prose-h1:mb-4
-              prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3
-              prose-h3:text-xl prose-h3:mt-4 prose-h3:mb-2
-              prose-p:text-foreground/90 prose-p:leading-relaxed
-              prose-a:text-primary hover:prose-a:underline prose-a:font-medium
-              prose-strong:text-foreground prose-strong:font-semibold
-              prose-ul:text-foreground/90 prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
-              prose-ol:text-foreground/90 prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
-              prose-li:my-1
-              prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground
-              prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
-              prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
-              prose-img:rounded-lg prose-img:my-6
-              prose-table:border-collapse prose-table:w-full
-              prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-semibold
-              prose-td:border prose-td:border-border prose-td:p-3"
-          >
-            <ReactMarkdown 
-              remarkPlugins={[remarkGfm]}
-              components={{
-                // Optimize images in markdown content
-                img: ({ src, alt }) => (
-                  <OptimizedImage
-                    src={src || ''}
-                    alt={alt || ''}
-                    className="rounded-lg my-6"
-                    aspectRatio="16/9"
-                  />
-                )
-              }}
-            >
-              {post.content}
-            </ReactMarkdown>
-          </div>
-
-          {/* Related Article */}
-          <RelatedArticle currentPostId={post.id} />
+          <BlogContentWithRelated 
+            content={post.content} 
+            postId={post.id}
+          />
 
           <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
             <Link 
