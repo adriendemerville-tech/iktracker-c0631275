@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
-import founderPhoto from '@/assets/founder-adrien-optimized.webp';
+const founderPhoto = '/founder-adrien.jpg';
 
 export default function AuthorPage() {
   const canonicalUrl = 'https://iktracker.fr/blog/auteur/adrien-de-volontat';
