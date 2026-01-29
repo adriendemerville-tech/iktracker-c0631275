@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { convertToWebP } from '@/lib/image-utils';
-import { ContentEditor } from '@/components/blog/ContentEditor';
+import { ContentBlockEditor } from '@/components/blog/ContentBlockEditor';
 import { 
   ArrowLeft, Save, Eye, EyeOff, RefreshCw, 
   Image as ImageIcon, X, ExternalLink
@@ -53,6 +53,7 @@ export default function BlogEditor() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [existingPost, setExistingPost] = useState<BlogPost | null>(null);
+  const [relatedArticlePosition, setRelatedArticlePosition] = useState(2); // Default: after 2nd paragraph
   
   const [form, setForm] = useState({
     title: '',
@@ -482,14 +483,15 @@ export default function BlogEditor() {
                 </p>
               </div>
 
-              {/* Content */}
+              {/* Content with Drag & Drop for Related Article */}
               <div className="space-y-2">
                 <Label htmlFor="content">Contenu (Markdown/HTML)</Label>
-                <ContentEditor
+                <ContentBlockEditor
                   value={form.content}
                   onChange={(content) => setForm(prev => ({ ...prev, content }))}
+                  relatedArticlePosition={relatedArticlePosition}
+                  onRelatedArticlePositionChange={setRelatedArticlePosition}
                   placeholder="Contenu de l'article en Markdown ou HTML..."
-                  rows={16}
                 />
               </div>
 
