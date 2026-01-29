@@ -160,6 +160,13 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# === DYNAMIC SITEMAP (must be BEFORE SPA fallback) ===
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap"
+  status = 200
+  force = true
+
 # === SPA FALLBACK ===
 [[redirects]]
   from = "/*"
