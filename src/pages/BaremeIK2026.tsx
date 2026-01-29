@@ -284,6 +284,18 @@ const BaremeIK2026 = () => {
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Consultez le{" "}
+                    <a 
+                      href="https://www.impots.gouv.fr/simulateur-bareme-kilometrique" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="underline hover:text-primary transition-colors"
+                    >
+                      simulateur officiel sur impots.gouv.fr
+                    </a>
+                    {" "}pour vérifier vos calculs.
+                  </p>
                 </div>
               </CardContent>
             </Card>

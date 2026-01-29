@@ -340,8 +340,20 @@ export default function Calendrier() {
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                   Fini la saisie manuelle
                 </h2>
-                <p className="text-lg text-muted-foreground mb-8">
+                <p className="text-lg text-muted-foreground mb-6">
                   Connectez votre calendrier et laissez IKtracker faire le reste. 100% gratuit.
+                </p>
+                <p className="text-sm text-muted-foreground mb-8">
+                  Consultez le{" "}
+                  <a 
+                    href="https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/frais-professionnels.html" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="underline hover:text-primary transition-colors"
+                  >
+                    guide URSSAF sur les frais professionnels
+                  </a>
+                  {" "}pour connaître les conditions d'exonération.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Link to="/signup">

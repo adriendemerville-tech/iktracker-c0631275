@@ -155,6 +155,17 @@ export default function FraisReels() {
                 Comparez gratuitement les deux méthodes de déduction fiscale pour vos frais kilométriques 
                 et optimisez votre déclaration d'impôts en quelques clics.
               </p>
+              <p className="text-sm text-muted-foreground mt-4">
+                Retrouvez toutes les informations sur la déclaration des frais professionnels sur{" "}
+                <a 
+                  href="https://www.impots.gouv.fr/particulier/je-declare-mes-frais-professionnels" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-primary transition-colors"
+                >
+                  impots.gouv.fr
+                </a>.
+              </p>
             </div>
           </section>
 
