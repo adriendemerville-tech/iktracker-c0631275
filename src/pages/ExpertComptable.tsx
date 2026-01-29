@@ -150,13 +150,25 @@ const ExpertComptable = () => {
                 <Briefcase className="h-4 w-4" aria-hidden="true" />
                 <span>Pour Experts-Comptables</span>
               </div>
-              <h1 id="hero-heading" className="text-4xl md:text-5xl font-bold tracking-tight">
+            <h1 id="hero-heading" className="text-4xl md:text-5xl font-bold tracking-tight">
                 Simplifiez <span className="text-2xl md:text-3xl font-medium text-emerald-500">gratuitement</span> les
                 <br />
               <span className="text-primary">déclarations IK</span>
             </h1>
             <p className="text-xl text-muted-foreground">
               Exports standardisés. Calcul automatique. Gain de temps garanti.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Basé sur le{" "}
+              <a 
+                href="https://www.economie.gouv.fr/entreprises/gerer-sa-fiscalite-et-ses-impots/limpot-sur-les-benefices-ir-et/comment-deduire-les" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:text-primary transition-colors"
+              >
+                guide officiel de déduction des frais professionnels
+              </a>
+              {" "}du Ministère de l'Économie.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/signup" onClick={trackSignupClick}>

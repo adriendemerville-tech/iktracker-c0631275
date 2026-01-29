@@ -788,7 +788,17 @@ const Landing = () => {
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12">
             <h2 id="faq-heading" className="text-2xl md:text-3xl lg:text-4xl font-bold">Questions fréquentes</h2>
-            <p className="text-muted-foreground mt-3">Tout ce que vous devez savoir sur IKtracker</p>
+            <p className="text-muted-foreground mt-3">
+              Tout ce que vous devez savoir sur IKtracker.{" "}
+              <a 
+                href="https://www.economie.gouv.fr/particuliers/gerer-mon-impot-sur-le-revenu/impot-sur-le-revenu-tout-savoir-sur-le-bareme-des-frais" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:text-primary transition-colors"
+              >
+                En savoir plus sur le barème officiel
+              </a>.
+            </p>
           </div>
           
           <div className="space-y-4">

@@ -313,8 +313,19 @@ export default function ModeTournee() {
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                   Prêt à simplifier vos tournées ?
                 </h2>
-                <p className="text-lg text-muted-foreground mb-8">
+                <p className="text-lg text-muted-foreground mb-6">
                   Sans carte bancaire. Compte créé en 2 minutes.
+                </p>
+                <p className="text-sm text-muted-foreground mb-8">
+                  Barème conforme aux{" "}
+                  <a 
+                    href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="underline hover:text-primary transition-colors"
+                  >
+                    taux officiels URSSAF
+                  </a>.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Link to="/signup">
