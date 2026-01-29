@@ -752,6 +752,17 @@ const Landing = () => {
             <p className="text-xl opacity-90">
               Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
             </p>
+            <p className="text-sm opacity-80">
+              Barème conforme aux{" "}
+              <a 
+                href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:opacity-100 transition-opacity"
+              >
+                taux officiels URSSAF
+              </a>.
+            </p>
           </div>
           
           {/* QR Code for desktop users */}
