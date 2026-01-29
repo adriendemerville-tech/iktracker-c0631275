@@ -336,6 +336,72 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Statistics Section - Independent Workers */}
+      <section className="py-16 md:py-24 px-4 section-contained">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-10 md:mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Car className="h-4 w-4" />
+                Le saviez-vous ?
+              </div>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+                Les indépendants roulent <span className="text-primary">beaucoup</span>
+              </h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+                Infirmiers libéraux, artisans, commerciaux, consultants... 
+                Les trajets professionnels représentent une part importante de l'activité des travailleurs indépendants.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
+                <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">15 000</div>
+                <div className="text-sm md:text-base text-muted-foreground font-medium">km/an en moyenne</div>
+                <p className="text-xs text-muted-foreground/70 mt-2">pour un indépendant itinérant</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
+                <div className="text-4xl md:text-5xl font-extrabold text-success mb-2">6 400 €</div>
+                <div className="text-sm md:text-base text-muted-foreground font-medium">d'IK potentielles</div>
+                <p className="text-xs text-muted-foreground/70 mt-2">pour 15 000 km (6 CV)</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
+                <div className="text-4xl md:text-5xl font-extrabold text-destructive mb-2">40%</div>
+                <div className="text-sm md:text-base text-muted-foreground font-medium">non déclarés</div>
+                <p className="text-xs text-muted-foreground/70 mt-2">des trajets sont oubliés sans outil</p>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 rounded-2xl p-6 md:p-8 border border-border">
+              <h3 className="font-semibold text-lg md:text-xl mb-4 text-center">
+                Qui parcourt le plus de kilomètres ?
+              </h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { profession: "Infirmier libéral", km: "25 000 km/an", emoji: "🏥" },
+                  { profession: "Commercial itinérant", km: "30 000 km/an", emoji: "💼" },
+                  { profession: "Artisan du bâtiment", km: "18 000 km/an", emoji: "🔧" },
+                  { profession: "Consultant freelance", km: "12 000 km/an", emoji: "💻" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
+                    <span className="text-2xl">{item.emoji}</span>
+                    <div>
+                      <div className="font-medium text-sm">{item.profession}</div>
+                      <div className="text-xs text-muted-foreground">{item.km}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-center text-sm text-muted-foreground mt-6">
+                Ces kilomètres non déclarés représentent des <strong>milliers d'euros</strong> d'économies fiscales perdues chaque année.
+                <br />
+                IKtracker vous aide à n'en oublier aucun.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid - Icons only */}
       <section className="py-12 md:py-24 px-4 section-contained">
         <div className="container mx-auto">
