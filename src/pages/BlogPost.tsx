@@ -12,6 +12,8 @@ import { ArrowLeft, Pencil, Clock, User, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { ArticleSummary } from '@/components/blog/ArticleSummary';
+import { RelatedArticle } from '@/components/blog/RelatedArticle';
 
 interface BlogPost {
   id: string;
@@ -290,10 +292,13 @@ export default function BlogPost() {
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
               {post.author_name && (
-                <span className="flex items-center gap-1">
+                <Link 
+                  to="/blog/auteur/adrien-de-volontat"
+                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                >
                   <User className="h-4 w-4" />
-                  {post.author_name}
-                </span>
+                  <span className="underline underline-offset-2">{post.author_name}</span>
+                </Link>
               )}
               <span className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
@@ -305,6 +310,9 @@ export default function BlogPost() {
               </span>
             </div>
           </header>
+
+          {/* Article Summary - Key Points */}
+          <ArticleSummary content={post.content} />
 
           {post.featured_image_url && (
             <div className="mb-8 rounded-lg overflow-hidden">
@@ -357,6 +365,9 @@ export default function BlogPost() {
               {post.content}
             </ReactMarkdown>
           </div>
+
+          {/* Related Article */}
+          <RelatedArticle currentPostId={post.id} />
 
           <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
             <Link 
