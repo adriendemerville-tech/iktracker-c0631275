@@ -309,7 +309,16 @@ const Landing = () => {
             </h2>
             <p className="text-base md:text-xl text-muted-foreground">
               Formules cassées, oublis de trajets, calculs d'IK approximatifs... 
-              IKtracker automatise tout et vous fait gagner des heures chaque mois.
+              IKtracker automatise tout selon le{" "}
+              <a 
+                href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:text-primary transition-colors"
+              >
+                barème officiel URSSAF
+              </a>{" "}
+              et vous fait gagner des heures chaque mois.
             </p>
             <div className="grid grid-cols-3 gap-3 md:gap-6 pt-4 md:pt-6">
               {[

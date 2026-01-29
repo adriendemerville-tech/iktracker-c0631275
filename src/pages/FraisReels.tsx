@@ -446,8 +446,16 @@ export default function FraisReels() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-muted-foreground">
-                      Vous déclarez vos frais réels en utilisant le barème kilométrique officiel publié 
-                      chaque année par l'administration fiscale.
+                      Vous déclarez vos frais réels en utilisant le{" "}
+                      <a 
+                        href="https://www.economie.gouv.fr/entreprises/gerer-sa-fiscalite-et-ses-impots/limpot-sur-les-benefices-ir-et/comment-deduire-les" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="underline hover:text-primary transition-colors"
+                      >
+                        barème kilométrique officiel
+                      </a>{" "}
+                      publié chaque année par l'administration fiscale.
                     </p>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
