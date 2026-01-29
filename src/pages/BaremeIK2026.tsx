@@ -314,7 +314,15 @@ const BaremeIK2026 = () => {
               </CardHeader>
               <CardContent className="space-y-4 text-foreground">
                 <p>
-                  <strong>Le barème des indemnités kilométriques 2026 est le barème officiel applicable.</strong> Ces taux permettent aux contribuables de calculer leurs frais de déplacement professionnels pour leurs déclarations fiscales.
+                  <strong>Le barème des indemnités kilométriques 2026 est le barème officiel applicable.</strong> Ces taux, publiés par l'{" "}
+                  <a 
+                    href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="underline hover:text-amber-600 dark:hover:text-amber-300 transition-colors"
+                  >
+                    URSSAF
+                  </a>, permettent aux contribuables de calculer leurs frais de déplacement professionnels pour leurs déclarations fiscales.
                 </p>
                 
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
