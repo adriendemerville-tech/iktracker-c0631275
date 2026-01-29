@@ -42,6 +42,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
 const BlogEditor = lazy(() => import("./pages/BlogEditor"));
+const AuthorPage = lazy(() => import("./pages/AuthorPage"));
 const FraisReels = lazy(() => import("./pages/FraisReels"));
 const Lexique = lazy(() => import("./pages/Lexique"));
 
@@ -310,6 +311,7 @@ const AppRoutes = () => {
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
         <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
         <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+        <Route path="/blog/auteur/adrien-de-volontat" element={<Suspense fallback={<PageLoader />}><AuthorPage /></Suspense>} />
         <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
         <Route
           path="/blog/edit/:id?"
