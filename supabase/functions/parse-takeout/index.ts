@@ -312,6 +312,14 @@ Deno.serve(async (req) => {
     if (action === 'parse') {
       console.log('Starting Google Takeout parsing for user:', user.id);
       
+      // Track the attempt
+      await supabaseClient
+        .from('takeout_import_attempts')
+        .insert({ 
+          user_id: user.id, 
+          status: 'started' 
+        });
+      
       // Parse the JSON data
       const locations = parseGoogleTakeout(jsonData);
       
@@ -430,11 +438,35 @@ Deno.serve(async (req) => {
 
       if (insertError) {
         console.error('Error inserting trips:', insertError);
+        
+        // Track failed import
+        await supabaseClient
+          .from('takeout_import_attempts')
+          .insert({ 
+            user_id: user.id, 
+            status: 'failed',
+            error_message: insertError.message
+          });
+        
         return new Response(
           JSON.stringify({ error: 'Erreur lors de l\'importation des trajets' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
+      const totalKm = tripsToImport.reduce((sum: number, t: DetectedTrip) => sum + t.distance, 0);
+      const totalIk = tripsToImport.reduce((sum: number, t: DetectedTrip) => sum + t.refund, 0);
+
+      // Track successful import
+      await supabaseClient
+        .from('takeout_import_attempts')
+        .insert({ 
+          user_id: user.id, 
+          status: 'success',
+          trips_imported: insertedTrips?.length || 0,
+          total_km: totalKm,
+          total_ik: totalIk
+        });
 
       console.log(`Successfully imported ${insertedTrips?.length || 0} trips`);
 
@@ -442,7 +474,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           importedCount: insertedTrips?.length || 0,
-          totalRefund: tripsToImport.reduce((sum: number, t: DetectedTrip) => sum + t.refund, 0),
+          totalRefund: totalIk,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

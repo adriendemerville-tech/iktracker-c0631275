@@ -377,6 +377,39 @@ export type Database = {
         }
         Relationships: []
       }
+      takeout_import_attempts: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          status: string
+          total_ik: number | null
+          total_km: number | null
+          trips_imported: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          total_ik?: number | null
+          total_km?: number | null
+          trips_imported?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          total_ik?: number | null
+          total_km?: number | null
+          trips_imported?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           calendar_event_id: string | null
@@ -618,6 +651,7 @@ export type Database = {
           day: string
         }[]
       }
+      get_takeout_import_stats: { Args: never; Returns: Json }
       get_top_users: {
         Args: { limit_count?: number; sort_by?: string }
         Returns: {
