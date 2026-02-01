@@ -513,10 +513,13 @@ export function AdminStats() {
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
     queryKey: ['admin-signup-clicks-by-day', period],
     queryFn: async () => {
-      const dateRange = getDateRange();
+      const config = periodConfig[period];
+      const startDate = config.getStartDate();
+      const endDate = new Date();
+      
       const { data, error } = await supabase.rpc('get_signup_clicks_by_day', { 
-        start_date: dateRange.start_date,
-        end_date: dateRange.end_date
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString()
       });
       if (error) throw error;
       return (data as unknown as { day: string; clicks: number }[]).map(d => ({
