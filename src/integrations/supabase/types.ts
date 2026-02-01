@@ -630,6 +630,7 @@ export type Database = {
       get_total_tours_count:
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
+      get_user_stats: { Args: { _user_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
