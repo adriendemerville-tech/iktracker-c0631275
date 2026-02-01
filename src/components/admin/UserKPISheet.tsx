@@ -20,7 +20,9 @@ import {
   Calendar,
   User,
   Crown,
-  Mail
+  Mail,
+  MapPin,
+  CheckCircle2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -47,6 +49,8 @@ interface UserStats {
   shares_count: number;
   first_trip_date: string | null;
   last_trip_date: string | null;
+  has_takeout_import: boolean;
+  takeout_import_date: string | null;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -165,6 +169,30 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Google Maps Import badge */}
+            {stats.has_takeout_import && (
+              <Card className="bg-emerald-500/10 border-emerald-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Import Google Maps réussi
+                      </p>
+                      {stats.takeout_import_date && (
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(stats.takeout_import_date), 'dd MMMM yyyy', { locale: fr })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Activity period */}
             {(stats.first_trip_date || stats.last_trip_date) && (

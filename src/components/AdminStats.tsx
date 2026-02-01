@@ -45,6 +45,7 @@ import {
   Calculator,
   UserPlus,
   Map,
+  MapPin,
   RefreshCw
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
@@ -90,6 +91,12 @@ interface ShareStatsData {
   total_shares: number;
   unique_sharers: number;
   pct_users_shared: number;
+}
+
+interface TakeoutImportStatsData {
+  total_attempts: number;
+  successful_imports: number;
+  unique_users_imported: number;
 }
 
 interface MarketingStatsData {
@@ -589,6 +596,17 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
+  // Fetch Google Takeout import stats - refresh every hour
+  const { data: takeoutImportStats, isLoading: takeoutImportStatsLoading } = useQuery({
+    queryKey: ['admin-takeout-import-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_takeout_import_stats');
+      if (error) throw error;
+      return data as unknown as TakeoutImportStatsData;
+    },
+    refetchInterval: 60 * 60 * 1000, // 1 hour
+  });
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
@@ -748,6 +766,7 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ['admin-marketing-by-page'] }),
       queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] }),
       queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] }),
     ]);
     // Small delay to show animation
     setTimeout(() => setIsRefreshing(false), 500);
@@ -1085,7 +1104,7 @@ export function AdminStats() {
                         </Card>
 
                         {/* Total KM */}
-                        <Card className="col-span-2">
+                        <Card>
                           <CardContent className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <Navigation className="w-5 h-5 text-purple-500" />
@@ -1097,6 +1116,24 @@ export function AdminStats() {
                               <>
                                 <p className="text-2xl font-bold">{formatKm(stats?.total_km || 0)}</p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
+
+                        {/* Google Takeout Import Stats */}
+                        <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MapPin className="w-5 h-5 text-orange-500" />
+                              <span className="text-xs text-muted-foreground">Imports Google Maps</span>
+                            </div>
+                            {takeoutImportStatsLoading ? (
+                              <Skeleton className="h-8 w-16" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold text-orange-600">{takeoutImportStats?.successful_imports || 0}</p>
+                                <p className="text-xs text-muted-foreground">réussis • {takeoutImportStats?.total_attempts || 0} tentatives</p>
                               </>
                             )}
                           </CardContent>
