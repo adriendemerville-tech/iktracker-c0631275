@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
+import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -31,7 +32,8 @@ import {
   UserMinus,
   Crown,
   BarChart3,
-  FileText
+  FileText,
+  ChevronRight
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -71,6 +73,8 @@ const Admin = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [newAdminId, setNewAdminId] = useState('');
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'stats');
+  const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
+  const [userSheetOpen, setUserSheetOpen] = useState(false);
 
   // Debounce search input
   useEffect(() => {
@@ -633,7 +637,11 @@ const Admin = () => {
                       {filteredUsers.map((u) => (
                         <div
                           key={u.user_id}
-                          className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                          className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-pointer transition-colors"
+                          onClick={() => {
+                            setSelectedUser(u);
+                            setUserSheetOpen(true);
+                          }}
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -661,37 +669,43 @@ const Admin = () => {
                             </div>
                           </div>
                           
-                          {u.isAdmin ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                if (u.user_id === user?.id) {
-                                  toast({
-                                    title: 'Action impossible',
-                                    description: 'Vous ne pouvez pas retirer vos propres droits admin',
-                                    variant: 'destructive',
-                                  });
-                                  return;
-                                }
-                                removeAdminMutation.mutate(u.user_id);
-                              }}
-                              disabled={removeAdminMutation.isPending || u.user_id === user?.id}
-                              className="text-destructive hover:text-destructive flex-shrink-0"
-                            >
-                              <UserMinus className="w-4 h-4" />
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => addAdminMutation.mutate(u.user_id)}
-                              disabled={addAdminMutation.isPending}
-                              className="flex-shrink-0"
-                            >
-                              <Crown className="w-4 h-4" />
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {u.isAdmin ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (u.user_id === user?.id) {
+                                    toast({
+                                      title: 'Action impossible',
+                                      description: 'Vous ne pouvez pas retirer vos propres droits admin',
+                                      variant: 'destructive',
+                                    });
+                                    return;
+                                  }
+                                  removeAdminMutation.mutate(u.user_id);
+                                }}
+                                disabled={removeAdminMutation.isPending || u.user_id === user?.id}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <UserMinus className="w-4 h-4" />
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addAdminMutation.mutate(u.user_id);
+                                }}
+                                disabled={addAdminMutation.isPending}
+                              >
+                                <Crown className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -702,6 +716,13 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* User KPI Sheet */}
+      <UserKPISheet
+        user={selectedUser}
+        open={userSheetOpen}
+        onOpenChange={setUserSheetOpen}
+      />
     </div>
     </>
   );
