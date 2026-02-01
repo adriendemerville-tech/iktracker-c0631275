@@ -64,17 +64,21 @@ interface UserStats {
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, isError, error } = useQuery({
     queryKey: ['admin-user-stats', user?.user_id],
     queryFn: async () => {
       if (!user) return null;
       const { data, error } = await supabase.rpc('get_user_stats', {
         _user_id: user.user_id,
       });
-      if (error) throw error;
+      if (error) {
+        console.error('get_user_stats error:', error);
+        throw error;
+      }
       return data as unknown as UserStats;
     },
     enabled: open && !!user,
+    retry: false,
   });
 
   const displayName = user?.first_name || user?.last_name 
@@ -114,6 +118,13 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-20 w-full" />
             ))}
+          </div>
+        ) : isError ? (
+          <div className="text-center py-8">
+            <p className="text-destructive font-medium mb-2">Erreur lors du chargement</p>
+            <p className="text-sm text-muted-foreground">
+              {(error as Error)?.message || 'Une erreur est survenue'}
+            </p>
           </div>
         ) : stats ? (
           <div className="space-y-4">
