@@ -22,8 +22,11 @@ import {
   Crown,
   Mail,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  MousePointerClick,
+  Compass
 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -51,6 +54,13 @@ interface UserStats {
   last_trip_date: string | null;
   has_takeout_import: boolean;
   takeout_import_date: string | null;
+  // Source breakdown
+  calendar_trips_count: number;
+  manual_trips_count: number;
+  tour_trips_count: number;
+  calendar_pct: number;
+  manual_pct: number;
+  tour_pct: number;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -169,6 +179,56 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Trip source breakdown */}
+            {stats.total_trips > 0 && (
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    Répartition des trajets
+                  </p>
+                  
+                  {/* Calendar trips */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="w-4 h-4 text-blue-500" />
+                        Calendrier
+                      </span>
+                      <span className="font-semibold">{stats.calendar_pct}%</span>
+                    </div>
+                    <Progress value={stats.calendar_pct} className="h-2 [&>div]:bg-blue-500" />
+                    <p className="text-xs text-muted-foreground">{stats.calendar_trips_count} trajets</p>
+                  </div>
+
+                  {/* Manual trips */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <MousePointerClick className="w-4 h-4 text-orange-500" />
+                        Ajout manuel
+                      </span>
+                      <span className="font-semibold">{stats.manual_pct}%</span>
+                    </div>
+                    <Progress value={stats.manual_pct} className="h-2 [&>div]:bg-orange-500" />
+                    <p className="text-xs text-muted-foreground">{stats.manual_trips_count} trajets</p>
+                  </div>
+
+                  {/* Tour trips */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Compass className="w-4 h-4 text-purple-500" />
+                        Mode tournée
+                      </span>
+                      <span className="font-semibold">{stats.tour_pct}%</span>
+                    </div>
+                    <Progress value={stats.tour_pct} className="h-2 [&>div]:bg-purple-500" />
+                    <p className="text-xs text-muted-foreground">{stats.tour_trips_count} trajets</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Google Maps Import badge */}
             {stats.has_takeout_import && (
