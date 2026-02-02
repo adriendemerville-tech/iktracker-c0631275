@@ -37,6 +37,7 @@ export default function Blog() {
         .from('blog_posts')
         .select('id, slug, title, subtitle, meta_description, featured_image_url, author_name, published_at')
         .eq('status', 'published')
+        .eq('is_listed', true)
         .order('published_at', { ascending: false });
 
       if (!error && data) {
