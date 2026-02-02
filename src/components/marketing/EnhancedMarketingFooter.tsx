@@ -298,6 +298,19 @@ export function EnhancedMarketingFooter() {
               </a>
               {' '}à Saint-Rémy-de-Provence. Partagé gratuitement avec la communauté.
             </p>
+            <p className="text-xs text-muted-foreground/60 mt-3">
+              Découvrez{' '}
+              <a 
+                href="https://crawlers.fr" 
+                title="Crawlers.fr - SEO boosté à l'IA"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:text-muted-foreground transition-colors"
+              >
+                crawlers.fr
+              </a>
+              , notre partenaire SEO boosté à l'IA.
+            </p>
             <p className="text-xs text-muted-foreground/50 mt-2">
               <a 
                 href="https://mossai.org" 
@@ -307,16 +320,6 @@ export function EnhancedMarketingFooter() {
                 className="hover:text-muted-foreground transition-colors"
               >
                 MossAI Tools
-              </a>
-              {' '}·{' '}
-              <a 
-                href="https://crawlers.fr" 
-                title="Crawlers.fr"
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-muted-foreground transition-colors"
-              >
-                Crawlers.fr
               </a>
             </p>
           </div>
