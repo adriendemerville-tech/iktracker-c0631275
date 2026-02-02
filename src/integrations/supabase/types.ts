@@ -52,6 +52,7 @@ export type Database = {
           display_order: number | null
           featured_image_url: string | null
           id: string
+          is_listed: boolean
           meta_description: string | null
           published_at: string | null
           slug: string
@@ -67,6 +68,7 @@ export type Database = {
           display_order?: number | null
           featured_image_url?: string | null
           id?: string
+          is_listed?: boolean
           meta_description?: string | null
           published_at?: string | null
           slug: string
@@ -82,6 +84,7 @@ export type Database = {
           display_order?: number | null
           featured_image_url?: string | null
           id?: string
+          is_listed?: boolean
           meta_description?: string | null
           published_at?: string | null
           slug?: string

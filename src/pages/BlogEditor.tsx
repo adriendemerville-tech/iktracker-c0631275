@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 
 type BlogPostStatus = 'draft' | 'published' | 'archived';
 
@@ -38,6 +39,7 @@ interface BlogPost {
   featured_image_url: string | null;
   author_name: string | null;
   status: BlogPostStatus;
+  is_listed: boolean;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -64,6 +66,7 @@ export default function BlogEditor() {
     featured_image_url: '',
     author_name: '',
     status: 'draft' as BlogPostStatus,
+    is_listed: true,
   });
 
   // Access control
@@ -111,6 +114,7 @@ export default function BlogEditor() {
       featured_image_url: data.featured_image_url || '',
       author_name: data.author_name || '',
       status: data.status as BlogPostStatus,
+      is_listed: data.is_listed ?? true,
     });
     setLoading(false);
   };
@@ -198,6 +202,7 @@ export default function BlogEditor() {
       featured_image_url: form.featured_image_url || null,
       author_name: form.author_name || null,
       status,
+      is_listed: form.is_listed,
       ...(status === 'published' && !existingPost?.published_at 
         ? { published_at: new Date().toISOString() } 
         : {}),
@@ -410,6 +415,23 @@ export default function BlogEditor() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Is Listed Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                <div className="space-y-0.5">
+                  <Label htmlFor="is_listed" className="text-base font-medium">
+                    Afficher dans la liste du blog
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Si désactivé, l'article sera accessible via son URL mais n'apparaîtra pas sur /blog
+                  </p>
+                </div>
+                <Switch
+                  id="is_listed"
+                  checked={form.is_listed}
+                  onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_listed: checked }))}
+                />
               </div>
 
               {/* Featured Image */}
