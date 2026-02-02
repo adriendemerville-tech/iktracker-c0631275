@@ -304,7 +304,7 @@ export function EnhancedMarketingFooter() {
                 href="https://crawlers.fr" 
                 title="Crawlers.fr - SEO boosté à l'IA"
                 target="_blank" 
-                rel="noopener noreferrer"
+                rel="noopener"
                 className="underline hover:text-muted-foreground transition-colors"
               >
                 crawlers.fr
