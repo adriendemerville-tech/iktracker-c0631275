@@ -12,7 +12,8 @@ import {
   ArrowRight, 
   CheckCircle2,
   Zap,
-  HelpCircle
+  HelpCircle,
+  Minus
 } from "lucide-react";
 
 const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
@@ -26,6 +27,7 @@ const ComparatifIzika = () => {
   const { trackCTAClick } = useMarketingTracker('comparatif-izika');
 
   const comparisonData = [
+    { feature: "Application", izika: true, iktracker: "pwa", isPwa: true },
     { feature: "Synchronisation Google/Outlook", izika: true, iktracker: true },
     { feature: "Calcul distance Google Maps", izika: true, iktracker: true },
     { feature: "Conformité Fiscale 2026", izika: true, iktracker: true },
@@ -155,6 +157,11 @@ const ComparatifIzika = () => {
                           <TableCell className="text-center bg-primary/5">
                             {typeof row.iktracker === 'boolean' ? (
                               <CheckCircle2 className="h-5 w-5 text-success mx-auto" />
+                            ) : row.isPwa ? (
+                              <div className="flex flex-col items-center gap-1">
+                                <Minus className="h-5 w-5 text-orange-500 mx-auto" />
+                                <span className="text-xs text-muted-foreground">PWA (web)</span>
+                              </div>
                             ) : row.highlight ? (
                               <span className="text-lg font-bold text-success">{row.iktracker}</span>
                             ) : (
