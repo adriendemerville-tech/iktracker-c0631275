@@ -85,41 +85,53 @@ export function ArticleSummary({ content }: ArticleSummaryProps) {
   return (
     <div 
       ref={ref}
-      className="bg-card/50 dark:bg-slate-900/50 border border-border/50 rounded-xl p-6 mb-8 backdrop-blur-sm"
+      className={cn(
+        "relative overflow-hidden rounded-2xl mb-8",
+        "bg-gradient-to-br from-primary/[0.03] via-background to-primary/[0.06]",
+        "border border-primary/10",
+        "shadow-[0_4px_24px_-4px] shadow-primary/5",
+        "dark:from-primary/[0.06] dark:via-slate-900/80 dark:to-primary/[0.08]",
+        "dark:border-primary/15"
+      )}
     >
-      {/* Header */}
-      <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground mb-5">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
-          <ListChecks className="h-4 w-4 text-primary" />
+      {/* Subtle gradient accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground mb-4">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 ring-1 ring-primary/20">
+            <ListChecks className="h-3.5 w-3.5 text-primary" />
+          </div>
+          <span className="tracking-tight">Points clés de l'article</span>
         </div>
-        <span>Points clés de l'article</span>
-      </div>
 
-      {/* Key Points List */}
-      <ul className="space-y-3">
-        {keyPoints.map((point, index) => (
-          <li 
-            key={index} 
-            className={cn(
-              "group flex items-start gap-3 p-3 -mx-3 rounded-lg",
-              "transition-all duration-200 ease-out",
-              "hover:bg-muted/50 hover:translate-x-1",
-              // Staggered animation
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-            )}
-            style={{
-              transitionDelay: isVisible ? `${index * 100 + 100}ms` : '0ms'
-            }}
-          >
-            <div className="flex-shrink-0 mt-0.5">
-              <ChevronRight className="h-4 w-4 text-primary transition-transform duration-200 group-hover:translate-x-0.5" />
-            </div>
-            <span className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-200">
-              {point}
-            </span>
-          </li>
-        ))}
-      </ul>
+        {/* Key Points List - reduced spacing */}
+        <ul className="space-y-1">
+          {keyPoints.map((point, index) => (
+            <li 
+              key={index} 
+              className={cn(
+                "group flex items-start gap-2.5 py-1.5 px-2 -mx-2 rounded-lg",
+                "transition-all duration-200 ease-out",
+                "hover:bg-primary/5",
+                // Staggered animation
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+              )}
+              style={{
+                transitionDelay: isVisible ? `${index * 80 + 80}ms` : '0ms'
+              }}
+            >
+              <div className="flex-shrink-0 mt-0.5">
+                <ChevronRight className="h-3.5 w-3.5 text-primary/70 transition-all duration-200 group-hover:text-primary group-hover:translate-x-0.5" />
+              </div>
+              <span className="text-sm text-muted-foreground leading-snug group-hover:text-foreground transition-colors duration-200">
+                {point}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
