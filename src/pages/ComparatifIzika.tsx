@@ -11,6 +11,7 @@ import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { 
   ArrowRight, 
   CheckCircle2,
+  XCircle,
   Zap,
   HelpCircle,
   Minus
@@ -32,7 +33,7 @@ const ComparatifIzika = () => {
     { feature: "Calcul distance Google Maps", izika: true, iktracker: true },
     { feature: "Conformité Fiscale 2026", izika: true, iktracker: true },
     { feature: "Export PDF/Excel Expert-Comptable", izika: true, iktracker: true },
-    { feature: "Gestion Tournées (Infirmiers)", izika: true, iktracker: true },
+    { feature: "Mode tournée GPS", izika: false, iktracker: true },
     { feature: "Prix (Indépendant)", izika: "~10-20€/mois", iktracker: "0€", highlight: true },
     { feature: "Publicité", izika: "Non", iktracker: "Non (0 Pubs)" },
     { feature: "Données personnelles", izika: "Hébergées France", iktracker: "Hébergées France" },
@@ -148,8 +149,10 @@ const ComparatifIzika = () => {
                         <TableRow key={index} className="hover:bg-muted/30">
                           <TableCell className="font-medium">{row.feature}</TableCell>
                           <TableCell className="text-center">
-                            {typeof row.izika === 'boolean' ? (
+                            {row.izika === true ? (
                               <CheckCircle2 className="h-5 w-5 text-success mx-auto" />
+                            ) : row.izika === false ? (
+                              <XCircle className="h-5 w-5 text-destructive mx-auto" />
                             ) : (
                               <span className="text-sm text-muted-foreground">{row.izika}</span>
                             )}
