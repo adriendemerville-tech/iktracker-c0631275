@@ -6,20 +6,25 @@ import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { 
   ArrowRight, 
   CheckCircle2,
   XCircle,
   Minus,
-  Zap,
-  Globe,
-  Smartphone,
   MapPin,
-  Calculator,
-  FileText,
+  Calendar,
+  Battery,
   Shield,
-  Languages
+  Smartphone,
+  Euro,
+  Zap,
+  Eye,
+  EyeOff,
+  Radio,
+  Building2,
+  User
 } from "lucide-react";
 
 const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
@@ -33,38 +38,77 @@ const ComparatifDriversNote = () => {
   const { trackCTAClick } = useMarketingTracker('comparatif-drivers-note');
 
   const comparisonData = [
-    { feature: "Prix", iktracker: "100% gratuit, illimité", driversNote: "Freemium / Abonnement", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Barème fiscal français 2026", iktracker: "Intégré nativement", driversNote: "Multi-pays, config manuelle", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Langue interface", iktracker: "Français natif", driversNote: "Anglais (traduction FR partielle)", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Mode Tournée multi-stops", iktracker: "Oui, optimisé IDEL/artisans", driversNote: "Non", ikIcon: CheckCircle2, dnIcon: XCircle },
-    { feature: "Synchronisation calendrier FR", iktracker: "Google & Outlook", driversNote: "Intégrations tierces payantes", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Support URSSAF/impots.gouv", iktracker: "Documentation française", driversNote: "Support international", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Application", iktracker: "PWA (iOS/Android/Desktop)", driversNote: "App native", ikIcon: CheckCircle2, dnIcon: CheckCircle2 },
-    { feature: "Export PDF français", iktracker: "Conforme comptabilité FR", driversNote: "Format international", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Hébergement données", iktracker: "Europe (RGPD)", driversNote: "International", ikIcon: CheckCircle2, dnIcon: Minus },
-    { feature: "Véhicule électrique (+20%)", iktracker: "Majoration automatique", driversNote: "Non applicable", ikIcon: CheckCircle2, dnIcon: XCircle },
+    { 
+      feature: "Méthode de tracking", 
+      driversnote: "GPS temps réel + Boîtier Bluetooth", 
+      iktracker: "Analyse sémantique de l'Agenda",
+      dnIcon: Radio,
+      ikIcon: Calendar
+    },
+    { 
+      feature: "Impact Batterie", 
+      driversnote: "Élevé (GPS permanent)", 
+      iktracker: "Nul (Serveur cloud)",
+      dnIcon: Battery,
+      ikIcon: Zap
+    },
+    { 
+      feature: "Matériel requis", 
+      driversnote: "Boîtier iBeacon (~40€)", 
+      iktracker: "Aucun (Juste votre téléphone)",
+      dnIcon: Radio,
+      ikIcon: Smartphone
+    },
+    { 
+      feature: "Confidentialité", 
+      driversnote: "Traçage de tous les déplacements", 
+      iktracker: "Seuls les RDV pro sont traités",
+      dnIcon: Eye,
+      ikIcon: EyeOff
+    },
+    { 
+      feature: "Prix Annuel", 
+      driversnote: "~130€/an", 
+      iktracker: "0€/an",
+      dnIcon: Euro,
+      ikIcon: CheckCircle2
+    },
+    { 
+      feature: "Oubli de lancement", 
+      driversnote: "Impossible (Automatique)", 
+      iktracker: "Impossible (Si noté dans l'agenda)",
+      dnIcon: CheckCircle2,
+      ikIcon: CheckCircle2
+    },
+    { 
+      feature: "Cible principale", 
+      driversnote: "PME avec flotte de véhicules", 
+      iktracker: "Indépendants & TPE",
+      dnIcon: Building2,
+      ikIcon: User
+    },
   ];
 
   return (
     <>
       <Helmet>
-        <title>IKtracker vs Drivers Note : Comparatif Applications IK France 2026 | IKtracker</title>
+        <title>Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker</title>
         <meta 
           name="description" 
-          content="Comparatif IKtracker vs Drivers Note : quelle application pour le calcul des indemnités kilométriques en France ? Barème 2026, mode tournée, prix, fonctionnalités." 
+          content="Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite." 
         />
-        <meta name="keywords" content="drivers note alternative, drivers note france, application frais kilométriques, mileage tracker france, iktracker vs drivers note, carnet de bord numérique" />
+        <meta name="keywords" content="driversnote alternative, driversnote gratuit, ibeacon frais kilométriques, mouchard gps voiture, alternative driversnote france, suivi kilométrique sans gps" />
         <link rel="canonical" href="https://iktracker.fr/comparatif-drivers-note" />
-        <meta property="og:title" content="IKtracker vs Drivers Note : Comparatif 2026" />
-        <meta property="og:description" content="Comparatif IKtracker vs Drivers Note pour le calcul des indemnités kilométriques en France." />
+        <meta property="og:title" content="Driversnote vs IKtracker : Avez-vous vraiment besoin d'un mouchard GPS ?" />
+        <meta property="og:description" content="Comparatif 2026 : Le tracking GPS automatique vs la synchronisation d'agenda intelligente. Alternative gratuite et respectueuse de la vie privée." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:url" content="https://iktracker.fr/comparatif-drivers-note" />
         <meta property="og:site_name" content="IKtracker" />
         <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="IKtracker vs Drivers Note : Comparatif 2026" />
-        <meta name="twitter:description" content="Comparatif IKtracker vs Drivers Note pour le calcul des IK en France." />
+        <meta name="twitter:title" content="Alternative Driversnote Gratuite 2026" />
+        <meta name="twitter:description" content="Driversnote trop cher ? Découvrez IKtracker, l'alternative sans GPS permanent et 100% gratuite." />
         <meta name="geo.region" content="FR" />
         <meta name="geo.placename" content="France" />
         <meta name="language" content="fr" />
@@ -72,8 +116,8 @@ const ComparatifDriversNote = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": "IKtracker vs Drivers Note : Comparatif Complet 2026",
-            "description": "Comparatif détaillé entre IKtracker et Drivers Note pour le calcul des indemnités kilométriques en France.",
+            "headline": "Driversnote vs IKtracker : Comparatif iBeacon vs Agenda 2026",
+            "description": "Comparatif technique entre Driversnote (tracking GPS iBeacon) et IKtracker (synchronisation agenda) pour le suivi des indemnités kilométriques.",
             "author": {
               "@type": "Person",
               "name": "Adrien de Volontat",
@@ -105,71 +149,53 @@ const ComparatifDriversNote = () => {
             <div className="container mx-auto relative z-10 max-w-4xl">
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                  <Globe className="h-4 w-4" />
-                  Comparatif France 2026
+                  <Shield className="h-4 w-4" />
+                  Comparatif Hardware vs Software
                 </div>
                 <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight mb-6">
-                  IKtracker vs Drivers Note :<br />
-                  <span className="text-gradient">le match franco-international</span>
+                  Driversnote vs IKtracker :<br />
+                  <span className="text-gradient">Avez-vous vraiment besoin d'un mouchard GPS ?</span>
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  <strong>Drivers Note</strong> est une application internationale de suivi kilométrique, 
-                  mais est-elle adaptée au marché français et au <strong>barème fiscal 2026</strong> ? 
-                  Comparons avec <strong>IKtracker</strong>, l'outil 100% français et gratuit.
+                <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+                  <strong className="text-foreground">Comparatif 2026</strong> : Le tracking automatique par iBeacon (Payant) vs 
+                  La synchronisation d'agenda intelligente (<strong className="text-success">Gratuit</strong> & Respectueux de la vie privée).
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Introduction Section */}
+          {/* Intro Section */}
           <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
-              <div className="max-w-none space-y-6">
-                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Drivers Note : un outil international face aux spécificités françaises
-                </h3>
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Drivers Note (anciennement connu sous différents noms) est une application de suivi kilométrique 
-                  populaire à l'international, notamment dans les pays anglo-saxons. Elle propose un suivi GPS des 
-                  trajets et la génération de rapports pour les déclarations fiscales. Cependant, le système fiscal 
-                  français possède ses propres spécificités, notamment le{" "}
-                  <Link to="/bareme-ik-2026" className="text-primary underline hover:text-primary/80">barème kilométrique officiel</Link>{" "}
-                  publié chaque année par l'{" "}
-                  <a 
-                    href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary underline hover:text-primary/80"
-                  >
-                    URSSAF
-                  </a>.
-                </p>
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  IKtracker a été conçu <strong className="text-foreground">spécifiquement pour le marché français</strong>. L'interface est 
-                  entièrement en français, le barème fiscal est intégré nativement, et les exports sont conformes 
-                  aux exigences de la comptabilité française. Cette différence d'approche impacte directement 
-                  l'expérience utilisateur et la conformité fiscale.
-                </p>
-
-                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Le barème kilométrique français : une complexité ignorée par les apps internationales
-                </h3>
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Le calcul des <strong className="text-foreground">indemnités kilométriques</strong> en France suit un barème progressif 
-                  basé sur la puissance fiscale du véhicule (CV) et le nombre de kilomètres parcourus. Ce système, 
-                  détaillé sur{" "}
-                  <a 
-                    href="https://www.impots.gouv.fr/simulateur-bareme-kilometrique" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary underline hover:text-primary/80"
-                  >
-                    impots.gouv.fr
-                  </a>, comprend trois tranches (jusqu'à 5 000 km, de 5 001 à 20 000 km, au-delà de 20 000 km) 
-                  avec des coefficients spécifiques. De plus, depuis 2021, les véhicules 100% électriques 
-                  bénéficient d'une <strong className="text-foreground">majoration de 20%</strong>. Ces subtilités ne sont pas gérées 
-                  nativement par Drivers Note.
-                </p>
+              <div className="grid md:grid-cols-2 gap-6 mb-12">
+                <Card className="border-muted-foreground/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900/30">
+                        <Radio className="h-6 w-6 text-orange-600" />
+                      </div>
+                      <h3 className="font-bold text-lg">Driversnote</h3>
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      Solution matérielle avec boîtier iBeacon qui détecte automatiquement 
+                      vos trajets via GPS permanent. Idéal pour les flottes d'entreprise.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="border-primary/30 bg-primary/5">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-full bg-primary/20">
+                        <Calendar className="h-6 w-6 text-primary" />
+                      </div>
+                      <h3 className="font-bold text-lg">IKtracker</h3>
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      Solution logicielle qui synchronise vos agendas Google/Outlook 
+                      pour calculer automatiquement les distances. Aucun matériel requis.
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </section>
@@ -178,7 +204,7 @@ const ComparatifDriversNote = () => {
           <section className="py-12 px-4 bg-muted/30">
             <div className="container mx-auto max-w-4xl">
               <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
-                Tableau comparatif IKtracker vs Drivers Note
+                Tableau comparatif technique
               </h2>
               
               <Card className="overflow-hidden border-primary/20">
@@ -186,30 +212,37 @@ const ComparatifDriversNote = () => {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
-                        <TableHead className="font-semibold">Critère</TableHead>
-                        <TableHead className="font-semibold text-center bg-primary/10">
+                        <TableHead className="font-semibold">Fonctionnalité</TableHead>
+                        <TableHead className="font-semibold text-center">
                           <div className="flex items-center justify-center gap-2">
-                            <img src="/logo-iktracker-250.webp" alt="IKtracker" className="h-6 w-6" />
-                            IKtracker
+                            <Radio className="h-5 w-5 text-orange-600" />
+                            <span>Driversnote (iBeacon)</span>
                           </div>
                         </TableHead>
-                        <TableHead className="font-semibold text-center">Drivers Note</TableHead>
+                        <TableHead className="font-semibold text-center bg-primary/10">
+                          <div className="flex items-center justify-center gap-2">
+                            <Calendar className="h-5 w-5 text-primary" />
+                            <span>IKtracker (Agenda)</span>
+                          </div>
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {comparisonData.map((row, index) => (
                         <TableRow key={index} className="hover:bg-muted/30">
                           <TableCell className="font-medium">{row.feature}</TableCell>
-                          <TableCell className="text-center bg-primary/5">
-                            <div className="flex items-center justify-center gap-2">
-                              <row.ikIcon className={`h-5 w-5 ${row.ikIcon === CheckCircle2 ? 'text-success' : row.ikIcon === XCircle ? 'text-destructive' : 'text-muted-foreground'}`} />
-                              <span className="text-sm">{row.iktracker}</span>
-                            </div>
-                          </TableCell>
                           <TableCell className="text-center">
                             <div className="flex items-center justify-center gap-2">
-                              <row.dnIcon className={`h-5 w-5 ${row.dnIcon === CheckCircle2 ? 'text-success' : row.dnIcon === XCircle ? 'text-destructive' : 'text-muted-foreground'}`} />
-                              <span className="text-sm">{row.driversNote}</span>
+                              <row.dnIcon className={`h-4 w-4 ${row.dnIcon === CheckCircle2 ? 'text-success' : 'text-muted-foreground'}`} />
+                              <span className="text-sm text-muted-foreground">{row.driversnote}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center bg-primary/5">
+                            <div className="flex items-center justify-center gap-2">
+                              <row.ikIcon className={`h-4 w-4 ${row.ikIcon === CheckCircle2 ? 'text-success' : 'text-primary'}`} />
+                              <span className={`text-sm ${row.feature === "Prix Annuel" ? 'font-bold text-success' : 'text-muted-foreground'}`}>
+                                {row.iktracker}
+                              </span>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -221,22 +254,53 @@ const ComparatifDriversNote = () => {
             </div>
           </section>
 
-          {/* CTA Section */}
+          {/* Philosophy Section */}
           <section className="py-12 px-4">
+            <div className="container mx-auto max-w-4xl">
+              <div className="space-y-6">
+                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
+                  Pourquoi nous ne suivons pas votre position GPS ?
+                </h3>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Chez IKtracker, nous avons fait un <strong className="text-foreground">choix philosophique</strong> : 
+                  ne jamais tracer la position GPS de nos utilisateurs. Contrairement aux solutions comme Driversnote 
+                  qui enregistrent chaque déplacement en temps réel, nous utilisons une approche radicalement différente.
+                </p>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Notre technologie analyse les <strong className="text-foreground">adresses de vos rendez-vous professionnels</strong> 
+                  (depuis Google Calendar ou Outlook) et calcule les distances via l'API Google Maps. Résultat : 
+                  seuls vos trajets professionnels sont comptabilisés, pas vos courses au supermarché ou vos 
+                  visites chez le médecin.
+                </p>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Cette approche présente plusieurs avantages majeurs. D'abord, elle respecte votre{" "}
+                  <strong className="text-foreground">vie privée</strong> : nous ne savons jamais où vous êtes 
+                  en temps réel. Ensuite, elle préserve votre <strong className="text-foreground">batterie</strong> : 
+                  pas de GPS activé en permanence. Enfin, elle est <strong className="text-foreground">plus précise fiscalement</strong> : 
+                  seuls les trajets professionnels légitimes sont déclarés.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* CTA Section */}
+          <section className="py-12 px-4 bg-muted/30">
             <div className="container mx-auto max-w-2xl text-center">
               <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
                 <CardContent className="p-8">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <EyeOff className="h-8 w-8 text-primary" />
+                  </div>
                   <h2 className="text-2xl font-bold mb-4">
-                    L'alternative française et gratuite
+                    L'approche sans mouchard GPS
                   </h2>
                   <p className="text-muted-foreground mb-6">
-                    Pourquoi utiliser un outil international quand une solution française, 
-                    gratuite et parfaitement adaptée à vos besoins existe ? 
-                    IKtracker respecte le barème fiscal français et simplifie votre comptabilité.
+                    Pas de boîtier à acheter, pas de GPS permanent, pas de traçage de votre vie privée. 
+                    Juste la synchronisation intelligente de votre agenda professionnel.
                   </p>
                   <Link to="/signup" onClick={trackCTAClick}>
                     <Button variant="gradient" size="lg" className="gap-2">
-                      Démarrer gratuitement
+                      Essayer l'approche sans GPS (Gratuit)
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -245,112 +309,160 @@ const ComparatifDriversNote = () => {
             </div>
           </section>
 
-          {/* Detailed Features Section */}
-          <section className="py-12 px-4 bg-muted/30">
+          {/* Detailed Comparison Section */}
+          <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
-              <div className="max-w-none space-y-6">
+              <div className="space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Une interface pensée pour les professionnels français
+                  Driversnote : une solution pensée pour les flottes d'entreprise
                 </h3>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  L'interface d'IKtracker est conçue pour les usages professionnels français. 
-                  Les termes utilisés correspondent aux réalités fiscales hexagonales : 
-                  "puissance fiscale", "indemnités kilométriques", "barème IK", etc. 
-                  Drivers Note, étant une application internationale, utilise des termes génériques 
-                  ("mileage", "reimbursement rate") qui peuvent prêter à confusion lors de la 
-                  déclaration fiscale française.
+                  Il faut reconnaître les qualités de Driversnote. Cette solution danoise a été pionnière 
+                  dans le tracking automatique des trajets professionnels. Le système iBeacon permet une 
+                  détection <strong className="text-foreground">100% automatique</strong> des déplacements : 
+                  dès que vous montez dans votre véhicule, le boîtier Bluetooth détecte votre téléphone et 
+                  lance l'enregistrement GPS.
+                </p>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Pour une <strong className="text-foreground">PME gérant une flotte de véhicules commerciaux</strong>, 
+                  cette automatisation est précieuse. Les managers peuvent suivre les trajets de leurs équipes, 
+                  optimiser les tournées et générer des rapports consolidés. Le prix (~130€/an par utilisateur) 
+                  se justifie dans ce contexte professionnel structuré.
                 </p>
 
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Le mode Tournée : indispensable pour les IDEL et artisans
+                  IKtracker : l'outil des indépendants et TPE
                 </h3>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Les <Link to="/blog/indemnites-kilometriques-infirmier-liberal" className="text-primary underline hover:text-primary/80">infirmiers libéraux</Link>, 
-                  les <Link to="/blog/indemnites-kilometriques-kinesitherapeute" className="text-primary underline hover:text-primary/80">kinésithérapeutes</Link> et 
-                  les <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisans</Link> effectuent 
-                  quotidiennement des tournées avec de multiples arrêts. Le{" "}
-                  <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">mode Tournée d'IKtracker</Link>{" "}
-                  permet d'enregistrer tous ces arrêts en une seule session, avec calcul automatique 
-                  des distances entre chaque point. Cette fonctionnalité n'existe pas dans Drivers Note.
+                  Mais pour un <Link to="/blog/indemnites-kilometriques-infirmier-liberal" className="text-primary underline hover:text-primary/80">infirmier libéral</Link>, 
+                  un <Link to="/blog/indemnites-kilometriques-consultant-independant" className="text-primary underline hover:text-primary/80">consultant indépendant</Link> ou 
+                  un <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisan</Link>, 
+                  la situation est différente. Vous n'avez pas besoin qu'un logiciel trace tous vos déplacements. 
+                  Vous avez besoin de transformer vos rendez-vous professionnels en{" "}
+                  <Link to="/frais-reels" className="text-primary underline hover:text-primary/80">frais kilométriques déductibles</Link>.
                 </p>
-
-                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Synchronisation calendrier : l'automatisation au service des indépendants
-                </h3>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Combien de temps perdez-vous à saisir manuellement vos trajets ? Avec la{" "}
+                  C'est exactement ce que fait IKtracker. Notre{" "}
                   <Link to="/calendrier" className="text-primary underline hover:text-primary/80">synchronisation calendrier</Link>{" "}
-                  d'IKtracker, vos rendez-vous Google Calendar ou Outlook sont automatiquement 
-                  convertis en trajets avec calcul des distances. Les{" "}
-                  <Link to="/blog/indemnites-kilometriques-consultant-independant" className="text-primary underline hover:text-primary/80">consultants indépendants</Link>{" "}
-                  et les <Link to="/blog/indemnites-kilometriques-agent-immobilier" className="text-primary underline hover:text-primary/80">agents immobiliers</Link>{" "}
-                  apprécient particulièrement cette fonctionnalité qui leur fait gagner plusieurs 
-                  heures par mois.
-                </p>
-
-                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Exports conformes à la comptabilité française
-                </h3>
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Les experts-comptables français ont des exigences spécifiques en matière de 
-                  justificatifs de frais kilométriques. IKtracker génère des{" "}
-                  <Link to="/expert-comptable" className="text-primary underline hover:text-primary/80">exports PDF et CSV</Link>{" "}
-                  conformes aux attentes de l'administration fiscale française, avec toutes les 
-                  informations requises : dates, adresses, distances, véhicule utilisé, montant IK 
-                  selon le barème officiel. Les rapports internationaux de Drivers Note peuvent 
-                  nécessiter des adaptations manuelles.
-                </p>
-
-                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  RGPD et hébergement européen
-                </h3>
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  La protection des données est un enjeu majeur. IKtracker héberge toutes les 
-                  données en Europe et respecte strictement le RGPD. Notre{" "}
-                  <Link to="/privacy" className="text-primary underline hover:text-primary/80">politique de confidentialité</Link>{" "}
-                  détaille nos engagements. Les données de géolocalisation sont chiffrées et 
-                  jamais partagées avec des tiers. Pour une application internationale comme 
-                  Drivers Note, la localisation des serveurs et la conformité RGPD peuvent 
-                  varier selon les régions.
+                  analyse vos rendez-vous et calcule automatiquement les distances. Notre{" "}
+                  <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">mode Tournée</Link>{" "}
+                  gère les tournées multi-arrêts des professionnels itinérants. Et nos{" "}
+                  <Link to="/expert-comptable" className="text-primary underline hover:text-primary/80">exports PDF</Link>{" "}
+                  sont conformes aux exigences de l'{" "}
+                  <a 
+                    href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    URSSAF
+                  </a>{" "}
+                  et de{" "}
+                  <a 
+                    href="https://www.impots.gouv.fr/simulateur-bareme-kilometrique" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    impots.gouv.fr
+                  </a>.
                 </p>
               </div>
             </div>
           </section>
 
           {/* Conclusion */}
-          <section className="py-12 px-4">
+          <section className="py-12 px-4 bg-muted/30">
             <div className="container mx-auto max-w-4xl">
-              <div className="max-w-none space-y-6">
+              <div className="space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Conclusion : IKtracker, le choix évident pour les professionnels français
+                  Conclusion : deux philosophies, deux usages différents
                 </h3>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Si vous exercez votre activité en France et devez déclarer vos{" "}
-                  <Link to="/frais-reels" className="text-primary underline hover:text-primary/80">frais réels</Link>, 
-                  IKtracker s'impose comme la solution la plus adaptée. Conçu spécifiquement pour le marché français, 
-                  il intègre nativement le barème fiscal 2026, propose des fonctionnalités uniques comme le mode Tournée 
-                  et la synchronisation calendrier, et reste <strong className="text-foreground">100% gratuit sans aucune limitation</strong>.
+                  Soyons honnêtes : Driversnote est une <strong className="text-foreground">excellente solution</strong> pour 
+                  son cas d'usage cible. Le tracking GPS automatique via iBeacon est techniquement impressionnant, 
+                  et pour une entreprise qui doit suivre une flotte de véhicules commerciaux avec plusieurs 
+                  conducteurs, l'investissement de 130€/an par utilisateur peut être totalement justifié. 
+                  La détection automatique des trajets élimine le risque d'oubli et les rapports consolidés 
+                  facilitent la gestion d'équipe.
                 </p>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Drivers Note peut convenir aux professionnels travaillant à l'international, 
-                  mais pour une utilisation exclusivement française, IKtracker offre une expérience 
-                  plus fluide et une conformité fiscale garantie. Consultez notre{" "}
-                  <Link to="/lexique" className="text-primary underline hover:text-primary/80">lexique des indemnités kilométriques</Link>{" "}
-                  pour maîtriser le vocabulaire fiscal.
+                  Cependant, pour les <strong className="text-foreground">indépendants et les TPE</strong>, 
+                  IKtracker représente une alternative plus adaptée. Pas de matériel à acheter, pas d'abonnement 
+                  à payer, pas de GPS permanent qui vide votre batterie et trace vos déplacements personnels. 
+                  Notre approche par synchronisation d'agenda est plus respectueuse de votre vie privée, 
+                  plus économique et parfaitement conforme au{" "}
+                  <Link to="/bareme-ik-2026" className="text-primary underline hover:text-primary/80">barème fiscal français 2026</Link>. 
+                  Si vous gérez seul vos trajets professionnels et que vos rendez-vous sont dans votre agenda, 
+                  IKtracker fait exactement ce dont vous avez besoin — gratuitement.
                 </p>
               </div>
+            </div>
+          </section>
 
-              <div className="mt-8 text-center">
-                <Link to="/signup" onClick={trackCTAClick}>
-                  <Button variant="gradient" size="lg" className="gap-2">
-                    Créer mon compte IKtracker
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <p className="text-sm text-muted-foreground mt-4">
-                  Gratuit • Français • Conforme au barème fiscal 2026
-                </p>
-              </div>
+          {/* FAQ Section */}
+          <section className="py-12 px-4">
+            <div className="container mx-auto max-w-4xl">
+              <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+                Questions fréquentes
+              </h2>
+              
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger className="text-left">
+                    Où est le piège ? Pourquoi IKtracker est gratuit ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    IKtracker a été créé par un développeur indépendant pour son propre usage. 
+                    Pas d'investisseurs à rembourser, pas de gros frais de structure. C'est un 
+                    outil communautaire maintenu par passion. Nous n'affichons aucune publicité 
+                    et ne vendons aucune donnée.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger className="text-left">
+                    Que se passe-t-il si je n'ai pas noté un rendez-vous dans mon agenda ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    Vous pouvez toujours ajouter un trajet manuellement dans IKtracker. 
+                    La synchronisation calendrier est un bonus qui automatise la saisie, 
+                    mais l'application fonctionne parfaitement en mode manuel également.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger className="text-left">
+                    IKtracker gère-t-il les tournées comme les infirmiers libéraux ?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    Oui ! Notre <Link to="/mode-tournee" className="text-primary underline">mode Tournée</Link> est 
+                    spécialement conçu pour les professionnels qui font plusieurs arrêts dans la journée. 
+                    Vous enregistrez tous vos points de passage et nous calculons automatiquement 
+                    les distances entre chaque étape.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </section>
+
+          {/* Final CTA */}
+          <section className="py-12 px-4">
+            <div className="container mx-auto max-w-2xl text-center">
+              <h2 className="text-2xl font-bold mb-4">
+                Prêt à simplifier vos indemnités kilométriques ?
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Rejoignez les milliers d'indépendants qui ont choisi l'approche 
+                intelligente et respectueuse de la vie privée.
+              </p>
+              <Link to="/signup" onClick={trackCTAClick}>
+                <Button variant="gradient" size="lg" className="gap-2">
+                  Créer mon compte IKtracker
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <p className="text-sm text-muted-foreground mt-4">
+                Gratuit • Sans GPS • Conforme au barème fiscal 2026
+              </p>
             </div>
           </section>
         </main>
