@@ -122,12 +122,12 @@ const ComparatifIzika = () => {
           {/* Introduction Section */}
           <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
-              <div className="prose prose-lg max-w-none">
+              <div className="max-w-none space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Pourquoi comparer IKtracker et Izika ?
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
-                  Les <strong>indemnités kilométriques</strong> représentent un enjeu fiscal majeur pour les professionnels 
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Les <strong className="text-foreground">indemnités kilométriques</strong> représentent un enjeu fiscal majeur pour les professionnels 
                   qui utilisent leur véhicule personnel à des fins professionnelles. Selon les données de l'{" "}
                   <a 
                     href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
@@ -138,21 +138,21 @@ const ComparatifIzika = () => {
                     URSSAF
                   </a>, le barème kilométrique permet de déduire les frais réels de déplacement lors de la déclaration d'impôts. 
                   Pour un infirmier libéral parcourant 25 000 km par an avec un véhicule de 5 CV, cela représente 
-                  plus de <strong>6 500 € d'indemnités</strong> déclarables.
+                  plus de <strong className="text-foreground">6 500 € d'indemnités</strong> déclarables.
                 </p>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Izika et IKtracker sont deux applications françaises dédiées à ce calcul. Cependant, leurs approches 
-                  diffèrent significativement en termes de <strong>tarification</strong>, de <strong>fonctionnalités</strong> 
-                  et d'<strong>expérience utilisateur</strong>. Ce comparatif vous aidera à faire le bon choix selon 
+                  diffèrent significativement en termes de <strong className="text-foreground">tarification</strong>, de <strong className="text-foreground">fonctionnalités</strong>{" "}
+                  et d'<strong className="text-foreground">expérience utilisateur</strong>. Ce comparatif vous aidera à faire le bon choix selon 
                   votre profil professionnel.
                 </p>
 
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Le modèle économique : gratuit vs freemium
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
-                  La différence fondamentale entre les deux applications réside dans leur modèle économique. 
-                  <strong>IKtracker est 100% gratuit</strong>, sans limitation de trajets, d'exports ou de véhicules. 
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  La différence fondamentale entre les deux applications réside dans leur modèle économique.{" "}
+                  <strong className="text-foreground">IKtracker est 100% gratuit</strong>, sans limitation de trajets, d'exports ou de véhicules. 
                   Izika propose un modèle freemium avec une version gratuite limitée et des options payantes pour 
                   débloquer toutes les fonctionnalités. Pour les professionnels effectuant de nombreux déplacements, 
                   comme les <Link to="/blog/indemnites-kilometriques-commercial-itinerant" className="text-primary underline hover:text-primary/80">commerciaux itinérants</Link> ou 
@@ -236,24 +236,24 @@ const ComparatifIzika = () => {
           {/* Detailed Features Section */}
           <section className="py-12 px-4 bg-muted/30">
             <div className="container mx-auto max-w-4xl">
-              <div className="prose prose-lg max-w-none">
+              <div className="max-w-none space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Le mode Tournée : une exclusivité IKtracker
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   L'une des fonctionnalités les plus demandées par les professionnels de santé et les artisans 
                   est le <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">mode Tournée</Link>. 
                   Cette fonction permet d'enregistrer plusieurs arrêts successifs lors d'une journée de travail, 
                   avec calcul automatique des distances entre chaque point. C'est particulièrement utile pour les 
                   <Link to="/blog/indemnites-kilometriques-kinesitherapeute" className="text-primary underline hover:text-primary/80"> kinésithérapeutes à domicile</Link> ou 
-                  les <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisans du bâtiment</Link> 
+                  les <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisans du bâtiment</Link>{" "}
                   qui visitent plusieurs clients par jour. Cette fonctionnalité n'est pas disponible sur Izika.
                 </p>
 
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Synchronisation calendrier : gagnez du temps
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   IKtracker propose une <Link to="/calendrier" className="text-primary underline hover:text-primary/80">synchronisation avec Google Calendar et Outlook</Link>. 
                   Vos rendez-vous professionnels sont automatiquement importés et convertis en trajets avec calcul des distances. 
                   Cette automatisation peut faire gagner plusieurs heures par mois aux professionnels très mobiles. 
@@ -263,7 +263,7 @@ const ComparatifIzika = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Conformité fiscale et barème 2026
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Les deux applications intègrent le <Link to="/bareme-ik-2026" className="text-primary underline hover:text-primary/80">barème kilométrique 2026</Link> officiel 
                   publié par l'administration fiscale. Cependant, IKtracker met automatiquement à jour les taux dès leur publication 
                   officielle sur{" "}
@@ -281,7 +281,7 @@ const ComparatifIzika = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Protection des données et RGPD
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   IKtracker héberge toutes les données en Europe et respecte strictement le RGPD. 
                   Vous pouvez consulter notre <Link to="/privacy" className="text-primary underline hover:text-primary/80">politique de confidentialité</Link> pour 
                   plus de détails. Les données de géolocalisation sont chiffrées et ne sont jamais partagées avec des tiers. 
@@ -291,7 +291,7 @@ const ComparatifIzika = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Disponibilité et installation
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Les deux solutions sont disponibles sur smartphone. Izika propose une application native téléchargeable 
                   sur les stores. IKtracker fonctionne comme une <Link to="/install" className="text-primary underline hover:text-primary/80">Progressive Web App (PWA)</Link>, 
                   installable directement depuis le navigateur sur iPhone et Android. L'avantage de la PWA : pas besoin 
@@ -304,17 +304,17 @@ const ComparatifIzika = () => {
           {/* Conclusion */}
           <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
-              <div className="prose prose-lg max-w-none">
+              <div className="max-w-none space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Notre verdict : quelle application choisir en 2026 ?
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
-                  Si vous cherchez une solution <strong>complète et gratuite</strong> pour gérer vos indemnités kilométriques, 
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Si vous cherchez une solution <strong className="text-foreground">complète et gratuite</strong> pour gérer vos indemnités kilométriques, 
                   IKtracker s'impose comme l'alternative idéale à Izika. Avec ses fonctionnalités exclusives (mode Tournée, 
                   synchronisation calendrier, calcul hors-ligne), son respect du RGPD et son accès 100% gratuit sans limitation, 
                   IKtracker répond aux besoins des professionnels les plus exigeants.
                 </p>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Pour approfondir le sujet des frais kilométriques, consultez notre{" "}
                   <Link to="/frais-reels" className="text-primary underline hover:text-primary/80">guide complet sur les frais réels</Link>{" "}
                   ou explorez notre{" "}

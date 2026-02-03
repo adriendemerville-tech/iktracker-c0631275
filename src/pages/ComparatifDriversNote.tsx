@@ -124,11 +124,11 @@ const ComparatifDriversNote = () => {
           {/* Introduction Section */}
           <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
-              <div className="prose prose-lg max-w-none">
+              <div className="max-w-none space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Drivers Note : un outil international face aux spécificités françaises
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Drivers Note (anciennement connu sous différents noms) est une application de suivi kilométrique 
                   populaire à l'international, notamment dans les pays anglo-saxons. Elle propose un suivi GPS des 
                   trajets et la génération de rapports pour les déclarations fiscales. Cependant, le système fiscal 
@@ -144,8 +144,8 @@ const ComparatifDriversNote = () => {
                     URSSAF
                   </a>.
                 </p>
-                <p className="text-foreground leading-relaxed mb-6">
-                  IKtracker a été conçu <strong>spécifiquement pour le marché français</strong>. L'interface est 
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  IKtracker a été conçu <strong className="text-foreground">spécifiquement pour le marché français</strong>. L'interface est 
                   entièrement en français, le barème fiscal est intégré nativement, et les exports sont conformes 
                   aux exigences de la comptabilité française. Cette différence d'approche impacte directement 
                   l'expérience utilisateur et la conformité fiscale.
@@ -154,8 +154,8 @@ const ComparatifDriversNote = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Le barème kilométrique français : une complexité ignorée par les apps internationales
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
-                  Le calcul des <strong>indemnités kilométriques</strong> en France suit un barème progressif 
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Le calcul des <strong className="text-foreground">indemnités kilométriques</strong> en France suit un barème progressif 
                   basé sur la puissance fiscale du véhicule (CV) et le nombre de kilomètres parcourus. Ce système, 
                   détaillé sur{" "}
                   <a 
@@ -167,7 +167,7 @@ const ComparatifDriversNote = () => {
                     impots.gouv.fr
                   </a>, comprend trois tranches (jusqu'à 5 000 km, de 5 001 à 20 000 km, au-delà de 20 000 km) 
                   avec des coefficients spécifiques. De plus, depuis 2021, les véhicules 100% électriques 
-                  bénéficient d'une <strong>majoration de 20%</strong>. Ces subtilités ne sont pas gérées 
+                  bénéficient d'une <strong className="text-foreground">majoration de 20%</strong>. Ces subtilités ne sont pas gérées 
                   nativement par Drivers Note.
                 </p>
               </div>
@@ -248,11 +248,11 @@ const ComparatifDriversNote = () => {
           {/* Detailed Features Section */}
           <section className="py-12 px-4 bg-muted/30">
             <div className="container mx-auto max-w-4xl">
-              <div className="prose prose-lg max-w-none">
+              <div className="max-w-none space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Une interface pensée pour les professionnels français
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   L'interface d'IKtracker est conçue pour les usages professionnels français. 
                   Les termes utilisés correspondent aux réalités fiscales hexagonales : 
                   "puissance fiscale", "indemnités kilométriques", "barème IK", etc. 
@@ -264,7 +264,7 @@ const ComparatifDriversNote = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Le mode Tournée : indispensable pour les IDEL et artisans
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Les <Link to="/blog/indemnites-kilometriques-infirmier-liberal" className="text-primary underline hover:text-primary/80">infirmiers libéraux</Link>, 
                   les <Link to="/blog/indemnites-kilometriques-kinesitherapeute" className="text-primary underline hover:text-primary/80">kinésithérapeutes</Link> et 
                   les <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisans</Link> effectuent 
@@ -277,7 +277,7 @@ const ComparatifDriversNote = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Synchronisation calendrier : l'automatisation au service des indépendants
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Combien de temps perdez-vous à saisir manuellement vos trajets ? Avec la{" "}
                   <Link to="/calendrier" className="text-primary underline hover:text-primary/80">synchronisation calendrier</Link>{" "}
                   d'IKtracker, vos rendez-vous Google Calendar ou Outlook sont automatiquement 
@@ -291,7 +291,7 @@ const ComparatifDriversNote = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Exports conformes à la comptabilité française
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Les experts-comptables français ont des exigences spécifiques en matière de 
                   justificatifs de frais kilométriques. IKtracker génère des{" "}
                   <Link to="/expert-comptable" className="text-primary underline hover:text-primary/80">exports PDF et CSV</Link>{" "}
@@ -304,7 +304,7 @@ const ComparatifDriversNote = () => {
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   RGPD et hébergement européen
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   La protection des données est un enjeu majeur. IKtracker héberge toutes les 
                   données en Europe et respecte strictement le RGPD. Notre{" "}
                   <Link to="/privacy" className="text-primary underline hover:text-primary/80">politique de confidentialité</Link>{" "}
@@ -320,18 +320,18 @@ const ComparatifDriversNote = () => {
           {/* Conclusion */}
           <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
-              <div className="prose prose-lg max-w-none">
+              <div className="max-w-none space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
                   Conclusion : IKtracker, le choix évident pour les professionnels français
                 </h3>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Si vous exercez votre activité en France et devez déclarer vos{" "}
                   <Link to="/frais-reels" className="text-primary underline hover:text-primary/80">frais réels</Link>, 
                   IKtracker s'impose comme la solution la plus adaptée. Conçu spécifiquement pour le marché français, 
                   il intègre nativement le barème fiscal 2026, propose des fonctionnalités uniques comme le mode Tournée 
-                  et la synchronisation calendrier, et reste <strong>100% gratuit sans aucune limitation</strong>.
+                  et la synchronisation calendrier, et reste <strong className="text-foreground">100% gratuit sans aucune limitation</strong>.
                 </p>
-                <p className="text-foreground leading-relaxed mb-6">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Drivers Note peut convenir aux professionnels travaillant à l'international, 
                   mais pour une utilisation exclusivement française, IKtracker offre une expérience 
                   plus fluide et une conformité fiscale garantie. Consultez notre{" "}
