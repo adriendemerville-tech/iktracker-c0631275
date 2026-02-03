@@ -231,7 +231,14 @@ const ComparatifIzika = () => {
                 </p>
                 <p>
                   <strong className="text-foreground">IKtracker a été créé pour offrir une alternative accessible à tous</strong>. Nous proposons les mêmes fonctionnalités essentielles — synchronisation calendrier, calcul automatique via Google Maps, export conforme au{" "}
-                  <Link to="/bareme-ik-2026" className="text-primary underline hover:text-primary/80">barème fiscal 2026</Link>{" "}— sans aucun frais. Notre objectif n'est pas de dénigrer Izika, mais de démocratiser l'accès à ces outils pour tous les professionnels, quel que soit leur budget.
+                  <Link to="/bareme-ik-2026" className="text-primary underline hover:text-primary/80">barème fiscal 2026</Link>{" "}— sans aucun frais.
+                </p>
+                <p>
+                  Cependant, IKtracker va plus loin en proposant la <strong className="text-foreground">création manuelle de trajets</strong>, 
+                  parce que le quotidien des indépendants est fait d'imprévus. Notre application dispose également d'une{" "}
+                  <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">fonction avancée sur mobile</Link>{" "}
+                  utilisant la géolocalisation et l'IA pour générer automatiquement les trajets à la fin de la journée. 
+                  <strong className="text-foreground"> IKtracker fait gagner du temps et de l'argent à ses utilisateurs</strong>.
                 </p>
               </div>
             </div>
