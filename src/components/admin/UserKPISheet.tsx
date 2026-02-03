@@ -24,7 +24,8 @@ import {
   MapPin,
   CheckCircle2,
   MousePointerClick,
-  Compass
+  Compass,
+  Eye
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
@@ -61,6 +62,8 @@ interface UserStats {
   calendar_pct: number;
   manual_pct: number;
   tour_pct: number;
+  // Page views
+  page_views: number;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -187,6 +190,13 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     Rapports partagés
                   </span>
                   <span className="font-semibold">{stats.shares_count}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye className="w-4 h-4" />
+                    Visites (pages vues)
+                  </span>
+                  <span className="font-semibold">{stats.page_views.toLocaleString('fr-FR')}</span>
                 </div>
               </CardContent>
             </Card>
