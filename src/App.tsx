@@ -45,6 +45,8 @@ const BlogEditor = lazy(() => import("./pages/BlogEditor"));
 const AuthorPage = lazy(() => import("./pages/AuthorPage"));
 const FraisReels = lazy(() => import("./pages/FraisReels"));
 const Lexique = lazy(() => import("./pages/Lexique"));
+const ComparatifIzika = lazy(() => import("./pages/ComparatifIzika"));
+const ComparatifDriversNote = lazy(() => import("./pages/ComparatifDriversNote"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -309,6 +311,8 @@ const AppRoutes = () => {
         <Route path="/bareme-ik-2026" element={<Suspense fallback={<PageLoader />}><BaremeIK2026 /></Suspense>} />
         <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
+        <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
+        <Route path="/comparatif-drivers-note" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
         <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
         <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
         <Route path="/blog/auteur/adrien-de-volontat" element={<Suspense fallback={<PageLoader />}><AuthorPage /></Suspense>} />
