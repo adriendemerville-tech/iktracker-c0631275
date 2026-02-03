@@ -194,7 +194,7 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Eye className="w-4 h-4" />
-                    Visites (pages vues)
+                    Jours d'activité
                   </span>
                   <span className="font-semibold">{stats.page_views.toLocaleString('fr-FR')}</span>
                 </div>
