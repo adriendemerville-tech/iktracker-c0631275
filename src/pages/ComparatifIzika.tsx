@@ -223,7 +223,7 @@ const ComparatifIzika = () => {
                   Soyons clairs : <strong className="text-foreground">Izika est une excellente application</strong>. Elle a été pionnière sur le marché français des indemnités kilométriques et a aidé des milliers de professionnels à simplifier leur gestion administrative. L'interface est soignée, le support client réactif, et les fonctionnalités répondent parfaitement aux besoins des indépendants et des entreprises.
                 </p>
                 <p>
-                  Cependant, le modèle économique d'Izika repose sur un abonnement mensuel qui peut représenter un coût non négligeable sur l'année, particulièrement pour les{" "}
+                  Le modèle économique d'Izika repose sur un abonnement mensuel qui peut représenter un coût non négligeable sur l'année, particulièrement pour les{" "}
                   <Link to="/blog/indemnites-kilometriques-infirmier-liberal" className="text-primary underline hover:text-primary/80">infirmiers libéraux</Link>,{" "}
                   <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisans</Link>{" "}ou{" "}
                   <Link to="/blog/indemnites-kilometriques-commercial-itinerant" className="text-primary underline hover:text-primary/80">commerciaux</Link>{" "}
