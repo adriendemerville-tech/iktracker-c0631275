@@ -258,12 +258,12 @@ const ComparatifDriversNote = () => {
           <section className="py-12 px-4">
             <div className="container mx-auto max-w-4xl">
               <div className="space-y-6">
-                <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
-                  Pourquoi nous ne suivons pas votre position GPS ?
+              <h3 className="text-xl md:text-2xl font-bold text-primary underline underline-offset-4 mb-4">
+                  Pourquoi nous ne suivons pas votre géolocalisation GPS en continu ?
                 </h3>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Chez IKtracker, nous avons fait un <strong className="text-foreground">choix philosophique</strong> : 
-                  ne jamais tracer la position GPS de nos utilisateurs. Contrairement aux solutions comme Driversnote 
+                  ne jamais tracer la position GPS de nos utilisateurs en continu. Contrairement aux solutions comme Driversnote 
                   qui enregistrent chaque déplacement en temps réel, nous utilisons une approche radicalement différente.
                 </p>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
@@ -278,6 +278,16 @@ const ComparatifDriversNote = () => {
                   en temps réel. Ensuite, elle préserve votre <strong className="text-foreground">batterie</strong> : 
                   pas de GPS activé en permanence. Enfin, elle est <strong className="text-foreground">plus précise fiscalement</strong> : 
                   seuls les trajets professionnels légitimes sont déclarés.
+                </p>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">Pour les professionnels itinérants</strong>, nous proposons 
+                  également un <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">Mode Tournée</Link> optionnel 
+                  sur mobile. Cette fonctionnalité active la géolocalisation uniquement pendant votre journée de travail, 
+                  si vous le souhaitez. Elle a été pensée pour les{" "}
+                  <Link to="/blog/indemnites-kilometriques-infirmier-liberal" className="text-primary underline hover:text-primary/80">infirmiers libéraux</Link>,{" "}
+                  <Link to="/blog/indemnites-kilometriques-commercial-itinerant" className="text-primary underline hover:text-primary/80">commerciaux</Link> et autres 
+                  indépendants qui enchaînent les rendez-vous loin de leur bureau ou domicile. Vous gardez le contrôle : 
+                  c'est vous qui décidez quand activer ou désactiver le suivi.
                 </p>
               </div>
             </div>
