@@ -25,7 +25,8 @@ import {
   CheckCircle2,
   MousePointerClick,
   Compass,
-  Eye
+  Eye,
+  Target
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
@@ -64,6 +65,8 @@ interface UserStats {
   tour_pct: number;
   // Page views
   page_views: number;
+  // Conversion page
+  conversion_page: string | null;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -198,6 +201,17 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                   </span>
                   <span className="font-semibold">{stats.page_views.toLocaleString('fr-FR')}</span>
                 </div>
+                {stats.conversion_page && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Target className="w-4 h-4" />
+                      Page de conversion
+                    </span>
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {stats.conversion_page}
+                    </Badge>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
