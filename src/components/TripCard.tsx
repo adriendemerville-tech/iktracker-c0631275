@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
 import { TourDetailSheet } from './TourDetailSheet';
 import { CompleteAddressSheet } from './CompleteAddressSheet';
+import { TripViewSheet } from './TripViewSheet';
 
 interface TripCardProps {
   trip: Trip;
@@ -40,6 +41,7 @@ export const TripCard = memo(function TripCard({
 }: TripCardProps) {
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
+  const [showTripView, setShowTripView] = useState(false);
   
   const isPending = trip.status === 'pending_location';
   
@@ -88,8 +90,11 @@ export const TripCard = memo(function TripCard({
   const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length >= 3;
 
   const handleCardClick = () => {
+    if (isPending) return; // Pending trips have their own action
     if (isTour) {
       setShowTourDetail(true);
+    } else {
+      setShowTripView(true);
     }
   };
 
@@ -97,10 +102,9 @@ export const TripCard = memo(function TripCard({
     <>
       <div 
         className={cn(
-          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative",
-          isTour && "cursor-pointer hover:bg-muted/50 transition-colors",
+          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors",
           isPending 
-            ? "border-violet-500/50 bg-violet-600 text-white" 
+            ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
             : "border-border/50"
         )}
         onClick={handleCardClick}
@@ -243,6 +247,14 @@ export const TripCard = memo(function TripCard({
           onCompleted={() => onTripUpdated?.()}
         />
       )}
+
+      {/* Trip view sheet for regular trips */}
+      <TripViewSheet
+        open={showTripView}
+        onOpenChange={setShowTripView}
+        trip={trip}
+        vehicle={vehicle}
+      />
     </>
   );
 });
