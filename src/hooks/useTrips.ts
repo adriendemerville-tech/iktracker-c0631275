@@ -442,9 +442,12 @@ export function useTrips() {
     
     if (vehicle && (distanceChanged || vehicleChanged)) {
       const newDistance = updates.distance !== undefined ? updates.distance : existingTrip.distance;
-      const totalAnnualKm = getTotalAnnualKm(vehicle.id) + newDistance;
+      // Subtract existing trip's distance if it was already on this vehicle to avoid double-counting
+      const existingKmOnThisVehicle = existingTrip.vehicleId === vehicle.id ? existingTrip.distance : 0;
+      const otherTripsKm = getTotalAnnualKm(vehicle.id) - existingKmOnThisVehicle;
+      const totalAnnualKm = otherTripsKm + newDistance;
       ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                 calculateTotalAnnualIK(totalAnnualKm - newDistance, vehicle.fiscalPower);
+                 calculateTotalAnnualIK(otherTripsKm, vehicle.fiscalPower);
       
       // Apply 20% bonus for electric vehicles
       if (vehicle.isElectric) {
