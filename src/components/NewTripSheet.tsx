@@ -658,47 +658,64 @@ export function NewTripSheet({
 
           {step === 'details' && (
             <div className="animate-fade-in space-y-6">
-              <div className="p-4 bg-muted rounded-md relative">
+              {/* Départ et Arrivée côte à côte */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Départ */}
                 <button
-                  onClick={handleClose}
-                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-background/80 hover:bg-background flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Fermer et réinitialiser"
+                  onClick={() => setStep('start')}
+                  className="bg-muted/50 rounded-xl p-4 space-y-2 text-left hover:bg-muted transition-colors group"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                      <MapPin className="w-3.5 h-3.5 text-primary" />
+                      Départ
+                    </div>
+                    <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <p className="font-semibold text-foreground">{draft.startLocation?.name}</p>
+                  {draft.startLocation?.address && draft.startLocation.address !== draft.startLocation.name && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {draft.startLocation.address}
+                    </p>
+                  )}
                 </button>
-                
-                {/* Editable vehicle row */}
+
+                {/* Arrivée */}
                 <button
-                  onClick={() => setStep('vehicle')}
-                  className="flex items-center gap-3 text-sm mb-2 pr-6 w-full hover:opacity-70 transition-opacity group"
+                  onClick={() => setStep('end')}
+                  className="bg-muted/50 rounded-xl p-4 space-y-2 text-left hover:bg-muted transition-colors group"
                 >
-                  <Car className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{selectedVehicle?.make} {selectedVehicle?.model}</span>
-                  <span className="text-muted-foreground">• {selectedVehicle?.fiscalPower} CV</span>
-                  <Pencil className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                      <MapPin className="w-3.5 h-3.5 text-accent" />
+                      Arrivée
+                    </div>
+                    <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <p className="font-semibold text-foreground">{draft.endLocation?.name}</p>
+                  {draft.endLocation?.address && draft.endLocation.address !== draft.endLocation.name && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {draft.endLocation.address}
+                    </p>
+                  )}
                 </button>
-                
-                {/* Editable locations row */}
-                <div className="flex items-center gap-3 text-sm">
-                  <button
-                    onClick={() => setStep('start')}
-                    className="flex items-center gap-2 hover:opacity-70 transition-opacity group"
-                  >
-                    <MapPin className="w-4 h-4 text-primary" />
-                    <span className="font-medium">{draft.startLocation?.name}</span>
-                    <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                  <button
-                    onClick={() => setStep('end')}
-                    className="flex items-center gap-2 hover:opacity-70 transition-opacity group"
-                  >
-                    <MapPin className="w-4 h-4 text-accent" />
-                    <span className="font-medium">{draft.endLocation?.name}</span>
-                    <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                </div>
               </div>
+
+              {/* Vehicle row */}
+              <button
+                onClick={() => setStep('vehicle')}
+                className="flex items-center gap-3 text-sm p-3 bg-muted/50 rounded-lg w-full hover:bg-muted transition-colors group"
+              >
+                <Car className="w-4 h-4 text-primary" />
+                <span className="font-medium">{selectedVehicle?.make} {selectedVehicle?.model}</span>
+                <span className="text-muted-foreground">• {selectedVehicle?.fiscalPower} CV</span>
+                {selectedVehicle?.licensePlate && (
+                  <span className="ml-auto bg-foreground text-background px-2 py-0.5 rounded text-xs font-mono font-bold tracking-wider">
+                    {selectedVehicle.licensePlate}
+                  </span>
+                )}
+                <Pencil className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
 
               {/* Navigation Assistée - Waze & Maps Buttons */}
               {draft.endLocation && (draft.endLocation.address || draft.endLocation.name) && (
