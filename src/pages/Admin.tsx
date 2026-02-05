@@ -47,6 +47,10 @@ interface Feedback {
   responded_at: string | null;
   read_by_user: boolean;
   created_at: string;
+  // User info (joined from users)
+  user_first_name?: string;
+  user_last_name?: string;
+  user_email?: string;
 }
 
 interface UserWithRole {
@@ -84,17 +88,44 @@ const Admin = () => {
     return () => clearTimeout(timer);
   }, [userSearch]);
 
-  // Fetch feedbacks - refresh every 15 minutes
+  // Fetch feedbacks with user info - refresh every 15 minutes
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
     queryKey: ['admin-feedbacks'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: feedbackData, error } = await supabase
         .from('feedback')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Feedback[];
+      
+      // Get unique user IDs from feedbacks
+      const userIds = [...new Set(feedbackData.map(f => f.user_id))];
+      
+      // Fetch user info for all feedback users
+      const userInfoMap = new Map<string, { first_name: string; last_name: string; email: string }>();
+      
+      for (const userId of userIds) {
+        const { data: userData } = await supabase.rpc('search_users', { 
+          search_term: userId,
+          limit_count: 1
+        });
+        if (userData && userData.length > 0) {
+          userInfoMap.set(userId, {
+            first_name: userData[0].first_name || '',
+            last_name: userData[0].last_name || '',
+            email: userData[0].email || '',
+          });
+        }
+      }
+      
+      // Merge user info into feedbacks
+      return feedbackData.map(f => ({
+        ...f,
+        user_first_name: userInfoMap.get(f.user_id)?.first_name,
+        user_last_name: userInfoMap.get(f.user_id)?.last_name,
+        user_email: userInfoMap.get(f.user_id)?.email,
+      })) as Feedback[];
     },
     enabled: isAdmin,
     refetchInterval: 15 * 60 * 1000, // 15 minutes
@@ -438,19 +469,21 @@ const Admin = () => {
                             }`}
                           >
                             <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="flex items-center gap-2">
-                                <User className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground font-mono">
-                                  {feedback.user_id.slice(0, 8)}...
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <User className="w-4 h-4 text-muted-foreground shrink-0" />
+                                <span className="text-sm font-medium truncate">
+                                  {feedback.user_first_name || feedback.user_last_name 
+                                    ? `${feedback.user_first_name || ''} ${feedback.user_last_name || ''}`.trim()
+                                    : feedback.user_email || feedback.user_id.slice(0, 8) + '...'}
                                 </span>
                               </div>
                               {feedback.response ? (
-                                <Badge variant="outline" className="text-green-600 border-green-600">
+                                <Badge variant="outline" className="text-green-600 border-green-600 shrink-0">
                                   <CheckCircle2 className="w-3 h-3 mr-1" />
                                   Répondu
                                 </Badge>
                               ) : (
-                                <Badge variant="destructive">En attente</Badge>
+                                <Badge variant="destructive" className="shrink-0">En attente</Badge>
                               )}
                             </div>
                             <p className="text-sm line-clamp-2">{feedback.message}</p>
@@ -483,10 +516,20 @@ const Admin = () => {
                       <div className="space-y-4">
                         {/* Original message */}
                         <div className="bg-muted/50 rounded-lg p-4">
-                          <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {format(new Date(selectedFeedback.created_at), 'dd MMMM yyyy à HH:mm', { locale: fr })}
-                          </p>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium">
+                              {selectedFeedback.user_first_name || selectedFeedback.user_last_name 
+                                ? `${selectedFeedback.user_first_name || ''} ${selectedFeedback.user_last_name || ''}`.trim()
+                                : selectedFeedback.user_email || 'Utilisateur'}
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(selectedFeedback.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                            </p>
+                          </div>
+                          {selectedFeedback.user_email && (
+                            <p className="text-xs text-muted-foreground mb-2">{selectedFeedback.user_email}</p>
+                          )}
                           <p className="text-sm whitespace-pre-wrap">{selectedFeedback.message}</p>
                           
                           {selectedFeedback.image_url && (
