@@ -93,6 +93,9 @@ export const TripCard = memo(function TripCard({
     if (isPending) return; // Pending trips have their own action
     if (isTour) {
       setShowTourDetail(true);
+    } else if (onEdit) {
+      // Open edit modal directly for regular trips
+      onEdit(trip);
     } else {
       setShowTripView(true);
     }
