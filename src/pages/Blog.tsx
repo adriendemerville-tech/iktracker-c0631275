@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -81,6 +82,11 @@ export default function Blog() {
         <MarketingNav user={user} loading={authLoading} />
         
         <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-none">
+          {/* Breadcrumb */}
+          <div className="container mx-auto px-4 pt-6">
+            <Breadcrumb items={[{ label: 'Blog' }]} />
+          </div>
+          
           {/* Hero Header - Editorial style */}
           <section className="border-b border-border" aria-labelledby="hero-heading">
             <div className="container mx-auto px-4 py-12 md:py-20">

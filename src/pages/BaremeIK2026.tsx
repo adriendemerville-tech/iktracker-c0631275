@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { IK_BAREME_2024, getIKBareme, calculateTotalAnnualIK } from "@/types/trip";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { 
   Calculator, 
   ArrowRight, 
@@ -28,6 +29,30 @@ import {
   Bike
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+
+// FAQ Schema data
+const faqData = [
+  {
+    question: "Quel est le barème kilométrique 2026 ?",
+    answer: "Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,401 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km."
+  },
+  {
+    question: "Comment calculer ses indemnités kilométriques ?",
+    answer: "Pour calculer vos IK, multipliez le nombre de kilomètres professionnels parcourus par le taux correspondant à la puissance fiscale de votre véhicule et à votre tranche kilométrique (jusqu'à 5000 km, de 5001 à 20000 km, ou plus de 20000 km)."
+  },
+  {
+    question: "Les véhicules électriques bénéficient-ils d'un avantage ?",
+    answer: "Oui, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le barème kilométrique. Cette mesure vise à encourager la transition vers des véhicules moins polluants."
+  },
+  {
+    question: "Quelle différence entre frais réels et indemnités kilométriques ?",
+    answer: "Les indemnités kilométriques sont calculées selon un barème forfaitaire qui couvre tous les frais (carburant, entretien, assurance, dépréciation). Les frais réels nécessitent de justifier chaque dépense individuellement avec des factures."
+  },
+  {
+    question: "Dois-je tenir un carnet de bord pour mes trajets professionnels ?",
+    answer: "Oui, en cas de contrôle fiscal, vous devez pouvoir justifier vos déplacements professionnels. Un relevé précis (date, motif, destination, distance) est recommandé. IKtracker automatise cette tâche pour vous."
+  }
+];
 
 // Lazy load below-the-fold components to reduce initial bundle
 const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
@@ -147,14 +172,34 @@ const BaremeIK2026 = () => {
             }
           })}
         </script>
+        {/* FAQ Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqData.map(faq => ({
+              "@type": "Question",
+              "name": faq.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer
+              }
+            }))
+          })}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
         <main id="main-content" tabIndex={-1} className="outline-none">
+          {/* Breadcrumb */}
+          <div className="container mx-auto px-4 pt-24 md:pt-28">
+            <Breadcrumb items={[{ label: 'Barème IK 2026' }]} />
+          </div>
+          
           {/* Hero Section - NO animations for instant LCP */}
-          <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
+          <section className="pb-12 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
           <div className="container mx-auto relative z-10 max-w-4xl">
             {/* Removed animate-fade-in for instant mobile LCP */}
@@ -899,6 +944,40 @@ const BaremeIK2026 = () => {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-16 px-4 bg-muted/30" aria-labelledby="faq-heading">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-10">
+              <h2 id="faq-heading" className="text-2xl md:text-3xl font-bold mb-4">
+                Questions fréquentes sur le barème IK 2026
+              </h2>
+              <p className="text-muted-foreground">
+                Tout ce que vous devez savoir sur les indemnités kilométriques
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              {faqData.map((faq, index) => (
+                <Card key={index} className="border-border">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-semibold text-foreground flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm flex items-center justify-center font-bold">
+                        {index + 1}
+                      </span>
+                      {faq.question}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0 pl-12">
+                    <p className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </section>

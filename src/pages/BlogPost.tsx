@@ -8,6 +8,7 @@ import { useAdminLazy } from '@/hooks/useAdminLazy';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { ArrowLeft, Pencil, Clock, User, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -173,31 +174,7 @@ export default function BlogPost() {
     "inLanguage": "fr-FR"
   };
 
-  // Breadcrumb structured data
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Accueil",
-        "item": "https://iktracker.fr"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Blog",
-        "item": "https://iktracker.fr/blog"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": post.title,
-        "item": canonicalUrl
-      }
-    ]
-  };
+  // Breadcrumb structured data is now handled by Breadcrumb component
 
   return (
     <>
@@ -239,118 +216,112 @@ export default function BlogPost() {
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="author" content={post.author_name || "IKtracker"} />
         
-        {/* Structured Data */}
+        {/* Structured Data - Article */}
         <script type="application/ld+json">
           {JSON.stringify(articleSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
         </script>
       </Helmet>
 
       <div className="min-h-screen bg-background">
         <main id="main-content" tabIndex={-1} className="outline-none">
           <article className="container mx-auto px-4 py-12 max-w-3xl">
-          {/* Breadcrumb navigation */}
-          <nav aria-label="Fil d'Ariane" className="mb-6">
-            <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-              <li><Link to="/" className="hover:text-primary transition-colors">Accueil</Link></li>
-              <li>/</li>
-              <li><Link to="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
-              <li>/</li>
-              <li className="text-foreground font-medium truncate max-w-[200px]">{post.title}</li>
-            </ol>
-          </nav>
+            {/* Breadcrumb navigation with schema.org */}
+            <Breadcrumb 
+              items={[
+                { label: 'Blog', href: '/blog' },
+                { label: post.title }
+              ]} 
+            />
 
-          <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-            <Link 
-              to="/blog" 
-              className="inline-flex items-center text-primary hover:underline text-sm"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Retour au blog
-            </Link>
-            
-            {isAdmin && (
-              <Link to={`/blog/edit/${post.id}`}>
-                <Button variant="outline" size="sm">
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Modifier
-                </Button>
+            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+              <Link 
+                to="/blog" 
+                className="inline-flex items-center text-primary hover:underline text-sm"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retour au blog
               </Link>
-            )}
-          </div>
-
-          <header className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
-              {post.title}
-            </h1>
-            
-            {post.subtitle && (
-              <p className="text-xl text-muted-foreground mb-4">{post.subtitle}</p>
-            )}
-
-            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-              {post.author_name && (
-                <Link 
-                  to="/blog/auteur/adrien-de-volontat"
-                  className="flex items-center gap-1 hover:text-primary transition-colors"
-                >
-                  <User className="h-4 w-4" />
-                  <span className="underline underline-offset-2">{post.author_name}</span>
+              
+              {isAdmin && (
+                <Link to={`/blog/edit/${post.id}`}>
+                  <Button variant="outline" size="sm">
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Modifier
+                  </Button>
                 </Link>
               )}
-              <span className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {format(new Date(publishDate), 'dd MMMM yyyy', { locale: fr })}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {readingTime} min de lecture
-              </span>
             </div>
-          </header>
 
-          {/* Article Summary - Key Points */}
-          <ArticleSummary content={post.content} />
+            <header className="mb-8">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
+                {post.title}
+              </h1>
+              
+              {post.subtitle && (
+                <p className="text-xl text-muted-foreground mb-4">{post.subtitle}</p>
+              )}
 
-          {post.featured_image_url && (
-            <div className="mb-8 rounded-lg overflow-hidden">
-              <OptimizedImage 
-                src={post.featured_image_url} 
-                alt={post.title}
-                className="w-full"
-                aspectRatio="16/9"
-                eager={true}
-                width={800}
-                height={450}
-              />
-            </div>
-          )}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                {post.author_name && (
+                  <Link 
+                    to="/blog/auteur/adrien-de-volontat"
+                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="underline underline-offset-2">{post.author_name}</span>
+                  </Link>
+                )}
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  {format(new Date(publishDate), 'dd MMMM yyyy', { locale: fr })}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {readingTime} min de lecture
+                </span>
+              </div>
+            </header>
 
-          <BlogContentWithRelated 
-            content={post.content} 
-            postId={post.id}
-          />
+            {/* Article Summary - Key Points */}
+            <ArticleSummary content={post.content} />
 
-          <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
-            <Link 
-              to="/blog" 
-              className="inline-flex items-center text-primary hover:underline"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Voir tous les articles
-            </Link>
-            
-            {isAdmin && (
-              <Link to={`/blog/edit/${post.id}`}>
-                <Button variant="ghost" size="sm">
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Modifier cet article
-                </Button>
-              </Link>
+            {post.featured_image_url && (
+              <div className="mb-8 rounded-lg overflow-hidden">
+                <OptimizedImage 
+                  src={post.featured_image_url} 
+                  alt={post.title}
+                  className="w-full"
+                  aspectRatio="16/9"
+                  eager={true}
+                  width={800}
+                  height={450}
+                />
+              </div>
             )}
-          </footer>
+
+            <BlogContentWithRelated 
+              content={post.content} 
+              postId={post.id}
+            />
+
+            <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
+              <Link 
+                to="/blog" 
+                className="inline-flex items-center text-primary hover:underline"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voir tous les articles
+              </Link>
+              
+              {isAdmin && (
+                <Link to={`/blog/edit/${post.id}`}>
+                  <Button variant="ghost" size="sm">
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Modifier cet article
+                  </Button>
+                </Link>
+              )}
+            </footer>
           </article>
         </main>
         <EnhancedMarketingFooter />
