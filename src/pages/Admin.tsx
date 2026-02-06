@@ -153,7 +153,7 @@ const Admin = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc('search_users', { 
         search_term: debouncedSearch,
-        limit_count: 50
+        limit_count: 500
       });
       if (error) throw error;
       return data as { user_id: string; email: string; first_name: string; last_name: string; created_at: string }[];
