@@ -142,7 +142,7 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB to accommodate larger bundles
-        navigateFallback: "/offline",
+        navigateFallback: "/index.html",
         navigateFallbackAllowlist: [/^\/(?!api|functions|.*\.\w+$).*/],
         navigateFallbackDenylist: [/^\/api/, /^\/functions/, /\.\w+$/],
         runtimeCaching: [

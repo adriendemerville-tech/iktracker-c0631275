@@ -76,6 +76,7 @@ export default function Blog() {
         <title>Blog - IKtracker | Conseils et actualités sur les indemnités kilométriques</title>
         <meta name="description" content="Découvrez nos articles sur les indemnités kilométriques, le barème fiscal et les bonnes pratiques pour gérer vos frais professionnels." />
         <link rel="canonical" href="https://iktracker.fr/blog" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </Helmet>
 
       <div className="min-h-screen bg-background font-blog">
