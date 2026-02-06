@@ -232,6 +232,9 @@ export function AdminStats() {
         queryClient.invalidateQueries({ queryKey: ['admin-marketing-by-page'] });
         queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] });
         queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-monthly-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-bareme-simulations-by-day'] });
         
         // Schedule next refresh
         scheduleRefresh();
@@ -770,6 +773,8 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] }),
       queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] }),
       queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-monthly-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-bareme-simulations-by-day'] }),
     ]);
     // Small delay to show animation
     setTimeout(() => setIsRefreshing(false), 500);
