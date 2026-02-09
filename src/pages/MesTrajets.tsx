@@ -8,13 +8,16 @@ import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText } from 'lucide-react';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange } from 'lucide-react';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 // PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
 
 // Lazy load heavy components
@@ -41,6 +44,8 @@ export default function Report() {
   const [showToursDropdown, setShowToursDropdown] = useState(false);
   const [showBaremeDropdown, setShowBaremeDropdown] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
@@ -328,15 +333,33 @@ ${IKTRACKER_MENTION}
     lastName: user?.user_metadata?.last_name,
   }), [user]);
 
+  // Filter trips by reportSinceDate for exports
+  const filteredTripsForReport = useMemo(() => {
+    if (!reportSinceDate) return trips;
+    return trips.filter(t => new Date(t.startTime) >= reportSinceDate);
+  }, [trips, reportSinceDate]);
+
+  const filteredTotalKm = useMemo(() => filteredTripsForReport.reduce((sum, t) => sum + t.distance, 0), [filteredTripsForReport]);
+  const filteredRecalculatedTrips = useMemo(() => {
+    if (!reportSinceDate) return recalculatedTrips;
+    return recalculatedTrips.filter(t => new Date(t.startTime) >= reportSinceDate);
+  }, [recalculatedTrips, reportSinceDate]);
+  const filteredRecalculatedTotalIK = filteredRecalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
+
+  const formatReportSinceDate = (date: Date) => {
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
   // Generate HTML content for PDF (used in ZIP export)
   const generateHTMLContent = async () => {
     const { generatePrintableHTML } = await import('@/lib/print-utils');
     return generatePrintableHTML({
-      trips,
+      trips: filteredTripsForReport,
       vehicles,
-      totalKm,
+      totalKm: filteredTotalKm,
       logoUrl: '/logo-iktracker-250.webp',
       userInfo,
+      sinceDate: reportSinceDate,
     });
   };
 
@@ -344,11 +367,12 @@ ${IKTRACKER_MENTION}
   const handlePrint = async () => {
     const { printReport } = await import('@/lib/print-utils');
     printReport({
-      trips,
+      trips: filteredTripsForReport,
       vehicles,
-      totalKm,
+      totalKm: filteredTotalKm,
       logoUrl: '/logo-iktracker-250.webp',
       userInfo,
+      sinceDate: reportSinceDate,
     });
   };
 
@@ -550,11 +574,12 @@ ${IKTRACKER_MENTION}
       // Generate printable HTML for sharing
       const { generatePrintableHTML } = await import('@/lib/print-utils');
       const shareHtmlContent = generatePrintableHTML({
-        trips,
+        trips: filteredTripsForReport,
         vehicles,
-        totalKm,
+        totalKm: filteredTotalKm,
         logoUrl: '/logo-iktracker-250.webp',
         userInfo,
+        sinceDate: reportSinceDate,
       });
       
       // Create the share in the database
@@ -580,21 +605,24 @@ ${IKTRACKER_MENTION}
         : user?.email?.split('@')[0] || 'Votre client';
 
       // Compose email with share link
+      const periodLabel = reportSinceDate 
+        ? `depuis le ${reportSinceDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`
+        : 'pour la période en cours';
       const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
       const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
       
       const emailBody = `Bonjour,
 
-Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques pour la période en cours.
+Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques ${periodLabel}.
 
 📎 Consultez le relevé en ligne (valide 7 jours) :
 
 ${shareLink}
 
 Ce relevé comprend :
-- Le détail de mes ${trips.length} trajets professionnels
-- Le total des kilomètres parcourus : ${totalKm.toFixed(0)} km
-- Le montant total des indemnités : ${recalculatedTotalIK.toFixed(2)} €
+- Le détail de mes ${filteredTripsForReport.length} trajets professionnels
+- Le total des kilomètres parcourus : ${filteredTotalKm.toFixed(0)} km
+- Le montant total des indemnités : ${filteredRecalculatedTotalIK.toFixed(2)} €
 
 Ce lien vous permet de visualiser, télécharger ou imprimer le relevé complet.
 
@@ -745,16 +773,66 @@ ${IKTRACKER_URL}`;
               />
             </div>
           )}
-          <Button 
-            variant="outline" 
-            size="default" 
-            className="bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
-            onClick={sendToAccountant} 
-            disabled={trips.length === 0 || isExporting}
-          >
-            <Send className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
-            Envoyer le relevé
-          </Button>
+          <div className="flex items-center gap-2">
+            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="default"
+                  className={cn(
+                    "shadow-md border-0 dark:border dark:border-white/20",
+                    reportSinceDate 
+                      ? "bg-primary/10 dark:bg-primary/20 text-primary hover:bg-primary/20" 
+                      : "bg-white dark:bg-muted text-muted-foreground hover:bg-white/90 dark:hover:bg-muted/80"
+                  )}
+                >
+                  <CalendarRange className="w-4 h-4" />
+                  {reportSinceDate ? `Depuis ${formatReportSinceDate(reportSinceDate)}` : 'Depuis...'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <div className="p-2 border-b border-border">
+                  <p className="text-xs text-muted-foreground text-center">Début du relevé</p>
+                </div>
+                <CalendarComponent
+                  mode="single"
+                  selected={reportSinceDate}
+                  onSelect={(date) => {
+                    setReportSinceDate(date);
+                    setDatePickerOpen(false);
+                  }}
+                  disabled={(date) => date > new Date()}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+                {reportSinceDate && (
+                  <div className="p-2 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs text-muted-foreground"
+                      onClick={() => {
+                        setReportSinceDate(undefined);
+                        setDatePickerOpen(false);
+                      }}
+                    >
+                      Réinitialiser (tous les trajets)
+                    </Button>
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
+            <Button 
+              variant="outline" 
+              size="default" 
+              className="bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
+              onClick={sendToAccountant} 
+              disabled={trips.length === 0 || isExporting}
+            >
+              <Send className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
+              Envoyer le relevé
+            </Button>
+          </div>
         </div>
 
         {/* Past Tours Dropdown - only show if there are past tours */}

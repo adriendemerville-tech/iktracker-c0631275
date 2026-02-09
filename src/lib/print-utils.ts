@@ -17,6 +17,7 @@ interface PrintReportOptions {
   totalKm: number;
   logoUrl?: string;
   userInfo?: UserInfo;
+  sinceDate?: Date;
 }
 
 interface RecalculatedTrip extends Trip {
@@ -98,7 +99,7 @@ function extractCity(address: string): string {
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl } = options;
+  const { trips, vehicles, totalKm, userInfo, logoUrl, sinceDate } = options;
   const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
   // Get Supabase config for the share link feature
@@ -115,6 +116,9 @@ function generateReportHTML(options: PrintReportOptions): string {
     month: 'long',
     year: 'numeric',
   });
+
+  const sinceDateStr = sinceDate ? sinceDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  const sinceDateISO = sinceDate ? `${sinceDate.getFullYear()}-${String(sinceDate.getMonth() + 1).padStart(2, '0')}-${String(sinceDate.getDate()).padStart(2, '0')}` : '';
   
   // Build user display info - prioritize userInfo, fallback to vehicle owner
   const userDisplayName = userInfo?.firstName || userInfo?.lastName
@@ -347,7 +351,12 @@ function generateReportHTML(options: PrintReportOptions): string {
   <!-- Action Bar (hidden in print) -->
   <div class="action-bar">
     <div class="left-actions">
-      <!-- Empty - removed back button -->
+      <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+        <span>Depuis</span>
+        <input type="date" id="since-date-input" value="${sinceDateISO}" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; color: #374151; cursor: pointer;" onchange="filterByDate(this.value)" />
+        <button id="btn-reset-date" onclick="resetDateFilter()" style="display: ${sinceDateISO ? 'inline-flex' : 'none'}; align-items: center; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #6B7280; background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer;">✕ Réinitialiser</button>
+      </label>
     </div>
     <div class="right-actions">
       <button class="btn-pdf" onclick="downloadPDF()" id="btn-pdf">
@@ -592,6 +601,97 @@ function generateReportHTML(options: PrintReportOptions): string {
       document.getElementById('btn-link').style.display = 'inline-flex';
     }
   </script>
+  <script>
+    // Date filter for the report
+    function filterByDate(dateStr) {
+      const rows = document.querySelectorAll('.content-wrapper tbody tr');
+      const resetBtn = document.getElementById('btn-reset-date');
+      
+      if (!dateStr) {
+        rows.forEach(function(row) { row.style.display = ''; });
+        if (resetBtn) resetBtn.style.display = 'none';
+        recalcTotals();
+        return;
+      }
+      
+      if (resetBtn) resetBtn.style.display = 'inline-flex';
+      const filterDate = new Date(dateStr);
+      
+      // Only filter rows in the trips table (first tbody in content)
+      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      if (!tripsTable) return;
+      
+      const tripRows = tripsTable.querySelectorAll('tr');
+      let visibleKm = 0;
+      let visibleIk = 0;
+      let visibleCount = 0;
+      
+      tripRows.forEach(function(row) {
+        const dateCell = row.querySelector('td:first-child');
+        if (!dateCell) return;
+        
+        const parts = dateCell.textContent.trim().split('/');
+        if (parts.length < 3) return;
+        
+        const rowDate = new Date('20' + parts[2], parseInt(parts[1]) - 1, parseInt(parts[0]));
+        
+        if (rowDate >= filterDate) {
+          row.style.display = '';
+          // Extract km and ik values
+          const cells = row.querySelectorAll('td');
+          if (cells.length >= 7) {
+            visibleKm += parseFloat(cells[4].textContent) || 0;
+            visibleIk += parseFloat(cells[6].textContent) || 0;
+            visibleCount++;
+          }
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      // Update summary cards
+      updateSummaryCards(visibleCount, visibleKm, visibleIk);
+    }
+    
+    function resetDateFilter() {
+      document.getElementById('since-date-input').value = '';
+      filterByDate('');
+    }
+    
+    function updateSummaryCards(count, km, ik) {
+      // Update the 3 summary cards in the stats row
+      const statsCells = document.querySelectorAll('.content-wrapper table:nth-of-type(2) td');
+      if (statsCells.length >= 3) {
+        // Trajets count
+        const countDiv = statsCells[0].querySelector('div:last-child');
+        if (countDiv) countDiv.textContent = count;
+        // Total km  
+        const kmDiv = statsCells[1].querySelector('div:last-child');
+        if (kmDiv) kmDiv.textContent = km.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' km';
+        // Total IK
+        const ikDiv = statsCells[2].querySelector('div:last-child');
+        if (ikDiv) ikDiv.textContent = ik.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+      }
+    }
+    
+    function recalcTotals() {
+      // Recalculate with all visible rows
+      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      if (!tripsTable) return;
+      const tripRows = tripsTable.querySelectorAll('tr');
+      let totalKm = 0, totalIk = 0, count = 0;
+      tripRows.forEach(function(row) {
+        if (row.style.display === 'none') return;
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 7) {
+          totalKm += parseFloat(cells[4].textContent) || 0;
+          totalIk += parseFloat(cells[6].textContent) || 0;
+          count++;
+        }
+      });
+      updateSummaryCards(count, totalKm, totalIk);
+    }
+  </script>
   <style>
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .spin { animation: spin 1s linear infinite; }
@@ -618,7 +718,8 @@ function generateReportHTML(options: PrintReportOptions): string {
         </td>
         <td style="text-align: right; vertical-align: middle;">
           <div style="font-size: 18px; font-weight: 700; color: #111;">Relevé des Frais Kilométriques</div>
-          <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Édité le ${editionDate}</div>
+          <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Édité le ${editionDate}${sinceDateStr ? ` • Depuis le ${sinceDateStr}` : ''}</div>
+          <div id="period-label" style="font-size: 11px; color: #2563eb; margin-top: 2px; display: ${sinceDateStr ? 'block' : 'none'};"></div>
         </td>
       </tr>
     </table>
