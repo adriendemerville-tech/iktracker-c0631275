@@ -71,7 +71,7 @@ const AnimatedLabel = (props: any) => {
       textAnchor="middle"
       dominantBaseline="middle"
       fontSize={13}
-      fontWeight={700}
+      fontWeight={800}
     >
       {displayValue}
     </text>
@@ -84,7 +84,7 @@ const KmBarShape = (props: any) => {
   if (!height || height <= 0) return null;
 
   const rx = Math.min(width / 2, 22);
-  const ry = Math.min(14, height);
+  const ry = Math.min(6, height);
 
   const d = [
     `M ${x} ${y + ry}`,
@@ -122,7 +122,7 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
     // Fixed height container to prevent CLS when chart loads
     <div className="h-48 min-h-[192px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ left: -10, right: -10, bottom: 0, top: 10 }} barCategoryGap="8%">
+        <BarChart data={data} margin={{ left: -10, right: -10, bottom: 0, top: 10 }} barCategoryGap="4%">
           <defs>
             <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
               <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.15" />
@@ -140,7 +140,7 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
           <Bar 
             dataKey="km"
             shape={<KmBarShape />}
-            maxBarSize={24}
+            maxBarSize={32}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
