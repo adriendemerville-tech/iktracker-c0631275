@@ -210,7 +210,7 @@ const Profile = () => {
         {/* Account Info Button */}
         <Card 
           className="cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => setShowAccountInfo(!showAccountInfo)}
+          onClick={() => user ? setShowAccountInfo(!showAccountInfo) : navigate('/auth')}
         >
           <CardContent className="flex items-center justify-between py-4">
             <div className="flex items-center gap-3">
