@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { reverseGeocode } from '@/lib/geocoding';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 
 interface CompleteAddressSheetProps {
   open: boolean;
@@ -37,7 +38,7 @@ export function CompleteAddressSheet({
   const endAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
-
+  const { loaded: googleMapsLoaded } = useGoogleMaps();
   // Pre-fill with home/office location
   useEffect(() => {
     if (open) {
@@ -61,93 +62,75 @@ export function CompleteAddressSheet({
 
   // Initialize Google Places Autocomplete for start address
   useEffect(() => {
-    if (!open || !startInputRef.current) return;
+    if (!open || !googleMapsLoaded || !startInputRef.current) return;
     
-    const initStartAutocomplete = () => {
-      if (!window.google?.maps?.places || !startInputRef.current) return;
+    if (!window.google?.maps?.places) return;
 
-      if (startAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
+    if (startAutocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
+    }
+
+    startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
+      componentRestrictions: { country: 'fr' },
+      fields: ['formatted_address', 'geometry', 'name'],
+      types: ['geocode'],
+    });
+
+    startAutocompleteRef.current.addListener('place_changed', () => {
+      const place = startAutocompleteRef.current?.getPlace();
+      if (place?.geometry?.location) {
+        setStartAddress(place.formatted_address || place.name || '');
+        setStartCoords({
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        });
       }
+    });
 
-      startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
-
-      startAutocompleteRef.current.addListener('place_changed', () => {
-        const place = startAutocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          setStartAddress(place.formatted_address || place.name || '');
-          setStartCoords({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-          });
-        }
-      });
-    };
-
-    const timer = setTimeout(() => {
-      if (window.google?.maps?.places) {
-        initStartAutocomplete();
-      }
-    }, 300);
-    
     return () => {
-      clearTimeout(timer);
       if (startAutocompleteRef.current && window.google?.maps?.event) {
         try {
           window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
         } catch (e) {}
       }
     };
-  }, [open]);
+  }, [open, googleMapsLoaded]);
 
   // Initialize Google Places Autocomplete for end address
   useEffect(() => {
-    if (!open || !endInputRef.current) return;
+    if (!open || !googleMapsLoaded || !endInputRef.current) return;
     
-    const initEndAutocomplete = () => {
-      if (!window.google?.maps?.places || !endInputRef.current) return;
+    if (!window.google?.maps?.places) return;
 
-      if (endAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
+    if (endAutocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
+    }
+
+    endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
+      componentRestrictions: { country: 'fr' },
+      fields: ['formatted_address', 'geometry', 'name'],
+      types: ['geocode'],
+    });
+
+    endAutocompleteRef.current.addListener('place_changed', () => {
+      const place = endAutocompleteRef.current?.getPlace();
+      if (place?.geometry?.location) {
+        setEndAddress(place.formatted_address || place.name || '');
+        setEndCoords({
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        });
       }
+    });
 
-      endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
-
-      endAutocompleteRef.current.addListener('place_changed', () => {
-        const place = endAutocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          setEndAddress(place.formatted_address || place.name || '');
-          setEndCoords({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-          });
-        }
-      });
-    };
-
-    const timer = setTimeout(() => {
-      if (window.google?.maps?.places) {
-        initEndAutocomplete();
-      }
-    }, 300);
-    
     return () => {
-      clearTimeout(timer);
       if (endAutocompleteRef.current && window.google?.maps?.event) {
         try {
           window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
         } catch (e) {}
       }
     };
-  }, [open]);
+  }, [open, googleMapsLoaded]);
 
   const handleUseCurrentLocation = async (field: 'start' | 'end') => {
     try {
