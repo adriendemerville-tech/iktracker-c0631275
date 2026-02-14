@@ -140,7 +140,7 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
           <Bar 
             dataKey="km"
             shape={<KmBarShape />}
-            maxBarSize={32}
+            maxBarSize={38}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
