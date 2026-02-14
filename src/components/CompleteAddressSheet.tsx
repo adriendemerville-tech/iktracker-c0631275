@@ -214,18 +214,20 @@ export function CompleteAddressSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[85vh]">
-        <SheetHeader className="text-left">
-          <SheetTitle>Compléter le trajet</SheetTitle>
-          <SheetDescription>
-            RDV: <span className="font-medium text-foreground">{trip.purpose}</span>
-          </SheetDescription>
+      <SheetContent side="bottom" className="rounded-t-2xl pb-safe max-h-[80vh]">
+        <SheetHeader className="text-left pb-2">
+          <SheetTitle className="text-base">Compléter le trajet</SheetTitle>
+          {trip.purpose && (
+            <SheetDescription className="text-xs">
+              RDV: <span className="font-medium text-foreground">{trip.purpose}</span>
+            </SheetDescription>
+          )}
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="space-y-4 pt-2">
           {/* Départ */}
-          <div className="space-y-2">
-            <Label htmlFor="start-address">Départ</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="start-address" className="text-xs font-medium text-muted-foreground">Départ</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -234,19 +236,20 @@ export function CompleteAddressSheet({
                 placeholder="Adresse de départ..."
                 value={startAddress}
                 onChange={(e) => setStartAddress(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-10"
               />
               {startCoords && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">✓</span>
               )}
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1.5 flex-wrap">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handleUseCurrentLocation('start')}
                 disabled={geoLoading}
+                className="h-7 text-xs px-2"
               >
                 <Navigation className="w-3 h-3 mr-1" />
                 Position
@@ -258,7 +261,7 @@ export function CompleteAddressSheet({
                   variant="outline"
                   size="sm"
                   onClick={() => handleSelectSavedLocation(loc, 'start')}
-                  className="text-xs"
+                  className="h-7 text-xs px-2"
                 >
                   <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
                   {loc.name}
@@ -268,8 +271,8 @@ export function CompleteAddressSheet({
           </div>
 
           {/* Arrivée */}
-          <div className="space-y-2">
-            <Label htmlFor="end-address">Arrivée</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="end-address" className="text-xs font-medium text-muted-foreground">Arrivée</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input
@@ -278,19 +281,20 @@ export function CompleteAddressSheet({
                 placeholder="Adresse d'arrivée..."
                 value={endAddress}
                 onChange={(e) => setEndAddress(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-10"
               />
               {endCoords && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">✓</span>
               )}
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1.5 flex-wrap">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handleUseCurrentLocation('end')}
                 disabled={geoLoading}
+                className="h-7 text-xs px-2"
               >
                 <Navigation className="w-3 h-3 mr-1" />
                 Position
@@ -302,7 +306,7 @@ export function CompleteAddressSheet({
                   variant="outline"
                   size="sm"
                   onClick={() => handleSelectSavedLocation(loc, 'end')}
-                  className="text-xs"
+                  className="h-7 text-xs px-2"
                 >
                   <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
                   {loc.name}
@@ -311,29 +315,26 @@ export function CompleteAddressSheet({
             </div>
           </div>
 
-          {/* Lieux enregistrés */}
+          {/* Lieux enregistrés supplémentaires */}
           {savedLocations.length > 3 && (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Autres lieux enregistrés</p>
-              <div className="flex gap-2 flex-wrap">
-                {savedLocations.slice(3).map((loc) => (
-                  <Button
-                    key={loc.id}
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSelectSavedLocation(loc, 'end')}
-                    className="text-xs"
-                  >
-                    <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
-                    {loc.name}
-                  </Button>
-                ))}
-              </div>
+            <div className="flex gap-1.5 flex-wrap">
+              {savedLocations.slice(3).map((loc) => (
+                <Button
+                  key={loc.id}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSelectSavedLocation(loc, 'end')}
+                  className="h-7 text-xs px-2"
+                >
+                  <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
+                  {loc.name}
+                </Button>
+              ))}
             </div>
           )}
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-2">
             <Button
               variant="outline"
               className="flex-1"
