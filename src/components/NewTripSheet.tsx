@@ -534,7 +534,7 @@ export function NewTripSheet({
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="!top-1/2 !bottom-auto !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !inset-auto h-[85vh] w-full max-w-[95vw] sm:max-w-[90%] md:max-w-[82%] rounded-2xl border overflow-hidden flex flex-col"
+        className="!inset-auto !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 h-[85vh] w-full max-w-[95vw] sm:max-w-[90%] md:max-w-[82%] rounded-2xl border overflow-hidden flex flex-col z-50"
         onInteractOutside={preventCloseOnGoogleAutocomplete}
         onPointerDownOutside={preventCloseOnGoogleAutocomplete}
         onFocusOutside={preventCloseOnGoogleAutocomplete}
