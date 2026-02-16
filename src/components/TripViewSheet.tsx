@@ -46,7 +46,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-2xl border fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 inset-auto w-full max-w-[95vw] sm:max-w-lg">
+      <SheetContent side="bottom" className="!top-1/2 !bottom-auto !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !inset-auto h-auto max-h-[85vh] rounded-2xl border w-full max-w-[95vw] sm:max-w-lg">
         <SheetHeader className="pb-4">
           <SheetTitle className="flex items-center gap-2 text-lg">
             {isTour ? (
