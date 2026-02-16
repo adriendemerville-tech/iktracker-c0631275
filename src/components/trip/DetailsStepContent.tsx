@@ -361,41 +361,69 @@ export function DetailsStepContent({
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Distance *</label>
-        <Input
-          ref={distanceInputRef}
-          type="text"
-          inputMode="decimal"
-          placeholder="Ex: 25.5 km"
-          className={isBlinking ? 'animate-blink-orange' : ''}
-          value={manualDistance ? `${manualDistance} km` : ''}
-          onChange={(e) => {
-            let value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-            // Limite à 1 décimale max
-            const parts = value.split('.');
-            if (parts.length > 1) {
-              value = parts[0] + '.' + parts[1].slice(0, 1);
-            }
-            setManualDistance(value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              
-              // Validation de la distance au moment de Entrée
-              const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
-              const enteredDistance = parseFloat(manualDistance) || 0;
-              const tolerance = 0.15;
-              
-              if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
-                setManualDistance(expectedDistance.toFixed(1));
-                setIsBlinking(true);
-                setTimeout(() => setIsBlinking(false), 650);
-              } else {
-                purposeInputRef.current?.focus();
+        <div className="flex items-center gap-2">
+          <Input
+            ref={distanceInputRef}
+            type="text"
+            inputMode="decimal"
+            placeholder="Ex: 25.5 km"
+            className={cn("flex-1", isBlinking ? 'animate-blink-orange' : '')}
+            value={manualDistance ? `${manualDistance} km` : ''}
+            onChange={(e) => {
+              let value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+              const parts = value.split('.');
+              if (parts.length > 1) {
+                value = parts[0] + '.' + parts[1].slice(0, 1);
               }
-            }
-          }}
-        />
+              setManualDistance(value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
+                const enteredDistance = parseFloat(manualDistance) || 0;
+                const tolerance = 0.15;
+                if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
+                  setManualDistance(expectedDistance.toFixed(1));
+                  setIsBlinking(true);
+                  setTimeout(() => setIsBlinking(false), 650);
+                } else {
+                  purposeInputRef.current?.focus();
+                }
+              }
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 shrink-0"
+            title="Mettre à jour la distance"
+            onClick={async () => {
+              const start = draft.startLocation;
+              const end = draft.endLocation;
+              if (!start || !end) return;
+              try {
+                const resolveCoords = async (loc: Location) => {
+                  if (typeof loc.lat === 'number' && typeof loc.lng === 'number') return { lat: loc.lat, lng: loc.lng };
+                  if (loc.address) return await geocodeAddress(loc.address);
+                  return null;
+                };
+                const [sc, ec] = await Promise.all([resolveCoords(start), resolveCoords(end)]);
+                if (sc && ec) {
+                  const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
+                  setCalculatedDistance(dist);
+                  const finalDist = roundTrip ? (dist * 2) : dist;
+                  setManualDistance(finalDist.toFixed(1));
+                }
+              } catch (err) {
+                console.error('Error recalculating distance:', err);
+              }
+            }}
+          >
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+        </div>
         {calculatedDistance ? (
           <p className="text-xs text-accent">
             ✓ Calcul automatique (modifiable)
