@@ -19,10 +19,11 @@ const KM_BAR_ANIMATION_STAGGER_MS = 60;
 
 // Animated counter label for bar chart
 const AnimatedLabel = (props: any) => {
-  const { x, y, width, height, value } = props;
+  const { x, y, width, height, value, isMobile } = props;
   const [displayValue, setDisplayValue] = useState<number | null>(null);
   const animationRef = useRef<number>();
   const startTimeRef = useRef<number | null>(null);
+  const fontSize = isMobile ? Math.round(16 * 0.85) : 16; // ~14 on mobile
 
   useLayoutEffect(() => {
     if (!value || value === 0) return;
@@ -70,7 +71,7 @@ const AnimatedLabel = (props: any) => {
       fill="white"
       textAnchor="middle"
       dominantBaseline="middle"
-      fontSize={16}
+      fontSize={fontSize}
       fontWeight={800}
     >
       {displayValue}
@@ -113,10 +114,12 @@ const KmBarShape = (props: any) => {
 interface ProfileKmChartProps {
   data: Array<{ month: string; km: number }>;
   maxKm: number;
+  isMobile?: boolean;
 }
 
-const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
+const ProfileKmChart = ({ data, maxKm, isMobile = false }: ProfileKmChartProps) => {
   const colors = ['#3B82F6', '#EC4899', '#22C55E', '#8B5CF6', '#F97316', '#EAB308', '#06B6D4', '#F43F5E', '#84CC16', '#A855F7', '#FB923C', '#FACC15'];
+  const maxBarSize = isMobile ? Math.round(46 * 0.85) : 46; // ~39 on mobile
 
   return (
     // Fixed height container to prevent CLS when chart loads
@@ -140,12 +143,12 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
       <Bar 
             dataKey="km"
             shape={<KmBarShape />}
-            maxBarSize={46}
+            maxBarSize={maxBarSize}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
-            <LabelList dataKey="km" content={<AnimatedLabel />} />
+            <LabelList dataKey="km" content={(props: any) => <AnimatedLabel {...props} isMobile={isMobile} />} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

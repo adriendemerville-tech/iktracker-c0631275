@@ -689,7 +689,7 @@ const Profile = () => {
           </CardHeader>
           <CardContent>
             <Suspense fallback={<ChartSkeleton />}>
-              <ProfileKmChart data={monthlyKmData} maxKm={chartMaxKm} />
+              <ProfileKmChart data={monthlyKmData} maxKm={chartMaxKm} isMobile={isMobile} />
             </Suspense>
           </CardContent>
         </Card>
