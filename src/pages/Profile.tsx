@@ -103,11 +103,13 @@ const Profile = () => {
     }
   };
 
+  const monthsToShow = isMobile ? 6 : 12;
+
   const monthlyKmData = useMemo(() => {
     const now = new Date();
     const months = [];
     
-    for (let i = 11; i >= 0; i--) {
+    for (let i = monthsToShow - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthName = date.toLocaleDateString('fr-FR', { month: 'short' });
       months.push({
@@ -681,7 +683,7 @@ const Profile = () => {
             </CardTitle>
             {!isMobile && (
               <CardDescription>
-                Sur les 6 derniers mois
+                Sur les 12 derniers mois
               </CardDescription>
             )}
           </CardHeader>
