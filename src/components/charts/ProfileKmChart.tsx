@@ -70,7 +70,7 @@ const AnimatedLabel = (props: any) => {
       fill="white"
       textAnchor="middle"
       dominantBaseline="middle"
-      fontSize={13}
+      fontSize={16}
       fontWeight={800}
     >
       {displayValue}
@@ -137,10 +137,10 @@ const ProfileKmChart = ({ data, maxKm }: ProfileKmChartProps) => {
           </defs>
           <XAxis type="category" dataKey="month" tick={{ fontSize: 10 }} interval={0} />
           <YAxis type="number" hide domain={[0, maxKm]} />
-          <Bar 
+      <Bar 
             dataKey="km"
             shape={<KmBarShape />}
-            maxBarSize={38}
+            maxBarSize={46}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
