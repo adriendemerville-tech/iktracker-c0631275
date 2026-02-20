@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { TourStop } from './useTourTracker';
 
 // Time thresholds in milliseconds
-const TRANSPARENT_RESUME_THRESHOLD = 4 * 60 * 1000; // 4 minutes
+const TRANSPARENT_RESUME_THRESHOLD = 20 * 60 * 1000; // 20 minutes
 const MODAL_RESUME_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
 
 // Storage keys

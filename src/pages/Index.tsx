@@ -163,7 +163,7 @@ const Index = () => {
   const [isRecoveryProcessing, setIsRecoveryProcessing] = useState(false);
 
   // Time thresholds
-  const TRANSPARENT_THRESHOLD = 4 * 60 * 1000; // 4 minutes
+  const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
   const MODAL_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
 
   // Format inactivity duration
@@ -424,6 +424,21 @@ const Index = () => {
     const firstStop = stops[0];
     const vehicleId = vehicles[0].id;
     const isTour = stops.length >= 2;
+
+    // Reverse-geocode first stop if it has no city
+    let firstCity = firstStop.city;
+    let firstAddress = firstStop.address;
+    if (!firstCity && firstStop.lat && firstStop.lng) {
+      try {
+        const geo = await reverseGeocode(firstStop.lat, firstStop.lng);
+        if (geo) {
+          firstCity = geo.city;
+          firstAddress = geo.fullAddress || firstAddress;
+        }
+      } catch (e) {
+        console.warn('Failed to reverse-geocode first stop:', e);
+      }
+    }
     
     let totalDistance = 0;
     let endLocation: { lat: number; lng: number; address?: string; city?: string };
@@ -446,11 +461,25 @@ const Index = () => {
         }
       }
       const lastStop = stops[stops.length - 1];
+      // Reverse-geocode last stop if it has no city
+      let lastCity = lastStop.city;
+      let lastAddress = lastStop.address;
+      if (!lastCity && lastStop.lat && lastStop.lng) {
+        try {
+          const geo = await reverseGeocode(lastStop.lat, lastStop.lng);
+          if (geo) {
+            lastCity = geo.city;
+            lastAddress = geo.fullAddress || lastAddress;
+          }
+        } catch (e) {
+          console.warn('Failed to reverse-geocode last stop:', e);
+        }
+      }
       endLocation = {
         lat: lastStop.lat,
         lng: lastStop.lng,
-        address: lastStop.address,
-        city: lastStop.city,
+        address: lastAddress,
+        city: lastCity,
       };
     } else {
       // Single stop: use current position as end point or use tracked distance
@@ -519,8 +548,8 @@ const Index = () => {
         vehicleId,
         startLocation: {
           id: firstStop.id,
-          name: firstStop.city || firstStop.address || 'Position',
-          address: firstStop.address || '',
+          name: firstCity || firstAddress || 'Position',
+          address: firstAddress || '',
           lat: firstStop.lat,
           lng: firstStop.lng,
           type: 'other',
