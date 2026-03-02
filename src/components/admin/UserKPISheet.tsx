@@ -26,7 +26,9 @@ import {
   MousePointerClick,
   Compass,
   Eye,
-  Target
+  Target,
+  LogIn,
+  Clock
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
@@ -67,6 +69,9 @@ interface UserStats {
   page_views: number;
   // Conversion page
   conversion_page: string | null;
+  // Session info
+  last_sign_in: string | null;
+  last_session_minutes: number;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -200,6 +205,30 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     Jours d'activité
                   </span>
                   <span className="font-semibold">{stats.page_views.toLocaleString('fr-FR')}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <LogIn className="w-4 h-4" />
+                    Dernière connexion
+                  </span>
+                  <span className="font-semibold text-xs">
+                    {stats.last_sign_in 
+                      ? format(new Date(stats.last_sign_in), 'dd MMM yyyy HH:mm', { locale: fr })
+                      : '-'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="w-4 h-4" />
+                    Durée dernière session
+                  </span>
+                  <span className="font-semibold">
+                    {stats.last_session_minutes > 0 
+                      ? stats.last_session_minutes >= 60 
+                        ? `${Math.floor(stats.last_session_minutes / 60)}h${(stats.last_session_minutes % 60).toString().padStart(2, '0')}`
+                        : `${stats.last_session_minutes} min`
+                      : '-'}
+                  </span>
                 </div>
                 {stats.conversion_page && (
                   <div className="flex items-center justify-between">
