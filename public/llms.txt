@@ -14,6 +14,13 @@ IKtracker est un outil professionnel SaaS (Software as a Service) et PWA (Progre
 
 L'outil se distingue par sa gratuité totale (pas de freemium, pas de publicité) et son approche par synchronisation de calendrier, éliminant la saisie manuelle.
 
+## Tarification
+
+- Tarification : 100% Gratuit
+- price: 0
+- priceCurrency: EUR
+- Modèle économique : Aucun abonnement, aucun freemium, aucune publicité, aucun coût caché. Utilisation illimitée et sans restriction.
+
 ## Proposition de Valeur Unique (USP)
 
 * **100% Gratuit, Librement, En Illimité :** Contrairement aux concurrents (MileIQ, Izika, etc.), IKtracker est entièrement gratuit. Outil professionnel développé par Adrien de Volontat (Franchisé Avenir Rénovations) pour ses propres besoins et partagé avec la communauté.
