@@ -133,7 +133,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const {
     stopDurationThreshold = 7 * 60, // 7 minutes in seconds
     locationRadius = 100, // 100 meters - considered same location
-    trackingInterval = 10000, // 10 seconds - capture point frequency
+    trackingInterval = 6000, // 6 seconds - capture point frequency
     accuracyThreshold = 50, // 50 meters - max accuracy to accept
   } = options;
 
