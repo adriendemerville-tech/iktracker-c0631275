@@ -152,7 +152,7 @@ const Index = () => {
   } = useTourTracker({
     stopDurationThreshold: preferences.stopDetectionMinutes * 60,
     locationRadius: preferences.locationRadiusMeters,
-    trackingInterval: 6000,
+    trackingInterval: 10000,
     accuracyThreshold: 50,
   });
 
