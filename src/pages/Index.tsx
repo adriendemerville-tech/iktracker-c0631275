@@ -188,10 +188,11 @@ const Index = () => {
       const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
       if (!isActive) return;
       
-      const lastActivityStr = localStorage.getItem(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY);
+      const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
       if (!lastActivityStr) return;
       
       const lastActivity = new Date(lastActivityStr).getTime();
+      if (isNaN(lastActivity)) return;
       const inactivity = Date.now() - lastActivity;
       
       const savedData = getSavedTourData();
