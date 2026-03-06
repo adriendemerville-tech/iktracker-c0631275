@@ -186,32 +186,35 @@ const Index = () => {
     
     const checkSessionRecovery = async () => {
       const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
+      console.log('[Recovery] isActive:', isActive);
       if (!isActive) return;
       
       const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
+      console.log('[Recovery] lastActivityStr:', lastActivityStr, 'type:', typeof lastActivityStr);
       if (!lastActivityStr) return;
       
       const lastActivity = new Date(lastActivityStr).getTime();
+      console.log('[Recovery] lastActivity timestamp:', lastActivity, 'isNaN:', isNaN(lastActivity));
       if (isNaN(lastActivity)) return;
       const inactivity = Date.now() - lastActivity;
+      console.log('[Recovery] inactivity:', inactivity, 'ms (~', Math.round(inactivity / 60000), 'min)', 
+        '| TRANSPARENT_THRESHOLD:', TRANSPARENT_THRESHOLD, '| MODAL_THRESHOLD:', MODAL_THRESHOLD);
       
       const savedData = getSavedTourData();
+      console.log('[Recovery] savedData:', savedData ? `${savedData.stops.length} stops, ${savedData.totalDistanceKm}km` : 'null');
       if (!savedData) return;
       
       if (inactivity < TRANSPARENT_THRESHOLD) {
-        // Case A: < 4 minutes - transparent resume
-        console.log('Session recovery: transparent resume');
+        console.log('[Recovery] → Case A: transparent resume (inactivity < 20min)');
         setTourStartRequested(true);
         await resumeTour();
       } else if (inactivity < MODAL_THRESHOLD) {
-        // Case B: 4 min - 2 hours - show modal
-        console.log('Session recovery: show modal');
+        console.log('[Recovery] → Case B: show modal (20min < inactivity < 2h)');
         setRecoveryData({ stops: savedData.stops, totalDistanceKm: savedData.totalDistanceKm });
         setRecoveryInactivity(formatInactivity(inactivity));
         setShowRecoveryModal(true);
       } else {
-        // Case C: > 2 hours - auto finalize
-        console.log('Session recovery: auto finalize');
+        console.log('[Recovery] → Case C: auto finalize (inactivity > 2h)');
         setHasRecoveredTour(true);
         if (savedData.stops.length >= 1 && vehicles.length > 0) {
           await handleConvertToTrips(savedData.stops);
