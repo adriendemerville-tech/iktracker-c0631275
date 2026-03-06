@@ -162,9 +162,9 @@ const Index = () => {
   const [recoveryData, setRecoveryData] = useState<{ stops: TourStop[]; totalDistanceKm: number } | null>(null);
   const [isRecoveryProcessing, setIsRecoveryProcessing] = useState(false);
 
-  // Time thresholds
-  const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
-  const MODAL_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
+  // Time thresholds — ⚠️ TEMP DEBUG VALUES (restore: 20min / 2h)
+  const TRANSPARENT_THRESHOLD = 5 * 1000; // 5 seconds (was 20 minutes)
+  const MODAL_THRESHOLD = 30 * 1000; // 30 seconds (was 2 hours)
 
   // Format inactivity duration
   const formatInactivity = (ms: number): string => {
