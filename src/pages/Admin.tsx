@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
+import { AdminCosts } from '@/components/admin/AdminCosts';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { 
   ArrowLeft, 
