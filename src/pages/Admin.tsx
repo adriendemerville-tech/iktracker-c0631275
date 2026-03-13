@@ -409,7 +409,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="stats" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Stats
@@ -421,6 +421,10 @@ const Admin = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Utilisateurs ({users.length})
+            </TabsTrigger>
+            <TabsTrigger value="costs" className="flex items-center gap-2">
+              <Euro className="w-4 h-4" />
+              Coût
             </TabsTrigger>
           </TabsList>
 
