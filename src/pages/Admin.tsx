@@ -763,6 +763,11 @@ const Admin = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Costs Tab */}
+          <TabsContent value="costs">
+            <AdminCosts />
+          </TabsContent>
         </Tabs>
       </main>
 
