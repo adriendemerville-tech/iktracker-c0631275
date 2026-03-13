@@ -34,7 +34,8 @@ import {
   Crown,
   BarChart3,
   FileText,
-  ChevronRight
+  ChevronRight,
+  Euro
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
