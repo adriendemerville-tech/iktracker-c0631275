@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_usage_logs: {
+        Row: {
+          cost_euros: number | null
+          created_at: string
+          function_name: string
+          id: string
+          metadata: Json | null
+          model: string | null
+          tokens_input: number | null
+          tokens_output: number | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_euros?: number | null
+          created_at?: string
+          function_name: string
+          id?: string
+          metadata?: Json | null
+          model?: string | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_euros?: number | null
+          created_at?: string
+          function_name?: string
+          id?: string
+          metadata?: Json | null
+          model?: string | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       blog_api_keys: {
         Row: {
           api_key: string
@@ -581,6 +617,26 @@ export type Database = {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
       }
+      get_api_cost_by_day: {
+        Args: { days_back?: number }
+        Returns: {
+          cost: number
+          day: string
+          request_count: number
+          tokens: number
+        }[]
+      }
+      get_api_cost_by_function: {
+        Args: { days_back?: number }
+        Returns: {
+          cost: number
+          function_name: string
+          request_count: number
+          tokens_in: number
+          tokens_out: number
+        }[]
+      }
+      get_api_cost_stats: { Args: { days_back?: number }; Returns: Json }
       get_bareme_simulations_by_day: {
         Args: { days_back?: number }
         Returns: {
