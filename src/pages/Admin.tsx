@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
+import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { 
   ArrowLeft, 
@@ -35,7 +36,8 @@ import {
   BarChart3,
   FileText,
   ChevronRight,
-  Euro
+  Euro,
+  BookOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -409,22 +411,26 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="stats" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-5 mb-4">
+            <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
-              Stats
+              <span className="hidden sm:inline">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="feedbacks" className="flex items-center gap-2">
+            <TabsTrigger value="feedbacks" className="flex items-center gap-1 text-xs sm:text-sm">
               <MessageSquare className="w-4 h-4" />
-              Avis ({feedbacks.length})
+              <span className="hidden sm:inline">Avis</span> ({feedbacks.length})
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
+            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
               <Users className="w-4 h-4" />
-              Utilisateurs ({users.length})
+              <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="costs" className="flex items-center gap-2">
+            <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
               <Euro className="w-4 h-4" />
-              Coût
+              <span className="hidden sm:inline">Coût</span>
+            </TabsTrigger>
+            <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
+              <BookOpen className="w-4 h-4" />
+              <span className="hidden sm:inline">Docs</span>
             </TabsTrigger>
           </TabsList>
 
@@ -767,6 +773,11 @@ const Admin = () => {
           {/* Costs Tab */}
           <TabsContent value="costs">
             <AdminCosts />
+          </TabsContent>
+
+          {/* Docs Tab */}
+          <TabsContent value="docs">
+            <AdminDocumentation />
           </TabsContent>
         </Tabs>
       </main>
