@@ -36,7 +36,8 @@ import {
   BarChart3,
   FileText,
   ChevronRight,
-  Euro
+  Euro,
+  BookOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
