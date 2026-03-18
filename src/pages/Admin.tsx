@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
+import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { 
   ArrowLeft, 
