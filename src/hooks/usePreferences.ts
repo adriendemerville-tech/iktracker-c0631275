@@ -11,6 +11,8 @@ export interface Preferences {
   accountantEmail: string;
   hasSentToAccountant: boolean;
   counterResetDate: string | null; // ISO date string
+  fiscalYearStartMonth: number; // 1-12, default 1 (January)
+  fiscalYearStartDay: number; // 1-31, default 1
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
