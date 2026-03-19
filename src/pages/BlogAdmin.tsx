@@ -258,6 +258,7 @@ export default function BlogAdmin() {
     if (isAdmin) {
       fetchPosts();
       fetchApiKeys();
+      fetchAuditLogs();
     }
   }, [isAdmin, adminLoading, navigate]);
 
