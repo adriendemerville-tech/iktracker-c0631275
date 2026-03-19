@@ -42,10 +42,22 @@ import {
   Euro,
   BookOpen,
   Activity,
-  Eye
+  Eye,
+  Monitor,
+  Smartphone,
+  Globe
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+
+interface DeviceInfo {
+  platform: string;
+  os: string;
+  browser: string;
+  browser_version: string;
+  device: string | null;
+  user_agent: string;
+}
 
 interface Feedback {
   id: string;
@@ -57,6 +69,7 @@ interface Feedback {
   read_by_user: boolean;
   created_at: string;
   phone_number: string | null;
+  device_info: DeviceInfo | null;
   // User info (joined from users)
   user_first_name?: string;
   user_last_name?: string;
@@ -137,6 +150,7 @@ const Admin = () => {
       return feedbackData.map(f => ({
         ...f,
         phone_number: (f as any).phone_number || null,
+        device_info: (f as any).device_info as DeviceInfo | null,
         user_first_name: userInfoMap.get(f.user_id)?.first_name,
         user_last_name: userInfoMap.get(f.user_id)?.last_name,
         user_email: userInfoMap.get(f.user_id)?.email,
@@ -541,6 +555,11 @@ const Admin = () => {
                               {feedback.phone_number && (
                                 <span className="ml-2 text-green-600">📞</span>
                               )}
+                              {feedback.device_info && (
+                                feedback.device_info.platform === 'mobile' 
+                                  ? <Smartphone className="w-3 h-3 ml-1" />
+                                  : <Monitor className="w-3 h-3 ml-1" />
+                              )}
                             </div>
                           </div>
                         ))}
@@ -601,6 +620,29 @@ const Admin = () => {
                                   className="max-h-40 rounded-lg border hover:opacity-90 transition-opacity"
                                 />
                               </a>
+                            </div>
+                          )}
+
+                          {/* Device info */}
+                          {selectedFeedback.device_info && (
+                            <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                              {selectedFeedback.device_info.platform === 'mobile' 
+                                ? <Smartphone className="w-3 h-3" /> 
+                                : <Monitor className="w-3 h-3" />}
+                              <span className="font-medium">
+                                {selectedFeedback.device_info.platform === 'mobile' ? 'Mobile' : 'Desktop'}
+                              </span>
+                              <span>·</span>
+                              <span>{selectedFeedback.device_info.os}</span>
+                              <span>·</span>
+                              <Globe className="w-3 h-3" />
+                              <span>{selectedFeedback.device_info.browser} {selectedFeedback.device_info.browser_version}</span>
+                              {selectedFeedback.device_info.device && (
+                                <>
+                                  <span>·</span>
+                                  <span>{selectedFeedback.device_info.device}</span>
+                                </>
+                              )}
                             </div>
                           )}
                         </div>
