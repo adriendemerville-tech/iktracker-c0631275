@@ -12,10 +12,11 @@ type AuthMode = 'login' | 'signup' | 'forgot-password';
 interface AuthFormProps {
   className?: string;
   compact?: boolean;
+  multilineCta?: boolean;
   onSuccess?: () => void;
 }
 
-export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProps) => {
+export const AuthForm = ({ className, compact = false, multilineCta = false, onSuccess }: AuthFormProps) => {
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
