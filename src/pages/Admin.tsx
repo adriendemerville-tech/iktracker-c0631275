@@ -559,6 +559,14 @@ const Admin = () => {
                           )}
                           <p className="text-sm whitespace-pre-wrap">{selectedFeedback.message}</p>
                           
+                          {selectedFeedback.phone_number && (
+                            <div className="mt-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                              <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
+                                📞 {selectedFeedback.user_first_name || 'L\'utilisateur'} souhaite que tu l'appelles : {selectedFeedback.phone_number}
+                              </p>
+                            </div>
+                          )}
+                          
                           {selectedFeedback.image_url && (
                             <div className="mt-3">
                               <a 
