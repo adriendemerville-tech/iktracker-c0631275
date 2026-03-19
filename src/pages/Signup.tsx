@@ -207,9 +207,35 @@ const Signup = () => {
     return (
       <>
         <Helmet>
-          <title>Créer un compte gratuit | IKtracker</title>
-          <meta name="description" content="Créez votre compte IKtracker gratuit en 2 minutes." />
+          <title>Créer un compte gratuit - Suivi IK automatique | IKtracker</title>
+          <meta name="description" content="Inscription gratuite à IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Barème fiscal 2026, export PDF, 100% gratuit." />
           <link rel="canonical" href="https://iktracker.fr/signup" />
+          <meta property="og:title" content="Créer un compte gratuit | IKtracker" />
+          <meta property="og:description" content="Automatisez gratuitement vos indemnités kilométriques. Calcul selon le barème fiscal 2026, export PDF, synchronisation calendrier." />
+          <meta property="og:url" content="https://iktracker.fr/signup" />
+          <meta property="og:type" content="website" />
+          <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+          <meta name="twitter:card" content="summary" />
+          <meta name="twitter:title" content="Créer un compte gratuit | IKtracker" />
+          <meta name="twitter:description" content="Automatisez gratuitement vos indemnités kilométriques. 100% gratuit, sans publicité." />
+          <meta name="robots" content="index, follow" />
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Inscription gratuite IKtracker",
+            "description": "Créez votre compte IKtracker gratuit pour automatiser le suivi de vos indemnités kilométriques professionnelles.",
+            "url": "https://iktracker.fr/signup",
+            "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://iktracker.fr" },
+            "potentialAction": { "@type": "RegisterAction", "target": "https://iktracker.fr/signup", "name": "Créer un compte gratuit" },
+            "mainEntity": {
+              "@type": "SoftwareApplication",
+              "name": "IKtracker",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+              "description": "Outil gratuit d'automatisation des indemnités kilométriques pour indépendants et professions libérales."
+            }
+          })}</script>
         </Helmet>
         <Link 
           to="/" 
