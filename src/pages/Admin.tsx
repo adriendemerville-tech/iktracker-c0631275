@@ -734,10 +734,17 @@ const Admin = () => {
                                   ? `${u.first_name} ${u.last_name}`.trim() 
                                   : u.email || u.user_id.slice(0, 8) + '...'}
                               </span>
-                              {u.isAdmin && (
+                              {u.userRole === 'admin' && (
                                 <Badge className="bg-amber-500 hover:bg-amber-600 flex-shrink-0">
                                   <Crown className="w-3 h-3 mr-1" />
-                                  Admin
+                                  Créateur
+                                </Badge>
+                              )}
+                              {u.userRole === 'viewer' && (
+                                <Badge variant="secondary" className="flex-shrink-0">
+                                  Viewer
+                                </Badge>
+                              )}
                                 </Badge>
                               )}
                             </div>
