@@ -686,7 +686,7 @@ TOUR_DISTANCE        → number (km cumulés)`}</pre>
                   { file: 'components/FocusTourView.tsx', desc: 'Vue plein écran pendant tournée active : heure, durée, distance, signal GPS, batterie', badge: 'UI' },
                   { file: 'components/TourLogSheet.tsx', desc: 'Sheet bottom avec liste des étapes détectées, stats temps/distance', badge: 'UI' },
                   { file: 'components/TourRecoveryModal.tsx', desc: 'AlertDialog Cas B : "Reprendre" ou "Terminer" avec stats de la tournée interrompue', badge: 'UI' },
-                  { file: 'components/TourDetailSheet.tsx', desc: 'Détail d'une tournée passée : timeline des arrêts avec adresses et durées', badge: 'UI' },
+                  { file: 'components/TourDetailSheet.tsx', desc: "Détail d\u2019une tournée passée : timeline des arrêts avec adresses et durées", badge: 'UI' },
                   { file: 'lib/distance.ts', desc: 'Haversine (getDistanceInMeters/Km) + calculateDrivingDistance (Google Maps fallback)', badge: 'Util' },
                   { file: 'lib/geocoding.ts', desc: 'reverseGeocode() avec cache mémoire + extractCityFromAddress()', badge: 'Util' },
                   { file: 'types/trip.ts', desc: 'Interface TourStopData { id, timestamp, lat, lng, address?, city?, duration? }', badge: 'Type' },
