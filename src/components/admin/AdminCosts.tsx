@@ -139,7 +139,7 @@ export function AdminCosts() {
             </Button>
           ))}
         </div>
-        <Button variant="ghost" size="sm" onClick={handleRefresh} className="gap-1.5">
+        <Button variant="ghost" size="sm" onClick={() => refetchStats()} className="gap-1.5">
           <RefreshCw className="w-3.5 h-3.5" />
           Actualiser
         </Button>
