@@ -147,6 +147,7 @@ const Admin = () => {
       return feedbackData.map(f => ({
         ...f,
         phone_number: (f as any).phone_number || null,
+        device_info: (f as any).device_info as DeviceInfo | null,
         user_first_name: userInfoMap.get(f.user_id)?.first_name,
         user_last_name: userInfoMap.get(f.user_id)?.last_name,
         user_email: userInfoMap.get(f.user_id)?.email,
