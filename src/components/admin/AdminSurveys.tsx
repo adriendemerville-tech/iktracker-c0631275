@@ -421,6 +421,8 @@ export function AdminSurveys() {
             delay_between_impressions_hours: form.delay_between_impressions_hours,
             target_personas: form.target_personas,
             target_user_count: form.target_user_count,
+            target_min_days_since_signup: form.target_min_days_since_signup,
+            target_max_days_since_signup: form.target_max_days_since_signup,
             updated_at: new Date().toISOString(),
           } as any)
           .eq('id', editingSurvey.id);
