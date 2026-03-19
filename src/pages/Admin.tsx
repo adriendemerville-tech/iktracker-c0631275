@@ -217,13 +217,21 @@ const Admin = () => {
 
   const filteredUsers = users;
 
+  const CLOSING_FORMULAS = ['Bien à toi', 'Amicalement', 'Bonne journée', 'A bientôt'];
+  const getRandomClosing = () => CLOSING_FORMULAS[Math.floor(Math.random() * CLOSING_FORMULAS.length)];
+
   // Respond to feedback mutation
   const respondMutation = useMutation({
-    mutationFn: async ({ feedbackId, response }: { feedbackId: string; response: string }) => {
+    mutationFn: async ({ feedbackId, response, existingResponse }: { feedbackId: string; response: string; existingResponse: string | null }) => {
+      const signedResponse = `${response}\n\n${getRandomClosing()},\nAdrien.`;
+      const fullResponse = existingResponse 
+        ? `${existingResponse}\n\n---\n\n${signedResponse}`
+        : signedResponse;
+
       const { error } = await supabase
         .from('feedback')
         .update({ 
-          response, 
+          response: fullResponse, 
           responded_at: new Date().toISOString(),
           read_by_user: false 
         })
@@ -313,7 +321,8 @@ const Admin = () => {
     if (!selectedFeedback || !responseText.trim()) return;
     respondMutation.mutate({ 
       feedbackId: selectedFeedback.id, 
-      response: responseText.trim() 
+      response: responseText.trim(),
+      existingResponse: selectedFeedback.response || null,
     });
   };
 
@@ -509,7 +518,7 @@ const Admin = () => {
                             key={feedback.id}
                             onClick={() => {
                               setSelectedFeedback(feedback);
-                              setResponseText(feedback.response || '');
+                              setResponseText('');
                             }}
                             className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                               selectedFeedback?.id === feedback.id
@@ -637,14 +646,28 @@ const Admin = () => {
                           )}
                         </div>
 
+                        {/* Previous response(s) */}
+                        {selectedFeedback.response && (
+                          <div className="bg-primary/10 rounded-lg p-4 border-l-2 border-primary">
+                            <p className="text-xs text-primary font-medium mb-2">Réponse(s) envoyée(s)</p>
+                            <p className="text-sm whitespace-pre-wrap">{selectedFeedback.response}</p>
+                            {selectedFeedback.responded_at && (
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Dernière réponse le {format(new Date(selectedFeedback.responded_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         {/* Response form */}
                         <div className="space-y-3">
                           <Textarea
-                            placeholder="Écrivez votre réponse..."
+                            placeholder={selectedFeedback.response ? "Écrivez une nouvelle réponse..." : "Écrivez votre réponse..."}
                             value={responseText}
                             onChange={(e) => setResponseText(e.target.value)}
                             className="min-h-[100px]"
                           />
+                          <p className="text-xs text-muted-foreground">La signature « Adrien. » sera ajoutée automatiquement.</p>
                           <Button 
                             onClick={handleRespond}
                             disabled={!responseText.trim() || respondMutation.isPending}
@@ -655,22 +678,9 @@ const Admin = () => {
                             ) : (
                               <Send className="w-4 h-4 mr-2" />
                             )}
-                            {selectedFeedback.response ? 'Modifier la réponse' : 'Envoyer la réponse'}
+                            {selectedFeedback.response ? 'Ajouter une réponse' : 'Envoyer la réponse'}
                           </Button>
                         </div>
-
-                        {/* Previous response */}
-                        {selectedFeedback.response && (
-                          <div className="bg-primary/10 rounded-lg p-4 border-l-2 border-primary">
-                            <p className="text-xs text-primary font-medium mb-2">Réponse actuelle</p>
-                            <p className="text-sm whitespace-pre-wrap">{selectedFeedback.response}</p>
-                            {selectedFeedback.responded_at && (
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Envoyée le {format(new Date(selectedFeedback.responded_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
-                              </p>
-                            )}
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <div className="text-center py-12 text-muted-foreground">
