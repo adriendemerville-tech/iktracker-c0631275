@@ -254,19 +254,28 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, onS
         )}
 
         {/* Toggle login/signup */}
-        {(mode === 'login' || mode === 'signup') && (
+        {mode === 'login' && (
           <div className="mt-4 text-center">
             <button
               type="button"
-              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              className="text-base text-primary hover:text-primary/80 transition-colors font-medium focus-visible-ring rounded-sm underline-offset-4 hover:underline"
+              onClick={() => navigate('/signup')}
+              className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-sm underline-offset-4 hover:underline"
             >
-              {mode === 'login' 
-                ? multilineCta 
-                  ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
-                  : 'Pas encore de compte ? Rejoignez la communauté !'
-                : 'Déjà un compte ? Connectez-vous'
+              {multilineCta 
+                ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
+                : 'Pas encore de compte ? Rejoignez la communauté !'
               }
+            </button>
+          </div>
+        )}
+        {mode === 'signup' && (
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setMode('login')}
+              className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-sm underline-offset-4 hover:underline"
+            >
+              Déjà un compte ? Connectez-vous
             </button>
           </div>
         )}
