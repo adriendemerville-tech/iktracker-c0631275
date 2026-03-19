@@ -44,6 +44,14 @@ interface FunctionCost {
   cost: number;
 }
 
+interface ModelCost {
+  model: string;
+  request_count: number;
+  tokens_in: number;
+  tokens_out: number;
+  cost: number;
+}
+
 interface DailyCost {
   day: string;
   request_count: number;
@@ -92,6 +100,16 @@ export function AdminCosts() {
     refetchInterval: 5 * 60 * 1000,
   });
 
+  const { data: byModel = [], isLoading: modelLoading } = useQuery({
+    queryKey: ['admin-cost-by-model', daysBack],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_api_cost_by_model', { days_back: daysBack });
+      if (error) throw error;
+      return data as unknown as ModelCost[];
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
   const { data: byDay = [], isLoading: dayLoading } = useQuery({
     queryKey: ['admin-cost-by-day', daysBack],
     queryFn: async () => {
@@ -102,11 +120,7 @@ export function AdminCosts() {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  const handleRefresh = () => {
-    refetchStats();
-  };
-
-  const isLoading = statsLoading || fnLoading || dayLoading;
+  const isLoading = statsLoading || fnLoading || dayLoading || modelLoading;
 
   return (
     <div className="space-y-6">
@@ -125,7 +139,7 @@ export function AdminCosts() {
             </Button>
           ))}
         </div>
-        <Button variant="ghost" size="sm" onClick={handleRefresh} className="gap-1.5">
+        <Button variant="ghost" size="sm" onClick={() => refetchStats()} className="gap-1.5">
           <RefreshCw className="w-3.5 h-3.5" />
           Actualiser
         </Button>
@@ -263,6 +277,49 @@ export function AdminCosts() {
         </CardContent>
       </Card>
 
+      {/* Cost by model */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            Coût par modèle IA
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {modelLoading ? (
+            <Skeleton className="h-32" />
+          ) : byModel.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">
+              Aucune donnée pour cette période
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Modèle</TableHead>
+                    <TableHead className="text-right">Requêtes</TableHead>
+                    <TableHead className="text-right">Tokens IN</TableHead>
+                    <TableHead className="text-right">Tokens OUT</TableHead>
+                    <TableHead className="text-right">Coût</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {byModel.map((m) => (
+                    <TableRow key={m.model}>
+                      <TableCell className="font-mono text-xs">{m.model}</TableCell>
+                      <TableCell className="text-right">{formatNumber(m.request_count)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{formatNumber(m.tokens_in)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{formatNumber(m.tokens_out)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCost(m.cost)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
       {/* Daily breakdown (last entries) */}
       <Card>
         <CardHeader className="pb-3">
