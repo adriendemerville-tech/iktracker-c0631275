@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from '@/types/trip';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { usePreferences } from './usePreferences';
+import { usePreferences, getFiscalYearStart } from './usePreferences';
 import { toast } from 'sonner';
 
 // Archived trips are kept for 30 days
