@@ -353,6 +353,8 @@ export function AdminSurveys() {
     delay_between_impressions_hours: 24,
     target_personas: [] as string[],
     target_user_count: null as number | null,
+    target_min_days_since_signup: null as number | null,
+    target_max_days_since_signup: null as number | null,
   });
 
   // ---- Queries ----
