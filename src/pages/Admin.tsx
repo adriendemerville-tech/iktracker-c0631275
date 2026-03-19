@@ -40,7 +40,8 @@ import {
   ChevronRight,
   Euro,
   BookOpen,
-  Activity
+  Activity,
+  Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
