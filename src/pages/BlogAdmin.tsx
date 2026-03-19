@@ -242,6 +242,11 @@ export default function BlogAdmin() {
   const [creatingKey, setCreatingKey] = useState(false);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
+  // Audit logs state
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loadingAudit, setLoadingAudit] = useState(false);
+  const [revertingId, setRevertingId] = useState<string | null>(null);
+
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
 
