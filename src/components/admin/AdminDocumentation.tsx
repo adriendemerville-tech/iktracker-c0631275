@@ -628,7 +628,7 @@ TOUR_DISTANCE        → number (km cumulés)`}</pre>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-primary" />
+                <NavigationIcon className="w-5 h-5 text-primary" />
                 Paramètres GPS & Détection
               </CardTitle>
               <CardDescription>useTourTracker.ts — Constantes et algorithme de détection</CardDescription>
