@@ -42,7 +42,10 @@ import {
   Euro,
   BookOpen,
   Activity,
-  Eye
+  Eye,
+  Monitor,
+  Smartphone,
+  Globe
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
