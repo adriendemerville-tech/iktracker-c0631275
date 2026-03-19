@@ -680,7 +680,7 @@ TOUR_DISTANCE        → number (km cumulés)`}</pre>
                 {[
                   { file: 'hooks/useTourTracker.ts', desc: 'Hook principal : watchPosition, détection arrêts, calcul distance, persistance localStorage', badge: 'Core' },
                   { file: 'hooks/useTourSessionRecovery.ts', desc: 'Récupération session : save/load/clear + logique Cas A/B/C + formatInactivityDuration', badge: 'Recovery' },
-                  { file: 'hooks/useWakeLock.ts', desc: 'Wake Lock API : garde l'écran allumé pendant la tournée', badge: 'API' },
+                  { file: 'hooks/useWakeLock.ts', desc: "Wake Lock API : garde l\u2019écran allumé pendant la tournée", badge: 'API' },
                   { file: 'hooks/useGeolocation.ts', desc: 'Abstraction Geolocation API + gestion permissions', badge: 'API' },
                   { file: 'components/TourButton.tsx', desc: 'Bouton principal sur la page Home : gradient animé, compteur km/étapes', badge: 'UI' },
                   { file: 'components/FocusTourView.tsx', desc: 'Vue plein écran pendant tournée active : heure, durée, distance, signal GPS, batterie', badge: 'UI' },
