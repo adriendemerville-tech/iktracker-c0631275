@@ -53,6 +53,7 @@ interface Feedback {
   responded_at: string | null;
   read_by_user: boolean;
   created_at: string;
+  phone_number: string | null;
   // User info (joined from users)
   user_first_name?: string;
   user_last_name?: string;
@@ -65,6 +66,7 @@ interface UserWithRole {
   first_name: string;
   last_name: string;
   isAdmin: boolean;
+  userRole: 'admin' | 'viewer' | null;
   feedbackCount: number;
   lastActivity: string | null;
   created_at: string;
@@ -74,7 +76,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isLoading: adminLoading } = useAdmin();
+  const { isAdmin, adminRole, isLoading: adminLoading } = useAdmin();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
@@ -98,6 +100,9 @@ const Admin = () => {
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
     queryKey: ['admin-feedbacks'],
     queryFn: async () => {
+      // Cleanup phone numbers older than 7 days
+      await supabase.rpc('cleanup_old_phone_numbers' as any);
+
       const { data: feedbackData, error } = await supabase
         .from('feedback')
         .select('*')
@@ -128,6 +133,7 @@ const Admin = () => {
       // Merge user info into feedbacks
       return feedbackData.map(f => ({
         ...f,
+        phone_number: (f as any).phone_number || null,
         user_first_name: userInfoMap.get(f.user_id)?.first_name,
         user_last_name: userInfoMap.get(f.user_id)?.last_name,
         user_email: userInfoMap.get(f.user_id)?.email,
@@ -144,7 +150,7 @@ const Admin = () => {
       const { data, error } = await supabase
         .from('user_roles')
         .select('*')
-        .eq('role', 'admin');
+        .in('role', ['admin', 'viewer'] as any[]);
 
       if (error) throw error;
       return data;
@@ -185,6 +191,7 @@ const Admin = () => {
       first_name: u.first_name,
       last_name: u.last_name,
       isAdmin: userRoles.some(r => r.user_id === u.user_id),
+      userRole: (userRoles.find(r => r.user_id === u.user_id)?.role as 'admin' | 'viewer') || null,
       feedbackCount,
       lastActivity,
       created_at: u.created_at,
@@ -392,7 +399,7 @@ const Admin = () => {
             </div>
             <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
               <p className="text-2xl font-bold">{adminCount}</p>
-              <p className="text-xs opacity-80">Admins</p>
+              <p className="text-xs opacity-80">{adminRole === 'admin' ? 'Créateur' : 'Viewer'}</p>
             </div>
           </div>
           
@@ -413,7 +420,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-4">
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-4' : 'grid-cols-6'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -422,10 +429,12 @@ const Admin = () => {
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">Avis</span> ({feedbacks.length})
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Users</span>
-            </TabsTrigger>
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Users className="w-4 h-4" />
+                <span className="hidden sm:inline">Users</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
               <Euro className="w-4 h-4" />
               <span className="hidden sm:inline">Coût</span>
@@ -434,10 +443,12 @@ const Admin = () => {
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">Backend</span>
             </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
-              <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">Docs</span>
-            </TabsTrigger>
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
+                <BookOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Docs</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Stats Tab */}
@@ -511,6 +522,9 @@ const Admin = () => {
                               {feedback.image_url && (
                                 <ImageIcon className="w-3 h-3 ml-2" />
                               )}
+                              {feedback.phone_number && (
+                                <span className="ml-2 text-green-600">📞</span>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -549,6 +563,14 @@ const Admin = () => {
                             <p className="text-xs text-muted-foreground mb-2">{selectedFeedback.user_email}</p>
                           )}
                           <p className="text-sm whitespace-pre-wrap">{selectedFeedback.message}</p>
+                          
+                          {selectedFeedback.phone_number && (
+                            <div className="mt-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                              <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
+                                📞 {selectedFeedback.user_first_name || 'L\'utilisateur'} souhaite que tu l'appelles : {selectedFeedback.phone_number}
+                              </p>
+                            </div>
+                          )}
                           
                           {selectedFeedback.image_url && (
                             <div className="mt-3">
@@ -712,10 +734,15 @@ const Admin = () => {
                                   ? `${u.first_name} ${u.last_name}`.trim() 
                                   : u.email || u.user_id.slice(0, 8) + '...'}
                               </span>
-                              {u.isAdmin && (
+                              {u.userRole === 'admin' && (
                                 <Badge className="bg-amber-500 hover:bg-amber-600 flex-shrink-0">
                                   <Crown className="w-3 h-3 mr-1" />
-                                  Admin
+                                  Créateur
+                                </Badge>
+                              )}
+                              {u.userRole === 'viewer' && (
+                                <Badge variant="secondary" className="flex-shrink-0">
+                                  Viewer
                                 </Badge>
                               )}
                             </div>

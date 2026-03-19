@@ -2,28 +2,33 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+export type AdminRole = 'admin' | 'viewer' | null;
+
 export const useAdmin = () => {
   const { user, loading: authLoading } = useAuth();
 
-  const { data: isAdmin = false, isLoading: roleLoading } = useQuery({
-    queryKey: ['isAdmin', user?.id],
-    queryFn: async () => {
-      if (!user) return false;
+  const { data = { isAdmin: false, adminRole: null as AdminRole }, isLoading: roleLoading } = useQuery({
+    queryKey: ['adminRole', user?.id],
+    queryFn: async (): Promise<{ isAdmin: boolean; adminRole: AdminRole }> => {
+      if (!user) return { isAdmin: false, adminRole: null };
 
       const { data, error } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
 
       if (error) {
-        // Avoid leaking details; just report and treat as non-admin.
         console.error('Error checking admin role:', error);
-        return false;
+        return { isAdmin: false, adminRole: null };
       }
 
-      return data === true;
+      const roles = (data || []).map((r: any) => r.role as string);
+      if (roles.includes('admin')) return { isAdmin: true, adminRole: 'admin' };
+      if (roles.includes('viewer')) return { isAdmin: true, adminRole: 'viewer' };
+      return { isAdmin: false, adminRole: null };
     },
-    // Wait until auth is initialized to avoid redirect loops during initial load.
     enabled: !authLoading && !!user,
   });
 
-  return { isAdmin, isLoading: authLoading || roleLoading };
+  return { isAdmin: data.isAdmin, adminRole: data.adminRole, isLoading: authLoading || roleLoading };
 };
