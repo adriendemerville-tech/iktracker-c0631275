@@ -564,6 +564,7 @@ export type Database = {
           persona: string | null
           updated_at: string
           user_id: string
+          visit_count: number
         }
         Insert: {
           accountant_email?: string | null
@@ -572,6 +573,7 @@ export type Database = {
           persona?: string | null
           updated_at?: string
           user_id: string
+          visit_count?: number
         }
         Update: {
           accountant_email?: string | null
@@ -580,6 +582,7 @@ export type Database = {
           persona?: string | null
           updated_at?: string
           user_id?: string
+          visit_count?: number
         }
         Relationships: []
       }
