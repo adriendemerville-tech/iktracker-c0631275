@@ -307,7 +307,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                 placeholder="Décrivez votre retour d'expérience, une suggestion d'amélioration ou un bug rencontré..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
-                className="min-h-[120px] resize-none cursor-text select-text"
+                className="min-h-[150px] resize-none cursor-text select-text"
               />
               <p className={`text-xs text-right ${charsRemaining < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
                 {charsRemaining} caractères restants
@@ -342,7 +342,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                     maxLength={14}
                   />
                   <p className="text-xs text-green-600 dark:text-green-400 leading-relaxed">
-                    🔒 Ce numéro n'est sauvegardé nulle part dans IKtracker et s'effacera de la conversation au bout de 7 jours
+                    Numéro non sauvegardé, il s'effacera de la conversation au bout de 7 jours.
                   </p>
                 </div>
               )}
