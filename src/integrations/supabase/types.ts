@@ -597,6 +597,8 @@ export type Database = {
           max_impressions_per_user: number
           published_at: string | null
           status: string
+          target_max_days_since_signup: number | null
+          target_min_days_since_signup: number | null
           target_page: string
           target_personas: string[] | null
           target_user_count: number | null
@@ -613,6 +615,8 @@ export type Database = {
           max_impressions_per_user?: number
           published_at?: string | null
           status?: string
+          target_max_days_since_signup?: number | null
+          target_min_days_since_signup?: number | null
           target_page?: string
           target_personas?: string[] | null
           target_user_count?: number | null
@@ -629,6 +633,8 @@ export type Database = {
           max_impressions_per_user?: number
           published_at?: string | null
           status?: string
+          target_max_days_since_signup?: number | null
+          target_min_days_since_signup?: number | null
           target_page?: string
           target_personas?: string[] | null
           target_user_count?: number | null

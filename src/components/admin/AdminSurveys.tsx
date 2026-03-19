@@ -55,6 +55,8 @@ interface Survey {
   delay_between_impressions_hours: number;
   target_personas: string[];
   target_user_count: number | null;
+  target_min_days_since_signup: number | null;
+  target_max_days_since_signup: number | null;
   created_by: string | null;
 }
 
@@ -351,6 +353,8 @@ export function AdminSurveys() {
     delay_between_impressions_hours: 24,
     target_personas: [] as string[],
     target_user_count: null as number | null,
+    target_min_days_since_signup: null as number | null,
+    target_max_days_since_signup: null as number | null,
   });
 
   // ---- Queries ----
@@ -417,6 +421,8 @@ export function AdminSurveys() {
             delay_between_impressions_hours: form.delay_between_impressions_hours,
             target_personas: form.target_personas,
             target_user_count: form.target_user_count,
+            target_min_days_since_signup: form.target_min_days_since_signup,
+            target_max_days_since_signup: form.target_max_days_since_signup,
             updated_at: new Date().toISOString(),
           } as any)
           .eq('id', editingSurvey.id);
@@ -455,6 +461,8 @@ export function AdminSurveys() {
             delay_between_impressions_hours: form.delay_between_impressions_hours,
             target_personas: form.target_personas,
             target_user_count: form.target_user_count,
+            target_min_days_since_signup: form.target_min_days_since_signup,
+            target_max_days_since_signup: form.target_max_days_since_signup,
           } as any)
           .select()
           .single();
@@ -529,6 +537,7 @@ export function AdminSurveys() {
       duration_days: 7, max_impressions_per_user: 3,
       delay_between_impressions_hours: 24,
       target_personas: [], target_user_count: null,
+      target_min_days_since_signup: null, target_max_days_since_signup: null,
     });
     setEditingVariants([]);
   }
@@ -545,6 +554,8 @@ export function AdminSurveys() {
       delay_between_impressions_hours: survey.delay_between_impressions_hours,
       target_personas: survey.target_personas || [],
       target_user_count: survey.target_user_count,
+      target_min_days_since_signup: (survey as any).target_min_days_since_signup ?? null,
+      target_max_days_since_signup: (survey as any).target_max_days_since_signup ?? null,
     });
 
     const { data } = await supabase
@@ -652,6 +663,14 @@ export function AdminSurveys() {
               <div>
                 <Label>Nombre d'users ciblés</Label>
                 <Input type="number" value={form.target_user_count ?? ''} onChange={e => setForm(f => ({ ...f, target_user_count: e.target.value ? parseInt(e.target.value) : null }))} placeholder="Illimité" />
+              </div>
+              <div>
+                <Label>Ancienneté min (jours)</Label>
+                <Input type="number" value={form.target_min_days_since_signup ?? ''} onChange={e => setForm(f => ({ ...f, target_min_days_since_signup: e.target.value ? parseInt(e.target.value) : null }))} placeholder="Pas de minimum" />
+              </div>
+              <div>
+                <Label>Ancienneté max (jours)</Label>
+                <Input type="number" value={form.target_max_days_since_signup ?? ''} onChange={e => setForm(f => ({ ...f, target_max_days_since_signup: e.target.value ? parseInt(e.target.value) : null }))} placeholder="Pas de maximum" />
               </div>
               <div>
                 <Label>Personas ciblés</Label>
