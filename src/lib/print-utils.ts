@@ -702,7 +702,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function updateSummaryCards(count, km, ik) {
-      const statsCells = document.querySelectorAll('.content-wrapper table:nth-of-type(2) td');
+      const statsCells = document.querySelectorAll('#summary-cards > tr > td');
       if (statsCells.length >= 3) {
         const countDiv = statsCells[0].querySelector('div:last-child');
         if (countDiv) countDiv.textContent = count;
