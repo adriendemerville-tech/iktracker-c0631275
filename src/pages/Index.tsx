@@ -1006,8 +1006,11 @@ ${IKTRACKER_MENTION}
         />
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
           <div className="flex items-center gap-3 mb-3 md:mb-6">
-            {/* Desktop: Text only (logo is in sidebar) */}
-            <h1 className="flex-1 hidden md:block text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
+            {/* Desktop: Text + subtitle (logo is in sidebar) */}
+            <div className="flex-1 hidden md:block">
+              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
+              <p className="text-xs text-white/50 font-urbanist">Outil communautaire.</p>
+            </div>
             {/* Mobile: Text only */}
             <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-white">IKtracker</h1>
             {isAdmin && (
