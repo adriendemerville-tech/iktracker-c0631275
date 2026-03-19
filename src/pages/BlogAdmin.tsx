@@ -67,6 +67,19 @@ import { fr } from 'date-fns/locale';
 
 type BlogPostStatus = 'draft' | 'published' | 'archived';
 
+interface AuditLog {
+  id: string;
+  created_at: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  previous_data: Record<string, unknown> | null;
+  new_data: Record<string, unknown> | null;
+  api_key_name: string | null;
+  reverted: boolean;
+  reverted_at: string | null;
+}
+
 interface BlogPost {
   id: string;
   slug: string;
