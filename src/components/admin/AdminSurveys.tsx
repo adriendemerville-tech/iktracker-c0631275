@@ -554,6 +554,8 @@ export function AdminSurveys() {
       delay_between_impressions_hours: survey.delay_between_impressions_hours,
       target_personas: survey.target_personas || [],
       target_user_count: survey.target_user_count,
+      target_min_days_since_signup: (survey as any).target_min_days_since_signup ?? null,
+      target_max_days_since_signup: (survey as any).target_max_days_since_signup ?? null,
     });
 
     const { data } = await supabase
