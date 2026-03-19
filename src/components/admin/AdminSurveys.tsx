@@ -643,7 +643,7 @@ export function AdminSurveys() {
               </div>
             </div>
             <div>
-              <Label className="flex items-center gap-1.5">Description (interne) <Eye className="w-3.5 h-3.5 text-red-500" title="Non visible — admin uniquement" /></Label>
+              <Label className="flex items-center gap-1.5">Description (interne) <span title="Non visible — admin uniquement"><Eye className="w-3.5 h-3.5 text-red-500" /></span></Label>
               <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} />
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
