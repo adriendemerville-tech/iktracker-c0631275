@@ -159,7 +159,7 @@ export const DesktopSidebar = ({
     <>
       <aside className="fixed left-0 top-0 h-full w-16 bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40">
         {/* Logo - clickable, links to app home */}
-        <Link to="/app" className="mb-8" data-tutorial="home" title="Accueil">
+        <Link to="/?from=app" className="mb-8" data-tutorial="home" title="Accueil">
           <img 
             src="/logo-iktracker-250.webp" 
             alt="IKtracker" 

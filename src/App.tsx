@@ -101,18 +101,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Smart landing: redirect authenticated users to /app
 const SmartLanding = () => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const fromApp = new URLSearchParams(location.search).get('from') === 'app';
 
   // Still loading auth state - show AuthLoadingScreen for consistency
   if (loading) {
     return <AuthLoadingScreen />;
   }
 
-  // Authenticated users redirect to app
-  if (user) {
+  // Authenticated users redirect to app (unless they came from app via logo)
+  if (user && !fromApp) {
     return <Navigate to="/app" replace />;
   }
 
-  // Non-authenticated users see the landing page (lazy loaded)
+  // Show the landing page
   return (
     <Suspense fallback={<PageLoader />}>
       <Landing />
