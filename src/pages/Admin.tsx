@@ -312,7 +312,7 @@ const Admin = () => {
       });
       return;
     }
-    addAdminMutation.mutate(newAdminId.trim());
+    addAdminMutation.mutate({ userId: newAdminId.trim(), role: 'admin' });
   };
 
   // Loading state
