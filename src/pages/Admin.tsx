@@ -399,7 +399,7 @@ const Admin = () => {
             </div>
             <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
               <p className="text-2xl font-bold">{adminCount}</p>
-              <p className="text-xs opacity-80">Admins</p>
+              <p className="text-xs opacity-80">{adminRole === 'admin' ? 'Créateur' : 'Viewer'}</p>
             </div>
           </div>
           
