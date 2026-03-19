@@ -265,28 +265,28 @@ const Admin = () => {
     },
   });
 
-  // Remove admin role mutation
+  // Remove role mutation
   const removeAdminMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', 'admin');
+        .in('role', ['admin', 'viewer'] as any[]);
 
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       toast({
-        title: 'Admin retiré',
-        description: "Le rôle admin a été retiré",
+        title: 'Rôle retiré',
+        description: "Le rôle a été retiré",
       });
     },
     onError: (error: any) => {
       toast({
         title: 'Erreur',
-        description: error.message || "Impossible de retirer l'admin",
+        description: error.message || "Impossible de retirer le rôle",
         variant: 'destructive',
       });
     },
