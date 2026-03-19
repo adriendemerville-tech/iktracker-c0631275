@@ -859,6 +859,11 @@ const Admin = () => {
             <AdminMonitoring />
           </TabsContent>
 
+          {/* Surveys Tab */}
+          <TabsContent value="surveys">
+            <AdminSurveys />
+          </TabsContent>
+
           {/* Docs Tab */}
           <TabsContent value="docs">
             <AdminDocumentation />
