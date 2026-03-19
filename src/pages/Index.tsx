@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTrips } from '@/hooks/useTrips';
-import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour, TOUR_STORAGE_KEYS, loadTourData } from '@/hooks/useTourTracker';
+import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour, TOUR_STORAGE_KEYS, loadTourData, saveTourData } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useAdmin } from '@/hooks/useAdmin';
