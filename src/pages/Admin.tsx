@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
@@ -39,7 +40,8 @@ import {
   ChevronRight,
   Euro,
   BookOpen,
-  Activity
+  Activity,
+  Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -232,54 +234,61 @@ const Admin = () => {
     },
   });
 
-  // Add admin role mutation
+  // Add role mutation
   const addAdminMutation = useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'viewer' }) => {
+      // Remove existing role first if any
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .in('role', ['admin', 'viewer'] as any[]);
+
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: 'admin' });
+        .insert({ user_id: userId, role } as any);
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, { role }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       toast({
-        title: 'Admin ajouté',
-        description: "L'utilisateur est maintenant administrateur",
+        title: role === 'admin' ? 'Créateur ajouté' : 'Viewer ajouté',
+        description: `Le rôle ${role === 'admin' ? 'Créateur' : 'Viewer'} a été attribué`,
       });
       setNewAdminId('');
     },
     onError: (error: any) => {
       toast({
         title: 'Erreur',
-        description: error.message || "Impossible d'ajouter l'admin",
+        description: error.message || "Impossible d'attribuer le rôle",
         variant: 'destructive',
       });
     },
   });
 
-  // Remove admin role mutation
+  // Remove role mutation
   const removeAdminMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', 'admin');
+        .in('role', ['admin', 'viewer'] as any[]);
 
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       toast({
-        title: 'Admin retiré',
-        description: "Le rôle admin a été retiré",
+        title: 'Rôle retiré',
+        description: "Le rôle a été retiré",
       });
     },
     onError: (error: any) => {
       toast({
         title: 'Erreur',
-        description: error.message || "Impossible de retirer l'admin",
+        description: error.message || "Impossible de retirer le rôle",
         variant: 'destructive',
       });
     },
@@ -305,7 +314,7 @@ const Admin = () => {
       });
       return;
     }
-    addAdminMutation.mutate(newAdminId.trim());
+    addAdminMutation.mutate({ userId: newAdminId.trim(), role: 'admin' });
   };
 
   // Loading state
@@ -757,40 +766,70 @@ const Admin = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                             {u.isAdmin ? (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (u.user_id === user?.id) {
-                                    toast({
-                                      title: 'Action impossible',
-                                      description: 'Vous ne pouvez pas retirer vos propres droits admin',
-                                      variant: 'destructive',
-                                    });
-                                    return;
-                                  }
-                                  removeAdminMutation.mutate(u.user_id);
-                                }}
-                                disabled={removeAdminMutation.isPending || u.user_id === user?.id}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <UserMinus className="w-4 h-4" />
-                              </Button>
+                              <div className="flex items-center gap-1">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm" disabled={addAdminMutation.isPending}>
+                                      {u.userRole === 'admin' ? <Crown className="w-4 h-4 text-amber-500" /> : <Eye className="w-4 h-4" />}
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'admin' })}
+                                      className={u.userRole === 'admin' ? 'bg-accent' : ''}
+                                    >
+                                      <Crown className="w-4 h-4 mr-2 text-amber-500" />
+                                      Créateur
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'viewer' })}
+                                      className={u.userRole === 'viewer' ? 'bg-accent' : ''}
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      Viewer
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (u.user_id === user?.id) {
+                                      toast({
+                                        title: 'Action impossible',
+                                        description: 'Vous ne pouvez pas retirer vos propres droits',
+                                        variant: 'destructive',
+                                      });
+                                      return;
+                                    }
+                                    removeAdminMutation.mutate(u.user_id);
+                                  }}
+                                  disabled={removeAdminMutation.isPending || u.user_id === user?.id}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <UserMinus className="w-4 h-4" />
+                                </Button>
+                              </div>
                             ) : (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addAdminMutation.mutate(u.user_id);
-                                }}
-                                disabled={addAdminMutation.isPending}
-                              >
-                                <Crown className="w-4 h-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm" disabled={addAdminMutation.isPending}>
+                                    <Crown className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'admin' })}>
+                                    <Crown className="w-4 h-4 mr-2 text-amber-500" />
+                                    Créateur
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'viewer' })}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Viewer
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             )}
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                           </div>
