@@ -137,7 +137,7 @@ export default function TemporaryReport() {
     const iframe = document.querySelector('iframe[title="Relevé IK"]') as HTMLIFrameElement;
     if (!iframe?.contentDocument) return;
     
-    const tripsTable = iframe.contentDocument.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+    const tripsTable = iframe.contentDocument.querySelector('#trips-table tbody');
     if (!tripsTable) {
       toast.error("Aucun trajet trouvé dans le rapport");
       return;

@@ -626,7 +626,7 @@ function generateReportHTML(options: PrintReportOptions): string {
       const startDate = startStr ? new Date(startStr) : null;
       const endDate = endStr ? new Date(endStr + 'T23:59:59') : null;
       
-      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      const tripsTable = document.querySelector('#trips-table tbody');
       if (!tripsTable) return;
       
       const tripRows = tripsTable.querySelectorAll('tr');
@@ -669,7 +669,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function downloadCSV() {
-      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      const tripsTable = document.querySelector('#trips-table tbody');
       if (!tripsTable) return;
       
       const headers = ['Date', 'Départ', 'Arrivée', 'Motif', 'Distance (km)', 'Cumul (km)', 'Montant IK (€)'];
@@ -702,7 +702,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function updateSummaryCards(count, km, ik) {
-      const statsCells = document.querySelectorAll('.content-wrapper table:nth-of-type(2) td');
+      const statsCells = document.querySelectorAll('#summary-cards > tr > td');
       if (statsCells.length >= 3) {
         const countDiv = statsCells[0].querySelector('div:last-child');
         if (countDiv) countDiv.textContent = count;
@@ -714,7 +714,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function recalcTotals() {
-      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      const tripsTable = document.querySelector('#trips-table tbody');
       if (!tripsTable) return;
       const tripRows = tripsTable.querySelectorAll('tr');
       let totalKm = 0, totalIk = 0, count = 0;
@@ -830,7 +830,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     </table>
     
     <!-- Summary Cards Row -->
-    <table style="width: 100%; margin-bottom: 24px; border-spacing: 12px 0; border-collapse: separate;">
+    <table id="summary-cards" style="width: 100%; margin-bottom: 24px; border-spacing: 12px 0; border-collapse: separate;">
       <tr>
         <!-- Distance Card -->
         <td style="width: 33.33%; text-align: center; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 12px; padding: 20px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -859,7 +859,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     </div>
     
     <!-- Trips Table -->
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed;">
+    <table id="trips-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed;">
       <thead>
         <tr style="background: #0f172a;">
           <th style="padding: 12px 8px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 70px;">Date</th>
