@@ -418,7 +418,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-4">
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-4' : 'grid-cols-6'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -427,10 +427,12 @@ const Admin = () => {
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">Avis</span> ({feedbacks.length})
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Users</span>
-            </TabsTrigger>
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Users className="w-4 h-4" />
+                <span className="hidden sm:inline">Users</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
               <Euro className="w-4 h-4" />
               <span className="hidden sm:inline">Coût</span>
@@ -439,10 +441,12 @@ const Admin = () => {
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">Backend</span>
             </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
-              <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">Docs</span>
-            </TabsTrigger>
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
+                <BookOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Docs</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Stats Tab */}
