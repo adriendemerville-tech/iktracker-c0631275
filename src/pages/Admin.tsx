@@ -53,6 +53,7 @@ interface Feedback {
   responded_at: string | null;
   read_by_user: boolean;
   created_at: string;
+  phone_number: string | null;
   // User info (joined from users)
   user_first_name?: string;
   user_last_name?: string;
