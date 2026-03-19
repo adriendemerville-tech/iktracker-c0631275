@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_audit_logs: {
+        Row: {
+          action: string
+          api_key_name: string | null
+          created_at: string
+          id: string
+          new_data: Json | null
+          previous_data: Json | null
+          resource_id: string
+          resource_type: string
+          reverted: boolean
+          reverted_at: string | null
+        }
+        Insert: {
+          action: string
+          api_key_name?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          previous_data?: Json | null
+          resource_id: string
+          resource_type: string
+          reverted?: boolean
+          reverted_at?: string | null
+        }
+        Update: {
+          action?: string
+          api_key_name?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          previous_data?: Json | null
+          resource_id?: string
+          resource_type?: string
+          reverted?: boolean
+          reverted_at?: string | null
+        }
+        Relationships: []
+      }
       api_usage_logs: {
         Row: {
           cost_euros: number | null

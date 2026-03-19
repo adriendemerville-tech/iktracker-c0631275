@@ -16,7 +16,7 @@ import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2
 } from 'lucide-react';
 import {
   DndContext,
@@ -66,6 +66,19 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 type BlogPostStatus = 'draft' | 'published' | 'archived';
+
+interface AuditLog {
+  id: string;
+  created_at: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  previous_data: Record<string, unknown> | null;
+  new_data: Record<string, unknown> | null;
+  api_key_name: string | null;
+  reverted: boolean;
+  reverted_at: string | null;
+}
 
 interface BlogPost {
   id: string;
@@ -229,6 +242,11 @@ export default function BlogAdmin() {
   const [creatingKey, setCreatingKey] = useState(false);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
+  // Audit logs state
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loadingAudit, setLoadingAudit] = useState(false);
+  const [revertingId, setRevertingId] = useState<string | null>(null);
+
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -240,6 +258,7 @@ export default function BlogAdmin() {
     if (isAdmin) {
       fetchPosts();
       fetchApiKeys();
+      fetchAuditLogs();
     }
   }, [isAdmin, adminLoading, navigate]);
 
@@ -289,6 +308,47 @@ export default function BlogAdmin() {
       
       toast.success('Ordre mis à jour');
     }
+  };
+
+  const fetchAuditLogs = async () => {
+    setLoadingAudit(true);
+    const { data, error } = await supabase
+      .from('api_audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (!error && data) {
+      setAuditLogs(data as AuditLog[]);
+    }
+    setLoadingAudit(false);
+  };
+
+  const revertChange = async (logId: string) => {
+    setRevertingId(logId);
+    try {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/blog-api/audit/revert/${logId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKeys.find(k => k.is_active)?.api_key || '',
+          },
+        }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error('Erreur revert: ' + (result.error || 'Erreur inconnue'));
+      } else {
+        toast.success('Modification annulée avec succès');
+        fetchAuditLogs();
+        fetchPosts();
+      }
+    } catch (e) {
+      toast.error('Erreur réseau');
+    }
+    setRevertingId(null);
   };
 
   const fetchApiKeys = async () => {
@@ -609,6 +669,10 @@ export default function BlogAdmin() {
               <TabsTrigger value="api-spec" className="gap-2">
                 <Code2 className="h-4 w-4" />
                 Spécification API
+              </TabsTrigger>
+              <TabsTrigger value="audit" className="gap-2">
+                <History className="h-4 w-4" />
+                Journal API
               </TabsTrigger>
             </TabsList>
 
@@ -1181,6 +1245,123 @@ curl -X POST \\
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+            {/* Audit Log Tab */}
+            <TabsContent value="audit" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Journal des modifications API</h2>
+                <Button variant="outline" size="sm" onClick={fetchAuditLogs} disabled={loadingAudit}>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${loadingAudit ? 'animate-spin' : ''}`} />
+                  Rafraîchir
+                </Button>
+              </div>
+
+              <Card className="bg-muted/50">
+                <CardContent className="p-4 text-sm text-muted-foreground">
+                  Toutes les modifications effectuées via l'API externe sont tracées ici. Vous pouvez annuler une modification pour restaurer l'état précédent.
+                </CardContent>
+              </Card>
+
+              {loadingAudit ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i}><CardContent className="p-4"><Skeleton className="h-6 w-full mb-2" /><Skeleton className="h-4 w-2/3" /></CardContent></Card>
+                  ))}
+                </div>
+              ) : auditLogs.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center text-muted-foreground">
+                    Aucune modification API enregistrée pour le moment.
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {auditLogs.map((log) => {
+                    const actionLabels: Record<string, string> = { create: 'Création', update: 'Modification', delete: 'Suppression' };
+                    const actionColors: Record<string, string> = { create: 'bg-green-600 text-white', update: 'bg-yellow-600 text-white', delete: 'bg-red-600 text-white' };
+                    const resourceLabels: Record<string, string> = { post: 'Article', page: 'Page' };
+
+                    return (
+                      <Card key={log.id} className={log.reverted ? 'opacity-60' : ''}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <Badge className={actionColors[log.action] || 'bg-muted'}>
+                                  {actionLabels[log.action] || log.action}
+                                </Badge>
+                                <Badge variant="outline">
+                                  {resourceLabels[log.resource_type] || log.resource_type}
+                                </Badge>
+                                <code className="bg-muted px-2 py-0.5 rounded text-xs font-mono">{log.resource_id}</code>
+                                {log.reverted && <Badge variant="secondary">Annulé</Badge>}
+                              </div>
+                              <div className="text-sm text-muted-foreground mt-1">
+                                {format(new Date(log.created_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                                {log.api_key_name && <span> • via <strong>{log.api_key_name}</strong></span>}
+                                {log.reverted && log.reverted_at && (
+                                  <span> • Annulé le {format(new Date(log.reverted_at), 'dd MMM yyyy à HH:mm', { locale: fr })}</span>
+                                )}
+                              </div>
+                              {log.action === 'update' && log.previous_data && log.new_data && (
+                                <details className="mt-2">
+                                  <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                                    Voir les changements
+                                  </summary>
+                                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                      <p className="font-medium text-muted-foreground mb-1">Avant</p>
+                                      <pre className="bg-muted p-2 rounded overflow-x-auto max-h-40">
+                                        {JSON.stringify(log.previous_data, null, 2)}
+                                      </pre>
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-muted-foreground mb-1">Après</p>
+                                      <pre className="bg-muted p-2 rounded overflow-x-auto max-h-40">
+                                        {JSON.stringify(log.new_data, null, 2)}
+                                      </pre>
+                                    </div>
+                                  </div>
+                                </details>
+                              )}
+                            </div>
+                            {!log.reverted && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="outline" size="sm" disabled={revertingId === log.id}>
+                                    {revertingId === log.id ? (
+                                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Undo2 className="mr-2 h-4 w-4" />
+                                    )}
+                                    Annuler
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Annuler cette modification ?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {log.action === 'create' && `L'élément "${log.resource_id}" sera supprimé.`}
+                                      {log.action === 'update' && `L'élément "${log.resource_id}" sera restauré à son état précédent.`}
+                                      {log.action === 'delete' && `L'élément "${log.resource_id}" sera recréé avec ses données précédentes.`}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Garder</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => revertChange(log.id)}>
+                                      Annuler la modification
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
