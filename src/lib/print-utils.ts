@@ -626,7 +626,7 @@ function generateReportHTML(options: PrintReportOptions): string {
       const startDate = startStr ? new Date(startStr) : null;
       const endDate = endStr ? new Date(endStr + 'T23:59:59') : null;
       
-      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      const tripsTable = document.querySelector('#trips-table tbody');
       if (!tripsTable) return;
       
       const tripRows = tripsTable.querySelectorAll('tr');
