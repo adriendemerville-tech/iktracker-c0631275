@@ -321,7 +321,8 @@ const Admin = () => {
     if (!selectedFeedback || !responseText.trim()) return;
     respondMutation.mutate({ 
       feedbackId: selectedFeedback.id, 
-      response: responseText.trim() 
+      response: responseText.trim(),
+      existingResponse: selectedFeedback.response || null,
     });
   };
 
