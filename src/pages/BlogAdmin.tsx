@@ -16,7 +16,7 @@ import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2
 } from 'lucide-react';
 import {
   DndContext,
