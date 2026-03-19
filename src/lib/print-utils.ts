@@ -830,7 +830,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     </table>
     
     <!-- Summary Cards Row -->
-    <table style="width: 100%; margin-bottom: 24px; border-spacing: 12px 0; border-collapse: separate;">
+    <table id="summary-cards" style="width: 100%; margin-bottom: 24px; border-spacing: 12px 0; border-collapse: separate;">
       <tr>
         <!-- Distance Card -->
         <td style="width: 33.33%; text-align: center; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 12px; padding: 20px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
