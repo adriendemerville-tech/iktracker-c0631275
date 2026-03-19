@@ -848,20 +848,23 @@ export function useTrips() {
     const fiscalMonth = preferences.fiscalYearStartMonth || 1;
     const fiscalDay = preferences.fiscalYearStartDay || 1;
     
-    const vehicleKms = new Map<string, number>();
+    const vehicleKms = new Map<string, { vehicleId: string; km: number }>();
     filteredTrips.forEach(t => {
       if (!t.vehicleId) return;
       // Group by vehicle + fiscal year
       const tripDate = new Date(t.startTime);
       const fyStart = getFiscalYearStart(tripDate, fiscalMonth, fiscalDay);
-      const fyKey = `${t.vehicleId}-${fyStart.getTime()}`;
-      const current = vehicleKms.get(fyKey) || 0;
-      vehicleKms.set(fyKey, current + t.distance);
+      const fyKey = `${t.vehicleId}::${fyStart.getTime()}`;
+      const existing = vehicleKms.get(fyKey);
+      if (existing) {
+        existing.km += t.distance;
+      } else {
+        vehicleKms.set(fyKey, { vehicleId: t.vehicleId, km: t.distance });
+      }
     });
 
     let total = 0;
-    vehicleKms.forEach((km, key) => {
-      const vehicleId = key.split('-')[0];
+    vehicleKms.forEach(({ vehicleId, km }) => {
       const vehicle = vehicles.find(v => v.id === vehicleId);
       if (vehicle) {
         let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower);
