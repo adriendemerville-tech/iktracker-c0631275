@@ -131,26 +131,41 @@ export default function ModeTournee() {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": "Mode Tournée IKtracker",
-            "description": "Fonctionnalité de suivi kilométrique multi-arrêts pour professionnels itinérants",
-            "url": "https://iktracker.fr/mode-tournee",
-            "isPartOf": {
-              "@type": "WebSite",
-              "name": "IKtracker",
-              "url": "https://iktracker.fr"
-            },
-            "about": {
-              "@type": "SoftwareApplication",
-              "name": "IKtracker Mode Tournée",
-              "applicationCategory": "BusinessApplication",
-              "operatingSystem": "Web, iOS, Android",
-              "offers": {
-                "@type": "Offer",
-                "price": "0.00",
-                "priceCurrency": "EUR"
+            "@graph": [
+              {
+                "@type": "WebPage",
+                "name": "Mode Tournée IKtracker - Outil communautaire",
+                "description": "Fonctionnalité de suivi kilométrique multi-arrêts par GPS pour professionnels itinérants. Outil communautaire gratuit.",
+                "url": "https://iktracker.fr/mode-tournee",
+                "isPartOf": {
+                  "@type": "WebSite",
+                  "name": "IKtracker",
+                  "url": "https://iktracker.fr"
+                }
+              },
+              {
+                "@type": "SoftwareApplication",
+                "name": "IKtracker Mode Tournée",
+                "applicationCategory": "BusinessApplication",
+                "operatingSystem": "Web, iOS, Android",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0.00",
+                  "priceCurrency": "EUR"
+                },
+                "featureList": [
+                  "Tracking GPS en temps réel des arrêts clients",
+                  "Calcul automatique des distances via Google Maps",
+                  "Navigation intégrée Waze et Google Maps",
+                  "Génération automatique des trajets et IK",
+                  "Export PDF/CSV de la tournée complète"
+                ],
+                "audience": {
+                  "@type": "BusinessAudience",
+                  "audienceType": "Infirmiers libéraux, artisans, commerciaux, aide à domicile"
+                }
               }
-            }
+            ]
           })}
         </script>
       </Helmet>
