@@ -278,6 +278,7 @@ export type Database = {
       feedback: {
         Row: {
           created_at: string
+          device_info: Json | null
           id: string
           image_url: string | null
           message: string
@@ -289,6 +290,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          device_info?: Json | null
           id?: string
           image_url?: string | null
           message: string
@@ -300,6 +302,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          device_info?: Json | null
           id?: string
           image_url?: string | null
           message?: string
