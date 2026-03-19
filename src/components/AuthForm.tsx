@@ -261,7 +261,7 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
               className="text-base text-primary hover:text-primary/80 transition-colors font-medium focus-visible-ring rounded-sm underline-offset-4 hover:underline"
             >
               {mode === 'login' 
-                ? 'Pas encore de compte ? Inscrivez-vous !'
+                ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
                 : 'Déjà un compte ? Connectez-vous'
               }
             </button>
