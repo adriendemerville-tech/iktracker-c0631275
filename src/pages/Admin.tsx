@@ -20,6 +20,7 @@ import { AdminCosts } from '@/components/admin/AdminCosts';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
+import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { 
   ArrowLeft, 
   MessageSquare, 
