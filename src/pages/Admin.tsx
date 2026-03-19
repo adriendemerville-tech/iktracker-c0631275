@@ -66,6 +66,7 @@ interface UserWithRole {
   first_name: string;
   last_name: string;
   isAdmin: boolean;
+  userRole: 'admin' | 'viewer' | null;
   feedbackCount: number;
   lastActivity: string | null;
   created_at: string;
