@@ -26,7 +26,20 @@ const defaultPreferences: Preferences = {
   accountantEmail: '',
   hasSentToAccountant: false,
   counterResetDate: null,
+  fiscalYearStartMonth: 1,
+  fiscalYearStartDay: 1,
 };
+
+// Get the fiscal year start date for a given reference date
+export function getFiscalYearStart(refDate: Date, fiscalYearStartMonth: number = 1, fiscalYearStartDay: number = 1): Date {
+  const year = refDate.getFullYear();
+  const fiscalStart = new Date(year, fiscalYearStartMonth - 1, fiscalYearStartDay);
+  // If the reference date is before the fiscal year start, use previous year
+  if (refDate < fiscalStart) {
+    return new Date(year - 1, fiscalYearStartMonth - 1, fiscalYearStartDay);
+  }
+  return fiscalStart;
+}
 
 export function usePreferences() {
   const { user } = useAuth();
