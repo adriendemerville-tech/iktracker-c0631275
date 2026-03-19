@@ -561,6 +561,7 @@ export type Database = {
           accountant_email: string | null
           created_at: string
           id: string
+          persona: string | null
           updated_at: string
           user_id: string
         }
@@ -568,6 +569,7 @@ export type Database = {
           accountant_email?: string | null
           created_at?: string
           id?: string
+          persona?: string | null
           updated_at?: string
           user_id: string
         }
@@ -575,6 +577,7 @@ export type Database = {
           accountant_email?: string | null
           created_at?: string
           id?: string
+          persona?: string | null
           updated_at?: string
           user_id?: string
         }

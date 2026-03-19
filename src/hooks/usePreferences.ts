@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
 export interface Preferences {
   showTripTime: boolean;
@@ -34,7 +35,6 @@ const defaultPreferences: Preferences = {
 export function getFiscalYearStart(refDate: Date, fiscalYearStartMonth: number = 1, fiscalYearStartDay: number = 1): Date {
   const year = refDate.getFullYear();
   const fiscalStart = new Date(year, fiscalYearStartMonth - 1, fiscalYearStartDay);
-  // If the reference date is before the fiscal year start, use previous year
   if (refDate < fiscalStart) {
     return new Date(year - 1, fiscalYearStartMonth - 1, fiscalYearStartDay);
   }
@@ -65,7 +65,7 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email')
+          .select('accountant_email, persona')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -74,11 +74,25 @@ export function usePreferences() {
           return;
         }
 
-        if (data?.accountant_email) {
-          setPreferences(prev => ({
-            ...prev,
-            accountantEmail: data.accountant_email || prev.accountantEmail,
-          }));
+        if (data) {
+          const updates: Partial<Preferences> = {};
+          
+          if (data.accountant_email) {
+            updates.accountantEmail = data.accountant_email;
+          }
+          
+          // Sync persona → profession if persona is set and profession is empty
+          const persona = (data as any)?.persona as string | undefined;
+          if (persona) {
+            const personaOption = PERSONA_OPTIONS.find(p => p.value === persona);
+            if (personaOption) {
+              updates.profession = personaOption.profession;
+            }
+          }
+
+          if (Object.keys(updates).length > 0) {
+            setPreferences(prev => ({ ...prev, ...updates }));
+          }
         }
       } catch (e) {
         console.warn('Failed to load preferences from database:', e);
@@ -124,6 +138,26 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save persona to database when profession changes (reverse mapping)
+  const savePersonaToDatabase = useCallback(async (profession: string) => {
+    if (!user) return;
+
+    // Find matching persona for this profession
+    const personaOption = PERSONA_OPTIONS.find(p => p.profession === profession);
+    if (!personaOption) return; // No matching persona, just keep localStorage
+
+    try {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          persona: personaOption.value,
+        } as any, { onConflict: 'user_id' });
+    } catch (e) {
+      console.warn('Failed to save persona to database:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
@@ -133,6 +167,11 @@ export function usePreferences() {
     // Sync accountant email to database if user is authenticated
     if (key === 'accountantEmail' && user) {
       saveAccountantEmailToDatabase(value as string);
+    }
+
+    // Sync profession → persona to database
+    if (key === 'profession' && user) {
+      savePersonaToDatabase(value as string);
     }
   };
 
