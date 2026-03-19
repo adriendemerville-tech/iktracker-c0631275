@@ -765,40 +765,70 @@ const Admin = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                             {u.isAdmin ? (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (u.user_id === user?.id) {
-                                    toast({
-                                      title: 'Action impossible',
-                                      description: 'Vous ne pouvez pas retirer vos propres droits admin',
-                                      variant: 'destructive',
-                                    });
-                                    return;
-                                  }
-                                  removeAdminMutation.mutate(u.user_id);
-                                }}
-                                disabled={removeAdminMutation.isPending || u.user_id === user?.id}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <UserMinus className="w-4 h-4" />
-                              </Button>
+                              <div className="flex items-center gap-1">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm" disabled={addAdminMutation.isPending}>
+                                      {u.userRole === 'admin' ? <Crown className="w-4 h-4 text-amber-500" /> : <Eye className="w-4 h-4" />}
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'admin' })}
+                                      className={u.userRole === 'admin' ? 'bg-accent' : ''}
+                                    >
+                                      <Crown className="w-4 h-4 mr-2 text-amber-500" />
+                                      Créateur
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'viewer' })}
+                                      className={u.userRole === 'viewer' ? 'bg-accent' : ''}
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      Viewer
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (u.user_id === user?.id) {
+                                      toast({
+                                        title: 'Action impossible',
+                                        description: 'Vous ne pouvez pas retirer vos propres droits',
+                                        variant: 'destructive',
+                                      });
+                                      return;
+                                    }
+                                    removeAdminMutation.mutate(u.user_id);
+                                  }}
+                                  disabled={removeAdminMutation.isPending || u.user_id === user?.id}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <UserMinus className="w-4 h-4" />
+                                </Button>
+                              </div>
                             ) : (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addAdminMutation.mutate(u.user_id);
-                                }}
-                                disabled={addAdminMutation.isPending}
-                              >
-                                <Crown className="w-4 h-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm" disabled={addAdminMutation.isPending}>
+                                    <Crown className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'admin' })}>
+                                    <Crown className="w-4 h-4 mr-2 text-amber-500" />
+                                    Créateur
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addAdminMutation.mutate({ userId: u.user_id, role: 'viewer' })}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Viewer
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             )}
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                           </div>
