@@ -100,6 +100,16 @@ export function AdminCosts() {
     refetchInterval: 5 * 60 * 1000,
   });
 
+  const { data: byModel = [], isLoading: modelLoading } = useQuery({
+    queryKey: ['admin-cost-by-model', daysBack],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_api_cost_by_model', { days_back: daysBack });
+      if (error) throw error;
+      return data as unknown as ModelCost[];
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
   const { data: byDay = [], isLoading: dayLoading } = useQuery({
     queryKey: ['admin-cost-by-day', daysBack],
     queryFn: async () => {
