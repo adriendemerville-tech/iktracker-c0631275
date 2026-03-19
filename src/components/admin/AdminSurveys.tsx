@@ -537,6 +537,7 @@ export function AdminSurveys() {
       duration_days: 7, max_impressions_per_user: 3,
       delay_between_impressions_hours: 24,
       target_personas: [], target_user_count: null,
+      target_min_days_since_signup: null, target_max_days_since_signup: null,
     });
     setEditingVariants([]);
   }
