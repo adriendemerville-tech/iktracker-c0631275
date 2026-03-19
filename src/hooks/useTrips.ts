@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from '@/types/trip';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { usePreferences } from './usePreferences';
+import { usePreferences, getFiscalYearStart } from './usePreferences';
 import { toast } from 'sonner';
 
 // Archived trips are kept for 30 days
@@ -845,20 +845,26 @@ export function useTrips() {
   const totalKm = filteredTrips.reduce((sum, t) => sum + t.distance, 0);
 
   const recalculatedTotalIK = useMemo(() => {
+    const fiscalMonth = preferences.fiscalYearStartMonth || 1;
+    const fiscalDay = preferences.fiscalYearStartDay || 1;
+    
     const vehicleKms = new Map<string, number>();
     filteredTrips.forEach(t => {
-      // Skip trips without a vehicle for recalculation
       if (!t.vehicleId) return;
-      const current = vehicleKms.get(t.vehicleId) || 0;
-      vehicleKms.set(t.vehicleId, current + t.distance);
+      // Group by vehicle + fiscal year
+      const tripDate = new Date(t.startTime);
+      const fyStart = getFiscalYearStart(tripDate, fiscalMonth, fiscalDay);
+      const fyKey = `${t.vehicleId}-${fyStart.getTime()}`;
+      const current = vehicleKms.get(fyKey) || 0;
+      vehicleKms.set(fyKey, current + t.distance);
     });
 
     let total = 0;
-    vehicleKms.forEach((km, vehicleId) => {
+    vehicleKms.forEach((km, key) => {
+      const vehicleId = key.split('-')[0];
       const vehicle = vehicles.find(v => v.id === vehicleId);
       if (vehicle) {
         let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower);
-        // Apply 20% bonus for electric vehicles
         if (vehicle.isElectric) {
           vehicleIK = vehicleIK * 1.2;
         }
@@ -874,7 +880,7 @@ export function useTrips() {
     });
     
     return total;
-  }, [filteredTrips, vehicles]);
+  }, [filteredTrips, vehicles, preferences.fiscalYearStartMonth, preferences.fiscalYearStartDay]);
 
   return {
     trips,

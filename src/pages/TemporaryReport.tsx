@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Printer, Download, Share2, Check, Send } from "lucide-react";
+import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -131,6 +131,47 @@ export default function TemporaryReport() {
     }
   };
 
+  const handleDownloadCSV = () => {
+    if (state.status !== "ready") return;
+    
+    const iframe = document.querySelector('iframe[title="Relevé IK"]') as HTMLIFrameElement;
+    if (!iframe?.contentDocument) return;
+    
+    const tripsTable = iframe.contentDocument.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+    if (!tripsTable) {
+      toast.error("Aucun trajet trouvé dans le rapport");
+      return;
+    }
+    
+    const headers = ['Date', 'Départ', 'Arrivée', 'Motif', 'Distance (km)', 'Cumul (km)', 'Montant IK (€)'];
+    const rows: string[] = [];
+    
+    tripsTable.querySelectorAll('tr').forEach((row: Element) => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 7) {
+        rows.push([
+          cells[0].textContent?.trim() || '',
+          cells[1].textContent?.trim() || '',
+          cells[2].textContent?.trim() || '',
+          cells[3].textContent?.trim() || '',
+          cells[4].textContent?.trim() || '',
+          cells[5].textContent?.trim() || '',
+          (cells[6].textContent?.trim() || '').replace(' €', '')
+        ].join(';'));
+      }
+    });
+    
+    const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.href = URL.createObjectURL(blob);
+    link.download = `releve-ik-${dateStr}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success("CSV téléchargé");
+  };
+
   const handleShareLink = async () => {
     // Use clean /temporaryreport/ URL (without www)
     const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
@@ -224,6 +265,17 @@ https://iktracker.fr`;
             >
               <Download className={`h-4 w-4 ${isDownloading ? "animate-bounce" : ""}`} />
               <span className="hidden sm:inline">Télécharger</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadCSV}
+              disabled={state.status !== "ready"}
+              className={appleButtonClass}
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span className="hidden sm:inline">CSV</span>
             </Button>
 
             <Button

@@ -353,12 +353,18 @@ function generateReportHTML(options: PrintReportOptions): string {
     <div class="left-actions">
       <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-        <span>Depuis</span>
-        <input type="date" id="since-date-input" value="${sinceDateISO}" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; color: #374151; cursor: pointer;" onchange="filterByDate(this.value)" />
-        <button id="btn-reset-date" onclick="resetDateFilter()" style="display: ${sinceDateISO ? 'inline-flex' : 'none'}; align-items: center; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #6B7280; background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer;">✕ Réinitialiser</button>
+        <span>Du</span>
+        <input type="date" id="start-date-input" value="${sinceDateISO}" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; color: #374151; cursor: pointer;" onchange="filterByDateRange()" />
+        <span>au</span>
+        <input type="date" id="end-date-input" value="" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; color: #374151; cursor: pointer;" onchange="filterByDateRange()" />
+        <button id="btn-reset-date" onclick="resetDateFilter()" style="display: ${sinceDateISO ? 'inline-flex' : 'none'}; align-items: center; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #6B7280; background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer;">✕</button>
       </label>
     </div>
     <div class="right-actions">
+      <button class="btn-pdf" onclick="downloadCSV()" id="btn-csv">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        CSV
+      </button>
       <button class="btn-pdf" onclick="downloadPDF()" id="btn-pdf">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Télécharger PDF
@@ -602,12 +608,14 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
   </script>
   <script>
-    // Date filter for the report
-    function filterByDate(dateStr) {
-      const rows = document.querySelectorAll('.content-wrapper tbody tr');
+    // Date range filter for the report
+    function filterByDateRange() {
+      const startStr = document.getElementById('start-date-input').value;
+      const endStr = document.getElementById('end-date-input').value;
       const resetBtn = document.getElementById('btn-reset-date');
       
-      if (!dateStr) {
+      if (!startStr && !endStr) {
+        const rows = document.querySelectorAll('.content-wrapper tbody tr');
         rows.forEach(function(row) { row.style.display = ''; });
         if (resetBtn) resetBtn.style.display = 'none';
         recalcTotals();
@@ -615,9 +623,9 @@ function generateReportHTML(options: PrintReportOptions): string {
       }
       
       if (resetBtn) resetBtn.style.display = 'inline-flex';
-      const filterDate = new Date(dateStr);
+      const startDate = startStr ? new Date(startStr) : null;
+      const endDate = endStr ? new Date(endStr + 'T23:59:59') : null;
       
-      // Only filter rows in the trips table (first tbody in content)
       const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
       if (!tripsTable) return;
       
@@ -635,9 +643,11 @@ function generateReportHTML(options: PrintReportOptions): string {
         
         const rowDate = new Date('20' + parts[2], parseInt(parts[1]) - 1, parseInt(parts[0]));
         
-        if (rowDate >= filterDate) {
+        const afterStart = !startDate || rowDate >= startDate;
+        const beforeEnd = !endDate || rowDate <= endDate;
+        
+        if (afterStart && beforeEnd) {
           row.style.display = '';
-          // Extract km and ik values
           const cells = row.querySelectorAll('td');
           if (cells.length >= 7) {
             visibleKm += parseFloat(cells[4].textContent) || 0;
@@ -649,33 +659,61 @@ function generateReportHTML(options: PrintReportOptions): string {
         }
       });
       
-      // Update summary cards
       updateSummaryCards(visibleCount, visibleKm, visibleIk);
     }
     
     function resetDateFilter() {
-      document.getElementById('since-date-input').value = '';
-      filterByDate('');
+      document.getElementById('start-date-input').value = '';
+      document.getElementById('end-date-input').value = '';
+      filterByDateRange();
+    }
+    
+    function downloadCSV() {
+      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      if (!tripsTable) return;
+      
+      const headers = ['Date', 'Départ', 'Arrivée', 'Motif', 'Distance (km)', 'Cumul (km)', 'Montant IK (€)'];
+      const rows = [];
+      
+      tripsTable.querySelectorAll('tr').forEach(function(row) {
+        if (row.style.display === 'none') return;
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 7) {
+          rows.push([
+            cells[0].textContent.trim(),
+            cells[1].textContent.trim(),
+            cells[2].textContent.trim(),
+            cells[3].textContent.trim(),
+            cells[4].textContent.trim(),
+            cells[5].textContent.trim(),
+            cells[6].textContent.trim().replace(' €', '')
+          ].join(';'));
+        }
+      });
+      
+      const csv = '\\uFEFF' + headers.join(';') + '\\n' + rows.join('\\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      link.href = URL.createObjectURL(blob);
+      link.download = 'releve-ik-' + dateStr + '.csv';
+      link.click();
+      URL.revokeObjectURL(link.href);
     }
     
     function updateSummaryCards(count, km, ik) {
-      // Update the 3 summary cards in the stats row
       const statsCells = document.querySelectorAll('.content-wrapper table:nth-of-type(2) td');
       if (statsCells.length >= 3) {
-        // Trajets count
         const countDiv = statsCells[0].querySelector('div:last-child');
         if (countDiv) countDiv.textContent = count;
-        // Total km  
         const kmDiv = statsCells[1].querySelector('div:last-child');
         if (kmDiv) kmDiv.textContent = km.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' km';
-        // Total IK
         const ikDiv = statsCells[2].querySelector('div:last-child');
         if (ikDiv) ikDiv.textContent = ik.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
       }
     }
     
     function recalcTotals() {
-      // Recalculate with all visible rows
       const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
       if (!tripsTable) return;
       const tripRows = tripsTable.querySelectorAll('tr');
