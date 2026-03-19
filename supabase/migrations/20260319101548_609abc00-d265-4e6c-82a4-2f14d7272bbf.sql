@@ -1,0 +1,1 @@
+ALTER TABLE public.surveys ADD COLUMN target_min_days_since_signup integer DEFAULT NULL, ADD COLUMN target_max_days_since_signup integer DEFAULT NULL;
