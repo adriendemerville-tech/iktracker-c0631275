@@ -339,11 +339,12 @@ export function AdminDocumentation() {
       </div>
 
       <Tabs value={docTab} onValueChange={setDocTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="architecture"><Layers className="w-3.5 h-3.5 mr-1" />Stack</TabsTrigger>
           <TabsTrigger value="database"><Database className="w-3.5 h-3.5 mr-1" />DB</TabsTrigger>
           <TabsTrigger value="functions"><Zap className="w-3.5 h-3.5 mr-1" />Functions</TabsTrigger>
           <TabsTrigger value="security"><Shield className="w-3.5 h-3.5 mr-1" />Sécurité</TabsTrigger>
+          <TabsTrigger value="tour"><Map className="w-3.5 h-3.5 mr-1" />Tournée</TabsTrigger>
         </TabsList>
 
         {/* Architecture */}
