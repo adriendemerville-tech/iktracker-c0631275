@@ -677,6 +677,17 @@ export function AdminSurveys() {
               <div>
                 <Label>Personas ciblés</Label>
                 <div className="flex flex-wrap gap-2 mt-1">
+                  <label className="flex items-center gap-1.5 text-xs font-medium">
+                    <Checkbox
+                      checked={form.target_personas.length === 0}
+                      onCheckedChange={checked => {
+                        if (checked) {
+                          setForm(f => ({ ...f, target_personas: [] }));
+                        }
+                      }}
+                    />
+                    Toutes
+                  </label>
                   {PERSONA_OPTIONS.map(p => (
                     <label key={p.value} className="flex items-center gap-1.5 text-xs">
                       <Checkbox
