@@ -454,6 +454,12 @@ const Admin = () => {
               <span className="hidden sm:inline">Backend</span>
             </TabsTrigger>
             {adminRole !== 'viewer' && (
+              <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline">Surveys</span>
+              </TabsTrigger>
+            )}
+            {adminRole !== 'viewer' && (
               <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden sm:inline">Docs</span>
