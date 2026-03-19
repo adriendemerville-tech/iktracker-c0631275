@@ -396,7 +396,7 @@ const Auth = () => {
                   </p>
                 </div>
                 
-                <AuthForm />
+                <AuthForm multilineCta />
                 
                 <p className="mt-8 text-center text-slate-500 text-sm">
                   100% gratuit • Aucune carte requise

@@ -12,10 +12,11 @@ type AuthMode = 'login' | 'signup' | 'forgot-password';
 interface AuthFormProps {
   className?: string;
   compact?: boolean;
+  multilineCta?: boolean;
   onSuccess?: () => void;
 }
 
-export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProps) => {
+export const AuthForm = ({ className, compact = false, multilineCta = false, onSuccess }: AuthFormProps) => {
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -261,7 +262,9 @@ export const AuthForm = ({ className, compact = false, onSuccess }: AuthFormProp
               className="text-base text-primary hover:text-primary/80 transition-colors font-medium focus-visible-ring rounded-sm underline-offset-4 hover:underline"
             >
               {mode === 'login' 
-                ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
+                ? multilineCta 
+                  ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
+                  : 'Pas encore de compte ? Rejoignez la communauté !'
                 : 'Déjà un compte ? Connectez-vous'
               }
             </button>
