@@ -130,7 +130,7 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
           <div className="flex items-center gap-2">
             <Icon className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm font-medium">{meta?.label}</span>
-            <span title="Visible par l'utilisateur"><Eye className="w-3.5 h-3.5 text-primary" /></span>
+            <Eye className="w-3.5 h-3.5 text-green-500" title="Visible par l'utilisateur" />
           </div>
           <Button variant="ghost" size="icon" onClick={onRemove} className="h-7 w-7">
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
