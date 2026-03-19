@@ -745,8 +745,6 @@ const Admin = () => {
                                   Viewer
                                 </Badge>
                               )}
-                                </Badge>
-                              )}
                             </div>
                             <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-foreground">
                               {u.email && (
