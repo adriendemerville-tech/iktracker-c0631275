@@ -341,20 +341,10 @@ const Admin = () => {
     );
   }
 
-  // Not authenticated
+  // Not authenticated — redirect to auth
   if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <Shield className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Accès refusé</h2>
-            <p className="text-muted-foreground mb-4">Vous devez être connecté pour accéder à cette page.</p>
-            <Button onClick={() => navigate('/auth')}>Se connecter</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    navigate('/auth', { replace: true });
+    return null;
   }
 
   // Not admin
