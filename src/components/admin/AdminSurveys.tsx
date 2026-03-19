@@ -629,7 +629,7 @@ export function AdminSurveys() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label className="flex items-center gap-1.5">Titre <Eye className="w-3.5 h-3.5 text-green-500" title="Visible par l'utilisateur" /></Label>
+                <Label className="flex items-center gap-1.5">Titre <span title="Visible par l'utilisateur"><Eye className="w-3.5 h-3.5 text-green-500" /></span></Label>
                 <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Nom du survey" />
               </div>
               <div>
