@@ -149,7 +149,7 @@ const Admin = () => {
       const { data, error } = await supabase
         .from('user_roles')
         .select('*')
-        .eq('role', 'admin');
+        .in('role', ['admin', 'viewer'] as any[]);
 
       if (error) throw error;
       return data;
