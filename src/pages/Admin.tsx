@@ -232,27 +232,34 @@ const Admin = () => {
     },
   });
 
-  // Add admin role mutation
+  // Add role mutation
   const addAdminMutation = useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'viewer' }) => {
+      // Remove existing role first if any
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .in('role', ['admin', 'viewer'] as any[]);
+
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: 'admin' });
+        .insert({ user_id: userId, role } as any);
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, { role }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-user-roles'] });
       toast({
-        title: 'Admin ajouté',
-        description: "L'utilisateur est maintenant administrateur",
+        title: role === 'admin' ? 'Créateur ajouté' : 'Viewer ajouté',
+        description: `Le rôle ${role === 'admin' ? 'Créateur' : 'Viewer'} a été attribué`,
       });
       setNewAdminId('');
     },
     onError: (error: any) => {
       toast({
         title: 'Erreur',
-        description: error.message || "Impossible d'ajouter l'admin",
+        description: error.message || "Impossible d'attribuer le rôle",
         variant: 'destructive',
       });
     },
