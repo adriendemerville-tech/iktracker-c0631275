@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
+import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { 
   ArrowLeft, 
@@ -37,7 +38,8 @@ import {
   FileText,
   ChevronRight,
   Euro,
-  BookOpen
+  BookOpen,
+  Activity
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -411,7 +413,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-4">
+          <TabsList className="grid w-full grid-cols-6 mb-4">
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -427,6 +429,10 @@ const Admin = () => {
             <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
               <Euro className="w-4 h-4" />
               <span className="hidden sm:inline">Coût</span>
+            </TabsTrigger>
+            <TabsTrigger value="monitoring" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">Backend</span>
             </TabsTrigger>
             <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
               <BookOpen className="w-4 h-4" />
@@ -773,6 +779,11 @@ const Admin = () => {
           {/* Costs Tab */}
           <TabsContent value="costs">
             <AdminCosts />
+          </TabsContent>
+
+          {/* Monitoring Tab */}
+          <TabsContent value="monitoring">
+            <AdminMonitoring />
           </TabsContent>
 
           {/* Docs Tab */}
