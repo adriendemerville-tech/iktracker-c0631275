@@ -23,6 +23,8 @@ import {
   Share2,
   Bell,
   Smartphone,
+  Clock,
+  Navigation as NavigationIcon,
 } from 'lucide-react';
 
 // ─── Architecture Diagram (Mermaid-style text for display) ───
@@ -339,11 +341,12 @@ export function AdminDocumentation() {
       </div>
 
       <Tabs value={docTab} onValueChange={setDocTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="architecture"><Layers className="w-3.5 h-3.5 mr-1" />Stack</TabsTrigger>
           <TabsTrigger value="database"><Database className="w-3.5 h-3.5 mr-1" />DB</TabsTrigger>
           <TabsTrigger value="functions"><Zap className="w-3.5 h-3.5 mr-1" />Functions</TabsTrigger>
           <TabsTrigger value="security"><Shield className="w-3.5 h-3.5 mr-1" />Sécurité</TabsTrigger>
+          <TabsTrigger value="tour"><Map className="w-3.5 h-3.5 mr-1" />Tournée</TabsTrigger>
         </TabsList>
 
         {/* Architecture */}
@@ -535,6 +538,198 @@ $$;`}</pre>
   FOR ALL TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);`}</pre>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tour Mode */}
+        <TabsContent value="tour" className="space-y-4">
+          {/* Workflow Overview */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Map className="w-5 h-5 text-primary" />
+                Mode Tournée — Workflow Complet
+              </CardTitle>
+              <CardDescription>Suivi GPS automatique pour itinérants (infirmiers, commerciaux, livreurs)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-1">
+                {[
+                  { step: '1', title: 'Démarrage', desc: 'Utilisateur clique sur le bouton Tournée (TourButton) → appelle startTour() dans useTourTracker' },
+                  { step: '2', title: 'Permissions', desc: 'Demande Geolocation API (navigator.geolocation.watchPosition) + Wake Lock API (écran allumé)' },
+                  { step: '3', title: 'Suivi GPS', desc: 'watchPosition avec intervalle 10s, filtre précision > 50m ignoré, déplacement < 5m ignoré' },
+                  { step: '4', title: 'Détection arrêt', desc: 'Immobilité dans rayon 100m pendant ≥ 2 min → nouveau TourStop créé automatiquement' },
+                  { step: '5', title: 'Reverse geocoding', desc: 'API Google Geocoding sur chaque arrêt pour obtenir ville + adresse (cache mémoire)' },
+                  { step: '6', title: 'Calcul distance', desc: 'Distance cumulée Haversine entre tous les GpsPoint filtrés (pas les stops)' },
+                  { step: '7', title: 'Fin de tournée', desc: 'Bouton Terminer → handleConvertToTrips() : reverse geocode départ/arrivée, calcul distance route Google Maps, création Trip validé' },
+                ].map((s) => (
+                  <div key={s.step} className="flex items-start gap-3 py-2 border-b border-border last:border-0">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">{s.step}</div>
+                    <div>
+                      <span className="font-medium text-sm text-foreground">{s.title}</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Session Recovery */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Clock className="w-5 h-5 text-primary" />
+                Récupération de Session
+              </CardTitle>
+              <CardDescription>useTourSessionRecovery.ts — Gestion des interruptions (app kill, navigation, mise en veille)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="bg-muted rounded-lg p-3 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Badge variant="default" className="shrink-0 mt-0.5">Cas A</Badge>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Inactivité &lt; 20 min → Reprise transparente</p>
+                      <p className="text-xs text-muted-foreground">La tournée reprend automatiquement sans intervention utilisateur. Le gap GPS est comblé.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Badge variant="secondary" className="shrink-0 mt-0.5">Cas B</Badge>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">20 min — 2 heures → Modale TourRecoveryModal</p>
+                      <p className="text-xs text-muted-foreground">L'utilisateur choisit « Reprendre » ou « Terminer ». Affiche nb d'étapes et km parcourus.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Badge variant="outline" className="shrink-0 mt-0.5">Cas C</Badge>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Inactivité &gt; 2 heures → Finalisation automatique</p>
+                      <p className="text-xs text-muted-foreground">La tournée est convertie en trajet automatiquement. Données sauvegardées dans localStorage puis nettoyées.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-muted rounded-lg p-3">
+                  <p className="text-xs font-mono text-muted-foreground mb-1">// Persistance localStorage</p>
+                  <pre className="text-xs font-mono text-foreground whitespace-pre-wrap">{`TOUR_SESSION_DATA    → { sessionId, startTime, lastActivity, stops[], gpsPoints[], totalDistanceKm }
+TOUR_LAST_ACTIVITY   → timestamp ISO (mis à jour toutes les 30s)
+TOUR_ACTIVE          → "true" / supprimé
+TOUR_STOPS           → TourStop[] sérialisé
+TOUR_GPS_POINTS      → GpsPoint[] sérialisé
+TOUR_DISTANCE        → number (km cumulés)`}</pre>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* GPS Technical Details */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <NavigationIcon className="w-5 h-5 text-primary" />
+                Paramètres GPS & Détection
+              </CardTitle>
+              <CardDescription>useTourTracker.ts — Constantes et algorithme de détection</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 font-medium text-foreground">Paramètre</th>
+                      <th className="text-left py-2 font-medium text-foreground">Valeur</th>
+                      <th className="text-left py-2 font-medium text-foreground">Rôle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { param: 'WATCH_INTERVAL', val: '10 000 ms', role: 'Intervalle minimum entre deux positions GPS' },
+                      { param: 'MAX_ACCURACY', val: '50 m', role: 'Positions avec précision > 50m ignorées (bruit)' },
+                      { param: 'MIN_DISPLACEMENT', val: '5 m', role: 'Mouvement < 5m ignoré (tremblement GPS)' },
+                      { param: 'STOP_RADIUS', val: '100 m', role: "Rayon d\u2019immobilité pour détecter un arrêt" },
+                      { param: 'STOP_DURATION', val: '120 s (2 min)', role: 'Durée minimum dans le rayon pour valider un arrêt' },
+                      { param: 'MIN_TRIP_DISTANCE', val: '0.5 km', role: 'Distance minimale pour créer un trajet valide' },
+                      { param: 'ACTIVITY_UPDATE', val: '30 s', role: 'Fréquence de mise à jour du timestamp localStorage' },
+                      { param: 'TRANSPARENT_RESUME', val: '< 20 min', role: 'Seuil reprise silencieuse (Cas A)' },
+                      { param: 'MODAL_RESUME', val: '20 min – 2h', role: 'Seuil modale de récupération (Cas B)' },
+                      { param: 'AUTO_FINALIZE', val: '> 2h', role: 'Seuil finalisation automatique (Cas C)' },
+                    ].map((r) => (
+                      <tr key={r.param} className="border-b border-border last:border-0">
+                        <td className="py-1.5"><code className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded">{r.param}</code></td>
+                        <td className="py-1.5 font-medium text-foreground">{r.val}</td>
+                        <td className="py-1.5 text-muted-foreground text-xs">{r.role}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Components & Files */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Code className="w-5 h-5 text-primary" />
+                Fichiers & Composants
+              </CardTitle>
+              <CardDescription>Architecture du mode tournée dans le codebase</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1.5">
+                {[
+                  { file: 'hooks/useTourTracker.ts', desc: 'Hook principal : watchPosition, détection arrêts, calcul distance, persistance localStorage', badge: 'Core' },
+                  { file: 'hooks/useTourSessionRecovery.ts', desc: 'Récupération session : save/load/clear + logique Cas A/B/C + formatInactivityDuration', badge: 'Recovery' },
+                  { file: 'hooks/useWakeLock.ts', desc: "Wake Lock API : garde l\u2019écran allumé pendant la tournée", badge: 'API' },
+                  { file: 'hooks/useGeolocation.ts', desc: 'Abstraction Geolocation API + gestion permissions', badge: 'API' },
+                  { file: 'components/TourButton.tsx', desc: 'Bouton principal sur la page Home : gradient animé, compteur km/étapes', badge: 'UI' },
+                  { file: 'components/FocusTourView.tsx', desc: 'Vue plein écran pendant tournée active : heure, durée, distance, signal GPS, batterie', badge: 'UI' },
+                  { file: 'components/TourLogSheet.tsx', desc: 'Sheet bottom avec liste des étapes détectées, stats temps/distance', badge: 'UI' },
+                  { file: 'components/TourRecoveryModal.tsx', desc: 'AlertDialog Cas B : "Reprendre" ou "Terminer" avec stats de la tournée interrompue', badge: 'UI' },
+                  { file: 'components/TourDetailSheet.tsx', desc: "Détail d\u2019une tournée passée : timeline des arrêts avec adresses et durées", badge: 'UI' },
+                  { file: 'lib/distance.ts', desc: 'Haversine (getDistanceInMeters/Km) + calculateDrivingDistance (Google Maps fallback)', badge: 'Util' },
+                  { file: 'lib/geocoding.ts', desc: 'reverseGeocode() avec cache mémoire + extractCityFromAddress()', badge: 'Util' },
+                  { file: 'types/trip.ts', desc: 'Interface TourStopData { id, timestamp, lat, lng, address?, city?, duration? }', badge: 'Type' },
+                ].map((f) => (
+                  <div key={f.file} className="flex items-start gap-3 py-2 border-b border-border last:border-0">
+                    <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded shrink-0">{f.file}</code>
+                    <span className="text-xs text-muted-foreground flex-1">{f.desc}</span>
+                    <Badge variant="outline" className="text-xs shrink-0">{f.badge}</Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Conversion to Trip */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Car className="w-5 h-5 text-primary" />
+                Conversion Tournée → Trajet
+              </CardTitle>
+              <CardDescription>handleConvertToTrips() dans Index.tsx</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-muted rounded-lg p-3">
+                <pre className="text-xs font-mono text-foreground whitespace-pre-wrap">{`1. Récupérer premier et dernier TourStop
+2. Si stop.city manquant → reverseGeocode(lat, lng) via Google API
+3. Calculer distance route via calculateDrivingDistance(start, end)
+   └─ Fallback: distance Haversine si Google Maps indisponible
+4. Filtrer si distance < 0.5 km (trajet trop court)
+5. Créer Trip avec :
+   ├─ startLocation / endLocation (nom = ville géocodée)
+   ├─ distance = distance route (simple trajet, pas aller-retour)
+   ├─ roundTrip = false
+   ├─ purpose = "Tournée"
+   ├─ tourStops = TourStopData[] (toutes les étapes intermédiaires)
+   ├─ ikAmount = calculé via calculateIK(distance, annualKm, fiscalPower)
+   └─ status = "validated"
+6. Sauvegarder dans Supabase (table trips, colonne tour_stops = JSON)
+7. Enregistrer dans localStorage "LAST_SAVED_TRIP" (notification "Dernier trajet enregistré")
+8. Nettoyer localStorage tournée (clearTourStorage)`}</pre>
               </div>
             </CardContent>
           </Card>
