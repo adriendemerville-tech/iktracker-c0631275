@@ -606,6 +606,10 @@ export default function BlogAdmin() {
                 <Key className="h-4 w-4" />
                 Clés API
               </TabsTrigger>
+              <TabsTrigger value="api-spec" className="gap-2">
+                <Code2 className="h-4 w-4" />
+                Spécification API
+              </TabsTrigger>
             </TabsList>
 
             {/* Posts Tab */}
