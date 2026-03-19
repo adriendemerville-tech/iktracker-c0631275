@@ -277,6 +277,49 @@ export function AdminCosts() {
         </CardContent>
       </Card>
 
+      {/* Cost by model */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            Coût par modèle IA
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {modelLoading ? (
+            <Skeleton className="h-32" />
+          ) : byModel.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">
+              Aucune donnée pour cette période
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Modèle</TableHead>
+                    <TableHead className="text-right">Requêtes</TableHead>
+                    <TableHead className="text-right">Tokens IN</TableHead>
+                    <TableHead className="text-right">Tokens OUT</TableHead>
+                    <TableHead className="text-right">Coût</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {byModel.map((m) => (
+                    <TableRow key={m.model}>
+                      <TableCell className="font-mono text-xs">{m.model}</TableCell>
+                      <TableCell className="text-right">{formatNumber(m.request_count)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{formatNumber(m.tokens_in)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{formatNumber(m.tokens_out)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCost(m.cost)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
       {/* Daily breakdown (last entries) */}
       <Card>
         <CardHeader className="pb-3">
