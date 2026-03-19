@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
+import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { 
   ArrowLeft, 
