@@ -55,6 +55,8 @@ interface Survey {
   delay_between_impressions_hours: number;
   target_personas: string[];
   target_user_count: number | null;
+  target_min_days_since_signup: number | null;
+  target_max_days_since_signup: number | null;
   created_by: string | null;
 }
 
