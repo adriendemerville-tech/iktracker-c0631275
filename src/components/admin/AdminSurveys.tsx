@@ -135,7 +135,6 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
           <Button variant="ghost" size="icon" onClick={onRemove} className="h-7 w-7">
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
-          </Button>
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-0 space-y-3">
