@@ -120,11 +120,7 @@ export function AdminCosts() {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  const handleRefresh = () => {
-    refetchStats();
-  };
-
-  const isLoading = statsLoading || fnLoading || dayLoading;
+  const isLoading = statsLoading || fnLoading || dayLoading || modelLoading;
 
   return (
     <div className="space-y-6">
