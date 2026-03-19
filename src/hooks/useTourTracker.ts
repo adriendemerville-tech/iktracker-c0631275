@@ -459,6 +459,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       if (document.visibilityState === 'visible' && isActive) {
         console.log('App returned to foreground - initiating gap filling');
         
+        // ⚡ CRITICAL FIX: Update TOUR_LAST_ACTIVITY IMMEDIATELY on foreground return
+        // This prevents the session recovery system from misinterpreting the inactivity
+        // duration when the OS froze the JS setInterval while in background
+        saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+        
         // Re-request wake lock
         await wakeLock.request();
         
@@ -575,8 +580,14 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           );
         }
         
-        // Restart watchPosition if not running
-        if (watchIdRef.current === null && navigator.geolocation) {
+        // ⚡ FIX: Always restart watchPosition on foreground return
+        // The OS may have killed the previous watcher during background suspension
+        if (watchIdRef.current !== null) {
+          // Clear existing watcher first - it may be stale/dead
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+        if (navigator.geolocation) {
           watchIdRef.current = navigator.geolocation.watchPosition(
             processPosition,
             (err) => {
@@ -588,6 +599,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
               maximumAge: 0,
             }
           );
+          console.log('watchPosition restarted after foreground return');
         }
         
         // Reset timeout for next background period

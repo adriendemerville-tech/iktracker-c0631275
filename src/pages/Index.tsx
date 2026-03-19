@@ -181,6 +181,7 @@ const Index = () => {
   const [hasRecoveredTour, setHasRecoveredTour] = useState(false);
 
   // NEW: Check for session recovery on mount based on inactivity time
+  // Also handles foreground return (visibilitychange) to prevent false Case B/C
   useEffect(() => {
     if (hasRecoveredTour || isTourActive) return;
     
@@ -205,11 +206,11 @@ const Index = () => {
       if (!savedData) return;
       
       if (inactivity < TRANSPARENT_THRESHOLD) {
-        console.log('[Recovery] → Case A: transparent resume (inactivity < 20min)');
+        console.log('[Recovery] → Case A: transparent resume (inactivity < threshold)');
         setTourStartRequested(true);
         await resumeTour();
       } else if (inactivity < MODAL_THRESHOLD) {
-        console.log('[Recovery] → Case B: show modal (20min < inactivity < 2h)');
+        console.log('[Recovery] → Case B: show modal');
         setRecoveryData({ stops: savedData.stops, totalDistanceKm: savedData.totalDistanceKm });
         setRecoveryInactivity(formatInactivity(inactivity));
         setShowRecoveryModal(true);
@@ -225,6 +226,42 @@ const Index = () => {
     
     checkSessionRecovery();
   }, [vehicles.length]);
+
+  // ⚡ FIX: On foreground return, if tour is NOT active in React state but IS active in localStorage,
+  // update TOUR_LAST_ACTIVITY immediately and trigger transparent resume
+  // This handles the case where the OS killed JS but the tour data is still in localStorage
+  useEffect(() => {
+    const handleForegroundRecovery = async () => {
+      if (document.visibilityState !== 'visible') return;
+      if (isTourActive || hasRecoveredTour) return;
+      
+      const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
+      if (!isActive) return;
+      
+      // Tour is active in localStorage but not in React state
+      // This means the component remounted after OS suspension
+      // Apply grace period: always resume transparently if < MODAL_THRESHOLD
+      const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
+      if (!lastActivityStr) return;
+      
+      const inactivity = Date.now() - new Date(lastActivityStr).getTime();
+      console.log('[ForegroundRecovery] Tour active in storage but not in state, inactivity:', Math.round(inactivity / 1000), 's');
+      
+      // Update activity timestamp immediately to prevent stale reads
+      saveTourData(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+      
+      if (inactivity < MODAL_THRESHOLD) {
+        // Grace: transparent resume for any background duration < 2h
+        console.log('[ForegroundRecovery] → Grace resume (< 2h)');
+        setTourStartRequested(true);
+        await resumeTour();
+      }
+      // If > MODAL_THRESHOLD, the mount useEffect will handle Case C
+    };
+    
+    document.addEventListener('visibilitychange', handleForegroundRecovery);
+    return () => document.removeEventListener('visibilitychange', handleForegroundRecovery);
+  }, [isTourActive, hasRecoveredTour, resumeTour]);
 
   // Handle recovery modal responses
   const handleRecoveryResume = async () => {
