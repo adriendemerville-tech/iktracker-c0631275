@@ -636,6 +636,16 @@ export type Database = {
           tokens_out: number
         }[]
       }
+      get_api_cost_by_model: {
+        Args: { days_back?: number }
+        Returns: {
+          cost: number
+          model: string
+          request_count: number
+          tokens_in: number
+          tokens_out: number
+        }[]
+      }
       get_api_cost_stats: { Args: { days_back?: number }; Returns: Json }
       get_bareme_simulations_by_day: {
         Args: { days_back?: number }
