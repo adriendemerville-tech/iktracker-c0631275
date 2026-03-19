@@ -859,7 +859,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     </div>
     
     <!-- Trips Table -->
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed;">
+    <table id="trips-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed;">
       <thead>
         <tr style="background: #0f172a;">
           <th style="padding: 12px 8px; text-align: left; color: white; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; width: 70px;">Date</th>
