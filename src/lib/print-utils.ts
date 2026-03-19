@@ -669,7 +669,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function downloadCSV() {
-      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      const tripsTable = document.querySelector('#trips-table tbody');
       if (!tripsTable) return;
       
       const headers = ['Date', 'Départ', 'Arrivée', 'Motif', 'Distance (km)', 'Cumul (km)', 'Montant IK (€)'];
