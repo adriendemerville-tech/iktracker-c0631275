@@ -44,6 +44,14 @@ interface FunctionCost {
   cost: number;
 }
 
+interface ModelCost {
+  model: string;
+  request_count: number;
+  tokens_in: number;
+  tokens_out: number;
+  cost: number;
+}
+
 interface DailyCost {
   day: string;
   request_count: number;
