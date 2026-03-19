@@ -1,0 +1,1 @@
+ALTER TABLE public.user_preferences ADD COLUMN IF NOT EXISTS visit_count integer NOT NULL DEFAULT 0;
