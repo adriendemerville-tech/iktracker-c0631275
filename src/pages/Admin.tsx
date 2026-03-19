@@ -520,6 +520,9 @@ const Admin = () => {
                               {feedback.image_url && (
                                 <ImageIcon className="w-3 h-3 ml-2" />
                               )}
+                              {feedback.phone_number && (
+                                <span className="ml-2 text-green-600">📞</span>
+                              )}
                             </div>
                           </div>
                         ))}
