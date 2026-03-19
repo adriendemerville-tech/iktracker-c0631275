@@ -410,6 +410,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_contents: {
+        Row: {
+          content: Json
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          page_key: string
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          page_key: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          page_key?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       report_shares: {
         Row: {
           accessed_count: number
