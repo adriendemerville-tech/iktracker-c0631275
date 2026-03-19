@@ -99,6 +99,9 @@ const Admin = () => {
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
     queryKey: ['admin-feedbacks'],
     queryFn: async () => {
+      // Cleanup phone numbers older than 7 days
+      await supabase.rpc('cleanup_old_phone_numbers' as any);
+
       const { data: feedbackData, error } = await supabase
         .from('feedback')
         .select('*')
@@ -129,6 +132,7 @@ const Admin = () => {
       // Merge user info into feedbacks
       return feedbackData.map(f => ({
         ...f,
+        phone_number: (f as any).phone_number || null,
         user_first_name: userInfoMap.get(f.user_id)?.first_name,
         user_last_name: userInfoMap.get(f.user_id)?.last_name,
         user_email: userInfoMap.get(f.user_id)?.email,
