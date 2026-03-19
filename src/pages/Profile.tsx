@@ -315,6 +315,52 @@ const Profile = () => {
                   </div>
                 </div>
 
+                {/* Fiscal Year Start */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <CalendarIcon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground">Début d'exercice comptable</p>
+                      <p className="text-xs text-muted-foreground">Les paliers IK se remettent à zéro à cette date</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Select
+                          value={String(preferences.fiscalYearStartDay || 1)}
+                          onValueChange={(value) => updatePreference('fiscalYearStartDay', parseInt(value))}
+                        >
+                          <SelectTrigger className="w-20 bg-background border border-input">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border border-input max-h-[200px]">
+                            {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                              <SelectItem key={d} value={String(d)}>{d}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={String(preferences.fiscalYearStartMonth || 1)}
+                          onValueChange={(value) => updatePreference('fiscalYearStartMonth', parseInt(value))}
+                        >
+                          <SelectTrigger className="flex-1 bg-background border border-input">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border border-input max-h-[200px]">
+                            {['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'].map((m, i) => (
+                              <SelectItem key={i + 1} value={String(i + 1)}>{m}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {(preferences.fiscalYearStartMonth !== 1 || preferences.fiscalYearStartDay !== 1) && (
+                        <p className="text-xs text-primary mt-1">
+                          Exercice personnalisé : {preferences.fiscalYearStartDay}/{preferences.fiscalYearStartMonth}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
 
                 {user && (
                   <Button variant="outline" className="w-full" onClick={handleSignOut}>
