@@ -130,6 +130,7 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
           <div className="flex items-center gap-2">
             <Icon className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm font-medium">{meta?.label}</span>
+            <span title="Visible par l'utilisateur"><Eye className="w-3.5 h-3.5 text-primary" /></span>
           </div>
           <Button variant="ghost" size="icon" onClick={onRemove} className="h-7 w-7">
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
@@ -675,6 +676,17 @@ export function AdminSurveys() {
               <div>
                 <Label>Personas ciblés</Label>
                 <div className="flex flex-wrap gap-2 mt-1">
+                  <label className="flex items-center gap-1.5 text-xs font-medium">
+                    <Checkbox
+                      checked={form.target_personas.length === 0}
+                      onCheckedChange={checked => {
+                        if (checked) {
+                          setForm(f => ({ ...f, target_personas: [] }));
+                        }
+                      }}
+                    />
+                    Toutes
+                  </label>
                   {PERSONA_OPTIONS.map(p => (
                     <label key={p.value} className="flex items-center gap-1.5 text-xs">
                       <Checkbox
