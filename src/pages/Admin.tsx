@@ -413,7 +413,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-4">
+          <TabsList className="grid w-full grid-cols-6 mb-4">
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -429,6 +429,10 @@ const Admin = () => {
             <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
               <Euro className="w-4 h-4" />
               <span className="hidden sm:inline">Coût</span>
+            </TabsTrigger>
+            <TabsTrigger value="monitoring" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">Backend</span>
             </TabsTrigger>
             <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
               <BookOpen className="w-4 h-4" />
