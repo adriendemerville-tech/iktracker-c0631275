@@ -191,6 +191,7 @@ const Admin = () => {
       first_name: u.first_name,
       last_name: u.last_name,
       isAdmin: userRoles.some(r => r.user_id === u.user_id),
+      userRole: (userRoles.find(r => r.user_id === u.user_id)?.role as 'admin' | 'viewer') || null,
       feedbackCount,
       lastActivity,
       created_at: u.created_at,
