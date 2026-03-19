@@ -215,6 +215,45 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          created_at: string
+          description: string | null
+          error_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean
+          resolved_at: string | null
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          error_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          source: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          error_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       excluded_ips: {
         Row: {
           created_at: string
