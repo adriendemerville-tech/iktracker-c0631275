@@ -47,6 +47,15 @@ import {
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
+interface DeviceInfo {
+  platform: string;
+  os: string;
+  browser: string;
+  browser_version: string;
+  device: string | null;
+  user_agent: string;
+}
+
 interface Feedback {
   id: string;
   user_id: string;
@@ -57,6 +66,7 @@ interface Feedback {
   read_by_user: boolean;
   created_at: string;
   phone_number: string | null;
+  device_info: DeviceInfo | null;
   // User info (joined from users)
   user_first_name?: string;
   user_last_name?: string;

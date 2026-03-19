@@ -81,6 +81,67 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
     return /^0[67]\d{8}$/.test(cleaned);
   };
 
+  const getDeviceInfo = () => {
+    const ua = navigator.userAgent;
+    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+    
+    // OS detection
+    let os = 'Unknown';
+    if (/Windows NT 10/i.test(ua)) os = 'Windows 10';
+    else if (/Windows NT 11|Windows NT 10.*Build\/(2[2-9]|[3-9])/i.test(ua)) os = 'Windows 11';
+    else if (/Windows/i.test(ua)) os = 'Windows';
+    else if (/Mac OS X/i.test(ua)) {
+      const match = ua.match(/Mac OS X (\d+[._]\d+[._]?\d*)/);
+      os = match ? `macOS ${match[1].replace(/_/g, '.')}` : 'macOS';
+    } else if (/CrOS/i.test(ua)) os = 'Chrome OS';
+    else if (/Android/i.test(ua)) {
+      const match = ua.match(/Android (\d+\.?\d*)/);
+      os = match ? `Android ${match[1]}` : 'Android';
+    } else if (/iPhone OS|iPad/i.test(ua)) {
+      const match = ua.match(/OS (\d+_\d+)/);
+      os = match ? `iOS ${match[1].replace('_', '.')}` : 'iOS';
+    } else if (/Linux/i.test(ua)) os = 'Linux';
+    
+    // Browser detection
+    let browser = 'Unknown';
+    let browserVersion = '';
+    if (/OPR|Opera/i.test(ua)) {
+      browser = 'Opera';
+      browserVersion = ua.match(/(?:OPR|Opera)\/(\d+\.?\d*)/)?.[1] || '';
+    } else if (/Edg/i.test(ua)) {
+      browser = 'Edge';
+      browserVersion = ua.match(/Edg\/(\d+\.?\d*)/)?.[1] || '';
+    } else if (/Chrome/i.test(ua) && !/Chromium/i.test(ua)) {
+      browser = 'Chrome';
+      browserVersion = ua.match(/Chrome\/(\d+\.?\d*)/)?.[1] || '';
+    } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+      browser = 'Safari';
+      browserVersion = ua.match(/Version\/(\d+\.?\d*)/)?.[1] || '';
+    } else if (/Firefox/i.test(ua)) {
+      browser = 'Firefox';
+      browserVersion = ua.match(/Firefox\/(\d+\.?\d*)/)?.[1] || '';
+    }
+    
+    // Device brand/model
+    let device = '';
+    if (/iPhone/i.test(ua)) device = 'Apple iPhone';
+    else if (/iPad/i.test(ua)) device = 'Apple iPad';
+    else if (/Macintosh/i.test(ua)) device = 'Apple Mac';
+    else {
+      const androidMatch = ua.match(/;\s*([^;)]+)\s*Build/);
+      if (androidMatch) device = androidMatch[1].trim();
+    }
+    
+    return {
+      platform: isMobileDevice ? 'mobile' : 'desktop',
+      os,
+      browser,
+      browser_version: browserVersion,
+      device: device || null,
+      user_agent: ua,
+    };
+  };
+
   const handleSubmit = async () => {
     if (!message.trim()) {
       toast({
@@ -141,6 +202,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
           message: message.trim(),
           image_url: imageUrl,
           phone_number: wantsCall ? phoneNumber.replace(/\s/g, '') : null,
+          device_info: getDeviceInfo(),
         } as any);
 
       if (insertError) {
