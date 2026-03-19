@@ -23,6 +23,8 @@ import {
   Share2,
   Bell,
   Smartphone,
+  Clock,
+  Navigation as NavigationIcon,
 } from 'lucide-react';
 
 // ─── Architecture Diagram (Mermaid-style text for display) ───
