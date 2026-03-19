@@ -646,7 +646,7 @@ TOUR_DISTANCE        → number (km cumulés)`}</pre>
                       { param: 'WATCH_INTERVAL', val: '10 000 ms', role: 'Intervalle minimum entre deux positions GPS' },
                       { param: 'MAX_ACCURACY', val: '50 m', role: 'Positions avec précision > 50m ignorées (bruit)' },
                       { param: 'MIN_DISPLACEMENT', val: '5 m', role: 'Mouvement < 5m ignoré (tremblement GPS)' },
-                      { param: 'STOP_RADIUS', val: '100 m', role: 'Rayon d'immobilité pour détecter un arrêt' },
+                      { param: 'STOP_RADIUS', val: '100 m', role: "Rayon d\u2019immobilité pour détecter un arrêt" },
                       { param: 'STOP_DURATION', val: '120 s (2 min)', role: 'Durée minimum dans le rayon pour valider un arrêt' },
                       { param: 'MIN_TRIP_DISTANCE', val: '0.5 km', role: 'Distance minimale pour créer un trajet valide' },
                       { param: 'ACTIVITY_UPDATE', val: '30 s', role: 'Fréquence de mise à jour du timestamp localStorage' },
