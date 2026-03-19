@@ -270,6 +270,17 @@ https://iktracker.fr`;
             <Button
               variant="outline"
               size="sm"
+              onClick={handleDownloadCSV}
+              disabled={state.status !== "ready"}
+              className={appleButtonClass}
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span className="hidden sm:inline">CSV</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handlePrint}
               disabled={state.status !== "ready"}
               className={appleButtonClass}
