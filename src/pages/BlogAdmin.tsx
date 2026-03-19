@@ -969,6 +969,219 @@ export default function BlogAdmin() {
                 </div>
               )}
             </TabsContent>
+
+            {/* API Specification Tab */}
+            <TabsContent value="api-spec" className="space-y-6">
+              <Card>
+                <CardContent className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">API Content — Spécification technique</h2>
+                    <p className="text-muted-foreground">
+                      Cette API REST permet à des services externes (ex: crawlers.fr) de lire et modifier l'intégralité des contenus du site IKtracker : articles de blog et pages statiques.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">🔐 Authentification</h3>
+                    <p className="text-sm text-muted-foreground">Toutes les requêtes en écriture (POST, PUT, DELETE) nécessitent une clé API active.</p>
+                    <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
+{`Header requis :
+x-api-key: <votre_clé_api>
+
+Ou bien :
+Authorization: Bearer <webhook_token>`}
+                    </pre>
+                    <p className="text-sm text-muted-foreground">Les clés API se gèrent dans l'onglet « Clés API » ci-dessus.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">🌐 Base URL</h3>
+                    <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
+{`https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api`}
+                    </pre>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">📝 Endpoints — Articles de blog</h3>
+                    <div className="space-y-3">
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-green-600 text-white">GET</Badge>
+                          <code className="text-sm font-mono">/posts</code>
+                          <Badge variant="outline">Public</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Liste les articles publiés. Params: <code>limit</code>, <code>offset</code></p>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-green-600 text-white">GET</Badge>
+                          <code className="text-sm font-mono">/posts/:slug</code>
+                          <Badge variant="outline">Public</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Récupère un article publié par son slug</p>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-blue-600 text-white">POST</Badge>
+                          <code className="text-sm font-mono">/posts</code>
+                          <Badge variant="destructive">Auth</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">Crée ou met à jour un article (upsert par slug)</p>
+                        <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
+{`{
+  "title": "Mon article",
+  "slug": "mon-article",
+  "content": "# Contenu Markdown...",
+  "meta_description": "Description SEO",
+  "featured_image_url": "https://...",
+  "author_name": "Adrien",
+  "status": "published"  // draft | published | archived
+}`}
+                        </pre>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-yellow-600 text-white">PUT</Badge>
+                          <code className="text-sm font-mono">/posts/:slug</code>
+                          <Badge variant="destructive">Auth</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Mise à jour partielle d'un article (seuls les champs envoyés sont modifiés)</p>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-red-600 text-white">DELETE</Badge>
+                          <code className="text-sm font-mono">/posts/:slug</code>
+                          <Badge variant="destructive">Auth</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Supprime un article</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">📄 Endpoints — Pages statiques</h3>
+                    <div className="space-y-3">
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-green-600 text-white">GET</Badge>
+                          <code className="text-sm font-mono">/pages</code>
+                          <Badge variant="outline">Public</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Liste toutes les pages et leur contenu</p>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-green-600 text-white">GET</Badge>
+                          <code className="text-sm font-mono">/pages/:page_key</code>
+                          <Badge variant="outline">Public</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Récupère le contenu d'une page par sa clé</p>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-yellow-600 text-white">PUT</Badge>
+                          <code className="text-sm font-mono">/pages/:page_key</code>
+                          <Badge variant="destructive">Auth</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">Met à jour le contenu d'une page existante</p>
+                        <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
+{`{
+  "title": "Nouveau titre",
+  "meta_title": "Title SEO",
+  "meta_description": "Description SEO",
+  "content": {
+    "hero_title": "Titre principal",
+    "hero_subtitle": "Sous-titre",
+    "sections": [
+      { "title": "Section 1", "body": "Contenu..." }
+    ]
+  }
+}`}
+                        </pre>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-blue-600 text-white">POST</Badge>
+                          <code className="text-sm font-mono">/pages</code>
+                          <Badge variant="destructive">Auth</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Crée ou met à jour une page (upsert par page_key). Champ requis: <code>page_key</code></p>
+                      </div>
+
+                      <div className="border border-border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-red-600 text-white">DELETE</Badge>
+                          <code className="text-sm font-mono">/pages/:page_key</code>
+                          <Badge variant="destructive">Auth</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Supprime une page</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">📋 Pages disponibles (page_key)</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {['landing', 'mode-tournee', 'calendrier', 'expert-comptable', 'bareme-ik-2026', 'frais-reels', 'lexique', 'comparatif-izika', 'comparatif-drivers-note', 'install', 'privacy', 'terms'].map(key => (
+                        <code key={key} className="bg-muted px-3 py-1.5 rounded text-xs font-mono">{key}</code>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">💡 Exemple cURL</h3>
+                    <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap">
+{`# Modifier la page "barème IK 2026"
+curl -X PUT \\
+  https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api/pages/bareme-ik-2026 \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: VOTRE_CLE_API" \\
+  -d '{
+    "meta_title": "Barème IK 2026 - Simulateur gratuit",
+    "meta_description": "Calculez vos indemnités kilométriques 2026",
+    "content": {
+      "hero_title": "Barème kilométrique 2026",
+      "faq": [
+        { "q": "Comment calculer ?", "a": "Utilisez notre simulateur..." }
+      ]
+    }
+  }'
+
+# Créer un article de blog
+curl -X POST \\
+  https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api/posts \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: VOTRE_CLE_API" \\
+  -d '{
+    "title": "Nouvel article SEO",
+    "slug": "nouvel-article-seo",
+    "content": "# Mon contenu en Markdown",
+    "status": "published"
+  }'`}
+                    </pre>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">⚠️ Codes de retour</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-2"><Badge className="bg-green-600 text-white">200</Badge> Succès</div>
+                      <div className="flex items-center gap-2"><Badge className="bg-green-600 text-white">201</Badge> Créé avec succès</div>
+                      <div className="flex items-center gap-2"><Badge className="bg-yellow-600 text-white">400</Badge> Paramètres manquants</div>
+                      <div className="flex items-center gap-2"><Badge className="bg-red-600 text-white">401</Badge> Clé API invalide</div>
+                      <div className="flex items-center gap-2"><Badge className="bg-red-600 text-white">404</Badge> Ressource non trouvée</div>
+                      <div className="flex items-center gap-2"><Badge className="bg-red-600 text-white">500</Badge> Erreur serveur</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
