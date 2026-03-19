@@ -458,6 +458,185 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_impressions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          survey_id: string
+          user_id: string
+          variant_id: string | null
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          survey_id: string
+          user_id: string
+          variant_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          survey_id?: string
+          user_id?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_impressions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_impressions_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "survey_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_responses: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          responses: Json
+          screenshot_url: string | null
+          survey_id: string
+          user_id: string
+          variant_id: string | null
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          responses?: Json
+          screenshot_url?: string | null
+          survey_id: string
+          user_id: string
+          variant_id?: string | null
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          responses?: Json
+          screenshot_url?: string | null
+          survey_id?: string
+          user_id?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_responses_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "survey_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_variants: {
+        Row: {
+          content_blocks: Json
+          created_at: string
+          distribution_pct: number
+          id: string
+          name: string
+          survey_id: string
+          updated_at: string
+        }
+        Insert: {
+          content_blocks?: Json
+          created_at?: string
+          distribution_pct?: number
+          id?: string
+          name?: string
+          survey_id: string
+          updated_at?: string
+        }
+        Update: {
+          content_blocks?: Json
+          created_at?: string
+          distribution_pct?: number
+          id?: string
+          name?: string
+          survey_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_variants_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surveys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delay_between_impressions_hours: number
+          description: string | null
+          duration_days: number
+          id: string
+          max_impressions_per_user: number
+          published_at: string | null
+          status: string
+          target_page: string
+          target_personas: string[] | null
+          target_user_count: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delay_between_impressions_hours?: number
+          description?: string | null
+          duration_days?: number
+          id?: string
+          max_impressions_per_user?: number
+          published_at?: string | null
+          status?: string
+          target_page?: string
+          target_personas?: string[] | null
+          target_user_count?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delay_between_impressions_hours?: number
+          description?: string | null
+          duration_days?: number
+          id?: string
+          max_impressions_per_user?: number
+          published_at?: string | null
+          status?: string
+          target_page?: string
+          target_personas?: string[] | null
+          target_user_count?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       takeout_import_attempts: {
         Row: {
           created_at: string

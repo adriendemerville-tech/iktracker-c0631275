@@ -20,6 +20,7 @@ import { AdminCosts } from '@/components/admin/AdminCosts';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
+import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -429,7 +430,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-4' : 'grid-cols-6'}`}>
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-4' : 'grid-cols-7'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -452,6 +453,12 @@ const Admin = () => {
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">Backend</span>
             </TabsTrigger>
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline">Surveys</span>
+              </TabsTrigger>
+            )}
             {adminRole !== 'viewer' && (
               <TabsTrigger value="docs" className="flex items-center gap-1 text-xs sm:text-sm">
                 <BookOpen className="w-4 h-4" />
@@ -850,6 +857,11 @@ const Admin = () => {
           {/* Monitoring Tab */}
           <TabsContent value="monitoring">
             <AdminMonitoring />
+          </TabsContent>
+
+          {/* Surveys Tab */}
+          <TabsContent value="surveys">
+            <AdminSurveys />
           </TabsContent>
 
           {/* Docs Tab */}
