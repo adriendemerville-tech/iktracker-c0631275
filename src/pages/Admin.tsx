@@ -217,13 +217,21 @@ const Admin = () => {
 
   const filteredUsers = users;
 
+  const CLOSING_FORMULAS = ['Bien à toi', 'Amicalement', 'Bonne journée', 'A bientôt'];
+  const getRandomClosing = () => CLOSING_FORMULAS[Math.floor(Math.random() * CLOSING_FORMULAS.length)];
+
   // Respond to feedback mutation
   const respondMutation = useMutation({
-    mutationFn: async ({ feedbackId, response }: { feedbackId: string; response: string }) => {
+    mutationFn: async ({ feedbackId, response, existingResponse }: { feedbackId: string; response: string; existingResponse: string | null }) => {
+      const signedResponse = `${response}\n\n${getRandomClosing()},\nAdrien.`;
+      const fullResponse = existingResponse 
+        ? `${existingResponse}\n\n---\n\n${signedResponse}`
+        : signedResponse;
+
       const { error } = await supabase
         .from('feedback')
         .update({ 
-          response, 
+          response: fullResponse, 
           responded_at: new Date().toISOString(),
           read_by_user: false 
         })
