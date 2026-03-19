@@ -617,6 +617,29 @@ const Admin = () => {
                               </a>
                             </div>
                           )}
+
+                          {/* Device info */}
+                          {selectedFeedback.device_info && (
+                            <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                              {selectedFeedback.device_info.platform === 'mobile' 
+                                ? <Smartphone className="w-3 h-3" /> 
+                                : <Monitor className="w-3 h-3" />}
+                              <span className="font-medium">
+                                {selectedFeedback.device_info.platform === 'mobile' ? 'Mobile' : 'Desktop'}
+                              </span>
+                              <span>·</span>
+                              <span>{selectedFeedback.device_info.os}</span>
+                              <span>·</span>
+                              <Globe className="w-3 h-3" />
+                              <span>{selectedFeedback.device_info.browser} {selectedFeedback.device_info.browser_version}</span>
+                              {selectedFeedback.device_info.device && (
+                                <>
+                                  <span>·</span>
+                                  <span>{selectedFeedback.device_info.device}</span>
+                                </>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {/* Response form */}
