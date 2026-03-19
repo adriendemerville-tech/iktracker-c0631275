@@ -665,6 +665,14 @@ export function AdminSurveys() {
                 <Input type="number" value={form.target_user_count ?? ''} onChange={e => setForm(f => ({ ...f, target_user_count: e.target.value ? parseInt(e.target.value) : null }))} placeholder="Illimité" />
               </div>
               <div>
+                <Label>Ancienneté min (jours)</Label>
+                <Input type="number" value={form.target_min_days_since_signup ?? ''} onChange={e => setForm(f => ({ ...f, target_min_days_since_signup: e.target.value ? parseInt(e.target.value) : null }))} placeholder="Pas de minimum" />
+              </div>
+              <div>
+                <Label>Ancienneté max (jours)</Label>
+                <Input type="number" value={form.target_max_days_since_signup ?? ''} onChange={e => setForm(f => ({ ...f, target_max_days_since_signup: e.target.value ? parseInt(e.target.value) : null }))} placeholder="Pas de maximum" />
+              </div>
+              <div>
                 <Label>Personas ciblés</Label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {PERSONA_OPTIONS.map(p => (
