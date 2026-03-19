@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from '@/components/PersonaPicker';
 
 const RECAPTCHA_SITE_KEY = '6LeqDVMsAAAAAE_prKZwP9zj8ovr49OFOQnoISsP';
 
@@ -52,13 +53,14 @@ const Signup = () => {
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [selectedPersona, setSelectedPersona] = useState<PersonaValue | null>(null);
+  const [showPersonaPicker, setShowPersonaPicker] = useState(true);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleRecaptchaChange = async (token: string | null) => {
     setRecaptchaToken(token);
-    // When invisible reCAPTCHA resolves, proceed with signup
     if (token) {
       await performSignup(token);
     }
@@ -84,11 +86,33 @@ const Signup = () => {
     };
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Save persona to database after signup
+        if (selectedPersona) {
+          const personaOption = PERSONA_OPTIONS.find(p => p.value === selectedPersona);
+          try {
+            await supabase
+              .from('user_preferences')
+              .upsert({
+                user_id: session.user.id,
+                persona: selectedPersona,
+              } as any, { onConflict: 'user_id' });
+            
+            // Also save profession to localStorage for immediate sync
+            if (personaOption) {
+              const stored = localStorage.getItem('ik-tracker-preferences');
+              const prefs = stored ? JSON.parse(stored) : {};
+              prefs.profession = personaOption.profession;
+              localStorage.setItem('ik-tracker-preferences', JSON.stringify(prefs));
+            }
+          } catch (e) {
+            console.warn('Failed to save persona:', e);
+          }
+        }
+
         fireConfetti();
         toast({ title: 'Compte créé avec succès ! 🎉', description: 'Bienvenue sur IKtracker !' });
-        // Check if this is a new signup (no theme onboarding completed)
         const themeOnboardingComplete = localStorage.getItem('theme-onboarding-complete');
         if (!themeOnboardingComplete) {
           setTimeout(() => navigate('/theme-onboarding', { replace: true }), 800);
@@ -99,7 +123,12 @@ const Signup = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, selectedPersona]);
+
+  const handlePersonaSelect = (persona: PersonaValue) => {
+    setSelectedPersona(persona);
+    setShowPersonaPicker(false);
+  };
 
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
@@ -117,13 +146,11 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // If we already have a token, proceed with signup
     if (recaptchaToken) {
       await performSignup(recaptchaToken);
       return;
     }
     
-    // Execute invisible reCAPTCHA
     setLoading(true);
     try {
       recaptchaRef.current?.execute();
@@ -172,6 +199,27 @@ const Signup = () => {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center cursor-default">
         <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
+    );
+  }
+
+  // Show persona picker before signup form
+  if (showPersonaPicker) {
+    return (
+      <>
+        <Helmet>
+          <title>Créer un compte gratuit | IKtracker</title>
+          <meta name="description" content="Créez votre compte IKtracker gratuit en 2 minutes." />
+          <link rel="canonical" href="https://iktracker.fr/signup" />
+        </Helmet>
+        <Link 
+          to="/" 
+          className="fixed top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm z-20"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </Link>
+        <PersonaPicker onSelect={handlePersonaSelect} />
+      </>
     );
   }
 

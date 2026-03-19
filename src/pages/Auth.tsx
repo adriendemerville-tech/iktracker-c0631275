@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Car, Lock, Loader2, Eye, EyeOff, CheckCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { AuthForm } from '@/components/AuthForm';
+import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from '@/components/PersonaPicker';
 
 // Deployed domain - OAuth redirects here
 const DEPLOYED_DOMAIN = 'iktracker.lovable.app';
@@ -20,10 +21,56 @@ const Auth = () => {
   const [checkingAuth, setCheckingAuth] = useState(false);
   const [showOAuthSuccess, setShowOAuthSuccess] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(true);
+  const [showPersonaPicker, setShowPersonaPicker] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const isOnDeployedDomain = window.location.hostname === DEPLOYED_DOMAIN;
+
+  // Check if user has persona set
+  const checkPersona = async (userId: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('persona')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (error) return true; // Don't block on error
+      return !!(data as any)?.persona;
+    } catch {
+      return true; // Don't block on error
+    }
+  };
+
+  const handlePersonaSelected = async (persona: PersonaValue) => {
+    if (!pendingUserId) return;
+
+    const personaOption = PERSONA_OPTIONS.find(p => p.value === persona);
+    
+    try {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: pendingUserId,
+          persona: persona,
+        } as any, { onConflict: 'user_id' });
+      
+      // Sync profession to localStorage
+      if (personaOption) {
+        const stored = localStorage.getItem('ik-tracker-preferences');
+        const prefs = stored ? JSON.parse(stored) : {};
+        prefs.profession = personaOption.profession;
+        localStorage.setItem('ik-tracker-preferences', JSON.stringify(prefs));
+      }
+    } catch (e) {
+      console.warn('Failed to save persona:', e);
+    }
+
+    setShowPersonaPicker(false);
+    navigate('/app', { replace: true });
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -62,7 +109,15 @@ const Auth = () => {
           setShowOAuthSuccess(true);
           setCheckingAuth(false);
         } else {
-          navigate('/app', { replace: true });
+          // Check persona before redirecting
+          const hasPersona = await checkPersona(session.user.id);
+          if (!hasPersona) {
+            setPendingUserId(session.user.id);
+            setShowPersonaPicker(true);
+            setShowLoginForm(false);
+          } else {
+            navigate('/app', { replace: true });
+          }
         }
       } else {
         // No session - show login form
@@ -73,14 +128,22 @@ const Auth = () => {
     checkAuth();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         if (isOnDeployedDomain) {
           setShowOAuthSuccess(true);
           setCheckingAuth(false);
         } else {
-          toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
-          navigate('/app', { replace: true });
+          // Check persona for existing users
+          const hasPersona = await checkPersona(session.user.id);
+          if (!hasPersona) {
+            setPendingUserId(session.user.id);
+            setShowPersonaPicker(true);
+            setShowLoginForm(false);
+          } else {
+            toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
+            navigate('/app', { replace: true });
+          }
         }
       }
     });
@@ -114,7 +177,18 @@ const Auth = () => {
     }
   };
 
-  // Skip loading screen - show login form immediately
+  // Show persona picker
+  if (showPersonaPicker) {
+    return (
+      <>
+        <Helmet>
+          <title>Votre profil | IKtracker</title>
+          <meta name="description" content="Complétez votre profil IKtracker." />
+        </Helmet>
+        <PersonaPicker onSelect={handlePersonaSelected} />
+      </>
+    );
+  }
 
   // Show OAuth success screen on deployed domain
   if (showOAuthSuccess) {
