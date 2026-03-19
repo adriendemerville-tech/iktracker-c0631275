@@ -281,6 +281,7 @@ export type Database = {
           id: string
           image_url: string | null
           message: string
+          phone_number: string | null
           read_by_user: boolean | null
           responded_at: string | null
           response: string | null
@@ -291,6 +292,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           message: string
+          phone_number?: string | null
           read_by_user?: boolean | null
           responded_at?: string | null
           response?: string | null
@@ -301,6 +303,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           message?: string
+          phone_number?: string | null
           read_by_user?: boolean | null
           responded_at?: string | null
           response?: string | null
@@ -652,6 +655,7 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_shares: { Args: never; Returns: undefined }
+      cleanup_old_phone_numbers: { Args: never; Returns: undefined }
       get_admin_stats: {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
@@ -804,7 +808,7 @@ export type Database = {
           }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "viewer"
       blog_post_status: "draft" | "published" | "archived"
     }
     CompositeTypes: {
@@ -933,7 +937,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "viewer"],
       blog_post_status: ["draft", "published", "archived"],
     },
   },
