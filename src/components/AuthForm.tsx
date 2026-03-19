@@ -262,7 +262,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, onS
               className="text-base text-primary hover:text-primary/80 transition-colors font-medium focus-visible-ring rounded-sm underline-offset-4 hover:underline"
             >
               {mode === 'login' 
-                ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
+                ? multilineCta 
+                  ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
+                  : 'Pas encore de compte ? Rejoignez la communauté !'
                 : 'Déjà un compte ? Connectez-vous'
               }
             </button>
