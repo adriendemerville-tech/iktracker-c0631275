@@ -130,7 +130,7 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
           <div className="flex items-center gap-2">
             <Icon className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm font-medium">{meta?.label}</span>
-            <span title="Visible par l'utilisateur"><Eye className="w-3.5 h-3.5 text-primary" /></span>
+            <span title="Visible par l'utilisateur"><Eye className="w-3.5 h-3.5 text-green-500" /></span>
           </div>
           <Button variant="ghost" size="icon" onClick={onRemove} className="h-7 w-7">
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
@@ -629,7 +629,7 @@ export function AdminSurveys() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label>Titre</Label>
+                <Label className="flex items-center gap-1.5">Titre <span title="Visible par l'utilisateur"><Eye className="w-3.5 h-3.5 text-green-500" /></span></Label>
                 <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Nom du survey" />
               </div>
               <div>
@@ -643,7 +643,7 @@ export function AdminSurveys() {
               </div>
             </div>
             <div>
-              <Label>Description (interne)</Label>
+              <Label className="flex items-center gap-1.5">Description (interne) <span title="Non visible — admin uniquement"><Eye className="w-3.5 h-3.5 text-red-500" /></span></Label>
               <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} />
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
