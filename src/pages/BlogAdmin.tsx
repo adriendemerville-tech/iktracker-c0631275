@@ -670,6 +670,10 @@ export default function BlogAdmin() {
                 <Code2 className="h-4 w-4" />
                 Spécification API
               </TabsTrigger>
+              <TabsTrigger value="audit" className="gap-2">
+                <History className="h-4 w-4" />
+                Journal API
+              </TabsTrigger>
             </TabsList>
 
             {/* Posts Tab */}
