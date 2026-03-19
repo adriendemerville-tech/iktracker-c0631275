@@ -518,7 +518,7 @@ const Admin = () => {
                             key={feedback.id}
                             onClick={() => {
                               setSelectedFeedback(feedback);
-                              setResponseText(feedback.response || '');
+                              setResponseText('');
                             }}
                             className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                               selectedFeedback?.id === feedback.id
