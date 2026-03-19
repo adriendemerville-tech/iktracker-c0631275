@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock } from 'lucide-react';
+import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
@@ -32,6 +34,8 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [wantsCall, setWantsCall] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -72,11 +76,25 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
     }
   };
 
+  const isValidPhone = (phone: string) => {
+    const cleaned = phone.replace(/\s/g, '');
+    return /^0[67]\d{8}$/.test(cleaned);
+  };
+
   const handleSubmit = async () => {
     if (!message.trim()) {
       toast({
         title: 'Message requis',
         description: 'Veuillez écrire votre avis',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (wantsCall && !isValidPhone(phoneNumber)) {
+      toast({
+        title: 'Numéro invalide',
+        description: 'Veuillez entrer un numéro commençant par 06 ou 07 (10 chiffres)',
         variant: 'destructive',
       });
       return;
@@ -122,7 +140,8 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
           user_id: user.id,
           message: message.trim(),
           image_url: imageUrl,
-        });
+          phone_number: wantsCall ? phoneNumber.replace(/\s/g, '') : null,
+        } as any);
 
       if (insertError) {
         console.error('Insert error:', insertError);
@@ -137,6 +156,8 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
       setMessage('');
       setImage(null);
       setImagePreview(null);
+      setWantsCall(false);
+      setPhoneNumber('');
     } catch (error: any) {
       toast({
         title: 'Erreur',
@@ -169,7 +190,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
           )}
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col cursor-default select-none">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquareHeart className="w-5 h-5 text-primary" />
@@ -224,11 +245,45 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                 placeholder="Décrivez votre retour d'expérience, une suggestion d'amélioration ou un bug rencontré..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
-                className="min-h-[100px] resize-none"
+                className="min-h-[120px] resize-none cursor-text select-text"
               />
               <p className={`text-xs text-right ${charsRemaining < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
                 {charsRemaining} caractères restants
               </p>
+            </div>
+
+            {/* Call me checkbox */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="wants-call"
+                  checked={wantsCall}
+                  onCheckedChange={(checked) => {
+                    setWantsCall(checked === true);
+                    if (!checked) setPhoneNumber('');
+                  }}
+                />
+                <label htmlFor="wants-call" className="text-sm font-medium cursor-pointer">
+                  <Phone className="w-4 h-4 inline mr-1.5 text-primary" />
+                  Adrien, j'aimerais que tu m'appelle
+                </label>
+              </div>
+
+              {wantsCall && (
+                <div className="space-y-2 ml-7">
+                  <Input
+                    type="tel"
+                    placeholder="06 XX XX XX XX ou 07 XX XX XX XX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="cursor-text select-text"
+                    maxLength={14}
+                  />
+                  <p className="text-xs text-green-600 dark:text-green-400 leading-relaxed">
+                    🔒 Ce numéro n'est sauvegardé nulle part dans IKtracker et s'effacera de la conversation au bout de 7 jours
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Image upload */}
