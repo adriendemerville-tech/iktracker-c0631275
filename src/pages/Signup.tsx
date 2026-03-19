@@ -261,34 +261,43 @@ const Signup = () => {
   return (
     <>
       <Helmet>
-        <title>Créer un compte gratuit - Suivi IK automatique | IKtracker</title>
-        <meta name="description" content="Inscription gratuite à IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Barème fiscal 2026, export PDF, 100% gratuit." />
+        <title>Créer un compte gratuit - Outil communautaire IK | IKtracker</title>
+        <meta name="description" content="Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit." />
         <link rel="canonical" href="https://iktracker.fr/signup" />
-        <meta property="og:title" content="Créer un compte gratuit | IKtracker" />
-        <meta property="og:description" content="Automatisez gratuitement vos indemnités kilométriques. Calcul selon le barème fiscal 2026, export PDF, synchronisation calendrier." />
+        <meta property="og:title" content="Créer un compte gratuit | IKtracker - Outil communautaire" />
+        <meta property="og:description" content="Rejoignez la communauté IKtracker. Automatisez vos IK : mode tournée GPS, synchronisation calendrier, comparateur frais réels. 100% gratuit." />
         <meta property="og:url" content="https://iktracker.fr/signup" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="IKtracker" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Créer un compte gratuit | IKtracker" />
-        <meta name="twitter:description" content="Automatisez gratuitement vos indemnités kilométriques. 100% gratuit, sans publicité." />
-        <meta name="robots" content="index, follow" />
+        <meta name="twitter:title" content="Créer un compte gratuit | IKtracker - Outil communautaire" />
+        <meta name="twitter:description" content="Outil communautaire 100% gratuit. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF." />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebPage",
-          "name": "Inscription gratuite IKtracker",
-          "description": "Créez votre compte IKtracker gratuit pour automatiser le suivi de vos indemnités kilométriques professionnelles.",
-          "url": "https://iktracker.fr/signup",
-          "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://iktracker.fr" },
-          "potentialAction": { "@type": "RegisterAction", "target": "https://iktracker.fr/signup", "name": "Créer un compte gratuit" },
-          "mainEntity": {
-            "@type": "SoftwareApplication",
-            "name": "IKtracker",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web",
-            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-            "description": "Outil gratuit d'automatisation des indemnités kilométriques pour indépendants et professions libérales."
-          }
+          "@graph": [
+            {
+              "@type": "WebPage",
+              "name": "Inscription gratuite IKtracker - Outil communautaire",
+              "description": "Rejoignez la communauté IKtracker pour automatiser le suivi de vos indemnités kilométriques professionnelles. 100% gratuit.",
+              "url": "https://iktracker.fr/signup",
+              "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://iktracker.fr" },
+              "potentialAction": { "@type": "RegisterAction", "target": "https://iktracker.fr/signup", "name": "Créer mon compte gratuitement" }
+            },
+            {
+              "@type": "SoftwareApplication",
+              "name": "IKtracker",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web, iOS, Android",
+              "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" },
+              "description": "Outil communautaire gratuit d'automatisation des indemnités kilométriques : Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, lexique fiscal, export PDF/CSV.",
+              "featureList": ["Mode Tournée GPS", "Synchronisation Google Calendar et Outlook", "Comparateur Frais Réels vs Abattement 10%", "Lexique fiscal", "Export PDF/CSV", "Barème 2026", "PWA installable"],
+              "audience": { "@type": "BusinessAudience", "audienceType": "Indépendants, professions libérales, artisans, commerciaux, infirmiers" }
+            }
+          ]
         })}</script>
       </Helmet>
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">

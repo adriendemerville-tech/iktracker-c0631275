@@ -142,7 +142,7 @@ const Landing = () => {
               {
                 "@type": "WebApplication",
                 "name": "IKtracker",
-                "description": "Application gratuite de calcul et suivi des indemnités kilométriques",
+                "description": "Outil communautaire 100% gratuit de calcul et suivi des indemnités kilométriques. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, lexique fiscal, export PDF/CSV.",
                 "url": "https://iktracker.fr/",
                 "applicationCategory": "BusinessApplication",
                 "operatingSystem": "Web, iOS, Android",
@@ -150,6 +150,21 @@ const Landing = () => {
                   "@type": "Offer",
                   "price": "0",
                   "priceCurrency": "EUR"
+                },
+                "featureList": [
+                  "Mode Tournée GPS avec détection automatique des arrêts",
+                  "Synchronisation Google Calendar et Outlook",
+                  "Comparateur Frais Réels vs Abattement 10%",
+                  "Lexique fiscal interactif",
+                  "Export PDF/CSV pour experts-comptables",
+                  "Barème kilométrique officiel 2026",
+                  "Majoration véhicule électrique (+20%)",
+                  "PWA installable sur iPhone et Android",
+                  "Sélection du profil métier à l'inscription"
+                ],
+                "audience": {
+                  "@type": "BusinessAudience",
+                  "audienceType": "Indépendants, professions libérales, artisans, commerciaux, infirmiers"
                 }
               },
               {
@@ -160,7 +175,7 @@ const Landing = () => {
                     "name": "IKtracker est-il vraiment gratuit ?",
                     "acceptedAnswer": {
                       "@type": "Answer",
-                      "text": "Oui, IKtracker est 100% gratuit. Aucune carte bancaire n'est requise et toutes les fonctionnalités sont accessibles sans frais : enregistrement des trajets, calcul automatique des IK, export PDF et CSV."
+                      "text": "Oui, IKtracker est un outil communautaire 100% gratuit. Aucune carte bancaire n'est requise et toutes les fonctionnalités sont accessibles sans frais : mode tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF et CSV."
                     }
                   },
                   {
@@ -176,7 +191,7 @@ const Landing = () => {
                     "name": "Puis-je utiliser IKtracker sur mon téléphone ?",
                     "acceptedAnswer": {
                       "@type": "Answer",
-                      "text": "Oui, IKtracker est une Progressive Web App (PWA) installable sur iPhone et Android. Elle fonctionne hors-ligne et permet d'enregistrer vos trajets en déplacement grâce au GPS intégré."
+                      "text": "Oui, IKtracker est une Progressive Web App (PWA) installable sur iPhone et Android. Elle fonctionne hors-ligne et permet d'enregistrer vos trajets en déplacement grâce au Mode Tournée GPS."
                     }
                   },
                   {
@@ -189,10 +204,26 @@ const Landing = () => {
                   },
                   {
                     "@type": "Question",
+                    "name": "Qu'est-ce que le Mode Tournée GPS ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Le Mode Tournée utilise la géolocalisation GPS de votre smartphone pour détecter automatiquement chaque arrêt client. Chaque étape génère un trajet avec distance calculée via Google Maps et indemnités kilométriques calculées instantanément."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Comment comparer frais réels et abattement de 10% ?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "IKtracker propose un comparateur interactif qui calcule votre économie potentielle entre l'abattement forfaitaire de 10% et la déduction des frais réels kilométriques, basé sur le barème 2026 officiel."
+                    }
+                  },
+                  {
+                    "@type": "Question",
                     "name": "Mes données sont-elles sécurisées ?",
                     "acceptedAnswer": {
                       "@type": "Answer",
-                      "text": "Oui, vos données sont chiffrées et stockées de manière sécurisée. IKtracker est conforme au RGPD et vos informations ne sont jamais partagées avec des tiers. Vous pouvez exporter ou supprimer vos données à tout moment."
+                      "text": "Oui, vos données sont chiffrées et stockées de manière sécurisée en Europe. IKtracker est conforme au RGPD et vos informations ne sont jamais partagées avec des tiers. Vous pouvez exporter ou supprimer vos données à tout moment."
                     }
                   }
                 ]
