@@ -781,6 +781,11 @@ const Admin = () => {
             <AdminCosts />
           </TabsContent>
 
+          {/* Monitoring Tab */}
+          <TabsContent value="monitoring">
+            <AdminMonitoring />
+          </TabsContent>
+
           {/* Docs Tab */}
           <TabsContent value="docs">
             <AdminDocumentation />
