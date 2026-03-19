@@ -75,7 +75,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isLoading: adminLoading } = useAdmin();
+  const { isAdmin, adminRole, isLoading: adminLoading } = useAdmin();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
