@@ -555,6 +555,11 @@ const Admin = () => {
                               {feedback.phone_number && (
                                 <span className="ml-2 text-green-600">📞</span>
                               )}
+                              {feedback.device_info && (
+                                feedback.device_info.platform === 'mobile' 
+                                  ? <Smartphone className="w-3 h-3 ml-1" />
+                                  : <Monitor className="w-3 h-3 ml-1" />
+                              )}
                             </div>
                           </div>
                         ))}
