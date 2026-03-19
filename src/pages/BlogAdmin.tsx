@@ -310,6 +310,47 @@ export default function BlogAdmin() {
     }
   };
 
+  const fetchAuditLogs = async () => {
+    setLoadingAudit(true);
+    const { data, error } = await supabase
+      .from('api_audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (!error && data) {
+      setAuditLogs(data as AuditLog[]);
+    }
+    setLoadingAudit(false);
+  };
+
+  const revertChange = async (logId: string) => {
+    setRevertingId(logId);
+    try {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/blog-api/audit/revert/${logId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKeys.find(k => k.is_active)?.api_key || '',
+          },
+        }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error('Erreur revert: ' + (result.error || 'Erreur inconnue'));
+      } else {
+        toast.success('Modification annulée avec succès');
+        fetchAuditLogs();
+        fetchPosts();
+      }
+    } catch (e) {
+      toast.error('Erreur réseau');
+    }
+    setRevertingId(null);
+  };
+
   const fetchApiKeys = async () => {
     setLoadingKeys(true);
     const { data, error } = await supabase
