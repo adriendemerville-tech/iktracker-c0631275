@@ -714,7 +714,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function recalcTotals() {
-      const tripsTable = document.querySelector('.content-wrapper table:nth-of-type(3) tbody');
+      const tripsTable = document.querySelector('#trips-table tbody');
       if (!tripsTable) return;
       const tripRows = tripsTable.querySelectorAll('tr');
       let totalKm = 0, totalIk = 0, count = 0;
