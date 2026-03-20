@@ -500,6 +500,55 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
+  // Helper: fill missing days in chart data
+  const fillMissingDays = <T extends Record<string, any>>(
+    rawData: { day: string; [key: string]: any }[],
+    valueKeys: string[],
+    daysBack: number,
+    currentPeriod: PeriodFilter
+  ): T[] => {
+    const dataMap: Record<string, Record<string, number>> = {};
+    rawData.forEach(d => {
+      const key = d.day.split('T')[0];
+      const values: Record<string, number> = {};
+      valueKeys.forEach(k => { values[k] = Number(d[k]) || 0; });
+      dataMap[key] = values;
+    });
+
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - daysBack);
+    const defaultValues: Record<string, number> = {};
+    valueKeys.forEach(k => { defaultValues[k] = 0; });
+
+    if (currentPeriod === 'year') {
+      const monthMap: Record<string, Record<string, number>> = {};
+      for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+        const monthKey = format(d, 'yyyy-MM');
+        const dateKey = format(d, 'yyyy-MM-dd');
+        if (!monthMap[monthKey]) monthMap[monthKey] = { ...defaultValues };
+        const dayData = dataMap[dateKey];
+        if (dayData) {
+          valueKeys.forEach(k => { monthMap[monthKey][k] += dayData[k] || 0; });
+        }
+      }
+      return Object.entries(monthMap).map(([month, values]) => ({
+        day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
+        ...values,
+      })) as T[];
+    }
+
+    const filled: T[] = [];
+    for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+      const dateKey = format(d, 'yyyy-MM-dd');
+      filled.push({
+        day: format(d, 'dd/MM', { locale: fr }),
+        ...(dataMap[dateKey] || defaultValues),
+      } as T);
+    }
+    return filled;
+  };
+
   // Fetch download clicks by day with period filter - refresh every hour
   const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
     queryKey: ['admin-download-clicks-by-day', period],
@@ -507,12 +556,12 @@ export function AdminStats() {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: daysBack });
       if (error) throw error;
-      return (data as unknown as { day: string; count: number }[]).map(d => ({
-        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
-        count: Number(d.count),
-      }));
+      return fillMissingDays<{ day: string; count: number }>(
+        data as unknown as { day: string; count: number }[],
+        ['count'], daysBack, period
+      );
     },
-    refetchInterval: 60 * 60 * 1000, // 1 hour
+    refetchInterval: 60 * 60 * 1000,
   });
 
   // Fetch share stats - refresh every hour
