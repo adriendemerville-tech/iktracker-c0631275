@@ -630,12 +630,13 @@ export function AdminStats() {
         end_date: endDate.toISOString()
       });
       if (error) throw error;
-      return (data as unknown as { day: string; clicks: number }[]).map(d => ({
-        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
-        clicks: Number(d.clicks),
-      }));
+      const daysBack = periodConfig[period].daysBack;
+      return fillMissingDays<{ day: string; clicks: number }>(
+        (data as unknown as { day: string; clicks: number }[]).map(d => ({ day: d.day, clicks: Number(d.clicks) })),
+        ['clicks'], daysBack, period
+      );
     },
-    refetchInterval: 60 * 60 * 1000, // 1 hour
+    refetchInterval: 60 * 60 * 1000,
   });
 
   // Fetch marketing stats by page - refresh every hour
