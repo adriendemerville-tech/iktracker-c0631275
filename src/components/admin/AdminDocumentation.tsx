@@ -49,9 +49,10 @@ const ARCHITECTURE_SECTIONS = [
     items: [
       { label: 'Base de données', value: 'PostgreSQL 15 avec RLS activé', badge: 'SQL' },
       { label: 'Auth', value: 'Supabase Auth (email/password, OAuth Google)', badge: 'Auth' },
-      { label: 'Edge Functions', value: 'Deno runtime (10 fonctions déployées)', badge: 'Serverless' },
-      { label: 'Storage', value: 'Supabase Storage (images feedback, blog)', badge: 'S3-like' },
+      { label: 'Edge Functions', value: 'Deno runtime (11 fonctions déployées)', badge: 'Serverless' },
+      { label: 'Storage', value: 'Supabase Storage (feedback, blog, survey-screenshots)', badge: 'S3-like' },
       { label: 'Realtime', value: 'Supabase Realtime (presence admin)', badge: 'WebSocket' },
+      { label: 'RPC', value: '25+ fonctions SQL (stats, search, coûts, etc.)', badge: 'SQL' },
     ],
   },
   {
