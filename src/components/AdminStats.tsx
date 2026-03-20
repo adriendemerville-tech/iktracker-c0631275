@@ -545,7 +545,7 @@ export function AdminStats() {
 
   // Fetch download clicks by day with period filter - refresh every hour
   const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
-    queryKey: ['admin-download-clicks-by-day', period],
+    queryKey: ['admin-download-clicks-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: daysBack });
