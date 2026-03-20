@@ -152,7 +152,14 @@ interface MonthlyStats {
 }
 
 type PeriodFilter = 'week' | 'month' | 'year' | 'all';
+type Granularity = 'day' | 'week' | 'month';
 type TopUserSort = 'trips' | 'km' | 'ik';
+
+const granularityConfig: Record<Granularity, { label: string; labelFr: string }> = {
+  day: { label: 'Jour', labelFr: 'par jour' },
+  week: { label: 'Semaine', labelFr: 'par semaine' },
+  month: { label: 'Mois', labelFr: 'par mois' },
+};
 
 const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getStartDate: () => Date }> = {
   week: { 
