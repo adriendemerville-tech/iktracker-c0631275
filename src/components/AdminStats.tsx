@@ -501,12 +501,12 @@ export function AdminStats() {
   });
 
   // Helper: fill missing days in chart data
-  const fillMissingDays = <T extends Record<string, any>>(
+  const fillMissingDays = (
     rawData: { day: string; [key: string]: any }[],
     valueKeys: string[],
     daysBack: number,
     currentPeriod: PeriodFilter
-  ): T[] => {
+  ): Record<string, any>[] => {
     const dataMap: Record<string, Record<string, number>> = {};
     rawData.forEach(d => {
       const key = d.day.split('T')[0];
@@ -535,16 +535,16 @@ export function AdminStats() {
       return Object.entries(monthMap).map(([month, values]) => ({
         day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
         ...values,
-      })) as T[];
+      }));
     }
 
-    const filled: T[] = [];
+    const filled: Record<string, any>[] = [];
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
       const dateKey = format(d, 'yyyy-MM-dd');
       filled.push({
         day: format(d, 'dd/MM', { locale: fr }),
         ...(dataMap[dateKey] || defaultValues),
-      } as T);
+      });
     }
     return filled;
   };
