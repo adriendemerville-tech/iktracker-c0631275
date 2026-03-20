@@ -191,19 +191,27 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   }, [tourStartTime]);
 
   // Update last activity timestamp periodically when tour is active
+  // Also sync to DB every 30s for persistence across browser closure
   useEffect(() => {
     if (!isActive) return;
     
     // Update immediately when becoming active
     saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
     
-    // Then update every 30 seconds
+    // Then update every 30 seconds (localStorage + DB)
     const intervalId = setInterval(() => {
       saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+      // Sync full state to DB (force=true to bypass debounce)
+      updateSession({
+        stops,
+        totalDistanceKm,
+        gpsPoints,
+        pendingStop: pendingStopRef.current,
+      }, true).catch(e => console.warn('[TourTracker] DB sync failed:', e));
     }, 30000);
     
     return () => clearInterval(intervalId);
-  }, [isActive]);
+  }, [isActive, stops, totalDistanceKm, gpsPoints, updateSession]);
 
   // Calculate GPS signal strength from accuracy
   const updateGpsSignal = useCallback((accuracy: number | null) => {
