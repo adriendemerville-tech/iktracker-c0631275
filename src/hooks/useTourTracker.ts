@@ -728,6 +728,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         setIsActive(true);
         setIsLoading(false);
 
+        // Create DB session for persistence across browser closure
+        createSession(startTime).catch(e => console.warn('[TourTracker] Failed to create DB session:', e));
+
         // Request wake lock to keep screen on
         const wakeLockAcquired = await wakeLock.request();
         if (!wakeLockAcquired) {
