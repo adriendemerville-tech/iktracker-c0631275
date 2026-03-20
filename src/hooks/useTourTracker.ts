@@ -4,6 +4,7 @@ import { calculateDrivingDistance, getDistanceInMeters } from '@/lib/distance';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { playNotificationSound } from '@/lib/sounds';
 import { toast } from 'sonner';
+import { useTourSessionDB } from '@/hooks/useTourSessionDB';
 
 export interface TourStop {
   id: string;
@@ -137,6 +138,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     accuracyThreshold = 50, // 50 meters - max accuracy to accept
   } = options;
 
+  // DB sync for tour session persistence
+  const { createSession, updateSession, endSession: endSessionDB } = useTourSessionDB();
+
   // Initialize state - DO NOT auto-mark as interrupted here anymore
   // The new session recovery system in Index.tsx handles this with proper timing logic
   const [isActive, setIsActive] = useState(false);
@@ -187,19 +191,27 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   }, [tourStartTime]);
 
   // Update last activity timestamp periodically when tour is active
+  // Also sync to DB every 30s for persistence across browser closure
   useEffect(() => {
     if (!isActive) return;
     
     // Update immediately when becoming active
     saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
     
-    // Then update every 30 seconds
+    // Then update every 30 seconds (localStorage + DB)
     const intervalId = setInterval(() => {
       saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+      // Sync full state to DB (force=true to bypass debounce)
+      updateSession({
+        stops,
+        totalDistanceKm,
+        gpsPoints,
+        pendingStop: pendingStopRef.current,
+      }, true).catch(e => console.warn('[TourTracker] DB sync failed:', e));
     }, 30000);
     
     return () => clearInterval(intervalId);
-  }, [isActive]);
+  }, [isActive, stops, totalDistanceKm, gpsPoints, updateSession]);
 
   // Calculate GPS signal strength from accuracy
   const updateGpsSignal = useCallback((accuracy: number | null) => {
@@ -716,6 +728,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         setIsActive(true);
         setIsLoading(false);
 
+        // Create DB session for persistence across browser closure
+        createSession(startTime).catch(e => console.warn('[TourTracker] Failed to create DB session:', e));
+
         // Request wake lock to keep screen on
         const wakeLockAcquired = await wakeLock.request();
         if (!wakeLockAcquired) {
@@ -781,7 +796,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     maxDistanceReachedRef.current = 0;
     lastPositionRef.current = null;
     lastPointTimeRef.current = 0;
-  }, [stopTour]);
+    // End DB session
+    endSessionDB().catch(e => console.warn('[TourTracker] Failed to end DB session:', e));
+  }, [stopTour, endSessionDB]);
 
   // Get tour data for saving to Supabase
   const getTourData = useCallback(() => {

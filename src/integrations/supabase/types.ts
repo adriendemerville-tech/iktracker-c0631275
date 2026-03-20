@@ -751,6 +751,48 @@ export type Database = {
         }
         Relationships: []
       }
+      tour_sessions: {
+        Row: {
+          created_at: string
+          gps_points: Json
+          id: string
+          is_active: boolean
+          last_activity: string
+          pending_stop: Json | null
+          started_at: string
+          stops: Json
+          total_distance_km: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gps_points?: Json
+          id?: string
+          is_active?: boolean
+          last_activity?: string
+          pending_stop?: Json | null
+          started_at?: string
+          stops?: Json
+          total_distance_km?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gps_points?: Json
+          id?: string
+          is_active?: boolean
+          last_activity?: string
+          pending_stop?: Json | null
+          started_at?: string
+          stops?: Json
+          total_distance_km?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           calendar_event_id: string | null

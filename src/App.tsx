@@ -12,6 +12,7 @@ import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
 import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { GlobalTourRecovery } from "@/components/GlobalTourRecovery";
 
 // Lazy load UI components that aren't needed for initial render
 const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
@@ -210,6 +211,7 @@ const AppRoutes = () => {
     <AuthContext.Provider value={{ handleLogout }}>
       <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
       <GoogleMapsPreloader />
+      {user && <GlobalTourRecovery />}
       <Routes>
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
