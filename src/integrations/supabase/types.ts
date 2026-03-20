@@ -1005,6 +1005,13 @@ export type Database = {
           day: string
         }[]
       }
+      get_daily_active_users: {
+        Args: { days_back?: number }
+        Returns: {
+          count: number
+          day: string
+        }[]
+      }
       get_download_clicks_by_day: {
         Args: { days_back?: number }
         Returns: {
