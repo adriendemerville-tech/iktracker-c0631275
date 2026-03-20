@@ -613,7 +613,7 @@ export function AdminStats() {
 
   // Fetch signup clicks by day - refresh every hour
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
-    queryKey: ['admin-signup-clicks-by-day', period],
+    queryKey: ['admin-signup-clicks-by-day', period, granularity],
     queryFn: async () => {
       const config = periodConfig[period];
       const startDate = config.getStartDate();
