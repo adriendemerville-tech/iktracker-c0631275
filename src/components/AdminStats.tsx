@@ -454,6 +454,26 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
+  // Fetch daily active users over last 7 days
+  const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
+    queryKey: ['admin-dau'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_daily_active_users', { days_back: 7 });
+      if (error) throw error;
+      return (data as unknown as { day: string; count: number }[]).map(d => ({
+        day: d.day,
+        count: Number(d.count),
+      }));
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
+  // Compute DAU today vs yesterday
+  const dauToday = dailyActiveUsers.length >= 1 ? dailyActiveUsers[dailyActiveUsers.length - 1]?.count || 0 : 0;
+  const dauYesterday = dailyActiveUsers.length >= 2 ? dailyActiveUsers[dailyActiveUsers.length - 2]?.count || 0 : 0;
+  const dauDiff = dauToday - dauYesterday;
+  const dauTrend: 'up' | 'down' | 'flat' = dauDiff > 0 ? 'up' : dauDiff < 0 ? 'down' : 'flat';
+
   // Fetch top users - refresh every hour
   const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
     queryKey: ['admin-top-users', topUserSort],
