@@ -426,13 +426,13 @@ export function AdminStats() {
       
       if (period === 'year') {
         // Aggregate by month for year view
-        const monthMap: Map<string, number> = new Map();
+        const monthMap: Record<string, number> = {};
         for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
           const key = format(d, 'yyyy-MM');
           const dateKey = format(d, 'yyyy-MM-dd');
-          monthMap.set(key, (monthMap.get(key) || 0) + (dataMap.get(dateKey) || 0));
+          monthMap[key] = (monthMap[key] || 0) + (dataMap[dateKey] || 0);
         }
-        monthMap.forEach((count, month) => {
+        Object.entries(monthMap).forEach(([month, count]) => {
           filledData.push({
             day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
             count,
