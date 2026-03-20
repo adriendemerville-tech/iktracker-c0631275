@@ -609,10 +609,10 @@ export function AdminStats() {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_marketing_views_by_day', { days_back: daysBack });
       if (error) throw error;
-      return fillMissingDays<{ day: string; views: number; unique_visitors: number }>(
+      return fillMissingDays(
         data as unknown as { day: string; views: number; unique_visitors: number }[],
         ['views', 'unique_visitors'], daysBack, period
-      );
+      ) as { day: string; views: number; unique_visitors: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
   });
