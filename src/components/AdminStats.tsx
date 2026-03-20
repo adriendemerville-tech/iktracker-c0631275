@@ -48,7 +48,7 @@ import {
   MapPin,
   RefreshCw
 } from 'lucide-react';
-import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
+import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays, endOfWeek, addDays, addWeeks, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   DndContext,
@@ -152,7 +152,14 @@ interface MonthlyStats {
 }
 
 type PeriodFilter = 'week' | 'month' | 'year' | 'all';
+type Granularity = 'day' | 'week' | 'month';
 type TopUserSort = 'trips' | 'km' | 'ik';
+
+const granularityConfig: Record<Granularity, { label: string; labelFr: string }> = {
+  day: { label: 'Jour', labelFr: 'par jour' },
+  week: { label: 'Semaine', labelFr: 'par semaine' },
+  month: { label: 'Mois', labelFr: 'par mois' },
+};
 
 const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getStartDate: () => Date }> = {
   week: { 
@@ -202,6 +209,8 @@ export function AdminStats() {
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
 
+  const [granularity, setGranularity] = useState<Granularity>('day');
+  
   // Refresh all admin stats at 7:00 AM every day
   useEffect(() => {
     const scheduleRefresh = () => {
@@ -406,51 +415,13 @@ export function AdminStats() {
 
   // Fetch registrations by day with period filter - refresh every hour
   const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
-    queryKey: ['admin-registrations', period],
+    queryKey: ['admin-registrations', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_registrations_by_day', { days_back: daysBack });
       if (error) throw error;
       const rawData = data as unknown as { day: string; count: number }[];
-      
-      // Build a map of existing data
-      const dataMap: Record<string, number> = {};
-      rawData.forEach(d => {
-        dataMap[d.day.split('T')[0]] = Number(d.count);
-      });
-      
-      // Fill in all days in the range to ensure continuous curve
-      const filledData: { day: string; count: number }[] = [];
-      const today = new Date();
-      const startDate = new Date(today);
-      startDate.setDate(startDate.getDate() - daysBack);
-      
-      if (period === 'year') {
-        // Aggregate by month for year view
-        const monthMap: Record<string, number> = {};
-        for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-          const key = format(d, 'yyyy-MM');
-          const dateKey = format(d, 'yyyy-MM-dd');
-          monthMap[key] = (monthMap[key] || 0) + (dataMap[dateKey] || 0);
-        }
-        Object.entries(monthMap).forEach(([month, count]) => {
-          filledData.push({
-            day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
-            count,
-          });
-        });
-      } else {
-        // Fill every day for week/month
-        for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-          const dateKey = format(d, 'yyyy-MM-dd');
-          filledData.push({
-            day: format(d, 'dd/MM', { locale: fr }),
-            count: dataMap[dateKey] || 0,
-          });
-        }
-      }
-      
-      return filledData;
+      return fillMissingDays(rawData, ['count'], daysBack, period) as { day: string; count: number }[];
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
@@ -505,7 +476,7 @@ export function AdminStats() {
     rawData: { day: string; [key: string]: any }[],
     valueKeys: string[],
     daysBack: number,
-    currentPeriod: PeriodFilter
+    _currentPeriod: PeriodFilter
   ): Record<string, any>[] => {
     const dataMap: Record<string, Record<string, number>> = {};
     rawData.forEach(d => {
@@ -521,7 +492,7 @@ export function AdminStats() {
     const defaultValues: Record<string, number> = {};
     valueKeys.forEach(k => { defaultValues[k] = 0; });
 
-    if (currentPeriod === 'year') {
+    if (granularity === 'month') {
       const monthMap: Record<string, Record<string, number>> = {};
       for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
         const monthKey = format(d, 'yyyy-MM');
@@ -533,11 +504,34 @@ export function AdminStats() {
         }
       }
       return Object.entries(monthMap).map(([month, values]) => ({
-        day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
+        day: format(new Date(month + '-01'), 'MMM yy', { locale: fr }),
         ...values,
       }));
     }
 
+    if (granularity === 'week') {
+      const weekMap: Record<string, Record<string, number>> = {};
+      const weekLabels: Record<string, string> = {};
+      for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+        const weekStart = startOfWeek(d, { weekStartsOn: 1 });
+        const weekKey = format(weekStart, 'yyyy-MM-dd');
+        if (!weekMap[weekKey]) {
+          weekMap[weekKey] = { ...defaultValues };
+          weekLabels[weekKey] = `S${format(weekStart, 'ww', { locale: fr })} ${format(weekStart, 'dd/MM', { locale: fr })}`;
+        }
+        const dateKey = format(d, 'yyyy-MM-dd');
+        const dayData = dataMap[dateKey];
+        if (dayData) {
+          valueKeys.forEach(k => { weekMap[weekKey][k] += dayData[k] || 0; });
+        }
+      }
+      return Object.entries(weekMap).map(([weekKey, values]) => ({
+        day: weekLabels[weekKey],
+        ...values,
+      }));
+    }
+
+    // Default: day granularity
     const filled: Record<string, any>[] = [];
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
       const dateKey = format(d, 'yyyy-MM-dd');
@@ -551,7 +545,7 @@ export function AdminStats() {
 
   // Fetch download clicks by day with period filter - refresh every hour
   const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
-    queryKey: ['admin-download-clicks-by-day', period],
+    queryKey: ['admin-download-clicks-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: daysBack });
@@ -577,7 +571,7 @@ export function AdminStats() {
 
   // Fetch shares by day with period filter - refresh every hour
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
-    queryKey: ['admin-shares-by-day', period],
+    queryKey: ['admin-shares-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_shares_by_day', { days_back: daysBack });
@@ -604,7 +598,7 @@ export function AdminStats() {
 
   // Fetch marketing views by day - refresh every hour
   const { data: marketingViewsByDay = [], isLoading: marketingViewsLoading } = useQuery({
-    queryKey: ['admin-marketing-views-by-day', period],
+    queryKey: ['admin-marketing-views-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_marketing_views_by_day', { days_back: daysBack });
@@ -619,7 +613,7 @@ export function AdminStats() {
 
   // Fetch signup clicks by day - refresh every hour
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
-    queryKey: ['admin-signup-clicks-by-day', period],
+    queryKey: ['admin-signup-clicks-by-day', period, granularity],
     queryFn: async () => {
       const config = periodConfig[period];
       const startDate = config.getStartDate();
@@ -653,7 +647,7 @@ export function AdminStats() {
 
   // Fetch bareme simulations by day with period filter - refresh every hour
   const { data: baremeSimulationsByDay = [], isLoading: baremeSimulationsLoading } = useQuery({
-    queryKey: ['admin-bareme-simulations-by-day', period],
+    queryKey: ['admin-bareme-simulations-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_bareme_simulations_by_day', { days_back: daysBack });
@@ -943,6 +937,29 @@ export function AdminStats() {
               ))}
             </ToggleGroup>
           </div>
+          
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              <span>Intervalle</span>
+            </div>
+            <ToggleGroup 
+              type="single" 
+              value={granularity} 
+              onValueChange={(value) => value && setGranularity(value as Granularity)}
+              className="w-full justify-start overflow-x-auto rounded-xl bg-muted/50 p-1 lg:w-auto"
+            >
+              {Object.entries(granularityConfig).map(([key, config]) => (
+                <ToggleGroupItem 
+                  key={key} 
+                  value={key}
+                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                >
+                  {config.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
 
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <Button 
@@ -1001,7 +1018,7 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <BarChart3 className="w-5 h-5 text-blue-500" />
-                            Visites par jour
+                            Visites {granularityConfig[granularity].labelFr}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -1026,7 +1043,7 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <UserPlus className="w-5 h-5 text-emerald-500" />
-                            Clics inscription par jour
+                            Clics inscription {granularityConfig[granularity].labelFr}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -1050,7 +1067,7 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-purple-500" />
-                            Simulations IK barème
+                            Simulations IK {granularityConfig[granularity].labelFr}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -1583,7 +1600,7 @@ export function AdminStats() {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
-                          Nouveaux inscrits ({periodConfig[period].label.toLowerCase()})
+                          Nouveaux inscrits {granularityConfig[granularity].labelFr}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
