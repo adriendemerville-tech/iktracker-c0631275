@@ -49,9 +49,10 @@ const ARCHITECTURE_SECTIONS = [
     items: [
       { label: 'Base de données', value: 'PostgreSQL 15 avec RLS activé', badge: 'SQL' },
       { label: 'Auth', value: 'Supabase Auth (email/password, OAuth Google)', badge: 'Auth' },
-      { label: 'Edge Functions', value: 'Deno runtime (10 fonctions déployées)', badge: 'Serverless' },
-      { label: 'Storage', value: 'Supabase Storage (images feedback, blog)', badge: 'S3-like' },
+      { label: 'Edge Functions', value: 'Deno runtime (11 fonctions déployées)', badge: 'Serverless' },
+      { label: 'Storage', value: 'Supabase Storage (feedback, blog, survey-screenshots)', badge: 'S3-like' },
       { label: 'Realtime', value: 'Supabase Realtime (presence admin)', badge: 'WebSocket' },
+      { label: 'RPC', value: '25+ fonctions SQL (stats, search, coûts, etc.)', badge: 'SQL' },
     ],
   },
   {
@@ -70,19 +71,27 @@ const DB_TABLES = [
   { name: 'trips', desc: 'Trajets IK (distance, montant IK, tour_stops JSON)', rows: 'Principale', rls: true },
   { name: 'vehicles', desc: 'Véhicules (puissance fiscale, électrique, plaque)', rows: 'Principale', rls: true },
   { name: 'locations', desc: 'Adresses enregistrées (lat/lng, type)', rows: 'Principale', rls: true },
-  { name: 'user_preferences', desc: 'Préférences utilisateur (email comptable)', rows: 'Config', rls: true },
-  { name: 'user_roles', desc: 'Rôles (admin/user) — table séparée sécurisée', rows: 'Sécurité', rls: true },
+  { name: 'user_preferences', desc: 'Préférences utilisateur (persona, email comptable)', rows: 'Config', rls: true },
+  { name: 'user_roles', desc: 'Rôles (admin/user/viewer) — table séparée sécurisée', rows: 'Sécurité', rls: true },
+  { name: 'tour_sessions', desc: 'Sessions tournée GPS actives (stops, gps_points, pending_stop)', rows: 'Tournée', rls: true },
   { name: 'calendar_connections', desc: 'Connexions OAuth calendrier (tokens chiffrés)', rows: 'Sync', rls: true },
   { name: 'distance_cache', desc: 'Cache distances Google Maps par paire d\'adresses', rows: 'Perf', rls: true },
   { name: 'frequent_destinations', desc: 'Destinations fréquentes (keyword → address)', rows: 'UX', rls: true },
   { name: 'feedback', desc: 'Retours utilisateurs (message, image, réponse admin)', rows: 'Support', rls: true },
-  { name: 'blog_posts', desc: 'Articles blog (slug, content, status draft/published)', rows: 'CMS', rls: true },
+  { name: 'blog_posts', desc: 'Articles blog (slug, content, status draft/published/archived)', rows: 'CMS', rls: true },
   { name: 'blog_api_keys', desc: 'Clés API blog pour accès externe', rows: 'CMS', rls: true },
-  { name: 'marketing_analytics', desc: 'Tracking pages marketing (event, device, referrer)', rows: 'Analytics', rls: true },
-  { name: 'report_shares', desc: 'Relevés PDF partagés temporairement (expire 48h)', rows: 'Export', rls: true },
+  { name: 'page_contents', desc: 'Contenus éditables des pages (JSON, meta SEO)', rows: 'CMS', rls: true },
+  { name: 'surveys', desc: 'Enquêtes (ciblage, durée, personas, A/B testing)', rows: 'Surveys', rls: true },
+  { name: 'survey_variants', desc: 'Variantes A/B des enquêtes (content_blocks JSON)', rows: 'Surveys', rls: true },
+  { name: 'survey_responses', desc: 'Réponses aux enquêtes (responses JSON, screenshots)', rows: 'Surveys', rls: true },
+  { name: 'survey_impressions', desc: 'Impressions/affichages des enquêtes par utilisateur', rows: 'Surveys', rls: true },
+  { name: 'marketing_analytics', desc: 'Tracking pages marketing (event, device, referrer, IP)', rows: 'Analytics', rls: true },
+  { name: 'report_shares', desc: 'Relevés PDF partagés temporairement (expire 7j)', rows: 'Export', rls: true },
   { name: 'share_events', desc: 'Événements de partage (total_km, total_ik)', rows: 'Analytics', rls: true },
   { name: 'download_clicks', desc: 'Clicks sur bouton téléchargement', rows: 'Analytics', rls: true },
   { name: 'api_usage_logs', desc: 'Logs coût API (tokens, modèle, coût €)', rows: 'Monitoring', rls: true },
+  { name: 'api_audit_logs', desc: 'Audit trail API blog (action, données avant/après, revert)', rows: 'Monitoring', rls: true },
+  { name: 'error_logs', desc: 'Logs d\'erreurs applicatives (type, source, metadata)', rows: 'Monitoring', rls: true },
   { name: 'excluded_ips', desc: 'IPs exclues des analytics marketing', rows: 'Config', rls: true },
   { name: 'takeout_import_attempts', desc: 'Tentatives import Google Takeout', rows: 'Import', rls: true },
 ];
@@ -102,16 +111,21 @@ const EDGE_FUNCTIONS = [
 ];
 
 const SECURITY_FEATURES = [
-  'Row Level Security (RLS) activé sur toutes les tables',
-  'Rôles utilisateurs dans table séparée (jamais dans profiles)',
+  'Row Level Security (RLS) activé sur toutes les 26 tables',
+  'Rôles utilisateurs dans table séparée (admin/user/viewer)',
   'Fonction has_role() en SECURITY DEFINER pour éviter récursion RLS',
+  'Fonction has_admin_or_viewer_role() pour accès lecture stats (viewers)',
+  'Séparation stricte admin vs viewer : viewers = lecture seule, pas de mutation',
   'Tokens OAuth chiffrés côté serveur (calendar_connections)',
-  'Pas de clés privées dans le code client',
+  'Pas de clés privées dans le code client (env vars Deno pour Google Maps, etc.)',
   'Content Security Policy (CSP) via headers Netlify',
   'Politique noindex sur pages admin et sensibles',
   'Validation côté serveur dans les Edge Functions (Deno)',
   'CORS configuré par fonction Edge',
-  'Expiration automatique des rapports partagés (48h)',
+  'Expiration automatique des rapports partagés (7 jours)',
+  'Nettoyage automatique des numéros de téléphone après 7 jours (cleanup_old_phone_numbers)',
+  'Pas d\'exposition de stack traces dans les réponses d\'erreur (calendar-debug)',
+  'RLS report_shares : accès limité au propriétaire (pas d\'énumération publique)',
 ];
 
 const IK_BAREME = [
@@ -158,7 +172,7 @@ function generateDocPdfHtml(): string {
 
 <!-- PAGE 1 : Vue d'ensemble -->
 <div class="page">
-  <h1>📘 IKtracker — Documentation Technique v2.0</h1>
+  <h1>📘 IKtracker — Documentation Technique v3.0</h1>
   <p style="margin-bottom:14px;">Document interne — Généré le ${new Date().toLocaleDateString('fr-FR')} — Confidentiel</p>
   
   <h2>🏗️ Architecture Globale</h2>
@@ -197,13 +211,13 @@ function generateDocPdfHtml(): string {
       <div class="card-title">☁️ Backend</div>
       <ul>
         <li><strong>BaaS :</strong> Supabase (Lovable Cloud)</li>
-        <li><strong>DB :</strong> PostgreSQL 15 + RLS sur toutes les tables</li>
+        <li><strong>DB :</strong> PostgreSQL 15 + RLS sur 26 tables</li>
         <li><strong>Auth :</strong> Email/password + Google OAuth</li>
         <li><strong>Functions :</strong> 11 Edge Functions Deno</li>
-        <li><strong>Storage :</strong> Buckets S3-compatible</li>
+        <li><strong>Storage :</strong> 3 Buckets S3-compatible</li>
         <li><strong>Realtime :</strong> WebSocket presence (admin)</li>
-        <li><strong>RPC :</strong> 20+ fonctions SQL (stats, search, etc.)</li>
-        <li><strong>Cron :</strong> cleanup_expired_shares (auto)</li>
+        <li><strong>RPC :</strong> 25+ fonctions SQL (stats, search, coûts)</li>
+        <li><strong>Cron :</strong> cleanup_expired_shares, cleanup_old_phone_numbers</li>
       </ul>
     </div>
   </div>
@@ -226,27 +240,37 @@ function generateDocPdfHtml(): string {
       <div class="card-title">Stats & Analytics</div>
       <ul>
         <li><code>get_admin_stats(start_date, end_date)</code></li>
+        <li><code>get_daily_active_users(days_back)</code> — connexions + actions</li>
         <li><code>get_marketing_stats(days_back)</code></li>
+        <li><code>get_marketing_stats_by_page(days_back)</code></li>
         <li><code>get_marketing_views_by_day(days_back)</code></li>
         <li><code>get_registrations_by_day(days_back)</code></li>
         <li><code>get_monthly_stats(months_back)</code></li>
         <li><code>get_top_users(limit, sort_by)</code></li>
         <li><code>get_user_stats(_user_id)</code></li>
         <li><code>get_total_tours_count(start, end)</code></li>
+        <li><code>get_bareme_simulations_by_day(days_back)</code></li>
+        <li><code>get_signup_clicks_by_day(start, end)</code></li>
+        <li><code>get_shares_by_day(days_back)</code></li>
+        <li><code>get_download_clicks_by_day(days_back)</code></li>
+        <li><code>get_download_stats()</code></li>
+        <li><code>get_share_stats()</code></li>
+        <li><code>get_takeout_import_stats()</code></li>
       </ul>
     </div>
     <div class="card">
-      <div class="card-title">Sécurité & Utils</div>
+      <div class="card-title">Sécurité, Coûts & Utils</div>
       <ul>
         <li><code>has_role(_user_id, _role)</code> — SECURITY DEFINER</li>
+        <li><code>has_admin_or_viewer_role(_user_id)</code> — lecture stats</li>
         <li><code>search_users(search_term, limit)</code></li>
         <li><code>get_recent_signups(limit)</code></li>
         <li><code>cleanup_expired_shares()</code></li>
+        <li><code>cleanup_old_phone_numbers()</code></li>
         <li><code>get_api_cost_stats(days_back)</code></li>
         <li><code>get_api_cost_by_function(days_back)</code></li>
         <li><code>get_api_cost_by_day(days_back)</code></li>
-        <li><code>get_download_stats()</code></li>
-        <li><code>get_share_stats()</code></li>
+        <li><code>get_api_cost_by_model(days_back)</code></li>
       </ul>
     </div>
   </div>
@@ -267,7 +291,7 @@ function generateDocPdfHtml(): string {
     ${SECURITY_FEATURES.map(s => `<li>✅ ${s}</li>`).join('')}
   </ul>
 
-  <h2>📊 Barème IK 2024 (intégré dans le code)</h2>
+  <h2>📊 Barème IK 2026 (intégré dans le code)</h2>
   <table>
     <thead><tr><th>Puissance</th><th>≤ 5 000 km</th><th>5 001 – 20 000 km</th><th>> 20 000 km</th></tr></thead>
     <tbody>
@@ -436,7 +460,7 @@ export function AdminDocumentation() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <Calculator className="w-5 h-5 text-primary" />
-                Barème IK 2024
+                Barème IK 2026
               </CardTitle>
               <CardDescription>Intégré dans src/types/trip.ts — Majoration 20% véhicules électriques</CardDescription>
             </CardHeader>
