@@ -609,13 +609,12 @@ export function AdminStats() {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_marketing_views_by_day', { days_back: daysBack });
       if (error) throw error;
-      return (data as unknown as { day: string; views: number; unique_visitors: number }[]).map(d => ({
-        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
-        views: Number(d.views),
-        unique_visitors: Number(d.unique_visitors),
-      }));
+      return fillMissingDays<{ day: string; views: number; unique_visitors: number }>(
+        data as unknown as { day: string; views: number; unique_visitors: number }[],
+        ['views', 'unique_visitors'], daysBack, period
+      );
     },
-    refetchInterval: 60 * 60 * 1000, // 1 hour
+    refetchInterval: 60 * 60 * 1000,
   });
 
   // Fetch signup clicks by day - refresh every hour
