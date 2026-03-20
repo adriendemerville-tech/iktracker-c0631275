@@ -1037,7 +1037,7 @@ export function AdminStats() {
                 switch (blockId) {
                   case 'marketing-views-chart':
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId}>
+                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <BarChart3 className="w-5 h-5 text-blue-500" />
@@ -1062,7 +1062,7 @@ export function AdminStats() {
 
                   case 'marketing-signup-clicks-chart':
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId}>
+                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <UserPlus className="w-5 h-5 text-emerald-500" />
@@ -1086,7 +1086,7 @@ export function AdminStats() {
 
                   case 'bareme-simulations-chart':
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId}>
+                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-purple-500" />
@@ -1110,7 +1110,7 @@ export function AdminStats() {
 
                   case 'marketing-stats-by-page':
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId} className="md:col-span-2">
+                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <FileText className="w-5 h-5 text-green-500" />
@@ -1171,7 +1171,7 @@ export function AdminStats() {
               switch (sectionId) {
                 case 'main-stats':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} isCard={false}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} isCard={false} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(3n+1)]:col-span-3 md:[&>*:last-child:nth-child(3n+2)]:col-span-2 lg:[&>*:last-child:nth-child(6n+1)]:col-span-6 lg:[&>*:last-child:nth-child(6n+2)]:col-span-5 lg:[&>*:last-child:nth-child(6n+3)]:col-span-4 lg:[&>*:last-child:nth-child(6n+4)]:col-span-3 lg:[&>*:last-child:nth-child(6n+5)]:col-span-2">
                         {/* Online users - real-time */}
                         <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
@@ -1350,7 +1350,7 @@ export function AdminStats() {
 
                 case 'recent-signups':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Users className="w-5 h-5 text-primary" />
@@ -1398,7 +1398,7 @@ export function AdminStats() {
 
                 case 'download-stats':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Download className="w-5 h-5 text-primary" />
@@ -1483,7 +1483,7 @@ export function AdminStats() {
 
                 case 'share-stats':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Share2 className="w-5 h-5 text-primary" />
@@ -1518,7 +1518,7 @@ export function AdminStats() {
 
                 case 'comparison-chart':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
@@ -1619,7 +1619,7 @@ export function AdminStats() {
 
                 case 'registrations-chart':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
@@ -1673,7 +1673,7 @@ export function AdminStats() {
 
                 case 'top-users':
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId}>
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <CardTitle className="text-lg flex items-center gap-2">
