@@ -1092,6 +1092,7 @@ export type Database = {
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
       get_user_stats: { Args: { _user_id: string }; Returns: Json }
+      has_admin_or_viewer_role: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
