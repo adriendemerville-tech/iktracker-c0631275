@@ -240,27 +240,37 @@ function generateDocPdfHtml(): string {
       <div class="card-title">Stats & Analytics</div>
       <ul>
         <li><code>get_admin_stats(start_date, end_date)</code></li>
+        <li><code>get_daily_active_users(days_back)</code> — connexions + actions</li>
         <li><code>get_marketing_stats(days_back)</code></li>
+        <li><code>get_marketing_stats_by_page(days_back)</code></li>
         <li><code>get_marketing_views_by_day(days_back)</code></li>
         <li><code>get_registrations_by_day(days_back)</code></li>
         <li><code>get_monthly_stats(months_back)</code></li>
         <li><code>get_top_users(limit, sort_by)</code></li>
         <li><code>get_user_stats(_user_id)</code></li>
         <li><code>get_total_tours_count(start, end)</code></li>
+        <li><code>get_bareme_simulations_by_day(days_back)</code></li>
+        <li><code>get_signup_clicks_by_day(start, end)</code></li>
+        <li><code>get_shares_by_day(days_back)</code></li>
+        <li><code>get_download_clicks_by_day(days_back)</code></li>
+        <li><code>get_download_stats()</code></li>
+        <li><code>get_share_stats()</code></li>
+        <li><code>get_takeout_import_stats()</code></li>
       </ul>
     </div>
     <div class="card">
-      <div class="card-title">Sécurité & Utils</div>
+      <div class="card-title">Sécurité, Coûts & Utils</div>
       <ul>
         <li><code>has_role(_user_id, _role)</code> — SECURITY DEFINER</li>
+        <li><code>has_admin_or_viewer_role(_user_id)</code> — lecture stats</li>
         <li><code>search_users(search_term, limit)</code></li>
         <li><code>get_recent_signups(limit)</code></li>
         <li><code>cleanup_expired_shares()</code></li>
+        <li><code>cleanup_old_phone_numbers()</code></li>
         <li><code>get_api_cost_stats(days_back)</code></li>
         <li><code>get_api_cost_by_function(days_back)</code></li>
         <li><code>get_api_cost_by_day(days_back)</code></li>
-        <li><code>get_download_stats()</code></li>
-        <li><code>get_share_stats()</code></li>
+        <li><code>get_api_cost_by_model(days_back)</code></li>
       </ul>
     </div>
   </div>
