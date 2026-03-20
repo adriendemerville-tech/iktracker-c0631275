@@ -111,16 +111,21 @@ const EDGE_FUNCTIONS = [
 ];
 
 const SECURITY_FEATURES = [
-  'Row Level Security (RLS) activé sur toutes les tables',
-  'Rôles utilisateurs dans table séparée (jamais dans profiles)',
+  'Row Level Security (RLS) activé sur toutes les 26 tables',
+  'Rôles utilisateurs dans table séparée (admin/user/viewer)',
   'Fonction has_role() en SECURITY DEFINER pour éviter récursion RLS',
+  'Fonction has_admin_or_viewer_role() pour accès lecture stats (viewers)',
+  'Séparation stricte admin vs viewer : viewers = lecture seule, pas de mutation',
   'Tokens OAuth chiffrés côté serveur (calendar_connections)',
-  'Pas de clés privées dans le code client',
+  'Pas de clés privées dans le code client (env vars Deno pour Google Maps, etc.)',
   'Content Security Policy (CSP) via headers Netlify',
   'Politique noindex sur pages admin et sensibles',
   'Validation côté serveur dans les Edge Functions (Deno)',
   'CORS configuré par fonction Edge',
-  'Expiration automatique des rapports partagés (48h)',
+  'Expiration automatique des rapports partagés (7 jours)',
+  'Nettoyage automatique des numéros de téléphone après 7 jours (cleanup_old_phone_numbers)',
+  'Pas d\'exposition de stack traces dans les réponses d\'erreur (calendar-debug)',
+  'RLS report_shares : accès limité au propriétaire (pas d\'énumération publique)',
 ];
 
 const IK_BAREME = [
