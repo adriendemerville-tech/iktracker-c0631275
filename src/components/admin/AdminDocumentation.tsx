@@ -460,7 +460,7 @@ export function AdminDocumentation() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <Calculator className="w-5 h-5 text-primary" />
-                Barème IK 2024
+                Barème IK 2026
               </CardTitle>
               <CardDescription>Intégré dans src/types/trip.ts — Majoration 20% véhicules électriques</CardDescription>
             </CardHeader>
