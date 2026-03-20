@@ -571,7 +571,7 @@ export function AdminStats() {
 
   // Fetch shares by day with period filter - refresh every hour
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
-    queryKey: ['admin-shares-by-day', period],
+    queryKey: ['admin-shares-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_shares_by_day', { days_back: daysBack });
