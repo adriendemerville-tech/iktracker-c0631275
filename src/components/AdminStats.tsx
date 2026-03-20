@@ -1018,7 +1018,7 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <BarChart3 className="w-5 h-5 text-blue-500" />
-                            Visites par jour
+                            Visites {granularityConfig[granularity].labelFr}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
