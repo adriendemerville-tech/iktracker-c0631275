@@ -598,7 +598,7 @@ export function AdminStats() {
 
   // Fetch marketing views by day - refresh every hour
   const { data: marketingViewsByDay = [], isLoading: marketingViewsLoading } = useQuery({
-    queryKey: ['admin-marketing-views-by-day', period],
+    queryKey: ['admin-marketing-views-by-day', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_marketing_views_by_day', { days_back: daysBack });
