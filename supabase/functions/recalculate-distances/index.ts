@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDjuGRMRKrDb5OYhO0_Efcm8I7QpUe70IY';
+const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
 
 // IK Barème 2024
 interface IKBareme {
