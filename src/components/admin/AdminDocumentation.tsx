@@ -211,13 +211,13 @@ function generateDocPdfHtml(): string {
       <div class="card-title">☁️ Backend</div>
       <ul>
         <li><strong>BaaS :</strong> Supabase (Lovable Cloud)</li>
-        <li><strong>DB :</strong> PostgreSQL 15 + RLS sur toutes les tables</li>
+        <li><strong>DB :</strong> PostgreSQL 15 + RLS sur 26 tables</li>
         <li><strong>Auth :</strong> Email/password + Google OAuth</li>
         <li><strong>Functions :</strong> 11 Edge Functions Deno</li>
-        <li><strong>Storage :</strong> Buckets S3-compatible</li>
+        <li><strong>Storage :</strong> 3 Buckets S3-compatible</li>
         <li><strong>Realtime :</strong> WebSocket presence (admin)</li>
-        <li><strong>RPC :</strong> 20+ fonctions SQL (stats, search, etc.)</li>
-        <li><strong>Cron :</strong> cleanup_expired_shares (auto)</li>
+        <li><strong>RPC :</strong> 25+ fonctions SQL (stats, search, coûts)</li>
+        <li><strong>Cron :</strong> cleanup_expired_shares, cleanup_old_phone_numbers</li>
       </ul>
     </div>
   </div>
