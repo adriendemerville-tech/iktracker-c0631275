@@ -410,10 +410,46 @@ export function AdminStats() {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_registrations_by_day', { days_back: daysBack });
       if (error) throw error;
-      return (data as unknown as { day: string; count: number }[]).map(d => ({
-        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
-        count: Number(d.count),
-      }));
+      const rawData = data as unknown as { day: string; count: number }[];
+      
+      // Build a map of existing data
+      const dataMap = new Map<string, number>();
+      rawData.forEach(d => {
+        dataMap.set(d.day.split('T')[0], Number(d.count));
+      });
+      
+      // Fill in all days in the range to ensure continuous curve
+      const filledData: { day: string; count: number }[] = [];
+      const today = new Date();
+      const startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - daysBack);
+      
+      if (period === 'year') {
+        // Aggregate by month for year view
+        const monthMap = new Map<string, number>();
+        for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+          const key = format(d, 'yyyy-MM');
+          const dateKey = format(d, 'yyyy-MM-dd');
+          monthMap.set(key, (monthMap.get(key) || 0) + (dataMap.get(dateKey) || 0));
+        }
+        monthMap.forEach((count, month) => {
+          filledData.push({
+            day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
+            count,
+          });
+        });
+      } else {
+        // Fill every day for week/month
+        for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+          const dateKey = format(d, 'yyyy-MM-dd');
+          filledData.push({
+            day: format(d, 'dd/MM', { locale: fr }),
+            count: dataMap.get(dateKey) || 0,
+          });
+        }
+      }
+      
+      return filledData;
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
