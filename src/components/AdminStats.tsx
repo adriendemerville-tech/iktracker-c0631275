@@ -582,10 +582,10 @@ export function AdminStats() {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_shares_by_day', { days_back: daysBack });
       if (error) throw error;
-      return fillMissingDays<{ day: string; count: number }>(
+      return fillMissingDays(
         data as unknown as { day: string; count: number }[],
         ['count'], daysBack, period
-      );
+      ) as { day: string; count: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
   });
