@@ -172,7 +172,7 @@ function generateDocPdfHtml(): string {
 
 <!-- PAGE 1 : Vue d'ensemble -->
 <div class="page">
-  <h1>📘 IKtracker — Documentation Technique v2.0</h1>
+  <h1>📘 IKtracker — Documentation Technique v3.0</h1>
   <p style="margin-bottom:14px;">Document interne — Généré le ${new Date().toLocaleDateString('fr-FR')} — Confidentiel</p>
   
   <h2>🏗️ Architecture Globale</h2>
