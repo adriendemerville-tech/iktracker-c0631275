@@ -1600,7 +1600,7 @@ export function AdminStats() {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
-                          Nouveaux inscrits ({periodConfig[period].label.toLowerCase()})
+                          Nouveaux inscrits {granularityConfig[granularity].labelFr}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
