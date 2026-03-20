@@ -658,12 +658,12 @@ export function AdminStats() {
       const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc('get_bareme_simulations_by_day', { days_back: daysBack });
       if (error) throw error;
-      return (data as unknown as { day: string; count: number }[]).map(d => ({
-        day: format(new Date(d.day), period === 'year' ? 'MMM' : 'dd/MM', { locale: fr }),
-        count: Number(d.count),
-      }));
+      return fillMissingDays<{ day: string; count: number }>(
+        data as unknown as { day: string; count: number }[],
+        ['count'], daysBack, period
+      );
     },
-    refetchInterval: 60 * 60 * 1000, // 1 hour
+    refetchInterval: 60 * 60 * 1000,
   });
 
   // Fetch recent signups - refresh every hour
