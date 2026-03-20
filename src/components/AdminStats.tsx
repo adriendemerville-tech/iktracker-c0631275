@@ -48,7 +48,7 @@ import {
   MapPin,
   RefreshCw
 } from 'lucide-react';
-import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays } from 'date-fns';
+import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays, endOfWeek, addDays, addWeeks, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   DndContext,
