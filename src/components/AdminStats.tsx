@@ -882,8 +882,8 @@ export function AdminStats() {
           collisionDetection={closestCenter}
           onDragEnd={handleMarketingSectionDragEnd}
         >
-          <SortableContext items={marketingSectionOrder} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-1 gap-4 mb-6">
+          <SortableContext items={marketingSectionOrder} strategy={verticalListSortingStrategy}>
+            <div className="flex flex-col gap-4 mb-6">
               {marketingSectionOrder.map((blockId) => {
                 switch (blockId) {
                   case 'marketing-views-chart':
