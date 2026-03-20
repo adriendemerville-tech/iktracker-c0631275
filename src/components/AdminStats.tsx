@@ -919,29 +919,32 @@ export function AdminStats() {
   return (
     <div className="space-y-4">
       {/* Period filter and export buttons */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          <span>Période :</span>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <ToggleGroup 
-            type="single" 
-            value={period} 
-            onValueChange={(value) => value && setPeriod(value as PeriodFilter)}
-            className="bg-muted/50 p-1 rounded-lg"
-          >
-            {Object.entries(periodConfig).map(([key, config]) => (
-              <ToggleGroupItem 
-                key={key} 
-                value={key}
-                className="px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
-              >
-                {config.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-          <div className="flex items-center gap-1 ml-2">
+      <div className="sticky top-2 z-20 rounded-2xl border border-border bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/85">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Calendar className="w-4 h-4 text-primary" />
+              <span>Filtre de période</span>
+            </div>
+            <ToggleGroup 
+              type="single" 
+              value={period} 
+              onValueChange={(value) => value && setPeriod(value as PeriodFilter)}
+              className="w-full justify-start overflow-x-auto rounded-xl bg-muted/50 p-1 lg:w-auto"
+            >
+              {Object.entries(periodConfig).map(([key, config]) => (
+                <ToggleGroupItem 
+                  key={key} 
+                  value={key}
+                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                >
+                  {config.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <Button 
               variant="outline" 
               size="sm" 
