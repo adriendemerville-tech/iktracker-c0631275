@@ -937,6 +937,29 @@ export function AdminStats() {
               ))}
             </ToggleGroup>
           </div>
+          
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              <span>Intervalle</span>
+            </div>
+            <ToggleGroup 
+              type="single" 
+              value={granularity} 
+              onValueChange={(value) => value && setGranularity(value as Granularity)}
+              className="w-full justify-start overflow-x-auto rounded-xl bg-muted/50 p-1 lg:w-auto"
+            >
+              {Object.entries(granularityConfig).map(([key, config]) => (
+                <ToggleGroupItem 
+                  key={key} 
+                  value={key}
+                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                >
+                  {config.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
 
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <Button 
