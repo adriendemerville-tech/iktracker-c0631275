@@ -796,7 +796,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     maxDistanceReachedRef.current = 0;
     lastPositionRef.current = null;
     lastPointTimeRef.current = 0;
-  }, [stopTour]);
+    // End DB session
+    endSessionDB().catch(e => console.warn('[TourTracker] Failed to end DB session:', e));
+  }, [stopTour, endSessionDB]);
 
   // Get tour data for saving to Supabase
   const getTourData = useCallback(() => {
