@@ -413,9 +413,9 @@ export function AdminStats() {
       const rawData = data as unknown as { day: string; count: number }[];
       
       // Build a map of existing data
-      const dataMap: Map<string, number> = new Map();
+      const dataMap: Record<string, number> = {};
       rawData.forEach(d => {
-        dataMap.set(d.day.split('T')[0], Number(d.count));
+        dataMap[d.day.split('T')[0]] = Number(d.count);
       });
       
       // Fill in all days in the range to ensure continuous curve
