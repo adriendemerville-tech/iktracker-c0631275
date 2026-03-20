@@ -235,6 +235,7 @@ export function AdminStats() {
         queryClient.invalidateQueries({ queryKey: ['admin-monthly-stats'] });
         queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] });
         queryClient.invalidateQueries({ queryKey: ['admin-bareme-simulations-by-day'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-dau'] });
         
         // Schedule next refresh
         scheduleRefresh();
@@ -453,6 +454,26 @@ export function AdminStats() {
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
+
+  // Fetch daily active users over last 7 days
+  const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
+    queryKey: ['admin-dau'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_daily_active_users', { days_back: 7 });
+      if (error) throw error;
+      return (data as unknown as { day: string; count: number }[]).map(d => ({
+        day: d.day,
+        count: Number(d.count),
+      }));
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
+  // Compute DAU today vs yesterday
+  const dauToday = dailyActiveUsers.length >= 1 ? dailyActiveUsers[dailyActiveUsers.length - 1]?.count || 0 : 0;
+  const dauYesterday = dailyActiveUsers.length >= 2 ? dailyActiveUsers[dailyActiveUsers.length - 2]?.count || 0 : 0;
+  const dauDiff = dauToday - dauYesterday;
+  const dauTrend: 'up' | 'down' | 'flat' = dauDiff > 0 ? 'up' : dauDiff < 0 ? 'down' : 'flat';
 
   // Fetch top users - refresh every hour
   const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
@@ -1072,6 +1093,55 @@ export function AdminStats() {
                             </div>
                             <p className="text-2xl font-bold text-green-600">{onlineUsers}</p>
                             <p className="text-xs text-muted-foreground">visites simultanées</p>
+                          </CardContent>
+                        </Card>
+
+                        {/* Daily Active Users - 7 days */}
+                        <Card className="bg-gradient-to-br from-violet-500/10 to-violet-600/5 border-violet-500/20">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <UserPlus className="w-5 h-5 text-violet-500" />
+                              <span className="text-xs text-muted-foreground">Actifs / jour</span>
+                            </div>
+                            {dauLoading ? (
+                              <Skeleton className="h-8 w-16" />
+                            ) : (
+                              <>
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-2xl font-bold text-violet-600">{dauToday}</p>
+                                  {dauTrend === 'up' && (
+                                    <span className="flex items-center text-xs font-medium text-green-600">
+                                      <ArrowUp className="w-3 h-3" />+{dauDiff}
+                                    </span>
+                                  )}
+                                  {dauTrend === 'down' && (
+                                    <span className="flex items-center text-xs font-medium text-red-500">
+                                      <ArrowDown className="w-3 h-3" />{dauDiff}
+                                    </span>
+                                  )}
+                                  {dauTrend === 'flat' && (
+                                    <span className="flex items-center text-xs font-medium text-muted-foreground">
+                                      <Minus className="w-3 h-3" />0
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-[2px] mt-1.5 h-5 items-end">
+                                  {dailyActiveUsers.map((d, i) => {
+                                    const max = Math.max(...dailyActiveUsers.map(x => x.count), 1);
+                                    const height = Math.max(2, (d.count / max) * 20);
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="flex-1 rounded-sm bg-violet-400/60"
+                                        style={{ height: `${height}px` }}
+                                        title={`${format(new Date(d.day), 'dd/MM', { locale: fr })}: ${d.count}`}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                                <p className="text-[10px] text-muted-foreground mt-1">7 derniers jours</p>
+                              </>
+                            )}
                           </CardContent>
                         </Card>
 
