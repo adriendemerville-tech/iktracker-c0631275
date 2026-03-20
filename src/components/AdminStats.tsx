@@ -444,7 +444,7 @@ export function AdminStats() {
           const dateKey = format(d, 'yyyy-MM-dd');
           filledData.push({
             day: format(d, 'dd/MM', { locale: fr }),
-            count: dataMap.get(dateKey) || 0,
+            count: dataMap[dateKey] || 0,
           });
         }
       }
