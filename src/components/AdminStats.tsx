@@ -514,7 +514,7 @@ export function AdminStats() {
     rawData: { day: string; [key: string]: any }[],
     valueKeys: string[],
     daysBack: number,
-    currentPeriod: PeriodFilter
+    _currentPeriod: PeriodFilter
   ): Record<string, any>[] => {
     const dataMap: Record<string, Record<string, number>> = {};
     rawData.forEach(d => {
@@ -530,7 +530,7 @@ export function AdminStats() {
     const defaultValues: Record<string, number> = {};
     valueKeys.forEach(k => { defaultValues[k] = 0; });
 
-    if (currentPeriod === 'year') {
+    if (granularity === 'month') {
       const monthMap: Record<string, Record<string, number>> = {};
       for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
         const monthKey = format(d, 'yyyy-MM');
@@ -542,11 +542,34 @@ export function AdminStats() {
         }
       }
       return Object.entries(monthMap).map(([month, values]) => ({
-        day: format(new Date(month + '-01'), 'MMM', { locale: fr }),
+        day: format(new Date(month + '-01'), 'MMM yy', { locale: fr }),
         ...values,
       }));
     }
 
+    if (granularity === 'week') {
+      const weekMap: Record<string, Record<string, number>> = {};
+      const weekLabels: Record<string, string> = {};
+      for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+        const weekStart = startOfWeek(d, { weekStartsOn: 1 });
+        const weekKey = format(weekStart, 'yyyy-MM-dd');
+        if (!weekMap[weekKey]) {
+          weekMap[weekKey] = { ...defaultValues };
+          weekLabels[weekKey] = `S${format(weekStart, 'ww', { locale: fr })} ${format(weekStart, 'dd/MM', { locale: fr })}`;
+        }
+        const dateKey = format(d, 'yyyy-MM-dd');
+        const dayData = dataMap[dateKey];
+        if (dayData) {
+          valueKeys.forEach(k => { weekMap[weekKey][k] += dayData[k] || 0; });
+        }
+      }
+      return Object.entries(weekMap).map(([weekKey, values]) => ({
+        day: weekLabels[weekKey],
+        ...values,
+      }));
+    }
+
+    // Default: day granularity
     const filled: Record<string, any>[] = [];
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
       const dateKey = format(d, 'yyyy-MM-dd');
