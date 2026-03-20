@@ -46,6 +46,7 @@ const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").th
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
+const TestimonialsCarousel = lazy(() => import("@/components/marketing/TestimonialsCarousel").then(m => ({ default: m.TestimonialsCarousel })));
 const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
 const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
 
@@ -463,7 +464,11 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Phone Mockup Demo */}
+      {/* Testimonials */}
+      <Suspense fallback={<LazyPlaceholder height={280} />}>
+        <TestimonialsCarousel />
+      </Suspense>
+
       <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30 section-contained">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
