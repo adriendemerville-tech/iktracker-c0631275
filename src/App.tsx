@@ -211,6 +211,7 @@ const AppRoutes = () => {
     <AuthContext.Provider value={{ handleLogout }}>
       <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
       <GoogleMapsPreloader />
+      {user && <GlobalTourRecovery />}
       <Routes>
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
