@@ -209,6 +209,8 @@ export function AdminStats() {
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
 
+  const [granularity, setGranularity] = useState<Granularity>('day');
+  
   // Refresh all admin stats at 7:00 AM every day
   useEffect(() => {
     const scheduleRefresh = () => {
