@@ -426,7 +426,7 @@ export function AdminStats() {
       
       if (period === 'year') {
         // Aggregate by month for year view
-        const monthMap = new Map<string, number>();
+        const monthMap: Map<string, number> = new Map();
         for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
           const key = format(d, 'yyyy-MM');
           const dateKey = format(d, 'yyyy-MM-dd');
