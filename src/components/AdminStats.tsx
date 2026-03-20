@@ -1166,7 +1166,7 @@ export function AdminStats() {
         onDragEnd={handleSectionDragEnd}
       >
         <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {sectionOrder.map((sectionId) => {
               switch (sectionId) {
                 case 'main-stats':
