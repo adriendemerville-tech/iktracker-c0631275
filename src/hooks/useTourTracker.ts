@@ -138,6 +138,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     accuracyThreshold = 50, // 50 meters - max accuracy to accept
   } = options;
 
+  // DB sync for tour session persistence
+  const { createSession, updateSession, endSession: endSessionDB } = useTourSessionDB();
+
   // Initialize state - DO NOT auto-mark as interrupted here anymore
   // The new session recovery system in Index.tsx handles this with proper timing logic
   const [isActive, setIsActive] = useState(false);
