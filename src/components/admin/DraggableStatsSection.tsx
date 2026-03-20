@@ -32,9 +32,9 @@ export function DraggableStatsSection({ id, children, className = '', isCard = t
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 200ms ease, margin 200ms ease',
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : 'auto',
+    transition: transition || 'transform 200ms ease',
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : 'auto' as const,
   };
 
   if (!isDesktop) {
@@ -48,25 +48,33 @@ export function DraggableStatsSection({ id, children, className = '', isCard = t
   const Wrapper = isCard ? Card : 'div';
 
   return (
-    <Wrapper
-      ref={setNodeRef}
-      style={style}
-      className={`w-full relative group transition-all duration-200 ${
-        isDragging ? 'shadow-lg ring-2 ring-primary scale-[1.02]' : ''
-      } ${
-        isOver && !isDragging ? 'mt-8 mb-8' : ''
-      } ${className}`}
-    >
-      {canDrag && (
-        <div
-          {...attributes}
-          {...listeners}
-          className="absolute top-3 right-3 z-10 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors opacity-0 group-hover:opacity-100"
-        >
-          <Move className="w-3.5 h-3.5 text-muted-foreground" />
-        </div>
-      )}
-      {children}
-    </Wrapper>
+    <div className="relative">
+      {/* Drop indicator above */}
+      <div
+        className={`transition-all duration-200 rounded-md ${
+          isOver && !isDragging
+            ? 'h-16 mb-2 border-2 border-dashed border-primary/40 bg-primary/5'
+            : 'h-0'
+        }`}
+      />
+      <Wrapper
+        ref={setNodeRef}
+        style={style}
+        className={`w-full relative group transition-shadow duration-200 ${
+          isDragging ? 'shadow-2xl ring-2 ring-primary scale-[1.01]' : ''
+        } ${className}`}
+      >
+        {canDrag && (
+          <div
+            {...attributes}
+            {...listeners}
+            className="absolute top-3 right-3 z-10 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors opacity-0 group-hover:opacity-100"
+          >
+            <Move className="w-3.5 h-3.5 text-muted-foreground" />
+          </div>
+        )}
+        {children}
+      </Wrapper>
+    </div>
   );
 }
