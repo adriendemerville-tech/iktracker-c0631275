@@ -631,10 +631,10 @@ export function AdminStats() {
       });
       if (error) throw error;
       const daysBack = periodConfig[period].daysBack;
-      return fillMissingDays<{ day: string; clicks: number }>(
+      return fillMissingDays(
         (data as unknown as { day: string; clicks: number }[]).map(d => ({ day: d.day, clicks: Number(d.clicks) })),
         ['clicks'], daysBack, period
-      );
+      ) as { day: string; clicks: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
   });
