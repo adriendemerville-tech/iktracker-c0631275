@@ -11,6 +11,20 @@ const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+const ALLOWED_REDIRECT_ORIGINS = [
+  'https://iktracker.fr',
+  'https://iktracker.lovable.app',
+  'http://localhost:5173',
+  'http://localhost:8080',
+];
+
+function validateRedirectUrl(url: string | undefined): string {
+  const fallback = 'https://iktracker.fr/profile';
+  if (!url) return fallback;
+  const isAllowed = ALLOWED_REDIRECT_ORIGINS.some(origin => url.startsWith(origin));
+  return isAllowed ? url : fallback;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -21,15 +35,12 @@ serve(async (req) => {
     const action = url.searchParams.get('action');
 
     console.log('Google Calendar Auth - Action:', action);
-    console.log('Google Calendar Auth - SUPABASE_URL:', SUPABASE_URL);
-    console.log('Google Calendar Auth - GOOGLE_CLIENT_ID exists:', !!GOOGLE_CLIENT_ID);
-    console.log('Google Calendar Auth - GOOGLE_CLIENT_SECRET exists:', !!GOOGLE_CLIENT_SECRET);
 
     // Generate OAuth URL
     if (action === 'authorize') {
       if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
         console.error('Missing Google OAuth credentials');
-        return new Response(JSON.stringify({ error: 'Missing Google OAuth credentials' }), {
+        return new Response(JSON.stringify({ error: 'Configuration error' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -37,8 +48,6 @@ serve(async (req) => {
 
       const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
       const state = url.searchParams.get('state') || '';
-      
-      console.log('Google Calendar Auth - Redirect URI:', redirectUri);
       
       const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
       authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID!);
@@ -48,8 +57,6 @@ serve(async (req) => {
       authUrl.searchParams.set('access_type', 'offline');
       authUrl.searchParams.set('prompt', 'consent');
       authUrl.searchParams.set('state', state);
-
-      console.log('Generated auth URL, redirecting...');
 
       return new Response(JSON.stringify({ url: authUrl.toString() }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -74,126 +81,47 @@ serve(async (req) => {
 
       const { user_id, redirect_url, use_redirect } = stateData;
       
+      // Validate redirect_url against allowlist
+      const finalRedirectUrl = validateRedirectUrl(redirect_url);
+      
       // Helper function to return response based on mode (popup vs redirect)
       const returnResponse = (success: boolean, errorMessage?: string) => {
-        // Determine the final redirect URL
-        const finalRedirectUrl = redirect_url || 'https://iktracker.fr/profile';
-        
         if (use_redirect) {
-          // Mobile mode: redirect back to app with query params
           const redirectTarget = new URL(finalRedirectUrl);
           if (success) {
             redirectTarget.searchParams.set('oauth_success', 'true');
             redirectTarget.searchParams.set('oauth_provider', 'google');
           } else {
-            redirectTarget.searchParams.set('oauth_error', errorMessage || 'Unknown error');
+            const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '');
+            redirectTarget.searchParams.set('oauth_error', safeError);
             redirectTarget.searchParams.set('oauth_provider', 'google');
           }
           return Response.redirect(redirectTarget.toString(), 302);
         } else {
-          // Desktop mode: try postMessage first, but always redirect as fallback
-          const successHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Connexion réussie</title>
-  <style>
-    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: white; }
-    .container { text-align: center; padding: 2rem; }
-    .success { color: #22c55e; font-size: 3rem; margin-bottom: 1rem; }
-    p { color: #94a3b8; margin-top: 1rem; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="success">✓</div>
-    <h2>Calendrier connecté !</h2>
-    <p>Cette fenêtre va se fermer automatiquement...</p>
-  </div>
-  <script>
-    // Try to notify the opener window
-          const allowedOrigins = ['https://iktracker.fr', 'https://iktracker.lovable.app', 'http://localhost:5173', 'http://localhost:8080'];
-    if (window.opener && !window.opener.closed) {
-      try {
-        // Try each allowed origin for postMessage
-        allowedOrigins.forEach(origin => {
-          try { window.opener.postMessage({ type: 'google-auth-success' }, origin); } catch(e) {}
-        });
-        setTimeout(() => window.close(), 1500);
-      } catch(e) {
-        setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_success=true&oauth_provider=google'; }, 1500);
-      }
-    } else {
-      setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_success=true&oauth_provider=google'; }, 1500);
-    }
-  </script>
-</body>
-</html>`;
-
-          const errorHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Erreur de connexion</title>
-  <style>
-    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: white; }
-    .container { text-align: center; padding: 2rem; }
-    .error { color: #ef4444; font-size: 3rem; margin-bottom: 1rem; }
-    p { color: #94a3b8; margin-top: 1rem; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="error">✗</div>
-    <h2>Erreur de connexion</h2>
-    <p>${errorMessage || 'Une erreur est survenue'}</p>
-    <p>Redirection en cours...</p>
-  </div>
-  <script>
-    const allowedOriginsErr = ['https://iktracker.fr', 'https://iktracker.lovable.app', 'http://localhost:5173', 'http://localhost:8080'];
-    const safeError = '${(errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '')}';
-    if (window.opener && !window.opener.closed) {
-      try {
-        allowedOriginsErr.forEach(origin => {
-          try { window.opener.postMessage({ type: 'google-auth-error', error: safeError }, origin); } catch(e) {}
-        });
-        setTimeout(() => window.close(), 2000);
-      } catch(e) {
-        setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_error=' + encodeURIComponent(safeError) + '&oauth_provider=google'; }, 2000);
-      }
-    } else {
-      setTimeout(() => { window.location.href = '${finalRedirectUrl}?oauth_error=' + encodeURIComponent(safeError) + '&oauth_provider=google'; }, 2000);
-    }
-  </script>
-</body>
-</html>`;
-
-          return new Response(success ? successHtml : errorHtml, {
-            headers: { 'Content-Type': 'text/html' },
-          });
+          // Desktop mode: always redirect (eliminates script injection risk)
+          const redirectTarget = new URL(finalRedirectUrl);
+          if (success) {
+            redirectTarget.searchParams.set('oauth_success', 'true');
+            redirectTarget.searchParams.set('oauth_provider', 'google');
+          } else {
+            const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '');
+            redirectTarget.searchParams.set('oauth_error', safeError);
+            redirectTarget.searchParams.set('oauth_provider', 'google');
+          }
+          return Response.redirect(redirectTarget.toString(), 302);
         }
       };
 
       if (error) {
         console.error('OAuth error:', error);
-        // Sanitize error message to prevent XSS
-        const sanitizedError = String(error).replace(/[<>"'&]/g, '');
-        return returnResponse(false, sanitizedError);
+        return returnResponse(false, 'Authentication failed');
       }
 
       if (!code || !user_id) {
-        return new Response('Missing code or user_id', { status: 400 });
+        return new Response('Missing required parameters', { status: 400 });
       }
 
-      // Note: user_id comes from the state which was set by the client
-      // This is acceptable because:
-      // 1. The OAuth flow itself authenticates the user with Google
-      // 2. The tokens are saved for the user_id from the state
-      // 3. The client that initiated the flow is the same that will use the tokens
-      // A malicious actor would need to intercept both the state AND the auth code
-      console.log('Callback received for user:', user_id);
+      console.log('Callback received, processing...');
 
       // Exchange code for tokens
       const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
@@ -210,11 +138,10 @@ serve(async (req) => {
       });
 
       const tokens = await tokenResponse.json();
-      console.log('Token exchange response status:', tokenResponse.status);
 
       if (!tokenResponse.ok) {
         console.error('Token exchange failed:', tokens);
-        return returnResponse(false, 'Token exchange failed');
+        return returnResponse(false, 'Authentication failed');
       }
 
       // Save tokens to database
@@ -261,8 +188,7 @@ serve(async (req) => {
     return new Response('Invalid action', { status: 400 });
   } catch (error) {
     console.error('Error in google-calendar-auth:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

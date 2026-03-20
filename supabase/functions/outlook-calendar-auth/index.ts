@@ -11,6 +11,20 @@ const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+const ALLOWED_REDIRECT_ORIGINS = [
+  'https://iktracker.fr',
+  'https://iktracker.lovable.app',
+  'http://localhost:5173',
+  'http://localhost:8080',
+];
+
+function validateRedirectUrl(url: string | undefined): string {
+  const fallback = 'https://iktracker.fr/profile';
+  if (!url) return fallback;
+  const isAllowed = ALLOWED_REDIRECT_ORIGINS.some(origin => url.startsWith(origin));
+  return isAllowed ? url : fallback;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -35,8 +49,6 @@ serve(async (req) => {
       authUrl.searchParams.set('response_mode', 'query');
       authUrl.searchParams.set('state', state);
 
-      console.log('Generated Outlook auth URL, redirecting...');
-
       return new Response(JSON.stringify({ url: authUrl.toString() }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -47,9 +59,8 @@ serve(async (req) => {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const error = url.searchParams.get('error');
-      const errorDescription = url.searchParams.get('error_description');
 
-      // Parse state first to get use_redirect and redirect_url
+      // Parse state
       let stateData: { user_id?: string; redirect_url?: string; use_redirect?: boolean } = {};
       if (state) {
         try {
@@ -59,40 +70,36 @@ serve(async (req) => {
         }
       }
 
-      const { user_id, redirect_url, use_redirect } = stateData;
+      const { user_id, redirect_url } = stateData;
       
-      // Helper function to return response - always use redirect for reliability
+      // Validate redirect_url against allowlist
+      const finalRedirectUrl = validateRedirectUrl(redirect_url);
+      
       const returnResponse = (success: boolean, errorMessage?: string) => {
-        // Determine the base redirect URL
-        const baseUrl = redirect_url || 'https://iktracker.fr/profile';
-        const redirectTarget = new URL(baseUrl);
+        const redirectTarget = new URL(finalRedirectUrl);
         
         if (success) {
           redirectTarget.searchParams.set('oauth_success', 'true');
           redirectTarget.searchParams.set('oauth_provider', 'outlook');
         } else {
-          // Sanitize error message to prevent XSS
-          const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&]/g, '');
+          const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '');
           redirectTarget.searchParams.set('oauth_error', safeError);
           redirectTarget.searchParams.set('oauth_provider', 'outlook');
         }
         
-        console.log('Redirecting to:', redirectTarget.toString());
         return Response.redirect(redirectTarget.toString(), 302);
       };
 
       if (error) {
-        console.error('OAuth error:', error, errorDescription);
-        // Sanitize error messages to prevent XSS
-        const sanitizedError = `${String(error).replace(/[<>"'&]/g, '')}: ${String(errorDescription || '').replace(/[<>"'&]/g, '')}`;
-        return returnResponse(false, sanitizedError);
+        console.error('OAuth error:', error);
+        return returnResponse(false, 'Authentication failed');
       }
 
       if (!code || !user_id) {
-        return new Response('Missing code or user_id', { status: 400 });
+        return new Response('Missing required parameters', { status: 400 });
       }
 
-      console.log('Callback received for user:', user_id);
+      console.log('Callback received, processing...');
 
       // Exchange code for tokens
       const redirectUri = `${SUPABASE_URL}/functions/v1/outlook-calendar-auth?action=callback`;
@@ -109,17 +116,15 @@ serve(async (req) => {
       });
 
       const tokens = await tokenResponse.json();
-      console.log('Token exchange response status:', tokenResponse.status);
 
       if (!tokenResponse.ok) {
         console.error('Token exchange failed:', tokens);
-        return returnResponse(false, `Token exchange failed: ${tokens.error_description || tokens.error}`);
+        return returnResponse(false, 'Authentication failed');
       }
 
       // Save tokens to database
       const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-      // Check if connection exists
       const { data: existing } = await supabase
         .from('calendar_connections')
         .select('id')
@@ -153,15 +158,14 @@ serve(async (req) => {
           });
       }
 
-      console.log('Outlook calendar connection saved successfully');
+      console.log('Calendar connection saved successfully');
       return returnResponse(true);
     }
 
     return new Response('Invalid action', { status: 400 });
   } catch (error) {
     console.error('Error in outlook-calendar-auth:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
