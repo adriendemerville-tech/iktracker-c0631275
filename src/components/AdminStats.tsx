@@ -1043,7 +1043,7 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <UserPlus className="w-5 h-5 text-emerald-500" />
-                            Clics inscription par jour
+                            Clics inscription {granularityConfig[granularity].labelFr}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
