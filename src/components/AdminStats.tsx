@@ -284,6 +284,29 @@ export function AdminStats() {
     return DEFAULT_MARKETING_SECTION_ORDER;
   });
 
+  // Card widths (1=1/3, 2=2/3, 3=full) stored per section id
+  const [cardWidths, setCardWidths] = useState<Record<string, 1 | 2 | 3>>(() => {
+    const saved = localStorage.getItem('admin-card-widths');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
+
+  const handleWidthChange = (id: string, width: 1 | 2 | 3) => {
+    setCardWidths((prev) => {
+      const next = { ...prev, [id]: width };
+      localStorage.setItem('admin-card-widths', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const getCardWidth = (id: string): 1 | 2 | 3 => cardWidths[id] || 3;
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
