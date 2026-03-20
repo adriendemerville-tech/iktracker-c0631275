@@ -291,7 +291,7 @@ function generateDocPdfHtml(): string {
     ${SECURITY_FEATURES.map(s => `<li>✅ ${s}</li>`).join('')}
   </ul>
 
-  <h2>📊 Barème IK 2024 (intégré dans le code)</h2>
+  <h2>📊 Barème IK 2026 (intégré dans le code)</h2>
   <table>
     <thead><tr><th>Puissance</th><th>≤ 5 000 km</th><th>5 001 – 20 000 km</th><th>> 20 000 km</th></tr></thead>
     <tbody>
