@@ -482,13 +482,12 @@ serve(async (req) => {
       { status: eventsRes.ok ? 200 : eventsRes.status }
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error('[calendar-debug] Unhandled error:', error);
     return json(
       {
         ok: false,
         requestId,
-        error: message,
-        stack: error instanceof Error ? error.stack : undefined,
+        error: "Internal server error",
       },
       { status: 500 }
     );
