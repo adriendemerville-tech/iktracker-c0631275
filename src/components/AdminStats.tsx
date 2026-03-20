@@ -1067,7 +1067,7 @@ export function AdminStats() {
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-purple-500" />
-                            Simulations IK barème
+                            Simulations IK {granularityConfig[granularity].labelFr}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
