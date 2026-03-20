@@ -4,6 +4,7 @@ import { calculateDrivingDistance, getDistanceInMeters } from '@/lib/distance';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { playNotificationSound } from '@/lib/sounds';
 import { toast } from 'sonner';
+import { useTourSessionDB } from '@/hooks/useTourSessionDB';
 
 export interface TourStop {
   id: string;
