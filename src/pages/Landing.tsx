@@ -368,6 +368,11 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <Suspense fallback={<LazyPlaceholder height={280} />}>
+        <TestimonialsCarousel />
+      </Suspense>
+
       {/* Statistics Section - Independent Workers */}
       <section className="py-16 md:py-24 px-4 section-contained">
         <div className="container mx-auto">

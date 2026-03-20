@@ -20,7 +20,7 @@ const testimonials: Testimonial[] = [
     stars: 5,
   },
   {
-    quote: "Le mode tournée m'a changé la vie au quotidien.",
+    quote: "Le mode tournée enregistre mes arrêts automatiquement, je ne note plus rien.",
     name: "Karim",
     job: "Technicien fibre",
     city: "Toulouse",
