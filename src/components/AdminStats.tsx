@@ -413,7 +413,7 @@ export function AdminStats() {
       const rawData = data as unknown as { day: string; count: number }[];
       
       // Build a map of existing data
-      const dataMap = new Map<string, number>();
+      const dataMap: Map<string, number> = new Map();
       rawData.forEach(d => {
         dataMap.set(d.day.split('T')[0], Number(d.count));
       });
