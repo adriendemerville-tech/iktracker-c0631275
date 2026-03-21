@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_codes: {
+        Row: {
+          code: string
+          commission_pct: number
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          label: string | null
+          updated_at: string
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          commission_pct?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          updated_at?: string
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          commission_pct?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          updated_at?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      affiliate_uses: {
+        Row: {
+          affiliate_code_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_code_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_code_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_uses_affiliate_code_id_fkey"
+            columns: ["affiliate_code_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_audit_logs: {
         Row: {
           action: string
