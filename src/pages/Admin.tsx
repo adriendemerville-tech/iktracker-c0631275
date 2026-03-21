@@ -17,6 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
+import { AdminAffiliation } from '@/components/admin/AdminAffiliation';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
@@ -460,7 +461,7 @@ const Admin = () => {
             )}
             <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
               <Euro className="w-4 h-4" />
-              <span className="hidden sm:inline">Coût</span>
+              <span className="hidden sm:inline">Finances</span>
             </TabsTrigger>
             <TabsTrigger value="monitoring" className="flex items-center gap-1 text-xs sm:text-sm">
               <Activity className="w-4 h-4" />
@@ -891,9 +892,26 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
-          {/* Costs Tab */}
+          {/* Finances Tab */}
           <TabsContent value="costs">
-            <AdminCosts />
+            <Tabs defaultValue="costs-sub" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="costs-sub" className="text-xs sm:text-sm">
+                  <Euro className="w-3.5 h-3.5 mr-1.5" />
+                  Coûts API
+                </TabsTrigger>
+                <TabsTrigger value="affiliation" className="text-xs sm:text-sm">
+                  <Link2 className="w-3.5 h-3.5 mr-1.5" />
+                  Affiliation
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="costs-sub">
+                <AdminCosts />
+              </TabsContent>
+              <TabsContent value="affiliation">
+                <AdminAffiliation />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           {/* Monitoring Tab */}
