@@ -104,7 +104,7 @@ export default function Blog() {
                 
                 {isAdmin && (
                   <div className="mt-8">
-                    <Link to="/admin/blog/edit">
+                    <Link to="/app/admin/blog/edit">
                       <Button variant="gradient" size="lg">
                         <Plus className="mr-2 h-5 w-5" />
                         Nouvel article
@@ -144,7 +144,7 @@ export default function Blog() {
                 <h2 className="font-serif text-3xl font-bold text-foreground mb-2">Aucun article pour le moment</h2>
                 <p className="text-muted-foreground mb-6">Les premiers articles arrivent bientôt !</p>
                 {isAdmin && (
-                  <Link to="/admin/blog/edit">
+                  <Link to="/app/admin/blog/edit">
                     <Button variant="gradient">
                       <Plus className="mr-2 h-4 w-4" />
                       Créer le premier article

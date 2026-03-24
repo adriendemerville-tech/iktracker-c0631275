@@ -20,7 +20,7 @@ const ThemeOnboarding = () => {
       <Helmet>
         <title>Choisissez votre thème | IKtracker</title>
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/theme-onboarding" />
+        <link rel="canonical" href="https://iktracker.fr/app/theme-onboarding" />
       </Helmet>
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background gradient */}

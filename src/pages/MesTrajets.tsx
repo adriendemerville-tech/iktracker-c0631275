@@ -665,7 +665,7 @@ ${IKTRACKER_URL}`;
       <Helmet>
         <title>Relevé des trajets | IKtracker - Suivi kilométrique</title>
         <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2026." />
-        <link rel="canonical" href="https://iktracker.fr/mestrajets" />
+        <link rel="canonical" href="https://iktracker.fr/app/mestrajets" />
       </Helmet>
       
       {/* Desktop Sidebar - hidden on mobile */}
@@ -690,7 +690,7 @@ ${IKTRACKER_URL}`;
               <Button variant="ghost" size="icon" onClick={previewHTMLReport} disabled={trips.length === 0} aria-label="Prévisualiser le relevé">
                 <Download className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} aria-label="Accéder au profil">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/app/profile')} aria-label="Accéder au profil">
                 <UserCircle className="w-5 h-5" />
               </Button>
             </div>
@@ -736,7 +736,7 @@ ${IKTRACKER_URL}`;
                 <Button
                   size="sm"
                   variant={hasHomeAddress ? "default" : "outline"}
-                  onClick={hasHomeAddress ? handleRecalculateDistances : () => navigate('/profile#mes-adresses')}
+                  onClick={hasHomeAddress ? handleRecalculateDistances : () => navigate('/app/profile#mes-adresses')}
                   disabled={isRecalculating}
                   className="shrink-0"
                 >
@@ -1051,7 +1051,7 @@ ${IKTRACKER_URL}`;
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="grid grid-cols-2 gap-3 w-3/5 min-w-[240px]">
-            <Link to="/profile#mes-adresses" className="w-full">
+            <Link to="/app/profile#mes-adresses" className="w-full">
               <Button 
                 variant="outline" 
                 size="default"

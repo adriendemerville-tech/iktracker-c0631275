@@ -467,7 +467,7 @@ export default function RecoveryWizard() {
       });
 
       // Navigate to mestrajets page
-      navigate('/mestrajets');
+      navigate('/app/mestrajets');
 
     } catch (error) {
       console.error('Import error:', error);

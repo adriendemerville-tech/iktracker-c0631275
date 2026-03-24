@@ -140,7 +140,7 @@ export const DesktopSidebar = ({
     { 
       icon: Sparkles, 
       label: 'Récupération Auto', 
-      onClick: () => navigate('/recovery'),
+      onClick: () => navigate('/app/recovery'),
       active: false,
       tutorialId: 'recovery',
       isRecovery: true,

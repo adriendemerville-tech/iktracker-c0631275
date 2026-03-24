@@ -86,7 +86,7 @@ const STATUS_LABELS: Record<string, { label: string; variant: 'default' | 'secon
 };
 
 const PAGE_OPTIONS = [
-  '/app', '/mestrajets', '/profile', '/calendrier', '/mode-tournee',
+  '/app', '/app/mestrajets', '/app/profile', '/calendrier', '/mode-tournee',
 ];
 
 // ---- Helpers ----
