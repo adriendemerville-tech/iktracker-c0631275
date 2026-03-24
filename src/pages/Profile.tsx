@@ -184,7 +184,7 @@ const Profile = () => {
         <title>Mon profil | IKtracker</title>
         <meta name="description" content="Gérez votre profil IKtracker : véhicules, adresses favorites, préférences et paramètres de compte." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/profile" />
+        <link rel="canonical" href="https://iktracker.fr/app/profile" />
       </Helmet>
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
@@ -782,7 +782,7 @@ const Profile = () => {
         {isAdmin && (
           <Card 
             className="cursor-pointer hover:bg-accent/50 transition-colors border-primary/20"
-            onClick={() => navigate('/admin')}
+            onClick={() => navigate('/app/admin')}
           >
             <CardContent className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3">

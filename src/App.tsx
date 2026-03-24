@@ -170,9 +170,7 @@ function GoogleMapsPreloader() {
   
   useEffect(() => {
     // Defer Google Maps preload to idle time to improve TTI
-    if (location.pathname.startsWith('/app') || 
-        location.pathname.startsWith('/profile') ||
-        location.pathname.startsWith('/mestrajets')) {
+    if (location.pathname.startsWith('/app')) {
       // Use requestIdleCallback to avoid blocking main thread
       deferTask(() => {
         preloadGoogleMaps();
@@ -225,7 +223,7 @@ const AppRoutes = () => {
           }
         />
         <Route 
-          path="/theme-onboarding" 
+          path="/app/theme-onboarding" 
           element={
             <ProtectedRoute>
               <Suspense fallback={<AuthLoadingScreen />}>
@@ -245,7 +243,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/mestrajets"
+          path="/app/mestrajets"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -254,10 +252,8 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        {/* Redirect old /report URL to new /mestrajets */}
-        <Route path="/report" element={<Navigate to="/mestrajets" replace />} />
         <Route
-          path="/profile"
+          path="/app/profile"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -267,7 +263,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/admin"
+          path="/app/admin"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -277,7 +273,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/admin/blog"
+          path="/app/admin/blog"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -287,7 +283,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/admin/blog/edit/:id?"
+          path="/app/admin/blog/edit/:id?"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -297,32 +293,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/app/admin"
-          element={
-            <ProtectedRoute>
-              <QueryErrorBoundary>
-                <Suspense fallback={<PageLoader />}><BlogAdmin /></Suspense>
-              </QueryErrorBoundary>
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
-        <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
-        <Route path="/install" element={<Suspense fallback={<PageLoader />}><Install /></Suspense>} />
-        <Route path="/expert-comptable" element={<Suspense fallback={<PageLoader />}><ExpertComptable /></Suspense>} />
-        <Route path="/mode-tournee" element={<Suspense fallback={<PageLoader />}><ModeTournee /></Suspense>} />
-        <Route path="/calendrier" element={<Suspense fallback={<PageLoader />}><Calendrier /></Suspense>} />
-        <Route path="/bareme-ik-2026" element={<Suspense fallback={<PageLoader />}><BaremeIK2026 /></Suspense>} />
-        <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
-        <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
-        <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
-        <Route path="/comparatif-drivers-note" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
-        <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
-        <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
-        <Route path="/blog/auteur/adrien-de-volontat" element={<Suspense fallback={<PageLoader />}><AuthorPage /></Suspense>} />
-        <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
-        <Route
-          path="/blog/edit/:id?"
+          path="/app/blog/edit/:id?"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -332,7 +303,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/recovery"
+          path="/app/recovery"
           element={
             <ProtectedRoute>
               <QueryErrorBoundary>
@@ -341,6 +312,16 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        {/* Redirections anciennes URLs */}
+        <Route path="/mestrajets" element={<Navigate to="/app/mestrajets" replace />} />
+        <Route path="/report" element={<Navigate to="/app/mestrajets" replace />} />
+        <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
+        <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
+        <Route path="/admin/blog" element={<Navigate to="/app/admin/blog" replace />} />
+        <Route path="/admin/blog/edit/:id?" element={<Navigate to="/app/admin/blog/edit" replace />} />
+        <Route path="/recovery" element={<Navigate to="/app/recovery" replace />} />
+        <Route path="/theme-onboarding" element={<Navigate to="/app/theme-onboarding" replace />} />
+        <Route path="/blog/edit/:id?" element={<Navigate to="/app/blog/edit" replace />} />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
     </AuthContext.Provider>

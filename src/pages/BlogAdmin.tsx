@@ -639,7 +639,7 @@ export default function BlogAdmin() {
       <Helmet>
         <title>Administration Blog - IKtracker</title>
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/admin/blog" />
+        <link rel="canonical" href="https://iktracker.fr/app/admin/blog" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -647,7 +647,7 @@ export default function BlogAdmin() {
           <header className="mb-8">
             <Button 
               variant="ghost" 
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate('/app/admin')}
               className="mb-4"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />

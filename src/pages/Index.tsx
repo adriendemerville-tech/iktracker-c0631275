@@ -1017,7 +1017,7 @@ ${IKTRACKER_MENTION}
               <Button 
                 variant="ghost" 
                 size="icon"
-                onClick={() => navigate('/admin?tab=stats')}
+                onClick={() => navigate('/app/admin?tab=stats')}
                 className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
                 title="Dashboard statistiques"
                 aria-label="Dashboard statistiques"
@@ -1041,7 +1041,7 @@ ${IKTRACKER_MENTION}
               <Button 
                 variant="ghost" 
                 size="icon"
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate('/app/profile')}
                 className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15 w-10 h-10"
                 aria-label="Accéder au profil"
               >
@@ -1169,7 +1169,7 @@ ${IKTRACKER_MENTION}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base md:text-lg font-semibold">Derniers trajets</h2>
             {trips.length > 3 && (
-              <Link to="/mestrajets" className="text-sm text-primary font-medium flex items-center">
+              <Link to="/app/mestrajets" className="text-sm text-primary font-medium flex items-center">
                 Voir tout
                 <ChevronRight className="w-4 h-4" />
               </Link>
@@ -1238,7 +1238,7 @@ ${IKTRACKER_MENTION}
       <div className="hidden md:fixed md:flex bottom-6 left-1/2 -translate-x-1/2 z-10">
         <div className="flex gap-3">
           {/* Voir le relevé */}
-          <Link to="/mestrajets" data-tutorial="report">
+           <Link to="/app/mestrajets" data-tutorial="report">
             <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
               <FileText className="w-4 h-4" />
               Mes Trajets
@@ -1276,7 +1276,7 @@ ${IKTRACKER_MENTION}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="flex gap-3">
-            <Link to="/mestrajets" data-tutorial="report">
+            <Link to="/app/mestrajets" data-tutorial="report">
               <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
                 <FileText className="w-4 h-4" />
                 Mes Trajets

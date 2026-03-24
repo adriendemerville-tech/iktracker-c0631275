@@ -433,7 +433,7 @@ const Admin = () => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => navigate('/admin/blog')}
+              onClick={() => navigate('/app/admin/blog')}
               className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0"
             >
               <FileText className="w-4 h-4 mr-2" />
