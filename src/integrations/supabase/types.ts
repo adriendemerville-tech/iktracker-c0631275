@@ -82,6 +82,36 @@ export type Database = {
           },
         ]
       }
+      api_access_logs: {
+        Row: {
+          api_key_name: string | null
+          created_at: string
+          id: string
+          method: string
+          path: string
+          response_time_ms: number | null
+          status_code: number | null
+        }
+        Insert: {
+          api_key_name?: string | null
+          created_at?: string
+          id?: string
+          method: string
+          path: string
+          response_time_ms?: number | null
+          status_code?: number | null
+        }
+        Update: {
+          api_key_name?: string | null
+          created_at?: string
+          id?: string
+          method?: string
+          path?: string
+          response_time_ms?: number | null
+          status_code?: number | null
+        }
+        Relationships: []
+      }
       api_audit_logs: {
         Row: {
           action: string
@@ -274,6 +304,39 @@ export type Database = {
           token_expires_at?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      code_injections: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string | null
+          location: string
+          page_key: string | null
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          location: string
+          page_key?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          location?: string
+          page_key?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -519,31 +582,37 @@ export type Database = {
       }
       page_contents: {
         Row: {
+          canonical_url: string | null
           content: Json
           id: string
           meta_description: string | null
           meta_title: string | null
           page_key: string
+          schema_org: Json | null
           title: string | null
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          canonical_url?: string | null
           content?: Json
           id?: string
           meta_description?: string | null
           meta_title?: string | null
           page_key: string
+          schema_org?: Json | null
           title?: string | null
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          canonical_url?: string | null
           content?: Json
           id?: string
           meta_description?: string | null
           meta_title?: string | null
           page_key?: string
+          schema_org?: Json | null
           title?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -577,6 +646,36 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_redirects: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          source_path: string
+          status_code: number
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source_path: string
+          status_code?: number
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source_path?: string
+          status_code?: number
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       share_events: {
         Row: {
           id: string
@@ -598,6 +697,51 @@ export type Database = {
           total_ik?: number | null
           total_km?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      site_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_seo_config: {
+        Row: {
+          config_key: string
+          content: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          config_key: string
+          content?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          config_key?: string
+          content?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
