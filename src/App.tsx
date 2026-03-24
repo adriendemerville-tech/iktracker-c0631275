@@ -170,9 +170,7 @@ function GoogleMapsPreloader() {
   
   useEffect(() => {
     // Defer Google Maps preload to idle time to improve TTI
-    if (location.pathname.startsWith('/app') || 
-        location.pathname.startsWith('/profile') ||
-        location.pathname.startsWith('/mestrajets')) {
+    if (location.pathname.startsWith('/app')) {
       // Use requestIdleCallback to avoid blocking main thread
       deferTask(() => {
         preloadGoogleMaps();
