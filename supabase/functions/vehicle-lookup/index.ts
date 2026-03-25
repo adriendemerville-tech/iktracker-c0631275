@@ -121,6 +121,112 @@ async function tryDrivePieces(formattedPlate: string): Promise<any | null> {
   }
 }
 
+// Formule officielle française : PA = 1.34 + (1.8 × (kW/100)²) + (3.87 × (kW/100))
+function kwToFiscalPower(kw: number): number {
+  const ratio = kw / 100;
+  return Math.floor(1.34 + (1.8 * ratio * ratio) + (3.87 * ratio));
+}
+
+// Source 2: Earlweb / Moove (gratuit, HTML parsing, sans auth)
+async function tryEarlweb(formattedPlate: string): Promise<any | null> {
+  try {
+    console.log(`[Earlweb] Trying plate: ${formattedPlate}`);
+    const response = await fetch(
+      `${EARLWEB_API}/fr/vrm_search?vrm_type=fre:vrm:chatham&q=${encodeURIComponent(formattedPlate)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/html',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        },
+        redirect: 'follow',
+      }
+    );
+
+    if (!response.ok) {
+      console.log(`[Earlweb] HTTP ${response.status}`);
+      return null;
+    }
+
+    const html = await response.text();
+
+    // Extract Marque (brand) from: <td class="label">Marque</td>\n<td>PEUGEOT</td>
+    const marqueMatch = html.match(/<td\s+class="label">Marque<\/td>\s*<td>([^<]+)<\/td>/i);
+    if (!marqueMatch) {
+      console.log('[Earlweb] No vehicle data found');
+      return null;
+    }
+    const make = marqueMatch[1].trim();
+
+    // Extract Modèle from: <td class="label">Modèle</td>\n<td>5008 II ... 96kW ...</td>
+    const modeleMatch = html.match(/<td\s+class="label">Mod[eè]le<\/td>\s*<td>([^<]+)<\/td>/i);
+    const fullModel = modeleMatch ? modeleMatch[1].trim() : '';
+
+    // Extract kW from model string (e.g. "96kW" or "173kW")
+    const kwMatch = fullModel.match(/(\d+)\s*kW/i);
+    const kw = kwMatch ? parseInt(kwMatch[1]) : null;
+
+    // Extract clean model name (before the kW part)
+    const cleanModel = fullModel
+      .replace(/\([^)]*\)/g, '')  // Remove parenthetical codes
+      .replace(/\d+kW.*$/i, '')   // Remove kW and everything after
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Extract fuel type from: <td class="label">Moteur</td>\n<td>E</td>
+    const fuelMatch = html.match(/<td\s+class="label">Moteur<\/td>\s*<td>([^<]+)<\/td>/i);
+    const fuelCode = fuelMatch ? fuelMatch[1].trim() : '';
+
+    // Map fuel codes: E=Essence, D=Diesel, EL=Électrique, H=Hybride
+    const fuelMap: Record<string, string> = {
+      'E': 'Essence', 'D': 'Diesel', 'EL': 'Électrique',
+      'H': 'Hybride', 'G': 'GPL', 'GN': 'GNV',
+    };
+    const fuelType = fuelMap[fuelCode.toUpperCase()] || fuelCode;
+    const isElectric = ['EL', 'ÉLECTRIQUE', 'ELECTRIQUE'].includes(fuelCode.toUpperCase());
+
+    // Extract year from: <td class="label">Année</td>\n<td>2016-</td>
+    const yearMatch = html.match(/<td\s+class="label">Ann[eé]e<\/td>\s*<td>(\d{4})/i);
+    const year = yearMatch ? parseInt(yearMatch[1]) : null;
+
+    // Calculate fiscal power from kW
+    const fiscalPower = kw ? kwToFiscalPower(kw) : null;
+
+    console.log(`[Earlweb] Found: ${make} ${cleanModel} ${kw}kW → ${fiscalPower} CV (${fuelType})`);
+
+    return {
+      make,
+      model: cleanModel || fullModel,
+      kw,
+      fiscalPower,
+      fuelType,
+      isElectric,
+      year,
+    };
+  } catch (e) {
+    console.error('[Earlweb] Error:', e);
+    return null;
+  }
+}
+
+function mapEarlwebData(data: any, licensePlate: string) {
+  return {
+    success: true,
+    licensePlate,
+    make: data.make,
+    model: data.model,
+    year: data.year,
+    fiscalPower: data.fiscalPower,
+    fuelType: data.fuelType,
+    isElectric: data.isElectric,
+    bodyStyle: '',
+    registrationDate: data.year ? `${data.year}-01-01` : null,
+    source: 'earlweb',
+    powerKw: data.kw,
+    fiscalPowerEstimated: true,
+  };
+}
+
 // Source 2: RapidAPI (payant, fallback)
 async function tryRapidApi(formattedPlate: string, apiKey: string): Promise<any | null> {
   try {
