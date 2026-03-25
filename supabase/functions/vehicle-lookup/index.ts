@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 const DRIVEPIECES_API = 'https://api.drivepiecesauto.com';
+const EARLWEB_API = 'https://moove-france.ewp.earlweb.net';
 
 async function logApiCall(supabaseAdmin: any, userId: string | null, success: boolean, source: string, licensePlate: string) {
   try {
