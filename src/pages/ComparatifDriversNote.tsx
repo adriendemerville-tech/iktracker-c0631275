@@ -2,6 +2,7 @@ import { lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -135,6 +136,18 @@ const ComparatifDriversNote = () => {
             "dateModified": "2026-02-03",
             "mainEntityOfPage": "https://iktracker.fr/comparatif-drivers-note",
             "inLanguage": "fr-FR"
+          })}
+        </script>
+        {/* FAQ Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "Où est le piège ? Pourquoi IKtracker est gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker a été créé par un développeur indépendant pour son propre usage. Pas d'investisseurs, pas de gros frais de structure. Aucune publicité et aucune revente de données." }},
+              { "@type": "Question", "name": "Que se passe-t-il si je n'ai pas noté un rendez-vous dans mon agenda ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous pouvez toujours ajouter un trajet manuellement. La synchronisation calendrier est un bonus qui automatise la saisie, mais l'application fonctionne parfaitement en mode manuel." }},
+              { "@type": "Question", "name": "IKtracker gère-t-il les tournées comme les infirmiers libéraux ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui ! Le mode Tournée est spécialement conçu pour les professionnels qui font plusieurs arrêts dans la journée. Vous enregistrez tous vos points de passage et les distances sont calculées automatiquement." }}
+            ]
           })}
         </script>
       </Helmet>
