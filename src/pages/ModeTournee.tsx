@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 import {
@@ -141,6 +142,10 @@ export default function ModeTournee() {
                   "@type": "WebSite",
                   "name": "IKtracker",
                   "url": "https://iktracker.fr"
+                },
+                "speakable": {
+                  "@type": "SpeakableSpecification",
+                  "cssSelector": ["#hero-heading", "#main-content > section:first-of-type p"]
                 }
               },
               {
@@ -164,6 +169,15 @@ export default function ModeTournee() {
                   "@type": "BusinessAudience",
                   "audienceType": "Infirmiers libéraux, artisans, commerciaux, aide à domicile"
                 }
+              },
+              {
+                "@type": "HowTo",
+                "name": "Comment utiliser le Mode Tournée IKtracker",
+                "step": [
+                  { "@type": "HowToStep", "name": "Démarrez votre tournée", "text": "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS." },
+                  { "@type": "HowToStep", "name": "Ajoutez vos arrêts", "text": "Chaque client visité est automatiquement enregistré grâce à la géolocalisation." },
+                  { "@type": "HowToStep", "name": "Récapitulatif complet", "text": "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF." }
+                ]
               }
             ]
           })}
@@ -172,6 +186,11 @@ export default function ModeTournee() {
       <MarketingNav />
 
       <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Breadcrumb */}
+        <div className="container mx-auto px-4 pt-24">
+          <Breadcrumb items={[{ label: 'Mode Tournée' }]} />
+        </div>
+
         {/* Hero */}
         <section 
           className="pt-28 pb-20 md:pt-36 md:pb-28 px-4 relative overflow-hidden"
