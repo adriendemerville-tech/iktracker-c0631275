@@ -120,6 +120,29 @@ const Admin = () => {
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
+  const [adminMessageText, setAdminMessageText] = useState('');
+
+  const sendAdminMessage = useMutation({
+    mutationFn: async (targetUserId: string) => {
+      if (!user || !adminMessageText.trim()) return;
+      const { error } = await supabase
+        .from('feedback')
+        .insert({
+          user_id: targetUserId,
+          message: adminMessageText.trim(),
+          response: null,
+        });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-feedbacks'] });
+      setAdminMessageText('');
+      toast({ title: 'Message envoyé' });
+    },
+    onError: () => {
+      toast({ title: "Erreur lors de l'envoi", variant: 'destructive' });
+    },
+  });
 
   const deleteConversation = useMutation({
     mutationFn: async (userId: string) => {
