@@ -370,27 +370,12 @@ serve(async (req) => {
       });
     }
 
-    console.log('[Fallback] Earlweb failed, trying RapidAPI...');
-
-    // 3️⃣ Fallback payant : RapidAPI
-    const apiKey = Deno.env.get('RAPIDAPI_KEY');
-    if (apiKey) {
-      const rapidApiData = await tryRapidApi(formattedPlate, apiKey);
-      if (rapidApiData) {
-        const vehicleData = mapRapidApiData(rapidApiData, licensePlate);
-        await logApiCall(supabaseAdmin, userId, true, 'rapidapi', formattedPlate);
-        return new Response(JSON.stringify(vehicleData), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
-    console.log('[Fallback] RapidAPI failed, using simulated data...');
-    await logError(supabaseAdmin, userId, 'vehicle-lookup: toutes les sources ont échoué, données simulées utilisées', {
+    console.log('[Fallback] Earlweb failed, using simulated data...');
+    await logError(supabaseAdmin, userId, 'vehicle-lookup: sources gratuites échouées, données simulées utilisées', {
       plate: formattedPlate,
     });
 
-    // 4️⃣ Dernier recours : données simulées
+    // 3️⃣ Données simulées (avant RapidAPI payant)
     const simulatedData = generateSimulatedData(cleanPlate, licensePlate);
     await logApiCall(supabaseAdmin, userId, true, 'simulated', formattedPlate);
     return new Response(JSON.stringify(simulatedData), {
