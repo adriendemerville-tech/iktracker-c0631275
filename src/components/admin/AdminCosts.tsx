@@ -21,6 +21,9 @@ import {
   ArrowDownUp,
   RefreshCw,
   Calendar,
+  Car,
+  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 
 type PeriodFilter = '7' | '30' | '90' | 'all';
@@ -116,6 +119,25 @@ export function AdminCosts() {
       const { data, error } = await supabase.rpc('get_api_cost_by_day', { days_back: daysBack });
       if (error) throw error;
       return data as unknown as DailyCost[];
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  // Vehicle lookup stats
+  const { data: vehicleLookupStats, isLoading: vehicleLoading } = useQuery({
+    queryKey: ['admin-vehicle-lookup-stats', daysBack],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('api_usage_logs')
+        .select('model, metadata')
+        .eq('function_name', 'vehicle-lookup')
+        .gte('created_at', new Date(Date.now() - daysBack * 86400000).toISOString());
+      if (error) throw error;
+      const total = data.length;
+      const simulated = data.filter((d: any) => d.model === 'simulated').length;
+      const errors = data.filter((d: any) => d.model === 'error').length;
+      const real = total - simulated - errors;
+      return { total, simulated, errors, real };
     },
     refetchInterval: 5 * 60 * 1000,
   });
@@ -369,6 +391,59 @@ export function AdminCosts() {
                   )}
                 </TableBody>
               </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Vehicle Lookup API Stats */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Car className="w-4 h-4 text-primary" />
+            API Plaque d'immatriculation (RapidAPI)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {vehicleLoading ? (
+            <Skeleton className="h-20" />
+          ) : vehicleLookupStats ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold">{vehicleLookupStats.total}</p>
+                <p className="text-xs text-muted-foreground">Appels totaux</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-center gap-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <p className="text-2xl font-bold text-emerald-600">{vehicleLookupStats.real}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">Réels (API)</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-center gap-1">
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                  <p className="text-2xl font-bold text-amber-600">{vehicleLookupStats.simulated}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">Simulés (fallback)</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-center gap-1">
+                  <AlertTriangle className="w-4 h-4 text-destructive" />
+                  <p className="text-2xl font-bold text-destructive">{vehicleLookupStats.errors}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">Erreurs</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">Aucune donnée</p>
+          )}
+          {vehicleLookupStats && vehicleLookupStats.simulated > 0 && (
+            <div className="mt-3 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+              <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                L'API RapidAPI retourne des données simulées — la clé est probablement expirée ou l'abonnement terminé.
+              </p>
             </div>
           )}
         </CardContent>

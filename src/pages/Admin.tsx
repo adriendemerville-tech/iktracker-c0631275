@@ -50,7 +50,8 @@ import {
   Globe,
   Link2,
   Zap,
-  Trash2
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -121,6 +122,21 @@ const Admin = () => {
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState('');
+
+  // Unresolved critical errors count for header alert
+  const { data: unresolvedErrors = 0 } = useQuery({
+    queryKey: ['admin-unresolved-errors-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('error_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('resolved', false);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: isAdmin,
+    refetchInterval: 5 * 60 * 1000,
+  });
 
   const sendAdminMessage = useMutation({
     mutationFn: async (targetUserId: string) => {
@@ -503,7 +519,18 @@ const Admin = () => {
               <h1 className="text-2xl font-bold">Administration</h1>
               <p className="text-sm opacity-80">Gestion des avis et utilisateurs</p>
             </div>
-            <Shield className="w-8 h-8 opacity-80" />
+            <div className="flex items-center gap-2">
+              {unresolvedErrors > 0 && (
+                <button
+                  onClick={() => setActiveTab('monitoring')}
+                  className="flex items-center gap-1.5 bg-destructive/20 hover:bg-destructive/30 text-primary-foreground rounded-full px-3 py-1.5 transition-colors"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  <span className="text-xs font-semibold">{unresolvedErrors} erreur{unresolvedErrors > 1 ? 's' : ''}</span>
+                </button>
+              )}
+              <Shield className="w-8 h-8 opacity-80" />
+            </div>
           </div>
           
           {/* Stats */}
