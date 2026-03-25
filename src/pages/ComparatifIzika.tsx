@@ -2,6 +2,7 @@ import { lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -87,14 +88,29 @@ const ComparatifIzika = () => {
             "inLanguage": "fr-FR"
           })}
         </script>
+        {/* FAQ Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "Où est le piège ? Pourquoi IKtracker est gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker a été créé par un développeur indépendant pour son propre usage. Pas d'investisseurs, pas de gros frais de structure. C'est un outil communautaire maintenu par passion. Aucune publicité, aucune revente de données, aucun abonnement caché." }}
+            ]
+          })}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
         <main id="main-content" tabIndex={-1} className="outline-none">
+          {/* Breadcrumb */}
+          <div className="container mx-auto px-4 pt-24">
+            <Breadcrumb items={[{ label: 'Comparatif Izika vs IKtracker' }]} />
+          </div>
+
           {/* Hero Section */}
-          <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
+          <section className="pb-12 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
             <div className="container mx-auto relative z-10 max-w-4xl">
               <div className="text-center">

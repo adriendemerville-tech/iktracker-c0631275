@@ -171,7 +171,11 @@ export default function BlogPost() {
     },
     "wordCount": post.content.trim().split(/\s+/).length,
     "timeRequired": `PT${readingTime}M`,
-    "inLanguage": "fr-FR"
+    "inLanguage": "fr-FR",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": ["article header h1", "article header + .article-summary"]
+    }
   };
 
   // Breadcrumb structured data is now handled by Breadcrumb component

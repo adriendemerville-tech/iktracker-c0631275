@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 const founderPhoto = '/founder-adrien.jpg';
 
@@ -54,16 +55,13 @@ export default function AuthorPage() {
 
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-4 py-12 max-w-3xl">
-          {/* Breadcrumb */}
-          <nav aria-label="Fil d'Ariane" className="mb-6">
-            <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-              <li><Link to="/" className="hover:text-primary transition-colors">Accueil</Link></li>
-              <li>/</li>
-              <li><Link to="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
-              <li>/</li>
-              <li className="text-foreground font-medium">Auteur</li>
-            </ol>
-          </nav>
+          {/* Breadcrumb with Schema.org */}
+          <Breadcrumb 
+            items={[
+              { label: 'Blog', href: '/blog' },
+              { label: 'Adrien de Volontat' }
+            ]} 
+          />
 
           <Link 
             to="/blog" 

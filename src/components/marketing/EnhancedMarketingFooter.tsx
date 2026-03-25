@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { LayoutDashboard, MapPin, Phone, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -94,6 +95,23 @@ export function EnhancedMarketingFooter() {
       role="contentinfo"
       aria-label="Pied de page"
     >
+      {/* FAQ Schema JSON-LD */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqItems.map(item => ({
+              "@type": "Question",
+              "name": item.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": item.answer
+              }
+            }))
+          })}
+        </script>
+      </Helmet>
       {/* FAQ Section */}
       <section className="py-12 md:py-16 px-4 border-b border-border" aria-labelledby="faq-heading">
         <div className="container mx-auto max-w-4xl">
