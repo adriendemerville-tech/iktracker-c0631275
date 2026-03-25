@@ -1188,19 +1188,17 @@ export function AdminStats() {
                           </CardContent>
                         </Card>
 
-                        {/* Daily Active Users - 7 days */}
-                        <Card className="bg-gradient-to-br from-violet-500/10 to-violet-600/5 border-violet-500/20">
+                        {/* Daily Active Users - 7 days - Line Chart */}
+                        <Card className="bg-gradient-to-br from-violet-500/10 to-violet-600/5 border-violet-500/20 col-span-2">
                           <CardContent className="p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <UserPlus className="w-5 h-5 text-violet-500" />
-                              <span className="text-xs text-muted-foreground">Actifs / jour</span>
-                            </div>
-                            {dauLoading ? (
-                              <Skeleton className="h-8 w-16" />
-                            ) : (
-                              <>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <Activity className="w-5 h-5 text-violet-500" />
+                                <span className="text-sm font-medium">Actifs / jour</span>
+                              </div>
+                              {!dauLoading && (
                                 <div className="flex items-center gap-1.5">
-                                  <p className="text-2xl font-bold text-violet-600">{dauToday}</p>
+                                  <p className="text-xl font-bold text-violet-600">{dauToday}</p>
                                   {dauTrend === 'up' && (
                                     <span className="flex items-center text-xs font-medium text-green-600">
                                       <ArrowUp className="w-3 h-3" />+{dauDiff}
@@ -1217,23 +1215,49 @@ export function AdminStats() {
                                     </span>
                                   )}
                                 </div>
-                                <div className="flex gap-[2px] mt-1.5 h-5 items-end">
-                                  {dailyActiveUsers.map((d, i) => {
-                                    const max = Math.max(...dailyActiveUsers.map(x => x.count), 1);
-                                    const height = Math.max(2, (d.count / max) * 20);
-                                    return (
-                                      <div
-                                        key={i}
-                                        className="flex-1 rounded-sm bg-violet-400/60"
-                                        style={{ height: `${height}px` }}
-                                        title={`${format(new Date(d.day), 'dd/MM', { locale: fr })}: ${d.count}`}
-                                      />
-                                    );
-                                  })}
-                                </div>
-                                <p className="text-[10px] text-muted-foreground mt-1">7 derniers jours</p>
-                              </>
+                              )}
+                            </div>
+                            {dauLoading ? (
+                              <Skeleton className="h-[120px] w-full" />
+                            ) : (
+                              <ResponsiveContainer width="100%" height={120}>
+                                <LineChart data={dailyActiveUsers} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                                  <XAxis 
+                                    dataKey="day" 
+                                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} 
+                                    tickFormatter={(v) => format(new Date(v), 'dd/MM', { locale: fr })}
+                                    axisLine={false}
+                                    tickLine={false}
+                                  />
+                                  <YAxis 
+                                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} 
+                                    allowDecimals={false}
+                                    axisLine={false}
+                                    tickLine={false}
+                                  />
+                                  <Tooltip 
+                                    labelFormatter={(v) => format(new Date(v as string), 'EEEE dd MMM', { locale: fr })}
+                                    formatter={(value: number) => [value, 'Actifs']}
+                                    contentStyle={{ 
+                                      background: 'hsl(var(--card))', 
+                                      border: '1px solid hsl(var(--border))',
+                                      borderRadius: '8px',
+                                      fontSize: '12px'
+                                    }}
+                                  />
+                                  <Line 
+                                    type="monotone" 
+                                    dataKey="count" 
+                                    stroke="#8b5cf6" 
+                                    strokeWidth={2.5}
+                                    dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                                    activeDot={{ r: 6 }}
+                                  />
+                                </LineChart>
+                              </ResponsiveContainer>
                             )}
+                            <p className="text-[10px] text-muted-foreground mt-1">7 derniers jours</p>
                           </CardContent>
                         </Card>
 
