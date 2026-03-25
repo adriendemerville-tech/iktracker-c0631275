@@ -100,6 +100,7 @@ const Admin = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
+  const [selectedConversationUserId, setSelectedConversationUserId] = useState<string | null>(null);
   const [responseText, setResponseText] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
