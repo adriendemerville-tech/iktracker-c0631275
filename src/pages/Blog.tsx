@@ -77,6 +77,29 @@ export default function Blog() {
         <meta name="description" content="Découvrez nos articles sur les indemnités kilométriques, le barème fiscal et les bonnes pratiques pour gérer vos frais professionnels." />
         <link rel="canonical" href="https://iktracker.fr/blog" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Blog IKtracker",
+            "description": "Articles et conseils sur les indemnités kilométriques, le barème fiscal 2026 et la gestion des frais professionnels.",
+            "url": "https://iktracker.fr/blog",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "IKtracker",
+              "url": "https://iktracker.fr"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "IKtracker",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://iktracker.fr/logo-iktracker-250.webp"
+              }
+            },
+            "inLanguage": "fr-FR"
+          })}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-background font-blog">

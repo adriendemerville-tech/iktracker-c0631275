@@ -139,6 +139,11 @@ const Install = () => {
       <MarketingNav />
 
       <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Breadcrumb */}
+        <div className="container mx-auto px-4 pt-24">
+          <Breadcrumb items={[{ label: 'Installer IKtracker' }]} />
+        </div>
+
         {/* Hero */}
         <section 
           className="pt-24 pb-16 px-4 relative overflow-hidden"
