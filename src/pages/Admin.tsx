@@ -550,63 +550,66 @@ const Admin = () => {
               </Card>
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
-                {/* Feedback List */}
+                {/* Conversation List - grouped by user */}
                 <Card className="md:col-span-1">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <MessageSquare className="w-5 h-5" />
-                      Avis des utilisateurs
+                      Conversations ({conversations.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <ScrollArea className="h-[450px]">
-                      <div className="space-y-2 p-4 pt-0">
-                        {feedbacks.map((feedback) => (
+                    <ScrollArea className="h-[500px]">
+                      <div className="space-y-1 p-4 pt-0">
+                        {conversations.map((convo) => (
                           <div
-                            key={feedback.id}
+                            key={convo.userId}
                             onClick={() => {
-                              setSelectedFeedback(feedback);
+                              setSelectedConversationUserId(convo.userId);
+                              setSelectedFeedback(null);
                               setResponseText('');
                             }}
                             className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                              selectedFeedback?.id === feedback.id
+                              selectedConversationUserId === convo.userId
                                 ? 'border-primary bg-primary/5'
                                 : 'hover:bg-muted/50'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex items-start justify-between gap-2 mb-1.5">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <User className="w-4 h-4 text-muted-foreground shrink-0" />
-                                <span className="text-sm font-medium truncate">
-                                  {feedback.user_first_name || feedback.user_last_name 
-                                    ? `${feedback.user_first_name || ''} ${feedback.user_last_name || ''}`.trim()
-                                    : feedback.user_email || feedback.user_id.slice(0, 8) + '...'}
-                                </span>
+                                <div className="min-w-0">
+                                  <span className="text-sm font-medium block truncate">
+                                    {convo.userName || convo.userEmail}
+                                  </span>
+                                  {convo.userName && (
+                                    <span className="text-[11px] text-muted-foreground truncate block">{convo.userEmail}</span>
+                                  )}
+                                </div>
                               </div>
-                              {feedback.response ? (
-                                <Badge variant="outline" className="text-green-600 border-green-600 shrink-0">
-                                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                                  Répondu
-                                </Badge>
-                              ) : (
-                                <Badge variant="destructive" className="shrink-0">En attente</Badge>
-                              )}
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {convo.totalCount > 1 && (
+                                  <Badge variant="secondary" className="text-[10px] h-5">
+                                    {convo.totalCount} msg
+                                  </Badge>
+                                )}
+                                {convo.unrespondedCount > 0 ? (
+                                  <Badge variant="destructive" className="text-[10px] h-5">
+                                    {convo.unrespondedCount}
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] h-5">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-sm line-clamp-2">{feedback.message}</p>
-                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <p className="text-sm text-muted-foreground line-clamp-1">
+                              {convo.messages[convo.messages.length - 1].message}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
                               <Clock className="w-3 h-3" />
-                              {format(new Date(feedback.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
-                              {feedback.image_url && (
-                                <ImageIcon className="w-3 h-3 ml-2" />
-                              )}
-                              {feedback.phone_number && (
-                                <span className="ml-2 text-green-600">📞</span>
-                              )}
-                              {feedback.device_info && (
-                                feedback.device_info.platform === 'mobile' 
-                                  ? <Smartphone className="w-3 h-3 ml-1" />
-                                  : <Monitor className="w-3 h-3 ml-1" />
-                              )}
+                              {format(new Date(convo.lastMessageAt), 'dd MMM yyyy HH:mm', { locale: fr })}
                             </div>
                           </div>
                         ))}
@@ -615,125 +618,121 @@ const Admin = () => {
                   </CardContent>
                 </Card>
 
-                {/* Response Panel */}
+                {/* Conversation Thread Panel */}
                 <Card className="md:col-span-1">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">Détail & Réponse</CardTitle>
+                    <CardTitle className="text-lg">
+                      {selectedConversation 
+                        ? `Conversation avec ${selectedConversation.userName || selectedConversation.userEmail}`
+                        : 'Détail & Réponse'}
+                    </CardTitle>
                     <CardDescription>
-                      {selectedFeedback 
-                        ? 'Répondez à cet avis' 
-                        : 'Sélectionnez un avis pour répondre'}
+                      {selectedConversation 
+                        ? `${selectedConversation.totalCount} message${selectedConversation.totalCount > 1 ? 's' : ''}`
+                        : 'Sélectionnez une conversation'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {selectedFeedback ? (
-                      <div className="space-y-4">
-                        {/* Original message */}
-                        <div className="bg-muted/50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-medium">
-                              {selectedFeedback.user_first_name || selectedFeedback.user_last_name 
-                                ? `${selectedFeedback.user_first_name || ''} ${selectedFeedback.user_last_name || ''}`.trim()
-                                : selectedFeedback.user_email || 'Utilisateur'}
-                            </p>
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {format(new Date(selectedFeedback.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
-                            </p>
-                          </div>
-                          {selectedFeedback.user_email && (
-                            <p className="text-xs text-muted-foreground mb-2">{selectedFeedback.user_email}</p>
-                          )}
-                          <p className="text-sm whitespace-pre-wrap">{selectedFeedback.message}</p>
-                          
-                          {selectedFeedback.phone_number && (
-                            <div className="mt-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                              <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
-                                📞 {selectedFeedback.user_first_name || 'L\'utilisateur'} souhaite que tu l'appelles : {selectedFeedback.phone_number}
-                              </p>
-                            </div>
-                          )}
-                          
-                          {selectedFeedback.image_url && (
-                            <div className="mt-3">
-                              <a 
-                                href={selectedFeedback.image_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                              >
-                                <img 
-                                  src={selectedFeedback.image_url} 
-                                  alt="Capture" 
-                                  className="max-h-40 rounded-lg border hover:opacity-90 transition-opacity"
-                                />
-                              </a>
-                            </div>
-                          )}
+                    {selectedConversation ? (
+                      <ScrollArea className="h-[440px]">
+                        <div className="space-y-4 pr-2">
+                          {selectedConversation.messages.map((msg, idx) => (
+                            <div key={msg.id} className="space-y-2">
+                              {/* User message bubble */}
+                              <div className="bg-muted/50 rounded-lg p-3">
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                                    <User className="w-3 h-3" />
+                                    Message {idx + 1}
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {format(new Date(msg.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                                  </p>
+                                </div>
+                                <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                                
+                                {msg.phone_number && (
+                                  <div className="mt-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded p-2">
+                                    <p className="text-xs font-medium text-green-700 dark:text-green-400">
+                                      📞 {msg.phone_number}
+                                    </p>
+                                  </div>
+                                )}
+                                
+                                {msg.image_url && (
+                                  <a href={msg.image_url} target="_blank" rel="noopener noreferrer" className="block mt-2">
+                                    <img src={msg.image_url} alt="Capture" className="max-h-32 rounded border hover:opacity-90 transition-opacity" />
+                                  </a>
+                                )}
 
-                          {/* Device info */}
-                          {selectedFeedback.device_info && (
-                            <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                              {selectedFeedback.device_info.platform === 'mobile' 
-                                ? <Smartphone className="w-3 h-3" /> 
-                                : <Monitor className="w-3 h-3" />}
-                              <span className="font-medium">
-                                {selectedFeedback.device_info.platform === 'mobile' ? 'Mobile' : 'Desktop'}
-                              </span>
-                              <span>·</span>
-                              <span>{selectedFeedback.device_info.os}</span>
-                              <span>·</span>
-                              <Globe className="w-3 h-3" />
-                              <span>{selectedFeedback.device_info.browser} {selectedFeedback.device_info.browser_version}</span>
-                              {selectedFeedback.device_info.device && (
-                                <>
-                                  <span>·</span>
-                                  <span>{selectedFeedback.device_info.device}</span>
-                                </>
+                                {msg.device_info && (
+                                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                    {msg.device_info.platform === 'mobile' ? <Smartphone className="w-3 h-3" /> : <Monitor className="w-3 h-3" />}
+                                    <span>{msg.device_info.os} · {msg.device_info.browser}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Admin response(s) */}
+                              {msg.response && (
+                                <div className="bg-primary/10 rounded-lg p-3 ml-4 border-l-2 border-primary">
+                                  <p className="text-[11px] text-primary font-medium mb-1">Réponse admin</p>
+                                  <p className="text-sm whitespace-pre-wrap">{msg.response}</p>
+                                  {msg.responded_at && (
+                                    <p className="text-[10px] text-muted-foreground mt-1.5">
+                                      {format(new Date(msg.responded_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Reply form for the latest unreplied message, or last message */}
+                              {!msg.response && (
+                                <div className="ml-4 space-y-2">
+                                  <Textarea
+                                    placeholder="Répondre à ce message..."
+                                    value={selectedFeedback?.id === msg.id ? responseText : ''}
+                                    onFocus={() => { setSelectedFeedback(msg); setResponseText(''); }}
+                                    onChange={(e) => {
+                                      if (selectedFeedback?.id !== msg.id) setSelectedFeedback(msg);
+                                      setResponseText(e.target.value);
+                                    }}
+                                    className="min-h-[70px] text-sm"
+                                  />
+                                  {selectedFeedback?.id === msg.id && responseText.trim() && (
+                                    <>
+                                      <p className="text-[10px] text-muted-foreground">Signature « Adrien. » ajoutée automatiquement.</p>
+                                      <Button 
+                                        onClick={() => handleRespond(msg)}
+                                        disabled={respondMutation.isPending}
+                                        size="sm"
+                                        className="w-full"
+                                      >
+                                        {respondMutation.isPending ? (
+                                          <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                        ) : (
+                                          <Send className="w-3 h-3 mr-1" />
+                                        )}
+                                        Envoyer
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Separator between messages */}
+                              {idx < selectedConversation.messages.length - 1 && (
+                                <div className="border-t border-dashed my-2" />
                               )}
                             </div>
-                          )}
+                          ))}
                         </div>
-
-                        {/* Previous response(s) */}
-                        {selectedFeedback.response && (
-                          <div className="bg-primary/10 rounded-lg p-4 border-l-2 border-primary">
-                            <p className="text-xs text-primary font-medium mb-2">Réponse(s) envoyée(s)</p>
-                            <p className="text-sm whitespace-pre-wrap">{selectedFeedback.response}</p>
-                            {selectedFeedback.responded_at && (
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Dernière réponse le {format(new Date(selectedFeedback.responded_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
-                              </p>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Response form */}
-                        <div className="space-y-3">
-                          <Textarea
-                            placeholder={selectedFeedback.response ? "Écrivez une nouvelle réponse..." : "Écrivez votre réponse..."}
-                            value={responseText}
-                            onChange={(e) => setResponseText(e.target.value)}
-                            className="min-h-[100px]"
-                          />
-                          <p className="text-xs text-muted-foreground">La signature « Adrien. » sera ajoutée automatiquement.</p>
-                          <Button 
-                            onClick={handleRespond}
-                            disabled={!responseText.trim() || respondMutation.isPending}
-                            className="w-full"
-                          >
-                            {respondMutation.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                            ) : (
-                              <Send className="w-4 h-4 mr-2" />
-                            )}
-                            {selectedFeedback.response ? 'Ajouter une réponse' : 'Envoyer la réponse'}
-                          </Button>
-                        </div>
-                      </div>
+                      </ScrollArea>
                     ) : (
                       <div className="text-center py-12 text-muted-foreground">
                         <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p>Sélectionnez un avis dans la liste</p>
+                        <p>Sélectionnez une conversation</p>
                       </div>
                     )}
                   </CardContent>
