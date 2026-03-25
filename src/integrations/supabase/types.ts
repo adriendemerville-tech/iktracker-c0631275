@@ -187,6 +187,53 @@ export type Database = {
         }
         Relationships: []
       }
+      autopilot_events: {
+        Row: {
+          audit_log_id: string | null
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          message: string
+          page_key: string | null
+          resolved: boolean
+          resolved_at: string | null
+          severity: string
+        }
+        Insert: {
+          audit_log_id?: string | null
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          message: string
+          page_key?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+        }
+        Update: {
+          audit_log_id?: string | null
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          message?: string
+          page_key?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "autopilot_events_audit_log_id_fkey"
+            columns: ["audit_log_id"]
+            isOneToOne: false
+            referencedRelation: "api_audit_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_api_keys: {
         Row: {
           api_key: string
