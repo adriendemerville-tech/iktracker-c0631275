@@ -86,6 +86,7 @@ interface Feedback {
   created_at: string;
   phone_number: string | null;
   device_info: DeviceInfo | null;
+  is_admin_message: boolean;
   // User info (joined from users)
   user_first_name?: string;
   user_last_name?: string;
@@ -434,7 +435,7 @@ const Admin = () => {
         userEmail: latest.user_email || userId.slice(0, 8) + '...',
         messages: sorted,
         lastMessageAt: latest.created_at,
-        unrespondedCount: sorted.filter(m => !m.response).length,
+        unrespondedCount: sorted.filter(m => !m.response && !m.is_admin_message).length,
         totalCount: sorted.length,
       };
     }).sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
@@ -732,11 +733,11 @@ const Admin = () => {
                           {selectedConversation.messages.map((msg, idx) => (
                             <div key={msg.id} className="space-y-2">
                               {/* Message bubble */}
-                              <div className={`rounded-lg p-3 ${(msg as any).is_admin_message ? 'bg-primary/10 ml-4 border-l-2 border-primary' : 'bg-muted/50'}`}>
+                              <div className={`rounded-lg p-3 ${msg.is_admin_message ? 'bg-primary/10 ml-4 border-l-2 border-primary' : 'bg-muted/50'}`}>
                                 <div className="flex items-center justify-between mb-1.5">
-                                  <p className={`text-xs font-medium flex items-center gap-1 ${(msg as any).is_admin_message ? 'text-primary' : 'text-muted-foreground'}`}>
+                                  <p className={`text-xs font-medium flex items-center gap-1 ${msg.is_admin_message ? 'text-primary' : 'text-muted-foreground'}`}>
                                     <User className="w-3 h-3" />
-                                    {(msg as any).is_admin_message ? 'Admin' : `${msg.user_first_name || ''} ${msg.user_last_name || ''}`.trim() || 'Utilisateur'}
+                                    {msg.is_admin_message ? 'Admin' : `${msg.user_first_name || ''} ${msg.user_last_name || ''}`.trim() || 'Utilisateur'}
                                   </p>
                                   <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
@@ -781,7 +782,7 @@ const Admin = () => {
                               )}
 
                               {/* Reply form for the latest unreplied message, or last message */}
-                              {!msg.response && !(msg as any).is_admin_message && (
+                              {!msg.response && !msg.is_admin_message && (
                                 <div className="ml-4 space-y-2">
                                   <Textarea
                                     placeholder="Répondre à ce message..."
