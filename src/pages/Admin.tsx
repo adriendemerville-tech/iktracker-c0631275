@@ -435,7 +435,7 @@ const Admin = () => {
         userEmail: latest.user_email || userId.slice(0, 8) + '...',
         messages: sorted,
         lastMessageAt: latest.created_at,
-        unrespondedCount: sorted.filter(m => !m.response).length,
+        unrespondedCount: sorted.filter(m => !m.response && !m.is_admin_message).length,
         totalCount: sorted.length,
       };
     }).sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
