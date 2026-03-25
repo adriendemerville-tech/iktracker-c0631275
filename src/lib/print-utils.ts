@@ -157,7 +157,7 @@ function generateReportHTML(options: PrintReportOptions): string {
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${startCity}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${endCity}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 180px; min-width: 180px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${motif.length > 28 ? motif.substring(0, 27) + '…' : motif}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 180px; min-width: 180px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${motif.length > 60 ? motif.substring(0, 59) + '…' : motif}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px; width: 60px; min-width: 60px;">${Math.round(t.distance)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 65px; min-width: 65px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>
@@ -1082,7 +1082,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${startCity}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${endCity}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280;">${motif.length > 25 ? motif.substring(0, 24) + '…' : motif}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280;">${motif.length > 60 ? motif.substring(0, 59) + '…' : motif}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px;">${Math.round(t.distance)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
