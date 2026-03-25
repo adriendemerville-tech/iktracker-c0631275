@@ -123,6 +123,21 @@ const Admin = () => {
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState('');
 
+  // Unresolved critical errors count for header alert
+  const { data: unresolvedErrors = 0 } = useQuery({
+    queryKey: ['admin-unresolved-errors-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('error_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('resolved', false);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: isAdmin,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
   const sendAdminMessage = useMutation({
     mutationFn: async (targetUserId: string) => {
       if (!user || !adminMessageText.trim()) return;
