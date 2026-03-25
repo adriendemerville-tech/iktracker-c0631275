@@ -511,6 +511,83 @@ async function handleAudit(supabase: any, req: Request, url: URL, slug: string |
   return errorResp('Audit endpoint not found', 404)
 }
 
+// --- AUTOPILOT ---
+
+async function handleAutopilot(supabase: any, req: Request, url: URL, subResource: string | undefined) {
+  // GET /autopilot/registry — full timeline of changes + linked events
+  if (req.method === 'GET' && (!subResource || subResource === 'registry')) {
+    const limit = parseInt(url.searchParams.get('limit') || '100')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    const pageKey = url.searchParams.get('page_key')
+
+    // Fetch audit logs
+    let auditQuery = supabase
+      .from('api_audit_logs').select('*', { count: 'exact' })
+      .order('created_at', { ascending: false }).range(offset, offset + limit - 1)
+    if (pageKey) {
+      auditQuery = auditQuery.eq('resource_id', pageKey)
+    }
+    const { data: logs, error: logsErr, count } = await auditQuery
+    if (logsErr) return errorResp('Failed to fetch registry', 500)
+
+    // Fetch linked events
+    const logIds = (logs || []).map((l: any) => l.id)
+    let events: any[] = []
+    if (logIds.length > 0) {
+      const { data: evts } = await supabase
+        .from('autopilot_events').select('*')
+        .in('audit_log_id', logIds)
+        .order('created_at', { ascending: false })
+      events = evts || []
+    }
+
+    // Also get orphan events (not linked to audit logs)
+    const { data: orphanEvents } = await supabase
+      .from('autopilot_events').select('*')
+      .is('audit_log_id', null)
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    return successResp({
+      changes: logs,
+      events: [...events, ...(orphanEvents || [])],
+      total_changes: count,
+    })
+  }
+
+  // GET /autopilot/health — per-page health scores
+  if (req.method === 'GET' && subResource === 'health') {
+    const { data: activeEvents } = await supabase
+      .from('autopilot_events').select('page_key, severity')
+      .eq('resolved', false)
+
+    const pageHealth: Record<string, { critical: number; warning: number; info: number; score: number }> = {}
+    for (const evt of (activeEvents || [])) {
+      const key = evt.page_key || '__global__'
+      if (!pageHealth[key]) pageHealth[key] = { critical: 0, warning: 0, info: 0, score: 100 }
+      if (evt.severity === 'critical') { pageHealth[key].critical++; pageHealth[key].score = 0 }
+      else if (evt.severity === 'warning') { pageHealth[key].warning++; pageHealth[key].score = Math.min(pageHealth[key].score, 50) }
+      else { pageHealth[key].info++ }
+    }
+
+    return successResp({ pages: pageHealth })
+  }
+
+  // GET /autopilot/events — list all events
+  if (req.method === 'GET' && subResource === 'events') {
+    const resolved = url.searchParams.get('resolved')
+    let query = supabase.from('autopilot_events').select('*').order('created_at', { ascending: false }).limit(200)
+    if (resolved === 'false') query = query.eq('resolved', false)
+    if (resolved === 'true') query = query.eq('resolved', true)
+
+    const { data, error } = await query
+    if (error) return errorResp('Failed to fetch events', 500)
+    return successResp(data)
+  }
+
+  return errorResp('Autopilot endpoint not found', 404)
+}
+
 // ==================== MAIN HANDLER ====================
 
 Deno.serve(async (req) => {
@@ -604,6 +681,9 @@ Deno.serve(async (req) => {
         break
       case 'media':
         resp = await handleMedia(supabase, req, slug, apiKeyName)
+        break
+      case 'autopilot':
+        resp = await handleAutopilot(supabase, req, url, slug)
         break
       default:
         resp = errorResp('Not found', 404)

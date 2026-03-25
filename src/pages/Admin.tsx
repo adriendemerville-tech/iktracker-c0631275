@@ -20,6 +20,7 @@ import { AdminCosts } from '@/components/admin/AdminCosts';
 import { AdminAffiliation } from '@/components/admin/AdminAffiliation';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
+import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { 
@@ -47,7 +48,8 @@ import {
   Monitor,
   Smartphone,
   Globe,
-  Link2
+  Link2,
+  Zap
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -445,7 +447,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-4' : 'grid-cols-7'}`}>
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-5' : 'grid-cols-8'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -467,6 +469,10 @@ const Admin = () => {
             <TabsTrigger value="monitoring" className="flex items-center gap-1 text-xs sm:text-sm">
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">Backend</span>
+            </TabsTrigger>
+            <TabsTrigger value="autopilot" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Zap className="w-4 h-4" />
+              <span className="hidden sm:inline">Autopilot</span>
             </TabsTrigger>
             {adminRole !== 'viewer' && (
               <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -918,6 +924,11 @@ const Admin = () => {
           {/* Monitoring Tab */}
           <TabsContent value="monitoring">
             <AdminMonitoring />
+          </TabsContent>
+
+          {/* Autopilot Tab */}
+          <TabsContent value="autopilot">
+            <AdminAutopilot />
           </TabsContent>
 
           {/* Surveys Tab */}
