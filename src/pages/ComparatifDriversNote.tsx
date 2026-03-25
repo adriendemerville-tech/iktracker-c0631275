@@ -156,8 +156,13 @@ const ComparatifDriversNote = () => {
         <MarketingNav user={user} loading={loading} />
 
         <main id="main-content" tabIndex={-1} className="outline-none">
+          {/* Breadcrumb */}
+          <div className="container mx-auto px-4 pt-24">
+            <Breadcrumb items={[{ label: 'Comparatif Driver\'s Note vs IKtracker' }]} />
+          </div>
+
           {/* Hero Section */}
-          <section className="pt-24 pb-12 md:pt-28 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
+          <section className="pb-12 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
             <div className="container mx-auto relative z-10 max-w-4xl">
               <div className="text-center">
