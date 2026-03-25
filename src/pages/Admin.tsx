@@ -131,7 +131,8 @@ const Admin = () => {
           user_id: targetUserId,
           message: adminMessageText.trim(),
           response: null,
-        });
+          is_admin_message: true,
+        } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -703,12 +704,12 @@ const Admin = () => {
                         <div className="space-y-4 pr-2">
                           {selectedConversation.messages.map((msg, idx) => (
                             <div key={msg.id} className="space-y-2">
-                              {/* User message bubble */}
-                              <div className="bg-muted/50 rounded-lg p-3">
+                              {/* Message bubble */}
+                              <div className={`rounded-lg p-3 ${(msg as any).is_admin_message ? 'bg-primary/10 ml-4 border-l-2 border-primary' : 'bg-muted/50'}`}>
                                 <div className="flex items-center justify-between mb-1.5">
-                                  <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                                  <p className={`text-xs font-medium flex items-center gap-1 ${(msg as any).is_admin_message ? 'text-primary' : 'text-muted-foreground'}`}>
                                     <User className="w-3 h-3" />
-                                    Message {idx + 1}
+                                    {(msg as any).is_admin_message ? 'Admin' : `${msg.user_first_name || ''} ${msg.user_last_name || ''}`.trim() || 'Utilisateur'}
                                   </p>
                                   <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
@@ -753,7 +754,7 @@ const Admin = () => {
                               )}
 
                               {/* Reply form for the latest unreplied message, or last message */}
-                              {!msg.response && (
+                              {!msg.response && !(msg as any).is_admin_message && (
                                 <div className="ml-4 space-y-2">
                                   <Textarea
                                     placeholder="Répondre à ce message..."

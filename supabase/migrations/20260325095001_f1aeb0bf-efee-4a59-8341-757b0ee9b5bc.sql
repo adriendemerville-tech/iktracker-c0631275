@@ -1,0 +1,1 @@
+ALTER TABLE public.feedback ADD COLUMN is_admin_message boolean NOT NULL DEFAULT false;

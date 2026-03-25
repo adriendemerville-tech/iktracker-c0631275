@@ -498,6 +498,7 @@ export type Database = {
           device_info: Json | null
           id: string
           image_url: string | null
+          is_admin_message: boolean
           message: string
           phone_number: string | null
           read_by_user: boolean | null
@@ -510,6 +511,7 @@ export type Database = {
           device_info?: Json | null
           id?: string
           image_url?: string | null
+          is_admin_message?: boolean
           message: string
           phone_number?: string | null
           read_by_user?: boolean | null
@@ -522,6 +524,7 @@ export type Database = {
           device_info?: Json | null
           id?: string
           image_url?: string | null
+          is_admin_message?: boolean
           message?: string
           phone_number?: string | null
           read_by_user?: boolean | null
