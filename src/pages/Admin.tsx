@@ -322,14 +322,53 @@ const Admin = () => {
     },
   });
 
-  const handleRespond = () => {
-    if (!selectedFeedback || !responseText.trim()) return;
+  const handleRespond = (feedbackToRespond: Feedback) => {
+    if (!responseText.trim()) return;
     respondMutation.mutate({ 
-      feedbackId: selectedFeedback.id, 
+      feedbackId: feedbackToRespond.id, 
       response: responseText.trim(),
-      existingResponse: selectedFeedback.response || null,
+      existingResponse: feedbackToRespond.response || null,
     });
   };
+
+  // Group feedbacks by user_id as conversations
+  interface ConversationGroup {
+    userId: string;
+    userName: string;
+    userEmail: string;
+    messages: Feedback[];
+    lastMessageAt: string;
+    unrespondedCount: number;
+    totalCount: number;
+  }
+
+  const conversations: ConversationGroup[] = (() => {
+    const grouped = new Map<string, Feedback[]>();
+    for (const f of feedbacks) {
+      const existing = grouped.get(f.user_id) || [];
+      existing.push(f);
+      grouped.set(f.user_id, existing);
+    }
+    
+    return Array.from(grouped.entries()).map(([userId, msgs]) => {
+      const sorted = [...msgs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      const latest = sorted[sorted.length - 1];
+      const name = latest.user_first_name || latest.user_last_name 
+        ? `${latest.user_first_name || ''} ${latest.user_last_name || ''}`.trim()
+        : '';
+      return {
+        userId,
+        userName: name,
+        userEmail: latest.user_email || userId.slice(0, 8) + '...',
+        messages: sorted,
+        lastMessageAt: latest.created_at,
+        unrespondedCount: sorted.filter(m => !m.response).length,
+        totalCount: sorted.length,
+      };
+    }).sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+  })();
+
+  const selectedConversation = conversations.find(c => c.userId === selectedConversationUserId) || null;
 
   const handleAddAdmin = () => {
     if (!newAdminId.trim()) return;
