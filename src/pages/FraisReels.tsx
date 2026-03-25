@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -129,7 +130,28 @@ export default function FraisReels() {
               "@type": "Offer",
               "price": "0",
               "priceCurrency": "EUR"
+            },
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": ["#main-content h1", "#main-content > section:first-of-type p"]
             }
+          })}
+        </script>
+        {/* FAQ Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "Quand choisir les frais réels plutôt que l'abattement de 10% ?", "acceptedAnswer": { "@type": "Answer", "text": "Les frais réels kilométriques sont généralement plus avantageux si vous parcourez plus de 15 000 km par an pour des raisons professionnelles, ou si votre trajet domicile-travail est supérieur à 40 km." }},
+              { "@type": "Question", "name": "Comment justifier ses frais réels auprès de l'administration fiscale ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous devez conserver des justificatifs fiscaux précis : un carnet de bord avec la date, le motif et la distance de chaque trajet professionnel. IKtracker automatise ce suivi grâce à la synchronisation de votre agenda et au GPS." }},
+              { "@type": "Question", "name": "Le barème kilométrique 2026 : quels sont les taux ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème kilométrique 2026 varie selon la puissance fiscale de votre véhicule et le nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%." }},
+              { "@type": "Question", "name": "Peut-on cumuler frais réels kilométriques et autres frais professionnels ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, en optant pour les frais réels, vous pouvez déduire l'ensemble de vos frais professionnels : indemnités kilométriques, repas, formation, matériel. Le choix s'applique à l'ensemble de vos revenus." }},
+              { "@type": "Question", "name": "Quelle est la distance maximale déductible pour le trajet domicile-travail ?", "acceptedAnswer": { "@type": "Answer", "text": "En principe, seuls les 40 premiers kilomètres sont déductibles (soit 80 km aller-retour). Au-delà, vous devez justifier de circonstances particulières." }},
+              { "@type": "Question", "name": "Comment déclarer ses frais réels sur la déclaration d'impôts ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur votre déclaration de revenus (formulaire 2042), cochez la case frais réels et indiquez le montant total. Conservez les justificatifs pendant 3 ans en cas de contrôle." }},
+              { "@type": "Question", "name": "Les véhicules électriques sont-ils avantagés fiscalement ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, les véhicules électriques bénéficient d'une majoration de 20% sur le barème kilométrique standard." }},
+              { "@type": "Question", "name": "Comment prouver l'usage professionnel de son véhicule personnel ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous devez tenir un carnet de bord détaillant chaque déplacement professionnel. IKtracker automatise cette tâche en synchronisant votre agenda et en calculant les distances via GPS." }}
+            ]
           })}
         </script>
       </Helmet>
@@ -138,6 +160,10 @@ export default function FraisReels() {
         <MarketingNav user={user} loading={loading} />
         
         <main id="main-content" className="pt-20 md:pt-24">
+          {/* Breadcrumb */}
+          <div className="container mx-auto px-4 pt-4">
+            <Breadcrumb items={[{ label: 'Frais Réels vs Abattement' }]} />
+          </div>
           {/* Hero Section */}
           <section className="container mx-auto px-4 py-12 md:py-16">
             <div className="max-w-4xl mx-auto text-center">
