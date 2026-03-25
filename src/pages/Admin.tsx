@@ -120,6 +120,29 @@ const Admin = () => {
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
+  const [adminMessageText, setAdminMessageText] = useState('');
+
+  const sendAdminMessage = useMutation({
+    mutationFn: async (targetUserId: string) => {
+      if (!user || !adminMessageText.trim()) return;
+      const { error } = await supabase
+        .from('feedback')
+        .insert({
+          user_id: targetUserId,
+          message: adminMessageText.trim(),
+          response: null,
+        });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-feedbacks'] });
+      setAdminMessageText('');
+      toast({ title: 'Message envoyé' });
+    },
+    onError: () => {
+      toast({ title: "Erreur lors de l'envoi", variant: 'destructive' });
+    },
+  });
 
   const deleteConversation = useMutation({
     mutationFn: async (userId: string) => {
@@ -658,6 +681,35 @@ const Admin = () => {
                       </div>
                     </ScrollArea>
                   </CardContent>
+                  {selectedConversationUserId && (
+                    <div className="border-t p-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Envoyer un message..."
+                          value={adminMessageText}
+                          onChange={(e) => setAdminMessageText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey && adminMessageText.trim()) {
+                              e.preventDefault();
+                              sendAdminMessage.mutate(selectedConversationUserId);
+                            }
+                          }}
+                          className="flex-1 text-sm"
+                        />
+                        <Button
+                          size="icon"
+                          onClick={() => sendAdminMessage.mutate(selectedConversationUserId)}
+                          disabled={!adminMessageText.trim() || sendAdminMessage.isPending}
+                        >
+                          {sendAdminMessage.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </Card>
 
                 {/* Conversation Thread Panel */}
