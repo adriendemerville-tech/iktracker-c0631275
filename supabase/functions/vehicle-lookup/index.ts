@@ -357,9 +357,21 @@ serve(async (req) => {
       });
     }
 
-    console.log('[Fallback] DrivePieces failed, trying RapidAPI...');
+    console.log('[Fallback] DrivePieces failed, trying Earlweb...');
 
-    // 2️⃣ Fallback : RapidAPI (payant)
+    // 2️⃣ Fallback gratuit : Earlweb/Moove (HTML parsing + formule kW→CV)
+    const earlwebData = await tryEarlweb(formattedPlate);
+    if (earlwebData) {
+      const vehicleData = mapEarlwebData(earlwebData, licensePlate);
+      await logApiCall(supabaseAdmin, userId, true, 'earlweb', formattedPlate);
+      return new Response(JSON.stringify(vehicleData), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('[Fallback] Earlweb failed, trying RapidAPI...');
+
+    // 3️⃣ Fallback payant : RapidAPI
     const apiKey = Deno.env.get('RAPIDAPI_KEY');
     if (apiKey) {
       const rapidApiData = await tryRapidApi(formattedPlate, apiKey);
