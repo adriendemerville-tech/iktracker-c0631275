@@ -1171,6 +1171,30 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_cache: {
+        Row: {
+          created_at: string
+          id: string
+          license_plate: string
+          source: string
+          vehicle_data: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          license_plate: string
+          source: string
+          vehicle_data?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          license_plate?: string
+          source?: string
+          vehicle_data?: Json
+        }
+        Relationships: []
+      }
       vehicles: {
         Row: {
           created_at: string

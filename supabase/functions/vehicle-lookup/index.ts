@@ -348,11 +348,32 @@ serve(async (req) => {
     const { clean: cleanPlate, formatted: formattedPlate } = formatPlate(licensePlate);
     console.log(`Looking up vehicle: ${formattedPlate}`);
 
+    // 0️⃣ Cache : vérifier si la plaque a déjà été recherchée
+    const { data: cached } = await supabaseAdmin
+      .from('vehicle_cache')
+      .select('vehicle_data')
+      .eq('license_plate', cleanPlate)
+      .maybeSingle();
+
+    if (cached?.vehicle_data) {
+      console.log(`[Cache] Hit for ${formattedPlate}`);
+      await logApiCall(supabaseAdmin, userId, true, 'cache', formattedPlate);
+      return new Response(JSON.stringify({ ...cached.vehicle_data, source: 'cache' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // 1️⃣ Source principale : DrivePiecesAuto (gratuit)
     const drivePiecesData = await tryDrivePieces(formattedPlate);
     if (drivePiecesData) {
       const vehicleData = mapDrivePiecesData(drivePiecesData, licensePlate);
       await logApiCall(supabaseAdmin, userId, true, 'drivepiecesauto', formattedPlate);
+      // Stocker en cache
+      await supabaseAdmin.from('vehicle_cache').upsert({
+        license_plate: cleanPlate,
+        vehicle_data: vehicleData,
+        source: 'drivepiecesauto',
+      }, { onConflict: 'license_plate' });
       return new Response(JSON.stringify(vehicleData), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -365,6 +386,12 @@ serve(async (req) => {
     if (earlwebData) {
       const vehicleData = mapEarlwebData(earlwebData, licensePlate);
       await logApiCall(supabaseAdmin, userId, true, 'earlweb', formattedPlate);
+      // Stocker en cache
+      await supabaseAdmin.from('vehicle_cache').upsert({
+        license_plate: cleanPlate,
+        vehicle_data: vehicleData,
+        source: 'earlweb',
+      }, { onConflict: 'license_plate' });
       return new Response(JSON.stringify(vehicleData), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -375,7 +402,7 @@ serve(async (req) => {
       plate: formattedPlate,
     });
 
-    // 3️⃣ Données simulées (avant RapidAPI payant)
+    // 3️⃣ Données simulées (PAS mises en cache pour retenter les vraies sources)
     const simulatedData = generateSimulatedData(cleanPlate, licensePlate);
     await logApiCall(supabaseAdmin, userId, true, 'simulated', formattedPlate);
     return new Response(JSON.stringify(simulatedData), {
