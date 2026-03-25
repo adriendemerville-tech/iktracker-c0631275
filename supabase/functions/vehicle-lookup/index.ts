@@ -1,28 +1,72 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function logApiCall(supabaseAdmin: any, userId: string | null, success: boolean, simulated: boolean, licensePlate: string) {
+  try {
+    await supabaseAdmin.from('api_usage_logs').insert({
+      function_name: 'vehicle-lookup',
+      user_id: userId,
+      tokens_input: 0,
+      tokens_output: 0,
+      cost_euros: 0,
+      model: success ? (simulated ? 'simulated' : 'rapidapi') : 'error',
+      metadata: { license_plate: licensePlate, success, simulated },
+    });
+  } catch (e) {
+    console.error('Failed to log API call:', e);
+  }
+}
+
+async function logError(supabaseAdmin: any, userId: string | null, message: string, metadata: any) {
+  try {
+    await supabaseAdmin.from('error_logs').insert({
+      source: 'Backend',
+      error_type: 'api_failure',
+      message,
+      description: "L'API de recherche de véhicule par plaque d'immatriculation a échoué. Les utilisateurs reçoivent des données simulées au lieu de données réelles.",
+      user_id: userId,
+      metadata,
+    });
+  } catch (e) {
+    console.error('Failed to log error:', e);
+  }
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+  // Extract user ID from auth header
+  let userId: string | null = null;
+  const authHeader = req.headers.get('authorization');
+  if (authHeader) {
+    try {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      userId = user?.id || null;
+    } catch {}
   }
 
   try {
     const { licensePlate } = await req.json();
 
     if (!licensePlate) {
-      console.error('No license plate provided');
       return new Response(
         JSON.stringify({ error: 'License plate is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Format the license plate with dashes (ex: FH-034-DD)
     const cleanPlate = licensePlate.replace(/[-\s]/g, '').toUpperCase();
     const formattedPlate = cleanPlate.length === 7 
       ? `${cleanPlate.slice(0, 2)}-${cleanPlate.slice(2, 5)}-${cleanPlate.slice(5, 7)}`
@@ -33,18 +77,15 @@ serve(async (req) => {
     
     if (!apiKey) {
       console.error('RAPIDAPI_KEY not configured');
+      await logApiCall(supabaseAdmin, userId, false, false, formattedPlate);
+      await logError(supabaseAdmin, userId, 'vehicle-lookup: RAPIDAPI_KEY non configurée', { plate: formattedPlate });
       return new Response(
         JSON.stringify({ error: 'API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Call the French car check API via RapidAPI
-    // API: api-de-plaque-d-immatriculation-france
-    // Uses 'plaque' as query parameter and header
     const apiUrl = `https://api-de-plaque-d-immatriculation-france.p.rapidapi.com/?plaque=${encodeURIComponent(formattedPlate)}`;
-    
-    console.log(`Calling RapidAPI: ${apiUrl}`);
     
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -58,13 +99,14 @@ serve(async (req) => {
     if (!response.ok) {
       console.error(`API error: ${response.status} ${response.statusText}`);
       
-      // If API fails, return a simulated response for demo purposes
-      // This allows the app to work even without a valid API key
       if (response.status === 401 || response.status === 403) {
         console.log('API authentication failed, returning simulated data');
+        await logApiCall(supabaseAdmin, userId, true, true, formattedPlate);
+        await logError(supabaseAdmin, userId, `vehicle-lookup: API RapidAPI erreur ${response.status} — clé expirée ou abonnement terminé`, { plate: formattedPlate, status: response.status });
         return simulatedResponse(cleanPlate, corsHeaders);
       }
       
+      await logApiCall(supabaseAdmin, userId, false, false, formattedPlate);
       return new Response(
         JSON.stringify({ error: 'Vehicle not found', success: false }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -72,33 +114,26 @@ serve(async (req) => {
     }
 
     const responseText = await response.text();
-    console.log('RapidAPI raw response:', responseText);
-    
     let data;
     try {
       data = JSON.parse(responseText);
     } catch (e) {
-      console.error('Failed to parse response as JSON:', responseText);
+      await logApiCall(supabaseAdmin, userId, false, false, formattedPlate);
       return new Response(
         JSON.stringify({ error: 'Invalid API response', success: false }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
-    console.log('RapidAPI parsed response:', JSON.stringify(data));
 
-    // Check for error in response - API returns data in data.data object with AWN_ prefix
     const vehicleInfo = data.data;
     if (data.error === true || !vehicleInfo || !vehicleInfo.AWN_marque) {
-      console.log('Vehicle not found in API response');
+      await logApiCall(supabaseAdmin, userId, false, false, formattedPlate);
       return new Response(
         JSON.stringify({ error: data.message || 'Vehicle not found', success: false }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Map the RapidAPI response to our format
-    // Response format: { data: { AWN_marque, AWN_modele, AWN_date_mise_en_circulation_us, AWN_puissance_fiscale, AWN_energie, AWN_carrosserie, ... }}
     const fuelType = vehicleInfo.AWN_energie || '';
     const isElectric = fuelType.toLowerCase().includes('electri') || 
                        fuelType.toLowerCase().includes('électri') ||
@@ -117,7 +152,7 @@ serve(async (req) => {
       registrationDate: vehicleInfo.AWN_date_mise_en_circulation || null,
     };
 
-    console.log('Mapped vehicle data:', JSON.stringify(vehicleData));
+    await logApiCall(supabaseAdmin, userId, true, false, formattedPlate);
 
     return new Response(
       JSON.stringify(vehicleData),
@@ -127,6 +162,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error in vehicle-lookup function:', errorMessage);
+    await logApiCall(supabaseAdmin, userId, false, false, 'unknown');
     return new Response(
       JSON.stringify({ error: errorMessage, success: false }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -134,9 +170,7 @@ serve(async (req) => {
   }
 });
 
-// Simulated response for demo/development purposes
 function simulatedResponse(licensePlate: string, corsHeaders: Record<string, string>) {
-  // Common French car makes for realistic simulation
   const makes = ['Renault', 'Peugeot', 'Citroën', 'Volkswagen', 'BMW', 'Mercedes', 'Audi', 'Toyota', 'Ford', 'Fiat', 'Dacia', 'Nissan'];
   const models: Record<string, string[]> = {
     'Renault': ['Clio', 'Mégane', 'Captur', 'Twingo', 'Zoé', 'Austral'],
@@ -153,22 +187,17 @@ function simulatedResponse(licensePlate: string, corsHeaders: Record<string, str
     'Nissan': ['Micra', 'Juke', 'Qashqai', 'Leaf', 'Ariya'],
   };
 
-  // Generate deterministic data based on license plate
   const hash = licensePlate.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const makeIndex = hash % makes.length;
   const make = makes[makeIndex];
   const modelList = models[make] || ['Modèle'];
   const model = modelList[hash % modelList.length];
   
-  // Check if it's an electric model
   const electricModels = ['Zoé', 'e-208', 'ë-C4', 'ID.3', 'ID.4', 'iX3', 'i4', 'EQA', 'EQC', 'e-tron', 'Q4 e-tron', 'bZ4X', 'Mustang Mach-E', '500e', 'Spring', 'Leaf', 'Ariya'];
   const isElectric = electricModels.includes(model);
   
-  // Generate fiscal power based on model type
   const basePower = isElectric ? 4 : 5;
   const fiscalPower = basePower + (hash % 4);
-  
-  // Generate year between 2018 and 2024
   const year = 2018 + (hash % 7);
 
   const vehicleData = {
@@ -182,10 +211,8 @@ function simulatedResponse(licensePlate: string, corsHeaders: Record<string, str
     isElectric: isElectric,
     bodyStyle: hash % 3 === 0 ? 'SUV' : (hash % 3 === 1 ? 'Berline' : 'Citadine'),
     registrationDate: `${year}-${String((hash % 12) + 1).padStart(2, '0')}-01`,
-    simulated: true, // Flag to indicate this is simulated data
+    simulated: true,
   };
-
-  console.log('Returning simulated vehicle data:', JSON.stringify(vehicleData));
 
   return new Response(
     JSON.stringify(vehicleData),

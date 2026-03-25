@@ -21,6 +21,9 @@ import {
   ArrowDownUp,
   RefreshCw,
   Calendar,
+  Car,
+  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 
 type PeriodFilter = '7' | '30' | '90' | 'all';
