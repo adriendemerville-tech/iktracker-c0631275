@@ -121,10 +121,11 @@ async function tryDrivePieces(formattedPlate: string): Promise<any | null> {
   }
 }
 
-// Formule officielle française : PA = 1.34 + (1.8 × (kW/100)²) + (3.87 × (kW/100))
+// Formule officielle française simplifiée (sans CO₂) : PA = 1.34 + (1.8 × (kW/100)²) + (3.87 × (kW/100))
+// +1 CV de marge car la formule sans CO₂ sous-estime systématiquement de 1-2 CV
 function kwToFiscalPower(kw: number): number {
   const ratio = kw / 100;
-  return Math.floor(1.34 + (1.8 * ratio * ratio) + (3.87 * ratio));
+  return Math.floor(1.34 + (1.8 * ratio * ratio) + (3.87 * ratio)) + 1;
 }
 
 // Source 2: Earlweb / Moove (gratuit, HTML parsing, sans auth)
