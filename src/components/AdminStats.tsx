@@ -186,6 +186,7 @@ const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getS
 
 const DEFAULT_SECTION_ORDER = [
   'main-stats',
+  'dau-chart',
   'recent-signups',
   'download-stats',
   'share-stats',
@@ -1172,7 +1173,7 @@ export function AdminStats() {
                 case 'main-stats':
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} isCard={false} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                         {/* Online users - real-time */}
                         <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
                           <CardContent className="p-4">
@@ -1188,78 +1189,6 @@ export function AdminStats() {
                           </CardContent>
                         </Card>
 
-                        {/* Daily Active Users - 7 days - Line Chart */}
-                        <Card className="bg-gradient-to-br from-violet-500/10 to-violet-600/5 border-violet-500/20 col-span-2">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <Activity className="w-5 h-5 text-violet-500" />
-                                <span className="text-sm font-medium">Actifs / jour</span>
-                              </div>
-                              {!dauLoading && (
-                                <div className="flex items-center gap-1.5">
-                                  <p className="text-xl font-bold text-violet-600">{dauToday}</p>
-                                  {dauTrend === 'up' && (
-                                    <span className="flex items-center text-xs font-medium text-green-600">
-                                      <ArrowUp className="w-3 h-3" />+{dauDiff}
-                                    </span>
-                                  )}
-                                  {dauTrend === 'down' && (
-                                    <span className="flex items-center text-xs font-medium text-red-500">
-                                      <ArrowDown className="w-3 h-3" />{dauDiff}
-                                    </span>
-                                  )}
-                                  {dauTrend === 'flat' && (
-                                    <span className="flex items-center text-xs font-medium text-muted-foreground">
-                                      <Minus className="w-3 h-3" />0
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            {dauLoading ? (
-                              <Skeleton className="h-[120px] w-full" />
-                            ) : (
-                              <ResponsiveContainer width="100%" height={120}>
-                                <LineChart data={dailyActiveUsers} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                                  <XAxis 
-                                    dataKey="day" 
-                                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} 
-                                    tickFormatter={(v) => format(new Date(v), 'dd/MM', { locale: fr })}
-                                    axisLine={false}
-                                    tickLine={false}
-                                  />
-                                  <YAxis 
-                                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} 
-                                    allowDecimals={false}
-                                    axisLine={false}
-                                    tickLine={false}
-                                  />
-                                  <Tooltip 
-                                    labelFormatter={(v) => format(new Date(v as string), 'EEEE dd MMM', { locale: fr })}
-                                    formatter={(value: number) => [value, 'Actifs']}
-                                    contentStyle={{ 
-                                      background: 'hsl(var(--card))', 
-                                      border: '1px solid hsl(var(--border))',
-                                      borderRadius: '8px',
-                                      fontSize: '12px'
-                                    }}
-                                  />
-                                  <Line 
-                                    type="monotone" 
-                                    dataKey="count" 
-                                    stroke="#8b5cf6" 
-                                    strokeWidth={2.5}
-                                    dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
-                                    activeDot={{ r: 6 }}
-                                  />
-                                </LineChart>
-                              </ResponsiveContainer>
-                            )}
-                            <p className="text-[10px] text-muted-foreground mt-1">7 derniers jours</p>
-                          </CardContent>
-                        </Card>
 
                         {/* Total users */}
                         <Card>
@@ -1369,6 +1298,81 @@ export function AdminStats() {
                           </CardContent>
                         </Card>
                       </div>
+                    </DraggableStatsSection>
+                  );
+
+                case 'dau-chart':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Activity className="w-5 h-5 text-violet-500" />
+                          Actifs / jour
+                          {!dauLoading && (
+                            <span className="ml-auto flex items-center gap-1.5">
+                              <span className="text-xl font-bold text-violet-600">{dauToday}</span>
+                              {dauTrend === 'up' && (
+                                <span className="flex items-center text-xs font-medium text-green-600">
+                                  <ArrowUp className="w-3 h-3" />+{dauDiff}
+                                </span>
+                              )}
+                              {dauTrend === 'down' && (
+                                <span className="flex items-center text-xs font-medium text-red-500">
+                                  <ArrowDown className="w-3 h-3" />{dauDiff}
+                                </span>
+                              )}
+                              {dauTrend === 'flat' && (
+                                <span className="flex items-center text-xs font-medium text-muted-foreground">
+                                  <Minus className="w-3 h-3" />0
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {dauLoading ? (
+                          <Skeleton className="h-[200px] w-full" />
+                        ) : (
+                          <ResponsiveContainer width="100%" height={200}>
+                            <LineChart data={dailyActiveUsers} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                              <XAxis 
+                                dataKey="day" 
+                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
+                                tickFormatter={(v) => format(new Date(v), 'dd/MM', { locale: fr })}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <YAxis 
+                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
+                                allowDecimals={false}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <Tooltip 
+                                labelFormatter={(v) => format(new Date(v as string), 'EEEE dd MMM', { locale: fr })}
+                                formatter={(value: number) => [value, 'Actifs']}
+                                contentStyle={{ 
+                                  background: 'hsl(var(--card))', 
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '8px',
+                                  fontSize: '12px'
+                                }}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="count" 
+                                stroke="#8b5cf6" 
+                                strokeWidth={2.5}
+                                dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                                activeDot={{ r: 6 }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">7 derniers jours</p>
+                      </CardContent>
                     </DraggableStatsSection>
                   );
 
