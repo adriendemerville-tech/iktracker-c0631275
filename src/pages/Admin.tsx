@@ -119,8 +119,29 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'stats');
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
   const [userSheetOpen, setUserSheetOpen] = useState(false);
+  const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
 
-  // Debounce search input
+  const deleteConversation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('feedback')
+        .delete()
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-feedbacks'] });
+      if (selectedConversationUserId === convoToDelete) {
+        setSelectedConversationUserId(null);
+        setSelectedFeedback(null);
+      }
+      setConvoToDelete(null);
+      toast({ title: 'Conversation supprimée' });
+    },
+    onError: () => {
+      toast({ title: 'Erreur lors de la suppression', variant: 'destructive' });
+    },
+  });
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(userSearch);
@@ -1009,6 +1030,26 @@ const Admin = () => {
         open={userSheetOpen}
         onOpenChange={setUserSheetOpen}
       />
+
+      <AlertDialog open={!!convoToDelete} onOpenChange={(open) => !open && setConvoToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette conversation ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tous les messages de cet utilisateur seront définitivement supprimés.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => convoToDelete && deleteConversation.mutate(convoToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
     </>
   );
