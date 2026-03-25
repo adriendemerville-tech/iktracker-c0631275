@@ -186,6 +186,7 @@ const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getS
 
 const DEFAULT_SECTION_ORDER = [
   'main-stats',
+  'dau-chart',
   'recent-signups',
   'download-stats',
   'share-stats',
