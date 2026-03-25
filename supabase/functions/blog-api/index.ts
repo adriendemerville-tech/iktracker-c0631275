@@ -585,6 +585,33 @@ async function handleAutopilot(supabase: any, req: Request, url: URL, subResourc
     return successResp(data)
   }
 
+  // POST /autopilot/events — Crawlers pushes detected events/bugs
+  if (req.method === 'POST' && subResource === 'events') {
+    const body = await req.json()
+    const { event_type, severity, page_key, message, details, audit_log_id } = body
+
+    if (!message) return errorResp('message is required', 400)
+
+    const validSeverities = ['info', 'warning', 'critical']
+    const sev = validSeverities.includes(severity) ? severity : 'info'
+
+    const { data, error } = await supabase
+      .from('autopilot_events')
+      .insert({
+        event_type: event_type || 'external',
+        severity: sev,
+        page_key: page_key || null,
+        message,
+        details: details || {},
+        audit_log_id: audit_log_id || null,
+      })
+      .select()
+      .single()
+
+    if (error) return errorResp('Failed to create event: ' + error.message, 500)
+    return successResp(data, 201)
+  }
+
   return errorResp('Autopilot endpoint not found', 404)
 }
 
