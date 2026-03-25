@@ -681,6 +681,35 @@ const Admin = () => {
                       </div>
                     </ScrollArea>
                   </CardContent>
+                  {selectedConversationUserId && (
+                    <div className="border-t p-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Envoyer un message..."
+                          value={adminMessageText}
+                          onChange={(e) => setAdminMessageText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey && adminMessageText.trim()) {
+                              e.preventDefault();
+                              sendAdminMessage.mutate(selectedConversationUserId);
+                            }
+                          }}
+                          className="flex-1 text-sm"
+                        />
+                        <Button
+                          size="icon"
+                          onClick={() => sendAdminMessage.mutate(selectedConversationUserId)}
+                          disabled={!adminMessageText.trim() || sendAdminMessage.isPending}
+                        >
+                          {sendAdminMessage.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </Card>
 
                 {/* Conversation Thread Panel */}
