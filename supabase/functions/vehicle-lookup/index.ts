@@ -389,7 +389,7 @@ serve(async (req) => {
       plate: formattedPlate,
     });
 
-    // 3️⃣ Dernier recours : données simulées
+    // 4️⃣ Dernier recours : données simulées
     const simulatedData = generateSimulatedData(cleanPlate, licensePlate);
     await logApiCall(supabaseAdmin, userId, true, 'simulated', formattedPlate);
     return new Response(JSON.stringify(simulatedData), {
