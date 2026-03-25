@@ -86,6 +86,7 @@ interface Feedback {
   created_at: string;
   phone_number: string | null;
   device_info: DeviceInfo | null;
+  is_admin_message: boolean;
   // User info (joined from users)
   user_first_name?: string;
   user_last_name?: string;
