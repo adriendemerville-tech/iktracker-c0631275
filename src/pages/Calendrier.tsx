@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { MarketingPWANotification } from "@/components/marketing/MarketingPWANotification";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
