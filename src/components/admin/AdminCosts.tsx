@@ -123,6 +123,25 @@ export function AdminCosts() {
     refetchInterval: 5 * 60 * 1000,
   });
 
+  // Vehicle lookup stats
+  const { data: vehicleLookupStats, isLoading: vehicleLoading } = useQuery({
+    queryKey: ['admin-vehicle-lookup-stats', daysBack],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('api_usage_logs')
+        .select('model, metadata')
+        .eq('function_name', 'vehicle-lookup')
+        .gte('created_at', new Date(Date.now() - daysBack * 86400000).toISOString());
+      if (error) throw error;
+      const total = data.length;
+      const simulated = data.filter((d: any) => d.model === 'simulated').length;
+      const errors = data.filter((d: any) => d.model === 'error').length;
+      const real = total - simulated - errors;
+      return { total, simulated, errors, real };
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
   const isLoading = statsLoading || fnLoading || dayLoading || modelLoading;
 
   return (
