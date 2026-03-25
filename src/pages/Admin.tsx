@@ -49,8 +49,19 @@ import {
   Smartphone,
   Globe,
   Link2,
-  Zap
+  Zap,
+  Trash2
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -108,8 +119,29 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'stats');
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
   const [userSheetOpen, setUserSheetOpen] = useState(false);
+  const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
 
-  // Debounce search input
+  const deleteConversation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('feedback')
+        .delete()
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-feedbacks'] });
+      if (selectedConversationUserId === convoToDelete) {
+        setSelectedConversationUserId(null);
+        setSelectedFeedback(null);
+      }
+      setConvoToDelete(null);
+      toast({ title: 'Conversation supprimée' });
+    },
+    onError: () => {
+      toast({ title: 'Erreur lors de la suppression', variant: 'destructive' });
+    },
+  });
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(userSearch);
@@ -569,13 +601,23 @@ const Admin = () => {
                               setSelectedFeedback(null);
                               setResponseText('');
                             }}
-                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                            className={`group relative p-3 rounded-lg border cursor-pointer transition-colors ${
                               selectedConversationUserId === convo.userId
                                 ? 'border-primary bg-primary/5'
                                 : 'hover:bg-muted/50'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConvoToDelete(convo.userId);
+                              }}
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                              title="Supprimer la conversation"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                            <div className="flex items-start justify-between gap-2 mb-1.5 pr-6">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <User className="w-4 h-4 text-muted-foreground shrink-0" />
                                 <div className="min-w-0">
@@ -988,6 +1030,26 @@ const Admin = () => {
         open={userSheetOpen}
         onOpenChange={setUserSheetOpen}
       />
+
+      <AlertDialog open={!!convoToDelete} onOpenChange={(open) => !open && setConvoToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette conversation ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tous les messages de cet utilisateur seront définitivement supprimés.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => convoToDelete && deleteConversation.mutate(convoToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
     </>
   );
