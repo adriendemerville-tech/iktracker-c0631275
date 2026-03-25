@@ -21,6 +21,7 @@ import {
 // Critical above-the-fold icons only - others loaded with components
 // Lazy load MarketingNav since it's complex
 const MarketingNav = lazy(() => import("@/components/marketing/MarketingNav").then(m => ({ default: m.MarketingNav })));
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 // Lazy load heavy demo components with lower priority
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
@@ -128,6 +129,10 @@ const ExpertComptable = () => {
                 "price": "0.00",
                 "priceCurrency": "EUR"
               }
+            },
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": ["#hero-heading", "#main-content > section:first-of-type p"]
             }
           })}
         </script>
@@ -138,6 +143,11 @@ const ExpertComptable = () => {
       </Suspense>
 
       <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Breadcrumb */}
+        <div className="container mx-auto px-4 pt-20">
+          <Breadcrumb items={[{ label: 'Expert-Comptable' }]} />
+        </div>
+
         {/* Hero */}
         <section 
           className="pt-24 pb-16 px-4 relative overflow-hidden"
