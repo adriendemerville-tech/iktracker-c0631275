@@ -144,34 +144,52 @@ export default function Calendrier() {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": "Synchronisation Calendrier IKtracker",
-            "description": "Connectez votre calendrier Google ou Outlook pour créer automatiquement vos trajets",
-            "url": "https://iktracker.fr/calendrier",
-            "isPartOf": {
-              "@type": "WebSite",
-              "name": "IKtracker",
-              "url": "https://iktracker.fr"
-            },
-            "about": {
-              "@type": "SoftwareApplication",
-              "name": "IKtracker Calendrier Sync",
-              "applicationCategory": "BusinessApplication",
-              "operatingSystem": "Web, iOS, Android",
-              "offers": {
-                "@type": "Offer",
-                "price": "0.00",
-                "priceCurrency": "EUR"
+            "@graph": [
+              {
+                "@type": "WebPage",
+                "name": "Synchronisation Calendrier IKtracker",
+                "description": "Connectez votre calendrier Google ou Outlook pour créer automatiquement vos trajets",
+                "url": "https://iktracker.fr/calendrier",
+                "isPartOf": {
+                  "@type": "WebSite",
+                  "name": "IKtracker",
+                  "url": "https://iktracker.fr"
+                },
+                "about": {
+                  "@type": "SoftwareApplication",
+                  "name": "IKtracker Calendrier Sync",
+                  "applicationCategory": "BusinessApplication",
+                  "operatingSystem": "Web, iOS, Android",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0.00",
+                    "priceCurrency": "EUR"
+                  }
+                }
+              },
+              {
+                "@type": "HowTo",
+                "name": "Comment synchroniser son calendrier avec IKtracker",
+                "step": [
+                  { "@type": "HowToStep", "name": "Connectez votre calendrier", "text": "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé." },
+                  { "@type": "HowToStep", "name": "Ajoutez vos RDV comme d'habitude", "text": "Avec l'adresse dans le champ lieu de votre événement." },
+                  { "@type": "HowToStep", "name": "Les trajets se créent seuls", "text": "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026." }
+                ]
               }
-            }
+            ]
           })}
         </script>
       </Helmet>
       <MarketingNav />
 
       <main id="main-content" tabIndex={-1} className="outline-none">
+        {/* Breadcrumb */}
+        <div className="container mx-auto px-4 pt-24">
+          <Breadcrumb items={[{ label: 'Synchronisation Calendrier' }]} />
+        </div>
+
         {/* Hero */}
-        <section 
+        <section
           className="pt-28 pb-20 md:pt-36 md:pb-28 px-4 relative overflow-hidden"
           aria-labelledby="hero-heading"
         >
