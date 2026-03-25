@@ -782,7 +782,7 @@ const Admin = () => {
                               )}
 
                               {/* Reply form for the latest unreplied message, or last message */}
-                              {!msg.response && !(msg as any).is_admin_message && (
+                              {!msg.response && !msg.is_admin_message && (
                                 <div className="ml-4 space-y-2">
                                   <Textarea
                                     placeholder="Répondre à ce message..."
