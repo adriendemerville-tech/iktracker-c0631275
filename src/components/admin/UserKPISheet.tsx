@@ -72,6 +72,8 @@ interface UserStats {
   // Session info
   last_sign_in: string | null;
   last_session_minutes: number;
+  // Plate detection
+  has_plate_detection: boolean;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -229,6 +231,20 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                         : `${stats.last_session_minutes} min`
                       : '-'}
                   </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Car className="w-4 h-4" />
+                    Détection auto. plaque
+                  </span>
+                  {stats.has_plate_detection ? (
+                    <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs">
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      Validé
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Non</span>
+                  )}
                 </div>
                 {stats.conversion_page && (
                   <div className="flex items-center justify-between">
