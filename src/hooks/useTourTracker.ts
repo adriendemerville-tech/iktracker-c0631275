@@ -870,6 +870,14 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       setPendingStop(restoredPending);
     }
     
+    // Restore lastPositionRef from last saved GPS point
+    // This is critical so the first new GPS position calculates the gap distance
+    if (savedGpsPoints.length > 0) {
+      const lastSavedPoint = savedGpsPoints[savedGpsPoints.length - 1];
+      lastPositionRef.current = { lat: lastSavedPoint.lat, lng: lastSavedPoint.lng };
+      console.log(`Restored last position: (${lastSavedPoint.lat.toFixed(5)}, ${lastSavedPoint.lng.toFixed(5)})`);
+    }
+    
     // Check permission and start watching
     const hasPermission = await checkPermission();
     if (!hasPermission) {
@@ -880,14 +888,64 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     // Request wake lock
     await wakeLock.request();
     
+    // Mark as active BEFORE gap filling so processPosition works
+    setIsActive(true);
+    saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+    
+    // Gap fill: get current position and calculate driving distance from last saved point
+    if (lastPositionRef.current) {
+      const lastPos = lastPositionRef.current;
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0,
+          });
+        });
+        
+        const { latitude: lat, longitude: lng, accuracy } = position.coords;
+        const distanceFromLast = getDistanceInMeters(lastPos.lat, lastPos.lng, lat, lng);
+        
+        console.log(`Resume gap: ${distanceFromLast.toFixed(0)}m from last saved point`);
+        
+        // If moved significantly, calculate driving distance for the gap
+        if (distanceFromLast > 50) {
+          try {
+            const drivingDistance = await calculateDrivingDistance(lastPos.lat, lastPos.lng, lat, lng);
+            setTotalDistanceKm((prev) => {
+              const newTotal = prev + drivingDistance;
+              maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
+              return Math.max(newTotal, maxDistanceReachedRef.current);
+            });
+            console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
+            if (drivingDistance > 0.1) {
+              toast.success('Tournée reprise', {
+                description: `Distance mise à jour (+${drivingDistance.toFixed(1)} km)`,
+                duration: 4000,
+              });
+            }
+          } catch (e) {
+            console.warn('Failed to calculate resume gap driving distance:', e);
+            // Fallback to straight-line
+            const fallbackKm = distanceFromLast / 1000;
+            setTotalDistanceKm((prev) => {
+              const newTotal = prev + fallbackKm;
+              maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
+              return Math.max(newTotal, maxDistanceReachedRef.current);
+            });
+          }
+          lastPositionRef.current = { lat, lng };
+          setCurrentPosition({ lat, lng });
+          addGpsPoint(lat, lng, accuracy);
+        }
+      } catch (e) {
+        console.warn('Failed to get current position for gap filling on resume:', e);
+      }
+    }
+    
     // Start GPS watching
     startWatching();
-    
-    // Mark as active
-    setIsActive(true);
-    
-    // Update last activity
-    saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
     
     console.log(`Tour resumed: ${restoredStops.length} stops, ${savedDistance.toFixed(1)} km`);
     return true;
