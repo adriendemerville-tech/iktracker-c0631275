@@ -878,19 +878,21 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       console.log(`Restored last position: (${lastSavedPoint.lat.toFixed(5)}, ${lastSavedPoint.lng.toFixed(5)})`);
     }
     
+    // Mark as active IMMEDIATELY so FocusTourView renders right away
+    setIsActive(true);
+    saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
+    
     // Check permission and start watching
     const hasPermission = await checkPermission();
     if (!hasPermission) {
       setError("Accès à la géolocalisation refusé.");
-      return false;
+      // Keep isActive true so user sees FocusTourView with error state
+      // They can cancel from there
+      return true;
     }
     
     // Request wake lock
     await wakeLock.request();
-    
-    // Mark as active BEFORE gap filling so processPosition works
-    setIsActive(true);
-    saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
     
     // Gap fill: get current position and calculate driving distance from last saved point
     if (lastPositionRef.current) {
