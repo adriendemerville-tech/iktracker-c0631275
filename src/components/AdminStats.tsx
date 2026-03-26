@@ -450,12 +450,12 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch daily active users with period + granularity
+  // Fetch 7-day rolling active users with period + granularity
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
     queryKey: ['admin-dau', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_daily_active_users', { days_back: daysBack });
+      const { data, error } = await supabase.rpc('get_rolling_active_users', { days_back: daysBack, window_size: 7 });
       if (error) throw error;
       const rawData = (data as unknown as { day: string; count: number }[]).map(d => ({
         day: d.day,
