@@ -1404,6 +1404,7 @@ export type Database = {
               created_at: string
               email: string
               first_name: string
+              has_plate_detection: boolean
               last_name: string
               user_id: string
             }[]
