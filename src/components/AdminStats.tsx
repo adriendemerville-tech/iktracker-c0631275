@@ -1342,9 +1342,9 @@ export function AdminStats() {
                               <XAxis 
                                 dataKey="day" 
                                 tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
-                                tickFormatter={(v) => format(new Date(v), 'dd/MM', { locale: fr })}
                                 axisLine={false}
                                 tickLine={false}
+                                interval="preserveStartEnd"
                               />
                               <YAxis 
                                 tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
@@ -1353,7 +1353,6 @@ export function AdminStats() {
                                 tickLine={false}
                               />
                               <Tooltip 
-                                labelFormatter={(v) => format(new Date(v as string), 'EEEE dd MMM', { locale: fr })}
                                 formatter={(value: number) => [value, 'Actifs']}
                                 contentStyle={{ 
                                   background: 'hsl(var(--card))', 
@@ -1367,13 +1366,15 @@ export function AdminStats() {
                                 dataKey="count" 
                                 stroke="#8b5cf6" 
                                 strokeWidth={2.5}
-                                dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                                dot={dailyActiveUsers.length <= 31 ? { r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: 'hsl(var(--card))' } : false}
                                 activeDot={{ r: 6 }}
                               />
                             </LineChart>
                           </ResponsiveContainer>
                         )}
-                        <p className="text-xs text-muted-foreground mt-1">7 derniers jours</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {periodConfig[period].label} — {granularityConfig[granularity].labelFr}
+                        </p>
                       </CardContent>
                     </DraggableStatsSection>
                   );
