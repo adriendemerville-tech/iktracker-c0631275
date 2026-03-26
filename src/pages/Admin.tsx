@@ -103,6 +103,7 @@ interface UserWithRole {
   feedbackCount: number;
   lastActivity: string | null;
   created_at: string;
+  has_plate_detection: boolean;
 }
 
 const Admin = () => {
@@ -263,7 +264,7 @@ const Admin = () => {
         limit_count: 500
       });
       if (error) throw error;
-      return data as { user_id: string; email: string; first_name: string; last_name: string; created_at: string }[];
+      return data as { user_id: string; email: string; first_name: string; last_name: string; created_at: string; has_plate_detection: boolean }[];
     },
     enabled: isAdmin,
     refetchInterval: 15 * 60 * 1000, // 15 minutes
@@ -290,6 +291,7 @@ const Admin = () => {
       feedbackCount,
       lastActivity,
       created_at: u.created_at,
+      has_plate_detection: u.has_plate_detection ?? false,
     };
   });
 
@@ -981,6 +983,12 @@ const Admin = () => {
                               <div className="flex items-center gap-4">
                                 <span>{u.feedbackCount} avis</span>
                                 <span>Inscrit le {format(new Date(u.created_at), 'dd/MM/yyyy', { locale: fr })}</span>
+                                {u.has_plate_detection && (
+                                  <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] px-1.5 py-0">
+                                    <Car className="w-3 h-3 mr-0.5" />
+                                    Plaque
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </div>
