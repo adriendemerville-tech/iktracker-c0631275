@@ -1309,7 +1309,7 @@ export function AdminStats() {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Activity className="w-5 h-5 text-violet-500" />
-                          Actifs / jour
+                          Actifs 7j glissants
                           {!dauLoading && (
                             <span className="ml-auto flex items-center gap-1.5">
                               <span className="text-xl font-bold text-violet-600">{dauToday}</span>
