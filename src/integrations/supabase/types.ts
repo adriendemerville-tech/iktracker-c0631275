@@ -1349,6 +1349,13 @@ export type Database = {
           day: string
         }[]
       }
+      get_rolling_active_users: {
+        Args: { days_back?: number; window_size?: number }
+        Returns: {
+          count: number
+          day: string
+        }[]
+      }
       get_share_stats: { Args: never; Returns: Json }
       get_shares_by_day: {
         Args: { days_back?: number }
