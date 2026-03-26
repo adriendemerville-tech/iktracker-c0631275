@@ -51,7 +51,8 @@ import {
   Link2,
   Zap,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  Car
 } from 'lucide-react';
 import {
   AlertDialog,
