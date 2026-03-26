@@ -1353,7 +1353,7 @@ export function AdminStats() {
                                 tickLine={false}
                               />
                               <Tooltip 
-                                formatter={(value: number) => [value, 'Actifs']}
+                                formatter={(value: number) => [value, 'Actifs (7j)']}
                                 contentStyle={{ 
                                   background: 'hsl(var(--card))', 
                                   border: '1px solid hsl(var(--border))',
