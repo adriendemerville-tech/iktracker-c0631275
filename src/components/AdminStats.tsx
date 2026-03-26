@@ -450,12 +450,12 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch daily active users with period + granularity
+  // Fetch 7-day rolling active users with period + granularity
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
     queryKey: ['admin-dau', period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_daily_active_users', { days_back: daysBack });
+      const { data, error } = await supabase.rpc('get_rolling_active_users', { days_back: daysBack, window_size: 7 });
       if (error) throw error;
       const rawData = (data as unknown as { day: string; count: number }[]).map(d => ({
         day: d.day,
@@ -1309,7 +1309,7 @@ export function AdminStats() {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Activity className="w-5 h-5 text-violet-500" />
-                          Actifs / jour
+                          Actifs 7j glissants
                           {!dauLoading && (
                             <span className="ml-auto flex items-center gap-1.5">
                               <span className="text-xl font-bold text-violet-600">{dauToday}</span>
@@ -1353,7 +1353,7 @@ export function AdminStats() {
                                 tickLine={false}
                               />
                               <Tooltip 
-                                formatter={(value: number) => [value, 'Actifs']}
+                                formatter={(value: number) => [value, 'Actifs (7j)']}
                                 contentStyle={{ 
                                   background: 'hsl(var(--card))', 
                                   border: '1px solid hsl(var(--border))',
