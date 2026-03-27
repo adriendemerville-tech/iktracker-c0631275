@@ -24,6 +24,11 @@ import {
   Zap,
   Shield,
   ArrowRight,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+  Database,
+  FileCode,
 } from 'lucide-react';
 
 // Types
