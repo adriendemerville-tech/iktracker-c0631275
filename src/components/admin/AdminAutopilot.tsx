@@ -24,6 +24,11 @@ import {
   Zap,
   Shield,
   ArrowRight,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+  Database,
+  FileCode,
 } from 'lucide-react';
 
 // Types
@@ -303,6 +308,205 @@ function HealthDashboard({ events }: { events: AutopilotEvent[] }) {
   );
 }
 
+// Helper to render structured detail sections
+function DetailSection({ icon: Icon, label, children }: { icon: typeof Info; label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">
+        <Icon className="w-3 h-3" /> {label}
+      </p>
+      <div className="bg-muted/30 rounded-md p-2 text-xs overflow-x-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function renderDetailValue(value: unknown): string {
+  if (value === null || value === undefined) return '(vide)';
+  if (typeof value === 'string') return value.length > 300 ? value.slice(0, 300) + '…' : value;
+  return JSON.stringify(value, null, 2);
+}
+
+// Event detail card with expandable structured view
+function EventDetailCard({
+  evt,
+  sev,
+  SevIcon,
+  linkedLog,
+  details,
+  onResolve,
+}: {
+  evt: AutopilotEvent;
+  sev: { icon: typeof Info; color: string; bg: string };
+  SevIcon: typeof Info;
+  linkedLog: AuditLog | null;
+  details: Record<string, unknown>;
+  onResolve: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  // Extract meaningful fields from details or linked log
+  const pageKey = evt.page_key || (details.page_key as string) || (linkedLog?.resource_type === 'page' ? linkedLog.resource_id : null);
+  const resourceType = linkedLog?.resource_type || (details.resource_type as string) || null;
+  const resourceId = linkedLog?.resource_id || (details.resource_id as string) || null;
+  const action = linkedLog?.action || (details.action as string) || null;
+
+  const previousData = linkedLog?.previous_data || (details.previous_data as Record<string, unknown>) || null;
+  const newData = linkedLog?.new_data || (details.new_data as Record<string, unknown>) || null;
+
+  // Detect content fields
+  const contentField = newData ? (newData.content || newData.body || newData.html || null) : null;
+  const previousContent = previousData ? (previousData.content || previousData.body || previousData.html || null) : null;
+
+  // Detect schema_org / structured data
+  const schemaOrg = newData?.schema_org || null;
+  const previousSchemaOrg = previousData?.schema_org || null;
+
+  // Detect code injection
+  const injectedCode = newData?.content && resourceType === 'injection' ? newData.content : (details.injected_code as string) || null;
+  const previousInjectedCode = previousData?.content && resourceType === 'injection' ? previousData.content : null;
+
+  const hasDetails = pageKey || resourceType || contentField || schemaOrg || injectedCode || previousData || newData || Object.keys(details).length > 0;
+
+  return (
+    <Card className={`transition-all ${evt.resolved ? 'opacity-60' : ''}`}>
+      <CardContent className="p-3">
+        <div className="flex items-start gap-3">
+          <SevIcon className={`w-4 h-4 mt-0.5 shrink-0 ${sev.color}`} />
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className="text-[10px]">{evt.event_type}</Badge>
+              {resourceType && (
+                <Badge variant="secondary" className="text-[10px]">
+                  {(RESOURCE_LABELS[resourceType]?.label || resourceType).toUpperCase()}
+                </Badge>
+              )}
+              {action && (
+                <Badge variant={action === 'delete' ? 'destructive' : 'outline'} className="text-[10px]">
+                  {action.toUpperCase()}
+                </Badge>
+              )}
+              {pageKey && (
+                <code className="text-[10px] bg-muted px-1 rounded">{pageKey}</code>
+              )}
+              {evt.resolved && (
+                <Badge variant="secondary" className="text-[10px] gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Résolu
+                </Badge>
+              )}
+              <span className="text-[10px] text-muted-foreground ml-auto">
+                {format(new Date(evt.created_at), 'dd MMM HH:mm', { locale: fr })}
+              </span>
+            </div>
+
+            <p className="text-sm">{evt.message}</p>
+
+            {resourceId && (
+              <p className="text-[10px] text-muted-foreground font-mono">
+                {resourceType}/{resourceId}
+              </p>
+            )}
+
+            {/* Expand/collapse toggle */}
+            {hasDetails && (
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+              >
+                <Eye className="w-3 h-3" />
+                {expanded ? 'Masquer' : 'Voir'} les détails
+                {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+            )}
+
+            {expanded && (
+              <div className="space-y-3 mt-2 border-t pt-2">
+                {/* Page modifiée */}
+                {pageKey && (
+                  <DetailSection icon={Globe} label="Page modifiée">
+                    <code className="text-xs">{pageKey}</code>
+                    {newData?.meta_title && <p className="text-muted-foreground mt-1">Titre : {String(newData.meta_title)}</p>}
+                    {newData?.meta_description && <p className="text-muted-foreground mt-1">Description : {String(newData.meta_description)}</p>}
+                    {newData?.canonical_url && <p className="text-muted-foreground mt-1">URL canonique : {String(newData.canonical_url)}</p>}
+                  </DetailSection>
+                )}
+
+                {/* Contenu modifié */}
+                {contentField && resourceType !== 'injection' && (
+                  <DetailSection icon={FileText} label="Contenu modifié">
+                    <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto">
+                      {renderDetailValue(contentField)}
+                    </pre>
+                  </DetailSection>
+                )}
+
+                {/* Données structurées (schema.org) */}
+                {schemaOrg && (
+                  <DetailSection icon={Database} label="Données structurées (Schema.org)">
+                    <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto">
+                      {renderDetailValue(schemaOrg)}
+                    </pre>
+                  </DetailSection>
+                )}
+
+                {/* Code injecté */}
+                {injectedCode && (
+                  <DetailSection icon={FileCode} label="Code injecté">
+                    <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto font-mono bg-background p-2 rounded border">
+                      {renderDetailValue(injectedCode)}
+                    </pre>
+                  </DetailSection>
+                )}
+
+                {/* État avant modification */}
+                {previousData && Object.keys(previousData).length > 0 && (
+                  <DetailSection icon={RotateCcw} label="Avant modification">
+                    <div className="space-y-1">
+                      {Object.entries(previousData).map(([key, val]) => (
+                        <div key={key}>
+                          <span className="text-muted-foreground font-semibold">{key} :</span>{' '}
+                          <span className="text-[10px]">{truncateValue(val)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </DetailSection>
+                )}
+
+                {/* Diff si on a avant et après */}
+                {previousData && newData && (
+                  <DetailSection icon={ArrowRight} label="Diff avant → après">
+                    <DiffView previous={previousData} current={newData} />
+                  </DetailSection>
+                )}
+
+                {/* Fallback: raw details if no structured fields matched */}
+                {!pageKey && !contentField && !schemaOrg && !injectedCode && !previousData && Object.keys(details).length > 0 && (
+                  <DetailSection icon={Info} label="Détails bruts">
+                    <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto">
+                      {JSON.stringify(details, null, 2)}
+                    </pre>
+                  </DetailSection>
+                )}
+              </div>
+            )}
+          </div>
+          {!evt.resolved && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              onClick={onResolve}
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Main component
 export function AdminAutopilot() {
   const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
@@ -507,46 +711,18 @@ export function AdminAutopilot() {
                     {events.map(evt => {
                       const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG['info'];
                       const SevIcon = sev.icon;
+                      const linkedLog = evt.audit_log_id ? auditLogs.find(l => l.id === evt.audit_log_id) : null;
+                      const details = evt.details || {};
                       return (
-                        <Card key={evt.id} className={`transition-all ${evt.resolved ? 'opacity-60' : ''}`}>
-                          <CardContent className="p-3">
-                            <div className="flex items-start gap-3">
-                              <SevIcon className={`w-4 h-4 mt-0.5 shrink-0 ${sev.color}`} />
-                              <div className="flex-1 min-w-0 space-y-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <Badge variant="outline" className="text-[10px]">{evt.event_type}</Badge>
-                                  {evt.page_key && (
-                                    <code className="text-[10px] bg-muted px-1 rounded">{evt.page_key}</code>
-                                  )}
-                                  {evt.resolved && (
-                                    <Badge variant="secondary" className="text-[10px] gap-1">
-                                      <CheckCircle2 className="w-3 h-3" /> Résolu
-                                    </Badge>
-                                  )}
-                                  <span className="text-[10px] text-muted-foreground ml-auto">
-                                    {format(new Date(evt.created_at), 'dd MMM HH:mm', { locale: fr })}
-                                  </span>
-                                </div>
-                                <p className="text-sm">{evt.message}</p>
-                                {evt.details && Object.keys(evt.details).length > 0 && (
-                                  <pre className="text-[10px] bg-muted p-2 rounded-md overflow-x-auto max-h-24">
-                                    {JSON.stringify(evt.details, null, 2)}
-                                  </pre>
-                                )}
-                              </div>
-                              {!evt.resolved && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="shrink-0"
-                                  onClick={() => resolveEventMutation.mutate(evt.id)}
-                                >
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                </Button>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <EventDetailCard
+                          key={evt.id}
+                          evt={evt}
+                          sev={sev}
+                          SevIcon={SevIcon}
+                          linkedLog={linkedLog || null}
+                          details={details}
+                          onResolve={() => resolveEventMutation.mutate(evt.id)}
+                        />
                       );
                     })}
                   </div>
