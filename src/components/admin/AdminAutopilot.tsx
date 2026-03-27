@@ -507,46 +507,18 @@ export function AdminAutopilot() {
                     {events.map(evt => {
                       const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG['info'];
                       const SevIcon = sev.icon;
+                      const linkedLog = evt.audit_log_id ? auditLogs.find(l => l.id === evt.audit_log_id) : null;
+                      const details = evt.details || {};
                       return (
-                        <Card key={evt.id} className={`transition-all ${evt.resolved ? 'opacity-60' : ''}`}>
-                          <CardContent className="p-3">
-                            <div className="flex items-start gap-3">
-                              <SevIcon className={`w-4 h-4 mt-0.5 shrink-0 ${sev.color}`} />
-                              <div className="flex-1 min-w-0 space-y-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <Badge variant="outline" className="text-[10px]">{evt.event_type}</Badge>
-                                  {evt.page_key && (
-                                    <code className="text-[10px] bg-muted px-1 rounded">{evt.page_key}</code>
-                                  )}
-                                  {evt.resolved && (
-                                    <Badge variant="secondary" className="text-[10px] gap-1">
-                                      <CheckCircle2 className="w-3 h-3" /> Résolu
-                                    </Badge>
-                                  )}
-                                  <span className="text-[10px] text-muted-foreground ml-auto">
-                                    {format(new Date(evt.created_at), 'dd MMM HH:mm', { locale: fr })}
-                                  </span>
-                                </div>
-                                <p className="text-sm">{evt.message}</p>
-                                {evt.details && Object.keys(evt.details).length > 0 && (
-                                  <pre className="text-[10px] bg-muted p-2 rounded-md overflow-x-auto max-h-24">
-                                    {JSON.stringify(evt.details, null, 2)}
-                                  </pre>
-                                )}
-                              </div>
-                              {!evt.resolved && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="shrink-0"
-                                  onClick={() => resolveEventMutation.mutate(evt.id)}
-                                >
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                </Button>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <EventDetailCard
+                          key={evt.id}
+                          evt={evt}
+                          sev={sev}
+                          SevIcon={SevIcon}
+                          linkedLog={linkedLog || null}
+                          details={details}
+                          onResolve={() => resolveEventMutation.mutate(evt.id)}
+                        />
                       );
                     })}
                   </div>
