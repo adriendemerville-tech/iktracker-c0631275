@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { RelatedArticle } from './RelatedArticle';
 
@@ -95,6 +96,7 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
       <div className={proseClasses}>
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={markdownComponents}
         >
           {beforeParagraphs}
@@ -108,6 +110,7 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
       <div className={proseClasses}>
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={markdownComponents}
         >
           {afterParagraphs}
