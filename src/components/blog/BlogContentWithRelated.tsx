@@ -96,6 +96,7 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
       <div className={proseClasses}>
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={markdownComponents}
         >
           {beforeParagraphs}
@@ -109,6 +110,7 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
       <div className={proseClasses}>
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={markdownComponents}
         >
           {afterParagraphs}
