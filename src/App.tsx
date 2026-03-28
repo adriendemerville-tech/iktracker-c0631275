@@ -322,6 +322,23 @@ const AppRoutes = () => {
         <Route path="/recovery" element={<Navigate to="/app/recovery" replace />} />
         <Route path="/theme-onboarding" element={<Navigate to="/app/theme-onboarding" replace />} />
         <Route path="/blog/edit/:id?" element={<Navigate to="/app/blog/edit" replace />} />
+        {/* Public blog routes */}
+        <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+        <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
+        <Route path="/blog/auteur/:slug" element={<Suspense fallback={<PageLoader />}><AuthorPage /></Suspense>} />
+        {/* Public content pages */}
+        <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
+        <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
+        <Route path="/installer" element={<Suspense fallback={<PageLoader />}><Install /></Suspense>} />
+        <Route path="/expert-comptable" element={<Suspense fallback={<PageLoader />}><ExpertComptable /></Suspense>} />
+        <Route path="/mode-tournee" element={<Suspense fallback={<PageLoader />}><ModeTournee /></Suspense>} />
+        <Route path="/calendrier" element={<Suspense fallback={<PageLoader />}><Calendrier /></Suspense>} />
+        <Route path="/bareme-ik-2026" element={<Suspense fallback={<PageLoader />}><BaremeIK2026 /></Suspense>} />
+        <Route path="/offline" element={<Suspense fallback={<PageLoader />}><Offline /></Suspense>} />
+        <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
+        <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
+        <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
+        <Route path="/comparatif-driversnote" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
     </AuthContext.Provider>
