@@ -1568,6 +1568,63 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
+                case 'referral-sources': {
+                  const sourceLabels: Record<string, string> = {
+                    communaute: 'Communauté',
+                    google: 'Google',
+                    reseaux_sociaux: 'Réseaux sociaux',
+                    chatgpt: 'ChatGPT',
+                  };
+                  const sourceColors: Record<string, string> = {
+                    communaute: 'bg-blue-500',
+                    google: 'bg-amber-500',
+                    reseaux_sociaux: 'bg-pink-500',
+                    chatgpt: 'bg-emerald-500',
+                  };
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          Source de découverte
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {referralLoading ? (
+                          <div className="space-y-3">
+                            <Skeleton className="h-8" />
+                            <Skeleton className="h-8" />
+                            <Skeleton className="h-8" />
+                            <Skeleton className="h-8" />
+                          </div>
+                        ) : !referralStats || referralStats.total === 0 ? (
+                          <p className="text-muted-foreground text-center py-4 text-sm">Aucune réponse</p>
+                        ) : (
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground text-center mb-2">{referralStats.total} réponse{referralStats.total > 1 ? 's' : ''}</p>
+                            {Object.entries(sourceLabels).map(([key, label]) => {
+                              const count = referralStats.counts[key] || 0;
+                              const pct = referralStats.total > 0 ? Math.round((count / referralStats.total) * 100) : 0;
+                              return (
+                                <div key={key} className="flex items-center gap-3">
+                                  <span className="text-sm w-28 truncate">{label}</span>
+                                  <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full ${sourceColors[key]} rounded-full transition-all duration-500`}
+                                      style={{ width: `${pct}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-sm font-medium w-16 text-right">{count} ({pct}%)</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+                }
+
                 case 'comparison-chart':
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
