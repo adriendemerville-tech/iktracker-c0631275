@@ -190,6 +190,7 @@ const DEFAULT_SECTION_ORDER = [
   'recent-signups',
   'download-stats',
   'share-stats',
+  'referral-sources',
   'comparison-chart',
   'registrations-chart',
   'top-users',
