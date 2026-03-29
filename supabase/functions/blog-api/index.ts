@@ -615,6 +615,95 @@ async function handleAutopilot(supabase: any, req: Request, url: URL, subResourc
   return errorResp('Autopilot endpoint not found', 404)
 }
 
+// --- DOCS ---
+
+function handleDocs() {
+  const docs = {
+    api: 'IKtracker Blog API',
+    version: '2.0.0',
+    base_url: '/blog-api',
+    authentication: {
+      methods: [
+        { type: 'API Key', header: 'x-api-key', description: 'Required for all write operations' },
+        { type: 'Bearer Token', header: 'Authorization: Bearer <token>', description: 'Webhook authentication' },
+      ],
+      note: 'GET /posts and GET /pages are publicly accessible without authentication',
+    },
+    rate_limit: '100 requests/minute per API key',
+    endpoints: {
+      health: {
+        'GET /health': { auth: false, description: 'API health check and content counts' },
+      },
+      docs: {
+        'GET /docs': { auth: false, description: 'This documentation endpoint' },
+      },
+      posts: {
+        'GET /posts': { auth: false, description: 'List published posts', params: 'limit, offset' },
+        'GET /posts/:slug': { auth: false, description: 'Get a published post by slug' },
+        'GET /posts?all=true': { auth: true, description: 'List all posts (incl. drafts)' },
+        'POST /posts': { auth: true, description: 'Create or update a post (upsert by slug)', body: 'title*, slug*, content, status (draft|published|archived), meta_description, featured_image_url/image_url, author_name, subtitle, published_at' },
+        'PUT /posts/:slug': { auth: true, description: 'Update a post by slug' },
+        'DELETE /posts/:slug': { auth: true, description: 'Delete a post by slug' },
+      },
+      pages: {
+        'GET /pages': { auth: false, description: 'List all static pages' },
+        'GET /pages/:page_key': { auth: false, description: 'Get a page by key' },
+        'POST /pages': { auth: true, description: 'Create or update a page (upsert by page_key)', body: 'page_key*, title, meta_title, meta_description, content, schema_org, canonical_url' },
+        'PUT /pages/:page_key': { auth: true, description: 'Update a page by key' },
+        'DELETE /pages/:page_key': { auth: true, description: 'Delete a page by key' },
+      },
+      injection: {
+        note: 'Also accessible via /code or /cms-push-code aliases',
+        'GET /injection/head': { auth: true, description: 'Get global head injections' },
+        'PUT /injection/head': { auth: true, description: 'Set global head injections', body: 'content, label, is_active OR injections[]' },
+        'GET /injection/body-end': { auth: true, description: 'Get global body-end injections' },
+        'PUT /injection/body-end': { auth: true, description: 'Set global body-end injections' },
+        'GET /injection/page/:page_key': { auth: true, description: 'Get page-specific injections' },
+        'PUT /injection/page/:page_key': { auth: true, description: 'Set page-specific injections' },
+      },
+      seo: {
+        'GET /seo/robots-txt': { auth: true, description: 'Get robots.txt content' },
+        'PUT /seo/robots-txt': { auth: true, description: 'Update robots.txt', body: 'content' },
+        'GET /seo/sitemap': { auth: true, description: 'Get sitemap config and published posts' },
+        'PUT /seo/sitemap': { auth: true, description: 'Update sitemap config', body: 'config' },
+        'GET /seo/redirects': { auth: true, description: 'List all redirects' },
+        'POST /seo/redirects': { auth: true, description: 'Create a redirect', body: 'source_path*, target_url*, status_code (301|302), is_active' },
+        'DELETE /seo/redirects/:id': { auth: true, description: 'Delete a redirect' },
+      },
+      config: {
+        'GET /config/site': { auth: true, description: 'Get site info config' },
+        'GET /config/navigation': { auth: true, description: 'Get header/footer navigation' },
+        'PUT /config/navigation': { auth: true, description: 'Update navigation', body: 'header, footer' },
+      },
+      media: {
+        'GET /media': { auth: true, description: 'List uploaded media files' },
+        'POST /media': { auth: true, description: 'Upload a file (multipart or base64 JSON)', body: 'filename*, data* (base64), content_type' },
+        'DELETE /media/:filename': { auth: true, description: 'Delete a media file' },
+      },
+      audit: {
+        'GET /audit': { auth: true, description: 'List audit logs', params: 'limit, offset' },
+        'POST /audit/revert/:log_id': { auth: true, description: 'Revert a change by audit log ID' },
+      },
+      autopilot: {
+        'GET /autopilot/registry': { auth: true, description: 'Timeline of changes with linked events', params: 'limit, offset, page_key' },
+        'GET /autopilot/health': { auth: true, description: 'Per-page health scores (0-100)' },
+        'GET /autopilot/events': { auth: true, description: 'List autopilot events', params: 'resolved (true|false)' },
+        'POST /autopilot/events': { auth: true, description: 'Report a detected event/bug', body: 'message*, event_type, severity (info|warning|critical), page_key, details, audit_log_id' },
+      },
+    },
+    field_aliases: {
+      note: 'The API accepts multiple field name variants for flexibility',
+      content: ['content', 'content_markdown', 'contentMarkdown', 'content_md', 'markdown', 'body', 'text', 'content_html'],
+      featured_image_url: ['featured_image_url', 'featuredImageUrl', 'image_url', 'imageUrl', 'heroImageUrl', 'hero_image_url', 'coverImageUrl'],
+      meta_description: ['meta_description', 'metaDescription', 'meta', 'seoDescription', 'description'],
+      author_name: ['author_name', 'authorName', 'author', 'auteur', 'byline'],
+      subtitle: ['subtitle', 'subTitle', 'sub_title', 'sousTitre', 'sous_titre'],
+      status: ['status', 'state', 'postStatus'],
+    },
+  }
+  return jsonResp(docs)
+}
+
 // ==================== MAIN HANDLER ====================
 
 Deno.serve(async (req) => {
@@ -649,6 +738,13 @@ Deno.serve(async (req) => {
     // ==================== HEALTH (no auth) ====================
     if (resource === 'health' && req.method === 'GET') {
       const resp = await handleHealth(supabase)
+      await logAccess(supabase, req.method, url.pathname, null, resp.status, startTime)
+      return resp
+    }
+
+    // ==================== DOCS (no auth) ====================
+    if (resource === 'docs' && req.method === 'GET') {
+      const resp = handleDocs()
       await logAccess(supabase, req.method, url.pathname, null, resp.status, startTime)
       return resp
     }
@@ -701,6 +797,8 @@ Deno.serve(async (req) => {
         resp = await handleSeo(supabase, req, slug ?? '', subId, apiKeyName)
         break
       case 'injection':
+      case 'code':
+      case 'cms-push-code':
         resp = await handleInjection(supabase, req, slug ?? '', subId, apiKeyName)
         break
       case 'config':
