@@ -48,6 +48,7 @@ const OnboardingTutorial = lazy(() => import('@/components/OnboardingTutorial').
 const GeolocationTutorialModal = lazy(() => import('@/components/GeolocationTutorialModal').then(m => ({ default: m.GeolocationTutorialModal })));
 const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
 const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
+const ReferralSourceModal = lazy(() => import('@/components/ReferralSourceModal').then(m => ({ default: m.ReferralSourceModal })));
 
 // Minimal loading fallback for sheets/modals
 const SheetLoader = memo(() => null);
@@ -888,6 +889,7 @@ ${IKTRACKER_MENTION}
 
   return (
     <>
+      <Suspense fallback={null}><ReferralSourceModal /></Suspense>
       <AlertDialog open={showTourMobileOnly} onOpenChange={setShowTourMobileOnly}>
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader className="text-center">
