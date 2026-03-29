@@ -669,6 +669,27 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_sources: {
+        Row: {
+          created_at: string
+          id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          source: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       report_shares: {
         Row: {
           accessed_count: number
