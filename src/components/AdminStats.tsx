@@ -596,7 +596,27 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch shares by day with period filter - refresh every hour
+  // Fetch referral sources stats
+  const { data: referralStats, isLoading: referralLoading } = useQuery({
+    queryKey: ['admin-referral-sources'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('referral_sources')
+        .select('source');
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      let total = 0;
+      (data || []).forEach((r: { source: string }) => {
+        if (r.source === 'skip') return;
+        counts[r.source] = (counts[r.source] || 0) + 1;
+        total++;
+      });
+      return { counts, total };
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
+
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
     queryKey: ['admin-shares-by-day', period, granularity],
     queryFn: async () => {
