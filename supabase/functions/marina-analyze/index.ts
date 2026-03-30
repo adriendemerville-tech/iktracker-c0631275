@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-      const response = await fetch(`https://api.crawlers.fr/functions/v1/marina?job_id=${encodeURIComponent(jobId)}`, {
+      const response = await fetch(`https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/marina?job_id=${encodeURIComponent(jobId)}`, {
         headers: { 'x-marina-key': marinaKey },
       });
       const data = await response.json();
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      const response = await fetch('https://api.crawlers.fr/functions/v1/marina', {
+      const response = await fetch('https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/marina', {
         method: 'POST',
         headers: {
           'x-marina-key': marinaKey,
