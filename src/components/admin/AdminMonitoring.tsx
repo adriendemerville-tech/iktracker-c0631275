@@ -189,6 +189,26 @@ export function AdminMonitoring() {
   const [tab, setTab] = useState<'backend' | 'frontend'>('backend');
   const [showResolved, setShowResolved] = useState(false);
   const { toast } = useToast();
+
+  const { data: lastOccurrences = {} } = useQuery({
+    queryKey: ['admin-error-last-occurrences'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('error_logs')
+        .select('error_type, created_at')
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      for (const row of data || []) {
+        if (!map[row.error_type]) {
+          map[row.error_type] = row.created_at;
+        }
+      }
+      return map;
+    },
+    refetchInterval: 60_000,
+  });
   const queryClient = useQueryClient();
 
   const { data: errors = [], isLoading } = useQuery({
