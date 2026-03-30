@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
   // POST = start analysis
   if (req.method === 'POST') {
     try {
-      const { url } = await req.json();
+      const { url, lang } = await req.json();
       if (!url || typeof url !== 'string') {
         return new Response(
           JSON.stringify({ error: 'URL is required' }),
@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
           'x-marina-key': marinaKey,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, lang: lang || 'fr' }),
       });
 
       const data = await response.json();
