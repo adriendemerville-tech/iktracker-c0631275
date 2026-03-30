@@ -46,9 +46,9 @@ const MarinaAnalyze = () => {
           setResult(data.data ?? data);
           setLoading(false);
           setProgress(100);
-        } else if (data.status === 'error' || data.error) {
+        } else if (data.status === 'failed' || data.status === 'error' || data.error) {
           stopPolling();
-          setError(data.error || "Erreur lors de l'analyse");
+          setError(data.error || "Échec de l'analyse");
           setLoading(false);
         }
       } catch {
@@ -56,7 +56,7 @@ const MarinaAnalyze = () => {
         setError("Connexion perdue avec le service d'analyse");
         setLoading(false);
       }
-    }, 3000);
+    }, 5000);
   }, [stopPolling]);
 
   const handleAnalyze = async (e: React.FormEvent) => {
