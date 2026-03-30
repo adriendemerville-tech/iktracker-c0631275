@@ -353,11 +353,22 @@ export function AdminMonitoring() {
               .filter(([key]) => key !== 'unknown')
               .map(([key, info]) => {
                 const Icon = info.icon;
+                const lastSeen = lastOccurrences[key];
                 return (
                   <div key={key} className="flex items-start gap-2 p-2 rounded-md bg-muted/30">
                     <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${info.color}`} />
-                    <div>
-                      <p className="text-xs font-medium">{info.label}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-medium">{info.label}</p>
+                        {lastSeen ? (
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                            <Clock className="w-3 h-3 inline mr-0.5 -mt-0.5" />
+                            {format(new Date(lastSeen), 'dd MMM yyyy HH:mm', { locale: fr })}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground italic">Aucune</span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-muted-foreground leading-relaxed">{info.explanation}</p>
                     </div>
                   </div>
