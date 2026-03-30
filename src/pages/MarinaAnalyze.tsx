@@ -15,6 +15,7 @@ const MarinaAnalyze = () => {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const jobIdRef = useRef<string | null>(null);
 
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
@@ -23,41 +24,66 @@ const MarinaAnalyze = () => {
     }
   }, []);
 
-  const pollJob = useCallback((jobId: string) => {
+  const doPoll = useCallback(async (jobId: string) => {
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const baseUrl = `https://${projectId}.supabase.co/functions/v1/marina-analyze`;
 
-    pollingRef.current = setInterval(async () => {
-      try {
-        const res = await fetch(`${baseUrl}?job_id=${encodeURIComponent(jobId)}`, {
-          headers: {
-            'apikey': anonKey,
-            'Authorization': `Bearer ${anonKey}`,
-          },
-        });
-        const data = await res.json();
+    try {
+      const res = await fetch(`${baseUrl}?job_id=${encodeURIComponent(jobId)}`, {
+        headers: {
+          'apikey': anonKey,
+          'Authorization': `Bearer ${anonKey}`,
+        },
+      });
+      const data = await res.json();
 
-        if (data.status === 'processing') {
-          setProgress(data.progress ?? 0);
-          setPhase(data.phase ?? "");
-        } else if (data.status === 'completed') {
-          stopPolling();
-          setResult(data.data ?? data);
-          setLoading(false);
-          setProgress(100);
-        } else if (data.status === 'failed' || data.status === 'error' || data.error) {
-          stopPolling();
-          setError(data.error || "Échec de l'analyse");
-          setLoading(false);
-        }
-      } catch {
+      if (data.status === 'processing') {
+        setProgress(data.progress ?? 0);
+        setPhase(data.phase ?? "");
+      } else if (data.status === 'completed') {
         stopPolling();
-        setError("Connexion perdue avec le service d'analyse");
+        jobIdRef.current = null;
+        setResult(data.data ?? data);
+        setLoading(false);
+        setProgress(100);
+      } else if (data.status === 'failed' || data.status === 'error' || data.error) {
+        stopPolling();
+        jobIdRef.current = null;
+        setError(data.error || "Échec de l'analyse");
         setLoading(false);
       }
-    }, 5000);
+    } catch {
+      stopPolling();
+      jobIdRef.current = null;
+      setError("Connexion perdue avec le service d'analyse");
+      setLoading(false);
+    }
   }, [stopPolling]);
+
+  const pollJob = useCallback((jobId: string) => {
+    jobIdRef.current = jobId;
+    // Immediate first poll
+    doPoll(jobId);
+    pollingRef.current = setInterval(() => doPoll(jobId), 5000);
+  }, [doPoll]);
+
+  // Re-poll immediately when tab becomes visible again
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && jobIdRef.current) {
+        // Tab is back — do an immediate poll and restart interval
+        stopPolling();
+        doPoll(jobIdRef.current);
+        pollingRef.current = setInterval(() => doPoll(jobIdRef.current!), 5000);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      stopPolling();
+    };
+  }, [doPoll, stopPolling]);
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
