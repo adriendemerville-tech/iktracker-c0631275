@@ -14,6 +14,7 @@ const MarinaAnalyze = () => {
   const [phase, setPhase] = useState("");
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reportHtml, setReportHtml] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const jobIdRef = useRef<string | null>(null);
 
@@ -21,6 +22,16 @@ const MarinaAnalyze = () => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
+    }
+  }, []);
+
+  const fetchReportHtml = useCallback(async (reportUrl: string) => {
+    try {
+      const res = await fetch(reportUrl);
+      const html = await res.text();
+      setReportHtml(html);
+    } catch {
+      console.error('Failed to fetch report HTML');
     }
   }, []);
 
@@ -44,9 +55,14 @@ const MarinaAnalyze = () => {
       } else if (data.status === 'completed') {
         stopPolling();
         jobIdRef.current = null;
-        setResult(data.data ?? data);
+        const resultData = data.data ?? data;
+        setResult(resultData);
         setLoading(false);
         setProgress(100);
+        // Fetch HTML content for iframe rendering
+        if (resultData?.report_url) {
+          fetchReportHtml(resultData.report_url);
+        }
       } else if (data.status === 'failed' || data.status === 'error' || data.error) {
         stopPolling();
         jobIdRef.current = null;
@@ -92,6 +108,7 @@ const MarinaAnalyze = () => {
     stopPolling();
     setLoading(true);
     setResult(null);
+    setReportHtml(null);
     setError(null);
     setProgress(0);
     setPhase("");
@@ -123,9 +140,13 @@ const MarinaAnalyze = () => {
 
       // If already completed (instant response)
       if (data?.status === 'completed' || data?.data) {
-        setResult(data.data ?? data);
+        const resultData = data.data ?? data;
+        setResult(resultData);
         setLoading(false);
         setProgress(100);
+        if (resultData?.report_url) {
+          fetchReportHtml(resultData.report_url);
+        }
         return;
       }
 
@@ -227,12 +248,19 @@ const MarinaAnalyze = () => {
                 </a>
               </div>
               <div className="w-full rounded-lg border border-border overflow-hidden" style={{ height: '80vh' }}>
-                <iframe
-                  src={result.report_url}
-                  title="Rapport Marina"
-                  className="w-full h-full border-0"
-                  sandbox="allow-scripts allow-same-origin"
-                />
+                {reportHtml ? (
+                  <iframe
+                    srcDoc={reportHtml}
+                    title="Rapport Marina"
+                    className="w-full h-full border-0"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                    Chargement du rapport…
+                  </div>
+                )}
               </div>
             </div>
           )}
