@@ -173,6 +173,17 @@ const MarinaAnalyze = () => {
   };
 
   const viewUrl = result?.report_view_url || result?.report_url;
+  const [reportHtml, setReportHtml] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!viewUrl) { setReportHtml(null); return; }
+    let cancelled = false;
+    fetch(viewUrl)
+      .then(r => r.text())
+      .then(html => { if (!cancelled) setReportHtml(html); })
+      .catch(() => { if (!cancelled) setReportHtml(null); });
+    return () => { cancelled = true; };
+  }, [viewUrl]);
 
   return (
     <>
@@ -268,13 +279,19 @@ const MarinaAnalyze = () => {
                 </a>
               </div>
 
-              {/* Iframe using report_view_url directly */}
+              {/* Iframe with fetched HTML via srcdoc */}
               <div className="w-full rounded-lg border border-border overflow-hidden" style={{ height: '80vh' }}>
-                <iframe
-                  src={viewUrl}
-                  title="Rapport Marina"
-                  className="w-full h-full border-0"
-                />
+                {reportHtml ? (
+                  <iframe
+                    srcDoc={reportHtml}
+                    title="Rapport Marina"
+                    className="w-full h-full border-0"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <Loader2 className="animate-spin mr-2 h-5 w-5" /> Chargement du rapport…
+                  </div>
+                )}
               </div>
             </div>
           )}
