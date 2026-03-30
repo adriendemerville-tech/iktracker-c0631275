@@ -173,6 +173,17 @@ const MarinaAnalyze = () => {
   };
 
   const viewUrl = result?.report_view_url || result?.report_url;
+  const [reportHtml, setReportHtml] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!viewUrl) { setReportHtml(null); return; }
+    let cancelled = false;
+    fetch(viewUrl)
+      .then(r => r.text())
+      .then(html => { if (!cancelled) setReportHtml(html); })
+      .catch(() => { if (!cancelled) setReportHtml(null); });
+    return () => { cancelled = true; };
+  }, [viewUrl]);
 
   return (
     <>
