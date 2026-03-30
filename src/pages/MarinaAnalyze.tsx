@@ -25,6 +25,16 @@ const MarinaAnalyze = () => {
     }
   }, []);
 
+  const fetchReportHtml = useCallback(async (reportUrl: string) => {
+    try {
+      const res = await fetch(reportUrl);
+      const html = await res.text();
+      setReportHtml(html);
+    } catch {
+      console.error('Failed to fetch report HTML');
+    }
+  }, []);
+
   const doPoll = useCallback(async (jobId: string) => {
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
