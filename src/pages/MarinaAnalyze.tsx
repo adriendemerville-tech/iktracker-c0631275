@@ -14,6 +14,7 @@ const MarinaAnalyze = () => {
   const [phase, setPhase] = useState("");
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reportHtml, setReportHtml] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const jobIdRef = useRef<string | null>(null);
 
