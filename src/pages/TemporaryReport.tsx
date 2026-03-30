@@ -6,7 +6,7 @@ import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
-import { htmlToPdfBlob } from "@/lib/pdf-utils";
+
 
 type ViewState =
   | { status: "loading" }
