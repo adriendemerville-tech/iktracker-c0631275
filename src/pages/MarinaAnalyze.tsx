@@ -209,26 +209,43 @@ const MarinaAnalyze = () => {
           )}
 
           {/* Results */}
-          {result && (
+          {result && result.report_url && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-foreground font-medium">
+                  <CheckCircle className="text-green-500 h-5 w-5" />
+                  Rapport prêt
+                </div>
+                <a
+                  href={result.report_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Ouvrir dans un nouvel onglet
+                </a>
+              </div>
+              <div className="w-full rounded-lg border border-border overflow-hidden" style={{ height: '80vh' }}>
+                <iframe
+                  src={result.report_url}
+                  title="Rapport Marina"
+                  className="w-full h-full border-0"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              </div>
+            </div>
+          )}
+
+          {result && !result.report_url && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <CheckCircle className="text-success" />
+                  <CheckCircle className="text-green-500" />
                   Résultat de l'analyse
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {result.report_url && (
-                  <a
-                    href={result.report_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Voir le rapport complet
-                  </a>
-                )}
+              <CardContent>
                 <pre className="bg-muted rounded-lg p-4 overflow-auto max-h-[60vh] text-xs leading-relaxed whitespace-pre-wrap break-words">
                   {JSON.stringify(result, null, 2)}
                 </pre>
