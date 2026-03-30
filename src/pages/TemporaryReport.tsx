@@ -6,7 +6,7 @@ import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
-import { htmlToPdfBlob } from "@/lib/pdf-utils";
+
 
 type ViewState =
   | { status: "loading" }
@@ -88,41 +88,50 @@ export default function TemporaryReport() {
     setIsDownloading(true);
     
     try {
-      const dateStr = new Date().toISOString().split("T")[0];
-      
-      // Get the actual HTML content from the iframe for proper rendering
-      const iframe = document.querySelector('iframe[title="Relevé IK"]') as HTMLIFrameElement;
-      let htmlForPdf = state.html;
-      
-      if (iframe?.contentDocument) {
-        // Clone the iframe content and remove action bars/scripts for clean PDF
-        const clonedDoc = iframe.contentDocument.cloneNode(true) as Document;
-        
-        // Remove action bar if present
-        const actionBar = clonedDoc.querySelector('.action-bar');
-        if (actionBar) actionBar.remove();
-        
-        // Remove all scripts
-        clonedDoc.querySelectorAll('script').forEach(s => s.remove());
-        
-        // Get the cleaned HTML
-        htmlForPdf = clonedDoc.documentElement.outerHTML;
+      // Open a new window with the HTML content and trigger print (Save as PDF)
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        toast.error("Veuillez autoriser les popups pour télécharger le PDF");
+        setIsDownloading(false);
+        return;
       }
+
+      // Clean the HTML: remove action bars and scripts
+      const parser = new DOMParser();
+      const parsed = parser.parseFromString(state.html, "text/html");
+      parsed.querySelectorAll(".action-bar, script").forEach((el) => el.remove());
+
+      // Inject print-friendly CSS
+      const printStyle = parsed.createElement("style");
+      printStyle.textContent = `
+        @media print {
+          body { margin: 0; padding: 0; }
+          @page { size: A4 landscape; margin: 10mm; }
+        }
+      `;
+      parsed.head.appendChild(printStyle);
+
+      printWindow.document.open();
+      printWindow.document.write(parsed.documentElement.outerHTML);
+      printWindow.document.close();
+
+      // Wait for content to load then trigger print
+      printWindow.addEventListener("load", () => {
+        setTimeout(() => {
+          printWindow.print();
+          setIsDownloading(false);
+        }, 500);
+      });
+
+      // Fallback timeout
+      setTimeout(() => {
+        if (printWindow && !printWindow.closed) {
+          printWindow.print();
+        }
+        setIsDownloading(false);
+      }, 3000);
       
-      // Generate PDF using the cleaned HTML (same function as HTML preview)
-      const pdfBlob = await htmlToPdfBlob(htmlForPdf);
-      
-      // Download PDF only (no ZIP, no CSV)
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const pdfLink = document.createElement("a");
-      pdfLink.href = pdfUrl;
-      pdfLink.download = `releve-ik-${dateStr}.pdf`;
-      document.body.appendChild(pdfLink);
-      pdfLink.click();
-      document.body.removeChild(pdfLink);
-      URL.revokeObjectURL(pdfUrl);
-      
-      toast.success("PDF téléchargé");
+      toast.success("Utilisez « Enregistrer en PDF » dans la boîte de dialogue d'impression");
     } catch (error) {
       console.error("Download error:", error);
       toast.error("Erreur lors du téléchargement");
