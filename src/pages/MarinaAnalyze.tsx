@@ -4,17 +4,48 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2, AlertTriangle, CheckCircle, ExternalLink } from "lucide-react";
+import { Search, Loader2, AlertTriangle, CheckCircle, ExternalLink, BarChart3, Network, Brain } from "lucide-react";
+
+interface MarinaResult {
+  report_url?: string;
+  report_view_url?: string;
+  expert_seo_score?: number;
+  expert_seo_max?: number;
+  strategic_score?: number;
+  cocoon_nodes?: number;
+  cocoon_clusters?: number;
+  domain?: string;
+  language?: string;
+  generated_at?: string;
+  [key: string]: unknown;
+}
+
+const ScoreCard = ({ label, value, max, icon: Icon }: { label: string; value?: number; max?: number; icon: React.ElementType }) => {
+  if (value === undefined) return null;
+  const pct = max ? Math.round((value / max) * 100) : value;
+  const color = pct >= 70 ? "text-green-500" : pct >= 40 ? "text-yellow-500" : "text-red-500";
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
+      <Icon className={`h-5 w-5 ${color} shrink-0`} />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className={`text-lg font-bold ${color}`}>
+          {value}{max ? `/${max}` : ""}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const MarinaAnalyze = () => {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<MarinaResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [reportHtml, setReportHtml] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const jobIdRef = useRef<string | null>(null);
 
@@ -22,16 +53,6 @@ const MarinaAnalyze = () => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
-    }
-  }, []);
-
-  const fetchReportHtml = useCallback(async (reportUrl: string) => {
-    try {
-      const res = await fetch(reportUrl);
-      const html = await res.text();
-      setReportHtml(html);
-    } catch {
-      console.error('Failed to fetch report HTML');
     }
   }, []);
 
@@ -55,14 +76,10 @@ const MarinaAnalyze = () => {
       } else if (data.status === 'completed') {
         stopPolling();
         jobIdRef.current = null;
-        const resultData = data.data ?? data;
+        const resultData = (data.data ?? data) as MarinaResult;
         setResult(resultData);
         setLoading(false);
         setProgress(100);
-        // Fetch HTML content for iframe rendering
-        if (resultData?.report_url) {
-          fetchReportHtml(resultData.report_url);
-        }
       } else if (data.status === 'failed' || data.status === 'error' || data.error) {
         stopPolling();
         jobIdRef.current = null;
@@ -79,16 +96,13 @@ const MarinaAnalyze = () => {
 
   const pollJob = useCallback((jobId: string) => {
     jobIdRef.current = jobId;
-    // Immediate first poll
     doPoll(jobId);
     pollingRef.current = setInterval(() => doPoll(jobId), 5000);
   }, [doPoll]);
 
-  // Re-poll immediately when tab becomes visible again
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && jobIdRef.current) {
-        // Tab is back — do an immediate poll and restart interval
         stopPolling();
         doPoll(jobIdRef.current);
         pollingRef.current = setInterval(() => doPoll(jobIdRef.current!), 5000);
@@ -108,14 +122,13 @@ const MarinaAnalyze = () => {
     stopPolling();
     setLoading(true);
     setResult(null);
-    setReportHtml(null);
     setError(null);
     setProgress(0);
     setPhase("");
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke("marina-analyze", {
-        body: { url: url.trim() },
+        body: { url: url.trim(), lang: "fr" },
       });
 
       if (fnError) {
@@ -130,7 +143,6 @@ const MarinaAnalyze = () => {
         return;
       }
 
-      // If we got a job_id, start polling
       if (data?.job_id) {
         setProgress(5);
         setPhase("Démarrage…");
@@ -138,20 +150,15 @@ const MarinaAnalyze = () => {
         return;
       }
 
-      // If already completed (instant response)
       if (data?.status === 'completed' || data?.data) {
-        const resultData = data.data ?? data;
+        const resultData = (data.data ?? data) as MarinaResult;
         setResult(resultData);
         setLoading(false);
         setProgress(100);
-        if (resultData?.report_url) {
-          fetchReportHtml(resultData.report_url);
-        }
         return;
       }
 
-      // Fallback: show raw response
-      setResult(data);
+      setResult(data as MarinaResult);
       setLoading(false);
     } catch {
       setError("Impossible de contacter le service d'analyse");
@@ -164,6 +171,8 @@ const MarinaAnalyze = () => {
     phase2: "Analyse SEO",
     phase3: "Génération du rapport",
   };
+
+  const viewUrl = result?.report_view_url || result?.report_url;
 
   return (
     <>
@@ -229,16 +238,27 @@ const MarinaAnalyze = () => {
             </Card>
           )}
 
-          {/* Results */}
-          {result && result.report_url && (
-            <div className="space-y-3">
+          {/* Results with scores */}
+          {result && viewUrl && (
+            <div className="space-y-4">
+              {/* Score cards */}
+              {(result.expert_seo_score !== undefined || result.strategic_score !== undefined || result.cocoon_nodes !== undefined) && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <ScoreCard label="Score SEO" value={result.expert_seo_score} max={result.expert_seo_max} icon={BarChart3} />
+                  <ScoreCard label="Score stratégique" value={result.strategic_score} icon={Brain} />
+                  <ScoreCard label="Nœuds cocon" value={result.cocoon_nodes} icon={Network} />
+                </div>
+              )}
+
+              {/* Meta info */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-foreground font-medium">
                   <CheckCircle className="text-green-500 h-5 w-5" />
                   Rapport prêt
+                  {result.domain && <Badge variant="secondary" className="text-xs">{result.domain}</Badge>}
                 </div>
                 <a
-                  href={result.report_url}
+                  href={viewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -247,25 +267,19 @@ const MarinaAnalyze = () => {
                   Ouvrir dans un nouvel onglet
                 </a>
               </div>
+
+              {/* Iframe using report_view_url directly */}
               <div className="w-full rounded-lg border border-border overflow-hidden" style={{ height: '80vh' }}>
-                {reportHtml ? (
-                  <iframe
-                    srcDoc={reportHtml}
-                    title="Rapport Marina"
-                    className="w-full h-full border-0"
-                    sandbox="allow-scripts allow-same-origin"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                    Chargement du rapport…
-                  </div>
-                )}
+                <iframe
+                  src={viewUrl}
+                  title="Rapport Marina"
+                  className="w-full h-full border-0"
+                />
               </div>
             </div>
           )}
 
-          {result && !result.report_url && (
+          {result && !viewUrl && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
