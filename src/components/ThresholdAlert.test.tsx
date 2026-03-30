@@ -16,7 +16,7 @@ describe("ThresholdAlert", () => {
 
   it("shows crossed alert just after 5000 km", () => {
     render(<ThresholdAlert totalKm={5100} fiscalPower={5} />);
-    expect(screen.getByText(/5\u202f000 km/)).toBeInTheDocument();
+    expect(screen.getByText(/5.000 km/)).toBeInTheDocument();
     expect(screen.getByText(/barème a changé/)).toBeInTheDocument();
   });
 
@@ -27,7 +27,7 @@ describe("ThresholdAlert", () => {
 
   it("shows crossed alert just after 20000 km", () => {
     render(<ThresholdAlert totalKm={20100} fiscalPower={5} />);
-    expect(screen.getByText(/20\u202f000 km/)).toBeInTheDocument();
+    expect(screen.getByText(/20.000 km/)).toBeInTheDocument();
   });
 
   it("returns null far from any threshold", () => {
