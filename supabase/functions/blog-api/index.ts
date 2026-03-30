@@ -395,6 +395,12 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
     const status = statusResolved.value ?? 'draft'
     if (!title || !postSlug) return errorResp('Title and slug are required', 400)
     const { data: prevData } = await supabase.from('blog_posts').select('*').eq('slug', postSlug).single()
+
+    // Anti-duplicate: if slug exists and no force flag, return existing post without modification
+    const forceUpdate = body.force === true || body.overwrite === true
+    if (prevData && !forceUpdate) {
+      return successResp({ ...prevData, _skipped: true, _reason: 'slug_already_exists. Use "force": true to overwrite.' }, 200)
+    }
     const subtitleResolved = resolveField(body, ['subtitle', 'subTitle', 'sub_title', 'sousTitre', 'sous_titre'])
     const metaResolved = resolveField(body, ['meta_description', 'metaDescription', 'meta', 'seoDescription', 'description'])
     const imageResolved = resolveField(body, ['featured_image_url', 'featuredImageUrl', 'featuredImageURL', 'heroImageUrl', 'hero_image_url', 'coverImageUrl', 'imageUrl', 'image_url'])
