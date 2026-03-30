@@ -45,9 +45,14 @@ const MarinaAnalyze = () => {
       } else if (data.status === 'completed') {
         stopPolling();
         jobIdRef.current = null;
-        setResult(data.data ?? data);
+        const resultData = data.data ?? data;
+        setResult(resultData);
         setLoading(false);
         setProgress(100);
+        // Fetch HTML content for iframe rendering
+        if (resultData?.report_url) {
+          fetchReportHtml(resultData.report_url);
+        }
       } else if (data.status === 'failed' || data.status === 'error' || data.error) {
         stopPolling();
         jobIdRef.current = null;
