@@ -163,9 +163,9 @@ const Index = () => {
   const [recoveryData, setRecoveryData] = useState<{ stops: TourStop[]; totalDistanceKm: number } | null>(null);
   const [isRecoveryProcessing, setIsRecoveryProcessing] = useState(false);
 
-  // Time thresholds — ⚠️ TEMP DEBUG VALUES (restore: 20min / 2h)
-  const TRANSPARENT_THRESHOLD = 5 * 1000; // 5 seconds (was 20 minutes)
-  const MODAL_THRESHOLD = 30 * 1000; // 30 seconds (was 2 hours)
+  // Time thresholds for local recovery (aligned with GlobalTourRecovery)
+  const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
+  const MODAL_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
 
   // Format inactivity duration
   const formatInactivity = (ms: number): string => {
@@ -190,7 +190,17 @@ const Index = () => {
       const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
       console.log('[Recovery] isActive:', isActive);
       if (!isActive) return;
-      
+
+      // If GlobalTourRecovery already handled the decision (user clicked "Reprendre"),
+      // always resume transparently — skip threshold checks.
+      const forceResume = sessionStorage.getItem('tour_force_resume') === 'true';
+      if (forceResume) {
+        sessionStorage.removeItem('tour_force_resume');
+        console.log('[Recovery] → Force resume (GlobalTourRecovery decision)');
+        setTourStartRequested(true);
+        await resumeTour();
+        return;
+      }
       const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
       console.log('[Recovery] lastActivityStr:', lastActivityStr, 'type:', typeof lastActivityStr);
       if (!lastActivityStr) return;
