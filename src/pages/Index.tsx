@@ -271,9 +271,14 @@ const Index = () => {
     };
     
     // Listen for force resume event from GlobalTourRecovery (when already on /app)
-    const handleForceResumeEvent = () => {
-      console.log('[Recovery] → Force resume event received');
-      checkSessionRecovery();
+    const handleForceResumeEvent = async () => {
+      const forceResume = sessionStorage.getItem('tour_force_resume') === 'true';
+      if (forceResume) {
+        sessionStorage.removeItem('tour_force_resume');
+        console.log('[Recovery] → Force resume event received');
+        setTourStartRequested(true);
+        await resumeTour();
+      }
     };
     
     document.addEventListener('visibilitychange', handleForegroundRecovery);
