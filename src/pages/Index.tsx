@@ -270,8 +270,18 @@ const Index = () => {
       // If > MODAL_THRESHOLD, the mount useEffect will handle Case C
     };
     
+    // Listen for force resume event from GlobalTourRecovery (when already on /app)
+    const handleForceResumeEvent = () => {
+      console.log('[Recovery] → Force resume event received');
+      checkSessionRecovery();
+    };
+    
     document.addEventListener('visibilitychange', handleForegroundRecovery);
-    return () => document.removeEventListener('visibilitychange', handleForegroundRecovery);
+    window.addEventListener('tour_force_resume', handleForceResumeEvent);
+    return () => {
+      document.removeEventListener('visibilitychange', handleForegroundRecovery);
+      window.removeEventListener('tour_force_resume', handleForceResumeEvent);
+    };
   }, [isTourActive, hasRecoveredTour, resumeTour]);
 
   // Handle recovery modal responses
