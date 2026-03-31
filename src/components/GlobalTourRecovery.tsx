@@ -155,7 +155,7 @@ export function GlobalTourRecovery() {
     await endSession();
   };
 
-  // Resume: restore to localStorage, navigate to /app
+  // Resume: restore to localStorage, signal Index.tsx to force resume, navigate to /app
   const handleResume = useCallback(async () => {
     if (!sessionData) return;
     setShowModal(false);
@@ -171,6 +171,8 @@ export function GlobalTourRecovery() {
     }
 
     restoreToLocalStorage(sessionData);
+    // Signal Index.tsx to skip threshold checks and resume immediately
+    sessionStorage.setItem('tour_force_resume', 'true');
     navigate('/app');
   }, [sessionData, navigate]);
 
