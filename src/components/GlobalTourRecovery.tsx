@@ -173,7 +173,13 @@ export function GlobalTourRecovery() {
     restoreToLocalStorage(sessionData);
     // Signal Index.tsx to skip threshold checks and resume immediately
     sessionStorage.setItem('tour_force_resume', 'true');
-    navigate('/app');
+    
+    if (location.pathname.startsWith('/app')) {
+      // Already on /app — navigate() would be a no-op, so fire a custom event
+      window.dispatchEvent(new Event('tour_force_resume'));
+    } else {
+      navigate('/app');
+    }
   }, [sessionData, navigate]);
 
   // Finalize: convert to trips and close
