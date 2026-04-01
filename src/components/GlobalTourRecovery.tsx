@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTourSessionDB, TourSessionDB } from '@/hooks/useTourSessionDB';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -30,6 +31,7 @@ export function GlobalTourRecovery() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const { fetchActiveSession, endSession } = useTourSessionDB();
   
   const [showModal, setShowModal] = useState(false);
@@ -52,23 +54,25 @@ export function GlobalTourRecovery() {
         const lastActivity = new Date(session.last_activity).getTime();
         const inactivity = Date.now() - lastActivity;
 
-        console.log('[GlobalTourRecovery] Found active session, inactivity:', Math.round(inactivity / 1000), 's');
+        console.log('[GlobalTourRecovery] Found active session, isMobile:', isMobile, 'inactivity:', Math.round(inactivity / 1000), 's');
 
+        // Desktop: always auto-finalize, tour can only resume on mobile
+        if (!isMobile) {
+          await autoFinalize(session, true);
+          return;
+        }
+
+        // Mobile: keep existing recovery logic
         if (inactivity < TRANSPARENT_THRESHOLD) {
-          // Case A: transparent resume — navigate to /app which handles localStorage recovery
-          // Also write session data back to localStorage so Index.tsx can pick it up
           restoreToLocalStorage(session);
           if (!location.pathname.startsWith('/app')) {
             navigate('/app');
           }
-          // Index.tsx will handle the actual resume via localStorage
         } else if (inactivity < MODAL_THRESHOLD) {
-          // Case B: show modal
           setSessionData(session);
           setInactivityText(formatInactivity(inactivity));
           setShowModal(true);
         } else {
-          // Case C: auto finalize — convert to trips and close session
           await autoFinalize(session);
         }
       } catch (e) {
@@ -104,8 +108,8 @@ export function GlobalTourRecovery() {
   };
 
   // Auto-finalize: create trips from session data and end session
-  const autoFinalize = async (session: TourSessionDB) => {
-    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops');
+  const autoFinalize = async (session: TourSessionDB, fromDesktop = false) => {
+    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops', fromDesktop ? '(desktop)' : '');
 
     if (session.stops.length >= 1) {
       // Get user's first vehicle
@@ -145,10 +149,15 @@ export function GlobalTourRecovery() {
           source: 'tour',
         });
 
-        toast.info("Tournée récupérée automatiquement", {
-          description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
-          duration: 5000,
-        });
+        toast.info(
+          fromDesktop 
+            ? "Dernière tournée enregistrée dans vos trajets." 
+            : "Tournée récupérée automatiquement",
+          {
+            description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
+            duration: 6000,
+          }
+        );
       }
     }
 
