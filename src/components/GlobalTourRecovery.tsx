@@ -31,6 +31,7 @@ export function GlobalTourRecovery() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const { fetchActiveSession, endSession } = useTourSessionDB();
   
   const [showModal, setShowModal] = useState(false);
