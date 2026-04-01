@@ -54,23 +54,25 @@ export function GlobalTourRecovery() {
         const lastActivity = new Date(session.last_activity).getTime();
         const inactivity = Date.now() - lastActivity;
 
-        console.log('[GlobalTourRecovery] Found active session, inactivity:', Math.round(inactivity / 1000), 's');
+        console.log('[GlobalTourRecovery] Found active session, isMobile:', isMobile, 'inactivity:', Math.round(inactivity / 1000), 's');
 
+        // Desktop: always auto-finalize, tour can only resume on mobile
+        if (!isMobile) {
+          await autoFinalize(session, true);
+          return;
+        }
+
+        // Mobile: keep existing recovery logic
         if (inactivity < TRANSPARENT_THRESHOLD) {
-          // Case A: transparent resume — navigate to /app which handles localStorage recovery
-          // Also write session data back to localStorage so Index.tsx can pick it up
           restoreToLocalStorage(session);
           if (!location.pathname.startsWith('/app')) {
             navigate('/app');
           }
-          // Index.tsx will handle the actual resume via localStorage
         } else if (inactivity < MODAL_THRESHOLD) {
-          // Case B: show modal
           setSessionData(session);
           setInactivityText(formatInactivity(inactivity));
           setShowModal(true);
         } else {
-          // Case C: auto finalize — convert to trips and close session
           await autoFinalize(session);
         }
       } catch (e) {
