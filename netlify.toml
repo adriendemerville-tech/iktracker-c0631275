@@ -160,6 +160,11 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# === BOT ROUTING (Edge Function) ===
+[[edge_functions]]
+  function = "bot-router"
+  path = "/*"
+
 # === SPA FALLBACK ===
 [[redirects]]
   from = "/*"
