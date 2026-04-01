@@ -638,43 +638,6 @@ serve(async (req) => {
       }
     }
 
-    // Blog listing: enrich /blog with actual posts
-    if (path === '/blog') {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      const { data: posts } = await supabase
-        .from('blog_posts')
-        .select('title, slug, meta_description, published_at')
-        .eq('status', 'published')
-        .eq('is_listed', true)
-        .order('published_at', { ascending: false })
-        .limit(50);
-
-      if (posts && posts.length > 0) {
-        const blogPage = { ...STATIC_PAGES['/blog'] };
-        blogPage.content = `<section><h2>Articles récents</h2><ul>${
-          posts.map(p => `<li><a href="${BASE_URL}/blog/${p.slug}">${escapeHtml(p.title)}</a>${p.meta_description ? ` — ${escapeHtml(p.meta_description)}` : ''}</li>`).join('\n')
-        }</ul></section>`;
-        blogPage.jsonLd = {
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "name": "Blog IKtracker",
-          "url": `${BASE_URL}/blog`,
-          "mainEntity": { "@type": "ItemList", "itemListElement": posts.map((p, i) => ({ "@type": "ListItem", "position": i + 1, "url": `${BASE_URL}/blog/${p.slug}`, "name": p.title })) },
-        };
-
-        return new Response(buildFullHtml(blogPage), {
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'public, max-age=3600, s-maxage=86400',
-          },
-        });
-      }
-    }
-
     // Fallback
     const fallback: PageMeta = {
       title: 'IKtracker — Outil Gratuit de Calcul des Indemnités Kilométriques',
