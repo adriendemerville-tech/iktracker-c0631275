@@ -149,10 +149,15 @@ export function GlobalTourRecovery() {
           source: 'tour',
         });
 
-        toast.info("Tournée récupérée automatiquement", {
-          description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
-          duration: 5000,
-        });
+        toast.info(
+          fromDesktop 
+            ? "Dernière tournée enregistrée dans vos trajets." 
+            : "Tournée récupérée automatiquement",
+          {
+            description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
+            duration: 6000,
+          }
+        );
       }
     }
 
