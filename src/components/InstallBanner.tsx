@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Truck, X } from 'lucide-react';
+import { Car, X } from 'lucide-react';
 import { isBrowser, isBot, safeLocalStorage, safeMatchMedia } from '@/lib/ssr-utils';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -271,7 +271,7 @@ export const InstallBanner = () => {
               style={{ backgroundColor: '#2661D9' }}
               aria-hidden="true"
             >
-              <Truck className="w-6 h-6 text-white" />
+              <Car className="w-6 h-6 text-white" />
             </div>
 
             {/* Content */}
