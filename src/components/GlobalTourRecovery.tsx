@@ -108,8 +108,8 @@ export function GlobalTourRecovery() {
   };
 
   // Auto-finalize: create trips from session data and end session
-  const autoFinalize = async (session: TourSessionDB) => {
-    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops');
+  const autoFinalize = async (session: TourSessionDB, fromDesktop = false) => {
+    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops', fromDesktop ? '(desktop)' : '');
 
     if (session.stops.length >= 1) {
       // Get user's first vehicle
