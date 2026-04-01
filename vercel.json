@@ -126,6 +126,17 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/((?!api/|assets/|sw\\.js|manifest|robots|sitemap|llms).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|Bingbot|DuckDuckBot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Slackbot|TelegramBot|Discordbot|Pinterest|GPTBot|ChatGPT-User|Google-Extended|Claude-Web|Anthropic-AI|PerplexityBot|Cohere-AI|YouBot|Applebot|redditbot|Screaming Frog|AhrefsBot|SemrushBot|ia_archiver|rogerbot).*"
+        }
+      ],
+      "destination": "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/meta-renderer?path=/$1"
+    },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
