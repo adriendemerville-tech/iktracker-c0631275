@@ -49,6 +49,8 @@ const Lexique = lazy(() => import("./pages/Lexique"));
 const ComparatifIzika = lazy(() => import("./pages/ComparatifIzika"));
 const ComparatifDriversNote = lazy(() => import("./pages/ComparatifDriversNote"));
 const MarinaAnalyze = lazy(() => import("./pages/MarinaAnalyze"));
+const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
