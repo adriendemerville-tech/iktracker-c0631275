@@ -61,6 +61,8 @@ const NAV_LINKS = [
   { href: '/comparatif-izika', label: 'IKtracker vs Izika' },
   { href: '/comparatif-drivers-note', label: 'IKtracker vs Driversnote' },
   { href: '/blog', label: 'Blog' },
+  { href: '/mentions-legales', label: 'Mentions Légales' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 // ──────────────────────────────────────────────────────
@@ -425,6 +427,61 @@ const STATIC_PAGES: Record<string, PageMeta> = {
     title: 'Conditions d\'utilisation | IKtracker',
     description: 'Conditions générales d\'utilisation d\'IKtracker, outil gratuit de calcul des indemnités kilométriques.',
     canonical: `${BASE_URL}/terms`,
+  },
+
+  '/mentions-legales': {
+    title: 'Mentions Légales | IKtracker — Éditeur et Hébergeur',
+    description: 'Mentions légales d\'IKtracker : informations sur l\'éditeur, l\'hébergeur, la propriété intellectuelle et le RGPD.',
+    canonical: `${BASE_URL}/mentions-legales`,
+    content: `
+      <section>
+        <h2>Éditeur du site</h2>
+        <p>Le site iktracker.fr est édité par <strong>Adrien de Volontat</strong>, entrepreneur individuel, fondateur d'Avenir Rénovations à Saint-Rémy-de-Provence (13210), France.</p>
+        <p>Contact : <a href="mailto:contact@iktracker.fr">contact@iktracker.fr</a></p>
+      </section>
+      <section>
+        <h2>Hébergement</h2>
+        <p>Front-end : Netlify, Inc. — San Francisco, USA. Base de données : Supabase, Inc. — Singapour. CDN/DNS : Cloudflare, Inc. — San Francisco, USA.</p>
+        <p>Les données sont stockées sur des serveurs situés dans l'Union européenne.</p>
+      </section>
+      <section>
+        <h2>Propriété intellectuelle</h2>
+        <p>L'ensemble du contenu du site iktracker.fr est la propriété exclusive de l'éditeur et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle.</p>
+      </section>
+      <section>
+        <h2>Données personnelles & RGPD</h2>
+        <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de portabilité et de suppression de vos données. Contact : contact@iktracker.fr</p>
+      </section>`,
+  },
+
+  '/contact': {
+    title: 'Contact | IKtracker — Nous contacter',
+    description: 'Contactez l\'équipe IKtracker pour toute question, suggestion ou demande d\'assistance. Réponse rapide garantie.',
+    canonical: `${BASE_URL}/contact`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contact IKtracker",
+      "url": `${BASE_URL}/contact`,
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "IKtracker",
+        "url": BASE_URL,
+        "email": "contact@iktracker.fr",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "contact@iktracker.fr",
+          "availableLanguage": "French",
+        },
+      },
+    },
+    content: `
+      <section>
+        <h2>Contactez-nous</h2>
+        <p>Pour toute question, suggestion ou demande d'assistance, écrivez-nous à <a href="mailto:contact@iktracker.fr">contact@iktracker.fr</a>.</p>
+        <p>IKtracker est développé par Adrien de Volontat, entrepreneur et fondateur d'Avenir Rénovations à Saint-Rémy-de-Provence. Chaque message est lu personnellement.</p>
+      </section>`,
   },
 };
 

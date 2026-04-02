@@ -49,6 +49,8 @@ const Lexique = lazy(() => import("./pages/Lexique"));
 const ComparatifIzika = lazy(() => import("./pages/ComparatifIzika"));
 const ComparatifDriversNote = lazy(() => import("./pages/ComparatifDriversNote"));
 const MarinaAnalyze = lazy(() => import("./pages/MarinaAnalyze"));
+const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -341,6 +343,8 @@ const AppRoutes = () => {
         <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
         <Route path="/comparatif-driversnote" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
         <Route path="/marina" element={<Suspense fallback={<PageLoader />}><MarinaAnalyze /></Suspense>} />
+        <Route path="/mentions-legales" element={<Suspense fallback={<PageLoader />}><MentionsLegales /></Suspense>} />
+        <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
     </AuthContext.Provider>
