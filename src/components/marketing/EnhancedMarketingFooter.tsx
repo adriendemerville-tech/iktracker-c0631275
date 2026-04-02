@@ -78,6 +78,8 @@ export function EnhancedMarketingFooter() {
   const legalLinks = [
     { label: 'Politique de Confidentialité', href: '/privacy' },
     { label: 'Conditions Générales d\'Utilisation', href: '/terms' },
+    { label: 'Mentions Légales', href: '/mentions-legales' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   const professionLinks = [
