@@ -23,7 +23,8 @@ const BOT_PATTERNS = [
   'TelegramBot', 'Discordbot', 'Pinterest', 'Embedly', 'Quora Link Preview',
   'Showyoubot', 'outbrain', 'vkShare', 'W3C_Validator', 'redditbot',
   'Applebot', 'rogerbot', 'Googlebot', 'Bingbot', 'DuckDuckBot',
-  'GPTBot', 'ChatGPT-User', 'Google-Extended', 'Claude-Web', 'Anthropic-AI',
+  'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'Google-Extended',
+  'Claude-Web', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'Anthropic-AI',
   'PerplexityBot', 'Cohere-AI', 'YouBot', 'ia_archiver',
 ];
 
