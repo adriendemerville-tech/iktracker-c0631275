@@ -302,6 +302,24 @@ export function EnhancedMarketingFooter() {
                     CGU
                   </Link>
                 </li>
+                <li>
+                  <Link 
+                    to="/mentions-legales" 
+                    onClick={handleLinkClick('/mentions-legales')}
+                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                  >
+                    Mentions légales
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/contact" 
+                    onClick={handleLinkClick('/contact')}
+                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                  >
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </nav>
           </div>

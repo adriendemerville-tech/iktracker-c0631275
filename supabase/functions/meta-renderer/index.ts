@@ -61,6 +61,8 @@ const NAV_LINKS = [
   { href: '/comparatif-izika', label: 'IKtracker vs Izika' },
   { href: '/comparatif-drivers-note', label: 'IKtracker vs Driversnote' },
   { href: '/blog', label: 'Blog' },
+  { href: '/mentions-legales', label: 'Mentions Légales' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 // ──────────────────────────────────────────────────────
