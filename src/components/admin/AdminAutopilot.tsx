@@ -616,11 +616,11 @@ function generate24hReportHTML(logs: AuditLog[]): string {
   <div class="subtitle">Période : ${dateRange} · Généré le ${format(now, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
   
   <div class="stats">
-    <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Actions totales</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'create').length}</div><div class="label">Créations</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'update' || l.action === 'upsert').length}</div><div class="label">Modifications</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'delete').length}</div><div class="label">Suppressions</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.reverted).length}</div><div class="label">Annulées</div></div>
+    <div class="stat-box"><div class="value">${deduped.length}</div><div class="label">Ressources modifiées</div></div>
+    <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Appels API totaux</div></div>
+    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'create').length}</div><div class="label">Créations</div></div>
+    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'update' || d.log.action === 'upsert').length}</div><div class="label">Modifications</div></div>
+    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'delete').length}</div><div class="label">Suppressions</div></div>
   </div>
 
   ${recentLogs.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
