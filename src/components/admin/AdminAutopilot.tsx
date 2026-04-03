@@ -551,9 +551,25 @@ function generate24hReportHTML(logs: AuditLog[]): string {
     return '-';
   }
 
+  // Deduplicate: group by resource_type + resource_id, keep most recent, count occurrences
+  const groupKey = (l: AuditLog) => `${l.resource_type}::${l.resource_id}`;
+  const grouped = new Map<string, { log: AuditLog; count: number }>();
+  for (const log of recentLogs) {
+    const key = groupKey(log);
+    const existing = grouped.get(key);
+    if (!existing) {
+      grouped.set(key, { log, count: 1 });
+    } else {
+      existing.count++;
+    }
+  }
+  const deduped = Array.from(grouped.values()).sort(
+    (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime()
+  );
+
   const dateRange = `${format(h24ago, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
 
-  const rows = recentLogs.map(log => `
+  const rows = deduped.map(({ log, count }) => `
     <tr>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px;">
         ${format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
@@ -563,7 +579,9 @@ function generate24hReportHTML(logs: AuditLog[]): string {
           ${(actionLabels[log.action] || log.action).toUpperCase()}
         </span>
       </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${getDescription(log)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
+        ${getDescription(log)}${count > 1 ? ` <span style="color:#6b7280;font-size:11px;">(×${count})</span>` : ''}
+      </td>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280;word-break:break-all;">${getUrl(log)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">
         ${log.reverted ? '✅ Annulé' : '—'}
@@ -598,14 +616,14 @@ function generate24hReportHTML(logs: AuditLog[]): string {
   <div class="subtitle">Période : ${dateRange} · Généré le ${format(now, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
   
   <div class="stats">
-    <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Actions totales</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'create').length}</div><div class="label">Créations</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'update' || l.action === 'upsert').length}</div><div class="label">Modifications</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'delete').length}</div><div class="label">Suppressions</div></div>
-    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.reverted).length}</div><div class="label">Annulées</div></div>
+    <div class="stat-box"><div class="value">${deduped.length}</div><div class="label">Ressources modifiées</div></div>
+    <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Appels API totaux</div></div>
+    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'create').length}</div><div class="label">Créations</div></div>
+    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'update' || d.log.action === 'upsert').length}</div><div class="label">Modifications</div></div>
+    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'delete').length}</div><div class="label">Suppressions</div></div>
   </div>
 
-  ${recentLogs.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
+  ${deduped.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
   <table>
     <thead>
       <tr>
