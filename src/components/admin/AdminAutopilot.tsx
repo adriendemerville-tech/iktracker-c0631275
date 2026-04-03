@@ -731,17 +731,36 @@ export function AdminAutopilot() {
                 Registre des modifications apportées par Crawlers via l'API et événements associés
               </CardDescription>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
-                queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
-              }}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Actualiser
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const html = generate24hReportHTML(auditLogs);
+                  const w = window.open('', '_blank');
+                  if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
+                  w.document.open();
+                  w.document.write(html);
+                  w.document.close();
+                  w.addEventListener('load', () => setTimeout(() => w.print(), 400));
+                  setTimeout(() => { if (!w.closed) w.print(); }, 2000);
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Rapport 24h
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
+                  queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
+                }}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Actualiser
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
