@@ -508,6 +508,122 @@ function EventDetailCard({
   );
 }
 
+// Generate 24h PDF report
+function generate24hReportHTML(logs: AuditLog[]): string {
+  const now = new Date();
+  const h24ago = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const recentLogs = logs
+    .filter(l => new Date(l.created_at) >= h24ago)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const actionLabels: Record<string, string> = {
+    create: 'Création',
+    update: 'Modification',
+    delete: 'Suppression',
+    upsert: 'Création / Mise à jour',
+  };
+
+  const resourceLabels: Record<string, string> = {
+    post: 'Article de blog',
+    page: 'Page statique',
+    seo: 'Configuration SEO',
+    injection: 'Injection de code',
+    config: 'Configuration site',
+    media: 'Média',
+    redirect: 'Redirection',
+  };
+
+  function getDescription(log: AuditLog): string {
+    const action = actionLabels[log.action] || log.action;
+    const resource = resourceLabels[log.resource_type] || log.resource_type;
+    const data = log.new_data || log.previous_data || {};
+    const title = (data as any).title || (data as any).meta_title || (data as any).slug || (data as any).page_key || log.resource_id;
+    return `${action} de ${resource.toLowerCase()} : "${title}"`;
+  }
+
+  function getUrl(log: AuditLog): string {
+    const data = log.new_data || log.previous_data || {};
+    const slug = (data as any).slug || (data as any).page_key || '';
+    if (log.resource_type === 'post' && slug) return `https://iktracker.fr/blog/${slug}`;
+    if (log.resource_type === 'page' && slug) return `https://iktracker.fr/${slug}`;
+    if (log.resource_type === 'seo') return `https://iktracker.fr/${slug || ''}`;
+    if (log.resource_type === 'redirect') return (data as any).source_path || '-';
+    return '-';
+  }
+
+  const dateRange = `${format(h24ago, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
+
+  const rows = recentLogs.map(log => `
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px;">
+        ${format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
+      </td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
+        <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${log.action === 'create' ? '#d1fae5' : log.action === 'delete' ? '#fee2e2' : '#dbeafe'};color:${log.action === 'create' ? '#065f46' : log.action === 'delete' ? '#991b1b' : '#1e40af'}">
+          ${(actionLabels[log.action] || log.action).toUpperCase()}
+        </span>
+      </td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${getDescription(log)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280;word-break:break-all;">${getUrl(log)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">
+        ${log.reverted ? '✅ Annulé' : '—'}
+      </td>
+    </tr>
+  `).join('');
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport Autopilot 24h — IKtracker</title>
+<style>
+  @page { size: A4 landscape; margin: 15mm; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #1a1a1a; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+  .stats { display: flex; gap: 24px; margin-bottom: 24px; }
+  .stat-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 20px; }
+  .stat-box .value { font-size: 24px; font-weight: 700; }
+  .stat-box .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f3f4f6; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; border-bottom: 2px solid #d1d5db; }
+  tr:hover td { background: #f9fafb; }
+  .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 14px; }
+  .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+  <h1>📋 Rapport Autopilot — Dernières 24h</h1>
+  <div class="subtitle">Période : ${dateRange} · Généré le ${format(now, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
+  
+  <div class="stats">
+    <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Actions totales</div></div>
+    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'create').length}</div><div class="label">Créations</div></div>
+    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'update' || l.action === 'upsert').length}</div><div class="label">Modifications</div></div>
+    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.action === 'delete').length}</div><div class="label">Suppressions</div></div>
+    <div class="stat-box"><div class="value">${recentLogs.filter(l => l.reverted).length}</div><div class="label">Annulées</div></div>
+  </div>
+
+  ${recentLogs.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
+  <table>
+    <thead>
+      <tr>
+        <th>Date & Heure</th>
+        <th>Action</th>
+        <th>Description</th>
+        <th>URL</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`}
+
+  <div class="footer">IKtracker · Rapport généré automatiquement · iktracker.fr</div>
+</body>
+</html>`;
+}
+
 // Main component
 export function AdminAutopilot() {
   const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
