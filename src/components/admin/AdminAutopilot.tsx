@@ -623,7 +623,7 @@ function generate24hReportHTML(logs: AuditLog[]): string {
     <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'delete').length}</div><div class="label">Suppressions</div></div>
   </div>
 
-  ${recentLogs.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
+  ${deduped.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
   <table>
     <thead>
       <tr>
