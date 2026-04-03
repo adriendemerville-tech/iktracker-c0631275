@@ -29,6 +29,7 @@ import {
   ChevronUp,
   Database,
   FileCode,
+  Download,
 } from 'lucide-react';
 
 // Types
