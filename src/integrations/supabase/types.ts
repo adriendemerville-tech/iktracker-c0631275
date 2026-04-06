@@ -717,6 +717,51 @@ export type Database = {
         }
         Relationships: []
       }
+      request_logs: {
+        Row: {
+          bot: boolean | null
+          country: string | null
+          created_at: string
+          host: string | null
+          id: string
+          ip_address: string | null
+          method: string | null
+          path: string | null
+          status_code: number | null
+          timestamp: string | null
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          bot?: boolean | null
+          country?: string | null
+          created_at?: string
+          host?: string | null
+          id?: string
+          ip_address?: string | null
+          method?: string | null
+          path?: string | null
+          status_code?: number | null
+          timestamp?: string | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          bot?: boolean | null
+          country?: string | null
+          created_at?: string
+          host?: string | null
+          id?: string
+          ip_address?: string | null
+          method?: string | null
+          path?: string | null
+          status_code?: number | null
+          timestamp?: string | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       seo_redirects: {
         Row: {
           created_at: string
