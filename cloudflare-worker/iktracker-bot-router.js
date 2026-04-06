@@ -7,7 +7,7 @@
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
-const LOGPUSH_ENDPOINT = 'https://crawlers.fr/api/logs'; // À remplacer par l'URL finale
+const LOGPUSH_ENDPOINT = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/log-ingest';
 
 const SUPABASE_META_RENDERER = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/meta-renderer';
 
