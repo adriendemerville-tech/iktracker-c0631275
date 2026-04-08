@@ -99,7 +99,15 @@ export default {
     const ua = request.headers.get('user-agent') || '';
     const botDetected = isBot(ua);
 
-    // ── 1. iktracker.com → redirect 301 vers .fr ──
+    // ── 1. www.iktracker.fr → redirect 301 vers apex ──
+    if (hostname === 'www.iktracker.fr') {
+      const redirectUrl = `https://iktracker.fr${path}${url.search}`;
+      const response = Response.redirect(redirectUrl, 301);
+      ctx.waitUntil(sendLog(request, response, botDetected));
+      return response;
+    }
+
+    // ── 2. iktracker.com → redirect 301 vers .fr ──
     if (hostname === 'iktracker.com' || hostname === 'www.iktracker.com') {
       // Servir robots.txt et llms.txt directement depuis .fr
       if (path === '/robots.txt' || path === '/llms.txt') {
