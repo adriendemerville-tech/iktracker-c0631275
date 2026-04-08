@@ -65,11 +65,18 @@ async function sendLog(request, response, botDetected) {
       url: request.url,
       host: url.hostname,
       path: url.pathname,
+      query: url.search || null,
       user_agent: request.headers.get('user-agent') || '',
       ip: request.headers.get('cf-connecting-ip') || '',
       status: response ? response.status : null,
       bot: botDetected,
       country: cf.country || null,
+      city: cf.city || null,
+      region: cf.region || null,
+      asn: cf.asn || null,
+      colo: cf.colo || null,
+      referer: request.headers.get('referer') || null,
+      accept_language: request.headers.get('accept-language') || null,
     };
 
     await fetch(LOGPUSH_ENDPOINT, {
