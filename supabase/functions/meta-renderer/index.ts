@@ -63,6 +63,9 @@ const NAV_LINKS = [
   { href: '/blog', label: 'Blog' },
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
+  { href: '/privacy', label: 'Politique de Confidentialité' },
+  { href: '/terms', label: 'Conditions Générales' },
+  { href: '/blog/auteur/adrien-de-volontat', label: 'À propos – Adrien de Volontat' },
 ];
 
 // ──────────────────────────────────────────────────────
@@ -542,8 +545,9 @@ function buildFullHtml(meta: PageMeta): string {
     ${bodyContent}
   </main>
   <footer>
-    <p>&copy; 2025-2026 IKtracker — <a href="${BASE_URL}/privacy">Politique de confidentialité</a> — <a href="${BASE_URL}/terms">CGU</a></p>
+    <p>&copy; 2025-2026 IKtracker — <a href="${BASE_URL}/privacy">Politique de confidentialité</a> — <a href="${BASE_URL}/terms">CGU</a> — <a href="${BASE_URL}/mentions-legales">Mentions légales</a> — <a href="${BASE_URL}/contact">Contact</a></p>
     <p><a href="${BASE_URL}/signup">Créer un compte gratuit</a></p>
+    <p>Conçu par <a href="${BASE_URL}/blog/auteur/adrien-de-volontat">Adrien de Volontat</a>, entrepreneur à Saint-Rémy-de-Provence.</p>
   </footer>
 </body>
 </html>`;
