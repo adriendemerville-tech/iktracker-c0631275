@@ -222,11 +222,11 @@ const Install = () => {
           
           <Tabs defaultValue="iphone" className="w-full max-w-4xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 mb-8" aria-label="Choisir votre appareil">
-              <TabsTrigger value="iphone" className="gap-2">
-                <span aria-hidden="true">🍎</span> iPhone / iPad
+              <TabsTrigger value="iphone">
+                iPhone / iPad
               </TabsTrigger>
-              <TabsTrigger value="android" className="gap-2">
-                <span aria-hidden="true">🤖</span> Android
+              <TabsTrigger value="android">
+                Android
               </TabsTrigger>
             </TabsList>
 
