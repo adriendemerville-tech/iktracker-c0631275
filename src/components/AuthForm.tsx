@@ -13,11 +13,12 @@ interface AuthFormProps {
   className?: string;
   compact?: boolean;
   multilineCta?: boolean;
+  defaultMode?: AuthMode;
   onSuccess?: () => void;
 }
 
-export const AuthForm = ({ className, compact = false, multilineCta = false, onSuccess }: AuthFormProps) => {
-  const [mode, setMode] = useState<AuthMode>('login');
+export const AuthForm = ({ className, compact = false, multilineCta = false, defaultMode = 'login', onSuccess }: AuthFormProps) => {
+  const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

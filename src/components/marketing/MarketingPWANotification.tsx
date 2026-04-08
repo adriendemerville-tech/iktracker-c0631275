@@ -55,11 +55,11 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Show after 10 seconds minimum
+    // Show after 30 seconds minimum (avoid competing with signup CTAs)
     const timer = setTimeout(() => {
       setShow(true);
       safeSessionStorage.setItem('pwa-marketing-shown', 'true');
-    }, 10000);
+    }, 30000);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
