@@ -322,10 +322,10 @@ const Install = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-primary text-primary-foreground" aria-labelledby="cta-heading">
+      <section className="py-20 text-primary-foreground bg-primary-foreground" aria-labelledby="cta-heading">
         <div className="container mx-auto px-4 text-center space-y-6">
-          <h2 id="cta-heading" className="text-3xl font-bold">Prêt à installer ?</h2>
-          <p className="text-lg opacity-90">Ouvrez cette page sur votre mobile et suivez les instructions.</p>
+          <h2 id="cta-heading" className="text-3xl font-bold text-secondary-foreground">Prêt à installer ?</h2>
+          <p className="opacity-90 text-secondary-foreground text-3xl">Ouvrez cette page sur votre mobile et suivez les instructions.</p>
           
           {/* QR Code for desktop users */}
           <div className="hidden md:flex flex-col items-center gap-3 py-4" aria-label="QR code pour accéder à cette page sur mobile">
