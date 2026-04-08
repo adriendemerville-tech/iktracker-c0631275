@@ -876,7 +876,7 @@ const Landing = () => {
       {/* CTA Section */}
       <section className="py-32 bg-primary text-primary-foreground section-contained">
         <div className="container mx-auto px-4 text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold">Prêt à simplifier vos trajets ?</h2>
             <p className="text-xl opacity-90">
               Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
