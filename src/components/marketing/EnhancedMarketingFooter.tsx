@@ -326,38 +326,38 @@ export function EnhancedMarketingFooter() {
 
           {/* Creator Attribution */}
           <div className="mt-6 pt-4 border-t border-border/30 text-center">
-            <p className="text-xs text-muted-foreground/70">
+            <p className="text-xs text-muted-foreground">
               IKtracker — Outil conçu par Adrien de Volontat, entrepreneur{' '}
               <a 
                 href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="underline hover:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                className="underline hover:text-foreground/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
               >
                 Avenir Rénovations
               </a>
               {' '}à Saint-Rémy-de-Provence. Partagé gratuitement avec la communauté.
             </p>
-            <p className="text-xs text-muted-foreground/60 mt-3">
+            <p className="text-xs text-muted-foreground mt-3">
               Découvrez{' '}
               <a 
                 href="https://crawlers.fr" 
                 title="Crawlers.fr - SEO boosté à l'IA"
                 target="_blank" 
                 rel="noopener"
-                className="underline hover:text-muted-foreground transition-colors"
+                className="underline hover:text-foreground/60 transition-colors"
               >
                 crawlers.fr
               </a>
               , notre partenaire SEO boosté à l'IA.
             </p>
-            <p className="text-xs text-muted-foreground/50 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               <a 
                 href="https://mossai.org" 
                 title="MossAI Tools"
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-muted-foreground transition-colors"
+                className="hover:text-foreground/60 transition-colors"
               >
                 MossAI Tools
               </a>

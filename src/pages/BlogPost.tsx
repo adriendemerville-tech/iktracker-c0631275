@@ -187,8 +187,8 @@ export default function BlogPost() {
         <meta name="description" content={metaDescription} />
         <link rel="canonical" href={canonicalUrl} />
         
-        {/* Preconnect for faster image loading */}
-        <link rel="preconnect" href="https://yarjaudctshlxkatqgeb.supabase.co" />
+        {/* Preconnect for image CDN - prioritize the actual image origin */}
+        <link rel="preconnect" href="https://yarjaudctshlxkatqgeb.supabase.co" crossOrigin="anonymous" />
         
         {/* Open Graph */}
         <meta property="og:title" content={post.title} />

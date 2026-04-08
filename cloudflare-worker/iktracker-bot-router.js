@@ -132,9 +132,22 @@ export default {
       return response;
     }
 
-    // ── 2. iktracker.fr — assets statiques → passthrough ──
+    // ── 2. iktracker.fr — assets statiques → passthrough + cache headers ──
     if (isStaticAsset(path)) {
-      const response = await fetch(request);
+      const originResponse = await fetch(request);
+      // Add immutable cache headers for hashed assets
+      const isHashedAsset = path.startsWith('/assets/');
+      const cacheControl = isHashedAsset
+        ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=86400';
+      const response = new Response(originResponse.body, {
+        status: originResponse.status,
+        headers: {
+          ...Object.fromEntries(originResponse.headers.entries()),
+          'Cache-Control': cacheControl,
+          'X-Rendered-By': 'cloudflare-worker',
+        },
+      });
       ctx.waitUntil(sendLog(request, response, botDetected));
       return response;
     }
