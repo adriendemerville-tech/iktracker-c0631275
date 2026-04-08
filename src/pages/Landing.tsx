@@ -1033,7 +1033,7 @@ const Landing = () => {
         </section>
       </main>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="min-h-[600px] bg-muted/30 animate-pulse" />}>
         <EnhancedMarketingFooter />
       </Suspense>
       <Suspense fallback={null}>
