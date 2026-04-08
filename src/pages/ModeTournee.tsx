@@ -27,7 +27,7 @@ const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/Enhanc
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 
 const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
-const FooterPlaceholder = memo(() => <div className="h-64 bg-muted/30 animate-pulse" />);
+const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 
 const AnimatedSection = ({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });

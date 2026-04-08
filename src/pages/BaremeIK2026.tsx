@@ -60,7 +60,7 @@ const MarketingPWANotification = lazy(() => import("@/components/marketing/Marke
 
 // Placeholder for lazy components
 const FooterPlaceholder = memo(() => (
-  <div className="h-64 bg-muted/30 animate-pulse" />
+  <div className="min-h-[600px] bg-muted/30 animate-pulse" />
 ));
 
 const BaremeIK2026 = () => {

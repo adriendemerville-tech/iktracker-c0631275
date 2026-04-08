@@ -31,7 +31,7 @@ import {
 const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
 
 const FooterPlaceholder = memo(() => (
-  <div className="h-64 bg-muted/30 animate-pulse" />
+  <div className="min-h-[600px] bg-muted/30 animate-pulse" />
 ));
 
 const ComparatifDriversNote = () => {
