@@ -31,7 +31,7 @@ const MarketingPWANotification = lazy(() => import("@/components/marketing/Marke
 
 // Lightweight placeholders
 const DemoLoader = memo(() => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>);
-const FooterPlaceholder = memo(() => <div className="h-64 bg-muted/30 animate-pulse" />);
+const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 const NavPlaceholder = memo(() => <div className="h-16 bg-background/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50" />);
 
 // Inline scroll animation hook to avoid import overhead for critical path

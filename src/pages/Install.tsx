@@ -31,7 +31,7 @@ const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/Enhanc
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
 
-const FooterPlaceholder = memo(() => <div className="h-64 bg-muted/30 animate-pulse" />);
+const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
 
 interface BeforeInstallPromptEvent extends Event {
