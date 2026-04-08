@@ -362,6 +362,7 @@ export default defineConfig(({ mode }) => ({
           'vendor-motion': ['framer-motion'],
           'vendor-qr': ['qrcode.react'],
           'vendor-pdf': ['html2pdf.js'],
+          'vendor-markdown': ['react-markdown', 'remark-gfm', 'rehype-raw'],
         },
       },
     },
