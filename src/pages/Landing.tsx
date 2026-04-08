@@ -20,7 +20,8 @@ import {
   Check,
   Star,
   Smartphone,
-  Plus
+  Plus,
+  Users
 } from "lucide-react";
 
 // Lazy load AuthForm - not needed for initial LCP
