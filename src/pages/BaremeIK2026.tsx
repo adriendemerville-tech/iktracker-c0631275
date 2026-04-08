@@ -325,7 +325,7 @@ const BaremeIK2026 = () => {
                   </p>
                   <Link to="/signup" onClick={trackCTAClick}>
                     <Button variant="gradient" size="lg" className="gap-2">
-                      Accéder à l'outil
+                      Automatiser mes {simulation.totalWithBonus.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} € d'IK
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>

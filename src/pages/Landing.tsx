@@ -282,6 +282,20 @@ const Landing = () => {
                   </li>
                 ))}
               </ul>
+
+              {/* Social proof */}
+              <div className="mt-6 flex items-center gap-3 justify-center lg:justify-start">
+                <div className="flex -space-x-2">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center">
+                      <Users className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">+2 000</strong> professionnels utilisent IKtracker
+                </p>
+              </div>
             </div>
 
             {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
@@ -306,8 +320,8 @@ const Landing = () => {
                   </Link>
                 </div>
               ) : (
-                <Suspense fallback={<AuthFormSkeleton />}>
-                  <AuthForm />
+              <Suspense fallback={<AuthFormSkeleton />}>
+                  <AuthForm defaultMode="signup" />
                 </Suspense>
               )}
             </div>
