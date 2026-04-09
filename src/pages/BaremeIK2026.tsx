@@ -807,7 +807,7 @@ const BaremeIK2026 = () => {
         {/* How IK Works Section - content-visibility for mobile perf */}
         <section className="py-12 px-4 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+            <h2 id="calcul-ik" className="text-2xl md:text-3xl font-bold mb-8 text-center">
               Comment calculer ses indemnités kilométriques 2026 ?
             </h2>
 
