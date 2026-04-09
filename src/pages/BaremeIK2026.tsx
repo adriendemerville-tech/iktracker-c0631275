@@ -1012,7 +1012,7 @@ const BaremeIK2026 = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 px-4 bg-muted/30" aria-labelledby="faq-heading">
+        <section className="py-16 px-4 bg-muted/30" aria-labelledby="faq">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-10">
               <h2 id="faq" className="text-2xl md:text-3xl font-bold mb-4">
