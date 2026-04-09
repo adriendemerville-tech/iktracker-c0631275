@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { toast } from 'sonner';
-import { htmlToPdfBlob } from '@/lib/pdf-utils';
+
 import { supabase } from '@/integrations/supabase/client';
 
 interface Term {
