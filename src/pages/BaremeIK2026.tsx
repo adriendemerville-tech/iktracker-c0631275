@@ -690,7 +690,7 @@ const BaremeIK2026 = () => {
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="vehicules-electriques" className="text-2xl md:text-3xl font-bold mb-4">
                 Véhicules électriques : majoration de 20% des indemnités kilométriques
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
