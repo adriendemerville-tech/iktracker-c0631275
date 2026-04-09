@@ -51,6 +51,18 @@ const faqData = [
   {
     question: "Dois-je tenir un carnet de bord pour mes trajets professionnels ?",
     answer: "Oui, en cas de contrôle fiscal, vous devez pouvoir justifier vos déplacements professionnels. Un relevé précis (date, motif, destination, distance) est recommandé. IKtracker automatise cette tâche pour vous."
+  },
+  {
+    question: "Pourquoi les indemnités kilométriques sont-elles importantes pour les indépendants ?",
+    answer: "Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé (TICPE), assurance, entretien (pneus, freins, vidange) et dépréciation du véhicule (15 à 20 % de perte de valeur la première année). Le barème IK compense forfaitairement l'ensemble de ces coûts et évite une amputation significative du revenu net."
+  },
+  {
+    question: "Combien de kilomètres les utilisateurs d'IKtracker enregistrent-ils ?",
+    answer: "Sur la plateforme IKtracker, les utilisateurs les plus mobiles enregistrent jusqu'à 5 900 km par mois. En moyenne, chaque utilisateur cumule environ 4 886 km de trajets professionnels. Le montant maximum d'IK comptabilisé par un seul utilisateur dépasse 58 000 €, avec une moyenne de 2 730 € par utilisateur."
+  },
+  {
+    question: "Que risque-t-on en cas de mauvais suivi de ses trajets professionnels ?",
+    answer: "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés. Un outil de suivi automatisé comme IKtracker permet de constituer un dossier fiscal solide et conforme aux exigences de l'URSSAF."
   }
 ];
 
