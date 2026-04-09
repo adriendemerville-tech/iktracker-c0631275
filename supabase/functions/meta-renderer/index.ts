@@ -361,8 +361,9 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "Frais réels ou abattement de 10% : que choisir ?", "acceptedAnswer": { "@type": "Answer", "text": "Si vos frais professionnels réels (principalement les indemnités kilométriques) dépassent 10% de votre revenu brut, l'option frais réels est plus avantageuse. Utilisez le calculateur IKtracker pour comparer." } },
+        { "@type": "Question", "name": "Frais réels ou abattement de 10% : que choisir ?", "acceptedAnswer": { "@type": "Answer", "text": "Si vos frais professionnels réels (principalement les indemnités kilométriques) dépassent 10% de votre revenu brut, l'option frais réels est plus avantageuse. Par exemple, avec un salaire brut de 30 000 € et 15 000 km parcourus en voiture 5 CV, les frais réels s'élèvent à 6 750 € contre 3 000 € d'abattement forfaitaire." } },
         { "@type": "Question", "name": "Comment déclarer les frais réels ?", "acceptedAnswer": { "@type": "Answer", "text": "Cochez la case 'frais réels' dans votre déclaration d'impôts (case 1AK) et indiquez le montant total. Conservez vos justificatifs (rapports IKtracker) pendant 3 ans." } },
+        { "@type": "Question", "name": "Quels frais sont déductibles en plus des IK ?", "acceptedAnswer": { "@type": "Answer", "text": "En plus des indemnités kilométriques, vous pouvez déduire les frais de repas (si vous ne pouvez pas rentrer chez vous), les frais de double résidence, les frais de formation professionnelle et les cotisations syndicales." } },
       ],
     },
     content: `
@@ -375,7 +376,25 @@ const STATIC_PAGES: Record<string, PageMeta> = {
           <li>Vous parcourez plus de 30 km entre votre domicile et votre lieu de travail</li>
           <li>Vous effectuez des déplacements professionnels fréquents</li>
           <li>Votre véhicule a une puissance fiscale élevée (6 CV ou plus)</li>
-          <li>Vous avez d'autres frais professionnels déductibles</li>
+          <li>Vous avez d'autres frais professionnels déductibles (repas, formation)</li>
+        </ul>
+        <h3>Exemple de comparaison</h3>
+        <p>Salaire brut : 30 000 € — Distance : 15 000 km/an — Véhicule : 5 CV</p>
+        <ul>
+          <li><strong>Abattement 10%</strong> : 30 000 × 10% = 3 000 €</li>
+          <li><strong>Frais réels (IK)</strong> : (15 000 × 0,357) + 1 395 = <strong>6 750 €</strong></li>
+          <li><strong>Économie</strong> : 3 750 € de déduction supplémentaire</li>
+        </ul>
+        <p>Dans cet exemple, les frais réels sont <strong>2,25 fois plus avantageux</strong> que l'abattement forfaitaire.</p>
+      </section>
+      <section>
+        <h2>Frais déductibles en complément des IK</h2>
+        <p>Au-delà des indemnités kilométriques, d'autres frais professionnels peuvent être déduits :</p>
+        <ul>
+          <li><strong>Frais de repas</strong> : si vous ne pouvez pas rentrer déjeuner chez vous (montant plafonné)</li>
+          <li><strong>Frais de double résidence</strong> : si votre emploi vous oblige à maintenir deux logements</li>
+          <li><strong>Frais de formation</strong> : formations professionnelles en lien avec votre activité</li>
+          <li><strong>Cotisations syndicales</strong> : adhésion à un syndicat professionnel</li>
         </ul>
       </section>`,
   },
