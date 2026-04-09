@@ -812,6 +812,7 @@ export default function Lexique() {
 </body>
 </html>`;
 
+      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       
       const url = URL.createObjectURL(pdfBlob);
