@@ -233,37 +233,123 @@ const STATIC_PAGES: Record<string, PageMeta> = {
   },
 
   '/bareme-ik-2026': {
-    title: 'Barème Kilométrique 2026 : Simulateur & Tableau Officiel | IKtracker',
-    description: 'Calculez vos indemnités kilométriques 2026 avec notre simulateur gratuit. Barème fiscal officiel, majoration véhicule électrique +20%, toutes puissances fiscales.',
+    title: 'Barème Kilométrique 2026 Officiel : Tableau IK et Simulateur Gratuit | IKtracker',
+    description: 'Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique. Outil professionnel conforme au barème fiscal.',
     canonical: `${BASE_URL}/bareme-ik-2026`,
-    jsonLd: {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Quel est le barème kilométrique 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème kilométrique 2026 est fixé par l'administration fiscale française. Il dépend de la puissance fiscale du véhicule et du nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%." } },
-        { "@type": "Question", "name": "Comment calculer ses indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Multipliez la distance parcourue par le coefficient du barème correspondant à votre puissance fiscale. Pour les véhicules électriques, appliquez une majoration de 20% sur le résultat." } },
-      ],
-    },
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Barème Kilométrique 2026 Officiel : guide complet et simulateur",
+        "description": "Découvrez le barème kilométrique 2026 officiel. Tableau des taux IK, simulateur gratuit et conseils fiscaux.",
+        "author": { "@type": "Organization", "name": "IKtracker" },
+        "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
+        "datePublished": "2024-12-01",
+        "dateModified": "2026-04-09",
+        "mainEntityOfPage": `${BASE_URL}/bareme-ik-2026`,
+        "inLanguage": "fr-FR",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Quel est le barème kilométrique 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,470 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km." } },
+          { "@type": "Question", "name": "Comment calculer ses indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Multipliez le nombre de kilomètres professionnels parcourus par le taux correspondant à la puissance fiscale de votre véhicule et à votre tranche kilométrique (jusqu'à 5000 km, de 5001 à 20000 km, ou plus de 20000 km)." } },
+          { "@type": "Question", "name": "Les véhicules électriques bénéficient-ils d'un avantage ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le barème kilométrique. Par exemple, un véhicule de 5 CV parcourant 10 000 km obtiendrait 5 958 € au lieu de 4 965 €." } },
+          { "@type": "Question", "name": "Quelle différence entre frais réels et indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Les indemnités kilométriques sont calculées selon un barème forfaitaire qui couvre tous les frais (carburant, entretien, assurance, dépréciation). Les frais réels nécessitent de justifier chaque dépense individuellement avec des factures." } },
+          { "@type": "Question", "name": "Dois-je tenir un carnet de bord pour mes trajets professionnels ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, en cas de contrôle fiscal, vous devez pouvoir justifier vos déplacements professionnels. Un relevé précis (date, motif, destination, distance) est recommandé. IKtracker automatise cette tâche." } },
+          { "@type": "Question", "name": "Pourquoi les IK sont-elles importantes pour les indépendants ?", "acceptedAnswer": { "@type": "Answer", "text": "Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé (TICPE), assurance, entretien et dépréciation du véhicule (15 à 20% de perte de valeur la première année). Le barème IK compense forfaitairement l'ensemble de ces coûts." } },
+          { "@type": "Question", "name": "Combien de kilomètres les utilisateurs d'IKtracker enregistrent-ils ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur la plateforme IKtracker, les utilisateurs les plus mobiles enregistrent jusqu'à 5 900 km par mois. En moyenne, chaque utilisateur cumule environ 4 886 km de trajets professionnels. Le montant maximum d'IK comptabilisé par un seul utilisateur dépasse 58 000 €, avec une moyenne de 2 730 € par utilisateur." } },
+          { "@type": "Question", "name": "Que risque-t-on en cas de mauvais suivi de ses trajets professionnels ?", "acceptedAnswer": { "@type": "Answer", "text": "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés." } },
+        ],
+      },
+    ],
     content: `
       <section>
-        <h2>Barème des indemnités kilométriques 2026</h2>
-        <p>Le barème kilométrique 2026 permet aux salariés et aux professionnels de déduire leurs frais de déplacement professionnel. Il est publié chaque année par l'administration fiscale française.</p>
-        <h3>Tableau du barème kilométrique 2026 — Voitures</h3>
+        <h2>Barème des indemnités kilométriques 2026 — Voitures</h2>
+        <p>Le barème kilométrique 2026 est le barème officiel applicable pour le calcul des indemnités kilométriques. Il est identique au barème 2024, reconduit sans modification pour 2025 et 2026.</p>
         <table>
           <thead><tr><th>Puissance fiscale (CV)</th><th>Jusqu'à 5 000 km</th><th>De 5 001 à 20 000 km</th><th>Au-delà de 20 000 km</th></tr></thead>
           <tbody>
-            <tr><td>3 CV et moins</td><td>d × 0,529</td><td>(d × 0,316) + 1 065</td><td>d × 0,370</td></tr>
-            <tr><td>4 CV</td><td>d × 0,606</td><td>(d × 0,340) + 1 330</td><td>d × 0,407</td></tr>
-            <tr><td>5 CV</td><td>d × 0,636</td><td>(d × 0,357) + 1 395</td><td>d × 0,427</td></tr>
-            <tr><td>6 CV</td><td>d × 0,665</td><td>(d × 0,374) + 1 457</td><td>d × 0,447</td></tr>
-            <tr><td>7 CV et plus</td><td>d × 0,697</td><td>(d × 0,394) + 1 515</td><td>d × 0,470</td></tr>
+            <tr><td>3 CV et moins</td><td>d × 0,529 €</td><td>(d × 0,316) + 1 065 €</td><td>d × 0,370 €</td></tr>
+            <tr><td>4 CV</td><td>d × 0,606 €</td><td>(d × 0,340) + 1 330 €</td><td>d × 0,407 €</td></tr>
+            <tr><td>5 CV</td><td>d × 0,636 €</td><td>(d × 0,357) + 1 395 €</td><td>d × 0,427 €</td></tr>
+            <tr><td>6 CV</td><td>d × 0,665 €</td><td>(d × 0,374) + 1 457 €</td><td>d × 0,447 €</td></tr>
+            <tr><td>7 CV et plus</td><td>d × 0,697 €</td><td>(d × 0,394) + 1 515 €</td><td>d × 0,470 €</td></tr>
           </tbody>
         </table>
-        <p><strong>Véhicules électriques :</strong> une majoration de 20% est appliquée sur le montant calculé.</p>
+        <p><strong>d</strong> = distance parcourue en kilomètres sur l'année. <strong>Véhicules 100% électriques :</strong> majoration de 20% sur le montant calculé.</p>
       </section>
+
       <section>
-        <h2>Simulateur gratuit</h2>
-        <p>Utilisez le simulateur IKtracker pour calculer instantanément vos indemnités kilométriques 2026. Saisissez votre distance annuelle et votre puissance fiscale pour obtenir le montant déductible.</p>
+        <h2>Barème kilométrique 2026 — Motos (&gt; 50 cm³)</h2>
+        <table>
+          <thead><tr><th>Puissance fiscale</th><th>Jusqu'à 3 000 km</th><th>De 3 001 à 6 000 km</th><th>Au-delà de 6 000 km</th></tr></thead>
+          <tbody>
+            <tr><td>1 ou 2 CV</td><td>d × 0,395 €</td><td>(d × 0,099) + 891 €</td><td>d × 0,248 €</td></tr>
+            <tr><td>3, 4, 5 CV</td><td>d × 0,468 €</td><td>(d × 0,082) + 1 158 €</td><td>d × 0,275 €</td></tr>
+            <tr><td>Plus de 5 CV</td><td>d × 0,606 €</td><td>(d × 0,079) + 1 583 €</td><td>d × 0,343 €</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Barème kilométrique 2026 — Cyclomoteurs (&lt; 50 cm³)</h2>
+        <table>
+          <thead><tr><th>Type</th><th>Jusqu'à 3 000 km</th><th>De 3 001 à 6 000 km</th><th>Au-delà de 6 000 km</th></tr></thead>
+          <tbody>
+            <tr><td>Cyclomoteurs et scooters &lt; 50 cm³</td><td>d × 0,315 €</td><td>(d × 0,079) + 711 €</td><td>d × 0,198 €</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Exemples de calcul des indemnités kilométriques 2026</h2>
+        <ul>
+          <li><strong>5 CV, 10 000 km/an :</strong> (10 000 × 0,357) + 1 395 = <strong>4 965 €</strong></li>
+          <li><strong>5 CV, 10 000 km/an, véhicule électrique :</strong> 4 965 × 1,20 = <strong>5 958 €</strong></li>
+          <li><strong>4 CV, 3 000 km/an :</strong> 3 000 × 0,606 = <strong>1 818 €</strong></li>
+          <li><strong>7 CV, 25 000 km/an :</strong> 25 000 × 0,470 = <strong>11 750 €</strong></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Pourquoi les indemnités kilométriques sont indispensables pour les indépendants</h2>
+        <p>Lorsqu'un travailleur indépendant — qu'il soit consultant, infirmier libéral, commercial ou artisan — utilise son véhicule personnel pour se rendre chez ses clients ou sur ses chantiers, il supporte seul l'intégralité des coûts associés à ces déplacements. Contrairement à un salarié disposant d'un véhicule de fonction, l'indépendant avance le carburant, lourdement taxé (la TICPE représente environ 60 centimes par litre d'essence), paie son assurance auto, finance les révisions et les réparations courantes (pneus, freins, vidange).</p>
+        <p>Au-delà du carburant, l'indépendant subit la dépréciation naturelle de son véhicule, qui perd en moyenne 15 à 20% de sa valeur dès la première année. Le barème des indemnités kilométriques 2026 existe précisément pour compenser forfaitairement l'ensemble de ces frais réels : usure mécanique, consommation de carburant, entretien régulier et perte de valeur du véhicule.</p>
+      </section>
+
+      <section>
+        <h2>Données de la communauté IKtracker</h2>
+        <p>IKtracker accompagne aujourd'hui plus de <strong>160 utilisateurs actifs</strong> dans le suivi quotidien de leurs déplacements professionnels. Les utilisateurs les plus mobiles enregistrent jusqu'à <strong>5 900 km par mois</strong>. En moyenne, chaque utilisateur cumule environ <strong>4 886 km</strong> de trajets professionnels. Le montant maximum d'indemnités kilométriques comptabilisé par un seul utilisateur dépasse <strong>58 000 €</strong>, avec une moyenne de <strong>2 730 €</strong> par utilisateur. Au total, plus de <strong>4 600 trajets professionnels</strong> ont été documentés sur la plateforme.</p>
+      </section>
+
+      <section>
+        <h2>Optimiser ses IK : l'importance d'un suivi rigoureux</h2>
+        <p>L'un des pièges les plus fréquents est l'oubli de trajets. Un déplacement non noté, c'est une déduction fiscale perdue. L'administration fiscale (URSSAF) exige un relevé détaillé de chaque trajet : date, lieu de départ, destination, distance et motif professionnel. En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés.</p>
+        <p>Un outil de suivi automatisé permet de constituer un dossier fiscal solide et conforme aux exigences de l'URSSAF et du fisc, plutôt que de reconstituer ses trajets en fin d'année à partir de souvenirs approximatifs.</p>
+      </section>
+
+      <section>
+        <h2>Questions fréquentes sur le barème IK 2026</h2>
+        <dl>
+          <dt>Quel est le barème kilométrique 2026 ?</dt>
+          <dd>Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,470 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km.</dd>
+          <dt>Comment calculer ses indemnités kilométriques ?</dt>
+          <dd>Multipliez le nombre de kilomètres professionnels parcourus par le taux correspondant à la puissance fiscale de votre véhicule et à votre tranche kilométrique.</dd>
+          <dt>Les véhicules électriques bénéficient-ils d'un avantage ?</dt>
+          <dd>Oui, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le barème kilométrique.</dd>
+          <dt>Quelle différence entre frais réels et indemnités kilométriques ?</dt>
+          <dd>Les IK sont forfaitaires (barème fiscal) et couvrent tous les frais. Les frais réels nécessitent de justifier chaque dépense individuellement.</dd>
+          <dt>Dois-je tenir un carnet de bord ?</dt>
+          <dd>Oui. En cas de contrôle fiscal, un relevé précis (date, motif, destination, distance) est exigé par l'administration.</dd>
+          <dt>Pourquoi les IK sont-elles importantes pour les indépendants ?</dt>
+          <dd>Les indépendants supportent seuls carburant taxé, assurance, entretien et dépréciation. Le barème IK compense forfaitairement l'ensemble de ces coûts.</dd>
+          <dt>Combien de kilomètres les utilisateurs d'IKtracker enregistrent-ils ?</dt>
+          <dd>Jusqu'à 5 900 km/mois pour les plus mobiles, 4 886 km en moyenne. Le montant max d'IK dépasse 58 000 €, moyenne de 2 730 € par utilisateur.</dd>
+          <dt>Que risque-t-on sans suivi rigoureux ?</dt>
+          <dd>L'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés.</dd>
+        </dl>
       </section>`,
   },
 
@@ -275,8 +361,9 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "Frais réels ou abattement de 10% : que choisir ?", "acceptedAnswer": { "@type": "Answer", "text": "Si vos frais professionnels réels (principalement les indemnités kilométriques) dépassent 10% de votre revenu brut, l'option frais réels est plus avantageuse. Utilisez le calculateur IKtracker pour comparer." } },
+        { "@type": "Question", "name": "Frais réels ou abattement de 10% : que choisir ?", "acceptedAnswer": { "@type": "Answer", "text": "Si vos frais professionnels réels (principalement les indemnités kilométriques) dépassent 10% de votre revenu brut, l'option frais réels est plus avantageuse. Par exemple, avec un salaire brut de 30 000 € et 15 000 km parcourus en voiture 5 CV, les frais réels s'élèvent à 6 750 € contre 3 000 € d'abattement forfaitaire." } },
         { "@type": "Question", "name": "Comment déclarer les frais réels ?", "acceptedAnswer": { "@type": "Answer", "text": "Cochez la case 'frais réels' dans votre déclaration d'impôts (case 1AK) et indiquez le montant total. Conservez vos justificatifs (rapports IKtracker) pendant 3 ans." } },
+        { "@type": "Question", "name": "Quels frais sont déductibles en plus des IK ?", "acceptedAnswer": { "@type": "Answer", "text": "En plus des indemnités kilométriques, vous pouvez déduire les frais de repas (si vous ne pouvez pas rentrer chez vous), les frais de double résidence, les frais de formation professionnelle et les cotisations syndicales." } },
       ],
     },
     content: `
@@ -289,7 +376,25 @@ const STATIC_PAGES: Record<string, PageMeta> = {
           <li>Vous parcourez plus de 30 km entre votre domicile et votre lieu de travail</li>
           <li>Vous effectuez des déplacements professionnels fréquents</li>
           <li>Votre véhicule a une puissance fiscale élevée (6 CV ou plus)</li>
-          <li>Vous avez d'autres frais professionnels déductibles</li>
+          <li>Vous avez d'autres frais professionnels déductibles (repas, formation)</li>
+        </ul>
+        <h3>Exemple de comparaison</h3>
+        <p>Salaire brut : 30 000 € — Distance : 15 000 km/an — Véhicule : 5 CV</p>
+        <ul>
+          <li><strong>Abattement 10%</strong> : 30 000 × 10% = 3 000 €</li>
+          <li><strong>Frais réels (IK)</strong> : (15 000 × 0,357) + 1 395 = <strong>6 750 €</strong></li>
+          <li><strong>Économie</strong> : 3 750 € de déduction supplémentaire</li>
+        </ul>
+        <p>Dans cet exemple, les frais réels sont <strong>2,25 fois plus avantageux</strong> que l'abattement forfaitaire.</p>
+      </section>
+      <section>
+        <h2>Frais déductibles en complément des IK</h2>
+        <p>Au-delà des indemnités kilométriques, d'autres frais professionnels peuvent être déduits :</p>
+        <ul>
+          <li><strong>Frais de repas</strong> : si vous ne pouvez pas rentrer déjeuner chez vous (montant plafonné)</li>
+          <li><strong>Frais de double résidence</strong> : si votre emploi vous oblige à maintenir deux logements</li>
+          <li><strong>Frais de formation</strong> : formations professionnelles en lien avec votre activité</li>
+          <li><strong>Cotisations syndicales</strong> : adhésion à un syndicat professionnel</li>
         </ul>
       </section>`,
   },

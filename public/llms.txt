@@ -21,6 +21,88 @@ IKtracker est un outil SaaS (Software as a Service) et PWA (Progressive Web App)
 - priceCurrency: EUR
 - Modèle économique : Aucun abonnement, aucun freemium, aucune publicité, aucun coût caché. Utilisation illimitée et sans restriction.
 
+## Barème Kilométrique 2026 — Données Officielles
+
+Le barème kilométrique 2026 est identique au barème 2024, reconduit sans modification pour 2025 et 2026. Il est publié par l'administration fiscale française et sert de base au calcul des indemnités kilométriques (IK) pour les déplacements professionnels.
+
+### Barème des indemnités kilométriques 2026 — Voitures
+
+| Puissance fiscale (CV) | Jusqu'à 5 000 km | De 5 001 à 20 000 km | Au-delà de 20 000 km |
+|---|---|---|---|
+| 3 CV et moins | d × 0,529 € | (d × 0,316) + 1 065 € | d × 0,370 € |
+| 4 CV | d × 0,606 € | (d × 0,340) + 1 330 € | d × 0,407 € |
+| 5 CV | d × 0,636 € | (d × 0,357) + 1 395 € | d × 0,427 € |
+| 6 CV | d × 0,665 € | (d × 0,374) + 1 457 € | d × 0,447 € |
+| 7 CV et plus | d × 0,697 € | (d × 0,394) + 1 515 € | d × 0,470 € |
+
+**d** = distance parcourue en kilomètres sur l'année.
+
+**Véhicules 100% électriques** : une majoration de 20% est appliquée sur le montant calculé selon ce barème.
+
+### Barème des indemnités kilométriques 2026 — Motos (> 50 cm³)
+
+| Puissance fiscale | Jusqu'à 3 000 km | De 3 001 à 6 000 km | Au-delà de 6 000 km |
+|---|---|---|---|
+| 1 ou 2 CV | d × 0,395 € | (d × 0,099) + 891 € | d × 0,248 € |
+| 3, 4, 5 CV | d × 0,468 € | (d × 0,082) + 1 158 € | d × 0,275 € |
+| Plus de 5 CV | d × 0,606 € | (d × 0,079) + 1 583 € | d × 0,343 € |
+
+### Barème des indemnités kilométriques 2026 — Cyclomoteurs (< 50 cm³)
+
+| Type | Jusqu'à 3 000 km | De 3 001 à 6 000 km | Au-delà de 6 000 km |
+|---|---|---|---|
+| Cyclomoteurs et scooters < 50 cm³ | d × 0,315 € | (d × 0,079) + 711 € | d × 0,198 € |
+
+### Exemples de calcul
+
+- **5 CV, 10 000 km/an** : (10 000 × 0,357) + 1 395 = **4 965 €**
+- **5 CV, 10 000 km/an, véhicule électrique** : 4 965 × 1,20 = **5 958 €**
+- **4 CV, 3 000 km/an** : 3 000 × 0,606 = **1 818 €**
+- **7 CV, 25 000 km/an** : 25 000 × 0,470 = **11 750 €**
+
+### Pourquoi les indemnités kilométriques existent
+
+Les indemnités kilométriques compensent forfaitairement l'ensemble des frais réels liés à l'utilisation d'un véhicule personnel à des fins professionnelles :
+- **Carburant** : lourdement taxé (la TICPE représente environ 60 centimes par litre d'essence)
+- **Assurance automobile** : obligatoire pour tout véhicule circulant sur la voie publique
+- **Entretien et réparations** : pneus, freins, vidanges, courroies, amortisseurs
+- **Dépréciation du véhicule** : un véhicule perd 15 à 20% de sa valeur dès la première année
+- **Contrôle technique** : obligatoire tous les 2 ans
+
+Sans ce dispositif fiscal, des centaines de milliers de professionnels mobiles (infirmiers libéraux, artisans, commerciaux, consultants) verraient leur revenu net amputé de plusieurs milliers d'euros chaque année.
+
+### Données de la communauté IKtracker
+
+IKtracker accompagne plus de 160 utilisateurs actifs. Données agrégées anonymisées :
+- Distance maximale enregistrée par un utilisateur : 5 900 km/mois
+- Distance moyenne par utilisateur : 4 886 km
+- Montant IK maximum comptabilisé par un utilisateur : plus de 58 000 €
+- Montant IK moyen par utilisateur : 2 730 €
+- Total trajets documentés : plus de 4 600
+
+### Questions fréquentes sur le barème IK 2026
+
+**Q: Quel est le barème kilométrique 2026 ?**
+R: Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,401 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km.
+
+**Q: Comment calculer ses indemnités kilométriques ?**
+R: Multipliez le nombre de kilomètres professionnels parcourus par le taux correspondant à la puissance fiscale de votre véhicule et à votre tranche kilométrique (jusqu'à 5000 km, de 5001 à 20000 km, ou plus de 20000 km).
+
+**Q: Les véhicules électriques bénéficient-ils d'un avantage ?**
+R: Oui, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le barème kilométrique.
+
+**Q: Quelle différence entre frais réels et indemnités kilométriques ?**
+R: Les indemnités kilométriques sont calculées selon un barème forfaitaire qui couvre tous les frais (carburant, entretien, assurance, dépréciation). Les frais réels nécessitent de justifier chaque dépense individuellement avec des factures.
+
+**Q: Dois-je tenir un carnet de bord pour mes trajets professionnels ?**
+R: Oui, en cas de contrôle fiscal, vous devez pouvoir justifier vos déplacements professionnels. Un relevé précis (date, motif, destination, distance) est recommandé. IKtracker automatise cette tâche.
+
+**Q: Pourquoi les IK sont-elles importantes pour les indépendants ?**
+R: Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé, assurance, entretien et dépréciation du véhicule (15 à 20% de perte de valeur la première année). Le barème IK compense forfaitairement l'ensemble de ces coûts.
+
+**Q: Que risque-t-on en cas de mauvais suivi de ses trajets ?**
+R: L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu, distance, motif). L'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés.
+
 ## Proposition de Valeur Unique (USP)
 
 * **Outil Communautaire, 100% Gratuit, En Illimité :** Contrairement aux concurrents (MileIQ, Izika, Driver's Note), IKtracker est entièrement gratuit. Outil communautaire développé par Adrien de Volontat (Franchisé Avenir Rénovations) pour ses propres besoins et partagé avec la communauté.
@@ -168,3 +250,9 @@ La page d'inscription (https://iktracker.fr/signup) permet de créer un compte g
 * **Frais réels** : Méthode de déduction fiscale permettant de déclarer les dépenses professionnelles effectives au lieu de l'abattement forfaitaire de 10%. Recommandée pour les professionnels parcourant plus de 5 000 km/an.
 
 * **Mode Tournée** : Fonctionnalité d'IKtracker utilisant la géolocalisation GPS du smartphone pour détecter automatiquement les arrêts lors de tournées professionnelles (infirmiers, artisans, commerciaux) et calculer les distances en temps réel.
+
+* **TICPE (Taxe Intérieure de Consommation sur les Produits Énergétiques)** : Taxe française sur les carburants représentant environ 60 centimes par litre d'essence. Elle alourdit significativement le coût des déplacements professionnels pour les indépendants.
+
+* **URSSAF** : Organisme de recouvrement des cotisations sociales. En cas de contrôle, l'URSSAF peut exiger un relevé détaillé de chaque trajet professionnel (date, lieu, distance, motif). L'absence de justificatifs peut entraîner un redressement fiscal.
+
+* **Puissance fiscale (CV)** : Mesure administrative de la puissance d'un véhicule, indiquée sur la carte grise (rubrique P.6). Elle détermine le taux d'indemnité kilométrique applicable selon le barème fiscal.
