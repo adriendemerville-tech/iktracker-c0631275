@@ -1015,7 +1015,7 @@ const BaremeIK2026 = () => {
         <section className="py-16 px-4 bg-muted/30" aria-labelledby="faq-heading">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-10">
-              <h2 id="faq-heading" className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="faq" className="text-2xl md:text-3xl font-bold mb-4">
                 Questions fréquentes sur le barème IK 2026
               </h2>
               <p className="text-muted-foreground">
