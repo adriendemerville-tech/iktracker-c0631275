@@ -881,7 +881,7 @@ const BaremeIK2026 = () => {
         {/* Legal Sources - content-visibility for mobile perf */}
         <section className="py-12 px-4" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+            <h2 id="sources-officielles" className="text-2xl md:text-3xl font-bold mb-8 text-center">
               Sources officielles et références légales
             </h2>
 
