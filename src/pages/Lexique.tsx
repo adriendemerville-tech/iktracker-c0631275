@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { toast } from 'sonner';
-import { htmlToPdfBlob } from '@/lib/pdf-utils';
+
 import { supabase } from '@/integrations/supabase/client';
 
 interface Term {
@@ -812,6 +812,7 @@ export default function Lexique() {
 </body>
 </html>`;
 
+      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       
       const url = URL.createObjectURL(pdfBlob);

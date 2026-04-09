@@ -15,9 +15,11 @@ createRoot(document.getElementById("root")!).render(
 // Note: Heavy vendor chunks (recharts, framer-motion, html2pdf) are NOT preloaded
 // They load on-demand when their features are used to reduce initial bundle impact
 whenInteractive(() => {
-  // Only preload authenticated app routes - not heavy vendor libs
-  preloadModule(() => import("./pages/MesTrajets"));
-  preloadModule(() => import("./pages/Profile"));
+  // Only preload app routes when user is on /app (not on marketing pages)
+  if (window.location.pathname.startsWith('/app')) {
+    preloadModule(() => import("./pages/MesTrajets"));
+    preloadModule(() => import("./pages/Profile"));
+  }
 });
 
 // Defer analytics initialization
