@@ -623,6 +623,33 @@ const BaremeIK2026 = () => {
           </div>
         </section>
 
+        {/* SEO Content: Why IK are legitimate */}
+        <section className="py-12 px-4" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}>
+          <div className="container mx-auto max-w-4xl prose prose-lg dark:prose-invert max-w-none">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6">
+              Pourquoi les indemnités kilométriques sont indispensables pour les indépendants
+            </h2>
+            <p>
+              Lorsqu'un travailleur indépendant — qu'il soit consultant, infirmier libéral, commercial ou artisan — utilise son <strong>véhicule personnel</strong> pour se rendre chez ses clients ou sur ses chantiers, il supporte seul l'intégralité des coûts associés à ces déplacements. Contrairement à un salarié d'une grande entreprise disposant d'un véhicule de fonction, l'indépendant avance <strong>le carburant, lourdement taxé</strong> (la TICPE représente environ 60 centimes par litre d'essence), paie son assurance auto, finance les révisions et les réparations courantes (pneus, freins, vidange), et subit la <strong>dépréciation naturelle</strong> de son véhicule, qui perd en moyenne 15 à 20 % de sa valeur dès la première année. Le barème des indemnités kilométriques 2026 existe précisément pour compenser forfaitairement l'ensemble de ces frais réels : usure mécanique, consommation de carburant, entretien régulier et perte de valeur du véhicule. Sans ce dispositif fiscal, des centaines de milliers de professionnels mobiles verraient leur revenu net amputé de plusieurs milliers d'euros chaque année.
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 mt-12 flex items-center gap-3">
+              <Users className="h-7 w-7 text-primary" aria-hidden="true" />
+              Données de la communauté IKtracker
+            </h2>
+            <p>
+              IKtracker accompagne aujourd'hui plus de <strong>160 utilisateurs actifs</strong> dans le suivi quotidien de leurs déplacements professionnels. Les données agrégées et anonymisées de la plateforme offrent un aperçu concret de la réalité terrain des indépendants français. En termes de volume, les utilisateurs les plus mobiles enregistrent jusqu'à <strong>5 900 km par mois</strong>, soit l'équivalent d'un aller-retour Paris–Bucarest chaque mois. Sur l'ensemble de la plateforme, le <strong>montant maximum d'indemnités kilométriques</strong> comptabilisé par un seul utilisateur dépasse <strong>58 000 €</strong>, ce qui illustre l'ampleur des déplacements dans certaines professions itinérantes. En moyenne, chaque utilisateur a cumulé environ <strong>2 730 € d'IK</strong>, pour une distance moyenne de <strong>4 886 km</strong> enregistrés. Au total, plus de <strong>4 600 trajets professionnels</strong> ont été documentés sur la plateforme. Ces chiffres démontrent que les indemnités kilométriques ne sont pas un avantage symbolique : elles représentent un levier fiscal majeur pour les professionnels qui sillonnent les routes de France au quotidien.
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 mt-12">
+              Optimiser ses IK : l'importance d'un suivi rigoureux
+            </h2>
+            <p>
+              L'un des pièges les plus fréquents en matière d'indemnités kilométriques est <strong>l'oubli de trajets</strong>. Un déplacement non noté, c'est une déduction fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs centaines d'euros. L'administration fiscale exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu de départ, destination, distance et motif professionnel. En cas de contrôle, l'absence de justificatifs peut entraîner un <strong>redressement fiscal</strong> portant sur l'ensemble des frais déclarés. C'est pourquoi un outil de suivi automatisé comme IKtracker devient un allié stratégique : il enregistre chaque déplacement en temps réel grâce au <strong>mode tournée GPS</strong>, calcule automatiquement les distances via Google Maps, et applique instantanément le barème kilométrique 2026 en vigueur. Le relevé généré est directement exploitable par votre comptable ou lors de votre déclaration de revenus. Plutôt que de reconstituer vos trajets en fin d'année à partir de souvenirs approximatifs, vous constituez un <strong>dossier fiscal solide</strong> au fil de l'eau, conforme aux exigences de l'URSSAF et du fisc.
+            </p>
+          </div>
+        </section>
+
         {/* Electric Vehicle Section */}
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-4xl">
