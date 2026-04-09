@@ -217,6 +217,27 @@ const BaremeIK2026 = () => {
                 Utilisez gratuitement notre simulateur et calculez vos <strong>indemnités kilométriques</strong>.
               </p>
             </div>
+
+            {/* Table of contents */}
+            <nav aria-label="Sommaire" className="mt-10 max-w-xl mx-auto">
+              <div className="bg-muted/50 border border-border rounded-xl p-5">
+                <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Sommaire</p>
+                <ol className="space-y-2 text-sm list-decimal list-inside">
+                  <li><a href="#simulateur" className="text-primary hover:underline">Simulateur IK 2026</a></li>
+                  <li><a href="#bareme-officiel" className="text-primary hover:underline">Barème officiel 2026</a></li>
+                  <li><a href="#tableau-voitures" className="text-primary hover:underline">Tableau barème voitures</a></li>
+                  <li><a href="#tableau-motos" className="text-primary hover:underline">Tableau barème motos</a></li>
+                  <li><a href="#tableau-cyclomoteurs" className="text-primary hover:underline">Tableau barème cyclomoteurs</a></li>
+                  <li><a href="#pourquoi-ik" className="text-primary hover:underline">Pourquoi les IK sont indispensables</a></li>
+                  <li><a href="#donnees-communaute" className="text-primary hover:underline">Données de la communauté IKtracker</a></li>
+                  <li><a href="#optimiser-ik" className="text-primary hover:underline">Optimiser ses IK</a></li>
+                  <li><a href="#vehicules-electriques" className="text-primary hover:underline">Véhicules électriques (+20%)</a></li>
+                  <li><a href="#calcul-ik" className="text-primary hover:underline">Comment calculer ses IK</a></li>
+                  <li><a href="#sources-officielles" className="text-primary hover:underline">Sources officielles</a></li>
+                  <li><a href="#faq" className="text-primary hover:underline">Questions fréquentes</a></li>
+                </ol>
+              </div>
+            </nav>
           </div>
         </section>
 
@@ -224,7 +245,7 @@ const BaremeIK2026 = () => {
         <section className="py-12 px-4 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="simulateur" className="text-2xl md:text-3xl font-bold mb-4">
                 Simulateur indemnités kilométriques 2026
               </h2>
               <p className="text-muted-foreground">
@@ -352,7 +373,7 @@ const BaremeIK2026 = () => {
           <div className="container mx-auto max-w-4xl">
             <Card className="border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400" id="bareme-officiel">
                   <Info className="h-5 w-5" />
                   Barème IK 2026 : barème officiel des indemnités kilométriques
                 </CardTitle>
@@ -404,7 +425,7 @@ const BaremeIK2026 = () => {
         <section className="py-12 px-4 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="tableau-voitures" className="text-2xl md:text-3xl font-bold mb-4">
                 Tableau du barème des indemnités kilométriques 2026
               </h2>
               <p className="text-muted-foreground">
@@ -463,7 +484,7 @@ const BaremeIK2026 = () => {
 
             {/* Moto Table */}
             <div className="text-center mb-8 mt-16">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="tableau-motos" className="text-2xl md:text-3xl font-bold mb-4">
                 Barème kilométrique 2026 pour motos thermiques (&gt; 50 cm³)
               </h2>
               <p className="text-muted-foreground">
@@ -566,7 +587,7 @@ const BaremeIK2026 = () => {
 
             {/* Cyclomoteur Table */}
             <div className="text-center mb-8 mt-16">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="tableau-cyclomoteurs" className="text-2xl md:text-3xl font-bold mb-4">
                 Barème kilométrique 2026 pour cyclomoteurs thermiques (&lt; 50 cm³)
               </h2>
               <p className="text-muted-foreground">
@@ -626,26 +647,41 @@ const BaremeIK2026 = () => {
         {/* SEO Content: Why IK are legitimate */}
         <section className="py-12 px-4" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}>
           <div className="container mx-auto max-w-4xl prose prose-lg dark:prose-invert max-w-none">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">
+            <h2 id="pourquoi-ik" className="text-2xl md:text-3xl font-bold mb-6">
               Pourquoi les indemnités kilométriques sont indispensables pour les indépendants
             </h2>
+            <h3 className="text-xl font-semibold mt-6 mb-3">Le carburant : un poste lourdement taxé</h3>
             <p>
-              Lorsqu'un travailleur indépendant — qu'il soit consultant, infirmier libéral, commercial ou artisan — utilise son <strong>véhicule personnel</strong> pour se rendre chez ses clients ou sur ses chantiers, il supporte seul l'intégralité des coûts associés à ces déplacements. Contrairement à un salarié d'une grande entreprise disposant d'un véhicule de fonction, l'indépendant avance <strong>le carburant, lourdement taxé</strong> (la TICPE représente environ 60 centimes par litre d'essence), paie son assurance auto, finance les révisions et les réparations courantes (pneus, freins, vidange), et subit la <strong>dépréciation naturelle</strong> de son véhicule, qui perd en moyenne 15 à 20 % de sa valeur dès la première année. Le barème des indemnités kilométriques 2026 existe précisément pour compenser forfaitairement l'ensemble de ces frais réels : usure mécanique, consommation de carburant, entretien régulier et perte de valeur du véhicule. Sans ce dispositif fiscal, des centaines de milliers de professionnels mobiles verraient leur revenu net amputé de plusieurs milliers d'euros chaque année.
+              Lorsqu'un travailleur indépendant — qu'il soit consultant, infirmier libéral, commercial ou artisan — utilise son <strong>véhicule personnel</strong> pour se rendre chez ses clients ou sur ses chantiers, il supporte seul l'intégralité des coûts associés à ces déplacements. Contrairement à un salarié d'une grande entreprise disposant d'un véhicule de fonction, l'indépendant avance <strong>le carburant, lourdement taxé</strong> (la TICPE représente environ 60 centimes par litre d'essence), paie son assurance auto, finance les révisions et les réparations courantes (pneus, freins, vidange).
+            </p>
+            <h3 className="text-xl font-semibold mt-6 mb-3">Usure, entretien et dépréciation du véhicule</h3>
+            <p>
+              Au-delà du carburant, l'indépendant subit la <strong>dépréciation naturelle</strong> de son véhicule, qui perd en moyenne 15 à 20 % de sa valeur dès la première année. Le barème des indemnités kilométriques 2026 existe précisément pour compenser forfaitairement l'ensemble de ces frais réels : usure mécanique, consommation de carburant, entretien régulier et perte de valeur du véhicule. Sans ce dispositif fiscal, des centaines de milliers de professionnels mobiles verraient leur revenu net amputé de plusieurs milliers d'euros chaque année.
             </p>
 
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 mt-12 flex items-center gap-3">
+            <h2 id="donnees-communaute" className="text-2xl md:text-3xl font-bold mb-6 mt-12 flex items-center gap-3">
               <Users className="h-7 w-7 text-primary" aria-hidden="true" />
               Données de la communauté IKtracker
             </h2>
+            <h3 className="text-xl font-semibold mt-6 mb-3">Les chiffres clés de la plateforme</h3>
             <p>
-              IKtracker accompagne aujourd'hui plus de <strong>160 utilisateurs actifs</strong> dans le suivi quotidien de leurs déplacements professionnels. Les données agrégées et anonymisées de la plateforme offrent un aperçu concret de la réalité terrain des indépendants français. En termes de volume, les utilisateurs les plus mobiles enregistrent jusqu'à <strong>5 900 km par mois</strong>, soit l'équivalent d'un aller-retour Paris–Bucarest chaque mois. Sur l'ensemble de la plateforme, le <strong>montant maximum d'indemnités kilométriques</strong> comptabilisé par un seul utilisateur dépasse <strong>58 000 €</strong>, ce qui illustre l'ampleur des déplacements dans certaines professions itinérantes. En moyenne, chaque utilisateur a cumulé environ <strong>2 730 € d'IK</strong>, pour une distance moyenne de <strong>4 886 km</strong> enregistrés. Au total, plus de <strong>4 600 trajets professionnels</strong> ont été documentés sur la plateforme. Ces chiffres démontrent que les indemnités kilométriques ne sont pas un avantage symbolique : elles représentent un levier fiscal majeur pour les professionnels qui sillonnent les routes de France au quotidien.
+              IKtracker accompagne aujourd'hui plus de <strong>160 utilisateurs actifs</strong> dans le suivi quotidien de leurs déplacements professionnels. Les données agrégées et anonymisées de la plateforme offrent un aperçu concret de la réalité terrain des indépendants français. En termes de volume, les utilisateurs les plus mobiles enregistrent jusqu'à <strong>5 900 km par mois</strong>, soit l'équivalent d'un aller-retour Paris–Bucarest chaque mois.
+            </p>
+            <h3 className="text-xl font-semibold mt-6 mb-3">Des montants qui parlent d'eux-mêmes</h3>
+            <p>
+              Sur l'ensemble de la plateforme, le <strong>montant maximum d'indemnités kilométriques</strong> comptabilisé par un seul utilisateur dépasse <strong>58 000 €</strong>, ce qui illustre l'ampleur des déplacements dans certaines professions itinérantes. En moyenne, chaque utilisateur a cumulé environ <strong>2 730 € d'IK</strong>, pour une distance moyenne de <strong>4 886 km</strong> enregistrés. Au total, plus de <strong>4 600 trajets professionnels</strong> ont été documentés sur la plateforme. Ces chiffres démontrent que les indemnités kilométriques ne sont pas un avantage symbolique : elles représentent un levier fiscal majeur pour les professionnels qui sillonnent les routes de France au quotidien.
             </p>
 
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 mt-12">
+            <h2 id="optimiser-ik" className="text-2xl md:text-3xl font-bold mb-6 mt-12">
               Optimiser ses IK : l'importance d'un suivi rigoureux
             </h2>
+            <h3 className="text-xl font-semibold mt-6 mb-3">Le risque fiscal de l'oubli de trajets</h3>
             <p>
-              L'un des pièges les plus fréquents en matière d'indemnités kilométriques est <strong>l'oubli de trajets</strong>. Un déplacement non noté, c'est une déduction fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs centaines d'euros. L'administration fiscale exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu de départ, destination, distance et motif professionnel. En cas de contrôle, l'absence de justificatifs peut entraîner un <strong>redressement fiscal</strong> portant sur l'ensemble des frais déclarés. C'est pourquoi un outil de suivi automatisé comme IKtracker devient un allié stratégique : il enregistre chaque déplacement en temps réel grâce au <strong>mode tournée GPS</strong>, calcule automatiquement les distances via Google Maps, et applique instantanément le barème kilométrique 2026 en vigueur. Le relevé généré est directement exploitable par votre comptable ou lors de votre déclaration de revenus. Plutôt que de reconstituer vos trajets en fin d'année à partir de souvenirs approximatifs, vous constituez un <strong>dossier fiscal solide</strong> au fil de l'eau, conforme aux exigences de l'URSSAF et du fisc.
+              L'un des pièges les plus fréquents en matière d'indemnités kilométriques est <strong>l'oubli de trajets</strong>. Un déplacement non noté, c'est une déduction fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs centaines d'euros. L'administration fiscale exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu de départ, destination, distance et motif professionnel. En cas de contrôle, l'absence de justificatifs peut entraîner un <strong>redressement fiscal</strong> portant sur l'ensemble des frais déclarés.
+            </p>
+            <h3 className="text-xl font-semibold mt-6 mb-3">Un suivi automatisé pour un dossier fiscal solide</h3>
+            <p>
+              C'est pourquoi un outil de suivi automatisé comme IKtracker devient un allié stratégique : il enregistre chaque déplacement en temps réel grâce au <strong>mode tournée GPS</strong>, calcule automatiquement les distances via Google Maps, et applique instantanément le barème kilométrique 2026 en vigueur. Le relevé généré est directement exploitable par votre comptable ou lors de votre déclaration de revenus. Plutôt que de reconstituer vos trajets en fin d'année à partir de souvenirs approximatifs, vous constituez un <strong>dossier fiscal solide</strong> au fil de l'eau, conforme aux exigences de l'URSSAF et du fisc.
             </p>
           </div>
         </section>
@@ -654,7 +690,7 @@ const BaremeIK2026 = () => {
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="vehicules-electriques" className="text-2xl md:text-3xl font-bold mb-4">
                 Véhicules électriques : majoration de 20% des indemnités kilométriques
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -771,7 +807,7 @@ const BaremeIK2026 = () => {
         {/* How IK Works Section - content-visibility for mobile perf */}
         <section className="py-12 px-4 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+            <h2 id="calcul-ik" className="text-2xl md:text-3xl font-bold mb-8 text-center">
               Comment calculer ses indemnités kilométriques 2026 ?
             </h2>
 
@@ -845,7 +881,7 @@ const BaremeIK2026 = () => {
         {/* Legal Sources - content-visibility for mobile perf */}
         <section className="py-12 px-4" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+            <h2 id="sources-officielles" className="text-2xl md:text-3xl font-bold mb-8 text-center">
               Sources officielles et références légales
             </h2>
 
@@ -976,10 +1012,10 @@ const BaremeIK2026 = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 px-4 bg-muted/30" aria-labelledby="faq-heading">
+        <section className="py-16 px-4 bg-muted/30" aria-labelledby="faq">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-10">
-              <h2 id="faq-heading" className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 id="faq" className="text-2xl md:text-3xl font-bold mb-4">
                 Questions fréquentes sur le barème IK 2026
               </h2>
               <p className="text-muted-foreground">
