@@ -236,16 +236,10 @@ const BaremeIK2026 = () => {
                 <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Sommaire</p>
                 <ol className="space-y-2 text-sm list-decimal list-inside">
                   <li><a href="#simulateur" className="text-primary hover:underline">Simulateur IK 2026</a></li>
-                  <li><a href="#bareme-officiel" className="text-primary hover:underline">Barème officiel 2026</a></li>
-                  <li><a href="#tableau-voitures" className="text-primary hover:underline">Tableau barème voitures</a></li>
-                  <li><a href="#tableau-motos" className="text-primary hover:underline">Tableau barème motos</a></li>
-                  <li><a href="#tableau-cyclomoteurs" className="text-primary hover:underline">Tableau barème cyclomoteurs</a></li>
+                  <li><a href="#tableau-voitures" className="text-primary hover:underline">Tableaux barème officiel</a></li>
                   <li><a href="#pourquoi-ik" className="text-primary hover:underline">Pourquoi les IK sont indispensables</a></li>
                   <li><a href="#donnees-communaute" className="text-primary hover:underline">Données de la communauté IKtracker</a></li>
-                  <li><a href="#optimiser-ik" className="text-primary hover:underline">Optimiser ses IK</a></li>
                   <li><a href="#vehicules-electriques" className="text-primary hover:underline">Véhicules électriques (+20%)</a></li>
-                  <li><a href="#calcul-ik" className="text-primary hover:underline">Comment calculer ses IK</a></li>
-                  <li><a href="#sources-officielles" className="text-primary hover:underline">Sources officielles</a></li>
                   <li><a href="#faq" className="text-primary hover:underline">Questions fréquentes</a></li>
                 </ol>
               </div>
@@ -658,17 +652,17 @@ const BaremeIK2026 = () => {
 
         {/* SEO Content: Why IK are legitimate */}
         <section className="py-12 px-4" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}>
-          <div className="container mx-auto max-w-4xl prose prose-lg dark:prose-invert max-w-none">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 prose prose-lg dark:prose-invert">
             <h2 id="pourquoi-ik" className="text-2xl md:text-3xl font-bold mb-6">
               Pourquoi les indemnités kilométriques sont indispensables pour les indépendants
             </h2>
             <h3 className="text-xl font-semibold mt-6 mb-3">Le carburant : un poste lourdement taxé</h3>
             <p>
-              Lorsqu'un travailleur indépendant — qu'il soit consultant, infirmier libéral, commercial ou artisan — utilise son <strong>véhicule personnel</strong> pour se rendre chez ses clients ou sur ses chantiers, il supporte seul l'intégralité des coûts associés à ces déplacements. Contrairement à un salarié d'une grande entreprise disposant d'un véhicule de fonction, l'indépendant avance <strong>le carburant, lourdement taxé</strong> (la TICPE représente environ 60 centimes par litre d'essence), paie son assurance auto, finance les révisions et les réparations courantes (pneus, freins, vidange).
+              Lorsqu'un travailleur indépendant — qu'il soit consultant, <a href="https://www.ordre-infirmiers.fr/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">infirmier libéral</a>, commercial ou artisan — utilise son <strong>véhicule personnel</strong> pour se rendre chez ses clients ou sur ses chantiers, il supporte seul l'intégralité des coûts associés à ces déplacements. Contrairement à un salarié d'une grande entreprise disposant d'un véhicule de fonction, l'indépendant avance <strong>le carburant, lourdement taxé</strong> (la <a href="https://www.ecologie.gouv.fr/fiscalite-des-energies" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">TICPE</a> représente environ 60 centimes par litre d'essence), paie son assurance auto, finance les révisions et les réparations courantes (pneus, freins, vidange). La page <Link to="/frais-reels" className="text-primary hover:underline">frais réels vs barème IK</Link> détaille les différences entre ces deux régimes.
             </p>
             <h3 className="text-xl font-semibold mt-6 mb-3">Usure, entretien et dépréciation du véhicule</h3>
             <p>
-              Au-delà du carburant, l'indépendant subit la <strong>dépréciation naturelle</strong> de son véhicule, qui perd en moyenne 15 à 20 % de sa valeur dès la première année. Le barème des indemnités kilométriques 2026 existe précisément pour compenser forfaitairement l'ensemble de ces frais réels : usure mécanique, consommation de carburant, entretien régulier et perte de valeur du véhicule. Sans ce dispositif fiscal, des centaines de milliers de professionnels mobiles verraient leur revenu net amputé de plusieurs milliers d'euros chaque année.
+              Au-delà du carburant, l'indépendant subit la <strong>dépréciation naturelle</strong> de son véhicule, qui perd en moyenne 15 à 20 % de sa valeur dès la première année. Le <a href="https://www.service-public.fr/particuliers/vosdroits/F1989" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">barème des indemnités kilométriques 2026</a> existe précisément pour compenser forfaitairement l'ensemble de ces frais réels : usure mécanique, consommation de carburant, entretien régulier et perte de valeur du véhicule. Sans ce dispositif fiscal, des centaines de milliers de professionnels mobiles verraient leur revenu net amputé de plusieurs milliers d'euros chaque année.
             </p>
 
             <h2 id="donnees-communaute" className="text-2xl md:text-3xl font-bold mb-6 mt-12 flex items-center gap-3">
@@ -677,11 +671,11 @@ const BaremeIK2026 = () => {
             </h2>
             <h3 className="text-xl font-semibold mt-6 mb-3">Les chiffres clés de la plateforme</h3>
             <p>
-              IKtracker accompagne aujourd'hui plus de <strong>160 utilisateurs actifs</strong> dans le suivi quotidien de leurs déplacements professionnels. Les données agrégées et anonymisées de la plateforme offrent un aperçu concret de la réalité terrain des indépendants français. En termes de volume, les utilisateurs les plus mobiles enregistrent jusqu'à <strong>5 900 km par mois</strong>, soit l'équivalent d'un aller-retour Paris–Bucarest chaque mois.
+              IKtracker accompagne aujourd'hui plus de <strong>160 utilisateurs actifs</strong> dans le suivi quotidien de leurs déplacements professionnels. Les données agrégées et anonymisées de la plateforme offrent un aperçu concret de la réalité terrain des indépendants français. En termes de volume, les utilisateurs les plus mobiles enregistrent jusqu'à <strong>5 900 km par mois</strong>, soit l'équivalent d'un aller-retour Paris–Bucarest chaque mois. Le <Link to="/mode-tournee" className="text-primary hover:underline">mode tournée GPS</Link> permet de suivre ces trajets en temps réel.
             </p>
             <h3 className="text-xl font-semibold mt-6 mb-3">Des montants qui parlent d'eux-mêmes</h3>
             <p>
-              Sur l'ensemble de la plateforme, le <strong>montant maximum d'indemnités kilométriques</strong> comptabilisé par un seul utilisateur dépasse <strong>58 000 €</strong>, ce qui illustre l'ampleur des déplacements dans certaines professions itinérantes. En moyenne, chaque utilisateur a cumulé environ <strong>2 730 € d'IK</strong>, pour une distance moyenne de <strong>4 886 km</strong> enregistrés. Au total, plus de <strong>4 600 trajets professionnels</strong> ont été documentés sur la plateforme. Ces chiffres démontrent que les indemnités kilométriques ne sont pas un avantage symbolique : elles représentent un levier fiscal majeur pour les professionnels qui sillonnent les routes de France au quotidien.
+              Sur l'ensemble de la plateforme, le <strong>montant maximum d'indemnités kilométriques</strong> comptabilisé par un seul utilisateur dépasse <strong>58 000 €</strong>, ce qui illustre l'ampleur des déplacements dans certaines professions itinérantes. En moyenne, chaque utilisateur a cumulé environ <strong>2 730 € d'IK</strong>, pour une distance moyenne de <strong>4 886 km</strong> enregistrés. Au total, plus de <strong>4 600 trajets professionnels</strong> ont été documentés sur la plateforme. Ces chiffres démontrent que les indemnités kilométriques ne sont pas un avantage symbolique : elles représentent un levier fiscal majeur pour les professionnels qui sillonnent les routes de France au quotidien. Découvrez comment <Link to="/expert-comptable" className="text-primary hover:underline">exporter vos IK pour votre comptable</Link>.
             </p>
 
             <h2 id="optimiser-ik" className="text-2xl md:text-3xl font-bold mb-6 mt-12">
@@ -689,11 +683,11 @@ const BaremeIK2026 = () => {
             </h2>
             <h3 className="text-xl font-semibold mt-6 mb-3">Le risque fiscal de l'oubli de trajets</h3>
             <p>
-              L'un des pièges les plus fréquents en matière d'indemnités kilométriques est <strong>l'oubli de trajets</strong>. Un déplacement non noté, c'est une déduction fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs centaines d'euros. L'administration fiscale exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu de départ, destination, distance et motif professionnel. En cas de contrôle, l'absence de justificatifs peut entraîner un <strong>redressement fiscal</strong> portant sur l'ensemble des frais déclarés.
+              L'un des pièges les plus fréquents en matière d'indemnités kilométriques est <strong>l'oubli de trajets</strong>. Un déplacement non noté, c'est une déduction fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs centaines d'euros. L'<a href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">administration fiscale (URSSAF)</a> exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu de départ, destination, distance et motif professionnel. En cas de contrôle, l'absence de justificatifs peut entraîner un <strong>redressement fiscal</strong> portant sur l'ensemble des frais déclarés.
             </p>
             <h3 className="text-xl font-semibold mt-6 mb-3">Un suivi automatisé pour un dossier fiscal solide</h3>
             <p>
-              C'est pourquoi un outil de suivi automatisé comme IKtracker devient un allié stratégique : il enregistre chaque déplacement en temps réel grâce au <strong>mode tournée GPS</strong>, calcule automatiquement les distances via Google Maps, et applique instantanément le barème kilométrique 2026 en vigueur. Le relevé généré est directement exploitable par votre comptable ou lors de votre déclaration de revenus. Plutôt que de reconstituer vos trajets en fin d'année à partir de souvenirs approximatifs, vous constituez un <strong>dossier fiscal solide</strong> au fil de l'eau, conforme aux exigences de l'URSSAF et du fisc.
+              C'est pourquoi un outil de suivi automatisé comme IKtracker devient un allié stratégique : il enregistre chaque déplacement en temps réel grâce au <Link to="/mode-tournee" className="text-primary hover:underline">mode tournée GPS</Link>, calcule automatiquement les distances via Google Maps, et applique instantanément le barème kilométrique 2026 en vigueur. Le relevé généré est directement exploitable par votre comptable ou lors de votre <a href="https://www.impots.gouv.fr/particulier/frais-de-transport" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">déclaration de revenus</a>. La <Link to="/calendrier" className="text-primary hover:underline">synchronisation avec votre calendrier</Link> Google ou Outlook complète le dispositif. Plutôt que de reconstituer vos trajets en fin d'année à partir de souvenirs approximatifs, vous constituez un <strong>dossier fiscal solide</strong> au fil de l'eau, conforme aux exigences de l'URSSAF et du fisc.
             </p>
           </div>
         </section>
