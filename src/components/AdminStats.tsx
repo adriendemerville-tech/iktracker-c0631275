@@ -606,12 +606,15 @@ export function AdminStats() {
       if (error) throw error;
       const counts: Record<string, number> = {};
       let total = 0;
+      let totalExposed = 0;
       (data || []).forEach((r: { source: string }) => {
+        totalExposed++;
         if (r.source === 'skip') return;
         counts[r.source] = (counts[r.source] || 0) + 1;
         total++;
       });
-      return { counts, total };
+      const responseRate = totalExposed > 0 ? Math.round((total / totalExposed) * 100) : 0;
+      return { counts, total, totalExposed, responseRate };
     },
     refetchInterval: 60 * 60 * 1000,
   });
@@ -1601,7 +1604,7 @@ export function AdminStats() {
                           <p className="text-muted-foreground text-center py-4 text-sm">Aucune réponse</p>
                         ) : (
                           <div className="space-y-3">
-                            <p className="text-xs text-muted-foreground text-center mb-2">{referralStats.total} réponse{referralStats.total > 1 ? 's' : ''}</p>
+                            <p className="text-xs text-muted-foreground text-center mb-2">{referralStats.total} réponse{referralStats.total > 1 ? 's' : ''} / {referralStats.totalExposed} exposée{referralStats.totalExposed > 1 ? 's' : ''} — taux : {referralStats.responseRate}%</p>
                             {Object.entries(sourceLabels).map(([key, label]) => {
                               const count = referralStats.counts[key] || 0;
                               const pct = referralStats.total > 0 ? Math.round((count / referralStats.total) * 100) : 0;
