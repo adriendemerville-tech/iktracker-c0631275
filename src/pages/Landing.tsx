@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
+import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -554,6 +555,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Crawlers Partner Banner */}
+      <CrawlersBanner />
 
       {/* Calendar Sync Demo */}
       <section className="py-16 md:py-24 bg-muted/30 section-contained">
