@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
+import BodyEndInjections from "@/components/BodyEndInjections";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -1033,6 +1034,7 @@ const Landing = () => {
         </section>
       </main>
 
+      <BodyEndInjections />
       <Suspense fallback={<div className="min-h-[600px] bg-muted/30 animate-pulse" />}>
         <EnhancedMarketingFooter />
       </Suspense>
