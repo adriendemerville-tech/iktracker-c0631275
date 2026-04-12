@@ -608,7 +608,7 @@ function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): stri
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Rapport Autopilot 24h — IKtracker</title>
+<title>Rapport Autopilot ${periodLabel} — IKtracker</title>
 <style>
   @page { size: A4 landscape; margin: 15mm; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #1a1a1a; }
