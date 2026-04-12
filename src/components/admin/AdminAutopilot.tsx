@@ -508,12 +508,27 @@ function EventDetailCard({
   );
 }
 
-// Generate 24h PDF report
-function generate24hReportHTML(logs: AuditLog[]): string {
+type ReportPeriod = '1d' | '7d' | '30d';
+
+const REPORT_PERIOD_LABELS: Record<ReportPeriod, string> = {
+  '1d': 'Dernières 24h',
+  '7d': 'Derniers 7 jours',
+  '30d': 'Derniers 30 jours',
+};
+
+const REPORT_PERIOD_MS: Record<ReportPeriod, number> = {
+  '1d': 24 * 60 * 60 * 1000,
+  '7d': 7 * 24 * 60 * 60 * 1000,
+  '30d': 30 * 24 * 60 * 60 * 1000,
+};
+
+// Generate report HTML for a configurable period
+function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): string {
   const now = new Date();
-  const h24ago = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const periodStart = new Date(now.getTime() - REPORT_PERIOD_MS[period]);
+  const periodLabel = REPORT_PERIOD_LABELS[period];
   const recentLogs = logs
-    .filter(l => new Date(l.created_at) >= h24ago)
+    .filter(l => new Date(l.created_at) >= periodStart)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const actionLabels: Record<string, string> = {
@@ -567,7 +582,7 @@ function generate24hReportHTML(logs: AuditLog[]): string {
     (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime()
   );
 
-  const dateRange = `${format(h24ago, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
+  const dateRange = `${format(periodStart, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
 
   const rows = deduped.map(({ log, count }) => `
     <tr>
@@ -593,7 +608,7 @@ function generate24hReportHTML(logs: AuditLog[]): string {
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Rapport Autopilot 24h — IKtracker</title>
+<title>Rapport Autopilot ${periodLabel} — IKtracker</title>
 <style>
   @page { size: A4 landscape; margin: 15mm; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #1a1a1a; }
@@ -612,7 +627,7 @@ function generate24hReportHTML(logs: AuditLog[]): string {
 </style>
 </head>
 <body>
-  <h1>📋 Rapport Autopilot — Dernières 24h</h1>
+  <h1>📋 Rapport Autopilot — ${periodLabel}</h1>
   <div class="subtitle">Période : ${dateRange} · Généré le ${format(now, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
   
   <div class="stats">
@@ -646,6 +661,7 @@ function generate24hReportHTML(logs: AuditLog[]): string {
 export function AdminAutopilot() {
   const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
   const [showReverted, setShowReverted] = useState(false);
+  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('1d');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -750,11 +766,20 @@ export function AdminAutopilot() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <select
+                value={reportPeriod}
+                onChange={(e) => setReportPeriod(e.target.value as ReportPeriod)}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+              >
+                <option value="1d">24h</option>
+                <option value="7d">7 jours</option>
+                <option value="30d">30 jours</option>
+              </select>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const html = generate24hReportHTML(auditLogs);
+                  const html = generateReportHTML(auditLogs, reportPeriod);
                   const w = window.open('', '_blank');
                   if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
                   w.document.open();
@@ -765,7 +790,7 @@ export function AdminAutopilot() {
                 }}
               >
                 <Download className="w-4 h-4 mr-2" />
-                Rapport 24h
+                Rapport
               </Button>
               <Button
                 variant="outline"
