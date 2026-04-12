@@ -508,12 +508,27 @@ function EventDetailCard({
   );
 }
 
-// Generate 24h PDF report
-function generate24hReportHTML(logs: AuditLog[]): string {
+type ReportPeriod = '1d' | '7d' | '30d';
+
+const REPORT_PERIOD_LABELS: Record<ReportPeriod, string> = {
+  '1d': 'Dernières 24h',
+  '7d': 'Derniers 7 jours',
+  '30d': 'Derniers 30 jours',
+};
+
+const REPORT_PERIOD_MS: Record<ReportPeriod, number> = {
+  '1d': 24 * 60 * 60 * 1000,
+  '7d': 7 * 24 * 60 * 60 * 1000,
+  '30d': 30 * 24 * 60 * 60 * 1000,
+};
+
+// Generate report HTML for a configurable period
+function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): string {
   const now = new Date();
-  const h24ago = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const periodStart = new Date(now.getTime() - REPORT_PERIOD_MS[period]);
+  const periodLabel = REPORT_PERIOD_LABELS[period];
   const recentLogs = logs
-    .filter(l => new Date(l.created_at) >= h24ago)
+    .filter(l => new Date(l.created_at) >= periodStart)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const actionLabels: Record<string, string> = {
