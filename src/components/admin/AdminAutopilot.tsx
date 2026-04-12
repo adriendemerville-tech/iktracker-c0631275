@@ -627,7 +627,7 @@ function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): stri
 </style>
 </head>
 <body>
-  <h1>📋 Rapport Autopilot — Dernières 24h</h1>
+  <h1>📋 Rapport Autopilot — ${periodLabel}</h1>
   <div class="subtitle">Période : ${dateRange} · Généré le ${format(now, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
   
   <div class="stats">
