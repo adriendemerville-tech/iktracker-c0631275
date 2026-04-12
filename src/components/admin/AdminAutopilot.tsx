@@ -523,13 +523,15 @@ const REPORT_PERIOD_MS: Record<ReportPeriod, number> = {
 };
 
 // Generate report HTML for a configurable period
-function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): string {
+function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: ReportPeriod = '1d'): string {
   const now = new Date();
   const periodStart = new Date(now.getTime() - REPORT_PERIOD_MS[period]);
   const periodLabel = REPORT_PERIOD_LABELS[period];
   const recentLogs = logs
     .filter(l => new Date(l.created_at) >= periodStart)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const recentEvents = events
+    .filter(e => new Date(e.created_at) >= periodStart);
 
   const actionLabels: Record<string, string> = {
     create: 'Création',
