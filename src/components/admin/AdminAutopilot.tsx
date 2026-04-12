@@ -623,9 +623,18 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
   table { width: 100%; border-collapse: collapse; }
   th { background: #f3f4f6; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; border-bottom: 2px solid #d1d5db; }
   tr:hover td { background: #f9fafb; }
-  .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 14px; }
-  .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
-  @media print { body { padding: 0; } }
+   .diag { margin-top: 32px; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+   .diag h2 { font-size: 16px; margin: 0 0 16px; color: #1e293b; }
+   .diag-section { margin-bottom: 16px; }
+   .diag-section h3 { font-size: 13px; font-weight: 600; color: #475569; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+   .diag-section p, .diag-section li { font-size: 13px; color: #334155; line-height: 1.6; }
+   .diag-section ul { padding-left: 18px; margin: 4px 0 0; }
+   .diag-ok { color: #16a34a; font-weight: 600; }
+   .diag-warn { color: #d97706; font-weight: 600; }
+   .diag-crit { color: #dc2626; font-weight: 600; }
+   .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 14px; }
+   .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
+   @media print { body { padding: 0; } }
 </style>
 </head>
 <body>
