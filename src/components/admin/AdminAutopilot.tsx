@@ -663,6 +663,8 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
     <tbody>${rows}</tbody>
   </table>`}
 
+  ${generateDiagnosticSection(recentLogs, recentEvents, deduped, periodLabel)}
+
   <div class="footer">IKtracker · Rapport généré automatiquement · iktracker.fr</div>
 </body>
 </html>`;
