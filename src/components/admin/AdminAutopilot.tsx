@@ -522,14 +522,150 @@ const REPORT_PERIOD_MS: Record<ReportPeriod, number> = {
   '30d': 30 * 24 * 60 * 60 * 1000,
 };
 
+// Generate the diagnostic paragraph for the report
+function generateDiagnosticSection(
+  recentLogs: AuditLog[],
+  recentEvents: AutopilotEvent[],
+  deduped: { log: AuditLog; count: number }[],
+  periodLabel: string
+): string {
+  // --- Volume analysis ---
+  const totalCalls = recentLogs.length;
+  const uniqueResources = deduped.length;
+  const creates = recentLogs.filter(l => l.action === 'create').length;
+  const updates = recentLogs.filter(l => l.action === 'update' || l.action === 'upsert').length;
+  const deletes = recentLogs.filter(l => l.action === 'delete').length;
+  const reverted = recentLogs.filter(l => l.reverted).length;
+  const revertRate = totalCalls > 0 ? Math.round((reverted / totalCalls) * 100) : 0;
+
+  // Repeated modifications on same resource (potential churn)
+  const highChurn = deduped.filter(d => d.count >= 3);
+
+  // --- Events / friction analysis ---
+  const criticalEvents = recentEvents.filter(e => e.severity === 'critical');
+  const warningEvents = recentEvents.filter(e => e.severity === 'warning');
+  const unresolvedEvents = recentEvents.filter(e => !e.resolved);
+  const resolvedEvents = recentEvents.filter(e => e.resolved);
+
+  // Group events by page_key for friction map
+  const frictionByPage = new Map<string, AutopilotEvent[]>();
+  for (const evt of unresolvedEvents) {
+    const key = evt.page_key || '(global)';
+    const arr = frictionByPage.get(key) || [];
+    arr.push(evt);
+    frictionByPage.set(key, arr);
+  }
+
+  // --- Resource type breakdown ---
+  const byType = new Map<string, number>();
+  for (const log of recentLogs) {
+    byType.set(log.resource_type, (byType.get(log.resource_type) || 0) + 1);
+  }
+
+  // --- SEO/GEO needs assessment ---
+  const seoLogs = recentLogs.filter(l => l.resource_type === 'seo' || l.resource_type === 'page');
+  const blogLogs = recentLogs.filter(l => l.resource_type === 'post');
+  const redirectLogs = recentLogs.filter(l => l.resource_type === 'redirect');
+  const injectionLogs = recentLogs.filter(l => l.resource_type === 'injection');
+
+  // Build diagnostic HTML
+  let html = `<div class="diag"><h2>🔍 Diagnostic</h2>`;
+
+  // 1. Volume conformity
+  html += `<div class="diag-section"><h3>📊 Conformité du volume d'activité</h3>`;
+  if (totalCalls === 0) {
+    html += `<p>Aucune activité Crawlers détectée sur la période <strong>${periodLabel}</strong>. Vérifier que l'intégration API est opérationnelle.</p>`;
+  } else {
+    html += `<p>${totalCalls} appel(s) API sur ${uniqueResources} ressource(s) unique(s). `;
+    html += `Répartition : ${creates} création(s), ${updates} modification(s), ${deletes} suppression(s).`;
+    if (reverted > 0) html += ` <span class="diag-warn">${reverted} action(s) annulée(s) (${revertRate}%)</span>.`;
+    html += `</p>`;
+    // Type breakdown
+    const typeEntries = Array.from(byType.entries()).sort((a, b) => b[1] - a[1]);
+    html += `<ul>${typeEntries.map(([type, count]) => `<li><strong>${type}</strong> : ${count} appel(s)</li>`).join('')}</ul>`;
+  }
+  html += `</div>`;
+
+  // 2. Friction / failures
+  html += `<div class="diag-section"><h3>⚠️ Points de friction & échecs</h3>`;
+  if (criticalEvents.length === 0 && warningEvents.length === 0 && highChurn.length === 0 && reverted === 0) {
+    html += `<p class="diag-ok">✅ Aucun incident, aucune friction détectée. Toutes les actions se sont déroulées normalement.</p>`;
+  } else {
+    const issues: string[] = [];
+    if (criticalEvents.length > 0) issues.push(`<span class="diag-crit">${criticalEvents.length} événement(s) critique(s)</span> nécessitant une attention immédiate`);
+    if (warningEvents.length > 0) issues.push(`<span class="diag-warn">${warningEvents.length} avertissement(s)</span> détecté(s)`);
+    if (reverted > 0) issues.push(`${reverted} action(s) annulée(s) — indiquant des modifications incorrectes ou non souhaitées`);
+    if (highChurn.length > 0) issues.push(`${highChurn.length} ressource(s) modifiée(s) ≥3 fois (churn) : ${highChurn.map(d => '"' + ((d.log.new_data as any)?.title || (d.log.new_data as any)?.slug || d.log.resource_id) + '" (×' + d.count + ')').join(', ')}`);
+    html += `<ul>${issues.map(i => `<li>${i}</li>`).join('')}</ul>`;
+
+    // Friction map by page
+    if (frictionByPage.size > 0) {
+      html += `<p style="margin-top:8px;font-weight:600;font-size:12px;">Pages avec événements non résolus :</p><ul>`;
+      for (const [page, evts] of frictionByPage) {
+        const crits = evts.filter(e => e.severity === 'critical').length;
+        const warns = evts.filter(e => e.severity === 'warning').length;
+        html += `<li><strong>${page}</strong> : ${evts.length} événement(s)`;
+        if (crits > 0) html += ` dont <span class="diag-crit">${crits} critique(s)</span>`;
+        if (warns > 0) html += `${crits > 0 ? ',' : ' dont'} <span class="diag-warn">${warns} warning(s)</span>`;
+        html += `</li>`;
+      }
+      html += `</ul>`;
+    }
+  }
+  html += `</div>`;
+
+  // 3. SEO / GEO needs
+  html += `<div class="diag-section"><h3>🌐 Besoins SEO & GEO</h3>`;
+  const seoInsights: string[] = [];
+
+  if (seoLogs.length > 0) {
+    seoInsights.push(`${seoLogs.length} modification(s) SEO/pages — les métadonnées et le contenu statique sont activement optimisés`);
+  } else {
+    seoInsights.push(`Aucune modification SEO sur la période — vérifier si les balises meta, schema.org et les contenus statiques sont à jour`);
+  }
+
+  if (blogLogs.length > 0) {
+    seoInsights.push(`${blogLogs.length} action(s) sur les articles de blog — le contenu éditorial est en mouvement`);
+  } else {
+    seoInsights.push(`Aucun article de blog créé ou modifié — le contenu frais est essentiel pour le référencement organique et la GEO`);
+  }
+
+  if (redirectLogs.length > 0) {
+    seoInsights.push(`${redirectLogs.length} redirection(s) gérée(s) — bon suivi des URL cassées`);
+  }
+
+  if (injectionLogs.length > 0) {
+    seoInsights.push(`${injectionLogs.length} injection(s) de code modifiée(s) — scripts de tracking ou partenaires mis à jour`);
+  }
+
+  // Static GEO recommendations
+  seoInsights.push(`<strong>Rappel GEO</strong> : les données critiques (barèmes IK, tableaux) doivent être rendues en HTML statique via le meta-renderer pour être indexables par les agents IA (ChatGPT, Perplexity, Claude)`);
+  seoInsights.push(`<strong>Rappel SEO</strong> : synchroniser la liste des User-Agents entre le Cloudflare Worker et le meta-renderer pour éviter les redirections fallback`);
+
+  html += `<ul>${seoInsights.map(i => `<li>${i}</li>`).join('')}</ul>`;
+  html += `</div>`;
+
+  // Resolution summary
+  if (recentEvents.length > 0) {
+    html += `<div class="diag-section"><h3>📋 Résumé des événements</h3>`;
+    html += `<p>${recentEvents.length} événement(s) total sur la période : ${resolvedEvents.length} résolu(s), ${unresolvedEvents.length} en cours.</p>`;
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
 // Generate report HTML for a configurable period
-function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): string {
+function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: ReportPeriod = '1d'): string {
   const now = new Date();
   const periodStart = new Date(now.getTime() - REPORT_PERIOD_MS[period]);
   const periodLabel = REPORT_PERIOD_LABELS[period];
   const recentLogs = logs
     .filter(l => new Date(l.created_at) >= periodStart)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const recentEvents = events
+    .filter(e => new Date(e.created_at) >= periodStart);
 
   const actionLabels: Record<string, string> = {
     create: 'Création',
@@ -621,9 +757,18 @@ function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): stri
   table { width: 100%; border-collapse: collapse; }
   th { background: #f3f4f6; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; border-bottom: 2px solid #d1d5db; }
   tr:hover td { background: #f9fafb; }
-  .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 14px; }
-  .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
-  @media print { body { padding: 0; } }
+   .diag { margin-top: 32px; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+   .diag h2 { font-size: 16px; margin: 0 0 16px; color: #1e293b; }
+   .diag-section { margin-bottom: 16px; }
+   .diag-section h3 { font-size: 13px; font-weight: 600; color: #475569; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+   .diag-section p, .diag-section li { font-size: 13px; color: #334155; line-height: 1.6; }
+   .diag-section ul { padding-left: 18px; margin: 4px 0 0; }
+   .diag-ok { color: #16a34a; font-weight: 600; }
+   .diag-warn { color: #d97706; font-weight: 600; }
+   .diag-crit { color: #dc2626; font-weight: 600; }
+   .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 14px; }
+   .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
+   @media print { body { padding: 0; } }
 </style>
 </head>
 <body>
@@ -651,6 +796,8 @@ function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): stri
     </thead>
     <tbody>${rows}</tbody>
   </table>`}
+
+  ${generateDiagnosticSection(recentLogs, recentEvents, deduped, periodLabel)}
 
   <div class="footer">IKtracker · Rapport généré automatiquement · iktracker.fr</div>
 </body>
@@ -779,7 +926,7 @@ export function AdminAutopilot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const html = generateReportHTML(auditLogs, reportPeriod);
+                  const html = generateReportHTML(auditLogs, events, reportPeriod);
                   const w = window.open('', '_blank');
                   if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
                   w.document.open();
