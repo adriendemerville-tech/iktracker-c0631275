@@ -661,6 +661,7 @@ function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): stri
 export function AdminAutopilot() {
   const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
   const [showReverted, setShowReverted] = useState(false);
+  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('1d');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
