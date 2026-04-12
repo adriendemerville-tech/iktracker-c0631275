@@ -781,7 +781,7 @@ export function AdminAutopilot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const html = generateReportHTML(auditLogs, reportPeriod);
+                  const html = generateReportHTML(auditLogs, events, reportPeriod);
                   const w = window.open('', '_blank');
                   if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
                   w.document.open();
