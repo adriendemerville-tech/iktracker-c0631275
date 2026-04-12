@@ -766,11 +766,20 @@ export function AdminAutopilot() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <select
+                value={reportPeriod}
+                onChange={(e) => setReportPeriod(e.target.value as ReportPeriod)}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+              >
+                <option value="1d">24h</option>
+                <option value="7d">7 jours</option>
+                <option value="30d">30 jours</option>
+              </select>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const html = generate24hReportHTML(auditLogs);
+                  const html = generateReportHTML(auditLogs, reportPeriod);
                   const w = window.open('', '_blank');
                   if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
                   w.document.open();
@@ -781,7 +790,7 @@ export function AdminAutopilot() {
                 }}
               >
                 <Download className="w-4 h-4 mr-2" />
-                Rapport 24h
+                Rapport
               </Button>
               <Button
                 variant="outline"
