@@ -582,7 +582,7 @@ function generateReportHTML(logs: AuditLog[], period: ReportPeriod = '1d'): stri
     (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime()
   );
 
-  const dateRange = `${format(h24ago, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
+  const dateRange = `${format(periodStart, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
 
   const rows = deduped.map(({ log, count }) => `
     <tr>
