@@ -10,7 +10,7 @@ import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
-import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
+
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getOptimizedImageUrl, getResponsiveSrcSet, imagePresets } from '@/lib/image-transform';
@@ -142,7 +142,7 @@ export default function Blog() {
 
           <div className="container mx-auto px-4 py-12">
             {/* Admin-only editorial KPIs */}
-            {isAdmin && !loading && posts.length > 0 && <BlogKpiDashboard />}
+            
 
             {loading ? (
               <div className="space-y-8">
