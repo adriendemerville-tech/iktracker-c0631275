@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
+import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
   Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2
@@ -655,6 +656,8 @@ export default function BlogAdmin() {
             </Button>
             <h1 className="text-3xl font-bold text-foreground">Administration Blog</h1>
           </header>
+
+          <BlogKpiDashboard />
 
           <Tabs defaultValue="posts" className="space-y-6">
             <TabsList>
