@@ -142,7 +142,7 @@ export default function Blog() {
 
           <div className="container mx-auto px-4 py-12">
             {/* Admin-only editorial KPIs */}
-            {isAdmin && !loading && posts.length > 0 && <BlogKpiDashboard />}
+            
 
             {loading ? (
               <div className="space-y-8">
