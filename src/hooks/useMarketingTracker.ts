@@ -102,7 +102,7 @@ const checkIsAdmin = async (): Promise<boolean> => {
 
 interface TrackEventOptions {
   page: string;
-  eventType: 'page_view' | 'cta_click' | 'ik_simulation' | 'signup_click';
+  eventType: 'page_view' | 'cta_click' | 'ik_simulation' | 'signup_click' | 'crawlers_click';
 }
 
 export function useMarketingTracker(page: string) {

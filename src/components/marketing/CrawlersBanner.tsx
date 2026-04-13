@@ -1,9 +1,23 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { isBrowser, isBot } from '@/lib/ssr-utils';
 import crawlersLogo from '@/assets/crawlers-logo.png';
 
 function CrawlersBannerComponent() {
+  const trackClick = useCallback(() => {
+    if (!isBrowser() || isBot()) return;
+    supabase.from('marketing_analytics').insert({
+      event_type: 'crawlers_click',
+      page: 'landing',
+      device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
+      session_id: sessionStorage.getItem('marketing_session_id') || undefined,
+      referrer: document?.referrer || null,
+      user_agent: navigator?.userAgent || 'unknown',
+    }).then(() => {});
+  }, []);
+
   return (
     <section className="py-12 md:py-16 px-4 section-contained">
       <div className="container mx-auto max-w-4xl">
@@ -12,6 +26,7 @@ function CrawlersBannerComponent() {
           target="_blank"
           rel="noopener"
           className="group block"
+          onClick={trackClick}
         >
           <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-white/10 shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]">
             {/* Gradient background */}
