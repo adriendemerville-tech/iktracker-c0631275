@@ -56,7 +56,7 @@ function CrawlersBannerComponent() {
               <div className="flex-1 text-center md:text-left space-y-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-xs font-medium tracking-wide uppercase">
                   <Sparkles className="h-3 w-3" />
-                  Partenaire
+                  Par le même fondateur
                 </div>
                 <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white leading-tight font-display tracking-tight">
                   Crawlers — SEO piloté par l'IA
