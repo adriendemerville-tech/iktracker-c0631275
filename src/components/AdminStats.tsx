@@ -105,6 +105,7 @@ interface MarketingStatsData {
   total_cta_clicks: number;
   total_simulations: number;
   total_signup_clicks: number;
+  total_crawlers_clicks: number;
   mobile_views: number;
   desktop_views: number;
   tablet_views: number;
@@ -880,6 +881,14 @@ export function AdminStats() {
       icon: <UserPlus className="w-5 h-5 text-emerald-500" />,
       label: 'Clics inscription',
       value: formatNumber(marketingStats?.total_signup_clicks || 0),
+      subValue: getPeriodLabel(),
+      isLoading: marketingStatsLoading,
+    },
+    {
+      id: 'crawlers-clicks',
+      icon: <Globe className="w-5 h-5 text-violet-500" />,
+      label: 'Clics Crawlers',
+      value: formatNumber(marketingStats?.total_crawlers_clicks || 0),
       subValue: getPeriodLabel(),
       isLoading: marketingStatsLoading,
     },
