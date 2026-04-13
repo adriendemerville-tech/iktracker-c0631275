@@ -656,6 +656,8 @@ export default function BlogAdmin() {
             <h1 className="text-3xl font-bold text-foreground">Administration Blog</h1>
           </header>
 
+          <BlogKpiDashboard />
+
           <Tabs defaultValue="posts" className="space-y-6">
             <TabsList>
               <TabsTrigger value="posts" className="gap-2">
