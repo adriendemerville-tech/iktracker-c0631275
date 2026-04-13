@@ -65,7 +65,11 @@ export function GlobalTourRecovery() {
         // Mobile: keep existing recovery logic
         if (inactivity < TRANSPARENT_THRESHOLD) {
           restoreToLocalStorage(session);
-          if (!location.pathname.startsWith('/app')) {
+          // Signal Index.tsx to force resume immediately (avoid race condition)
+          sessionStorage.setItem('tour_force_resume', 'true');
+          if (location.pathname.startsWith('/app')) {
+            window.dispatchEvent(new Event('tour_force_resume'));
+          } else {
             navigate('/app');
           }
         } else if (inactivity < MODAL_THRESHOLD) {
