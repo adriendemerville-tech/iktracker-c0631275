@@ -1,13 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { 
   FileText, Code2, Globe, Settings, Trash2, PlusCircle, 
-  Edit, Image, Search 
+  Edit, Image, Search, ChevronDown 
 } from 'lucide-react';
 
 interface AuditLog {
   action: string;
   resource_type: string;
+  resource_id: string;
 }
 
 interface CounterDef {
@@ -85,11 +86,22 @@ interface AutopilotCountersProps {
 }
 
 export function AutopilotCounters({ auditLogs }: AutopilotCountersProps) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   const counts = useMemo(() => {
-    return COUNTERS.map(c => ({
-      ...c,
-      count: auditLogs.filter(c.match).length,
-    }));
+    return COUNTERS.map(c => {
+      const matched = auditLogs.filter(c.match);
+      // Dedupe slugs and count occurrences
+      const slugMap = new Map<string, number>();
+      matched.forEach(log => {
+        const slug = log.resource_id || '(inconnu)';
+        slugMap.set(slug, (slugMap.get(slug) || 0) + 1);
+      });
+      const slugs = Array.from(slugMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([slug, count]) => ({ slug, count }));
+      return { ...c, count: matched.length, slugs };
+    });
   }, [auditLogs]);
 
   const totalActions = auditLogs.length;
@@ -105,14 +117,32 @@ export function AutopilotCounters({ auditLogs }: AutopilotCountersProps) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
         {counts.filter(c => c.count > 0).map((c) => {
           const Icon = c.icon;
+          const isOpen = expanded === c.label;
           return (
-            <div
-              key={c.label}
-              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium ${c.color}`}
-            >
-              <Icon className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">{c.label}</span>
-              <span className="ml-auto font-bold text-sm">{c.count}</span>
+            <div key={c.label} className="col-span-1">
+              <button
+                onClick={() => setExpanded(isOpen ? null : c.label)}
+                className={`w-full flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer hover:opacity-80 ${c.color}`}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{c.label}</span>
+                <span className="ml-auto font-bold text-sm">{c.count}</span>
+                <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isOpen && (
+                <div className="mt-1 rounded-md border bg-background/80 backdrop-blur-sm p-2 max-h-40 overflow-y-auto space-y-0.5">
+                  {c.slugs.map(({ slug, count }) => (
+                    <div key={slug} className="flex items-center justify-between text-[11px] text-muted-foreground px-1 py-0.5 rounded hover:bg-muted/50">
+                      <span className="font-mono truncate mr-2">{slug}</span>
+                      {count > 1 && (
+                        <Badge variant="secondary" className="text-[9px] h-4 px-1.5 shrink-0">
+                          ×{count}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
