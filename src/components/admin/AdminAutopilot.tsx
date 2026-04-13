@@ -31,6 +31,7 @@ import {
   FileCode,
   Download,
 } from 'lucide-react';
+import { AutopilotCounters } from './AutopilotCounters';
 
 // Types
 interface AuditLog {
@@ -954,6 +955,9 @@ export function AdminAutopilot() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Crawlers activity counters */}
+          <AutopilotCounters auditLogs={auditLogs} />
+
           {/* Health dashboard */}
           <HealthDashboard events={events} />
 
