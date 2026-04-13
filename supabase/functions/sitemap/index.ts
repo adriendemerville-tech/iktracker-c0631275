@@ -11,20 +11,22 @@ const corsHeaders = {
 // - 0.8 for main feature pages
 // - 0.5 for legal pages
 const staticPages = [
-  { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-03-19' },
+  { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-04-13' },
   { url: '/signup', priority: '0.9', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/auth', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-15' },
   { url: '/mode-tournee', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/calendrier', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-10' },
   { url: '/expert-comptable', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-05' },
-  { url: '/install', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-05' },
+  { url: '/installer', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-05' },
   { url: '/bareme-ik-2026', priority: '0.9', changefreq: 'yearly', lastmod: '2026-01-01' },
   { url: '/frais-reels', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/lexique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/comparatif-izika', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },
-  { url: '/comparatif-drivers-note', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },
-  { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-03-19' },
+  { url: '/comparatif-driversnote', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },
+  { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-04-13' },
   { url: '/blog/auteur/adrien-de-volontat', priority: '0.6', changefreq: 'monthly', lastmod: '2026-03-19' },
+  { url: '/mentions-legales', priority: '0.5', changefreq: 'yearly', lastmod: '2026-01-01' },
+  { url: '/contact', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-01' },
   { url: '/privacy', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
   { url: '/terms', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
 ];
