@@ -10,6 +10,7 @@
 const LOGPUSH_ENDPOINT = 'https://crawlers.fr/api/logs';
 
 const SUPABASE_META_RENDERER = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/meta-renderer';
+const SUPABASE_SITEMAP = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap';
 
 const BOT_PATTERNS = [
   'googlebot', 'bingbot', 'yandex', 'duckduckbot',
@@ -132,10 +133,46 @@ export default {
       return response;
     }
 
-    // ── 2. iktracker.fr — assets statiques → passthrough + cache headers ──
+    // ── 2a. /sitemap.xml → proxy vers Edge Function dynamique, fallback statique ──
+    if (path === '/sitemap.xml') {
+      try {
+        const sitemapRes = await fetch(SUPABASE_SITEMAP, {
+          headers: { 'User-Agent': ua },
+        });
+        if (sitemapRes.ok) {
+          const xml = await sitemapRes.text();
+          const response = new Response(xml, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=utf-8',
+              'Cache-Control': 'public, max-age=300, s-maxage=300',
+              'X-Rendered-By': 'cloudflare-worker',
+              'X-Sitemap-Source': 'edge-function',
+            },
+          });
+          ctx.waitUntil(sendLog(request, response, botDetected));
+          return response;
+        }
+      } catch (e) {
+        // Fallback vers le fichier statique
+      }
+      // Fallback : servir le fichier statique depuis l'origin
+      const fallbackRes = await fetch(request);
+      const response = new Response(fallbackRes.body, {
+        status: fallbackRes.status,
+        headers: {
+          ...Object.fromEntries(fallbackRes.headers.entries()),
+          'X-Rendered-By': 'cloudflare-worker',
+          'X-Sitemap-Source': 'static-fallback',
+        },
+      });
+      ctx.waitUntil(sendLog(request, response, botDetected));
+      return response;
+    }
+
+    // ── 2b. iktracker.fr — assets statiques → passthrough + cache headers ──
     if (isStaticAsset(path)) {
       const originResponse = await fetch(request);
-      // Add immutable cache headers for hashed assets
       const isHashedAsset = path.startsWith('/assets/');
       const cacheControl = isHashedAsset
         ? 'public, max-age=31536000, immutable'

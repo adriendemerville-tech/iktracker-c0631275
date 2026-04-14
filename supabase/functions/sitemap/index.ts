@@ -13,7 +13,6 @@ const corsHeaders = {
 const staticPages = [
   { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-04-13' },
   { url: '/signup', priority: '0.9', changefreq: 'monthly', lastmod: '2026-03-19' },
-  { url: '/auth', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-15' },
   { url: '/mode-tournee', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/calendrier', priority: '0.8', changefreq: 'monthly', lastmod: '2026-01-10' },
   { url: '/expert-comptable', priority: '0.7', changefreq: 'monthly', lastmod: '2026-01-05' },
@@ -23,7 +22,7 @@ const staticPages = [
   { url: '/lexique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/comparatif-izika', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },
   { url: '/comparatif-driversnote', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },
-  { url: '/blog', priority: '0.8', changefreq: 'daily', lastmod: '2026-04-13' },
+  { url: '/blog', priority: '0.8', changefreq: 'weekly', lastmod: '2026-04-13' },
   { url: '/blog/auteur/adrien-de-volontat', priority: '0.6', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/mentions-legales', priority: '0.5', changefreq: 'yearly', lastmod: '2026-01-01' },
   { url: '/contact', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-01' },
@@ -122,8 +121,8 @@ ${blogEntries}
         'Content-Type': 'application/xml',
         // Important: the hosting layer may also set no-cache, but we ensure it here too.
         // This prevents browsers/CDNs from serving a stale sitemap when new articles are published.
-        'Cache-Control': 'public, max-age=0, s-maxage=0, must-revalidate',
-        'CDN-Cache-Control': 'public, max-age=0, s-maxage=0, must-revalidate',
+        'Cache-Control': 'public, max-age=300, s-maxage=300',
+        'CDN-Cache-Control': 'public, max-age=300, s-maxage=300',
       },
     });
   } catch (error) {
