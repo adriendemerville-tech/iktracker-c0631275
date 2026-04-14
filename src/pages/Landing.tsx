@@ -432,13 +432,12 @@ const Landing = () => {
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { profession: "Infirmier libéral", km: "25 000 km/an", emoji: "🏥" },
-                  { profession: "Commercial itinérant", km: "30 000 km/an", emoji: "💼" },
-                  { profession: "Artisan du bâtiment", km: "18 000 km/an", emoji: "🔧" },
-                  { profession: "Consultant freelance", km: "12 000 km/an", emoji: "💻" },
+                  { profession: "Infirmier libéral", km: "25 000 km/an" },
+                  { profession: "Commercial itinérant", km: "30 000 km/an" },
+                  { profession: "Artisan du bâtiment", km: "18 000 km/an" },
+                  { profession: "Consultant freelance", km: "12 000 km/an" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
-                    <span className="text-2xl">{item.emoji}</span>
                     <div>
                       <div className="font-medium text-sm">{item.profession}</div>
                       <div className="text-xs text-muted-foreground">{item.km}</div>
