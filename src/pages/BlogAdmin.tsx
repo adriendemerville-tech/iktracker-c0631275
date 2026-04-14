@@ -935,7 +935,7 @@ export default function BlogAdmin() {
                 <CardContent className="p-4 text-sm text-muted-foreground">
                   <p className="font-medium mb-2">Comment utiliser l'API :</p>
                   <code className="block bg-background p-2 rounded text-xs">
-                    curl -H "x-api-key: VOTRE_CLE" https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api/posts
+                    curl -H "x-api-key: VOTRE_CLE" {import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api/posts
                   </code>
                 </CardContent>
               </Card>
@@ -1064,7 +1064,7 @@ Authorization: Bearer <webhook_token>`}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">🌐 Base URL</h3>
                     <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
-{`https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api`}
+{`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api`}
                     </pre>
                   </div>
 
@@ -1207,7 +1207,7 @@ Authorization: Bearer <webhook_token>`}
                     <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap">
 {`# Modifier la page "barème IK 2026"
 curl -X PUT \\
-  https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api/pages/bareme-ik-2026 \\
+  ${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api/pages/bareme-ik-2026 \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: VOTRE_CLE_API" \\
   -d '{
@@ -1223,7 +1223,7 @@ curl -X PUT \\
 
 # Créer un article de blog
 curl -X POST \\
-  https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/blog-api/posts \\
+  ${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api/posts \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: VOTRE_CLE_API" \\
   -d '{
