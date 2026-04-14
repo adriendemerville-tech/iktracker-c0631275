@@ -168,6 +168,15 @@ function AuditCard({
                   <RotateCcw className="w-3 h-3" /> Annulé
                 </Badge>
               )}
+              {classifySource(log) === 'parmenion' ? (
+                <Badge className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100">
+                  Parménion
+                </Badge>
+              ) : (
+                <Badge className="text-[10px] bg-pink-100 text-pink-700 border-pink-200 hover:bg-pink-100">
+                  Outils Crawlers
+                </Badge>
+              )}
               {log.api_key_name && (
                 <Badge variant="outline" className="text-[10px] text-muted-foreground">
                   via {log.api_key_name}
