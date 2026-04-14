@@ -71,7 +71,7 @@ async function fetchBlogPosts() {
 function buildXml(posts) {
   const staticEntries = staticPages.map(p => `  <url>
     <loc>${BASE_URL}${p.url}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${p.lastmod}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
   </url>`).join('\n');
