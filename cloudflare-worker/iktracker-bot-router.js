@@ -158,16 +158,30 @@ export default {
       }
       // Fallback : servir le fichier statique depuis l'origin
       const fallbackRes = await fetch(request);
-      const response = new Response(fallbackRes.body, {
-        status: fallbackRes.status,
+      if (fallbackRes.ok) {
+        const response = new Response(fallbackRes.body, {
+          status: fallbackRes.status,
+          headers: {
+            ...Object.fromEntries(fallbackRes.headers.entries()),
+            'X-Rendered-By': 'cloudflare-worker',
+            'X-Sitemap-Source': 'static-fallback',
+          },
+        });
+        ctx.waitUntil(sendLog(request, response, botDetected));
+        return response;
+      }
+      // Ultime fallback : retourner une 503 explicite
+      const errResponse = new Response('Sitemap temporarily unavailable', {
+        status: 503,
         headers: {
-          ...Object.fromEntries(fallbackRes.headers.entries()),
+          'Content-Type': 'text/plain',
+          'Retry-After': '300',
           'X-Rendered-By': 'cloudflare-worker',
-          'X-Sitemap-Source': 'static-fallback',
+          'X-Sitemap-Source': 'error',
         },
       });
-      ctx.waitUntil(sendLog(request, response, botDetected));
-      return response;
+      ctx.waitUntil(sendLog(request, errResponse, botDetected));
+      return errResponse;
     }
 
     // ── 2b. iktracker.fr — assets statiques → passthrough + cache headers ──
