@@ -168,6 +168,15 @@ function AuditCard({
                   <RotateCcw className="w-3 h-3" /> Annulé
                 </Badge>
               )}
+              {classifySource(log) === 'parmenion' ? (
+                <Badge className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100">
+                  Parménion
+                </Badge>
+              ) : (
+                <Badge className="text-[10px] bg-pink-100 text-pink-700 border-pink-200 hover:bg-pink-100">
+                  Outils Crawlers
+                </Badge>
+              )}
               {log.api_key_name && (
                 <Badge variant="outline" className="text-[10px] text-muted-foreground">
                   via {log.api_key_name}
@@ -657,6 +666,15 @@ function generateDiagnosticSection(
   return html;
 }
 
+// Heuristic: classify a log as deployed via Parménion or direct Crawlers tools
+function classifySource(log: AuditLog): 'parmenion' | 'crawlers_direct' {
+  // Parménion handles pages, SEO, injections, config, media, redirects
+  const parmenionTypes = ['page', 'seo', 'seo_config', 'injection', 'config', 'site_config', 'redirect', 'media'];
+  if (parmenionTypes.includes(log.resource_type)) return 'parmenion';
+  // Everything else (posts) = direct Crawlers content tools
+  return 'crawlers_direct';
+}
+
 // Generate report HTML for a configurable period
 function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: ReportPeriod = '1d'): string {
   const now = new Date();
@@ -705,41 +723,63 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
 
   // Deduplicate: group by resource_type + resource_id, keep most recent, count occurrences
   const groupKey = (l: AuditLog) => `${l.resource_type}::${l.resource_id}`;
-  const grouped = new Map<string, { log: AuditLog; count: number }>();
-  for (const log of recentLogs) {
-    const key = groupKey(log);
-    const existing = grouped.get(key);
-    if (!existing) {
-      grouped.set(key, { log, count: 1 });
-    } else {
-      existing.count++;
+
+  function buildDedupedRows(logSet: AuditLog[]): { log: AuditLog; count: number }[] {
+    const grouped = new Map<string, { log: AuditLog; count: number }>();
+    for (const log of logSet) {
+      const key = groupKey(log);
+      const existing = grouped.get(key);
+      if (!existing) {
+        grouped.set(key, { log, count: 1 });
+      } else {
+        existing.count++;
+      }
     }
+    return Array.from(grouped.values()).sort(
+      (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime()
+    );
   }
-  const deduped = Array.from(grouped.values()).sort(
-    (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime()
-  );
+
+  // Split by source
+  const parmenionLogs = recentLogs.filter(l => classifySource(l) === 'parmenion');
+  const directLogs = recentLogs.filter(l => classifySource(l) === 'crawlers_direct');
+  const parmenionDeduped = buildDedupedRows(parmenionLogs);
+  const directDeduped = buildDedupedRows(directLogs);
+  const allDeduped = buildDedupedRows(recentLogs);
 
   const dateRange = `${format(periodStart, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
 
-  const rows = deduped.map(({ log, count }) => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px;">
-        ${format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
-        <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${log.action === 'create' ? '#d1fae5' : log.action === 'delete' ? '#fee2e2' : '#dbeafe'};color:${log.action === 'create' ? '#065f46' : log.action === 'delete' ? '#991b1b' : '#1e40af'}">
-          ${(actionLabels[log.action] || log.action).toUpperCase()}
-        </span>
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
-        ${getDescription(log)}${count > 1 ? ` <span style="color:#6b7280;font-size:11px;">(×${count})</span>` : ''}
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280;word-break:break-all;">${getUrl(log)}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">
-        ${log.reverted ? '✅ Annulé' : '—'}
-      </td>
-    </tr>
-  `).join('');
+  function buildTableRows(deduped: { log: AuditLog; count: number }[]): string {
+    return deduped.map(({ log, count }) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px;">
+          ${format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
+        </td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
+          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${log.action === 'create' ? '#d1fae5' : log.action === 'delete' ? '#fee2e2' : '#dbeafe'};color:${log.action === 'create' ? '#065f46' : log.action === 'delete' ? '#991b1b' : '#1e40af'}">
+            ${(actionLabels[log.action] || log.action).toUpperCase()}
+          </span>
+        </td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
+          ${getDescription(log)}${count > 1 ? ` <span style="color:#6b7280;font-size:11px;">(×${count})</span>` : ''}
+        </td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280;word-break:break-all;">${getUrl(log)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">
+          ${log.reverted ? '✅ Annulé' : '—'}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function buildTable(deduped: { log: AuditLog; count: number }[], emptyMsg: string): string {
+    if (deduped.length === 0) return `<div class="empty">${emptyMsg}</div>`;
+    return `<table>
+      <thead><tr>
+        <th>Date & Heure</th><th>Action</th><th>Description</th><th>URL</th><th>Statut</th>
+      </tr></thead>
+      <tbody>${buildTableRows(deduped)}</tbody>
+    </table>`;
+  }
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -750,26 +790,34 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
   @page { size: A4 landscape; margin: 15mm; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 40px; color: #1a1a1a; }
   h1 { font-size: 22px; margin: 0 0 4px; }
+  h2.section-title { font-size: 17px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 8px; }
+  .source-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-parmenion { background: #dbeafe; color: #1e40af; }
+  .badge-direct { background: #fce7f3; color: #9d174d; }
   .subtitle { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
-  .stats { display: flex; gap: 24px; margin-bottom: 24px; }
+  .stats { display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
   .stat-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 20px; }
   .stat-box .value { font-size: 24px; font-weight: 700; }
   .stat-box .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-  table { width: 100%; border-collapse: collapse; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
   th { background: #f3f4f6; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; border-bottom: 2px solid #d1d5db; }
   tr:hover td { background: #f9fafb; }
-   .diag { margin-top: 32px; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
-   .diag h2 { font-size: 16px; margin: 0 0 16px; color: #1e293b; }
-   .diag-section { margin-bottom: 16px; }
-   .diag-section h3 { font-size: 13px; font-weight: 600; color: #475569; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-   .diag-section p, .diag-section li { font-size: 13px; color: #334155; line-height: 1.6; }
-   .diag-section ul { padding-left: 18px; margin: 4px 0 0; }
-   .diag-ok { color: #16a34a; font-weight: 600; }
-   .diag-warn { color: #d97706; font-weight: 600; }
-   .diag-crit { color: #dc2626; font-weight: 600; }
-   .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 14px; }
-   .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
-   @media print { body { padding: 0; } }
+  .diag { margin-top: 32px; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .diag h2 { font-size: 16px; margin: 0 0 16px; color: #1e293b; }
+  .diag-section { margin-bottom: 16px; }
+  .diag-section h3 { font-size: 13px; font-weight: 600; color: #475569; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .diag-section p, .diag-section li { font-size: 13px; color: #334155; line-height: 1.6; }
+  .diag-section ul { padding-left: 18px; margin: 4px 0 0; }
+  .diag-ok { color: #16a34a; font-weight: 600; }
+  .diag-warn { color: #d97706; font-weight: 600; }
+  .diag-crit { color: #dc2626; font-weight: 600; }
+  .empty { text-align: center; padding: 40px; color: #9ca3af; font-size: 14px; }
+  .footer { margin-top: 32px; text-align: center; color: #9ca3af; font-size: 11px; }
+  .source-summary { display: flex; gap: 32px; margin: 12px 0 24px; flex-wrap: wrap; }
+  .source-card { flex: 1; min-width: 200px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 20px; }
+  .source-card h4 { font-size: 12px; color: #6b7280; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .source-card .big { font-size: 28px; font-weight: 700; }
+  @media print { body { padding: 0; } }
 </style>
 </head>
 <body>
@@ -777,28 +825,36 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
   <div class="subtitle">Période : ${dateRange} · Généré le ${format(now, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
   
   <div class="stats">
-    <div class="stat-box"><div class="value">${deduped.length}</div><div class="label">Ressources modifiées</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.length}</div><div class="label">Ressources modifiées</div></div>
     <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Appels API totaux</div></div>
-    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'create').length}</div><div class="label">Créations</div></div>
-    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'update' || d.log.action === 'upsert').length}</div><div class="label">Modifications</div></div>
-    <div class="stat-box"><div class="value">${deduped.filter(d => d.log.action === 'delete').length}</div><div class="label">Suppressions</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.filter(d => d.log.action === 'create').length}</div><div class="label">Créations</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.filter(d => d.log.action === 'update' || d.log.action === 'upsert').length}</div><div class="label">Modifications</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.filter(d => d.log.action === 'delete').length}</div><div class="label">Suppressions</div></div>
   </div>
 
-  ${deduped.length === 0 ? '<div class="empty">Aucune action Crawlers détectée sur les dernières 24 heures.</div>' : `
-  <table>
-    <thead>
-      <tr>
-        <th>Date & Heure</th>
-        <th>Action</th>
-        <th>Description</th>
-        <th>URL</th>
-        <th>Statut</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>`}
+  <!-- Source split summary -->
+  <div class="source-summary">
+    <div class="source-card">
+      <h4><span class="source-badge badge-parmenion">Parménion</span> Orchestrateur</h4>
+      <div class="big">${parmenionLogs.length}</div>
+      <div style="font-size:12px;color:#6b7280;">${parmenionDeduped.length} ressource(s) · Pages, SEO, injections, config</div>
+    </div>
+    <div class="source-card">
+      <h4><span class="source-badge badge-direct">Outils Crawlers</span> Direct</h4>
+      <div class="big">${directLogs.length}</div>
+      <div style="font-size:12px;color:#6b7280;">${directDeduped.length} ressource(s) · Articles, contenu éditorial</div>
+    </div>
+  </div>
 
-  ${generateDiagnosticSection(recentLogs, recentEvents, deduped, periodLabel)}
+  <!-- Parménion section -->
+  <h2 class="section-title"><span class="source-badge badge-parmenion">Parménion</span> Actions de l'orchestrateur</h2>
+  ${buildTable(parmenionDeduped, 'Aucune action Parménion sur cette période.')}
+
+  <!-- Crawlers Direct section -->
+  <h2 class="section-title"><span class="source-badge badge-direct">Outils Crawlers</span> Actions des outils directs</h2>
+  ${buildTable(directDeduped, 'Aucune action directe Crawlers sur cette période.')}
+
+  ${generateDiagnosticSection(recentLogs, recentEvents, allDeduped, periodLabel)}
 
   <div class="footer">IKtracker · Rapport généré automatiquement · iktracker.fr</div>
 </body>
