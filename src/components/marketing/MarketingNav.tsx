@@ -63,7 +63,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
       </a>
 
       <header 
-        className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border"
+        className="fixed top-4 left-4 right-4 z-50 bg-background/80 backdrop-blur-md border border-border rounded-2xl shadow-lg shadow-black/5"
         role="banner"
       >
         <nav 
