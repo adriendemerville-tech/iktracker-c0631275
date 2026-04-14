@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ChevronRight, Home } from 'lucide-react';
 
@@ -15,7 +15,9 @@ interface BreadcrumbProps {
 const BASE_URL = 'https://iktracker.fr';
 
 export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
-  // Build schema.org BreadcrumbList
+  const location = useLocation();
+
+  // Build schema.org BreadcrumbList – always include "item" URL
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -30,7 +32,7 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
         "@type": "ListItem",
         "position": index + 2,
         "name": item.label,
-        ...(item.href && { "item": `${BASE_URL}${item.href}` })
+        "item": `${BASE_URL}${item.href || location.pathname}`
       }))
     ]
   };
