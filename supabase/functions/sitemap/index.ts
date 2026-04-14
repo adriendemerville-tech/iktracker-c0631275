@@ -122,7 +122,7 @@ ${blogEntries}
         // Important: the hosting layer may also set no-cache, but we ensure it here too.
         // This prevents browsers/CDNs from serving a stale sitemap when new articles are published.
         'Cache-Control': 'public, max-age=300, s-maxage=300',
-        'CDN-Cache-Control': 'public, max-age=0, s-maxage=0, must-revalidate',
+        'CDN-Cache-Control': 'public, max-age=300, s-maxage=300',
       },
     });
   } catch (error) {
