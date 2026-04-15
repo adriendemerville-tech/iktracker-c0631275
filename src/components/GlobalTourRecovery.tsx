@@ -37,7 +37,10 @@ export function GlobalTourRecovery() {
   const [showModal, setShowModal] = useState(false);
   const [sessionData, setSessionData] = useState<TourSessionDB | null>(null);
   const [inactivityText, setInactivityText] = useState('');
-  const [hasChecked, setHasChecked] = useState(false);
+  const [hasChecked, setHasChecked] = useState(() => {
+    // Persist check across remounts within the same browser session
+    return sessionStorage.getItem('tour_recovery_checked') === 'true';
+  });
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Check DB for active session on mount and when user changes
