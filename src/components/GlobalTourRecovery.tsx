@@ -51,7 +51,7 @@ export function GlobalTourRecovery() {
       try {
         const session = await fetchActiveSession();
         setHasChecked(true);
-        
+        sessionStorage.setItem('tour_recovery_checked', 'true');
         if (!session) return;
 
         const lastActivity = new Date(session.last_activity).getTime();
