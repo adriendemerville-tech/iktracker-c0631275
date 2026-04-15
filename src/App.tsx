@@ -347,6 +347,7 @@ const AppRoutes = () => {
         <Route path="/comparatif-driversnote" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
         <Route path="/marina" element={<Suspense fallback={<PageLoader />}><MarinaAnalyze /></Suspense>} />
         <Route path="/mentions-legales" element={<Suspense fallback={<PageLoader />}><MentionsLegales /></Suspense>} />
+        <Route path="/tarifs" element={<Suspense fallback={<PageLoader />}><Tarifs /></Suspense>} />
         <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
