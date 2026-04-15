@@ -85,6 +85,7 @@ export function GlobalTourRecovery() {
       } catch (e) {
         console.warn('[GlobalTourRecovery] Error checking session:', e);
         setHasChecked(true);
+        sessionStorage.setItem('tour_recovery_checked', 'true');
       }
     };
 
