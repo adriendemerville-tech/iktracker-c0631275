@@ -37,7 +37,10 @@ export function GlobalTourRecovery() {
   const [showModal, setShowModal] = useState(false);
   const [sessionData, setSessionData] = useState<TourSessionDB | null>(null);
   const [inactivityText, setInactivityText] = useState('');
-  const [hasChecked, setHasChecked] = useState(false);
+  const [hasChecked, setHasChecked] = useState(() => {
+    // Persist check across remounts within the same browser session
+    return sessionStorage.getItem('tour_recovery_checked') === 'true';
+  });
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Check DB for active session on mount and when user changes
@@ -48,7 +51,7 @@ export function GlobalTourRecovery() {
       try {
         const session = await fetchActiveSession();
         setHasChecked(true);
-        
+        sessionStorage.setItem('tour_recovery_checked', 'true');
         if (!session) return;
 
         const lastActivity = new Date(session.last_activity).getTime();
@@ -82,6 +85,7 @@ export function GlobalTourRecovery() {
       } catch (e) {
         console.warn('[GlobalTourRecovery] Error checking session:', e);
         setHasChecked(true);
+        sessionStorage.setItem('tour_recovery_checked', 'true');
       }
     };
 
