@@ -46,6 +46,18 @@ export function GlobalTourRecovery() {
   useEffect(() => {
     if (!user || hasChecked) return;
 
+    // Robust mobile detection (independent of useIsMobile hydration timing)
+    // Desktop = wide screen AND no touch/mobile UA. Anything else = mobile.
+    const detectIsMobileStrict = (): boolean => {
+      if (typeof window === 'undefined') return false;
+      const width = window.innerWidth || 0;
+      const hasTouch = 'ontouchstart' in window || (navigator.maxTouchPoints ?? 0) > 0;
+      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      // Treat as desktop only if wide screen AND no touch AND no mobile UA
+      if (width >= 1024 && !hasTouch && !mobileUA) return false;
+      return true;
+    };
+
     const check = async () => {
       try {
         const session = await fetchActiveSession();
@@ -57,10 +69,11 @@ export function GlobalTourRecovery() {
         const inactivity = Date.now() - lastActivity;
         const inactivitySec = Math.round(inactivity / 1000);
 
-        console.log('[GlobalTourRecovery] Found active session, isMobile:', isMobile, 'inactivity:', inactivitySec, 's');
+        const isMobileStrict = detectIsMobileStrict();
+        console.log('[GlobalTourRecovery] Found active session, isMobile:', isMobile, 'isMobileStrict:', isMobileStrict, 'inactivity:', inactivitySec, 's');
 
-        // Desktop: always auto-finalize
-        if (!isMobile) {
+        // Desktop: always auto-finalize. Use strict detection to avoid false desktop on mobile hydration.
+        if (!isMobileStrict) {
           logTourRecovery({
             eventType: 'auto_finalize_attempt',
             sessionId: session.id,
