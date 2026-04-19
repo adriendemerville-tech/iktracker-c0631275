@@ -219,11 +219,39 @@ export function GlobalTourRecovery() {
     }
   };
 
+  // Resolve a city name from a GPS point via reverse geocoding (best effort)
+  const resolveCityFromGps = async (lat: number, lng: number, fallback: string): Promise<string> => {
+    try {
+      const ok = await loadGoogleMapsAsync(8000);
+      if (!ok) return fallback;
+      const result = await reverseGeocode(lat, lng);
+      return result?.city || fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
   const autoFinalize = async (session: TourSessionDB, fromDesktop = false) => {
-    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops', fromDesktop ? '(desktop)' : '(mobile - terminating like manual end)');
+    const stopsCount = session.stops.length;
+    const gpsPoints = session.gps_points || [];
+    const hasGps = gpsPoints.length > 0;
+    const distanceKm = session.total_distance_km || 0;
+
+    console.log(
+      '[GlobalTourRecovery] Auto-finalizing session',
+      { stopsCount, gpsPoints: gpsPoints.length, distanceKm, fromDesktop }
+    );
 
     try {
-      if (session.stops.length >= 1) {
+      // Determine which case applies
+      // A: ≥2 stops → full tour
+      // B: 1 stop + GPS → trip with reverse-geocoded end
+      // C: 1 stop + no GPS → trip "À compléter"
+      // D: 0 stop + GPS + distance ≥ MIN_GPS_DISTANCE_KM → reverse-geocoded trip
+      // E: 0 stop + no GPS or distance < MIN_GPS_DISTANCE_KM → discard
+      const isCaseE = stopsCount === 0 && (!hasGps || distanceKm < MIN_GPS_DISTANCE_KM);
+
+      if (!isCaseE) {
         const { data: vehicles } = await supabase
           .from('vehicles')
           .select('id')
@@ -232,60 +260,111 @@ export function GlobalTourRecovery() {
 
         if (vehicles && vehicles.length > 0) {
           const vehicleId = vehicles[0].id;
-          const firstStop = session.stops[0];
-          const lastStop = session.stops[session.stops.length - 1];
-          const isTour = session.stops.length >= 2;
+          const isTour = stopsCount >= 2;
 
-          const tourStopsData = isTour ? session.stops.map(s => ({
-            id: s.id,
-            timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
-            lat: s.lat,
-            lng: s.lng,
-            address: s.address,
-            city: s.city,
-            duration: s.duration,
-          })) : undefined;
+          let startLocation = 'À compléter';
+          let endLocation = 'À compléter';
+          let tourStopsData: any = undefined;
+          let purpose = 'Trajet à vérifier';
+          let caseLabel = '';
+
+          if (isTour) {
+            // Case A
+            const firstStop = session.stops[0];
+            const lastStop = session.stops[stopsCount - 1];
+            startLocation = firstStop.city || firstStop.address || 'Position';
+            endLocation = lastStop.city || lastStop.address || 'À compléter';
+            tourStopsData = session.stops.map(s => ({
+              id: s.id,
+              timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
+              lat: s.lat,
+              lng: s.lng,
+              address: s.address,
+              city: s.city,
+              duration: s.duration,
+            }));
+            purpose = 'Tournée récupérée';
+            caseLabel = 'A_full_tour';
+          } else if (stopsCount === 1) {
+            const firstStop = session.stops[0];
+            startLocation = firstStop.city || firstStop.address || 'Position';
+            if (hasGps) {
+              // Case B: reverse-geocode last GPS point
+              const lastGps = gpsPoints[gpsPoints.length - 1];
+              endLocation = await resolveCityFromGps(lastGps.lat, lastGps.lng, 'À compléter');
+              caseLabel = 'B_one_stop_with_gps';
+            } else {
+              // Case C
+              endLocation = 'À compléter';
+              caseLabel = 'C_one_stop_no_gps';
+            }
+            purpose = 'Trajet à vérifier';
+          } else {
+            // Case D: 0 stop, GPS available, distance ≥ MIN_GPS_DISTANCE_KM
+            const firstGps = gpsPoints[0];
+            const lastGps = gpsPoints[gpsPoints.length - 1];
+            startLocation = await resolveCityFromGps(firstGps.lat, firstGps.lng, 'Départ inconnu');
+            endLocation = await resolveCityFromGps(lastGps.lat, lastGps.lng, 'À compléter');
+            purpose = 'Trajet à vérifier';
+            caseLabel = 'D_no_stop_with_gps';
+          }
 
           const { data: insertedTrip, error: insertError } = await supabase.from('trips').insert({
             user_id: session.user_id,
             vehicle_id: vehicleId,
-            start_location: firstStop.city || firstStop.address || 'Position',
-            end_location: lastStop.city || lastStop.address || 'À compléter',
-            distance: session.total_distance_km,
+            start_location: startLocation,
+            end_location: endLocation,
+            distance: distanceKm,
             date: new Date(session.started_at).toISOString().split('T')[0],
             round_trip: false,
-            purpose: isTour ? 'Tournée récupérée' : 'Trajet récupéré',
-            tour_stops: tourStopsData as any,
+            purpose,
+            tour_stops: tourStopsData,
             status: 'pending_location',
             source: 'tour',
           }).select('id').maybeSingle();
 
           if (insertError) throw insertError;
 
-          toast.info(
-            fromDesktop 
-              ? "Dernière tournée enregistrée dans vos trajets." 
-              : "Tournée terminée automatiquement",
-            {
-              description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
-              duration: 6000,
-            }
-          );
+          const toastTitle = fromDesktop
+            ? 'Dernière tournée enregistrée dans vos trajets.'
+            : isTour
+              ? 'Tournée terminée automatiquement'
+              : 'Trajet à vérifier ajouté';
+
+          toast.info(toastTitle, {
+            description: isTour
+              ? `${stopsCount} étapes • ${distanceKm.toFixed(1)} km`
+              : `${distanceKm.toFixed(1)} km • à vérifier dans Mes trajets`,
+            duration: 6000,
+          });
+
           logTourRecovery({
             eventType: 'toast_shown',
             sessionId: session.id,
             tripId: insertedTrip?.id ?? null,
-            context: fromDesktop ? 'desktop_auto_finalize' : 'mobile_auto_finalize',
+            context: `${fromDesktop ? 'desktop' : 'mobile'}_auto_finalize_${caseLabel}`,
           });
           logTourRecovery({
             eventType: 'auto_finalize_success',
             sessionId: session.id,
             tripId: insertedTrip?.id ?? null,
             isMobile: !fromDesktop,
-            stopsCount: session.stops.length,
-            distanceKm: session.total_distance_km,
+            stopsCount,
+            distanceKm,
+            context: caseLabel,
           });
         }
+      } else {
+        console.log('[GlobalTourRecovery] Case E: discarding session (no stops, insufficient GPS data)');
+        logTourRecovery({
+          eventType: 'auto_finalize_success',
+          sessionId: session.id,
+          tripId: null,
+          isMobile: !fromDesktop,
+          stopsCount: 0,
+          distanceKm,
+          context: 'E_discarded_no_data',
+        });
       }
 
       // CRITICAL: Always end DB session AND clear localStorage so tour is fully terminated
