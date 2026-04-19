@@ -74,6 +74,16 @@ export default function ModeTournee() {
       icon: Zap,
       title: "Navigation intégrée",
       description: "Lancez Waze ou Maps en un clic"
+    },
+    {
+      icon: RefreshCw,
+      title: "Reprise auto",
+      description: "App fermée par erreur ? Reprenez votre tournée là où vous l'avez laissée"
+    },
+    {
+      icon: ShieldCheck,
+      title: "Finalisation intelligente",
+      description: "Tournée oubliée ? Elle se termine seule et crée un trajet à vérifier"
     }
   ];
 
