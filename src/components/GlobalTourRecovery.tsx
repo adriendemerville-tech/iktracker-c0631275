@@ -6,12 +6,17 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logTourRecovery } from '@/lib/tour-recovery-log';
+import { loadGoogleMapsAsync } from '@/hooks/useGoogleMaps';
+import { reverseGeocode } from '@/lib/geocoding';
 
 const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
 
 // Time thresholds
 const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
 const MODAL_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
+
+// Minimum GPS distance to consider a tour without stops as a real trip (km)
+const MIN_GPS_DISTANCE_KM = 2;
 
 function formatInactivity(ms: number): string {
   const minutes = Math.floor(ms / 60000);
