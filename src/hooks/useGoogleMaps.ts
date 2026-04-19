@@ -132,3 +132,38 @@ export function preloadGoogleMaps() {
     loadScript(key);
   });
 }
+
+// Promise-based loader for non-React contexts (e.g. background recovery jobs)
+export function loadGoogleMapsAsync(timeoutMs = 8000): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (isLoaded && (window as any).google?.maps) {
+      resolve(true);
+      return;
+    }
+
+    const timeout = setTimeout(() => resolve(false), timeoutMs);
+
+    const onReady = () => {
+      clearTimeout(timeout);
+      resolve(true);
+    };
+
+    if (isLoading) {
+      callbacks.push(onReady);
+      return;
+    }
+
+    isLoading = true;
+    callbacks.push(onReady);
+
+    fetchApiKey().then((key) => {
+      if (!key) {
+        isLoading = false;
+        clearTimeout(timeout);
+        resolve(false);
+        return;
+      }
+      loadScript(key);
+    });
+  });
+}
