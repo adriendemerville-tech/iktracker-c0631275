@@ -195,8 +195,27 @@ export function GlobalTourRecovery() {
     }
   };
 
+  const clearTourLocalStorage = () => {
+    try {
+      [
+        'tour_active',
+        'tour_start_time',
+        'tour_stops',
+        'tour_gps_points',
+        'tour_total_distance',
+        'tour_last_activity',
+        'tour_pending_stop',
+      ].forEach(key => localStorage.removeItem(key));
+      sessionStorage.removeItem('tour_force_resume');
+      sessionStorage.removeItem('tour_is_resuming');
+      console.log('[GlobalTourRecovery] Cleared tour localStorage');
+    } catch (e) {
+      console.warn('[GlobalTourRecovery] Failed to clear localStorage:', e);
+    }
+  };
+
   const autoFinalize = async (session: TourSessionDB, fromDesktop = false) => {
-    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops', fromDesktop ? '(desktop)' : '');
+    console.log('[GlobalTourRecovery] Auto-finalizing session with', session.stops.length, 'stops', fromDesktop ? '(desktop)' : '(mobile - terminating like manual end)');
 
     try {
       if (session.stops.length >= 1) {
@@ -241,7 +260,7 @@ export function GlobalTourRecovery() {
           toast.info(
             fromDesktop 
               ? "Dernière tournée enregistrée dans vos trajets." 
-              : "Tournée récupérée automatiquement",
+              : "Tournée terminée automatiquement",
             {
               description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
               duration: 6000,
@@ -264,7 +283,10 @@ export function GlobalTourRecovery() {
         }
       }
 
+      // CRITICAL: Always end DB session AND clear localStorage so tour is fully terminated
+      // (same behavior as manual "Terminer" by the user — no resumable state remains)
       await endSession();
+      clearTourLocalStorage();
       logTourRecovery({ eventType: 'session_end', sessionId: session.id });
     } catch (e: any) {
       logTourRecovery({
@@ -273,6 +295,8 @@ export function GlobalTourRecovery() {
         errorMessage: e?.message ?? String(e),
         isMobile: !fromDesktop,
       });
+      // Even on error, clear local state to avoid zombie sessions
+      clearTourLocalStorage();
       throw e;
     }
   };
