@@ -165,6 +165,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const maxDistanceReachedRef = useRef<number>(0);
   const lastPointTimeRef = useRef<number>(0);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isResumingRef = useRef<boolean>(false);
 
   // Persist state changes to localStorage (only when tour is active)
   useEffect(() => {
@@ -833,9 +834,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   // Resume tour from saved state (for session recovery)
   const resumeTour = useCallback(async () => {
+    // Guard against concurrent resume calls (race condition between mount + event listener)
+    if (isResumingRef.current) {
+      console.log('[resumeTour] Already resuming, ignoring duplicate call');
+      return false;
+    }
+    isResumingRef.current = true;
+    setTimeout(() => { isResumingRef.current = false; }, 5000);
+
     const savedActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
     if (!savedActive) {
       console.log('No saved tour to resume');
+      isResumingRef.current = false;
       return false;
     }
     
