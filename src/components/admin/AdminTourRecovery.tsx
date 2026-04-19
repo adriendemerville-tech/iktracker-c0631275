@@ -80,8 +80,11 @@ const EVENT_VARIANTS: Record<string, 'default' | 'destructive' | 'secondary' | '
   check_error: 'destructive',
 };
 
+type FilterMode = 'all' | 'recovery';
+
 export const AdminTourRecovery = () => {
   const [daysBack, setDaysBack] = useState(30);
+  const [filterMode, setFilterMode] = useState<FilterMode>('all');
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
@@ -93,7 +96,7 @@ export const AdminTourRecovery = () => {
     },
   });
 
-  const { data: registry = [], isLoading: registryLoading, refetch: refetchRegistry } = useQuery({
+  const { data: registryRaw = [], isLoading: registryLoading, refetch: refetchRegistry } = useQuery({
     queryKey: ['tour-recovery-registry', daysBack],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_tour_recovery_registry' as any, {
@@ -104,6 +107,24 @@ export const AdminTourRecovery = () => {
       return (data || []) as RegistryRow[];
     },
   });
+
+  // Filter rows for "Reprise tournée" mode (only sessions with at least one recovery attempt)
+  const registry = filterMode === 'recovery'
+    ? registryRaw.filter(r => r.recovery_attempts > 0)
+    : registryRaw;
+
+  // Compute aggregated KPIs for filtered rows
+  const recoveryRows = registryRaw.filter(r => r.recovery_attempts > 0);
+  const totalRecoveryAttempts = recoveryRows.reduce((s, r) => s + r.recovery_attempts, 0);
+  const totalRecoverySuccess = recoveryRows.reduce((s, r) => s + r.recovery_success, 0);
+  const totalRecoveryFailed = totalRecoveryAttempts - totalRecoverySuccess;
+  const sessionsWithErrors = recoveryRows.filter(r => r.errors_count > 0).length;
+  const avgNotifsPerRecoverySession = recoveryRows.length > 0
+    ? (recoveryRows.reduce((s, r) => s + r.notifications_count, 0) / recoveryRows.length).toFixed(1)
+    : '0';
+  const successRateGlobal = totalRecoveryAttempts > 0
+    ? Math.round((totalRecoverySuccess / totalRecoveryAttempts) * 100)
+    : null;
 
   const { data: sessionEvents = [], isLoading: eventsLoading } = useQuery({
     queryKey: ['tour-recovery-events', selectedSessionId],
@@ -123,6 +144,14 @@ export const AdminTourRecovery = () => {
   const handleRefresh = () => {
     refetchStats();
     refetchRegistry();
+  };
+
+  // Determine recovery result for a row
+  const getRecoveryResult = (row: RegistryRow): { label: string; variant: 'default' | 'destructive' | 'secondary' | 'outline' } | null => {
+    if (row.recovery_attempts === 0) return null;
+    if (row.recovery_success === 0) return { label: 'Échec', variant: 'destructive' };
+    if (row.recovery_success === row.recovery_attempts) return { label: 'Réussie', variant: 'default' };
+    return { label: 'Partielle', variant: 'secondary' };
   };
 
   return (
