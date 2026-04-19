@@ -1079,6 +1079,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tour_recovery_events: {
+        Row: {
+          context: string | null
+          created_at: string
+          distance_km: number | null
+          error_message: string | null
+          event_type: string
+          id: string
+          inactivity_seconds: number | null
+          is_mobile: boolean | null
+          metadata: Json | null
+          session_id: string | null
+          stops_count: number | null
+          trip_id: string | null
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          distance_km?: number | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          inactivity_seconds?: number | null
+          is_mobile?: boolean | null
+          metadata?: Json | null
+          session_id?: string | null
+          stops_count?: number | null
+          trip_id?: string | null
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          distance_km?: number | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          inactivity_seconds?: number | null
+          is_mobile?: boolean | null
+          metadata?: Json | null
+          session_id?: string | null
+          stops_count?: number | null
+          trip_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tour_sessions: {
         Row: {
           created_at: string
@@ -1086,7 +1134,12 @@ export type Database = {
           id: string
           is_active: boolean
           last_activity: string
+          last_error: string | null
+          last_recovery_at: string | null
+          notifications_count: number
           pending_stop: Json | null
+          recovery_attempts: number
+          recovery_success: number
           started_at: string
           stops: Json
           total_distance_km: number
@@ -1099,7 +1152,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_activity?: string
+          last_error?: string | null
+          last_recovery_at?: string | null
+          notifications_count?: number
           pending_stop?: Json | null
+          recovery_attempts?: number
+          recovery_success?: number
           started_at?: string
           stops?: Json
           total_distance_km?: number
@@ -1112,7 +1170,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_activity?: string
+          last_error?: string | null
+          last_recovery_at?: string | null
+          notifications_count?: number
           pending_stop?: Json | null
+          recovery_attempts?: number
+          recovery_success?: number
           started_at?: string
           stops?: Json
           total_distance_km?: number
@@ -1450,6 +1513,28 @@ export type Database = {
       get_total_tours_count:
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
+      get_tour_recovery_registry: {
+        Args: { days_back?: number; limit_count?: number }
+        Returns: {
+          distance_km: number
+          errors_count: number
+          finalized_at: string
+          is_active: boolean
+          last_activity: string
+          last_error: string
+          notifications_count: number
+          recovery_attempts: number
+          recovery_success: number
+          session_id: string
+          source: string
+          started_at: string
+          stops_count: number
+          trip_id: string
+          user_email: string
+          user_id: string
+        }[]
+      }
+      get_tour_recovery_stats: { Args: { days_back?: number }; Returns: Json }
       get_user_stats: { Args: { _user_id: string }; Returns: Json }
       has_admin_or_viewer_role: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
