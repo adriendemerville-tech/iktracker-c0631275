@@ -15,7 +15,10 @@ import {
   Zap,
   TrendingUp,
   Car,
-  Users
+  Users,
+  RefreshCw,
+  ShieldCheck,
+  Smartphone
 } from "lucide-react";
 
 // Lazy load heavy demo components
