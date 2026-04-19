@@ -80,8 +80,11 @@ const EVENT_VARIANTS: Record<string, 'default' | 'destructive' | 'secondary' | '
   check_error: 'destructive',
 };
 
+type FilterMode = 'all' | 'recovery';
+
 export const AdminTourRecovery = () => {
   const [daysBack, setDaysBack] = useState(30);
+  const [filterMode, setFilterMode] = useState<FilterMode>('all');
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
@@ -93,7 +96,7 @@ export const AdminTourRecovery = () => {
     },
   });
 
-  const { data: registry = [], isLoading: registryLoading, refetch: refetchRegistry } = useQuery({
+  const { data: registryRaw = [], isLoading: registryLoading, refetch: refetchRegistry } = useQuery({
     queryKey: ['tour-recovery-registry', daysBack],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_tour_recovery_registry' as any, {
@@ -104,6 +107,24 @@ export const AdminTourRecovery = () => {
       return (data || []) as RegistryRow[];
     },
   });
+
+  // Filter rows for "Reprise tournée" mode (only sessions with at least one recovery attempt)
+  const registry = filterMode === 'recovery'
+    ? registryRaw.filter(r => r.recovery_attempts > 0)
+    : registryRaw;
+
+  // Compute aggregated KPIs for filtered rows
+  const recoveryRows = registryRaw.filter(r => r.recovery_attempts > 0);
+  const totalRecoveryAttempts = recoveryRows.reduce((s, r) => s + r.recovery_attempts, 0);
+  const totalRecoverySuccess = recoveryRows.reduce((s, r) => s + r.recovery_success, 0);
+  const totalRecoveryFailed = totalRecoveryAttempts - totalRecoverySuccess;
+  const sessionsWithErrors = recoveryRows.filter(r => r.errors_count > 0).length;
+  const avgNotifsPerRecoverySession = recoveryRows.length > 0
+    ? (recoveryRows.reduce((s, r) => s + r.notifications_count, 0) / recoveryRows.length).toFixed(1)
+    : '0';
+  const successRateGlobal = totalRecoveryAttempts > 0
+    ? Math.round((totalRecoverySuccess / totalRecoveryAttempts) * 100)
+    : null;
 
   const { data: sessionEvents = [], isLoading: eventsLoading } = useQuery({
     queryKey: ['tour-recovery-events', selectedSessionId],
@@ -123,6 +144,14 @@ export const AdminTourRecovery = () => {
   const handleRefresh = () => {
     refetchStats();
     refetchRegistry();
+  };
+
+  // Determine recovery result for a row
+  const getRecoveryResult = (row: RegistryRow): { label: string; variant: 'default' | 'destructive' | 'secondary' | 'outline' } | null => {
+    if (row.recovery_attempts === 0) return null;
+    if (row.recovery_success === 0) return { label: 'Échec', variant: 'destructive' };
+    if (row.recovery_success === row.recovery_attempts) return { label: 'Réussie', variant: 'default' };
+    return { label: 'Partielle', variant: 'secondary' };
   };
 
   return (
@@ -149,38 +178,79 @@ export const AdminTourRecovery = () => {
         </div>
       </div>
 
-      {/* Stats KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard
-          icon={<MapPin className="w-4 h-4" />}
-          label="Tournées (total)"
-          value={statsLoading ? '…' : (stats?.total_sessions ?? 0)}
-          sub={`${stats?.active_sessions ?? 0} actives · ${stats?.finalized_tours ?? 0} finalisées`}
-        />
-        <KpiCard
-          icon={<Activity className="w-4 h-4" />}
-          label="Tentatives reprise"
-          value={statsLoading ? '…' : (stats?.recovery_attempts ?? 0)}
-          sub={`${stats?.recovery_success ?? 0} réussies`}
-        />
-        <KpiCard
-          icon={<AlertCircle className="w-4 h-4 text-destructive" />}
-          label="Erreurs"
-          value={statsLoading ? '…' : (stats?.recovery_errors ?? 0)}
-          variant={Number(stats?.recovery_errors ?? 0) > 0 ? 'destructive' : 'default'}
-        />
-        <KpiCard
-          icon={<Bell className="w-4 h-4" />}
-          label="Notifications"
-          value={statsLoading ? '…' : (stats?.notifications_total ?? 0)}
-          sub="modals + toasts"
-        />
-      </div>
+      {/* Mode selector */}
+      <Tabs value={filterMode} onValueChange={(v) => setFilterMode(v as FilterMode)}>
+        <TabsList className="grid grid-cols-2 w-full sm:w-auto">
+          <TabsTrigger value="all">Toutes les tournées</TabsTrigger>
+          <TabsTrigger value="recovery">Reprises tournée ({recoveryRows.length})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* Stats KPIs — adaptive to mode */}
+      {filterMode === 'all' ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <KpiCard
+            icon={<MapPin className="w-4 h-4" />}
+            label="Tournées (total)"
+            value={statsLoading ? '…' : (stats?.total_sessions ?? 0)}
+            sub={`${stats?.active_sessions ?? 0} actives · ${stats?.finalized_tours ?? 0} finalisées`}
+          />
+          <KpiCard
+            icon={<Activity className="w-4 h-4" />}
+            label="Tentatives reprise"
+            value={statsLoading ? '…' : (stats?.recovery_attempts ?? 0)}
+            sub={`${stats?.recovery_success ?? 0} réussies`}
+          />
+          <KpiCard
+            icon={<AlertCircle className="w-4 h-4 text-destructive" />}
+            label="Erreurs"
+            value={statsLoading ? '…' : (stats?.recovery_errors ?? 0)}
+            variant={Number(stats?.recovery_errors ?? 0) > 0 ? 'destructive' : 'default'}
+          />
+          <KpiCard
+            icon={<Bell className="w-4 h-4" />}
+            label="Notifications"
+            value={statsLoading ? '…' : (stats?.notifications_total ?? 0)}
+            sub="modals + toasts"
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <KpiCard
+            icon={<RefreshCw className="w-4 h-4" />}
+            label="Sessions reprises"
+            value={recoveryRows.length}
+            sub={`${totalRecoveryAttempts} tentatives au total`}
+          />
+          <KpiCard
+            icon={<CheckCircle2 className="w-4 h-4" />}
+            label="Taux de réussite"
+            value={successRateGlobal !== null ? `${successRateGlobal}%` : '—'}
+            sub={`${totalRecoverySuccess} réussies · ${totalRecoveryFailed} échecs`}
+            variant={successRateGlobal !== null && successRateGlobal < 70 ? 'destructive' : 'default'}
+          />
+          <KpiCard
+            icon={<AlertCircle className="w-4 h-4 text-destructive" />}
+            label="Sessions en erreur"
+            value={sessionsWithErrors}
+            sub={`${recoveryRows.length > 0 ? Math.round((sessionsWithErrors / recoveryRows.length) * 100) : 0}% des reprises`}
+            variant={sessionsWithErrors > 0 ? 'destructive' : 'default'}
+          />
+          <KpiCard
+            icon={<Bell className="w-4 h-4" />}
+            label="Notifs / session"
+            value={avgNotifsPerRecoverySession}
+            sub="Moyenne par session reprise"
+          />
+        </div>
+      )}
 
       {/* Registre */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Registre des tournées ({registry.length})</CardTitle>
+          <CardTitle className="text-base">
+            {filterMode === 'recovery' ? 'Reprises de tournée' : 'Registre des tournées'} ({registry.length})
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {registryLoading ? (
@@ -199,6 +269,7 @@ export const AdminTourRecovery = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Utilisateur</TableHead>
                     <TableHead>Statut</TableHead>
+                    {filterMode === 'recovery' && <TableHead>Résultat</TableHead>}
                     <TableHead className="text-right">Étapes</TableHead>
                     <TableHead className="text-right">Km</TableHead>
                     <TableHead className="text-right">Reprises</TableHead>
@@ -213,6 +284,7 @@ export const AdminTourRecovery = () => {
                     const successRate = row.recovery_attempts > 0
                       ? Math.round((row.recovery_success / row.recovery_attempts) * 100)
                       : null;
+                    const result = getRecoveryResult(row);
                     return (
                       <TableRow key={id}>
                         <TableCell className="text-xs whitespace-nowrap">
@@ -230,6 +302,15 @@ export const AdminTourRecovery = () => {
                             <Badge variant="outline" className="text-xs">Inactive</Badge>
                           )}
                         </TableCell>
+                        {filterMode === 'recovery' && (
+                          <TableCell>
+                            {result ? (
+                              <Badge variant={result.variant} className="text-xs">{result.label}</Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right text-xs">{row.stops_count}</TableCell>
                         <TableCell className="text-right text-xs">{Number(row.distance_km).toFixed(1)}</TableCell>
                         <TableCell className="text-right text-xs">
