@@ -23,6 +23,7 @@ import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
+import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -574,7 +575,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-5' : 'grid-cols-8'}`}>
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-6' : 'grid-cols-9'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -600,6 +601,10 @@ const Admin = () => {
             <TabsTrigger value="autopilot" className="flex items-center gap-1 text-xs sm:text-sm">
               <Zap className="w-4 h-4" />
               <span className="hidden sm:inline">Autopilot</span>
+            </TabsTrigger>
+            <TabsTrigger value="tour-recovery" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Car className="w-4 h-4" />
+              <span className="hidden sm:inline">Tournée</span>
             </TabsTrigger>
             {adminRole !== 'viewer' && (
               <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1100,6 +1105,11 @@ const Admin = () => {
           {/* Autopilot Tab */}
           <TabsContent value="autopilot">
             <AdminAutopilot />
+          </TabsContent>
+
+          {/* Tour Recovery Tab */}
+          <TabsContent value="tour-recovery">
+            <AdminTourRecovery />
           </TabsContent>
 
           {/* Surveys Tab */}

@@ -171,10 +171,13 @@ export function useTourSessionDB() {
     };
   }, []);
 
+  const getCurrentSessionId = useCallback(() => sessionIdRef.current, []);
+
   return {
     createSession,
     updateSession,
     endSession,
     fetchActiveSession,
+    getCurrentSessionId,
   };
 }

@@ -61,7 +61,8 @@ Utilisateur → Cloudflare DNS (proxied)
 | `frequent_destinations` | Destinations fréquentes (mot-clé → adresse) | ✅ user_id |
 | `distance_cache` | Cache des distances calculées | ✅ user_id |
 | `user_preferences` | Préférences (persona, comptable, visites) | ✅ user_id |
-| `tour_sessions` | Sessions de tournée GPS en cours | ✅ user_id |
+| `tour_sessions` | Sessions de tournée GPS en cours (+ compteurs reprise) | ✅ user_id |
+| `tour_recovery_events` | Journal des événements de reprise de tournée (modal, auto-finalize, erreurs, toasts) | ✅ user_id + admin/viewer |
 
 #### Calendrier
 
