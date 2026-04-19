@@ -269,6 +269,7 @@ export const AdminTourRecovery = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Utilisateur</TableHead>
                     <TableHead>Statut</TableHead>
+                    {filterMode === 'recovery' && <TableHead>Résultat</TableHead>}
                     <TableHead className="text-right">Étapes</TableHead>
                     <TableHead className="text-right">Km</TableHead>
                     <TableHead className="text-right">Reprises</TableHead>
@@ -283,6 +284,7 @@ export const AdminTourRecovery = () => {
                     const successRate = row.recovery_attempts > 0
                       ? Math.round((row.recovery_success / row.recovery_attempts) * 100)
                       : null;
+                    const result = getRecoveryResult(row);
                     return (
                       <TableRow key={id}>
                         <TableCell className="text-xs whitespace-nowrap">
@@ -300,6 +302,15 @@ export const AdminTourRecovery = () => {
                             <Badge variant="outline" className="text-xs">Inactive</Badge>
                           )}
                         </TableCell>
+                        {filterMode === 'recovery' && (
+                          <TableCell>
+                            {result ? (
+                              <Badge variant={result.variant} className="text-xs">{result.label}</Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right text-xs">{row.stops_count}</TableCell>
                         <TableCell className="text-right text-xs">{Number(row.distance_km).toFixed(1)}</TableCell>
                         <TableCell className="text-right text-xs">
