@@ -165,6 +165,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const maxDistanceReachedRef = useRef<number>(0);
   const lastPointTimeRef = useRef<number>(0);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isResumingRef = useRef<boolean>(false);
 
   // Persist state changes to localStorage (only when tour is active)
   useEffect(() => {
@@ -833,9 +834,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   // Resume tour from saved state (for session recovery)
   const resumeTour = useCallback(async () => {
+    // Guard against concurrent resume calls (race condition between mount + event listener)
+    if (isResumingRef.current) {
+      console.log('[resumeTour] Already resuming, ignoring duplicate call');
+      return false;
+    }
+    isResumingRef.current = true;
+    setTimeout(() => { isResumingRef.current = false; }, 5000);
+
     const savedActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
     if (!savedActive) {
       console.log('No saved tour to resume');
+      isResumingRef.current = false;
       return false;
     }
     
@@ -920,13 +930,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
               maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
               return Math.max(newTotal, maxDistanceReachedRef.current);
             });
-            console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
-            if (drivingDistance > 0.1) {
-              toast.success('Tournée reprise', {
-                description: `Distance mise à jour (+${drivingDistance.toFixed(1)} km)`,
-                duration: 4000,
-              });
-            }
+          console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
+            // Toast removed: GlobalTourRecovery handles all resume notifications
+            // to avoid duplicate toasts ("Tournée reprise" + "Tournée démarrée")
           } catch (e) {
             console.warn('Failed to calculate resume gap driving distance:', e);
             // Fallback to straight-line

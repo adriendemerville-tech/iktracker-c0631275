@@ -86,8 +86,23 @@ export function GlobalTourRecovery() {
             distanceKm: session.total_distance_km,
           });
           try {
+            // CRITICAL: Update DB last_activity IMMEDIATELY so next reload doesn't re-detect "lost session"
+            await supabase
+              .from('tour_sessions')
+              .update({ last_activity: new Date().toISOString(), updated_at: new Date().toISOString() } as any)
+              .eq('user_id', session.user_id)
+              .eq('is_active', true);
+
             restoreToLocalStorage(session);
             sessionStorage.setItem('tour_force_resume', 'true');
+            sessionStorage.setItem('tour_is_resuming', 'true');
+
+            // Single unified toast for resume
+            toast.success('Tournée reprise', {
+              description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
+              duration: 3000,
+            });
+
             if (location.pathname.startsWith('/app')) {
               window.dispatchEvent(new Event('tour_force_resume'));
             } else {
@@ -270,7 +285,13 @@ export function GlobalTourRecovery() {
 
       restoreToLocalStorage(sessionData);
       sessionStorage.setItem('tour_force_resume', 'true');
-      
+      sessionStorage.setItem('tour_is_resuming', 'true');
+
+      toast.success('Tournée reprise', {
+        description: `${sessionData.stops.length} étape${sessionData.stops.length > 1 ? 's' : ''} • ${sessionData.total_distance_km.toFixed(1)} km`,
+        duration: 3000,
+      });
+
       if (location.pathname.startsWith('/app')) {
         window.dispatchEvent(new Event('tour_force_resume'));
       } else {
