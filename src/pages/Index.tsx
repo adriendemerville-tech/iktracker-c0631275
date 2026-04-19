@@ -191,14 +191,11 @@ const Index = () => {
       console.log('[Recovery] isActive:', isActive);
       if (!isActive) return;
 
-      // If GlobalTourRecovery already handled the decision (user clicked "Reprendre"),
-      // always resume transparently — skip threshold checks.
+      // NOTE: tour_force_resume is handled exclusively by the event listener below
+      // to prevent double calls to resumeTour(). Do NOT read the flag here.
       const forceResume = sessionStorage.getItem('tour_force_resume') === 'true';
       if (forceResume) {
-        sessionStorage.removeItem('tour_force_resume');
-        console.log('[Recovery] → Force resume (GlobalTourRecovery decision)');
-        setTourStartRequested(true);
-        await resumeTour();
+        console.log('[Recovery] Force resume flag present — handled by event listener, skipping mount check');
         return;
       }
       const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
@@ -403,12 +400,17 @@ const Index = () => {
     }
   }, []);
 
-  // Only show the "tour started" toast when GPS start actually succeeds
+  // Only show the "tour started" toast when GPS start actually succeeds (and not on resume)
   useEffect(() => {
     if (!tourStartRequested) return;
 
     if (isTourActive) {
-      toast.success("Tournée démarrée", { duration: 2000 });
+      // Skip toast if this is a resume (GlobalTourRecovery handles its own messaging)
+      const isResume = sessionStorage.getItem('tour_is_resuming') === 'true';
+      if (!isResume) {
+        toast.success("Tournée démarrée", { duration: 2000 });
+      }
+      sessionStorage.removeItem('tour_is_resuming');
       setTourStartRequested(false);
       // Mark tour as started to hide geolocation banner for this session
       markTourStarted();
