@@ -1107,6 +1107,11 @@ const Admin = () => {
             <AdminAutopilot />
           </TabsContent>
 
+          {/* Tour Recovery Tab */}
+          <TabsContent value="tour-recovery">
+            <AdminTourRecovery />
+          </TabsContent>
+
           {/* Surveys Tab */}
           <TabsContent value="surveys">
             <AdminSurveys />
