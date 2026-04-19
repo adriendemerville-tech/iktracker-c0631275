@@ -306,6 +306,82 @@ export default function ModeTournee() {
           </div>
         </section>
 
+        {/* Reprise & finalisation auto */}
+        <section className="py-20 px-4" aria-labelledby="recovery-heading">
+          <div className="container mx-auto max-w-5xl">
+            <AnimatedSection className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                <Smartphone className="h-4 w-4" aria-hidden="true" />
+                <span>Exclusivité mobile</span>
+              </div>
+              <h2 id="recovery-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Aucune tournée perdue, jamais
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                L'app fonctionne en conditions réelles : téléphone qui s'éteint, app fermée, oubli de finaliser. 
+                On a tout prévu.
+              </p>
+            </AnimatedSection>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <AnimatedSection delay={100}>
+                <div className="bg-card border border-border rounded-2xl p-6 h-full">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <RefreshCw className="w-6 h-6 text-primary" />
+                    </div>
+                    <h3 className="font-bold text-foreground text-lg">Reprise sur mobile</h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Vous rouvrez l'app sur votre téléphone après une interruption ?
+                    Une fenêtre vous propose de <strong>reprendre</strong> votre tournée 
+                    avec tous les arrêts déjà enregistrés, ou de la <strong>terminer</strong>.
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">Étapes et distance préservées</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">GPS reprend automatiquement</span>
+                    </li>
+                  </ul>
+                </div>
+              </AnimatedSection>
+
+              <AnimatedSection delay={200}>
+                <div className="bg-card border border-border rounded-2xl p-6 h-full">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                      <ShieldCheck className="w-6 h-6 text-accent" />
+                    </div>
+                    <h3 className="font-bold text-foreground text-lg">Finalisation intelligente</h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Vous avez oublié de terminer votre tournée et vous reconnectez sur ordinateur ? 
+                    Elle est <strong>finalisée automatiquement</strong> et un trajet est créé selon les données disponibles :
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">Tournée complète si plusieurs arrêts</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">Trajet « à vérifier » sinon (villes détectées par GPS)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">Vous complétez en un clic depuis « Mes trajets »</span>
+                    </li>
+                  </ul>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </section>
+
         {/* Carousel */}
         <section className="py-20 px-4 bg-muted/30">
           <div className="container mx-auto">
