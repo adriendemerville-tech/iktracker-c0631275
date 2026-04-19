@@ -178,38 +178,79 @@ export const AdminTourRecovery = () => {
         </div>
       </div>
 
-      {/* Stats KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard
-          icon={<MapPin className="w-4 h-4" />}
-          label="Tournées (total)"
-          value={statsLoading ? '…' : (stats?.total_sessions ?? 0)}
-          sub={`${stats?.active_sessions ?? 0} actives · ${stats?.finalized_tours ?? 0} finalisées`}
-        />
-        <KpiCard
-          icon={<Activity className="w-4 h-4" />}
-          label="Tentatives reprise"
-          value={statsLoading ? '…' : (stats?.recovery_attempts ?? 0)}
-          sub={`${stats?.recovery_success ?? 0} réussies`}
-        />
-        <KpiCard
-          icon={<AlertCircle className="w-4 h-4 text-destructive" />}
-          label="Erreurs"
-          value={statsLoading ? '…' : (stats?.recovery_errors ?? 0)}
-          variant={Number(stats?.recovery_errors ?? 0) > 0 ? 'destructive' : 'default'}
-        />
-        <KpiCard
-          icon={<Bell className="w-4 h-4" />}
-          label="Notifications"
-          value={statsLoading ? '…' : (stats?.notifications_total ?? 0)}
-          sub="modals + toasts"
-        />
-      </div>
+      {/* Mode selector */}
+      <Tabs value={filterMode} onValueChange={(v) => setFilterMode(v as FilterMode)}>
+        <TabsList className="grid grid-cols-2 w-full sm:w-auto">
+          <TabsTrigger value="all">Toutes les tournées</TabsTrigger>
+          <TabsTrigger value="recovery">Reprises tournée ({recoveryRows.length})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* Stats KPIs — adaptive to mode */}
+      {filterMode === 'all' ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <KpiCard
+            icon={<MapPin className="w-4 h-4" />}
+            label="Tournées (total)"
+            value={statsLoading ? '…' : (stats?.total_sessions ?? 0)}
+            sub={`${stats?.active_sessions ?? 0} actives · ${stats?.finalized_tours ?? 0} finalisées`}
+          />
+          <KpiCard
+            icon={<Activity className="w-4 h-4" />}
+            label="Tentatives reprise"
+            value={statsLoading ? '…' : (stats?.recovery_attempts ?? 0)}
+            sub={`${stats?.recovery_success ?? 0} réussies`}
+          />
+          <KpiCard
+            icon={<AlertCircle className="w-4 h-4 text-destructive" />}
+            label="Erreurs"
+            value={statsLoading ? '…' : (stats?.recovery_errors ?? 0)}
+            variant={Number(stats?.recovery_errors ?? 0) > 0 ? 'destructive' : 'default'}
+          />
+          <KpiCard
+            icon={<Bell className="w-4 h-4" />}
+            label="Notifications"
+            value={statsLoading ? '…' : (stats?.notifications_total ?? 0)}
+            sub="modals + toasts"
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <KpiCard
+            icon={<RefreshCw className="w-4 h-4" />}
+            label="Sessions reprises"
+            value={recoveryRows.length}
+            sub={`${totalRecoveryAttempts} tentatives au total`}
+          />
+          <KpiCard
+            icon={<CheckCircle2 className="w-4 h-4" />}
+            label="Taux de réussite"
+            value={successRateGlobal !== null ? `${successRateGlobal}%` : '—'}
+            sub={`${totalRecoverySuccess} réussies · ${totalRecoveryFailed} échecs`}
+            variant={successRateGlobal !== null && successRateGlobal < 70 ? 'destructive' : 'default'}
+          />
+          <KpiCard
+            icon={<AlertCircle className="w-4 h-4 text-destructive" />}
+            label="Sessions en erreur"
+            value={sessionsWithErrors}
+            sub={`${recoveryRows.length > 0 ? Math.round((sessionsWithErrors / recoveryRows.length) * 100) : 0}% des reprises`}
+            variant={sessionsWithErrors > 0 ? 'destructive' : 'default'}
+          />
+          <KpiCard
+            icon={<Bell className="w-4 h-4" />}
+            label="Notifs / session"
+            value={avgNotifsPerRecoverySession}
+            sub="Moyenne par session reprise"
+          />
+        </div>
+      )}
 
       {/* Registre */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Registre des tournées ({registry.length})</CardTitle>
+          <CardTitle className="text-base">
+            {filterMode === 'recovery' ? 'Reprises de tournée' : 'Registre des tournées'} ({registry.length})
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {registryLoading ? (
