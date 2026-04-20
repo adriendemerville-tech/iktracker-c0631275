@@ -367,11 +367,6 @@ export function GlobalTourRecovery() {
         });
       }
 
-      // CRITICAL: Always end DB session AND clear localStorage so tour is fully terminated
-      // (same behavior as manual "Terminer" by the user — no resumable state remains)
-      await endSession();
-      clearTourLocalStorage();
-      logTourRecovery({ eventType: 'session_end', sessionId: session.id });
     } catch (e: any) {
       logTourRecovery({
         eventType: 'auto_finalize_error',
@@ -379,9 +374,23 @@ export function GlobalTourRecovery() {
         errorMessage: e?.message ?? String(e),
         isMobile: !fromDesktop,
       });
-      // Even on error, clear local state to avoid zombie sessions
+    } finally {
+      // CRITICAL: Always end DB session AND clear localStorage to avoid zombie sessions
+      // (same behavior as manual "Terminer" by the user — no resumable state remains)
+      try {
+        await endSession();
+      } catch (endErr) {
+        console.warn('[GlobalTourRecovery] endSession failed, forcing DB cleanup:', endErr);
+        // Fallback: directly update DB if endSession hook fails
+        try {
+          await supabase
+            .from('tour_sessions')
+            .update({ is_active: false, updated_at: new Date().toISOString() } as any)
+            .eq('id', session.id);
+        } catch { /* last resort */ }
+      }
       clearTourLocalStorage();
-      throw e;
+      logTourRecovery({ eventType: 'session_end', sessionId: session.id });
     }
   };
 
