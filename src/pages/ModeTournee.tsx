@@ -359,21 +359,29 @@ export default function ModeTournee() {
                     <h3 className="font-bold text-foreground text-lg">Finalisation intelligente</h3>
                   </div>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Vous avez oublié de terminer votre tournée et vous reconnectez sur ordinateur ? 
-                    Elle est <strong>finalisée automatiquement</strong> et un trajet est créé selon les données disponibles :
+                    Tournée oubliée ? Elle se <strong>termine seule</strong> et crée le trajet le plus pertinent
+                    selon les données disponibles :
                   </p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground">Tournée complète si plusieurs arrêts</span>
+                      <span className="text-muted-foreground"><strong>2 arrêts ou plus</strong> → tournée complète enregistrée</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground">Trajet « à vérifier » sinon (villes détectées par GPS)</span>
+                      <span className="text-muted-foreground"><strong>1 arrêt + GPS</strong> → trajet à vérifier (arrivée détectée par GPS)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground">Vous complétez en un clic depuis « Mes trajets »</span>
+                      <span className="text-muted-foreground"><strong>1 arrêt seul</strong> → trajet à compléter (arrivée à renseigner)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground"><strong>0 arrêt mais GPS ≥ 2 km</strong> → trajet à vérifier (villes GPS détectées)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">Tous les trajets « à vérifier » se complètent en un clic depuis « Mes trajets »</span>
                     </li>
                   </ul>
                 </div>
