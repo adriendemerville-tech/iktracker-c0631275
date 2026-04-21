@@ -1243,24 +1243,6 @@ export function AdminStats() {
                           </CardContent>
                         </Card>
 
-                        {/* Total trips */}
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Route className="w-5 h-5 text-blue-500" />
-                              <span className="text-xs text-muted-foreground">Trajets</span>
-                            </div>
-                            {statsLoading ? (
-                              <Skeleton className="h-8 w-16" />
-                            ) : (
-                              <>
-                                <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
-                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
-                              </>
-                            )}
-                          </CardContent>
-                        </Card>
-
                         {/* Total tours */}
                         <Card className="bg-gradient-to-br from-teal-500/10 to-teal-600/5 border-teal-500/20">
                           <CardContent className="p-4">
@@ -1273,6 +1255,24 @@ export function AdminStats() {
                             ) : (
                               <>
                                 <p className="text-2xl font-bold text-teal-600">{formatNumber(totalToursCount)}</p>
+                                <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
+
+                        {/* Total trips */}
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Route className="w-5 h-5 text-blue-500" />
+                              <span className="text-xs text-muted-foreground">Trajets</span>
+                            </div>
+                            {statsLoading ? (
+                              <Skeleton className="h-8 w-16" />
+                            ) : (
+                              <>
+                                <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
