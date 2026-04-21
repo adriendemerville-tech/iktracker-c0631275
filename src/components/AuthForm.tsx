@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
@@ -22,6 +23,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('ik_remember_me') === 'true');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const navigate = useNavigate();
@@ -218,6 +220,24 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
               >
                 {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
               </button>
+            </div>
+          )}
+
+          {/* Remember me checkbox */}
+          {(mode === 'login') && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="remember-me"
+                checked={rememberMe}
+                onCheckedChange={(checked) => {
+                  const val = checked === true;
+                  setRememberMe(val);
+                  localStorage.setItem('ik_remember_me', String(val));
+                }}
+              />
+              <label htmlFor="remember-me" className="text-sm text-muted-foreground cursor-pointer select-none">
+                Se souvenir de moi
+              </label>
             </div>
           )}
 
