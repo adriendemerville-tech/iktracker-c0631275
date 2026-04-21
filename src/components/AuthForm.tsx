@@ -223,6 +223,24 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             </div>
           )}
 
+          {/* Remember me checkbox */}
+          {(mode === 'login') && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="remember-me"
+                checked={rememberMe}
+                onCheckedChange={(checked) => {
+                  const val = checked === true;
+                  setRememberMe(val);
+                  localStorage.setItem('ik_remember_me', String(val));
+                }}
+              />
+              <label htmlFor="remember-me" className="text-sm text-muted-foreground cursor-pointer select-none">
+                Se souvenir de moi
+              </label>
+            </div>
+          )}
+
           <Button type="submit" className="w-full focus-visible-ring" variant="gradient" disabled={loading}>
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />}
             {getButtonText()}
