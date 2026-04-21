@@ -23,6 +23,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('ik_remember_me') === 'true');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
   const navigate = useNavigate();
