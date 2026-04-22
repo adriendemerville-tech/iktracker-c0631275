@@ -34,7 +34,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     try {
       const options: any = {};
       if (provider === 'azure') {
-        options.scopes = 'email offline_access';
+        options.scopes = 'email offline_access Calendars.Read';
       }
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
