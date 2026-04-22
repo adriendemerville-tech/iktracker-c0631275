@@ -28,10 +28,14 @@ const Auth = () => {
 
   const isOnDeployedDomain = window.location.hostname === DEPLOYED_DOMAIN;
 
-  // Auto-connect Outlook calendar when signing in with Azure
-  const autoConnectOutlookCalendar = async (session: any) => {
+  // Auto-connect calendar when signing in with OAuth provider
+  const autoConnectCalendar = async (session: any) => {
     const provider = session.user?.app_metadata?.provider;
-    if (provider !== 'azure') return;
+    
+    let calendarProvider: string | null = null;
+    if (provider === 'azure') calendarProvider = 'outlook';
+    else if (provider === 'google') calendarProvider = 'google';
+    else return;
 
     const providerToken = session.provider_token;
     const providerRefreshToken = session.provider_refresh_token;
@@ -43,7 +47,7 @@ const Auth = () => {
         .from('calendar_connections')
         .select('id')
         .eq('user_id', session.user.id)
-        .eq('provider', 'outlook')
+        .eq('provider', calendarProvider)
         .maybeSingle();
 
       const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
@@ -64,16 +68,16 @@ const Auth = () => {
           .from('calendar_connections')
           .insert({
             user_id: session.user.id,
-            provider: 'outlook',
+            provider: calendarProvider,
             access_token: providerToken,
             refresh_token: providerRefreshToken || null,
             token_expires_at: expiresAt,
             is_active: true,
           });
       }
-      console.log('Outlook calendar auto-connected via Azure sign-in');
+      console.log(`${calendarProvider} calendar auto-connected via ${provider} sign-in`);
     } catch (e) {
-      console.warn('Failed to auto-connect Outlook calendar:', e);
+      console.warn(`Failed to auto-connect ${calendarProvider} calendar:`, e);
     }
   };
 
@@ -155,8 +159,8 @@ const Auth = () => {
         const hasOAuthCallback = window.location.hash.includes('access_token') || 
                                   window.location.hash.includes('refresh_token');
         
-        // Auto-connect Outlook calendar if Azure sign-in
-        await autoConnectOutlookCalendar(session);
+        // Auto-connect calendar if OAuth sign-in
+        await autoConnectCalendar(session);
         
         if (isOnDeployedDomain && hasOAuthCallback) {
           setShowOAuthSuccess(true);
@@ -183,8 +187,8 @@ const Auth = () => {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        // Auto-connect Outlook calendar if Azure sign-in
-        await autoConnectOutlookCalendar(session);
+        // Auto-connect calendar if OAuth sign-in
+        await autoConnectCalendar(session);
         
         if (isOnDeployedDomain) {
           setShowOAuthSuccess(true);
