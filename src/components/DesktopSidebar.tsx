@@ -376,6 +376,29 @@ export const DesktopSidebar = ({
                   </div>
                 </div>
               </div>
+
+              {/* Par le même fondateur */}
+              <div className="mt-4 pt-3 border-t border-primary/10 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Par le même fondateur</p>
+                <a
+                  href="https://dactidevi.fr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
+                >
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Dactidevi</span>
+                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">L'outil gratuit pour diviser par 5 le temps perdu à faire ses devis</span>
+                </a>
+                <a
+                  href="https://crawlers.fr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
+                >
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Crawlers.fr</span>
+                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">La plateforme SEO-GEO pour automatiser la maintenance des sites et du référencement</span>
+                </a>
+              </div>
             </div>
           </div>
         </SheetContent>
