@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { CalendarConnections } from '@/components/CalendarConnections';
+import { GoogleCalendarStatus } from '@/components/GoogleCalendarStatus';
 import { FeedbackForm } from '@/components/FeedbackForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { VehicleForm } from '@/components/VehicleForm';
@@ -626,6 +627,9 @@ const Profile = () => {
 
         {/* Feedback Button - Shown at top when there are unread responses */}
         {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
+
+        {/* Google Calendar Status Indicator */}
+        {user && <GoogleCalendarStatus userId={user.id} />}
 
         {/* Calendar Connections */}
         <CalendarConnections />
