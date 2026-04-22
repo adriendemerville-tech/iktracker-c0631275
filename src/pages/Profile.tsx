@@ -627,6 +627,9 @@ const Profile = () => {
         {/* Feedback Button - Shown at top when there are unread responses */}
         {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
 
+        {/* Google Calendar Status Indicator */}
+        {user && <GoogleCalendarStatus userId={user.id} />}
+
         {/* Calendar Connections */}
         <CalendarConnections />
 
