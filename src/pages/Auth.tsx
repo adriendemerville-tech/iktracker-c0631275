@@ -183,6 +183,9 @@ const Auth = () => {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Auto-connect Outlook calendar if Azure sign-in
+        await autoConnectOutlookCalendar(session);
+        
         if (isOnDeployedDomain) {
           setShowOAuthSuccess(true);
           setCheckingAuth(false);
