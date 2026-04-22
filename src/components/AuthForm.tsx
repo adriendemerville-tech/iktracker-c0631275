@@ -25,7 +25,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('ik_remember_me') === 'true');
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
