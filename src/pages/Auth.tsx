@@ -159,8 +159,8 @@ const Auth = () => {
         const hasOAuthCallback = window.location.hash.includes('access_token') || 
                                   window.location.hash.includes('refresh_token');
         
-        // Auto-connect Outlook calendar if Azure sign-in
-        await autoConnectOutlookCalendar(session);
+        // Auto-connect calendar if OAuth sign-in
+        await autoConnectCalendar(session);
         
         if (isOnDeployedDomain && hasOAuthCallback) {
           setShowOAuthSuccess(true);
