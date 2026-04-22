@@ -138,7 +138,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
               type="button"
               variant="outline"
               className="w-full bg-background/50 focus-visible-ring"
-              onClick={handleOAuthLogin}
+              onClick={() => handleOAuthLogin('google')}
               disabled={oauthLoading !== null}
               aria-label="Se connecter avec Google"
             >
