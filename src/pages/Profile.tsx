@@ -753,6 +753,17 @@ const Profile = () => {
         </Card>
 
         {/* Invoices - Hidden while app is free */}
+        {/* Déconnexion */}
+        <div className="px-4 pb-4">
+          <Button
+            variant="outline"
+            className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Se déconnecter
+          </Button>
+        </div>
 
 
         {/* Download App Button */}
