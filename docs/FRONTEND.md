@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.0 — 14 avril 2026
+> Version 1.1 — 22 avril 2026
 
 ## Table des matières
 
@@ -154,7 +154,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `AddressForm.tsx` | Formulaire d'ajout/édition d'adresse |
 | `AnalyticsTracker.tsx` | Tracking analytics (page views, events) |
 | `ArchivedTripsSection.tsx` | Section trajets archivés |
-| `AuthForm.tsx` | Formulaire connexion/inscription |
+| `AuthForm.tsx` | Formulaire connexion/inscription (inclut scopes calendrier au sign-in OAuth) |
 | `AuthLoadingScreen.tsx` | Écran de chargement auth |
 | `BodyEndInjections.tsx` | Injections de code (scripts tracking) |
 | `Breadcrumb.tsx` | Fil d'Ariane SEO |
@@ -162,7 +162,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `CalendarSyncNotification.tsx` | Notification de sync calendrier |
 | `CompleteAddressSheet.tsx` | Sheet de complétion d'adresse |
 | `Counter.tsx` | Compteur animé |
-| `DesktopSidebar.tsx` | Sidebar desktop (navigation, véhicules, feedback) |
+| `DesktopSidebar.tsx` | Sidebar desktop (navigation, véhicules, feedback, section « Par le même fondateur ») |
 | `ErrorBoundary.tsx` | Boundary d'erreur global |
 | `FeedbackForm.tsx` | Formulaire de feedback (avec image) |
 | `FloatingActionButton.tsx` | FAB mobile |

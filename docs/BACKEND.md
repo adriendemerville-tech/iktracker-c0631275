@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.0 — 14 avril 2026
+> Version 2.1 — 22 avril 2026
 
 ## Table des matières
 
@@ -282,6 +282,17 @@ Toutes les Edge Functions utilisent `verify_jwt = false` — la validation JWT e
 1. **Signup** : Email + mot de passe (confirmation email requise)
 2. **Login** : Email/mot de passe ou Google OAuth
 3. **Session** : JWT géré par le client Supabase (`supabase.auth`)
+
+### Scopes OAuth au sign-in
+
+Lors de l'inscription/connexion via un provider OAuth, les scopes calendrier sont demandés dès le premier sign-in :
+
+| Provider | Scopes demandés |
+|---|---|
+| Google | `https://www.googleapis.com/auth/calendar.readonly` |
+| Azure (Microsoft) | `email offline_access Calendars.Read` |
+
+Le token obtenu est automatiquement stocké dans `calendar_connections` avec `is_active = true`. L'utilisateur peut ensuite désactiver la synchronisation (`is_active = false`) sans perdre sa session d'authentification — seul le flux de données calendrier est interrompu.
 
 ### Rôles
 
