@@ -29,11 +29,16 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleOAuthLogin = async () => {
-    setOauthLoading('google');
+  const handleOAuthLogin = async (provider: 'google' | 'azure') => {
+    setOauthLoading(provider);
     try {
+      const options: any = {};
+      if (provider === 'azure') {
+        options.scopes = 'email offline_access';
+      }
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
+        options,
       });
       if (error) throw error;
     } catch (error: any) {
