@@ -25,15 +25,20 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('ik_remember_me') === 'true');
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleOAuthLogin = async () => {
-    setOauthLoading('google');
+  const handleOAuthLogin = async (provider: 'google' | 'azure') => {
+    setOauthLoading(provider);
     try {
+      const options: any = {};
+      if (provider === 'azure') {
+        options.scopes = 'email offline_access';
+      }
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
+        options,
       });
       if (error) throw error;
     } catch (error: any) {
@@ -133,7 +138,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
               type="button"
               variant="outline"
               className="w-full bg-background/50 focus-visible-ring"
-              onClick={handleOAuthLogin}
+              onClick={() => handleOAuthLogin('google')}
               disabled={oauthLoading !== null}
               aria-label="Se connecter avec Google"
             >
@@ -161,6 +166,29 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
                 </svg>
               )}
               Continuer avec Google
+            </Button>
+
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full bg-background/50 focus-visible-ring"
+              onClick={() => handleOAuthLogin('azure')}
+              disabled={oauthLoading !== null}
+              aria-label="Se connecter avec Microsoft"
+            >
+              {oauthLoading === 'azure' ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
+              ) : (
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 21 21" aria-hidden="true" role="img">
+                  <title>Logo Microsoft</title>
+                  <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                  <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                  <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                  <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                </svg>
+              )}
+              Continuer avec Microsoft
             </Button>
 
             <div className="relative" role="separator" aria-orientation="horizontal">
