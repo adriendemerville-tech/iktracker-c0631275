@@ -35,6 +35,8 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
       const options: any = {};
       if (provider === 'azure') {
         options.scopes = 'email offline_access Calendars.Read';
+      } else if (provider === 'google') {
+        options.scopes = 'https://www.googleapis.com/auth/calendar.readonly';
       }
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
