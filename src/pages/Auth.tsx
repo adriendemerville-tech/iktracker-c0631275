@@ -28,7 +28,10 @@ const Auth = () => {
 
   const isOnDeployedDomain = window.location.hostname === DEPLOYED_DOMAIN;
 
-  // Auto-connect calendar when signing in with OAuth provider
+  // Auto-register calendar connection placeholder when signing in with OAuth provider
+  // This creates an active connection entry so the switch shows ON in CalendarConnections.
+  // Tokens will be populated by the dedicated calendar OAuth flow (google-calendar-auth / outlook-calendar-auth).
+  // This does NOT request calendar scopes - those are handled separately.
   const autoConnectCalendar = async (session: any) => {
     const provider = session.user?.app_metadata?.provider;
     
@@ -36,10 +39,6 @@ const Auth = () => {
     if (provider === 'azure') calendarProvider = 'outlook';
     else if (provider === 'google') calendarProvider = 'google';
     else return;
-
-    const providerToken = session.provider_token;
-    const providerRefreshToken = session.provider_refresh_token;
-    if (!providerToken) return;
 
     try {
       // Check if already connected
@@ -50,34 +49,35 @@ const Auth = () => {
         .eq('provider', calendarProvider)
         .maybeSingle();
 
-      const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
-
       if (existing) {
+        // Already has a connection - just ensure it's active
         await supabase
           .from('calendar_connections')
-          .update({
-            access_token: providerToken,
-            refresh_token: providerRefreshToken || null,
-            token_expires_at: expiresAt,
-            is_active: true,
-            updated_at: new Date().toISOString(),
-          })
+          .update({ is_active: true, updated_at: new Date().toISOString() })
           .eq('id', existing.id);
       } else {
+        // Create connection entry - tokens from auth session if available, 
+        // otherwise the dedicated calendar flow will populate them
+        const providerToken = session.provider_token;
+        const providerRefreshToken = session.provider_refresh_token;
+        const expiresAt = providerToken 
+          ? new Date(Date.now() + 3600 * 1000).toISOString() 
+          : null;
+
         await supabase
           .from('calendar_connections')
           .insert({
             user_id: session.user.id,
             provider: calendarProvider,
-            access_token: providerToken,
+            access_token: providerToken || null,
             refresh_token: providerRefreshToken || null,
             token_expires_at: expiresAt,
             is_active: true,
           });
       }
-      console.log(`${calendarProvider} calendar auto-connected via ${provider} sign-in`);
+      console.log(`${calendarProvider} calendar auto-registered via ${provider} sign-in`);
     } catch (e) {
-      console.warn(`Failed to auto-connect ${calendarProvider} calendar:`, e);
+      console.warn(`Failed to auto-register ${calendarProvider} calendar:`, e);
     }
   };
 

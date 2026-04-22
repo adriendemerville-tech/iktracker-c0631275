@@ -34,10 +34,11 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     try {
       const options: any = {};
       if (provider === 'azure') {
-        options.scopes = 'email offline_access Calendars.Read';
-      } else if (provider === 'google') {
-        options.scopes = 'https://www.googleapis.com/auth/calendar.readonly';
+        // Only request email scope for auth - calendar scopes are handled separately
+        options.scopes = 'email offline_access';
       }
+      // Google: no extra scopes needed for auth (email+profile are default)
+      // Calendar scope is requested separately via google-calendar-auth edge function
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options,
