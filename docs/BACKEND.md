@@ -184,11 +184,12 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ## 3. Edge Functions
 
-### Vue d'ensemble (14 fonctions)
+### Vue d'ensemble (15 fonctions)
 
 | Fonction | Lignes | Auth | Méthode | Rôle |
 |---|---|---|---|---|
 | `blog-api` | 831 | API Key | GET/POST/PUT/DELETE | CMS headless CRUD |
+| `docs` | ~100 | JWT (admin/viewer) | GET | Documentation backend (markdown/HTML) |
 | `meta-renderer` | 826 | Non | GET | Pré-rendu HTML pour bots |
 | `sync-calendar-trips` | 705 | JWT | POST | Synchronisation calendrier → trajets |
 | `calendar-debug` | 495 | JWT | GET/POST | Debug des connexions calendrier |
