@@ -72,6 +72,7 @@ import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCa
 import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
 import { AdaptiveChart } from '@/components/admin/AdaptiveChart';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
 interface AdminStatsData {
   total_users: number;
@@ -189,6 +190,7 @@ const DEFAULT_SECTION_ORDER = [
   'main-stats',
   'dau-chart',
   'recent-signups',
+  'persona-distribution',
   'download-stats',
   'share-stats',
   'referral-sources',
@@ -616,6 +618,26 @@ export function AdminStats() {
       });
       const responseRate = totalExposed > 0 ? Math.round((total / totalExposed) * 100) : 0;
       return { counts, total, totalExposed, responseRate };
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
+  // Fetch persona distribution
+  const { data: personaDistribution, isLoading: personaLoading } = useQuery({
+    queryKey: ['admin-persona-distribution'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('persona');
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      let total = 0;
+      (data || []).forEach((r: { persona: string | null }) => {
+        const key = r.persona || 'undefined';
+        counts[key] = (counts[key] || 0) + 1;
+        total++;
+      });
+      return { counts, total };
     },
     refetchInterval: 60 * 60 * 1000,
   });
