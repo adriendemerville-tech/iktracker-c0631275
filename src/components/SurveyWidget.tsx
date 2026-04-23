@@ -45,6 +45,7 @@ export function SurveyWidget() {
   const [survey, setSurvey] = useState<ActiveSurvey | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, unknown>>({});
+  const [otherTexts, setOtherTexts] = useState<Record<string, string>>({});
   const [dismissed, setDismissed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -191,10 +192,16 @@ export function SurveyWidget() {
   const handleSubmit = useCallback(async () => {
     if (!survey || !user) return;
 
-    // Check for persona sync on poll blocks
+    // Resolve "other" values
+    const resolvedResponses: Record<string, unknown> = {};
     for (const block of survey.blocks) {
       const answer = responses[block.id];
-      if (answer) await syncPersonaIfNeeded(block, answer);
+      if (answer === '__other__') {
+        resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ''}`.trim();
+      } else {
+        resolvedResponses[block.id] = answer;
+        if (answer) await syncPersonaIfNeeded(block, answer);
+      }
     }
 
     // Save response
@@ -202,13 +209,13 @@ export function SurveyWidget() {
       survey_id: survey.id,
       user_id: user.id,
       variant_id: survey.variant_id,
-      responses: JSON.parse(JSON.stringify(responses)),
+      responses: JSON.parse(JSON.stringify(resolvedResponses)),
       completed: true,
     }]);
 
     setSubmitted(true);
     setTimeout(() => setDismissed(true), 2000);
-  }, [survey, user, responses, syncPersonaIfNeeded]);
+  }, [survey, user, responses, otherTexts, syncPersonaIfNeeded]);
 
   const handleNext = () => {
     if (!survey) return;
