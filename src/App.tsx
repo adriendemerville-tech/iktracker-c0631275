@@ -54,6 +54,9 @@ const MarinaAnalyze = lazy(() => import("./pages/MarinaAnalyze"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Tarifs = lazy(() => import("./pages/Tarifs"));
+const Sso = lazy(() => import("./pages/Sso"));
+const ApiDocs = lazy(() => import("./pages/ApiDocs"));
+const AdminPartners = lazy(() => import("./pages/AdminPartners"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -352,6 +355,18 @@ const AppRoutes = () => {
         <Route path="/mentions-legales" element={<Suspense fallback={<PageLoader />}><MentionsLegales /></Suspense>} />
         <Route path="/tarifs" element={<Suspense fallback={<PageLoader />}><Tarifs /></Suspense>} />
         <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
+        <Route path="/sso" element={<Suspense fallback={<PageLoader />}><Sso /></Suspense>} />
+        <Route path="/api-docs" element={<Suspense fallback={<PageLoader />}><ApiDocs /></Suspense>} />
+        <Route
+          path="/app/admin/partners"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><AdminPartners /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
       </Routes>
     </AuthContext.Provider>
