@@ -1685,7 +1685,7 @@ export function AdminStats() {
                         ) : (
                           <div className="space-y-3">
                             <p className="text-xs text-muted-foreground text-center mb-2">
-                              {personaDistribution.total} utilisateur{personaDistribution.total > 1 ? 's' : ''} qualifié{personaDistribution.total > 1 ? 's' : ''}
+                              {personaDistribution.total} utilisateur{personaDistribution.total > 1 ? 's' : ''}
                             </p>
                             {allPersonaKeys.map(key => {
                               const count = personaDistribution.counts[key] || 0;
