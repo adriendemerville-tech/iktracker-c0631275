@@ -633,6 +633,10 @@ const Admin = () => {
               <Car className="w-4 h-4" />
               <span className="hidden sm:inline">Tournée</span>
             </TabsTrigger>
+            <TabsTrigger value="api-partners" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Key className="w-4 h-4" />
+              <span className="hidden sm:inline">API</span>
+            </TabsTrigger>
             {adminRole !== 'viewer' && (
               <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
                 <BarChart3 className="w-4 h-4" />
