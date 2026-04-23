@@ -669,6 +669,195 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_api_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          jwt_secret: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          monthly_quota: number
+          partner_name: string
+          scopes: string[]
+          updated_at: string
+          usage_current_month: number
+          usage_reset_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          jwt_secret: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          monthly_quota?: number
+          partner_name: string
+          scopes?: string[]
+          updated_at?: string
+          usage_current_month?: number
+          usage_reset_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          jwt_secret?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          monthly_quota?: number
+          partner_name?: string
+          scopes?: string[]
+          updated_at?: string
+          usage_current_month?: number
+          usage_reset_at?: string
+        }
+        Relationships: []
+      }
+      partner_request_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          external_user_id: string | null
+          id: string
+          iktracker_user_id: string | null
+          method: string
+          partner_id: string | null
+          path: string
+          response_time_ms: number | null
+          status_code: number
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          external_user_id?: string | null
+          id?: string
+          iktracker_user_id?: string | null
+          method: string
+          partner_id?: string | null
+          path: string
+          response_time_ms?: number | null
+          status_code: number
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          external_user_id?: string | null
+          id?: string
+          iktracker_user_id?: string | null
+          method?: string
+          partner_id?: string | null
+          path?: string
+          response_time_ms?: number | null
+          status_code?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_request_logs_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_users: {
+        Row: {
+          created_at: string
+          external_email: string
+          external_user_id: string
+          id: string
+          iktracker_user_id: string
+          last_sso_at: string | null
+          metadata: Json
+          partner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          external_email: string
+          external_user_id: string
+          id?: string
+          iktracker_user_id: string
+          last_sso_at?: string | null
+          metadata?: Json
+          partner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          external_email?: string
+          external_user_id?: string
+          id?: string
+          iktracker_user_id?: string
+          last_sso_at?: string | null
+          metadata?: Json
+          partner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_users_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_webhooks: {
+        Row: {
+          created_at: string
+          events: string[]
+          failure_count: number
+          hmac_secret: string
+          id: string
+          is_active: boolean
+          last_called_at: string | null
+          partner_id: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          failure_count?: number
+          hmac_secret: string
+          id?: string
+          is_active?: boolean
+          last_called_at?: string | null
+          partner_id: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          failure_count?: number
+          hmac_secret?: string
+          id?: string
+          is_active?: boolean
+          last_called_at?: string | null
+          partner_id?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_webhooks_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_sources: {
         Row: {
           created_at: string
@@ -1545,6 +1734,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_partner_usage: {
+        Args: { _partner_id: string }
+        Returns: undefined
+      }
       search_users:
         | {
             Args: { search_term: string }
@@ -1568,6 +1761,17 @@ export type Database = {
               user_id: string
             }[]
           }
+      validate_partner_key: {
+        Args: { _key_hash: string }
+        Returns: {
+          is_active: boolean
+          jwt_secret: string
+          partner_id: string
+          partner_name: string
+          quota_remaining: number
+          scopes: string[]
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "viewer"
