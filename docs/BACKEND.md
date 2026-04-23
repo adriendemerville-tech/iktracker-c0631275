@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.2 — 23 avril 2026
+> Version 2.3 — 23 avril 2026
 
 ## Table des matières
 
@@ -126,7 +126,7 @@ Utilisateur → Cloudflare DNS (proxied)
 
 | Table | Description | RLS |
 |---|---|---|
-| `vehicle_cache` | Cache des données véhicule (plaque → marque/modèle) | ✅ lecture publique |
+| `vehicle_cache` | Cache des données véhicule (plaque → marque/modèle) | ✅ authenticated only |
 | `takeout_import_attempts` | Tentatives d'import Google Takeout | ✅ user_id |
 
 ### Fonctions de base de données (24 fonctions)
