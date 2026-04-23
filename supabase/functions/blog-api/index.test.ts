@@ -103,6 +103,60 @@ Deno.test("PUT /posts without auth returns 401", async () => {
 });
 
 // ============================================================
+// AUTHENTICATED — STATUS FILTERING (Parménion / Autopilot)
+// ============================================================
+
+const API_KEY = Deno.env.get("BLOG_API_KEY") || "";
+
+async function authFetch(path: string, options: RequestInit = {}) {
+  const url = `${BASE_URL}${path}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: SUPABASE_ANON_KEY,
+    "x-api-key": API_KEY,
+    ...(options.headers as Record<string, string> || {}),
+  };
+  const res = await fetch(url, { ...options, headers });
+  const body = await res.json();
+  return { status: res.status, body };
+}
+
+Deno.test("GET /posts?status=all with API key returns drafts and published", async () => {
+  if (!API_KEY) return; // skip if no key configured
+  const { status, body } = await authFetch("/posts?status=all&limit=200");
+  assertEquals(status, 200);
+  const statuses = (body.posts ?? []).map((p: any) => p.status);
+  const hasDraft = statuses.includes("draft");
+  const hasPublished = statuses.includes("published");
+  assertEquals(hasPublished, true, "Should contain published posts");
+  assertEquals(hasDraft, true, "Should contain draft posts (Parménion needs this to avoid duplicates)");
+});
+
+Deno.test("GET /posts?status=draft with API key returns only drafts", async () => {
+  if (!API_KEY) return;
+  const { status, body } = await authFetch("/posts?status=draft&limit=50");
+  assertEquals(status, 200);
+  const allDraft = (body.posts ?? []).every((p: any) => p.status === "draft");
+  assertEquals(allDraft, true, "All returned posts should be drafts");
+});
+
+Deno.test("GET /posts without status param returns only published (default)", async () => {
+  if (!API_KEY) return;
+  const { status, body } = await authFetch("/posts?limit=50");
+  assertEquals(status, 200);
+  const allPublished = (body.posts ?? []).every((p: any) => p.status === "published");
+  assertEquals(allPublished, true, "Default should return only published posts");
+});
+
+Deno.test("Each post has a status field for consumer-side filtering", async () => {
+  if (!API_KEY) return;
+  const { body } = await authFetch("/posts?status=all&limit=5");
+  for (const post of (body.posts ?? [])) {
+    assertExists(post.status, "Every post must expose a status field");
+  }
+});
+
+// ============================================================
 // CORS
 // ============================================================
 
