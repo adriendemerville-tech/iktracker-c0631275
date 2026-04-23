@@ -623,7 +623,7 @@ export function AdminStats() {
   });
 
   // Fetch per-user persona map (for recent signups display)
-  const { data: userPersonaMap = new Map<string, string>() } = useQuery({
+  const { data: userPersonaMap = new Map() } = useQuery({
     queryKey: ['admin-user-persona-map'],
     queryFn: async () => {
       const { data, error } = await supabase
