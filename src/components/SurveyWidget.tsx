@@ -293,9 +293,14 @@ export function SurveyWidget() {
 
 // ---- Sub-components ----
 
-function PollBlock({ block, value, onChange }: { block: ContentBlock; value?: string; onChange: (v: string) => void }) {
+function PollBlock({ block, value, onChange, otherText, onOtherTextChange }: {
+  block: ContentBlock; value?: string; onChange: (v: string) => void;
+  otherText: string; onOtherTextChange: (v: string) => void;
+}) {
   const question = (block.config.question as string) || '';
   const options = (block.config.options as string[]) || [];
+  const allowOther = !!block.config.allowOther;
+  const isOtherSelected = value === '__other__';
 
   return (
     <div className="space-y-2">
@@ -320,6 +325,32 @@ function PollBlock({ block, value, onChange }: { block: ContentBlock; value?: st
             </button>
           );
         })}
+        {allowOther && (
+          <>
+            <button
+              onClick={() => onChange('__other__')}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
+                isOtherSelected
+                  ? 'border-primary bg-primary/10 text-primary font-medium'
+                  : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
+              )}
+            >
+              <span>Autre</span>
+            </button>
+            {isOtherSelected && (
+              <Textarea
+                value={otherText}
+                onChange={e => onOtherTextChange(e.target.value.slice(0, 260))}
+                placeholder="Précisez..."
+                rows={2}
+                maxLength={260}
+                className="text-xs resize-none mt-1"
+                autoFocus
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
