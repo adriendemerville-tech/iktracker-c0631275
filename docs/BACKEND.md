@@ -214,9 +214,60 @@ Utilisateur → Cloudflare DNS (proxied)
   - `PUT /posts/:id` — Modifier un article
   - `DELETE /posts/:id` — Supprimer un article
   - `GET /pages/:key` — Lire le contenu d'une page
-  - `PUT /pages/:key` — Modifier le contenu d'une page
+  - `PUT /pages/:key` — Modifier le contenu d'une page (voir clés dynamiques ci-dessous)
 - **Secrets** : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 - **Audit** : Chaque modification est enregistrée dans `api_audit_logs`
+
+##### Clés dynamiques `page_contents` — Pages marketing
+
+Le frontend lit le champ `content` (JSON) de la table `page_contents` via le hook `usePageContent(pageKey, fallback)`. Si une clé n'existe pas en base, la valeur en dur dans le code est affichée. Toute clé modifiée via `PUT /pages/:key` est immédiatement prise en compte (cache React Query : 1 h).
+
+**`home`** — Page d'accueil (`Landing.tsx`)
+
+| Clé JSON | Section | Élément |
+|---|---|---|
+| `hero_title` | Hero | H1 principal |
+| `hero_highlight` | Hero | Texte coloré sous le H1 (ex: "Barème 2026") |
+| `hero_subtitle` | Hero | Paragraphe descriptif sous le H1 |
+| `pain_badge` | Pain point Excel | Badge au-dessus du H2 |
+| `pain_title_prefix` | Pain point Excel | Début du H2 (avant le texte barré) |
+| `pain_title_strike` | Pain point Excel | Texte barré dans le H2 |
+| `pain_title_suffix` | Pain point Excel | Fin du H2 (après le texte barré) |
+| `pain_subtitle` | Pain point Excel | Paragraphe sous le H2 |
+| `stats_title` | Statistiques indépendants | H2 |
+| `stats_subtitle` | Statistiques indépendants | Paragraphe sous le H2 |
+| `features_title` | Grille fonctionnalités | H2 |
+| `mobile_title` | App mobile | H2 |
+| `mobile_subtitle` | App mobile | Paragraphe |
+| `tour_title` | Mode Tournée | H2 |
+| `tour_subtitle` | Mode Tournée | Paragraphe |
+| `calendar_title` | Sync Calendriers | H2 |
+| `calendar_subtitle` | Sync Calendriers | Paragraphe |
+| `pdf_title` | Export PDF | H2 |
+| `pdf_subtitle` | Export PDF | Paragraphe |
+| `expertise_title` | Expertise fiscale | H2 |
+| `expertise_subtitle` | Expertise fiscale | Paragraphe |
+| `cta_title` | CTA final | H2 |
+| `cta_subtitle` | CTA final | Paragraphe |
+| `faq_title` | FAQ | H2 |
+| `faq_subtitle` | FAQ | Paragraphe |
+
+**Exemple d'appel Parménion :**
+
+```bash
+PUT /pages/home
+x-api-key: <clé>
+Content-Type: application/json
+
+{
+  "content": {
+    "hero_title": "Nouveau titre",
+    "cta_subtitle": "Nouveau sous-titre CTA"
+  }
+}
+```
+
+> Les clés non envoyées conservent leur valeur actuelle en base. Les clés inconnues du hook sont ignorées côté frontend.
 
 #### `meta-renderer` — Pré-rendu SEO/GEO
 
