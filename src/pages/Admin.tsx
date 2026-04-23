@@ -1006,6 +1006,19 @@ const Admin = () => {
                                   Viewer
                                 </Badge>
                               )}
+                              {(() => {
+                                const personaOption = PERSONA_OPTIONS.find(p => p.value === u.persona);
+                                if (personaOption) {
+                                  const Icon = personaOption.icon;
+                                  return (
+                                    <Badge variant="outline" className="flex-shrink-0 text-[10px] px-1.5 py-0 gap-0.5">
+                                      <Icon className="w-3 h-3" />
+                                      {personaOption.label.split('/')[0].split(' ')[0]}
+                                    </Badge>
+                                  );
+                                }
+                                return null;
+                              })()}
                             </div>
                             <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-foreground">
                               {u.email && (
