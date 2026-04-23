@@ -1685,11 +1685,12 @@ export function AdminStats() {
                         ) : (
                           <div className="space-y-3">
                             <p className="text-xs text-muted-foreground text-center mb-2">
-                              {personaDistribution.total} utilisateur{personaDistribution.total > 1 ? 's' : ''}
+                              {personaDistribution.total - (personaDistribution.counts['undefined'] || 0)} qualifié{(personaDistribution.total - (personaDistribution.counts['undefined'] || 0)) > 1 ? 's' : ''} / {personaDistribution.total} utilisateurs
                             </p>
-                            {allPersonaKeys.map(key => {
+                            {PERSONA_OPTIONS.map(p => p.value).map(key => {
                               const count = personaDistribution.counts[key] || 0;
-                              const pct = personaDistribution.total > 0 ? Math.round((count / personaDistribution.total) * 100) : 0;
+                              const definedTotal = personaDistribution.total - (personaDistribution.counts['undefined'] || 0);
+                              const pct = definedTotal > 0 ? Math.round((count / definedTotal) * 100) : 0;
                               return (
                                 <div key={key} className="flex items-center gap-3">
                                   <span className="text-sm w-36 truncate">{personaLabels[key] || key}</span>
@@ -1703,6 +1704,13 @@ export function AdminStats() {
                                 </div>
                               );
                             })}
+                            <div className="border-t pt-2 mt-2">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm w-36 truncate text-muted-foreground">Non défini</span>
+                                <div className="flex-1" />
+                                <span className="text-sm font-medium w-20 text-right text-muted-foreground">{personaDistribution.counts['undefined'] || 0}</span>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </CardContent>
