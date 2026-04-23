@@ -623,16 +623,16 @@ export function AdminStats() {
   });
 
   // Fetch per-user persona map (for recent signups display)
-  const { data: userPersonaMap = new Map() } = useQuery({
+  const { data: userPersonaMap } = useQuery({
     queryKey: ['admin-user-persona-map'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_preferences')
         .select('user_id, persona');
       if (error) throw error;
-      const map = new Map<string, string>();
+      const map: Record<string, string> = {};
       for (const p of (data || [])) {
-        map.set(p.user_id, p.persona);
+        map[p.user_id] = p.persona;
       }
       return map;
     },
