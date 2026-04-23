@@ -97,12 +97,41 @@ const CalendarPlaceholder = memo(() => (
   <div className="w-full max-w-[400px] mx-auto bg-muted/30 rounded-2xl animate-pulse" style={{ aspectRatio: '1/1.2' }} />
 ));
 
+const LANDING_DEFAULTS = {
+  hero_title: "Calcul automatisé des indemnités kilométriques",
+  hero_highlight: "Barème 2026",
+  hero_subtitle: "Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics. Outil communautaire.",
+  pain_badge: "Fini les tableaux Excel",
+  pain_title_prefix: "Vous perdez encore du temps avec des",
+  pain_title_strike: "fichiers Excel",
+  pain_title_suffix: "?",
+  pain_subtitle: "Formules cassées, oublis de trajets, calculs d'IK approximatifs... IKtracker automatise tout selon le barème officiel URSSAF et vous fait gagner des heures chaque mois.",
+  stats_title: "Les indépendants roulent beaucoup",
+  stats_subtitle: "Infirmiers libéraux, artisans, commerciaux, consultants... Les trajets professionnels représentent une part importante de l'activité des travailleurs indépendants.",
+  features_title: "Tout ce dont vous avez besoin",
+  mobile_title: "Une app mobile complète",
+  mobile_subtitle: "Installez IKtracker sur votre téléphone et enregistrez vos trajets en déplacement.",
+  tour_title: "Mode Tournée",
+  tour_subtitle: "Plusieurs arrêts, un seul enregistrement. Parfait pour les commerciaux et livreurs.",
+  calendar_title: "Sync Calendriers",
+  calendar_subtitle: "Importez vos rendez-vous et transformez-les en trajets automatiquement.",
+  pdf_title: "Rapport PDF professionnel",
+  pdf_subtitle: "Générez un relevé complet de vos trajets conforme au barème fiscal, prêt à envoyer à votre comptable.",
+  expertise_title: "Expertise fiscale et conformité URSSAF",
+  expertise_subtitle: "IKtracker vous accompagne dans la gestion de vos frais réels et l'optimisation fiscale de vos déplacements professionnels.",
+  cta_title: "Prêt à simplifier vos trajets ?",
+  cta_subtitle: "Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.",
+  faq_title: "Questions fréquentes",
+  faq_subtitle: "Tout ce que vous devez savoir sur IKtracker.",
+};
+
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker('landing');
+  const { content: c } = usePageContent("home", LANDING_DEFAULTS);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
