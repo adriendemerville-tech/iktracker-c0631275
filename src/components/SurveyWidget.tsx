@@ -29,7 +29,7 @@ function isPersonaPoll(block: ContentBlock): boolean {
   if (block.type !== 'poll') return false;
   const options = (block.config.options as string[]) || [];
   // Check if at least 3 options match persona labels
-  const personaLabels = PERSONA_OPTIONS.map(p => p.label);
+  const personaLabels: string[] = PERSONA_OPTIONS.map(p => p.label);
   const matches = options.filter(o => personaLabels.includes(o));
   return matches.length >= 3;
 }
@@ -198,13 +198,13 @@ export function SurveyWidget() {
     }
 
     // Save response
-    await supabase.from('survey_responses').insert({
+    await supabase.from('survey_responses').insert([{
       survey_id: survey.id,
       user_id: user.id,
       variant_id: survey.variant_id,
       responses: responses as Record<string, unknown>,
       completed: true,
-    });
+    }]);
 
     setSubmitted(true);
     setTimeout(() => setDismissed(true), 2000);
