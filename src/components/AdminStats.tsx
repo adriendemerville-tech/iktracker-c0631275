@@ -1713,7 +1713,6 @@ export function AdminStats() {
                             </div>
                           </div>
                         )}
-                        )}
                       </CardContent>
                     </DraggableStatsSection>
                   );
