@@ -4,6 +4,7 @@ import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { usePageContent } from "@/hooks/usePageContent";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
