@@ -345,7 +345,7 @@ function RatingBlock({ block, value, hovered, onHover, onChange }: {
               className={cn(
                 'w-7 h-7 transition-colors',
                 (hovered || value || 0) >= n
-                  ? 'text-yellow-400 fill-yellow-400'
+                  ? 'text-primary fill-primary'
                   : 'text-muted-foreground/30'
               )}
             />
