@@ -869,20 +869,6 @@ const Profile = () => {
           </Button>
         )}
 
-        {/* Déconnexion */}
-        {user && (
-          <div className="pt-4">
-            <Button
-              variant="outline"
-              className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
-              onClick={handleLogout}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Se déconnecter
-            </Button>
-          </div>
-        )}
-
         {/* App Info */}
         <div className="text-center text-xs text-muted-foreground pt-2 space-y-2">
           <div className="flex items-center justify-center gap-2">
