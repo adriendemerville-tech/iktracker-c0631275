@@ -178,6 +178,18 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
                 <Plus className="w-3 h-3 mr-1" /> Option
               </Button>
             </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id={`allow-other-${block.id}`}
+                checked={!!block.config.allowOther}
+                onChange={e => onChange({ ...block, config: { ...block.config, allowOther: e.target.checked } })}
+                className="rounded"
+              />
+              <Label htmlFor={`allow-other-${block.id}`} className="text-xs cursor-pointer">
+                Ajouter un champ « Autre » (texte libre, 260 car. max)
+              </Label>
+            </div>
           </>
         )}
         {block.type === 'rating' && (

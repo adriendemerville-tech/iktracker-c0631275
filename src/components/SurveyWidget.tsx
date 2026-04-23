@@ -45,6 +45,7 @@ export function SurveyWidget() {
   const [survey, setSurvey] = useState<ActiveSurvey | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, unknown>>({});
+  const [otherTexts, setOtherTexts] = useState<Record<string, string>>({});
   const [dismissed, setDismissed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -191,10 +192,16 @@ export function SurveyWidget() {
   const handleSubmit = useCallback(async () => {
     if (!survey || !user) return;
 
-    // Check for persona sync on poll blocks
+    // Resolve "other" values
+    const resolvedResponses: Record<string, unknown> = {};
     for (const block of survey.blocks) {
       const answer = responses[block.id];
-      if (answer) await syncPersonaIfNeeded(block, answer);
+      if (answer === '__other__') {
+        resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ''}`.trim();
+      } else {
+        resolvedResponses[block.id] = answer;
+        if (answer) await syncPersonaIfNeeded(block, answer);
+      }
     }
 
     // Save response
@@ -202,13 +209,13 @@ export function SurveyWidget() {
       survey_id: survey.id,
       user_id: user.id,
       variant_id: survey.variant_id,
-      responses: JSON.parse(JSON.stringify(responses)),
+      responses: JSON.parse(JSON.stringify(resolvedResponses)),
       completed: true,
     }]);
 
     setSubmitted(true);
     setTimeout(() => setDismissed(true), 2000);
-  }, [survey, user, responses, syncPersonaIfNeeded]);
+  }, [survey, user, responses, otherTexts, syncPersonaIfNeeded]);
 
   const handleNext = () => {
     if (!survey) return;
@@ -231,7 +238,8 @@ export function SurveyWidget() {
 
   const block = survey.blocks[currentBlockIndex];
   const isLast = currentBlockIndex === survey.blocks.length - 1;
-  const hasAnswer = responses[block.id] !== undefined && responses[block.id] !== '';
+  const rawAnswer = responses[block.id];
+  const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (rawAnswer !== '__other__' || (otherTexts[block.id] || '').trim().length > 0);
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden">
@@ -250,6 +258,8 @@ export function SurveyWidget() {
             block={block}
             value={responses[block.id] as string}
             onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
+            otherText={otherTexts[block.id] || ''}
+            onOtherTextChange={val => setOtherTexts(t => ({ ...t, [block.id]: val }))}
           />
         )}
         {block.type === 'rating' && (
@@ -293,9 +303,14 @@ export function SurveyWidget() {
 
 // ---- Sub-components ----
 
-function PollBlock({ block, value, onChange }: { block: ContentBlock; value?: string; onChange: (v: string) => void }) {
+function PollBlock({ block, value, onChange, otherText, onOtherTextChange }: {
+  block: ContentBlock; value?: string; onChange: (v: string) => void;
+  otherText: string; onOtherTextChange: (v: string) => void;
+}) {
   const question = (block.config.question as string) || '';
   const options = (block.config.options as string[]) || [];
+  const allowOther = !!block.config.allowOther;
+  const isOtherSelected = value === '__other__';
 
   return (
     <div className="space-y-2">
@@ -320,6 +335,32 @@ function PollBlock({ block, value, onChange }: { block: ContentBlock; value?: st
             </button>
           );
         })}
+        {allowOther && (
+          <>
+            <button
+              onClick={() => onChange('__other__')}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
+                isOtherSelected
+                  ? 'border-primary bg-primary/10 text-primary font-medium'
+                  : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
+              )}
+            >
+              <span>Autre</span>
+            </button>
+            {isOtherSelected && (
+              <Textarea
+                value={otherText}
+                onChange={e => onOtherTextChange(e.target.value.slice(0, 260))}
+                placeholder="Précisez..."
+                rows={2}
+                maxLength={260}
+                className="text-xs resize-none mt-1"
+                autoFocus
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
