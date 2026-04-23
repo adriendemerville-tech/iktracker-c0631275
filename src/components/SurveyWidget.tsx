@@ -238,7 +238,8 @@ export function SurveyWidget() {
 
   const block = survey.blocks[currentBlockIndex];
   const isLast = currentBlockIndex === survey.blocks.length - 1;
-  const hasAnswer = responses[block.id] !== undefined && responses[block.id] !== '';
+  const rawAnswer = responses[block.id];
+  const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (rawAnswer !== '__other__' || (otherTexts[block.id] || '').trim().length > 0);
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden">
