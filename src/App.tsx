@@ -14,6 +14,8 @@ import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { GlobalTourRecovery } from "@/components/GlobalTourRecovery";
 
+const SurveyWidget = lazy(() => import("@/components/SurveyWidget").then(m => ({ default: m.SurveyWidget })));
+
 // Lazy load UI components that aren't needed for initial render
 const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
 const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
@@ -214,6 +216,7 @@ const AppRoutes = () => {
       <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
       <GoogleMapsPreloader />
       {user && <GlobalTourRecovery />}
+      {user && <Suspense fallback={null}><SurveyWidget /></Suspense>}
       <Routes>
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
