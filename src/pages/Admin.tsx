@@ -24,6 +24,7 @@ import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
+import { AdminApiPartners } from '@/components/admin/AdminApiPartners';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
@@ -54,7 +55,8 @@ import {
   Zap,
   Trash2,
   AlertTriangle,
-  Car
+  Car,
+  Key
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -600,7 +602,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-6' : 'grid-cols-9'}`}>
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-7' : 'grid-cols-10'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -630,6 +632,10 @@ const Admin = () => {
             <TabsTrigger value="tour-recovery" className="flex items-center gap-1 text-xs sm:text-sm">
               <Car className="w-4 h-4" />
               <span className="hidden sm:inline">Tournée</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-partners" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Key className="w-4 h-4" />
+              <span className="hidden sm:inline">API</span>
             </TabsTrigger>
             {adminRole !== 'viewer' && (
               <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1148,6 +1154,11 @@ const Admin = () => {
           {/* Tour Recovery Tab */}
           <TabsContent value="tour-recovery">
             <AdminTourRecovery />
+          </TabsContent>
+
+          {/* API Partners Tab */}
+          <TabsContent value="api-partners">
+            <AdminApiPartners />
           </TabsContent>
 
           {/* Surveys Tab */}
