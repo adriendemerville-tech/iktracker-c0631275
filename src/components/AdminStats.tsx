@@ -1477,7 +1477,7 @@ export function AdminStats() {
                                       const personaOption = persona ? PERSONA_OPTIONS.find(p => p.value === persona) : null;
                                       if (personaOption) {
                                         const Icon = personaOption.icon;
-                                        return <Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" title={personaOption.label} />;
+                                        return <span title={personaOption.label}><Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" /></span>;
                                       }
                                       return null;
                                     })()}
