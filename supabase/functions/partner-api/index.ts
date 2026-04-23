@@ -371,6 +371,50 @@ async function handleSsoMagicLink(req: Request, ctx: PartnerContext): Promise<Re
   return jsonResponse({ success: true, sso_url: url, expires_in: 300, iktracker_user_id: userId });
 }
 
+/**
+ * DEV endpoint — generates a ready-to-use SSO URL from just an email + external_user_id.
+ * Skips the JWT signing step on the partner side, useful for local testing & demos.
+ * Requires `sso` scope. The returned URL is a one-shot magic link valid ~5 minutes.
+ */
+async function handleSsoDev(req: Request, ctx: PartnerContext): Promise<Response> {
+  if (!requireScope(ctx, 'sso')) return jsonResponse({ error: 'Missing sso scope' }, 403);
+
+  const body = await req.json().catch(() => ({}));
+  const { external_user_id, external_email, redirect_to, metadata } = body;
+  if (!external_user_id || !external_email) {
+    return jsonResponse({ error: 'external_user_id and external_email required' }, 400);
+  }
+
+  const userId = await findOrCreateIktrackerUser(ctx.partnerId, external_user_id, external_email, metadata || {});
+
+  const { data: userRow } = await admin.auth.admin.getUserById(userId);
+  if (!userRow.user?.email) return jsonResponse({ error: 'User not found' }, 404);
+
+  const target = redirect_to || '/app';
+  const { data: link, error: linkErr } = await admin.auth.admin.generateLink({
+    type: 'magiclink',
+    email: userRow.user.email,
+    options: { redirectTo: `${FRONTEND_URL}${target}` },
+  });
+  if (linkErr || !link.properties) {
+    return jsonResponse({ error: `Failed to generate magic link: ${linkErr?.message}` }, 500);
+  }
+
+  await admin
+    .from('partner_users')
+    .update({ last_sso_at: new Date().toISOString() })
+    .eq('partner_id', ctx.partnerId)
+    .eq('iktracker_user_id', userId);
+
+  return jsonResponse({
+    success: true,
+    sso_url: link.properties.action_link,
+    expires_in: 300,
+    iktracker_user_id: userId,
+    note: 'Dev endpoint — magic link directly usable, no JWT verification step.',
+  });
+}
+
 async function handleSsoVerify(req: Request): Promise<Response> {
   // Internal endpoint called by /sso frontend page to exchange the partner JWT for a Supabase session
   const { token, partner_id } = await req.json();
@@ -463,6 +507,8 @@ serve(async (req) => {
       res = await handleGetStats(req, ctx);
     } else if (route === '/sso/magic-link' && req.method === 'POST') {
       res = await handleSsoMagicLink(req, ctx);
+    } else if (route === '/sso/dev' && req.method === 'POST') {
+      res = await handleSsoDev(req, ctx);
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);
     }
