@@ -184,11 +184,12 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ## 3. Edge Functions
 
-### Vue d'ensemble (14 fonctions)
+### Vue d'ensemble (15 fonctions)
 
 | Fonction | Lignes | Auth | Méthode | Rôle |
 |---|---|---|---|---|
 | `blog-api` | 831 | API Key | GET/POST/PUT/DELETE | CMS headless CRUD |
+| `docs` | ~100 | JWT (admin/viewer) | GET | Documentation backend (markdown/HTML) |
 | `meta-renderer` | 826 | Non | GET | Pré-rendu HTML pour bots |
 | `sync-calendar-trips` | 705 | JWT | POST | Synchronisation calendrier → trajets |
 | `calendar-debug` | 495 | JWT | GET/POST | Debug des connexions calendrier |
@@ -204,6 +205,14 @@ Utilisateur → Cloudflare DNS (proxied)
 | `google-maps-key` | 62 | JWT | GET | Fournit la clé Google Maps au client |
 
 ### Détail par fonction
+
+#### `docs` — Documentation backend
+
+- **Auth** : JWT utilisateur + rôle `admin` ou `viewer`
+- **Endpoint** : `GET ?format=markdown|html`
+- **Logique** : Sert le contenu de `docs/BACKEND.md` en Markdown brut ou converti en HTML
+- **Formats** : `markdown` (défaut) retourne le fichier brut, `html` retourne une page HTML stylisée
+- **Secrets** : `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `blog-api` — CMS Headless
 
