@@ -81,7 +81,7 @@ const Auth = () => {
     }
   };
 
-  // Check if user has persona set
+  // Check if user has persona set (not 'undefined')
   const checkPersona = async (userId: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
@@ -91,7 +91,8 @@ const Auth = () => {
         .maybeSingle();
       
       if (error) return true; // Don't block on error
-      return !!(data as any)?.persona;
+      const persona = (data as any)?.persona;
+      return !!persona && persona !== 'undefined';
     } catch {
       return true; // Don't block on error
     }
