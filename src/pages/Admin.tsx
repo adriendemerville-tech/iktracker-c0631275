@@ -24,6 +24,7 @@ import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
+import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -273,6 +274,28 @@ const Admin = () => {
     refetchInterval: 15 * 60 * 1000, // 15 minutes
   });
 
+  // Fetch all user personas
+  const { data: userPersonas = [] } = useQuery({
+    queryKey: ['admin-user-personas'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('user_id, persona');
+      if (error) throw error;
+      return data as { user_id: string; persona: string | null }[];
+    },
+    enabled: isAdmin,
+    refetchInterval: 15 * 60 * 1000,
+  });
+
+  const personaMap = useMemo(() => {
+    const map = new Map<string, string | null>();
+    for (const p of userPersonas) {
+      map.set(p.user_id, p.persona);
+    }
+    return map;
+  }, [userPersonas]);
+
   // Build users list with roles and feedback counts
   const users: UserWithRole[] = searchedUsers.map(u => {
     const feedbackCount = feedbacks.filter(f => f.user_id === u.user_id).length;
@@ -295,6 +318,7 @@ const Admin = () => {
       lastActivity,
       created_at: u.created_at,
       has_plate_detection: u.has_plate_detection ?? false,
+      persona: personaMap.get(u.user_id) ?? null,
     };
   });
 
