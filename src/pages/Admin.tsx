@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -106,6 +106,7 @@ interface UserWithRole {
   lastActivity: string | null;
   created_at: string;
   has_plate_detection: boolean;
+  persona: string | null;
 }
 
 const Admin = () => {
