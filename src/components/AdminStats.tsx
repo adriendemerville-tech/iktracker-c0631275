@@ -1470,7 +1470,18 @@ export function AdminStats() {
                                 <div className="flex items-center gap-3">
                                   <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
                                   <div>
+                                  <div className="flex items-center gap-2">
                                     <p className="text-sm font-medium truncate max-w-[200px]">{signup.email}</p>
+                                    {(() => {
+                                      const persona = userPersonaMap?.[signup.user_id];
+                                      const personaOption = persona ? PERSONA_OPTIONS.find(p => p.value === persona) : null;
+                                      if (personaOption) {
+                                        const Icon = personaOption.icon;
+                                        return <Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" title={personaOption.label} />;
+                                      }
+                                      return null;
+                                    })()}
+                                  </div>
                                     <p className="text-xs text-muted-foreground font-mono">{signup.user_id.slice(0, 8)}...</p>
                                   </div>
                                 </div>
