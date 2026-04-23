@@ -202,7 +202,7 @@ export function SurveyWidget() {
       survey_id: survey.id,
       user_id: user.id,
       variant_id: survey.variant_id,
-      responses: responses as Record<string, unknown>,
+      responses: JSON.parse(JSON.stringify(responses)),
       completed: true,
     }]);
 
