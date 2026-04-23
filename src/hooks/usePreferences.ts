@@ -81,13 +81,15 @@ export function usePreferences() {
             updates.accountantEmail = data.accountant_email;
           }
           
-          // Sync persona → profession if persona is set and not 'undefined'
+          // Sync persona → profession
           const persona = (data as any)?.persona as string | undefined;
           if (persona && persona !== 'undefined') {
             const personaOption = PERSONA_OPTIONS.find(p => p.value === persona);
             if (personaOption) {
               updates.profession = personaOption.profession;
             }
+          } else {
+            updates.profession = '';
           }
 
           if (Object.keys(updates).length > 0) {
@@ -142,16 +144,16 @@ export function usePreferences() {
   const savePersonaToDatabase = useCallback(async (profession: string) => {
     if (!user) return;
 
-    // Find matching persona for this profession
+    // Find matching persona for this profession, fallback to 'undefined'
     const personaOption = PERSONA_OPTIONS.find(p => p.profession === profession);
-    if (!personaOption) return; // No matching persona, just keep localStorage
+    const personaValue = personaOption?.value || 'undefined';
 
     try {
       await supabase
         .from('user_preferences')
         .upsert({
           user_id: user.id,
-          persona: personaOption.value,
+          persona: personaValue,
         } as any, { onConflict: 'user_id' });
     } catch (e) {
       console.warn('Failed to save persona to database:', e);
