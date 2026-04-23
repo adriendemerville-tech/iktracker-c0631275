@@ -287,12 +287,12 @@ const Landing = () => {
               </div>
               {/* LCP Element - H1 must render instantly without any animation - must match index.html static shell */}
               <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
-                Calcul automatisé des indemnités kilométriques
+                {c.hero_title}
                 <br />
-                <span className="text-gradient">Barème 2026</span>
+                <span className="text-gradient">{c.hero_highlight}</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
-                Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics. Outil communautaire.
+                {c.hero_subtitle}
               </p>
               
               {user && (
@@ -381,13 +381,13 @@ const Landing = () => {
           <div className="max-w-3xl mx-auto text-center space-y-6 md:space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive text-sm font-medium">
               <FileText className="h-4 w-4" />
-              Fini les tableaux Excel
+              {c.pain_badge}
             </div>
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight">
-              Vous perdez encore du temps avec des <span className="text-destructive line-through decoration-2">fichiers Excel</span> ?
+              {c.pain_title_prefix} <span className="text-destructive line-through decoration-2">{c.pain_title_strike}</span> {c.pain_title_suffix}
             </h2>
             <p className="text-base md:text-xl text-muted-foreground">
-              Formules cassées, oublis de trajets, calculs d'IK approximatifs... 
+              {c.pain_subtitle.split("barème officiel URSSAF")[0]}
               IKtracker automatise tout selon le{" "}
               <a 
                 href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
@@ -430,11 +430,12 @@ const Landing = () => {
                 Le saviez-vous ?
               </div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
-                Les indépendants roulent <span className="text-primary">beaucoup</span>
+                {c.stats_title.includes("beaucoup") 
+                  ? <>Les indépendants roulent <span className="text-primary">beaucoup</span></>
+                  : c.stats_title}
               </h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                Infirmiers libéraux, artisans, commerciaux, consultants... 
-                Les trajets professionnels représentent une part importante de l'activité des travailleurs indépendants.
+                {c.stats_subtitle}
               </p>
             </div>
             
@@ -489,7 +490,7 @@ const Landing = () => {
       <section className="py-12 md:py-24 px-4 section-contained">
         <div className="container mx-auto">
           <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Tout ce dont vous avez besoin</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.features_title}</h2>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
@@ -527,9 +528,9 @@ const Landing = () => {
               </Suspense>
             </div>
             <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Une app mobile complète</h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.mobile_title}</h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                Installez IKtracker sur votre téléphone et enregistrez vos trajets en déplacement.
+                {c.mobile_subtitle}
               </p>
               <ul className="space-y-2 md:space-y-3">
                 {["Fonctionne hors-ligne", "Notifications rappels", "GPS temps réel"].map((item, i) => (
@@ -559,9 +560,9 @@ const Landing = () => {
                 <Route className="h-4 w-4" />
                 Nouveau
               </div>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Mode Tournée</h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.tour_title}</h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                Plusieurs arrêts, un seul enregistrement. Parfait pour les commerciaux et livreurs.
+                {c.tour_subtitle}
               </p>
               <ul className="space-y-2 md:space-y-3">
                 {["GPS en temps réel", "Arrêts illimités", "Calcul automatique"].map((item, i) => (
@@ -602,9 +603,9 @@ const Landing = () => {
                 <Calendar className="h-4 w-4" />
                 Intégration
               </div>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Sync Calendriers</h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.calendar_title}</h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                Importez vos rendez-vous et transformez-les en trajets automatiquement.
+                {c.calendar_subtitle}
               </p>
               <ul className="space-y-2 md:space-y-3">
                 {["Google Calendar", "Microsoft Outlook", "Import en un clic"].map((item, i) => (
@@ -634,9 +635,9 @@ const Landing = () => {
                 <FileText className="h-4 w-4" />
                 Export
               </div>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Rapport PDF professionnel</h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.pdf_title}</h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                Générez un relevé complet de vos trajets conforme au barème fiscal, prêt à envoyer à votre comptable.
+                {c.pdf_subtitle}
               </p>
               <ul className="space-y-2 md:space-y-3">
                 {["Format PDF ou Excel", "Barème fiscal 2026", "Envoi direct par email"].map((item, i) => (
@@ -832,10 +833,10 @@ const Landing = () => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 id="expertise-heading" className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
-                Expertise fiscale et conformité URSSAF
+                {c.expertise_title}
               </h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                IKtracker vous accompagne dans la gestion de vos frais réels et l'optimisation fiscale de vos déplacements professionnels.
+                {c.expertise_subtitle}
               </p>
             </div>
 
@@ -911,9 +912,9 @@ const Landing = () => {
       <section className="py-32 bg-primary text-primary-foreground section-contained">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold">Prêt à simplifier vos trajets ?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">{c.cta_title}</h2>
             <p className="text-xl opacity-90">
-              Rejoignez des milliers d'utilisateurs qui gagnent du temps chaque mois.
+              {c.cta_subtitle}
             </p>
             <p className="text-sm opacity-80">
               Barème conforme aux{" "}
@@ -961,7 +962,7 @@ const Landing = () => {
       <section className="py-16 md:py-24 px-4 section-contained" aria-labelledby="faq-heading">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12">
-            <h2 id="faq-heading" className="text-2xl md:text-3xl lg:text-4xl font-bold">Questions fréquentes</h2>
+            <h2 id="faq-heading" className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.faq_title}</h2>
             <p className="text-muted-foreground mt-3">
               Tout ce que vous devez savoir sur IKtracker.{" "}
               <a 
