@@ -239,9 +239,15 @@ export function SurveyWidget() {
 
   if (submitted) {
     return (
-      <div className="fixed bottom-4 right-4 z-50 w-80 bg-card border border-border rounded-xl shadow-2xl p-5 animate-fade-in">
-        <p className="text-center text-sm text-muted-foreground">Merci pour votre retour ! 🙏</p>
-      </div>
+      <>
+        <div className="fixed inset-0 z-50 bg-black/50" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="w-80 bg-white border border-black rounded-xl shadow-2xl p-5 animate-fade-in">
+            <p className="text-center text-sm text-black">Merci pour votre retour ! 🙏</p>
+          </div>
+        </div>
+      </>
+    
     );
   }
 
@@ -253,9 +259,12 @@ export function SurveyWidget() {
   const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden">
+    <>
+    <div className="fixed inset-0 z-50 bg-black/50" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="w-80 bg-white border border-black rounded-xl shadow-2xl animate-fade-in overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-black bg-gray-50">
         <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
         <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
           <X className="w-4 h-4" />
