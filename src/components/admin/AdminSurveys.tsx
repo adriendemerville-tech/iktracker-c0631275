@@ -862,11 +862,13 @@ export function AdminSurveys() {
                             <Eye className="w-4 h-4" />
                           </Button>
                         )}
-                        {survey.status === 'draft' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteMutation.mutate(survey.id)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        )}
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                          if (window.confirm(`Supprimer définitivement "${survey.title}" ?`)) {
+                            deleteMutation.mutate(survey.id);
+                          }
+                        }}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
