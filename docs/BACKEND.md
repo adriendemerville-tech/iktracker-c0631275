@@ -209,7 +209,7 @@ Utilisateur → Cloudflare DNS (proxied)
 
 - **Auth** : Clé API via header `x-api-key` (validée contre `blog_api_keys`)
 - **Endpoints** :
-  - `GET /posts` — Liste des articles (avec filtres `status`, `slug`)
+  - `GET /posts` — Liste des articles. Params : `status=published|draft|archived|all` (défaut: `published`), `all=true` (alias de `status=all`), `limit`, `offset`
   - `POST /posts` — Créer un article
   - `PUT /posts/:id` — Modifier un article
   - `DELETE /posts/:id` — Supprimer un article
