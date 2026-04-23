@@ -257,6 +257,8 @@ export function SurveyWidget() {
             block={block}
             value={responses[block.id] as string}
             onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
+            otherText={otherTexts[block.id] || ''}
+            onOtherTextChange={val => setOtherTexts(t => ({ ...t, [block.id]: val }))}
           />
         )}
         {block.type === 'rating' && (
