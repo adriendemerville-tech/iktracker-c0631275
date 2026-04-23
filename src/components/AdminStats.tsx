@@ -622,6 +622,23 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
+  // Fetch per-user persona map (for recent signups display)
+  const { data: userPersonaMap } = useQuery({
+    queryKey: ['admin-user-persona-map'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('user_id, persona');
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      for (const p of (data || [])) {
+        map[p.user_id] = p.persona;
+      }
+      return map;
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
   // Fetch persona distribution (all auth.users via RPC)
   const { data: personaDistribution, isLoading: personaLoading } = useQuery({
     queryKey: ['admin-persona-distribution'],
@@ -1453,7 +1470,18 @@ export function AdminStats() {
                                 <div className="flex items-center gap-3">
                                   <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
                                   <div>
+                                  <div className="flex items-center gap-2">
                                     <p className="text-sm font-medium truncate max-w-[200px]">{signup.email}</p>
+                                    {(() => {
+                                      const persona = userPersonaMap?.[signup.user_id];
+                                      const personaOption = persona ? PERSONA_OPTIONS.find(p => p.value === persona) : null;
+                                      if (personaOption) {
+                                        const Icon = personaOption.icon;
+                                        return <span title={personaOption.label}><Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" /></span>;
+                                      }
+                                      return null;
+                                    })()}
+                                  </div>
                                     <p className="text-xs text-muted-foreground font-mono">{signup.user_id.slice(0, 8)}...</p>
                                   </div>
                                 </div>
