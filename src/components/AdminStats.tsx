@@ -1682,16 +1682,14 @@ export function AdminStats() {
                           </div>
                         ) : !personaDistribution || personaDistribution.total === 0 ? (
                           <p className="text-muted-foreground text-center py-4 text-sm">Aucune donnée</p>
-                        ) : (() => {
-                            const undefinedCount = personaDistribution.counts['undefined'] || 0;
-                            const definedTotal = personaDistribution.total - undefinedCount;
-                            return (
+                        ) : (
                           <div className="space-y-3">
                             <p className="text-xs text-muted-foreground text-center mb-2">
-                              {definedTotal} qualifié{definedTotal > 1 ? 's' : ''} / {personaDistribution.total} utilisateurs
+                              {personaDistribution.total - (personaDistribution.counts['undefined'] || 0)} qualifié{(personaDistribution.total - (personaDistribution.counts['undefined'] || 0)) > 1 ? 's' : ''} / {personaDistribution.total} utilisateurs
                             </p>
                             {PERSONA_OPTIONS.map(p => p.value).map(key => {
                               const count = personaDistribution.counts[key] || 0;
+                              const definedTotal = personaDistribution.total - (personaDistribution.counts['undefined'] || 0);
                               const pct = definedTotal > 0 ? Math.round((count / definedTotal) * 100) : 0;
                               return (
                                 <div key={key} className="flex items-center gap-3">
@@ -1710,12 +1708,11 @@ export function AdminStats() {
                               <div className="flex items-center gap-3">
                                 <span className="text-sm w-36 truncate text-muted-foreground">Non défini</span>
                                 <div className="flex-1" />
-                                <span className="text-sm font-medium w-20 text-right text-muted-foreground">{undefinedCount}</span>
+                                <span className="text-sm font-medium w-20 text-right text-muted-foreground">{personaDistribution.counts['undefined'] || 0}</span>
                               </div>
                             </div>
                           </div>
-                            );
-                          })()
+                        )}
                         )}
                       </CardContent>
                     </DraggableStatsSection>
