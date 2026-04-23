@@ -24,6 +24,7 @@ import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
+import { AdminApiPartners } from '@/components/admin/AdminApiPartners';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
