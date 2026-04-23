@@ -1659,6 +1659,66 @@ export function AdminStats() {
                   );
                 }
 
+                case 'persona-distribution': {
+                  const personaColors: Record<string, string> = {
+                    sante_liberal: 'bg-blue-500',
+                    artisan_btp: 'bg-amber-500',
+                    consultant_freelance: 'bg-purple-500',
+                    commercial_immobilier: 'bg-emerald-500',
+                    expert_comptable_tns: 'bg-pink-500',
+                    undefined: 'bg-slate-400',
+                  };
+                  const allPersonaKeys = [
+                    ...PERSONA_OPTIONS.map(p => p.value),
+                    'undefined',
+                  ];
+                  const personaLabels: Record<string, string> = {
+                    ...Object.fromEntries(PERSONA_OPTIONS.map(p => [p.value, p.label.split('/')[0].trim()])),
+                    undefined: 'Non défini',
+                  };
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          Répartition par persona
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {personaLoading ? (
+                          <div className="space-y-3">
+                            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-8" />)}
+                          </div>
+                        ) : !personaDistribution || personaDistribution.total === 0 ? (
+                          <p className="text-muted-foreground text-center py-4 text-sm">Aucune donnée</p>
+                        ) : (
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground text-center mb-2">
+                              {personaDistribution.total} utilisateur{personaDistribution.total > 1 ? 's' : ''} qualifié{personaDistribution.total > 1 ? 's' : ''}
+                            </p>
+                            {allPersonaKeys.map(key => {
+                              const count = personaDistribution.counts[key] || 0;
+                              const pct = personaDistribution.total > 0 ? Math.round((count / personaDistribution.total) * 100) : 0;
+                              return (
+                                <div key={key} className="flex items-center gap-3">
+                                  <span className="text-sm w-36 truncate">{personaLabels[key] || key}</span>
+                                  <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full ${personaColors[key] || 'bg-slate-400'} rounded-full transition-all duration-500`}
+                                      style={{ width: `${Math.max(pct, 2)}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-sm font-medium w-20 text-right">{count} ({pct}%)</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+                }
+
                 case 'comparison-chart':
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
