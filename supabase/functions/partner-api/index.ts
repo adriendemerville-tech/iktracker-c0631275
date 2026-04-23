@@ -218,8 +218,9 @@ function calculateIk({ fiscalPower, isElectric, annualKm, tripKm }: IkInput) {
 // ---------- Routes ----------
 
 async function handleVehicleLookup(req: Request, _ctx: PartnerContext): Promise<Response> {
-  const { plate } = await req.json();
-  if (!plate) return jsonResponse({ error: 'Missing plate' }, 400);
+  const body = await req.json();
+  const plate = body.plate ?? body.license_plate;
+  if (!plate) return jsonResponse({ error: 'Missing plate (field: plate or license_plate)' }, 400);
 
   // Reuse internal vehicle-lookup function via direct fetch
   const res = await fetch(`${SUPABASE_URL}/functions/v1/vehicle-lookup`, {
@@ -236,20 +237,27 @@ async function handleVehicleLookup(req: Request, _ctx: PartnerContext): Promise<
 
 async function handleCalculateIk(req: Request, _ctx: PartnerContext): Promise<Response> {
   const { fiscal_power, is_electric, annual_km, trip_km } = await req.json();
-  if (typeof fiscal_power !== 'number' || typeof trip_km !== 'number') {
-    return jsonResponse({ error: 'fiscal_power and trip_km required (numbers)' }, 400);
+  if (typeof fiscal_power !== 'number') {
+    return jsonResponse({ error: 'fiscal_power required (number)' }, 400);
   }
+  if (typeof annual_km !== 'number' && typeof trip_km !== 'number') {
+    return jsonResponse({ error: 'annual_km or trip_km required (number)' }, 400);
+  }
+  const annualKm = typeof annual_km === 'number' ? annual_km : (trip_km as number);
+  const tripKm = typeof trip_km === 'number' ? trip_km : annualKm;
   const result = calculateIk({
     fiscalPower: fiscal_power,
     isElectric: !!is_electric,
-    annualKm: annual_km ?? 0,
-    tripKm: trip_km,
+    annualKm,
+    tripKm,
   });
   return jsonResponse({ success: true, ...result });
 }
 
 async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Response> {
-  if (!requireScope(ctx, 'write')) return jsonResponse({ error: 'Missing write scope' }, 403);
+  if (!requireScope(ctx, 'trips:write') && !requireScope(ctx, 'write')) {
+    return jsonResponse({ error: 'Missing trips:write scope' }, 403);
+  }
   const externalUserId = req.headers.get('x-external-user-id');
   if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
 
