@@ -64,7 +64,7 @@ const NAV_LINKS = [
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
   { href: '/privacy', label: 'Politique de Confidentialité' },
-  { href: '/terms', label: 'Conditions Générales' },
+  { href: '/terms', label: 'CGVU' },
   { href: '/blog/auteur/adrien-de-volontat', label: 'À propos – Adrien de Volontat' },
 ];
 
@@ -532,8 +532,8 @@ const STATIC_PAGES: Record<string, PageMeta> = {
   },
 
   '/terms': {
-    title: 'Conditions d\'utilisation | IKtracker',
-    description: 'Conditions générales d\'utilisation d\'IKtracker, outil gratuit de calcul des indemnités kilométriques.',
+    title: 'CGVU — Conditions Générales de Vente et d\'Utilisation | IKtracker',
+    description: 'Conditions générales de vente et d\'utilisation d\'IKtracker, outil gratuit de calcul des indemnités kilométriques.',
     canonical: `${BASE_URL}/terms`,
   },
 
