@@ -1156,6 +1156,11 @@ const Admin = () => {
             <AdminTourRecovery />
           </TabsContent>
 
+          {/* API Partners Tab */}
+          <TabsContent value="api-partners">
+            <AdminApiPartners />
+          </TabsContent>
+
           {/* Surveys Tab */}
           <TabsContent value="surveys">
             <AdminSurveys />
