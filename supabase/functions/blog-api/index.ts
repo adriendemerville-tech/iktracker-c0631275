@@ -378,10 +378,17 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
       return successResp(data)
     }
     const includeAll = url.searchParams.get('all') === 'true'
+    const statusFilter = url.searchParams.get('status') // 'draft' | 'published' | 'archived' | 'all'
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const offset = parseInt(url.searchParams.get('offset') || '0')
     let query = supabase.from('blog_posts').select('*', { count: 'exact' }).order('created_at', { ascending: false }).range(offset, offset + limit - 1)
-    if (!includeAll) query = query.eq('status', 'published')
+    if (statusFilter === 'all' || includeAll) {
+      // No status filter — return everything
+    } else if (statusFilter) {
+      query = query.eq('status', statusFilter)
+    } else {
+      query = query.eq('status', 'published')
+    }
     const { data, error, count } = await query
     if (error) return errorResp('Failed to fetch posts', 500)
     return successResp({ posts: data, total: count })
