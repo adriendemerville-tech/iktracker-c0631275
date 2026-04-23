@@ -5,7 +5,7 @@ import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketin
 const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/partner-api`;
 
 const Code = ({ children }: { children: string }) => (
-  <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg text-xs overflow-x-auto"><code>{children}</code></pre>
+  <pre className="bg-foreground text-background p-4 rounded-lg text-xs overflow-x-auto"><code>{children}</code></pre>
 );
 
 const Endpoint = ({ method, path, scope, children }: { method: string; path: string; scope?: string; children: React.ReactNode }) => (

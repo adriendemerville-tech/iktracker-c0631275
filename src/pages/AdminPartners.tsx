@@ -54,7 +54,7 @@ async function sha256Hex(input: string): Promise<string> {
 }
 
 export default function AdminPartners() {
-  const { isAdmin, loading: adminLoading } = useAdmin();
+  const { isAdmin, isLoading: adminLoading } = useAdmin();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [logs, setLogs] = useState<RequestLog[]>([]);
   const [newName, setNewName] = useState('');
