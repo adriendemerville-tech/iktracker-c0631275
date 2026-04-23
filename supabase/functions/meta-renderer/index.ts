@@ -64,7 +64,7 @@ const NAV_LINKS = [
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
   { href: '/privacy', label: 'Politique de Confidentialité' },
-  { href: '/terms', label: 'Conditions Générales' },
+  { href: '/terms', label: 'CGVU' },
   { href: '/blog/auteur/adrien-de-volontat', label: 'À propos – Adrien de Volontat' },
 ];
 
@@ -532,8 +532,8 @@ const STATIC_PAGES: Record<string, PageMeta> = {
   },
 
   '/terms': {
-    title: 'Conditions d\'utilisation | IKtracker',
-    description: 'Conditions générales d\'utilisation d\'IKtracker, outil gratuit de calcul des indemnités kilométriques.',
+    title: 'CGVU — Conditions Générales de Vente et d\'Utilisation | IKtracker',
+    description: 'Conditions générales de vente et d\'utilisation d\'IKtracker, outil gratuit de calcul des indemnités kilométriques.',
     canonical: `${BASE_URL}/terms`,
   },
 
@@ -650,7 +650,7 @@ function buildFullHtml(meta: PageMeta): string {
     ${bodyContent}
   </main>
   <footer>
-    <p>&copy; 2025-2026 IKtracker — <a href="${BASE_URL}/privacy">Politique de confidentialité</a> — <a href="${BASE_URL}/terms">CGU</a> — <a href="${BASE_URL}/mentions-legales">Mentions légales</a> — <a href="${BASE_URL}/contact">Contact</a></p>
+    <p>&copy; 2025-2026 IKtracker — <a href="${BASE_URL}/privacy">Politique de confidentialité</a> — <a href="${BASE_URL}/terms">CGVU</a> — <a href="${BASE_URL}/mentions-legales">Mentions légales</a> — <a href="${BASE_URL}/contact">Contact</a></p>
     <p><a href="${BASE_URL}/signup">Créer un compte gratuit</a></p>
     <p>Conçu par <a href="${BASE_URL}/blog/auteur/adrien-de-volontat">Adrien de Volontat</a>, entrepreneur à Saint-Rémy-de-Provence.</p>
   </footer>

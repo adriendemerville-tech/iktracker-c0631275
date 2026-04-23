@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.1 — 22 avril 2026
+> Version 2.2 — 23 avril 2026
 
 ## Table des matières
 

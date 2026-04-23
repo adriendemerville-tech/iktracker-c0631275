@@ -887,7 +887,7 @@ const Profile = () => {
         <div className="text-center text-xs text-muted-foreground pt-2 space-y-2">
           <div className="flex items-center justify-center gap-2">
             <Link to="/terms" className="hover:underline hover:text-foreground transition-colors">
-              CGU
+              CGVU
             </Link>
             <span>•</span>
             <Link to="/privacy" className="hover:underline hover:text-foreground transition-colors">
