@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.1 — 22 avril 2026
+> Version 1.2 — 23 avril 2026
 
 ## Table des matières
 
@@ -88,7 +88,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/blog/:slug` | `BlogPost` | Article de blog |
 | `/blog/auteur/:slug` | `AuthorPage` | Page auteur |
 | `/privacy` | `Privacy` | Politique de confidentialité |
-| `/terms` | `Terms` | CGU |
+| `/terms` | `Terms` | CGVU (Conditions Générales de Vente et d'Utilisation) |
 | `/mentions-legales` | `MentionsLegales` | Mentions légales |
 | `/contact` | `Contact` | Page contact |
 | `/installer` | `Install` | Guide d'installation PWA |
