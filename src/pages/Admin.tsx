@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +24,7 @@ import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
+import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -106,6 +107,7 @@ interface UserWithRole {
   lastActivity: string | null;
   created_at: string;
   has_plate_detection: boolean;
+  persona: string | null;
 }
 
 const Admin = () => {
@@ -272,6 +274,28 @@ const Admin = () => {
     refetchInterval: 15 * 60 * 1000, // 15 minutes
   });
 
+  // Fetch all user personas
+  const { data: userPersonas = [] } = useQuery({
+    queryKey: ['admin-user-personas'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('user_id, persona');
+      if (error) throw error;
+      return data as { user_id: string; persona: string | null }[];
+    },
+    enabled: isAdmin,
+    refetchInterval: 15 * 60 * 1000,
+  });
+
+  const personaMap = useMemo(() => {
+    const map = new Map<string, string | null>();
+    for (const p of userPersonas) {
+      map.set(p.user_id, p.persona);
+    }
+    return map;
+  }, [userPersonas]);
+
   // Build users list with roles and feedback counts
   const users: UserWithRole[] = searchedUsers.map(u => {
     const feedbackCount = feedbacks.filter(f => f.user_id === u.user_id).length;
@@ -294,6 +318,7 @@ const Admin = () => {
       lastActivity,
       created_at: u.created_at,
       has_plate_detection: u.has_plate_detection ?? false,
+      persona: personaMap.get(u.user_id) ?? null,
     };
   });
 
@@ -981,6 +1006,19 @@ const Admin = () => {
                                   Viewer
                                 </Badge>
                               )}
+                              {(() => {
+                                const personaOption = PERSONA_OPTIONS.find(p => p.value === u.persona);
+                                if (personaOption) {
+                                  const Icon = personaOption.icon;
+                                  return (
+                                    <Badge variant="outline" className="flex-shrink-0 text-[10px] px-1.5 py-0 gap-0.5">
+                                      <Icon className="w-3 h-3" />
+                                      {personaOption.label.split('/')[0].split(' ')[0]}
+                                    </Badge>
+                                  );
+                                }
+                                return null;
+                              })()}
                             </div>
                             <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-foreground">
                               {u.email && (

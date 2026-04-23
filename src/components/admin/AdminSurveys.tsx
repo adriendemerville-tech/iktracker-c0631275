@@ -703,6 +703,20 @@ export function AdminSurveys() {
                       {p.label.split('/')[0].trim()}
                     </label>
                   ))}
+                  <label className="flex items-center gap-1.5 text-xs">
+                    <Checkbox
+                      checked={form.target_personas.includes('undefined')}
+                      onCheckedChange={checked => {
+                        setForm(f => ({
+                          ...f,
+                          target_personas: checked
+                            ? [...f.target_personas, 'undefined']
+                            : f.target_personas.filter(v => v !== 'undefined'),
+                        }));
+                      }}
+                    />
+                    Non défini
+                  </label>
                 </div>
               </div>
             </div>
