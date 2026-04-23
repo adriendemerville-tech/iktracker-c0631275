@@ -303,14 +303,15 @@ export function SurveyWidget() {
 
 // ---- Sub-components ----
 
-function PollBlock({ block, value, onChange, otherText, onOtherTextChange }: {
+function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
   block: ContentBlock; value?: string; onChange: (v: string) => void;
-  otherText: string; onOtherTextChange: (v: string) => void;
+  otherTexts: Record<string, string>; onOtherTextChange: (key: string, v: string) => void;
 }) {
   const question = (block.config.question as string) || '';
   const options = (block.config.options as string[]) || [];
-  const allowOther = !!block.config.allowOther;
-  const isOtherSelected = value === '__other__';
+  const freeOptions = (block.config.freeOptions as number[]) || [];
+  // Legacy support: allowOther adds a standalone "Autre" option
+  const legacyAllowOther = !!block.config.allowOther && freeOptions.length === 0;
 
   return (
     <div className="space-y-2">
@@ -319,39 +320,54 @@ function PollBlock({ block, value, onChange, otherText, onOtherTextChange }: {
         {options.map((opt, i) => {
           const personaOption = PERSONA_OPTIONS.find(p => p.label === opt);
           const Icon = personaOption?.icon;
+          const isFree = freeOptions.includes(i);
+          const isSelected = value === opt || (isFree && value === `__free_${i}__`);
+          const freeKey = `${block.id}_${i}`;
           return (
-            <button
-              key={i}
-              onClick={() => onChange(opt)}
-              className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
-                value === opt
-                  ? 'border-primary bg-primary/10 text-primary font-medium'
-                  : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
+            <div key={i}>
+              <button
+                onClick={() => onChange(isFree ? `__free_${i}__` : opt)}
+                className={cn(
+                  'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
+                  isSelected
+                    ? 'border-primary bg-primary/10 text-primary font-medium'
+                    : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
+                )}
+              >
+                {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
+                <span>{opt}</span>
+              </button>
+              {isFree && isSelected && (
+                <Textarea
+                  value={otherTexts[freeKey] || ''}
+                  onChange={e => onOtherTextChange(freeKey, e.target.value.slice(0, 260))}
+                  placeholder="Précisez..."
+                  rows={2}
+                  maxLength={260}
+                  className="text-xs resize-none mt-1"
+                  autoFocus
+                />
               )}
-            >
-              {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
-              <span>{opt}</span>
-            </button>
+            </div>
           );
         })}
-        {allowOther && (
+        {legacyAllowOther && (
           <>
             <button
               onClick={() => onChange('__other__')}
               className={cn(
                 'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
-                isOtherSelected
+                value === '__other__'
                   ? 'border-primary bg-primary/10 text-primary font-medium'
                   : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
               )}
             >
               <span>Autre</span>
             </button>
-            {isOtherSelected && (
+            {value === '__other__' && (
               <Textarea
-                value={otherText}
-                onChange={e => onOtherTextChange(e.target.value.slice(0, 260))}
+                value={otherTexts[block.id] || ''}
+                onChange={e => onOtherTextChange(block.id, e.target.value.slice(0, 260))}
                 placeholder="Précisez..."
                 rows={2}
                 maxLength={260}
