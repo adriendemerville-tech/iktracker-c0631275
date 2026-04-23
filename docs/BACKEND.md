@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.4 — 23 avril 2026
+> Version 2.5 — 23 avril 2026
 
 ## Table des matières
 
@@ -11,6 +11,7 @@
 5. [SEO & Bot-routing](#5-seo--bot-routing)
 6. [Intégrations externes](#6-intégrations-externes)
 7. [Monitoring & Coûts](#7-monitoring--coûts)
+8. [Partner API & SSO](#8-partner-api--sso)
 
 ---
 
@@ -129,6 +130,15 @@ Utilisateur → Cloudflare DNS (proxied)
 | `vehicle_cache` | Cache des données véhicule (plaque → marque/modèle) | ✅ authenticated only |
 | `takeout_import_attempts` | Tentatives d'import Google Takeout | ✅ user_id |
 
+#### Partenaires & SSO (intégrations B2B)
+
+| Table | Description | RLS |
+|---|---|---|
+| `partner_api_keys` | Clés API partenaires (hash + JWT secret + scopes + quota mensuel) | ✅ admin |
+| `partner_users` | Mapping `external_user_id` (partenaire) → `iktracker_user_id` | ✅ admin |
+| `partner_request_logs` | Logs des appels Partner API (path, status, temps, partenaire) | ✅ admin |
+| `partner_webhooks` | Webhooks sortants partenaires (URL, secret HMAC, événements) | ✅ admin |
+
 ### Fonctions de base de données (24 fonctions)
 
 #### Fonctions d'accès aux rôles
@@ -184,10 +194,11 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ## 3. Edge Functions
 
-### Vue d'ensemble (15 fonctions)
+### Vue d'ensemble (16 fonctions)
 
 | Fonction | Lignes | Auth | Méthode | Rôle |
 |---|---|---|---|---|
+| `partner-api` | ~900 | API Key partenaire (+ JWT signé pour SSO) | GET/POST | API B2B (vehicle, IK, trips, stats, SSO) |
 | `blog-api` | 831 | API Key | GET/POST/PUT/DELETE | CMS headless CRUD |
 | `docs` | ~100 | JWT (admin/viewer) | GET | Documentation backend (markdown/HTML) |
 | `meta-renderer` | 826 | Non | GET | Pré-rendu HTML pour bots |
