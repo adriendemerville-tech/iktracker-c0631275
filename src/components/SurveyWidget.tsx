@@ -265,8 +265,8 @@ export function SurveyWidget() {
     <div className="w-80 bg-white border border-black rounded-xl shadow-2xl animate-fade-in overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-black bg-gray-50">
-        <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
-        <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
+        <span className="text-xs font-semibold text-black truncate">{survey.title}</span>
+        <button onClick={handleDismiss} className="text-black/60 hover:text-black transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
