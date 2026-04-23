@@ -238,8 +238,10 @@ export function SurveyWidget() {
 
   const block = survey.blocks[currentBlockIndex];
   const isLast = currentBlockIndex === survey.blocks.length - 1;
-  const rawAnswer = responses[block.id];
-  const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (rawAnswer !== '__other__' || (otherTexts[block.id] || '').trim().length > 0);
+  const rawAnswer = responses[block.id] as string | undefined;
+  const isFreeAnswer = typeof rawAnswer === 'string' && (rawAnswer === '__other__' || rawAnswer.startsWith('__free_'));
+  const freeKey = rawAnswer === '__other__' ? block.id : `${block.id}_${rawAnswer?.match(/__free_(\d+)__/)?.[1] ?? ''}`;
+  const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0);
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden">
