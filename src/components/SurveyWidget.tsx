@@ -318,6 +318,8 @@ export function SurveyWidget() {
         </Button>
       </div>
     </div>
+    </div>
+    </>
   );
 }
 
