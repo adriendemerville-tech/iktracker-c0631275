@@ -150,45 +150,63 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
             </div>
             <div>
               <Label className="text-xs">Options</Label>
-              {((block.config.options as string[]) || []).map((opt, i) => (
-                <div key={i} className="flex gap-2 mt-1">
-                  <Input
-                    value={opt}
-                    onChange={e => {
-                      const opts = [...(block.config.options as string[])];
-                      opts[i] = e.target.value;
-                      onChange({ ...block, config: { ...block.config, options: opts } });
-                    }}
-                    placeholder={`Option ${i + 1}`}
-                  />
-                  {((block.config.options as string[]).length > 2) && (
-                    <Button variant="ghost" size="icon" className="h-12 w-10 shrink-0" onClick={() => {
-                      const opts = (block.config.options as string[]).filter((_, j) => j !== i);
-                      onChange({ ...block, config: { ...block.config, options: opts } });
-                    }}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  )}
-                </div>
-              ))}
+              {((block.config.options as string[]) || []).map((opt, i) => {
+                const freeOptions = (block.config.freeOptions as number[]) || [];
+                const isFree = freeOptions.includes(i);
+                return (
+                  <div key={i} className="group flex items-center gap-2 mt-1">
+                    <Input
+                      value={opt}
+                      onChange={e => {
+                        const opts = [...(block.config.options as string[])];
+                        opts[i] = e.target.value;
+                        onChange({ ...block, config: { ...block.config, options: opts } });
+                      }}
+                      placeholder={`Option ${i + 1}`}
+                      className={isFree ? 'border-primary/50' : ''}
+                    />
+                    <div className={`flex items-center gap-1 shrink-0 transition-opacity ${isFree ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      <label
+                        className="flex items-center gap-1 cursor-pointer text-[10px] text-muted-foreground whitespace-nowrap select-none"
+                        title="Champ libre : l'utilisateur peut saisir sa propre réponse"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isFree}
+                          onChange={e => {
+                            const prev = (block.config.freeOptions as number[]) || [];
+                            const next = e.target.checked
+                              ? [...prev, i]
+                              : prev.filter(idx => idx !== i);
+                            onChange({ ...block, config: { ...block.config, freeOptions: next } });
+                          }}
+                          className="rounded w-3 h-3"
+                        />
+                        Libre
+                      </label>
+                    </div>
+                    {((block.config.options as string[]).length > 2) && (
+                      <Button variant="ghost" size="icon" className="h-10 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
+                        const opts = (block.config.options as string[]).filter((_, j) => j !== i);
+                        // Adjust freeOptions indices after removal
+                        const prevFree = (block.config.freeOptions as number[]) || [];
+                        const nextFree = prevFree
+                          .filter(idx => idx !== i)
+                          .map(idx => idx > i ? idx - 1 : idx);
+                        onChange({ ...block, config: { ...block.config, options: opts, freeOptions: nextFree } });
+                      }}>
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
               <Button variant="outline" size="sm" className="mt-2" onClick={() => {
                 const opts = [...(block.config.options as string[]), ''];
                 onChange({ ...block, config: { ...block.config, options: opts } });
               }}>
                 <Plus className="w-3 h-3 mr-1" /> Option
               </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id={`allow-other-${block.id}`}
-                checked={!!block.config.allowOther}
-                onChange={e => onChange({ ...block, config: { ...block.config, allowOther: e.target.checked } })}
-                className="rounded"
-              />
-              <Label htmlFor={`allow-other-${block.id}`} className="text-xs cursor-pointer">
-                Ajouter un champ « Autre » (texte libre, 260 car. max)
-              </Label>
             </div>
           </>
         )}
