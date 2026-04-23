@@ -539,7 +539,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | `marketing_analytics` | Événements marketing (page_view, cta_click, signup_click) |
 | `autopilot_events` | Événements de monitoring (severity, resolved) |
 
-### Secrets configurés (15)
+### Secrets configurés (16)
 
 | Secret | Usage |
 |---|---|
@@ -548,6 +548,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | `SUPABASE_SERVICE_ROLE_KEY` | Clé service (auto) |
 | `SUPABASE_PUBLISHABLE_KEY` | Clé publiable (auto) |
 | `SUPABASE_DB_URL` | URL de connexion DB (auto) |
+| `SUPABASE_JWKS` | JWKS pour vérification JWT (auto) |
 | `GOOGLE_CLIENT_ID` | OAuth Google Calendar |
 | `GOOGLE_CLIENT_SECRET` | OAuth Google Calendar |
 | `MICROSOFT_CLIENT_ID` | OAuth Outlook |
@@ -569,6 +570,79 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 
 ---
 
+## 8. Partner API & SSO
+
+### Vue d'ensemble
+
+API B2B permettant à des partenaires (ex: Dictadevi) d'intégrer IKtracker dans leur produit : provisioning automatique d'utilisateurs, calcul d'IK, création de trajets, lecture de stats et SSO transparent vers l'app IKtracker.
+
+- **Edge Function** : `partner-api`
+- **Base URL** : `https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api`
+- **Modèle** : Gratuit (quota mensuel configurable par clé)
+
+### Authentification
+
+| Header | Usage |
+|---|---|
+| `x-api-key` | Clé partenaire (préfixe `pk_live_…`). Hashée en SHA-256 et matchée sur `partner_api_keys.key_hash` |
+| `Authorization: Bearer <jwt>` | (Optionnel, pour SSO standard) JWT signé par le partenaire avec son `jwt_secret` |
+
+Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFINER) qui retourne le partenaire, ses scopes et le quota restant.
+
+### Scopes disponibles
+
+| Scope | Usage |
+|---|---|
+| `vehicle:lookup` | Recherche véhicule par plaque |
+| `ik:calculate` | Calcul d'indemnité kilométrique |
+| `trips:write` | Création de trajets |
+| `stats:read` | Lecture des stats utilisateur |
+| `sso` | Génération de magic links SSO |
+
+### Endpoints
+
+| Méthode | Path | Scope | Description |
+|---|---|---|---|
+| `POST` | `/vehicle/lookup` | `vehicle:lookup` | Lookup par plaque (`plate` ou `license_plate`) → marque, modèle, CV fiscaux |
+| `POST` | `/ik/calculate` | `ik:calculate` | Calcule l'IK pour un trajet (`fiscal_power`, `trip_km`/`annual_km`, `is_electric`) |
+| `POST` | `/trips` | `trips:write` | Crée un trajet pour un user partenaire (provisioning auto si inexistant). `source` doit commencer par `partner:` |
+| `GET` | `/stats?external_user_id=…` | `stats:read` | Stats annuelles de l'utilisateur (km, IK, paliers) |
+| `POST` | `/sso/magic-link` | `sso` | Génère un magic link signé (JWT partenaire requis dans `Authorization`) |
+| `POST` | `/sso/dev` | `sso` | **Dev only** — génère un magic link sans JWT, à partir de `external_user_id` + `external_email` |
+
+### Provisioning automatique
+
+À chaque appel impliquant un utilisateur (`/trips`, `/stats`, `/sso/*`), la fonction `findOrCreateIktrackerUser(partnerId, external_user_id, external_email, metadata)` :
+
+1. Cherche un mapping existant dans `partner_users` (par `partner_id` + `external_user_id`)
+2. Si absent : crée un compte Supabase Auth (email confirmé), insère un mapping
+3. Met à jour `last_sso_at` et le `metadata` partenaire
+4. Retourne l'`iktracker_user_id` (UUID)
+
+### Quotas & Logs
+
+- Compteur incrémenté via `increment_partner_usage(_partner_id)` à chaque requête
+- Reset mensuel automatique (`usage_reset_at`)
+- Tous les appels sont loggés dans `partner_request_logs` (path, status, durée, partenaire, user externe)
+
+### Webhooks sortants
+
+Table `partner_webhooks` : URL + secret HMAC + liste d'événements abonnés. Permet de notifier le partenaire (ex: trajet créé, palier IK franchi). Signature `X-IKTracker-Signature: sha256=…`.
+
+### Contrainte trips
+
+La contrainte `trips_source_check` accepte les valeurs `manual`, `google_calendar`, `outlook_calendar`, `tour`, `takeout`, ainsi que toute valeur préfixée par `partner:` (ex: `partner:dictadevi`).
+
+### Admin UI
+
+Le dashboard `/app/admin/partners` (réservé `admin`) permet de :
+- Créer/révoquer des clés partenaires
+- Définir les scopes et le quota mensuel
+- Visualiser l'usage et les logs récents
+- Gérer les webhooks
+
+---
+
 ## Annexe — Commandes utiles
 
 ```bash
@@ -583,4 +657,14 @@ curl -sI https://iktracker.fr/sitemap.xml | grep X-Sitemap-Source
 
 # Tester le meta-renderer
 curl -s "https://iktracker.fr/" -H "User-Agent: Googlebot" | head -50
+
+# Tester la Partner API (lookup véhicule)
+curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/vehicle/lookup" \
+  -H "x-api-key: pk_live_xxx" -H "Content-Type: application/json" \
+  -d '{"plate":"AB-123-CD"}'
+
+# Générer un magic link de dev
+curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/sso/dev" \
+  -H "x-api-key: pk_live_xxx" -H "Content-Type: application/json" \
+  -d '{"external_user_id":"u_42","external_email":"test@example.com"}'
 ```
