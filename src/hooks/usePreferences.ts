@@ -81,9 +81,9 @@ export function usePreferences() {
             updates.accountantEmail = data.accountant_email;
           }
           
-          // Sync persona → profession if persona is set and profession is empty
+          // Sync persona → profession if persona is set and not 'undefined'
           const persona = (data as any)?.persona as string | undefined;
-          if (persona) {
+          if (persona && persona !== 'undefined') {
             const personaOption = PERSONA_OPTIONS.find(p => p.value === persona);
             if (personaOption) {
               updates.profession = personaOption.profession;
