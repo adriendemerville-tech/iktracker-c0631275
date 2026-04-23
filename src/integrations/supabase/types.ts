@@ -1254,7 +1254,7 @@ export type Database = {
           accountant_email: string | null
           created_at: string
           id: string
-          persona: string | null
+          persona: string
           updated_at: string
           user_id: string
           visit_count: number
@@ -1263,7 +1263,7 @@ export type Database = {
           accountant_email?: string | null
           created_at?: string
           id?: string
-          persona?: string | null
+          persona?: string
           updated_at?: string
           user_id: string
           visit_count?: number
@@ -1272,7 +1272,7 @@ export type Database = {
           accountant_email?: string | null
           created_at?: string
           id?: string
-          persona?: string | null
+          persona?: string
           updated_at?: string
           user_id?: string
           visit_count?: number
