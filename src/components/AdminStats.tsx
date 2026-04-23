@@ -622,22 +622,13 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch persona distribution
+  // Fetch persona distribution (all auth.users via RPC)
   const { data: personaDistribution, isLoading: personaLoading } = useQuery({
     queryKey: ['admin-persona-distribution'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('persona');
+      const { data, error } = await supabase.rpc('get_persona_distribution');
       if (error) throw error;
-      const counts: Record<string, number> = {};
-      let total = 0;
-      (data || []).forEach((r: { persona: string | null }) => {
-        const key = r.persona || 'undefined';
-        counts[key] = (counts[key] || 0) + 1;
-        total++;
-      });
-      return { counts, total };
+      return data as { counts: Record<string, number>; total: number };
     },
     refetchInterval: 60 * 60 * 1000,
   });
@@ -1694,7 +1685,7 @@ export function AdminStats() {
                         ) : (
                           <div className="space-y-3">
                             <p className="text-xs text-muted-foreground text-center mb-2">
-                              {personaDistribution.total} utilisateur{personaDistribution.total > 1 ? 's' : ''} qualifié{personaDistribution.total > 1 ? 's' : ''}
+                              {personaDistribution.total} utilisateur{personaDistribution.total > 1 ? 's' : ''}
                             </p>
                             {allPersonaKeys.map(key => {
                               const count = personaDistribution.counts[key] || 0;

@@ -1463,6 +1463,7 @@ export type Database = {
           total_users: number
         }[]
       }
+      get_persona_distribution: { Args: never; Returns: Json }
       get_recent_signups: {
         Args: { limit_count?: number }
         Returns: {
