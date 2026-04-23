@@ -192,15 +192,24 @@ export function SurveyWidget() {
   const handleSubmit = useCallback(async () => {
     if (!survey || !user) return;
 
-    // Resolve "other" values
+    // Resolve free-text values
     const resolvedResponses: Record<string, unknown> = {};
     for (const block of survey.blocks) {
-      const answer = responses[block.id];
+      const answer = responses[block.id] as string | undefined;
+      if (!answer) { resolvedResponses[block.id] = answer; continue; }
+
+      const freeMatch = answer.match(/^__free_(\d+)__$/);
       if (answer === '__other__') {
         resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ''}`.trim();
+      } else if (freeMatch) {
+        const idx = parseInt(freeMatch[1]);
+        const options = (block.config.options as string[]) || [];
+        const label = options[idx] || 'Autre';
+        const freeKey = `${block.id}_${idx}`;
+        resolvedResponses[block.id] = `${label}: ${otherTexts[freeKey] || ''}`.trim();
       } else {
         resolvedResponses[block.id] = answer;
-        if (answer) await syncPersonaIfNeeded(block, answer);
+        await syncPersonaIfNeeded(block, answer);
       }
     }
 
