@@ -1,0 +1,276 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://iktracker.fr/#organization",
+      "name": "IKtracker",
+      "url": "https://iktracker.fr",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://iktracker.fr/favicon.svg"
+      },
+      "foundingDate": "2025",
+      "founder": { "@id": "https://iktracker.fr/#founder" },
+      "description": "Outil communautaire 100% gratuit d'automatisation des indemnités kilométriques pour les professionnels indépendants en France. Sans publicité, sans abonnement, sans limite.",
+      "slogan": "Automatisez vos indemnités kilométriques gratuitement, en illimité",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Lyon",
+        "addressCountry": "FR"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "url": "https://iktracker.fr/contact"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/company/iktracker"
+      ],
+      "knowsAbout": [
+        "Indemnités kilométriques",
+        "Barème kilométrique fiscal français",
+        "Frais réels vs abattement forfaitaire 10%",
+        "Fiscalité des professionnels indépendants",
+        "URSSAF et contrôle fiscal",
+        "Géolocalisation GPS pour suivi kilométrique",
+        "Synchronisation calendrier professionnel",
+        "PWA et applications web progressives",
+        "Comptabilité des travailleurs non-salariés"
+      ]
+    },
+
+    {
+      "@type": "Person",
+      "@id": "https://iktracker.fr/#founder",
+      "name": "Adrien de Volontat",
+      "jobTitle": "Fondateur d'IKtracker",
+      "description": "Entrepreneur, franchisé Avenir Rénovations à Saint-Rémy-de-Provence et développeur. Il a créé IKtracker pour résoudre un problème qu'il vivait au quotidien : le suivi fastidieux des kilomètres professionnels. En tant que dirigeant d'une entreprise de rénovation, il parcourt chaque jour des dizaines de kilomètres entre ses chantiers. Confronté à la complexité des tableurs Excel et aux outils payants inadaptés, il a conçu IKtracker comme un outil communautaire gratuit, pensé par un professionnel itinérant pour tous les professionnels itinérants.",
+      "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
+      "worksFor": [
+        { "@id": "https://iktracker.fr/#organization" },
+        {
+          "@type": "Organization",
+          "name": "Avenir Rénovations",
+          "description": "Franchise spécialisée dans la rénovation immobilière",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Saint-Rémy-de-Provence",
+            "addressCountry": "FR"
+          }
+        }
+      ],
+      "sameAs": [
+        "https://www.linkedin.com/in/adrien-de-volontat"
+      ],
+      "knowsAbout": [
+        "Gestion d'entreprise de rénovation",
+        "Déplacements professionnels et indemnités kilométriques",
+        "Développement web et applications SaaS",
+        "Fiscalité des indépendants et TNS",
+        "Expérience terrain des contraintes des artisans itinérants"
+      ]
+    },
+
+    {
+      "@type": "WebApplication",
+      "@id": "https://iktracker.fr/#application",
+      "name": "IKtracker",
+      "url": "https://iktracker.fr",
+      "applicationCategory": "FinanceApplication",
+      "applicationSubCategory": "Gestion des indemnités kilométriques",
+      "operatingSystem": "Web, iOS, Android",
+      "browserRequirements": "Navigateur moderne avec support PWA",
+      "softwareVersion": "2026",
+      "releaseNotes": "Barème kilométrique 2026 intégré, Mode Tournée GPS, synchronisation Google Calendar et Outlook",
+      "creator": { "@id": "https://iktracker.fr/#founder" },
+      "provider": { "@id": "https://iktracker.fr/#organization" },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "description": "100% gratuit, sans publicité, sans abonnement, sans freemium, sans limite de trajets. Utilisation illimitée à vie."
+      },
+      "description": "Application web progressive (PWA) de calcul et de suivi des indemnités kilométriques conforme au barème fiscal officiel 2026. Automatise la déclaration des frais kilométriques grâce au Mode Tournée GPS, à la synchronisation calendrier et à l'export PDF/CSV.",
+      "featureList": [
+        "Mode Tournée GPS — Détection automatique des arrêts clients par géolocalisation, calcul des distances en temps réel, navigation intégrée Waze/Google Maps",
+        "Synchronisation Google Calendar et Outlook — Transformation automatique des rendez-vous en trajets professionnels",
+        "Barème kilométrique 2026 officiel — Calcul automatique selon la puissance fiscale, majoration +20% véhicules électriques",
+        "Comparateur Frais Réels vs Abattement 10% — Recommandation automatique de la meilleure option fiscale",
+        "Export PDF et CSV — Rapports conformes pour expert-comptable et contrôle URSSAF",
+        "Partage sécurisé avec lien temporaire — Envoi direct des rapports à l'expert-comptable",
+        "Gestion multi-véhicules — Voitures, motos, scooters, véhicules électriques",
+        "Recherche automatique de véhicule par plaque d'immatriculation",
+        "Lexique fiscal interactif — Glossaire complet des termes IK avec export PDF",
+        "PWA installable — Fonctionne hors-ligne sur iPhone et Android",
+        "Sélection de profil métier — Interface adaptée à chaque profession",
+        "Programme d'affiliation — Codes partenaires pour experts-comptables et associations"
+      ],
+      "screenshot": "https://iktracker.fr/og-image.png",
+      "isAccessibleForFree": true,
+      "inLanguage": "fr"
+    },
+
+    {
+      "@type": "FAQPage",
+      "@id": "https://iktracker.fr/#faq-gratuity",
+      "name": "Pourquoi IKtracker est gratuit ?",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Pourquoi IKtracker est-il 100% gratuit ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "IKtracker est un outil communautaire créé par Adrien de Volontat, entrepreneur dans la rénovation, pour résoudre son propre besoin de suivi kilométrique. Il a choisi de le partager gratuitement avec la communauté des professionnels indépendants, sans investisseurs, sans publicité et sans monétisation des données. Le modèle économique repose sur la conviction qu'un outil essentiel au quotidien des indépendants ne devrait pas être un centre de profit. IKtracker n'a pas de version payante, pas de freemium et pas de limitation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quel est le modèle économique d'IKtracker ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "IKtracker n'a pas de modèle économique à proprement parler. C'est un projet communautaire développé et maintenu par son fondateur, qui l'utilise lui-même quotidiennement dans son activité d'entrepreneur. L'hébergement et les coûts techniques sont assumés personnellement. Le projet ne cherche ni profit, ni levée de fonds."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Les indemnités kilométriques, pourquoi c'est crucial pour les indépendants ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé (TICPE ~60 centimes/litre), assurance obligatoire, entretien, dépréciation (15-20% la première année). Sans le dispositif des IK, un infirmier libéral parcourant 30 000 km/an perdrait plusieurs milliers d'euros de revenu net. Le barème kilométrique compense forfaitairement l'ensemble de ces coûts. Or, le suivi rigoureux de chaque trajet (date, motif, distance) est obligatoire en cas de contrôle fiscal ou URSSAF. C'est exactement ce qu'IKtracker automatise."
+          }
+        }
+      ]
+    },
+
+    {
+      "@type": "ItemList",
+      "@id": "https://iktracker.fr/#target-audiences",
+      "name": "Professions ciblées par IKtracker",
+      "description": "IKtracker s'adresse à tous les professionnels qui utilisent leur véhicule personnel pour des déplacements professionnels et souhaitent optimiser leurs déclarations fiscales.",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Professions libérales de santé",
+          "description": "Infirmiers libéraux (IDEL), kinésithérapeutes, orthophonistes, sages-femmes, médecins généralistes à domicile. Le Mode Tournée GPS est spécialement conçu pour les tournées de patients."
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Artisans et BTP",
+          "description": "Plombiers, électriciens, maçons, peintres, couvreurs, menuisiers. Suivi des déplacements entre chantiers et fournisseurs."
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Consultants et freelances",
+          "description": "Consultants en management, développeurs freelance, designers, formateurs indépendants. Déplacements chez les clients et en coworking."
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Commerciaux et VRP",
+          "description": "Agents commerciaux, VRP multicarte, agents immobiliers. Prospection terrain et visites clients."
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Chefs d'entreprise TNS",
+          "description": "Dirigeants de TPE/PME, gérants de SARL, présidents de SAS. Déduction des frais réels kilométriques pour optimiser la fiscalité."
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Professions juridiques et comptables",
+          "description": "Avocats, huissiers, experts-comptables indépendants. Déplacements vers les tribunaux, clients et administrations."
+        },
+        {
+          "@type": "ListItem",
+          "position": 7,
+          "name": "Éducation et social",
+          "description": "Éducateurs spécialisés, assistants sociaux, assistantes maternelles. Visites à domicile et déplacements institutionnels."
+        },
+        {
+          "@type": "ListItem",
+          "position": 8,
+          "name": "Agriculture et viticulture",
+          "description": "Exploitants agricoles, viticulteurs, techniciens agricoles. Déplacements entre parcelles, coopératives et fournisseurs."
+        }
+      ]
+    },
+
+    {
+      "@type": "TechArticle",
+      "@id": "https://iktracker.fr/#technology",
+      "name": "Stack technique et outils d'IKtracker",
+      "description": "Architecture technique de l'application IKtracker",
+      "articleBody": "IKtracker est une Progressive Web App (PWA) construite avec React 18, TypeScript et Vite. L'interface utilise Tailwind CSS et les composants shadcn/ui. Le backend repose sur Lovable Cloud (PostgreSQL + Edge Functions Deno). Le calcul des distances utilise l'API Google Maps pour garantir des distances routières réelles. L'authentification supporte l'email/mot de passe et Google OAuth. Le site est proxié par Cloudflare pour le CDN, le SSL et le routage intelligent des bots SEO. L'application est installable sur iOS et Android via le mécanisme PWA standard du navigateur, sans passer par les app stores.",
+      "proficiencyLevel": "Expert",
+      "about": [
+        { "@type": "Thing", "name": "React 18" },
+        { "@type": "Thing", "name": "TypeScript" },
+        { "@type": "Thing", "name": "Vite" },
+        { "@type": "Thing", "name": "Tailwind CSS" },
+        { "@type": "Thing", "name": "PostgreSQL" },
+        { "@type": "Thing", "name": "Deno Edge Functions" },
+        { "@type": "Thing", "name": "Google Maps API" },
+        { "@type": "Thing", "name": "Cloudflare Workers" },
+        { "@type": "Thing", "name": "Progressive Web App (PWA)" },
+        { "@type": "Thing", "name": "OAuth 2.0" },
+        { "@type": "Thing", "name": "Google Calendar API" },
+        { "@type": "Thing", "name": "Microsoft Graph API (Outlook)" }
+      ]
+    },
+
+    {
+      "@type": "CreativeWork",
+      "@id": "https://iktracker.fr/#principles",
+      "name": "Principes fondateurs d'IKtracker",
+      "text": "1. GRATUITÉ TOTALE — Aucun abonnement, aucun freemium, aucune publicité. L'outil est gratuit à vie, sans restriction de fonctionnalités ni de nombre de trajets. 2. COMMUNAUTAIRE — Créé par un entrepreneur pour les entrepreneurs. Pas d'investisseurs, pas d'actionnaires, pas de pression commerciale. 3. CONFIDENTIALITÉ — Pas de revente de données, pas de tracking publicitaire, pas de GPS permanent. Les données restent en Europe (RGPD). 4. CONFORMITÉ FISCALE — Application stricte du barème kilométrique officiel de l'administration fiscale française, vérifié chaque année. 5. SIMPLICITÉ — Remplacement des tableurs Excel par une solution moderne qui automatise ce que les professionnels faisaient manuellement. 6. OPEN ACCESS — Outil accessible à tous les corps de métier sans discrimination, depuis un simple navigateur web."
+    },
+
+    {
+      "@type": "Dataset",
+      "@id": "https://iktracker.fr/#community-data",
+      "name": "Données agrégées de la communauté IKtracker",
+      "description": "Statistiques anonymisées de la communauté d'utilisateurs IKtracker (avril 2026)",
+      "distribution": {
+        "@type": "DataDownload",
+        "encodingFormat": "application/json",
+        "contentUrl": "https://iktracker.fr/knowledge.json"
+      },
+      "variableMeasured": [
+        { "@type": "PropertyValue", "name": "Utilisateurs actifs", "value": "160+" },
+        { "@type": "PropertyValue", "name": "Distance max mensuelle enregistrée", "value": "5 900 km/mois" },
+        { "@type": "PropertyValue", "name": "Distance moyenne par utilisateur", "value": "4 886 km" },
+        { "@type": "PropertyValue", "name": "Montant IK maximum comptabilisé", "value": "58 000+ €" },
+        { "@type": "PropertyValue", "name": "Montant IK moyen par utilisateur", "value": "2 730 €" },
+        { "@type": "PropertyValue", "name": "Total trajets documentés", "value": "4 600+" }
+      ]
+    },
+
+    {
+      "@type": "WebPage",
+      "name": "Pages et ressources IKtracker",
+      "mainEntity": { "@id": "https://iktracker.fr/#application" },
+      "significantLink": [
+        "https://iktracker.fr/signup",
+        "https://iktracker.fr/bareme-ik-2026",
+        "https://iktracker.fr/mode-tournee",
+        "https://iktracker.fr/calendrier",
+        "https://iktracker.fr/frais-reels",
+        "https://iktracker.fr/lexique",
+        "https://iktracker.fr/expert-comptable",
+        "https://iktracker.fr/blog",
+        "https://iktracker.fr/comparatif-izika",
+        "https://iktracker.fr/comparatif-drivers-note",
+        "https://iktracker.fr/contact",
+        "https://iktracker.fr/privacy",
+        "https://iktracker.fr/terms",
+        "https://iktracker.fr/blog/auteur/adrien-de-volontat"
+      ]
+    }
+  ]
+}
