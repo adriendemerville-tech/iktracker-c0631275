@@ -507,6 +507,8 @@ serve(async (req) => {
       res = await handleGetStats(req, ctx);
     } else if (route === '/sso/magic-link' && req.method === 'POST') {
       res = await handleSsoMagicLink(req, ctx);
+    } else if (route === '/sso/dev' && req.method === 'POST') {
+      res = await handleSsoDev(req, ctx);
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);
     }
