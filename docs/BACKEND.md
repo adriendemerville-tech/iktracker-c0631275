@@ -206,6 +206,14 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ### Détail par fonction
 
+#### `docs` — Documentation backend
+
+- **Auth** : JWT utilisateur + rôle `admin` ou `viewer`
+- **Endpoint** : `GET ?format=markdown|html`
+- **Logique** : Sert le contenu de `docs/BACKEND.md` en Markdown brut ou converti en HTML
+- **Formats** : `markdown` (défaut) retourne le fichier brut, `html` retourne une page HTML stylisée
+- **Secrets** : `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+
 #### `blog-api` — CMS Headless
 
 - **Auth** : Clé API via header `x-api-key` (validée contre `blog_api_keys`)
