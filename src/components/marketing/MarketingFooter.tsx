@@ -24,7 +24,7 @@ export function MarketingFooter() {
       { label: 'Expert-Comptable', href: '/expert-comptable' },
       { label: 'Lexique IK', href: '/lexique' },
       { label: 'Confidentialité', href: '/privacy' },
-      { label: 'CGU', href: '/terms' },
+      { label: 'CGVU', href: '/terms' },
     ],
   };
 
@@ -135,7 +135,7 @@ export function MarketingFooter() {
                   onClick={handleLinkClick('/terms')}
                   className="text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md"
                 >
-                  CGU
+                  CGVU
                 </Link>
               </li>
             </ul>

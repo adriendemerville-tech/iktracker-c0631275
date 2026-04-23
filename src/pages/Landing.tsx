@@ -1023,7 +1023,7 @@ const Landing = () => {
                   </a>
                   <span className="text-muted-foreground/50">•</span>
                   <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors font-display">
-                    CGU
+                    CGVU
                   </Link>
                   <span className="text-muted-foreground/50">•</span>
                   <Link to="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors font-display">

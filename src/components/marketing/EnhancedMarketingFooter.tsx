@@ -281,7 +281,7 @@ export function EnhancedMarketingFooter() {
                     onClick={handleLinkClick('/terms')}
                     className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                   >
-                    CGU
+                    CGVU
                   </Link>
                 </li>
                 <li>

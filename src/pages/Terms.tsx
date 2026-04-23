@@ -10,15 +10,15 @@ const Terms = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Conditions Générales d'Utilisation | IKtracker - CGU Application</title>
-        <meta name="description" content="Consultez les CGU d'IKtracker. Modalités d'utilisation, responsabilités et droits pour l'application gratuite de calcul d'indemnités kilométriques." />
-        <meta name="keywords" content="CGU, conditions générales utilisation, IKtracker, termes service, modalités utilisation" />
+        <title>Conditions Générales de Vente et d'Utilisation | IKtracker - CGVU</title>
+        <meta name="description" content="Consultez les CGVU d'IKtracker. Conditions de vente, modalités d'utilisation, responsabilités et droits pour l'application gratuite de calcul d'indemnités kilométriques." />
+        <meta name="keywords" content="CGVU, CGU, CGV, conditions générales vente utilisation, IKtracker, termes service, modalités utilisation" />
         <link rel="canonical" href="https://iktracker.fr/terms" />
         <meta name="robots" content="index, follow" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Conditions Générales d'Utilisation | IKtracker" />
-        <meta property="og:description" content="Consultez les CGU d'IKtracker. Modalités d'utilisation de l'application gratuite." />
+        <meta property="og:title" content="CGVU — Conditions Générales de Vente et d'Utilisation | IKtracker" />
+        <meta property="og:description" content="Consultez les CGVU d'IKtracker. Conditions de vente et d'utilisation de l'application gratuite." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://iktracker.fr/terms" />
         <meta property="og:locale" content="fr_FR" />
@@ -26,16 +26,16 @@ const Terms = () => {
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Conditions Générales d'Utilisation | IKtracker" />
-        <meta name="twitter:description" content="Consultez les CGU d'IKtracker. Modalités d'utilisation de l'application gratuite." />
+        <meta name="twitter:title" content="CGVU | IKtracker" />
+        <meta name="twitter:description" content="Consultez les CGVU d'IKtracker. Conditions de vente et d'utilisation de l'application gratuite." />
         
         {/* Structured Data */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebPage",
-            "name": "Conditions Générales d'Utilisation IKtracker",
-            "description": "Conditions générales d'utilisation de l'application IKtracker",
+            "name": "Conditions Générales de Vente et d'Utilisation IKtracker",
+            "description": "Conditions générales de vente et d'utilisation de l'application IKtracker",
             "url": "https://iktracker.fr/terms",
             "inLanguage": "fr-FR",
             "isPartOf": {
@@ -45,7 +45,7 @@ const Terms = () => {
             },
             "about": {
               "@type": "Thing",
-              "name": "Conditions générales d'utilisation"
+              "name": "Conditions générales de vente et d'utilisation"
             }
           })}
         </script>
@@ -81,7 +81,7 @@ const Terms = () => {
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Button>
-          <h1 className="text-xl font-semibold" id="page-heading">Conditions Générales d'Utilisation</h1>
+          <h1 className="text-xl font-semibold" id="page-heading">Conditions Générales de Vente et d'Utilisation</h1>
         </nav>
       </header>
 
@@ -92,19 +92,25 @@ const Terms = () => {
         aria-labelledby="page-heading"
       >
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
+
+          {/* ── PARTIE I : CONDITIONS GÉNÉRALES D'UTILISATION ── */}
+          <div className="bg-muted/30 rounded-xl p-4 mb-2">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wide">Partie I — Conditions Générales d'Utilisation (CGU)</p>
+          </div>
+
           <section aria-labelledby="section-object">
             <h2 id="section-object" className="text-lg font-semibold text-foreground">1. Objet</h2>
             <p className="text-muted-foreground">
-              Les présentes Conditions Générales d'Utilisation (CGU) ont pour objet de définir les modalités 
-              d'accès et d'utilisation de l'application IKtracker, dédiée au suivi et au calcul des 
-              indemnités kilométriques.
+              Les présentes Conditions Générales de Vente et d'Utilisation (CGVU) ont pour objet de définir 
+              les modalités d'accès, d'utilisation et, le cas échéant, de souscription aux services de 
+              l'application IKtracker, dédiée au suivi et au calcul des indemnités kilométriques.
             </p>
           </section>
 
           <section aria-labelledby="section-accept">
-            <h2 id="section-accept" className="text-lg font-semibold text-foreground">2. Acceptation des CGU</h2>
+            <h2 id="section-accept" className="text-lg font-semibold text-foreground">2. Acceptation des CGVU</h2>
             <p className="text-muted-foreground">
-              L'utilisation de l'application implique l'acceptation pleine et entière des présentes CGU. 
+              L'utilisation de l'application implique l'acceptation pleine et entière des présentes CGVU. 
               Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser l'application.
             </p>
           </section>
@@ -122,10 +128,11 @@ const Terms = () => {
             <p className="text-muted-foreground">IKtracker permet de :</p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-1" role="list">
               <li>Enregistrer et gérer vos trajets professionnels</li>
-              <li>Calculer automatiquement les indemnités kilométriques selon le barème fiscal</li>
+              <li>Calculer automatiquement les indemnités kilométriques selon le barème fiscal en vigueur</li>
               <li>Gérer plusieurs véhicules avec leur puissance fiscale</li>
-              <li>Générer des rapports de déplacements</li>
-              <li>Synchroniser avec vos calendriers</li>
+              <li>Générer des rapports de déplacements (PDF, CSV)</li>
+              <li>Synchroniser avec vos calendriers (Google, Outlook, ICS)</li>
+              <li>Utiliser le mode tournée avec suivi GPS en temps réel</li>
             </ul>
           </section>
 
@@ -137,6 +144,7 @@ const Terms = () => {
               <li>Ne pas tenter de contourner les mesures de sécurité</li>
               <li>Fournir des informations exactes concernant ses trajets et véhicules</li>
               <li>Ne pas utiliser l'application à des fins frauduleuses</li>
+              <li>Respecter la législation en vigueur, notamment en matière de déclarations fiscales</li>
             </ul>
           </section>
 
@@ -167,32 +175,113 @@ const Terms = () => {
             </p>
           </section>
 
-          <section aria-labelledby="section-termination">
-            <h2 id="section-termination" className="text-lg font-semibold text-foreground">9. Résiliation</h2>
+          <section aria-labelledby="section-data">
+            <h2 id="section-data" className="text-lg font-semibold text-foreground">9. Protection des données personnelles</h2>
             <p className="text-muted-foreground">
-              L'utilisateur peut à tout moment supprimer son compte depuis les paramètres de l'application. 
-              Nous nous réservons le droit de suspendre ou supprimer un compte en cas de violation des présentes CGU.
+              Le traitement des données personnelles est détaillé dans notre{' '}
+              <Link to="/privacy" className="text-primary hover:underline">Politique de confidentialité</Link>.
+              IKtracker est conforme au Règlement Général sur la Protection des Données (RGPD). 
+              Les données sont hébergées en Europe et ne sont ni vendues ni partagées avec des tiers.
             </p>
           </section>
 
-          <section aria-labelledby="section-modifications">
-            <h2 id="section-modifications" className="text-lg font-semibold text-foreground">10. Modification des CGU</h2>
+          <section aria-labelledby="section-termination">
+            <h2 id="section-termination" className="text-lg font-semibold text-foreground">10. Résiliation</h2>
             <p className="text-muted-foreground">
-              Nous nous réservons le droit de modifier les présentes CGU à tout moment. Les utilisateurs 
+              L'utilisateur peut à tout moment supprimer son compte depuis les paramètres de l'application. 
+              Nous nous réservons le droit de suspendre ou supprimer un compte en cas de violation des présentes CGVU.
+            </p>
+          </section>
+
+          {/* ── PARTIE II : CONDITIONS GÉNÉRALES DE VENTE ── */}
+          <div className="bg-muted/30 rounded-xl p-4 mt-10 mb-2">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wide">Partie II — Conditions Générales de Vente (CGV)</p>
+          </div>
+
+          <section aria-labelledby="section-pricing">
+            <h2 id="section-pricing" className="text-lg font-semibold text-foreground">11. Tarification</h2>
+            <p className="text-muted-foreground">
+              IKtracker est proposé gratuitement dans sa version actuelle. L'ensemble des fonctionnalités 
+              (enregistrement de trajets, calcul d'IK, export PDF/CSV, mode tournée, synchronisation 
+              calendrier) est accessible sans frais et sans limitation.
+            </p>
+            <p className="text-muted-foreground mt-2">
+              En cas d'introduction future de services payants ou de fonctionnalités premium, les 
+              utilisateurs en seront informés préalablement. La souscription à un service payant fera 
+              l'objet d'un consentement explicite et ne pourra en aucun cas être tacite.
+            </p>
+          </section>
+
+          <section aria-labelledby="section-payment">
+            <h2 id="section-payment" className="text-lg font-semibold text-foreground">12. Modalités de paiement</h2>
+            <p className="text-muted-foreground">
+              Aucun paiement n'est requis pour utiliser IKtracker. Si des services payants venaient à être 
+              proposés, les moyens de paiement acceptés, les conditions de facturation et les éventuelles 
+              politiques de remboursement seraient détaillés dans une mise à jour des présentes CGVU.
+            </p>
+          </section>
+
+          <section aria-labelledby="section-retractation">
+            <h2 id="section-retractation" className="text-lg font-semibold text-foreground">13. Droit de rétractation</h2>
+            <p className="text-muted-foreground">
+              Conformément aux articles L221-18 et suivants du Code de la consommation, le consommateur 
+              dispose d'un délai de 14 jours à compter de la souscription d'un éventuel service payant 
+              pour exercer son droit de rétractation, sans avoir à justifier de motifs ni à payer de pénalités.
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Le service étant actuellement gratuit, ce droit ne trouve pas à s'appliquer mais sera 
+              pleinement respecté en cas d'évolution tarifaire.
+            </p>
+          </section>
+
+          <section aria-labelledby="section-warranty">
+            <h2 id="section-warranty" className="text-lg font-semibold text-foreground">14. Garanties et limitations</h2>
+            <p className="text-muted-foreground">
+              Le service est fourni « en l'état ». IKtracker s'engage à mettre en œuvre les moyens 
+              raisonnables pour assurer le bon fonctionnement de l'application, mais ne garantit pas 
+              l'absence totale d'erreurs ou d'interruptions.
+            </p>
+            <p className="text-muted-foreground mt-2">
+              En aucun cas IKtracker ne pourra être tenu responsable des dommages indirects résultant 
+              de l'utilisation ou de l'impossibilité d'utiliser le service, y compris les pertes de données, 
+              les manques à gagner ou les préjudices financiers liés à des déclarations fiscales erronées.
+            </p>
+          </section>
+
+          <section aria-labelledby="section-mediation">
+            <h2 id="section-mediation" className="text-lg font-semibold text-foreground">15. Médiation</h2>
+            <p className="text-muted-foreground">
+              En cas de litige relatif aux présentes CGVU, l'utilisateur peut recourir gratuitement à un 
+              médiateur de la consommation conformément aux articles L611-1 et suivants du Code de la 
+              consommation. Avant toute démarche de médiation, l'utilisateur est invité à contacter 
+              IKtracker via la page{' '}
+              <Link to="/contact" className="text-primary hover:underline">Contact</Link>.
+            </p>
+          </section>
+
+          {/* ── PARTIE III : DISPOSITIONS GÉNÉRALES ── */}
+          <div className="bg-muted/30 rounded-xl p-4 mt-10 mb-2">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wide">Partie III — Dispositions générales</p>
+          </div>
+
+          <section aria-labelledby="section-modifications">
+            <h2 id="section-modifications" className="text-lg font-semibold text-foreground">16. Modification des CGVU</h2>
+            <p className="text-muted-foreground">
+              Nous nous réservons le droit de modifier les présentes CGVU à tout moment. Les utilisateurs 
               seront informés de toute modification substantielle. La poursuite de l'utilisation de 
               l'application après modification vaut acceptation des nouvelles conditions.
             </p>
           </section>
 
           <section aria-labelledby="section-law">
-            <h2 id="section-law" className="text-lg font-semibold text-foreground">11. Droit applicable</h2>
+            <h2 id="section-law" className="text-lg font-semibold text-foreground">17. Droit applicable</h2>
             <p className="text-muted-foreground">
-              Les présentes CGU sont soumises au droit français. Tout litige relatif à leur interprétation 
+              Les présentes CGVU sont soumises au droit français. Tout litige relatif à leur interprétation 
               ou leur exécution relève de la compétence des tribunaux français.
             </p>
             <p className="text-muted-foreground mt-4 text-sm">
-              <time dateTime="2024-12-24">
-                Dernière mise à jour : {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              <time dateTime="2026-04-23">
+                Dernière mise à jour : 23 avril 2026
               </time>
             </p>
           </section>
