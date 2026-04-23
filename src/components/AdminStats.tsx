@@ -622,6 +622,23 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
+  // Fetch per-user persona map (for recent signups display)
+  const { data: userPersonaMap = new Map<string, string>() } = useQuery({
+    queryKey: ['admin-user-persona-map'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('user_id, persona');
+      if (error) throw error;
+      const map = new Map<string, string>();
+      for (const p of (data || [])) {
+        map.set(p.user_id, p.persona);
+      }
+      return map;
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
   // Fetch persona distribution (all auth.users via RPC)
   const { data: personaDistribution, isLoading: personaLoading } = useQuery({
     queryKey: ['admin-persona-distribution'],
