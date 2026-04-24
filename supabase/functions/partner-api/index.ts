@@ -801,6 +801,10 @@ serve(async (req) => {
       res = await handleSsoMagicLink(req, ctx);
     } else if (route === '/sso/dev' && req.method === 'POST') {
       res = await handleSsoDev(req, ctx);
+    } else if (route === '/reports/generate' && req.method === 'POST') {
+      res = await handleGenerateReport(req, ctx);
+    } else if (route === '/reports/send-email' && req.method === 'POST') {
+      res = await handleSendReportEmail(req, ctx);
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);
     }
