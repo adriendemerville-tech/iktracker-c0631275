@@ -168,28 +168,37 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const isResumingRef = useRef<boolean>(false);
 
   // Persist state changes to localStorage (only when tour is active)
+  // CRITICAL: never persist while inactive — would wipe restored state before resumeTour() reads it
   useEffect(() => {
-    saveTourData(STORAGE_KEYS.TOUR_ACTIVE, isActive);
+    if (isActive) {
+      saveTourData(STORAGE_KEYS.TOUR_ACTIVE, isActive);
+    }
   }, [isActive]);
 
   useEffect(() => {
-    saveTourData(STORAGE_KEYS.TOUR_STOPS, stops);
-  }, [stops]);
+    if (isActive) {
+      saveTourData(STORAGE_KEYS.TOUR_STOPS, stops);
+    }
+  }, [stops, isActive]);
 
   useEffect(() => {
-    saveTourData(STORAGE_KEYS.TOUR_GPS_POINTS, gpsPoints);
-  }, [gpsPoints]);
+    if (isActive) {
+      saveTourData(STORAGE_KEYS.TOUR_GPS_POINTS, gpsPoints);
+    }
+  }, [gpsPoints, isActive]);
 
   useEffect(() => {
-    saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, totalDistanceKm);
-    maxDistanceReachedRef.current = Math.max(totalDistanceKm, maxDistanceReachedRef.current);
-  }, [totalDistanceKm]);
+    if (isActive) {
+      saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, totalDistanceKm);
+      maxDistanceReachedRef.current = Math.max(totalDistanceKm, maxDistanceReachedRef.current);
+    }
+  }, [totalDistanceKm, isActive]);
 
   useEffect(() => {
-    if (tourStartTime) {
+    if (isActive && tourStartTime) {
       saveTourData(STORAGE_KEYS.TOUR_START_TIME, tourStartTime.toISOString());
     }
-  }, [tourStartTime]);
+  }, [tourStartTime, isActive]);
 
   // Update last activity timestamp periodically when tour is active
   // Also sync to DB every 30s for persistence across browser closure
