@@ -887,6 +887,9 @@ serve(async (req) => {
       res = await handleGenerateReport(req, ctx);
     } else if (route === '/reports/send-email' && req.method === 'POST') {
       res = await handleSendReportEmail(req, ctx);
+    } else if (req.method === 'GET' && /^\/reports\/[^/]+\/pdf$/.test(route)) {
+      const reportId = route.split('/')[2];
+      res = await handleGetReportPdf(reportId, ctx);
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);
     }
