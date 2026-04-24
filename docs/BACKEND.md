@@ -606,7 +606,11 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 | `POST` | `/vehicle/lookup` | `vehicle:lookup` | Lookup par plaque (`plate` ou `license_plate`) → marque, modèle, CV fiscaux |
 | `POST` | `/ik/calculate` | `ik:calculate` | Calcule l'IK pour un trajet (`fiscal_power`, `trip_km`/`annual_km`, `is_electric`) |
 | `POST` | `/trips` | `trips:write` | Crée un trajet pour un user partenaire (provisioning auto si inexistant). `source` doit commencer par `partner:` |
-| `GET` | `/stats?external_user_id=…` | `stats:read` | Stats annuelles de l'utilisateur (km, IK, paliers) |
+| `GET` | `/stats` | `stats:read` | Stats annuelles de l'utilisateur (km, IK, palier en cours) |
+| `GET` | `/dashboard?months=12` | `stats:read` | **🆕 Compteurs annuels + breakdown mensuel (1-24 mois) — alimente directement un BarChart** |
+| `GET` | `/reports/:id/pdf` | `reports` / `trips:read` | Rendu PDF binaire (Browserless) d'un rapport partagé |
+| `POST` | `/reports/generate` | `reports` / `trips:read` | Crée un `report_share` (HTML + URL publique 7j) |
+| `POST` | `/reports/send-email` | `reports` | Envoi du rapport par email (Resend) |
 | `POST` | `/sso/magic-link` | `sso` | Génère un magic link signé (JWT partenaire requis dans `Authorization`) |
 | `POST` | `/sso/dev` | `sso` | **Dev only** — génère un magic link sans JWT, à partir de `external_user_id` + `external_email` |
 
