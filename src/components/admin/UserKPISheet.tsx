@@ -75,6 +75,8 @@ interface UserStats {
   last_session_minutes: number;
   // Plate detection
   has_plate_detection: boolean;
+  // Persona
+  persona: string | null;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
