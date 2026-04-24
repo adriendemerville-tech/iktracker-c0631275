@@ -341,6 +341,101 @@ async function handleGetStats(req: Request, ctx: PartnerContext): Promise<Respon
   });
 }
 
+/**
+ * Returns annual counters (km / IK / trips) + monthly breakdown for the last N months
+ * (default 12, like the Profile page bar chart). Used by partner dashboards (e.g. Dactidevi).
+ */
+async function handleGetDashboard(req: Request, ctx: PartnerContext): Promise<Response> {
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+
+  const url = new URL(req.url);
+  const monthsParam = parseInt(url.searchParams.get('months') || '12', 10);
+  const months = Math.min(Math.max(monthsParam, 1), 24);
+
+  const { data: mapping } = await admin
+    .from('partner_users')
+    .select('iktracker_user_id')
+    .eq('partner_id', ctx.partnerId)
+    .eq('external_user_id', externalUserId)
+    .maybeSingle();
+  if (!mapping) return jsonResponse({ error: 'User not linked' }, 404);
+
+  // Annual counters (current calendar year)
+  const now = new Date();
+  const yearStart = new Date(now.getFullYear(), 0, 1).toISOString().slice(0, 10);
+  const { data: yearTrips } = await admin
+    .from('trips')
+    .select('distance, ik_amount')
+    .eq('user_id', mapping.iktracker_user_id)
+    .gte('date', yearStart)
+    .is('deleted_at', null);
+
+  const totalKm = (yearTrips || []).reduce((s, t) => s + (t.distance || 0), 0);
+  const totalIk = (yearTrips || []).reduce((s, t) => s + (t.ik_amount || 0), 0);
+  const tripsCount = yearTrips?.length || 0;
+  const bracket = totalKm <= 5000 ? 'low' : totalKm <= 20000 ? 'mid' : 'high';
+
+  // Monthly breakdown — last `months` months including current
+  const periodStart = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+  const periodStartStr = periodStart.toISOString().slice(0, 10);
+
+  const { data: periodTrips } = await admin
+    .from('trips')
+    .select('date, distance, ik_amount')
+    .eq('user_id', mapping.iktracker_user_id)
+    .gte('date', periodStartStr)
+    .is('deleted_at', null);
+
+  const monthLabelsFr = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+  const buckets: Array<{ year: number; month: number; label: string; ym: string; km: number; ik: number; trips: number }> = [];
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    buckets.push({
+      year: d.getFullYear(),
+      month: d.getMonth() + 1,
+      label: monthLabelsFr[d.getMonth()],
+      ym: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      km: 0,
+      ik: 0,
+      trips: 0,
+    });
+  }
+
+  (periodTrips || []).forEach((t: any) => {
+    const d = new Date(t.date);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const b = buckets.find(x => x.ym === ym);
+    if (b) {
+      b.km += t.distance || 0;
+      b.ik += t.ik_amount || 0;
+      b.trips += 1;
+    }
+  });
+
+  return jsonResponse({
+    success: true,
+    iktracker_user_id: mapping.iktracker_user_id,
+    year: now.getFullYear(),
+    counters: {
+      total_km: Math.round(totalKm * 100) / 100,
+      total_ik: Math.round(totalIk * 100) / 100,
+      trips_count: tripsCount,
+      current_bracket: bracket,
+      bracket_label: bracket === 'low' ? '≤ 5 000 km' : bracket === 'mid' ? '5 001 – 20 000 km' : '> 20 000 km',
+    },
+    monthly: buckets.map(b => ({
+      year: b.year,
+      month: b.month,
+      label: b.label,
+      ym: b.ym,
+      km: Math.round(b.km),
+      ik: Math.round(b.ik * 100) / 100,
+      trips: b.trips,
+    })),
+  });
+}
+
 async function handleSsoMagicLink(req: Request, ctx: PartnerContext): Promise<Response> {
   if (!requireScope(ctx, 'sso')) return jsonResponse({ error: 'Missing sso scope' }, 403);
 
