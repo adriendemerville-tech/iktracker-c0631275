@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import {
   Sheet,
   SheetContent,
@@ -28,7 +29,8 @@ import {
   Eye,
   Target,
   LogIn,
-  Clock
+  Clock,
+  Briefcase
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
@@ -74,6 +76,8 @@ interface UserStats {
   last_session_minutes: number;
   // Plate detection
   has_plate_detection: boolean;
+  // Persona
+  persona: string | null;
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
@@ -231,6 +235,27 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                         : `${stats.last_session_minutes} min`
                       : '-'}
                   </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Briefcase className="w-4 h-4" />
+                    Persona
+                  </span>
+                  {(() => {
+                    const personaOption = stats.persona && stats.persona !== 'undefined'
+                      ? PERSONA_OPTIONS.find(p => p.value === stats.persona)
+                      : null;
+                    if (!personaOption) {
+                      return <span className="text-xs text-muted-foreground">Non défini</span>;
+                    }
+                    const Icon = personaOption.icon;
+                    return (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Icon className="w-3 h-3" />
+                        {personaOption.label}
+                      </Badge>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm text-muted-foreground">
