@@ -415,6 +415,298 @@ async function handleSsoDev(req: Request, ctx: PartnerContext): Promise<Response
   });
 }
 
+// ---------- Reports ----------
+
+interface IkBareme {
+  upTo5000: number;
+  from5001To20000: { rate: number; fixed: number };
+  over20000: number;
+}
+const BAREME_2024: Record<number, IkBareme> = {
+  3: { upTo5000: 0.529, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: 0.370 },
+  4: { upTo5000: 0.606, from5001To20000: { rate: 0.340, fixed: 1330 }, over20000: 0.407 },
+  5: { upTo5000: 0.636, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: 0.427 },
+  6: { upTo5000: 0.665, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: 0.447 },
+  7: { upTo5000: 0.697, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: 0.470 },
+};
+
+function totalAnnualIk(km: number, cv: number): number {
+  const fp = Math.min(Math.max(cv, 3), 7);
+  const b = BAREME_2024[fp];
+  if (km <= 5000) return km * b.upTo5000;
+  if (km <= 20000) return km * b.from5001To20000.rate + b.from5001To20000.fixed;
+  return km * b.over20000;
+}
+
+function formatDateFr(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function escapeHtml(s: string): string {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+}
+
+interface ReportFilters {
+  start_date?: string;
+  end_date?: string;
+  vehicle_id?: string;
+}
+
+async function buildReportHtml(userId: string, filters: ReportFilters, partnerName: string): Promise<{ html: string; totalKm: number; totalIk: number; tripsCount: number }> {
+  let query = admin.from('trips').select('*').eq('user_id', userId).is('deleted_at', null);
+  if (filters.start_date) query = query.gte('date', filters.start_date);
+  if (filters.end_date) query = query.lte('date', filters.end_date);
+  if (filters.vehicle_id) query = query.eq('vehicle_id', filters.vehicle_id);
+  const { data: trips, error } = await query.order('date', { ascending: true });
+  if (error) throw new Error(`Failed to fetch trips: ${error.message}`);
+
+  const { data: vehicles } = await admin.from('vehicles').select('*').eq('user_id', userId);
+  const vMap = new Map((vehicles || []).map(v => [v.id, v]));
+
+  // Recalculate IK per vehicle/year (cumulative bracket logic)
+  type Augmented = typeof trips[0] & { _ik: number; _cum: number; _rate: number };
+  const grouped = new Map<string, Augmented[]>();
+  (trips || []).forEach(t => {
+    const year = new Date(t.date).getFullYear();
+    const key = `${t.vehicle_id ?? 'none'}-${year}`;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push({ ...t, _ik: 0, _cum: 0, _rate: 0 });
+  });
+
+  const recalc: Augmented[] = [];
+  grouped.forEach((list, key) => {
+    const vehicleId = key.split('-')[0];
+    const vehicle = vMap.get(vehicleId);
+    let cum = 0;
+    list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    for (const t of list) {
+      const prev = cum;
+      cum += t.distance || 0;
+      if (!vehicle) {
+        t._ik = t.ik_amount || 0; t._cum = cum; t._rate = 0;
+      } else {
+        const before = totalAnnualIk(prev, vehicle.fiscal_power);
+        const after = totalAnnualIk(cum, vehicle.fiscal_power);
+        let ik = after - before;
+        if (vehicle.is_electric) ik *= 1.2;
+        t._ik = Math.round(ik * 100) / 100;
+        t._cum = cum;
+        const b = BAREME_2024[Math.min(Math.max(vehicle.fiscal_power, 3), 7)];
+        t._rate = cum <= 5000 ? b.upTo5000 : cum <= 20000 ? b.from5001To20000.rate : b.over20000;
+      }
+      recalc.push(t);
+    }
+  });
+
+  recalc.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const totalKm = Math.round(recalc.reduce((s, t) => s + (t.distance || 0), 0) * 100) / 100;
+  const totalIk = Math.round(recalc.reduce((s, t) => s + t._ik, 0) * 100) / 100;
+
+  const periodLabel = filters.start_date || filters.end_date
+    ? `${filters.start_date ? formatDateFr(filters.start_date) : '...'} → ${filters.end_date ? formatDateFr(filters.end_date) : '...'}`
+    : 'Année en cours';
+
+  const rows = recalc.map(t => {
+    const v = t.vehicle_id ? vMap.get(t.vehicle_id) : null;
+    return `<tr>
+      <td>${formatDateFr(t.date)}</td>
+      <td>${escapeHtml(t.start_location)} → ${escapeHtml(t.end_location)}</td>
+      <td style="text-align:right">${(t.distance || 0).toFixed(2)} km</td>
+      <td>${v ? escapeHtml(v.name) : '-'}</td>
+      <td style="text-align:right;font-weight:600">${t._ik.toFixed(2)} €</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport IK – IKtracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; color: #1e293b; }
+  h1 { color: #0f172a; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+  .meta { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+  .summary { display: flex; gap: 20px; margin: 25px 0; }
+  .stat { background: #f1f5f9; padding: 15px 20px; border-radius: 8px; flex: 1; }
+  .stat-label { font-size: 12px; color: #64748b; text-transform: uppercase; }
+  .stat-value { font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+  th { background: #f8fafc; text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; }
+  td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+  tr:hover { background: #f8fafc; }
+  .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center; }
+  @media print { body { margin: 0; } .no-print { display: none; } }
+  .actions { margin: 20px 0; }
+  .btn { background: #3b82f6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; }
+</style></head>
+<body>
+<h1>Rapport d'indemnités kilométriques</h1>
+<div class="meta">
+  Période : <strong>${periodLabel}</strong><br>
+  Généré via API partenaire : <strong>${escapeHtml(partnerName)}</strong> · ${new Date().toLocaleDateString('fr-FR')}
+</div>
+<div class="actions no-print">
+  <a class="btn" href="javascript:window.print()">📄 Télécharger PDF</a>
+</div>
+<div class="summary">
+  <div class="stat"><div class="stat-label">Trajets</div><div class="stat-value">${recalc.length}</div></div>
+  <div class="stat"><div class="stat-label">Kilomètres</div><div class="stat-value">${totalKm.toFixed(0)} km</div></div>
+  <div class="stat"><div class="stat-label">Indemnités</div><div class="stat-value">${totalIk.toFixed(2)} €</div></div>
+</div>
+<table>
+  <thead><tr><th>Date</th><th>Trajet</th><th>Distance</th><th>Véhicule</th><th>IK</th></tr></thead>
+  <tbody>${rows || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:30px">Aucun trajet sur cette période</td></tr>'}</tbody>
+</table>
+<div class="footer">Rapport généré par IKtracker.fr · Barème officiel ${new Date().getFullYear()}</div>
+</body></html>`;
+
+  return { html, totalKm, totalIk, tripsCount: recalc.length };
+}
+
+async function resolveUserId(ctx: PartnerContext, externalUserId: string): Promise<string | null> {
+  const { data } = await admin
+    .from('partner_users')
+    .select('iktracker_user_id')
+    .eq('partner_id', ctx.partnerId)
+    .eq('external_user_id', externalUserId)
+    .maybeSingle();
+  return data?.iktracker_user_id ?? null;
+}
+
+async function handleGenerateReport(req: Request, ctx: PartnerContext): Promise<Response> {
+  if (!requireScope(ctx, 'reports') && !requireScope(ctx, 'trips:read') && !requireScope(ctx, 'read')) {
+    return jsonResponse({ error: 'Missing reports / trips:read scope' }, 403);
+  }
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+
+  const body = await req.json().catch(() => ({}));
+  const { start_date, end_date, vehicle_id, expires_in_days = 30 } = body;
+
+  const userId = await resolveUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked. Call /sso/magic-link or /trips first.' }, 404);
+
+  const { html, totalKm, totalIk, tripsCount } = await buildReportHtml(
+    userId,
+    { start_date, end_date, vehicle_id },
+    ctx.partnerName,
+  );
+
+  const expiresAt = new Date(Date.now() + Math.max(1, Math.min(90, expires_in_days)) * 86400 * 1000).toISOString();
+
+  const { data: share, error } = await admin.from('report_shares').insert({
+    user_id: userId,
+    html_content: html,
+    expires_at: expiresAt,
+  }).select('id, expires_at').single();
+  if (error) return jsonResponse({ error: error.message }, 500);
+
+  const reportUrl = `${SUPABASE_URL}/functions/v1/view-report?id=${share.id}`;
+  const publicUrl = `${FRONTEND_URL}/temporaryreport/${share.id}`;
+
+  return jsonResponse({
+    success: true,
+    report_id: share.id,
+    report_url: publicUrl,
+    direct_url: reportUrl,
+    expires_at: share.expires_at,
+    summary: { trips_count: tripsCount, total_km: totalKm, total_ik: totalIk },
+  });
+}
+
+async function handleSendReportEmail(req: Request, ctx: PartnerContext): Promise<Response> {
+  if (!requireScope(ctx, 'reports') && !requireScope(ctx, 'trips:read') && !requireScope(ctx, 'read')) {
+    return jsonResponse({ error: 'Missing reports / trips:read scope' }, 403);
+  }
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+
+  const body = await req.json().catch(() => ({}));
+  const { to_email, subject, message, start_date, end_date, vehicle_id, expires_in_days = 30 } = body;
+  if (!to_email) return jsonResponse({ error: 'to_email required' }, 400);
+
+  const userId = await resolveUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  // Generate report
+  const { html, totalKm, totalIk, tripsCount } = await buildReportHtml(
+    userId,
+    { start_date, end_date, vehicle_id },
+    ctx.partnerName,
+  );
+  const expiresAt = new Date(Date.now() + Math.max(1, Math.min(90, expires_in_days)) * 86400 * 1000).toISOString();
+  const { data: share, error: shareErr } = await admin.from('report_shares').insert({
+    user_id: userId,
+    html_content: html,
+    expires_at: expiresAt,
+  }).select('id').single();
+  if (shareErr) return jsonResponse({ error: shareErr.message }, 500);
+
+  const publicUrl = `${FRONTEND_URL}/temporaryreport/${share.id}`;
+  const finalSubject = subject || `Rapport d'indemnités kilométriques – ${tripsCount} trajets`;
+  const finalMessage = message || `Bonjour,\n\nVeuillez trouver ci-joint le rapport d'indemnités kilométriques généré via ${ctx.partnerName}.\n\nRésumé :\n- ${tripsCount} trajets\n- ${totalKm.toFixed(0)} km parcourus\n- ${totalIk.toFixed(2)} € d'indemnités\n\nConsulter / télécharger le rapport :\n${publicUrl}\n\nLien valable jusqu'au ${formatDateFr(expiresAt)}.`;
+
+  // Try server-side send via Resend if key is configured
+  const resendKey = Deno.env.get('RESEND_API_KEY');
+  let emailSent = false;
+  let emailError: string | null = null;
+
+  if (resendKey) {
+    try {
+      const emailHtml = `<div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+        <h2 style="color:#0f172a">Rapport d'indemnités kilométriques</h2>
+        <p>${escapeHtml(finalMessage).replace(/\n/g, '<br>').replace(escapeHtml(publicUrl), `<a href="${publicUrl}" style="color:#3b82f6">${publicUrl}</a>`)}</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0">
+        <div style="background:#f1f5f9;padding:15px;border-radius:8px">
+          <strong>Résumé :</strong><br>
+          ${tripsCount} trajets · ${totalKm.toFixed(0)} km · ${totalIk.toFixed(2)} €
+        </div>
+        <p style="text-align:center;margin-top:25px">
+          <a href="${publicUrl}" style="background:#3b82f6;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block">Consulter le rapport</a>
+        </p>
+        <p style="color:#94a3b8;font-size:12px;text-align:center;margin-top:30px">
+          Envoyé via IKtracker.fr · Partenaire : ${escapeHtml(ctx.partnerName)}
+        </p>
+      </div>`;
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'IKtracker <noreply@iktracker.fr>',
+          to: [to_email],
+          subject: finalSubject,
+          html: emailHtml,
+          text: finalMessage,
+        }),
+      });
+      if (res.ok) {
+        emailSent = true;
+      } else {
+        emailError = `Resend ${res.status}: ${await res.text()}`;
+      }
+    } catch (e) {
+      emailError = (e as Error).message;
+    }
+  } else {
+    emailError = 'RESEND_API_KEY not configured — use mailto fallback';
+  }
+
+  const mailto = `mailto:${encodeURIComponent(to_email)}?subject=${encodeURIComponent(finalSubject)}&body=${encodeURIComponent(finalMessage)}`;
+
+  return jsonResponse({
+    success: true,
+    email_sent: emailSent,
+    email_error: emailSent ? null : emailError,
+    mailto_url: mailto,
+    report_id: share.id,
+    report_url: publicUrl,
+    expires_at: expiresAt,
+    summary: { trips_count: tripsCount, total_km: totalKm, total_ik: totalIk },
+  });
+}
+
 async function handleSsoVerify(req: Request): Promise<Response> {
   // Internal endpoint called by /sso frontend page to exchange the partner JWT for a Supabase session
   const { token, partner_id } = await req.json();
