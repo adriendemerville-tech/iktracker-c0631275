@@ -237,6 +237,27 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Briefcase className="w-4 h-4" />
+                    Persona
+                  </span>
+                  {(() => {
+                    const personaOption = stats.persona && stats.persona !== 'undefined'
+                      ? PERSONA_OPTIONS.find(p => p.value === stats.persona)
+                      : null;
+                    if (!personaOption) {
+                      return <span className="text-xs text-muted-foreground">Non défini</span>;
+                    }
+                    const Icon = personaOption.icon;
+                    return (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Icon className="w-3 h-3" />
+                        {personaOption.label}
+                      </Badge>
+                    );
+                  })()}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Car className="w-4 h-4" />
                     Détection auto. plaque
                   </span>
