@@ -974,6 +974,8 @@ serve(async (req) => {
       res = await handleCreateTrip(req, ctx);
     } else if (route === '/stats' && req.method === 'GET') {
       res = await handleGetStats(req, ctx);
+    } else if (route === '/dashboard' && req.method === 'GET') {
+      res = await handleGetDashboard(req, ctx);
     } else if (route === '/sso/magic-link' && req.method === 'POST') {
       res = await handleSsoMagicLink(req, ctx);
     } else if (route === '/sso/dev' && req.method === 'POST') {
