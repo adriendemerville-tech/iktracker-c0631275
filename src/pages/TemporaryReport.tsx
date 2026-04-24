@@ -84,57 +84,50 @@ export default function TemporaryReport() {
 
   const handleDownload = async () => {
     if (state.status !== "ready") return;
-    
-    setIsDownloading(true);
-    
-    try {
-      // Open a new window with the HTML content and trigger print (Save as PDF)
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) {
-        toast.error("Veuillez autoriser les popups pour télécharger le PDF");
-        setIsDownloading(false);
-        return;
-      }
 
-      // Clean the HTML: remove action bars and scripts
+    setIsDownloading(true);
+    const dismissId = toast.loading("Génération du PDF en cours…");
+
+    try {
+      // Build a clean DOM from the report HTML
       const parser = new DOMParser();
       const parsed = parser.parseFromString(state.html, "text/html");
       parsed.querySelectorAll(".action-bar, script").forEach((el) => el.remove());
 
-      // Inject print-friendly CSS
-      const printStyle = parsed.createElement("style");
-      printStyle.textContent = `
-        @media print {
-          body { margin: 0; padding: 0; }
-          @page { size: A4 landscape; margin: 10mm; }
-        }
-      `;
-      parsed.head.appendChild(printStyle);
+      // Container off-screen for html2pdf to render against
+      const container = document.createElement("div");
+      container.style.position = "fixed";
+      container.style.left = "-10000px";
+      container.style.top = "0";
+      container.style.width = "1100px";
+      container.style.background = "#ffffff";
+      container.innerHTML = parsed.body.innerHTML;
+      // Inline the report styles so html2canvas captures them
+      parsed.querySelectorAll("style").forEach((s) => container.appendChild(s.cloneNode(true)));
+      document.body.appendChild(container);
 
-      printWindow.document.open();
-      printWindow.document.write(parsed.documentElement.outerHTML);
-      printWindow.document.close();
+      const html2pdf = (await import("html2pdf.js")).default;
+      const dateStr = new Date().toISOString().split("T")[0];
 
-      // Wait for content to load then trigger print
-      printWindow.addEventListener("load", () => {
-        setTimeout(() => {
-          printWindow.print();
-          setIsDownloading(false);
-        }, 500);
-      });
+      await html2pdf()
+        .set({
+          margin: [8, 8, 8, 8],
+          filename: `releve-ik-${dateStr}.pdf`,
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        })
+        .from(container)
+        .save();
 
-      // Fallback timeout
-      setTimeout(() => {
-        if (printWindow && !printWindow.closed) {
-          printWindow.print();
-        }
-        setIsDownloading(false);
-      }, 3000);
-      
-      toast.success("Utilisez « Enregistrer en PDF » dans la boîte de dialogue d'impression");
+      document.body.removeChild(container);
+      toast.dismiss(dismissId);
+      toast.success("PDF téléchargé");
     } catch (error) {
       console.error("Download error:", error);
-      toast.error("Erreur lors du téléchargement");
+      toast.dismiss(dismissId);
+      toast.error("Erreur lors de la génération du PDF");
     } finally {
       setIsDownloading(false);
     }
