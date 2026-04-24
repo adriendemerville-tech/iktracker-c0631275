@@ -29,7 +29,8 @@ import {
   Eye,
   Target,
   LogIn,
-  Clock
+  Clock,
+  Briefcase
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
