@@ -613,6 +613,88 @@ async function handleGenerateReport(req: Request, ctx: PartnerContext): Promise<
   });
 }
 
+async function handleGetReportPdf(reportId: string, ctx: PartnerContext): Promise<Response> {
+  if (!requireScope(ctx, 'reports') && !requireScope(ctx, 'trips:read') && !requireScope(ctx, 'read')) {
+    return jsonResponse({ error: 'Missing reports / trips:read scope' }, 403);
+  }
+
+  // Fetch report HTML and verify ownership (must belong to a user linked to this partner)
+  const { data: share, error: shareErr } = await admin
+    .from('report_shares')
+    .select('id, user_id, html_content, expires_at')
+    .eq('id', reportId)
+    .maybeSingle();
+
+  if (shareErr || !share) return jsonResponse({ error: 'Report not found' }, 404);
+  if (new Date(share.expires_at) < new Date()) {
+    return jsonResponse({ error: 'Report expired' }, 410);
+  }
+
+  // Security: ensure this report's user is linked to the calling partner
+  const { data: link } = await admin
+    .from('partner_users')
+    .select('id')
+    .eq('partner_id', ctx.partnerId)
+    .eq('iktracker_user_id', share.user_id)
+    .maybeSingle();
+  if (!link) return jsonResponse({ error: 'Report does not belong to this partner' }, 403);
+
+  const browserlessKey = Deno.env.get('BROWSERLESS_API_KEY');
+  if (!browserlessKey) {
+    return jsonResponse({
+      error: 'PDF rendering not configured. BROWSERLESS_API_KEY missing.',
+    }, 503);
+  }
+
+  // Call Browserless to render HTML -> PDF
+  // Docs: https://docs.browserless.io/HTTP-APIs/pdf
+  try {
+    const response = await fetch(
+      `https://production-sfo.browserless.io/pdf?token=${encodeURIComponent(browserlessKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html: share.html_content,
+          options: {
+            format: 'A4',
+            landscape: true,
+            printBackground: true,
+            margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+          },
+          gotoOptions: { waitUntil: 'networkidle0' },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      console.error('Browserless error', response.status, errText);
+      return jsonResponse({
+        error: `PDF generation failed (${response.status})`,
+        details: errText.slice(0, 500),
+      }, 502);
+    }
+
+    const pdfBuffer = await response.arrayBuffer();
+    const filename = `releve-ik-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    return new Response(pdfBuffer, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Length': String(pdfBuffer.byteLength),
+        'Cache-Control': 'private, max-age=300',
+      },
+    });
+  } catch (e) {
+    console.error('PDF render exception', e);
+    return jsonResponse({ error: `PDF render error: ${(e as Error).message}` }, 500);
+  }
+}
+
 async function handleSendReportEmail(req: Request, ctx: PartnerContext): Promise<Response> {
   if (!requireScope(ctx, 'reports') && !requireScope(ctx, 'trips:read') && !requireScope(ctx, 'read')) {
     return jsonResponse({ error: 'Missing reports / trips:read scope' }, 403);
@@ -805,6 +887,9 @@ serve(async (req) => {
       res = await handleGenerateReport(req, ctx);
     } else if (route === '/reports/send-email' && req.method === 'POST') {
       res = await handleSendReportEmail(req, ctx);
+    } else if (req.method === 'GET' && /^\/reports\/[^/]+\/pdf$/.test(route)) {
+      const reportId = route.split('/')[2];
+      res = await handleGetReportPdf(reportId, ctx);
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);
     }
