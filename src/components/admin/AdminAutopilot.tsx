@@ -30,6 +30,7 @@ import {
   Database,
   FileCode,
   Download,
+  Filter,
 } from 'lucide-react';
 import { AutopilotCounters } from './AutopilotCounters';
 
