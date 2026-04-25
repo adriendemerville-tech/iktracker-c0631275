@@ -1141,16 +1141,20 @@ export function AdminAutopilot() {
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
                 </div>
-              ) : events.length === 0 ? (
+              ) : filteredEvents.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-emerald-500 opacity-50" />
                   <p className="font-medium">Aucun événement détecté</p>
-                  <p className="text-xs mt-1">Tout fonctionne normalement 🎉</p>
+                  <p className="text-xs mt-1">
+                    {apiKeyFilter !== 'all'
+                      ? `Aucun événement pour la clé "${apiKeyFilter}"`
+                      : 'Tout fonctionne normalement 🎉'}
+                  </p>
                 </div>
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-2 pr-2">
-                    {events.map(evt => {
+                    {filteredEvents.map(evt => {
                       const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG['info'];
                       const SevIcon = sev.icon;
                       const linkedLog = evt.audit_log_id ? auditLogs.find(l => l.id === evt.audit_log_id) : null;
