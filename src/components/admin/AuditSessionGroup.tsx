@@ -80,10 +80,12 @@ const ACTION_COLORS: Record<string, string> = {
 export function AuditSessionGroup({
   session,
   defaultOpen,
+  onOpenDetails,
   children,
 }: {
   session: AuditSession;
   defaultOpen?: boolean;
+  onOpenDetails?: (session: AuditSession) => void;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen ?? false);
