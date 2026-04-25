@@ -1077,7 +1077,7 @@ export function AdminAutopilot() {
                   <FileText className="w-4 h-4" />
                   Changements
                   <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] text-[10px]">
-                    {auditLogs.length}
+                    {filteredAuditLogs.length}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="events" className="gap-2">
