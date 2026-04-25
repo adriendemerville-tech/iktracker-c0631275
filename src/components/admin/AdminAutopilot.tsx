@@ -1064,10 +1064,10 @@ export function AdminAutopilot() {
         </CardHeader>
         <CardContent>
           {/* Crawlers activity counters */}
-          <AutopilotCounters auditLogs={auditLogs} />
+          <AutopilotCounters auditLogs={filteredAuditLogs} />
 
           {/* Health dashboard */}
-          <HealthDashboard events={events} />
+          <HealthDashboard events={filteredEvents} />
 
           {/* Tabs */}
           <Tabs value={tab} onValueChange={(v) => setTab(v as 'timeline' | 'events')} className="mt-4">
