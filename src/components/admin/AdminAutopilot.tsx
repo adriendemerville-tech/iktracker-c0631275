@@ -1139,15 +1139,31 @@ export function AdminAutopilot() {
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-3 pr-2">
-                    {filteredAuditLogs.map(log => (
-                      <AuditCard
-                        key={log.id}
-                        log={log}
-                        events={filteredEvents}
-                        onRevert={(id) => revertMutation.mutate(id)}
-                        onResolveEvent={(id) => resolveEventMutation.mutate(id)}
-                      />
-                    ))}
+                    {groupBySession ? (
+                      buildAuditSessions(filteredAuditLogs).map((session, idx) => (
+                        <AuditSessionGroup key={session.key} session={session} defaultOpen={idx === 0}>
+                          {session.logs.map(log => (
+                            <AuditCard
+                              key={log.id}
+                              log={log}
+                              events={filteredEvents}
+                              onRevert={(id) => revertMutation.mutate(id)}
+                              onResolveEvent={(id) => resolveEventMutation.mutate(id)}
+                            />
+                          ))}
+                        </AuditSessionGroup>
+                      ))
+                    ) : (
+                      filteredAuditLogs.map(log => (
+                        <AuditCard
+                          key={log.id}
+                          log={log}
+                          events={filteredEvents}
+                          onRevert={(id) => revertMutation.mutate(id)}
+                          onResolveEvent={(id) => resolveEventMutation.mutate(id)}
+                        />
+                      ))
+                    )}
                   </div>
                 </ScrollArea>
               )}
