@@ -877,6 +877,7 @@ export function AdminAutopilot() {
     if (typeof window === 'undefined') return true;
     return localStorage.getItem('autopilot:groupBySession') !== 'false';
   });
+  const [detailSession, setDetailSession] = useState<AuditSession | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
