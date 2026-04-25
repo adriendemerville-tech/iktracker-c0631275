@@ -1005,6 +1005,23 @@ export function AdminAutopilot() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              {apiKeyOptions.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                  <select
+                    value={apiKeyFilter}
+                    onChange={(e) => setApiKeyFilter(e.target.value)}
+                    className="h-8 rounded-md border border-input bg-background px-2 text-xs max-w-[160px]"
+                    title="Filtrer par clé API"
+                  >
+                    <option value="all">Toutes les clés</option>
+                    {apiKeyOptions.map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                    <option value="__none__">Sans clé</option>
+                  </select>
+                </div>
+              )}
               <select
                 value={reportPeriod}
                 onChange={(e) => setReportPeriod(e.target.value as ReportPeriod)}
