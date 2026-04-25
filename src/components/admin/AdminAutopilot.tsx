@@ -35,6 +35,7 @@ import {
 import { AutopilotCounters } from './AutopilotCounters';
 import { AuditSessionGroup, buildAuditSessions, type AuditSession } from './AuditSessionGroup';
 import { SessionDetailSheet } from './SessionDetailSheet';
+import { auditLogsToCsv, eventsToCsv, downloadCsv } from '@/lib/autopilot-export';
 
 // Types
 interface AuditLog {
@@ -1091,6 +1092,23 @@ export function AdminAutopilot() {
                 <option value="7d">7 jours</option>
                 <option value="30d">30 jours</option>
               </select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const stamp = format(new Date(), 'yyyy-MM-dd_HHmm');
+                  const csv = tab === 'events'
+                    ? eventsToCsv(filteredEvents)
+                    : auditLogsToCsv(filteredAuditLogs);
+                  const base = tab === 'events' ? 'autopilot-events' : 'autopilot-audit';
+                  downloadCsv(`${base}_${stamp}.csv`, csv);
+                  toast({ title: 'Export CSV téléchargé' });
+                }}
+                title="Exporter la vue courante en CSV"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                CSV
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

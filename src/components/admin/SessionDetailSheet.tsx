@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, formatDistanceStrict } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Clock, Layers, FileText, Globe, Code2, Settings, ArrowRight, Zap, AlertTriangle, XCircle, Info, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Clock, Layers, FileText, Globe, Code2, Settings, ArrowRight, Zap, AlertTriangle, XCircle, Info, CheckCircle2, RotateCcw, Download } from 'lucide-react';
 import type { AuditSession } from './AuditSessionGroup';
+import { auditLogsToCsv, downloadCsv } from '@/lib/autopilot-export';
 
 interface AuditLog {
   id: string;
@@ -96,18 +98,36 @@ export function SessionDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-hidden flex flex-col p-0">
         <SheetHeader className="px-6 pt-6 pb-4 border-b">
-          <SheetTitle className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-primary" />
-            Session {session.api_key_name ?? 'sans clé'}
-          </SheetTitle>
-          <SheetDescription className="flex items-center gap-2 text-xs">
-            <Clock className="w-3 h-3" />
-            {format(new Date(session.startedAt), 'dd MMM yyyy HH:mm', { locale: fr })}
-            {' → '}
-            {format(new Date(session.endedAt), 'HH:mm', { locale: fr })}
-            <span>·</span>
-            <span>{stats.duration}</span>
-          </SheetDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SheetTitle className="flex items-center gap-2">
+                <Layers className="w-5 h-5 text-primary" />
+                Session {session.api_key_name ?? 'sans clé'}
+              </SheetTitle>
+              <SheetDescription className="flex items-center gap-2 text-xs flex-wrap">
+                <Clock className="w-3 h-3" />
+                {format(new Date(session.startedAt), 'dd MMM yyyy HH:mm', { locale: fr })}
+                {' → '}
+                {format(new Date(session.endedAt), 'HH:mm', { locale: fr })}
+                <span>·</span>
+                <span>{stats.duration}</span>
+              </SheetDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 h-8"
+              onClick={() => {
+                const stamp = format(new Date(session.startedAt), 'yyyy-MM-dd_HHmm');
+                const key = (session.api_key_name ?? 'no-key').replace(/[^a-z0-9_-]/gi, '_');
+                downloadCsv(`session_${key}_${stamp}.csv`, auditLogsToCsv(session.logs));
+              }}
+              title="Exporter cette session en CSV"
+            >
+              <Download className="w-3.5 h-3.5 mr-1.5" />
+              CSV
+            </Button>
+          </div>
         </SheetHeader>
 
         <ScrollArea className="flex-1 px-6 py-4">
