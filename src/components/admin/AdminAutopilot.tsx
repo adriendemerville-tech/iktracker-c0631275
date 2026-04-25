@@ -872,12 +872,20 @@ export function AdminAutopilot() {
     if (typeof window === 'undefined') return 'all';
     return localStorage.getItem('autopilot:apiKeyFilter') || 'all';
   });
+  const [groupBySession, setGroupBySession] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem('autopilot:groupBySession') !== 'false';
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     localStorage.setItem('autopilot:apiKeyFilter', apiKeyFilter);
   }, [apiKeyFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('autopilot:groupBySession', String(groupBySession));
+  }, [groupBySession]);
 
   // Fetch audit logs (changes by Crawlers)
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
