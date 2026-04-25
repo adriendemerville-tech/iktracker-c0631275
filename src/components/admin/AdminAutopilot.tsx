@@ -961,7 +961,33 @@ export function AdminAutopilot() {
     },
   });
 
-  const activeEventsCount = events.filter(e => !e.resolved).length;
+  // Distinct API key names for filter dropdown
+  const apiKeyOptions = useMemo(() => {
+    const set = new Set<string>();
+    auditLogs.forEach(l => { if (l.api_key_name) set.add(l.api_key_name); });
+    return Array.from(set).sort();
+  }, [auditLogs]);
+
+  // Apply filter
+  const filteredAuditLogs = useMemo(() => {
+    if (apiKeyFilter === 'all') return auditLogs;
+    if (apiKeyFilter === '__none__') return auditLogs.filter(l => !l.api_key_name);
+    return auditLogs.filter(l => l.api_key_name === apiKeyFilter);
+  }, [auditLogs, apiKeyFilter]);
+
+  const filteredEvents = useMemo(() => {
+    if (apiKeyFilter === 'all') return events;
+    const allowedLogIds = new Set(filteredAuditLogs.map(l => l.id));
+    return events.filter(e => {
+      // Keep events linked to a filtered log, or events with matching api_key in details
+      if (e.audit_log_id && allowedLogIds.has(e.audit_log_id)) return true;
+      const detailKey = (e.details as Record<string, unknown> | null)?.api_key;
+      if (apiKeyFilter === '__none__') return !detailKey;
+      return detailKey === apiKeyFilter;
+    });
+  }, [events, filteredAuditLogs, apiKeyFilter]);
+
+  const activeEventsCount = filteredEvents.filter(e => !e.resolved).length;
 
   return (
     <div className="space-y-4">
