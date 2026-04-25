@@ -546,6 +546,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 - **Pages critiques surveillées** : `/`, `/tarifs`, `index`, `tarifs`, `home`.
 - **Filtre UI par `api_key_name`** (P2) : dropdown dans `AdminAutopilot` pour isoler l'activité d'une clé spécifique (ex. Parménion vs autre crawler). S'applique aux audit logs, événements, compteurs et health dashboard. Préférence persistée dans `localStorage` (`autopilot:apiKeyFilter`).
 - **Groupement par session** (P2) : composant `AuditSessionGroup` (`src/components/admin/AuditSessionGroup.tsx`). Regroupe les `api_audit_logs` consécutifs partageant la même `api_key_name` avec un écart < 5 minutes. En-tête de session affiche : début → fin, durée, nb d'actions, répartition par action (create/update/delete) et par resource_type. Collapse/expand par session, première session ouverte par défaut. Toggle UI "Grouper par session" persisté dans `localStorage` (`autopilot:groupBySession`).
+- **Vue détaillée de session** (P2) : composant `SessionDetailSheet` (`src/components/admin/SessionDetailSheet.tsx`). Bouton "Détails" sur chaque en-tête de session ouvre un Sheet latéral avec : 4 KPIs (actions / ressources / événements / annulés), répartition par action et par type de ressource, liste complète des événements liés (warning/critical), chronologie verticale des actions avec écarts temporels (gaps > 30s annotés), et footer de synthèse (anomalies critiques / warnings / OK).
 
 ### Secrets configurés (16)
 

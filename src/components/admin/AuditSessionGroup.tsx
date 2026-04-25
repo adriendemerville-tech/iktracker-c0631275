@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, Clock, Layers } from 'lucide-react';
+import { ChevronDown, ChevronRight, Clock, Layers, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -80,10 +80,12 @@ const ACTION_COLORS: Record<string, string> = {
 export function AuditSessionGroup({
   session,
   defaultOpen,
+  onOpenDetails,
   children,
 }: {
   session: AuditSession;
   defaultOpen?: boolean;
+  onOpenDetails?: (session: AuditSession) => void;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen ?? false);
@@ -94,52 +96,66 @@ export function AuditSessionGroup({
 
   return (
     <div className="rounded-lg border bg-card overflow-hidden">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-3 py-2 hover:bg-muted/50 transition-colors text-left"
-      >
-        {open ? (
-          <ChevronDown className="w-4 h-4 shrink-0 text-muted-foreground" />
-        ) : (
-          <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground" />
-        )}
-        <Layers className="w-4 h-4 shrink-0 text-primary" />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold">
-              Session {session.api_key_name ?? 'sans clé'}
-            </span>
-            <Badge variant="secondary" className="text-[10px]">
-              {session.logs.length} action{session.logs.length > 1 ? 's' : ''}
-            </Badge>
-            {Object.entries(session.byAction).map(([action, count]) => (
-              <Badge
-                key={action}
-                variant="outline"
-                className={`text-[10px] ${ACTION_COLORS[action] || ''}`}
-              >
-                {action} ×{count}
+      <div className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/50 transition-colors">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="flex items-center gap-3 flex-1 min-w-0 text-left"
+        >
+          {open ? (
+            <ChevronDown className="w-4 h-4 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground" />
+          )}
+          <Layers className="w-4 h-4 shrink-0 text-primary" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-semibold">
+                Session {session.api_key_name ?? 'sans clé'}
+              </span>
+              <Badge variant="secondary" className="text-[10px]">
+                {session.logs.length} action{session.logs.length > 1 ? 's' : ''}
               </Badge>
-            ))}
+              {Object.entries(session.byAction).map(([action, count]) => (
+                <Badge
+                  key={action}
+                  variant="outline"
+                  className={`text-[10px] ${ACTION_COLORS[action] || ''}`}
+                >
+                  {action} ×{count}
+                </Badge>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              <span>
+                {format(new Date(session.startedAt), 'dd MMM HH:mm', { locale: fr })}
+                {' → '}
+                {format(new Date(session.endedAt), 'HH:mm', { locale: fr })}
+              </span>
+              <span>•</span>
+              <span>{durationMin} min</span>
+              <span>•</span>
+              <span>
+                {Object.entries(session.byResource)
+                  .map(([r, c]) => `${r}:${c}`)
+                  .join(', ')}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            <span>
-              {format(new Date(session.startedAt), 'dd MMM HH:mm', { locale: fr })}
-              {' → '}
-              {format(new Date(session.endedAt), 'HH:mm', { locale: fr })}
-            </span>
-            <span>•</span>
-            <span>{durationMin} min</span>
-            <span>•</span>
-            <span>
-              {Object.entries(session.byResource)
-                .map(([r, c]) => `${r}:${c}`)
-                .join(', ')}
-            </span>
-          </div>
-        </div>
-      </button>
+        </button>
+        {onOpenDetails && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0 h-7 px-2 text-xs"
+            onClick={(e) => { e.stopPropagation(); onOpenDetails(session); }}
+            title="Vue détaillée de la session"
+          >
+            <Eye className="w-3.5 h-3.5 mr-1" />
+            Détails
+          </Button>
+        )}
+      </div>
       {open && (
         <div className="px-3 pb-3 pt-1 space-y-3 border-t bg-muted/20">
           {children}

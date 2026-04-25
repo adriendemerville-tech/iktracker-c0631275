@@ -33,7 +33,8 @@ import {
   Filter,
 } from 'lucide-react';
 import { AutopilotCounters } from './AutopilotCounters';
-import { AuditSessionGroup, buildAuditSessions } from './AuditSessionGroup';
+import { AuditSessionGroup, buildAuditSessions, type AuditSession } from './AuditSessionGroup';
+import { SessionDetailSheet } from './SessionDetailSheet';
 
 // Types
 interface AuditLog {
@@ -876,6 +877,7 @@ export function AdminAutopilot() {
     if (typeof window === 'undefined') return true;
     return localStorage.getItem('autopilot:groupBySession') !== 'false';
   });
+  const [detailSession, setDetailSession] = useState<AuditSession | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -1141,7 +1143,12 @@ export function AdminAutopilot() {
                   <div className="space-y-3 pr-2">
                     {groupBySession ? (
                       buildAuditSessions(filteredAuditLogs).map((session, idx) => (
-                        <AuditSessionGroup key={session.key} session={session} defaultOpen={idx === 0}>
+                        <AuditSessionGroup
+                          key={session.key}
+                          session={session}
+                          defaultOpen={idx === 0}
+                          onOpenDetails={(s) => setDetailSession(s)}
+                        >
                           {session.logs.map(log => (
                             <AuditCard
                               key={log.id}
@@ -1212,6 +1219,14 @@ export function AdminAutopilot() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Session detail sheet (Task 6) */}
+      <SessionDetailSheet
+        session={detailSession}
+        events={events}
+        open={!!detailSession}
+        onOpenChange={(o) => { if (!o) setDetailSession(null); }}
+      />
     </div>
   );
 }
