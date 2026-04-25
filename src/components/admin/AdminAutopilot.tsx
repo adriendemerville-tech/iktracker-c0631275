@@ -1108,20 +1108,24 @@ export function AdminAutopilot() {
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
                 </div>
-              ) : auditLogs.length === 0 ? (
+              ) : filteredAuditLogs.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
                   <p className="font-medium">Aucune modification Autopilot</p>
-                  <p className="text-xs mt-1">Les changements effectués par Crawlers apparaîtront ici</p>
+                  <p className="text-xs mt-1">
+                    {apiKeyFilter !== 'all'
+                      ? `Aucun changement pour la clé "${apiKeyFilter}"`
+                      : "Les changements effectués par Crawlers apparaîtront ici"}
+                  </p>
                 </div>
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-3 pr-2">
-                    {auditLogs.map(log => (
+                    {filteredAuditLogs.map(log => (
                       <AuditCard
                         key={log.id}
                         log={log}
-                        events={events}
+                        events={filteredEvents}
                         onRevert={(id) => revertMutation.mutate(id)}
                         onResolveEvent={(id) => resolveEventMutation.mutate(id)}
                       />
