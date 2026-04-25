@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, formatDistanceStrict } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Clock, Layers, FileText, Globe, Code2, Settings, ArrowRight, Zap, AlertTriangle, XCircle, Info, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Clock, Layers, FileText, Globe, Code2, Settings, ArrowRight, Zap, AlertTriangle, XCircle, Info, CheckCircle2, RotateCcw, Download } from 'lucide-react';
 import type { AuditSession } from './AuditSessionGroup';
+import { auditLogsToCsv, downloadCsv } from '@/lib/autopilot-export';
 
 interface AuditLog {
   id: string;
