@@ -1049,6 +1049,22 @@ export function AdminAutopilot() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={`text-[10px] gap-1 ${realtimeConnected ? 'border-emerald-500/40 text-emerald-700 bg-emerald-500/10' : 'border-muted text-muted-foreground'}`}
+                title={
+                  lastRealtimeEvent
+                    ? `Dernier événement reçu : ${lastRealtimeEvent.toLocaleTimeString('fr-FR')}`
+                    : realtimeConnected
+                    ? 'Connecté en temps réel, en attente d\'activité'
+                    : 'Realtime déconnecté — fallback polling 5 min'
+                }
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${realtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`}
+                />
+                {realtimeConnected ? 'Live' : 'Polling'}
+              </Badge>
               {apiKeyOptions.length > 0 && (
                 <div className="flex items-center gap-1">
                   <Filter className="w-3.5 h-3.5 text-muted-foreground" />
