@@ -780,13 +780,36 @@ Deno.serve(async (req) => {
     if (!isWebhookAuth) {
       if (!apiKey) return errorResp('API key or Bearer token required', 401)
       const { data: keyData, error: keyError } = await supabase
-        .from('blog_api_keys').select('id, name').eq('api_key', apiKey).eq('is_active', true).single()
+        .from('blog_api_keys')
+        .select('id, name, monthly_quota, usage_current_month, usage_reset_at')
+        .eq('api_key', apiKey).eq('is_active', true).single()
       if (keyError || !keyData) return errorResp('Invalid API key', 401)
       apiKeyName = keyData.name
-      await supabase.from('blog_api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', keyData.id)
+
+      // ==================== MONTHLY QUOTA CHECK ====================
+      const isWriteOp = req.method !== 'GET' && req.method !== 'OPTIONS'
+      if (isWriteOp) {
+        const resetDue = new Date(keyData.usage_reset_at).getTime() <= Date.now()
+        const currentUsage = resetDue ? 0 : (keyData.usage_current_month ?? 0)
+        if (currentUsage >= (keyData.monthly_quota ?? 10000)) {
+          // Log critical event
+          await supabase.from('autopilot_events').insert({
+            event_type: 'quota_exceeded',
+            severity: 'critical',
+            message: `🚫 Quota mensuel dépassé pour la clé "${apiKeyName}" (${currentUsage}/${keyData.monthly_quota})`,
+            details: { api_key: apiKeyName, usage: currentUsage, quota: keyData.monthly_quota },
+          })
+          await logAccess(supabase, req.method, url.pathname, apiKeyName, 429, startTime)
+          return errorResp(`Monthly quota exceeded (${keyData.monthly_quota} write requests/month)`, 429)
+        }
+        // Increment usage atomically
+        await supabase.rpc('increment_blog_api_usage', { _api_key_name: apiKeyName })
+      } else {
+        await supabase.from('blog_api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', keyData.id)
+      }
     }
 
-    // ==================== RATE LIMIT ====================
+    // ==================== RATE LIMIT (in-memory burst) ====================
     if (apiKeyName && !checkRateLimit(apiKeyName)) {
       const resp = errorResp('Rate limit exceeded (100 req/min)', 429)
       await logAccess(supabase, req.method, url.pathname, apiKeyName, 429, startTime)

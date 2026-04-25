@@ -242,7 +242,10 @@ export type Database = {
           id: string
           is_active: boolean
           last_used_at: string | null
+          monthly_quota: number
           name: string
+          usage_current_month: number
+          usage_reset_at: string
         }
         Insert: {
           api_key: string
@@ -251,7 +254,10 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_used_at?: string | null
+          monthly_quota?: number
           name: string
+          usage_current_month?: number
+          usage_reset_at?: string
         }
         Update: {
           api_key?: string
@@ -260,7 +266,10 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_used_at?: string | null
+          monthly_quota?: number
           name?: string
+          usage_current_month?: number
+          usage_reset_at?: string
         }
         Relationships: []
       }
@@ -1733,6 +1742,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_blog_api_usage: {
+        Args: { _api_key_name: string }
+        Returns: undefined
       }
       increment_partner_usage: {
         Args: { _partner_id: string }
