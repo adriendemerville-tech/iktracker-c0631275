@@ -889,7 +889,11 @@ export function AdminAutopilot() {
     localStorage.setItem('autopilot:groupBySession', String(groupBySession));
   }, [groupBySession]);
 
-  // Fetch audit logs (changes by Crawlers)
+  // Realtime indicator
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const [lastRealtimeEvent, setLastRealtimeEvent] = useState<Date | null>(null);
+
+  // Fetch audit logs (changes by Crawlers) — fallback polling 5min, realtime drives updates
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
     queryKey: ['autopilot-audit-logs', showReverted],
     queryFn: async () => {
@@ -907,7 +911,7 @@ export function AdminAutopilot() {
       if (error) throw error;
       return (data || []) as AuditLog[];
     },
-    refetchInterval: 30_000,
+    refetchInterval: 5 * 60_000,
   });
 
   // Fetch autopilot events
@@ -922,8 +926,37 @@ export function AdminAutopilot() {
       if (error) throw error;
       return (data || []) as AutopilotEvent[];
     },
-    refetchInterval: 30_000,
+    refetchInterval: 5 * 60_000,
   });
+
+  // Realtime subscriptions
+  useEffect(() => {
+    const channel = supabase
+      .channel('autopilot-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'api_audit_logs' },
+        () => {
+          setLastRealtimeEvent(new Date());
+          queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'autopilot_events' },
+        () => {
+          setLastRealtimeEvent(new Date());
+          queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
+        },
+      )
+      .subscribe((status) => {
+        setRealtimeConnected(status === 'SUBSCRIBED');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Revert mutation
   const revertMutation = useMutation({
@@ -1016,6 +1049,22 @@ export function AdminAutopilot() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={`text-[10px] gap-1 ${realtimeConnected ? 'border-emerald-500/40 text-emerald-700 bg-emerald-500/10' : 'border-muted text-muted-foreground'}`}
+                title={
+                  lastRealtimeEvent
+                    ? `Dernier événement reçu : ${lastRealtimeEvent.toLocaleTimeString('fr-FR')}`
+                    : realtimeConnected
+                    ? 'Connecté en temps réel, en attente d\'activité'
+                    : 'Realtime déconnecté — fallback polling 5 min'
+                }
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${realtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`}
+                />
+                {realtimeConnected ? 'Live' : 'Polling'}
+              </Badge>
               {apiKeyOptions.length > 0 && (
                 <div className="flex items-center gap-1">
                   <Filter className="w-3.5 h-3.5 text-muted-foreground" />
