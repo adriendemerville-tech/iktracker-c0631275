@@ -1143,7 +1143,12 @@ export function AdminAutopilot() {
                   <div className="space-y-3 pr-2">
                     {groupBySession ? (
                       buildAuditSessions(filteredAuditLogs).map((session, idx) => (
-                        <AuditSessionGroup key={session.key} session={session} defaultOpen={idx === 0}>
+                        <AuditSessionGroup
+                          key={session.key}
+                          session={session}
+                          defaultOpen={idx === 0}
+                          onOpenDetails={(s) => setDetailSession(s)}
+                        >
                           {session.logs.map(log => (
                             <AuditCard
                               key={log.id}
