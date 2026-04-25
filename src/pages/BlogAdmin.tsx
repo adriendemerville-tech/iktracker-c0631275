@@ -996,6 +996,33 @@ export default function BlogAdmin() {
                                 </span>
                               )}
                             </div>
+                            {/* Quota mensuel */}
+                            <div className="mt-2 space-y-1">
+                              {(() => {
+                                const usage = key.usage_current_month ?? 0;
+                                const quota = key.monthly_quota ?? 10000;
+                                const pct = Math.min(100, Math.round((usage / quota) * 100));
+                                const colorClass = pct >= 90 ? 'bg-destructive' : pct >= 70 ? 'bg-orange-500' : 'bg-primary';
+                                return (
+                                  <>
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span className="text-muted-foreground">
+                                        Quota mensuel : <strong className="text-foreground">{usage.toLocaleString()}</strong> / {quota.toLocaleString()} écritures
+                                      </span>
+                                      <span className="text-muted-foreground">
+                                        Reset : {format(new Date(key.usage_reset_at), 'dd MMM', { locale: fr })}
+                                      </span>
+                                    </div>
+                                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                      <div
+                                        className={`h-full ${colorClass} transition-all`}
+                                        style={{ width: `${pct}%` }}
+                                      />
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button
