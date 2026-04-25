@@ -889,7 +889,11 @@ export function AdminAutopilot() {
     localStorage.setItem('autopilot:groupBySession', String(groupBySession));
   }, [groupBySession]);
 
-  // Fetch audit logs (changes by Crawlers)
+  // Realtime indicator
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const [lastRealtimeEvent, setLastRealtimeEvent] = useState<Date | null>(null);
+
+  // Fetch audit logs (changes by Crawlers) — fallback polling 5min, realtime drives updates
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
     queryKey: ['autopilot-audit-logs', showReverted],
     queryFn: async () => {
@@ -907,7 +911,7 @@ export function AdminAutopilot() {
       if (error) throw error;
       return (data || []) as AuditLog[];
     },
-    refetchInterval: 30_000,
+    refetchInterval: 5 * 60_000,
   });
 
   // Fetch autopilot events
@@ -922,8 +926,37 @@ export function AdminAutopilot() {
       if (error) throw error;
       return (data || []) as AutopilotEvent[];
     },
-    refetchInterval: 30_000,
+    refetchInterval: 5 * 60_000,
   });
+
+  // Realtime subscriptions
+  useEffect(() => {
+    const channel = supabase
+      .channel('autopilot-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'api_audit_logs' },
+        () => {
+          setLastRealtimeEvent(new Date());
+          queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'autopilot_events' },
+        () => {
+          setLastRealtimeEvent(new Date());
+          queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
+        },
+      )
+      .subscribe((status) => {
+        setRealtimeConnected(status === 'SUBSCRIBED');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Revert mutation
   const revertMutation = useMutation({
