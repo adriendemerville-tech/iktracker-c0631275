@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,6 +30,7 @@ import {
   Database,
   FileCode,
   Download,
+  Filter,
 } from 'lucide-react';
 import { AutopilotCounters } from './AutopilotCounters';
 
@@ -866,8 +867,16 @@ export function AdminAutopilot() {
   const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
   const [showReverted, setShowReverted] = useState(false);
   const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('1d');
+  const [apiKeyFilter, setApiKeyFilter] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'all';
+    return localStorage.getItem('autopilot:apiKeyFilter') || 'all';
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    localStorage.setItem('autopilot:apiKeyFilter', apiKeyFilter);
+  }, [apiKeyFilter]);
 
   // Fetch audit logs (changes by Crawlers)
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
@@ -952,7 +961,33 @@ export function AdminAutopilot() {
     },
   });
 
-  const activeEventsCount = events.filter(e => !e.resolved).length;
+  // Distinct API key names for filter dropdown
+  const apiKeyOptions = useMemo(() => {
+    const set = new Set<string>();
+    auditLogs.forEach(l => { if (l.api_key_name) set.add(l.api_key_name); });
+    return Array.from(set).sort();
+  }, [auditLogs]);
+
+  // Apply filter
+  const filteredAuditLogs = useMemo(() => {
+    if (apiKeyFilter === 'all') return auditLogs;
+    if (apiKeyFilter === '__none__') return auditLogs.filter(l => !l.api_key_name);
+    return auditLogs.filter(l => l.api_key_name === apiKeyFilter);
+  }, [auditLogs, apiKeyFilter]);
+
+  const filteredEvents = useMemo(() => {
+    if (apiKeyFilter === 'all') return events;
+    const allowedLogIds = new Set(filteredAuditLogs.map(l => l.id));
+    return events.filter(e => {
+      // Keep events linked to a filtered log, or events with matching api_key in details
+      if (e.audit_log_id && allowedLogIds.has(e.audit_log_id)) return true;
+      const detailKey = (e.details as Record<string, unknown> | null)?.api_key;
+      if (apiKeyFilter === '__none__') return !detailKey;
+      return detailKey === apiKeyFilter;
+    });
+  }, [events, filteredAuditLogs, apiKeyFilter]);
+
+  const activeEventsCount = filteredEvents.filter(e => !e.resolved).length;
 
   return (
     <div className="space-y-4">
@@ -970,6 +1005,23 @@ export function AdminAutopilot() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              {apiKeyOptions.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                  <select
+                    value={apiKeyFilter}
+                    onChange={(e) => setApiKeyFilter(e.target.value)}
+                    className="h-8 rounded-md border border-input bg-background px-2 text-xs max-w-[160px]"
+                    title="Filtrer par clé API"
+                  >
+                    <option value="all">Toutes les clés</option>
+                    {apiKeyOptions.map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                    <option value="__none__">Sans clé</option>
+                  </select>
+                </div>
+              )}
               <select
                 value={reportPeriod}
                 onChange={(e) => setReportPeriod(e.target.value as ReportPeriod)}
@@ -983,7 +1035,7 @@ export function AdminAutopilot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const html = generateReportHTML(auditLogs, events, reportPeriod);
+                  const html = generateReportHTML(filteredAuditLogs, filteredEvents, reportPeriod);
                   const w = window.open('', '_blank');
                   if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
                   w.document.open();
@@ -1012,10 +1064,10 @@ export function AdminAutopilot() {
         </CardHeader>
         <CardContent>
           {/* Crawlers activity counters */}
-          <AutopilotCounters auditLogs={auditLogs} />
+          <AutopilotCounters auditLogs={filteredAuditLogs} />
 
           {/* Health dashboard */}
-          <HealthDashboard events={events} />
+          <HealthDashboard events={filteredEvents} />
 
           {/* Tabs */}
           <Tabs value={tab} onValueChange={(v) => setTab(v as 'timeline' | 'events')} className="mt-4">
@@ -1025,7 +1077,7 @@ export function AdminAutopilot() {
                   <FileText className="w-4 h-4" />
                   Changements
                   <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] text-[10px]">
-                    {auditLogs.length}
+                    {filteredAuditLogs.length}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="events" className="gap-2">
@@ -1056,20 +1108,24 @@ export function AdminAutopilot() {
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
                 </div>
-              ) : auditLogs.length === 0 ? (
+              ) : filteredAuditLogs.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
                   <p className="font-medium">Aucune modification Autopilot</p>
-                  <p className="text-xs mt-1">Les changements effectués par Crawlers apparaîtront ici</p>
+                  <p className="text-xs mt-1">
+                    {apiKeyFilter !== 'all'
+                      ? `Aucun changement pour la clé "${apiKeyFilter}"`
+                      : "Les changements effectués par Crawlers apparaîtront ici"}
+                  </p>
                 </div>
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-3 pr-2">
-                    {auditLogs.map(log => (
+                    {filteredAuditLogs.map(log => (
                       <AuditCard
                         key={log.id}
                         log={log}
-                        events={events}
+                        events={filteredEvents}
                         onRevert={(id) => revertMutation.mutate(id)}
                         onResolveEvent={(id) => resolveEventMutation.mutate(id)}
                       />
@@ -1085,16 +1141,20 @@ export function AdminAutopilot() {
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
                 </div>
-              ) : events.length === 0 ? (
+              ) : filteredEvents.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-emerald-500 opacity-50" />
                   <p className="font-medium">Aucun événement détecté</p>
-                  <p className="text-xs mt-1">Tout fonctionne normalement 🎉</p>
+                  <p className="text-xs mt-1">
+                    {apiKeyFilter !== 'all'
+                      ? `Aucun événement pour la clé "${apiKeyFilter}"`
+                      : 'Tout fonctionne normalement 🎉'}
+                  </p>
                 </div>
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-2 pr-2">
-                    {events.map(evt => {
+                    {filteredEvents.map(evt => {
                       const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG['info'];
                       const SevIcon = sev.icon;
                       const linkedLog = evt.audit_log_id ? auditLogs.find(l => l.id === evt.audit_log_id) : null;

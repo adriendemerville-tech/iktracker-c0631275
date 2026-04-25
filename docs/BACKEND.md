@@ -544,6 +544,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 - **Quota mensuel** sur `blog_api_keys` : `monthly_quota` (défaut 10 000 écritures), `usage_current_month`, `usage_reset_at`. Compté uniquement sur les opérations d'écriture (POST/PUT/PATCH/DELETE), incrémenté via `increment_blog_api_usage(_api_key_name)`. Réponse `429` si dépassé + event `quota_exceeded` (severity=critical).
 - **Trigger DB** `trg_detect_autopilot_anomalies` sur `api_audit_logs` (AFTER INSERT) → fonction `detect_autopilot_anomalies()` qui crée automatiquement les events ci-dessus.
 - **Pages critiques surveillées** : `/`, `/tarifs`, `index`, `tarifs`, `home`.
+- **Filtre UI par `api_key_name`** (P2) : dropdown dans `AdminAutopilot` pour isoler l'activité d'une clé spécifique (ex. Parménion vs autre crawler). S'applique aux audit logs, événements, compteurs et health dashboard. Préférence persistée dans `localStorage` (`autopilot:apiKeyFilter`).
 
 ### Secrets configurés (16)
 
