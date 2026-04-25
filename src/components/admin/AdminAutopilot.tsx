@@ -867,8 +867,16 @@ export function AdminAutopilot() {
   const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
   const [showReverted, setShowReverted] = useState(false);
   const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('1d');
+  const [apiKeyFilter, setApiKeyFilter] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'all';
+    return localStorage.getItem('autopilot:apiKeyFilter') || 'all';
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    localStorage.setItem('autopilot:apiKeyFilter', apiKeyFilter);
+  }, [apiKeyFilter]);
 
   // Fetch audit logs (changes by Crawlers)
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
