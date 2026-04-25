@@ -35,6 +35,7 @@ import {
 import { AutopilotCounters } from './AutopilotCounters';
 import { AuditSessionGroup, buildAuditSessions, type AuditSession } from './AuditSessionGroup';
 import { SessionDetailSheet } from './SessionDetailSheet';
+import { auditLogsToCsv, eventsToCsv, downloadCsv } from '@/lib/autopilot-export';
 
 // Types
 interface AuditLog {
