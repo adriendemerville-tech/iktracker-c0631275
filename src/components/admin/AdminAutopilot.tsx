@@ -33,6 +33,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { AutopilotCounters } from './AutopilotCounters';
+import { AuditSessionGroup, buildAuditSessions } from './AuditSessionGroup';
 
 // Types
 interface AuditLog {
@@ -871,12 +872,20 @@ export function AdminAutopilot() {
     if (typeof window === 'undefined') return 'all';
     return localStorage.getItem('autopilot:apiKeyFilter') || 'all';
   });
+  const [groupBySession, setGroupBySession] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem('autopilot:groupBySession') !== 'false';
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     localStorage.setItem('autopilot:apiKeyFilter', apiKeyFilter);
   }, [apiKeyFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('autopilot:groupBySession', String(groupBySession));
+  }, [groupBySession]);
 
   // Fetch audit logs (changes by Crawlers)
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
@@ -1094,6 +1103,15 @@ export function AdminAutopilot() {
               <label className="flex items-center gap-2 text-xs text-muted-foreground ml-auto cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={groupBySession}
+                  onChange={(e) => setGroupBySession(e.target.checked)}
+                  className="rounded"
+                />
+                Grouper par session
+              </label>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={showReverted}
                   onChange={(e) => setShowReverted(e.target.checked)}
                   className="rounded"
@@ -1121,15 +1139,31 @@ export function AdminAutopilot() {
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-3 pr-2">
-                    {filteredAuditLogs.map(log => (
-                      <AuditCard
-                        key={log.id}
-                        log={log}
-                        events={filteredEvents}
-                        onRevert={(id) => revertMutation.mutate(id)}
-                        onResolveEvent={(id) => resolveEventMutation.mutate(id)}
-                      />
-                    ))}
+                    {groupBySession ? (
+                      buildAuditSessions(filteredAuditLogs).map((session, idx) => (
+                        <AuditSessionGroup key={session.key} session={session} defaultOpen={idx === 0}>
+                          {session.logs.map(log => (
+                            <AuditCard
+                              key={log.id}
+                              log={log}
+                              events={filteredEvents}
+                              onRevert={(id) => revertMutation.mutate(id)}
+                              onResolveEvent={(id) => resolveEventMutation.mutate(id)}
+                            />
+                          ))}
+                        </AuditSessionGroup>
+                      ))
+                    ) : (
+                      filteredAuditLogs.map(log => (
+                        <AuditCard
+                          key={log.id}
+                          log={log}
+                          events={filteredEvents}
+                          onRevert={(id) => revertMutation.mutate(id)}
+                          onResolveEvent={(id) => resolveEventMutation.mutate(id)}
+                        />
+                      ))
+                    )}
                   </div>
                 </ScrollArea>
               )}

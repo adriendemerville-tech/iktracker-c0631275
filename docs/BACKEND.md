@@ -545,6 +545,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 - **Trigger DB** `trg_detect_autopilot_anomalies` sur `api_audit_logs` (AFTER INSERT) → fonction `detect_autopilot_anomalies()` qui crée automatiquement les events ci-dessus.
 - **Pages critiques surveillées** : `/`, `/tarifs`, `index`, `tarifs`, `home`.
 - **Filtre UI par `api_key_name`** (P2) : dropdown dans `AdminAutopilot` pour isoler l'activité d'une clé spécifique (ex. Parménion vs autre crawler). S'applique aux audit logs, événements, compteurs et health dashboard. Préférence persistée dans `localStorage` (`autopilot:apiKeyFilter`).
+- **Groupement par session** (P2) : composant `AuditSessionGroup` (`src/components/admin/AuditSessionGroup.tsx`). Regroupe les `api_audit_logs` consécutifs partageant la même `api_key_name` avec un écart < 5 minutes. En-tête de session affiche : début → fin, durée, nb d'actions, répartition par action (create/update/delete) et par resource_type. Collapse/expand par session, première session ouverte par défaut. Toggle UI "Grouper par session" persisté dans `localStorage` (`autopilot:groupBySession`).
 
 ### Secrets configurés (16)
 
