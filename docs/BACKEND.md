@@ -84,7 +84,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | Table | Description | RLS |
 |---|---|---|
 | `blog_posts` | Articles de blog (titre, slug, contenu, statut) | ✅ lecture publique, écriture admin |
-| `blog_api_keys` | Clés API pour le CMS headless | ✅ admin |
+| `blog_api_keys` | Clés API pour le CMS headless (avec quota mensuel : `monthly_quota`, `usage_current_month`, `usage_reset_at`) | ✅ admin |
 | `page_contents` | Contenu dynamique des pages marketing | ✅ lecture publique |
 
 #### Admin & Analytics
