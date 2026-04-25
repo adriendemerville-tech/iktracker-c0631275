@@ -537,7 +537,13 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | `error_logs` | Erreurs applicatives (type, message, source, metadata) |
 | `request_logs` | Requêtes HTTP (path, status, bot, country) |
 | `marketing_analytics` | Événements marketing (page_view, cta_click, signup_click) |
-| `autopilot_events` | Événements de monitoring (severity, resolved) |
+| `autopilot_events` | Événements de monitoring (severity, resolved). Détection automatique d'anomalies via trigger : `anomaly_mass_delete` (>10 deletes/h), `anomaly_burst` (>50 actions/h), `critical_page_modified` (modif sur `/`, `/tarifs`), `quota_exceeded` (quota mensuel atteint). |
+
+### Quota & détection d'anomalies (Autopilot — P1)
+
+- **Quota mensuel** sur `blog_api_keys` : `monthly_quota` (défaut 10 000 écritures), `usage_current_month`, `usage_reset_at`. Compté uniquement sur les opérations d'écriture (POST/PUT/PATCH/DELETE), incrémenté via `increment_blog_api_usage(_api_key_name)`. Réponse `429` si dépassé + event `quota_exceeded` (severity=critical).
+- **Trigger DB** `trg_detect_autopilot_anomalies` sur `api_audit_logs` (AFTER INSERT) → fonction `detect_autopilot_anomalies()` qui crée automatiquement les events ci-dessus.
+- **Pages critiques surveillées** : `/`, `/tarifs`, `index`, `tarifs`, `home`.
 
 ### Secrets configurés (16)
 
