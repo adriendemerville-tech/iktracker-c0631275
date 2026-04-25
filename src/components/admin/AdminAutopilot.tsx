@@ -33,7 +33,8 @@ import {
   Filter,
 } from 'lucide-react';
 import { AutopilotCounters } from './AutopilotCounters';
-import { AuditSessionGroup, buildAuditSessions } from './AuditSessionGroup';
+import { AuditSessionGroup, buildAuditSessions, type AuditSession } from './AuditSessionGroup';
+import { SessionDetailSheet } from './SessionDetailSheet';
 
 // Types
 interface AuditLog {
