@@ -204,6 +204,9 @@ interface ApiKey {
   is_active: boolean;
   last_used_at: string | null;
   created_at: string;
+  monthly_quota: number;
+  usage_current_month: number;
+  usage_reset_at: string;
 }
 
 const generateApiKey = () => {
