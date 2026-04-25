@@ -1103,6 +1103,15 @@ export function AdminAutopilot() {
               <label className="flex items-center gap-2 text-xs text-muted-foreground ml-auto cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={groupBySession}
+                  onChange={(e) => setGroupBySession(e.target.checked)}
+                  className="rounded"
+                />
+                Grouper par session
+              </label>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={showReverted}
                   onChange={(e) => setShowReverted(e.target.checked)}
                   className="rounded"
