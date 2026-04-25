@@ -1219,6 +1219,14 @@ export function AdminAutopilot() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Session detail sheet (Task 6) */}
+      <SessionDetailSheet
+        session={detailSession}
+        events={events}
+        open={!!detailSession}
+        onOpenChange={(o) => { if (!o) setDetailSession(null); }}
+      />
     </div>
   );
 }
