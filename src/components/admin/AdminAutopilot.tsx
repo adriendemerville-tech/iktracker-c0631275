@@ -1096,6 +1096,23 @@ export function AdminAutopilot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  const stamp = format(new Date(), 'yyyy-MM-dd_HHmm');
+                  const csv = tab === 'events'
+                    ? eventsToCsv(filteredEvents)
+                    : auditLogsToCsv(filteredAuditLogs);
+                  const base = tab === 'events' ? 'autopilot-events' : 'autopilot-audit';
+                  downloadCsv(`${base}_${stamp}.csv`, csv);
+                  toast({ title: 'Export CSV téléchargé' });
+                }}
+                title="Exporter la vue courante en CSV"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
                   const html = generateReportHTML(filteredAuditLogs, filteredEvents, reportPeriod);
                   const w = window.open('', '_blank');
                   if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
