@@ -837,7 +837,7 @@ export default function BlogAdmin() {
             <TabsContent value="posts" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">
-                  Articles ({isFiltering ? `${filteredPosts.length}/${posts.length}` : posts.length})
+                  Articles ({isFiltering ? `${filteredPosts.length}/${visiblePosts.length}` : visiblePosts.length})
                 </h2>
                 <Dialog open={postDialogOpen} onOpenChange={(open) => {
                   setPostDialogOpen(open);
