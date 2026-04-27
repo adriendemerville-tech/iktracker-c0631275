@@ -134,7 +134,8 @@ Utilisateur → Cloudflare DNS (proxied)
 
 | Table | Description | RLS |
 |---|---|---|
-| `partner_api_keys` | Clés API partenaires (hash + JWT secret + scopes + quota mensuel) | ✅ admin |
+| `partner_api_keys` | Clés API partenaires (hash + JWT secret + scopes + quota mensuel). **Colonnes sensibles `jwt_secret`/`key_hash` réservées admin** (column-level GRANT). | ✅ admin (full) / viewer (colonnes safe uniquement) |
+| `partner_api_keys_safe` *(vue)* | Projection sans secrets (`jwt_secret`, `key_hash` exclus). À utiliser depuis le frontend pour les viewers. | ✅ authenticated |
 | `partner_users` | Mapping `external_user_id` (partenaire) → `iktracker_user_id` | ✅ admin |
 | `partner_request_logs` | Logs des appels Partner API (path, status, temps, partenaire) | ✅ admin |
 | `partner_webhooks` | Webhooks sortants partenaires (URL, secret HMAC, événements) | ✅ admin |

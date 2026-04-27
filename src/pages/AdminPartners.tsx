@@ -64,7 +64,7 @@ export default function AdminPartners() {
   const load = async () => {
     setLoading(true);
     const [{ data: p }, { data: l }] = await Promise.all([
-      supabase.from('partner_api_keys').select('*').order('created_at', { ascending: false }),
+      supabase.from('partner_api_keys_safe').select('*').order('created_at', { ascending: false }),
       supabase.from('partner_request_logs').select('*').order('created_at', { ascending: false }).limit(50),
     ]);
     setPartners((p as Partner[]) || []);

@@ -65,7 +65,7 @@ export function AdminApiPartners() {
     queryKey: ['admin-api-partners-list'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('partner_api_keys')
+        .from('partner_api_keys_safe')
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
