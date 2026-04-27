@@ -18,7 +18,8 @@ import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import {
   Plus, Trash2, Edit, BarChart3, Eye, Send, Copy,
   Star, MessageSquare, Camera, Share2, ListChecks,
-  ChevronDown, ChevronUp, Loader2, ArrowLeft
+  ChevronDown, ChevronUp, Loader2, ArrowLeft,
+  Pause, Play, User as UserIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
