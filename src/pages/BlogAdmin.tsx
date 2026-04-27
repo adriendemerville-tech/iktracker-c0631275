@@ -16,6 +16,7 @@ import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
 import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
 import { BlogBlacklistManager } from '@/components/admin/BlogBlacklistManager';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
   Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search, Ban
