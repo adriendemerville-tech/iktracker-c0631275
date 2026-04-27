@@ -921,6 +921,9 @@ export function AdminSurveys() {
                     {expandedSurveyId === survey.id && (
                       <SurveyResponsesPanel surveyId={survey.id} />
                     )}
+                  </CardContent>
+                </Card>
+              );
             })}
           </div>
         </ScrollArea>
