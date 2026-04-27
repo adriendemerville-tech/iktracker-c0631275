@@ -136,11 +136,11 @@ function TestimonialsCarouselComponent() {
             </div>
           </div>
 
-          {/* Nav arrows */}
+          {/* Nav arrows - 44px touch target (a11y WCAG 2.5.5) */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm h-9 w-9"
+            className="absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm h-11 w-11"
             onClick={prev}
             aria-label="Témoignage précédent"
           >
@@ -149,25 +149,29 @@ function TestimonialsCarouselComponent() {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm h-9 w-9"
+            className="absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm h-11 w-11"
             onClick={next}
             aria-label="Témoignage suivant"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
 
-          {/* Dots */}
+          {/* Dots - visual stays small but tappable area is 44x44 (a11y WCAG 2.5.5) */}
           <div className="flex justify-center gap-1.5 mt-6">
             {Array.from({ length: maxIndex + 1 }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
                 aria-label={`Aller au groupe ${i + 1}`}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
-                  i === current ? "bg-primary w-6" : "bg-muted w-2 hover:bg-muted-foreground/50"
-                )}
-              />
+                className="relative inline-flex items-center justify-center h-11 w-11 -mx-3 group"
+              >
+                <span
+                  className={cn(
+                    "block h-2 rounded-full transition-all duration-300 pointer-events-none",
+                    i === current ? "bg-primary w-6" : "bg-muted w-2 group-hover:bg-muted-foreground/50"
+                  )}
+                />
+              </button>
             ))}
           </div>
         </div>
