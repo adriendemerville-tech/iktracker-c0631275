@@ -658,11 +658,16 @@ export default function BlogAdmin() {
         return <Badge variant="secondary">Brouillon</Badge>;
       case 'archived':
         return <Badge variant="outline">Archivé</Badge>;
+      case 'deleted' as BlogPostStatus:
+        return <Badge variant="destructive">Corbeille</Badge>;
     }
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredPosts = posts.filter((post) => {
+  // Main listing always excludes the trash; deleted posts are managed in the dedicated tab
+  const visiblePosts = posts.filter((p) => (p.status as string) !== 'deleted');
+  const trashedPosts = posts.filter((p) => (p.status as string) === 'deleted');
+  const filteredPosts = visiblePosts.filter((post) => {
     if (statusFilter !== 'all' && post.status !== statusFilter) return false;
     if (!normalizedQuery) return true;
     const haystack = [
@@ -678,10 +683,10 @@ export default function BlogAdmin() {
   });
   const isFiltering = statusFilter !== 'all' || normalizedQuery.length > 0;
   const statusCounts = {
-    all: posts.length,
-    published: posts.filter((p) => p.status === 'published').length,
-    draft: posts.filter((p) => p.status === 'draft').length,
-    archived: posts.filter((p) => p.status === 'archived').length,
+    all: visiblePosts.length,
+    published: visiblePosts.filter((p) => p.status === 'published').length,
+    draft: visiblePosts.filter((p) => p.status === 'draft').length,
+    archived: visiblePosts.filter((p) => p.status === 'archived').length,
   };
 
   return (
