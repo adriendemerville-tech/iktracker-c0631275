@@ -183,7 +183,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
   };
 
   const handleComplete = () => {
-    localStorage.setItem('iktracker_tutorial_completed', 'true');
+    // Persistence (DB + localStorage) is handled by useTutorial.completeTutorial
     onComplete();
   };
 
