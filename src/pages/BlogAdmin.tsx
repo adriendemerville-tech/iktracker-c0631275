@@ -735,6 +735,12 @@ export default function BlogAdmin() {
                 <Ban className="h-4 w-4" />
                 Liste noire
               </TabsTrigger>
+              <TabsTrigger value="trash" className="gap-2">
+                <Trash2 className="h-4 w-4" />
+                Corbeille{trashedPosts.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">{trashedPosts.length}</Badge>
+                )}
+              </TabsTrigger>
             </TabsList>
 
             {/* Posts Tab */}
