@@ -1041,6 +1041,79 @@ export default function BlogAdmin() {
                 </Select>
               </div>
 
+              {/* Bulk actions bar */}
+              {visiblePosts.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={
+                        (isFiltering ? filteredPosts : visiblePosts).length > 0 &&
+                        (isFiltering ? filteredPosts : visiblePosts).every((p) => selectedPostIds.has(p.id))
+                      }
+                      onCheckedChange={(c) => {
+                        const list = isFiltering ? filteredPosts : visiblePosts;
+                        if (c) {
+                          setSelectedPostIds(new Set(list.map((p) => p.id)));
+                        } else {
+                          clearPostSelection();
+                        }
+                      }}
+                      aria-label="Tout sélectionner"
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {selectedPostIds.size > 0
+                        ? `${selectedPostIds.size} sélectionné(s)`
+                        : 'Tout sélectionner'}
+                    </span>
+                  </div>
+                  <div className="ml-auto flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={selectedPostIds.size === 0 || bulkActionLoading}
+                      onClick={() => bulkPublish(true)}
+                    >
+                      <Eye className="mr-2 h-4 w-4" /> Publier
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={selectedPostIds.size === 0 || bulkActionLoading}
+                      onClick={() => bulkPublish(false)}
+                    >
+                      <EyeOff className="mr-2 h-4 w-4" /> Dépublier
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={selectedPostIds.size === 0 || bulkActionLoading}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Mettre à la corbeille
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Déplacer {selectedPostIds.size} article(s) à la corbeille ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Les articles sélectionnés seront déplacés dans la corbeille. Vous pourrez les restaurer ou les supprimer définitivement depuis l'onglet « Corbeille ».
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={bulkSoftDelete}>Déplacer</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    {selectedPostIds.size > 0 && (
+                      <Button size="sm" variant="ghost" onClick={clearPostSelection}>
+                        <X className="mr-2 h-4 w-4" /> Effacer
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
               {loadingPosts ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
