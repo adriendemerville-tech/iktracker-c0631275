@@ -705,3 +705,26 @@ curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/
 **UI admin** : onglet **Liste noire** dans `/admin/blog`.
 
 **Doc agents** : `docs/CRAWLERS_SLUG_PERSISTENCE_PROMPT.md` — règles de persistance pour Crawlers / Parménion (mémoire locale, anti-variations, cooldown).
+
+---
+
+## Corbeille blog (soft-delete des articles)
+
+**Schéma**
+- Enum `blog_post_status` étendu avec la valeur `deleted`.
+- Colonne `blog_posts.deleted_at` (timestamptz, nullable, indexée).
+
+**Comportement API (`blog-api`)**
+- `DELETE /posts/:slug` → soft-delete par défaut : `status='deleted'`, `deleted_at=now()`. Audit log `soft_delete`.
+- `DELETE /posts/:slug?hard=true` → purge définitive (admin uniquement). Audit log `purge`.
+- `POST /posts` avec un slug actuellement en `deleted` → `409 slug_in_trash` (refus de recréation).
+- `GET /posts` (auth) sans paramètre → exclut la corbeille (`status='published'` par défaut).
+- `GET /posts?status=deleted` → liste explicite de la corbeille.
+- `GET /posts?status=all` ou `?all=true` → inclut la corbeille (admin/viewer).
+- `GET /posts` (public, anonyme) → uniquement `published` (inchangé).
+
+**Visibilité publique**
+La policy RLS publique reste `status = 'published'`, donc les articles `deleted` ne sont jamais exposés au front public, au sitemap, ni au meta-renderer.
+
+**UI admin**
+Onglet **Corbeille** dans `/admin/blog` (compteur, restauration en `draft`, purge définitive avec confirmation). La suppression depuis le listing principal envoie désormais l'article dans la corbeille au lieu de le détruire.

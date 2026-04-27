@@ -378,15 +378,16 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
       return successResp(data)
     }
     const includeAll = url.searchParams.get('all') === 'true'
-    const statusFilter = url.searchParams.get('status') // 'draft' | 'published' | 'archived' | 'all'
+    const statusFilter = url.searchParams.get('status') // 'draft' | 'published' | 'archived' | 'deleted' | 'all'
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const offset = parseInt(url.searchParams.get('offset') || '0')
     let query = supabase.from('blog_posts').select('*', { count: 'exact' }).order('created_at', { ascending: false }).range(offset, offset + limit - 1)
     if (statusFilter === 'all' || includeAll) {
-      // No status filter — return everything
+      // No status filter — return everything (including deleted, admin/viewer only)
     } else if (statusFilter) {
       query = query.eq('status', statusFilter)
     } else {
+      // Default authenticated listing excludes the trash
       query = query.eq('status', 'published')
     }
     const { data, error, count } = await query
@@ -417,6 +418,17 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
     } catch (e) { console.error('blacklist check error:', e) }
 
     const { data: prevData } = await supabase.from('blog_posts').select('*').eq('slug', postSlug).single()
+
+    // Soft-delete protection: refuse to recreate an article that's in the trash
+    if (prevData && prevData.status === 'deleted') {
+      await logAudit(supabase, 'blocked', 'post', postSlug, prevData, { reason: 'slug_in_trash' }, apiKeyName)
+      return jsonResp({
+        success: false,
+        error: 'slug_in_trash',
+        message: "Non, ce contenu existe déjà (dans la corbeille). Restaurez-le depuis l'admin ou choisissez un autre slug.",
+        slug: postSlug,
+      }, 409)
+    }
 
     // Anti-duplicate: if slug exists and no force flag, return existing post without modification
     const forceUpdate = body.force === true || body.overwrite === true
@@ -486,10 +498,24 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
 
   if (req.method === 'DELETE' && slug) {
     const { data: prevData } = await supabase.from('blog_posts').select('*').eq('slug', slug).single()
-    const { error } = await supabase.from('blog_posts').delete().eq('slug', slug)
-    if (error) return errorResp('Failed to delete post', 500)
-    await logAudit(supabase, 'delete', 'post', slug, prevData, null, apiKeyName)
-    return successResp({ deleted: true })
+    if (!prevData) return errorResp('Post not found', 404)
+
+    const hardDelete = url.searchParams.get('hard') === 'true'
+    if (hardDelete) {
+      // Permanent purge (admin-only via service role / RLS)
+      const { error } = await supabase.from('blog_posts').delete().eq('slug', slug)
+      if (error) return errorResp('Failed to purge post', 500)
+      await logAudit(supabase, 'purge', 'post', slug, prevData, null, apiKeyName)
+      return successResp({ deleted: true, hard: true })
+    }
+
+    // Soft-delete: move to trash
+    const { data, error } = await supabase.from('blog_posts')
+      .update({ status: 'deleted', deleted_at: new Date().toISOString() })
+      .eq('slug', slug).select().single()
+    if (error) return errorResp('Failed to delete post: ' + error.message, 500)
+    await logAudit(supabase, 'soft_delete', 'post', slug, prevData, data, apiKeyName)
+    return successResp({ deleted: true, soft: true, status: 'deleted' })
   }
 
   return errorResp('Not found', 404)

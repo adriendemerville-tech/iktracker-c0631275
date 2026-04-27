@@ -278,6 +278,7 @@ export type Database = {
           author_name: string | null
           content: string
           created_at: string
+          deleted_at: string | null
           display_order: number | null
           featured_image_url: string | null
           id: string
@@ -294,6 +295,7 @@ export type Database = {
           author_name?: string | null
           content?: string
           created_at?: string
+          deleted_at?: string | null
           display_order?: number | null
           featured_image_url?: string | null
           id?: string
@@ -310,6 +312,7 @@ export type Database = {
           author_name?: string | null
           content?: string
           created_at?: string
+          deleted_at?: string | null
           display_order?: number | null
           featured_image_url?: string | null
           id?: string
@@ -1881,7 +1884,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "viewer"
-      blog_post_status: "draft" | "published" | "archived"
+      blog_post_status: "draft" | "published" | "archived" | "deleted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2010,7 +2013,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "viewer"],
-      blog_post_status: ["draft", "published", "archived"],
+      blog_post_status: ["draft", "published", "archived", "deleted"],
     },
   },
 } as const

@@ -466,9 +466,10 @@ export default function BlogAdmin() {
   };
 
   const deletePost = async (id: string) => {
+    // Soft-delete: move to trash instead of permanent delete
     const { error } = await supabase
       .from('blog_posts')
-      .delete()
+      .update({ status: 'deleted' as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
       .eq('id', id);
 
     if (error) {
@@ -476,7 +477,24 @@ export default function BlogAdmin() {
       return;
     }
 
-    toast.success('Article supprimé');
+    toast.success('Article déplacé dans la corbeille');
+    fetchPosts();
+  };
+
+  const restorePost = async (id: string) => {
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: 'draft' as BlogPostStatus, deleted_at: null } as any)
+      .eq('id', id);
+    if (error) { toast.error('Erreur lors de la restauration'); return; }
+    toast.success('Article restauré en brouillon');
+    fetchPosts();
+  };
+
+  const purgePost = async (id: string) => {
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+    if (error) { toast.error('Erreur lors de la purge'); return; }
+    toast.success('Article supprimé définitivement');
     fetchPosts();
   };
 
@@ -640,11 +658,16 @@ export default function BlogAdmin() {
         return <Badge variant="secondary">Brouillon</Badge>;
       case 'archived':
         return <Badge variant="outline">Archivé</Badge>;
+      case 'deleted' as BlogPostStatus:
+        return <Badge variant="destructive">Corbeille</Badge>;
     }
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredPosts = posts.filter((post) => {
+  // Main listing always excludes the trash; deleted posts are managed in the dedicated tab
+  const visiblePosts = posts.filter((p) => (p.status as string) !== 'deleted');
+  const trashedPosts = posts.filter((p) => (p.status as string) === 'deleted');
+  const filteredPosts = visiblePosts.filter((post) => {
     if (statusFilter !== 'all' && post.status !== statusFilter) return false;
     if (!normalizedQuery) return true;
     const haystack = [
@@ -660,10 +683,10 @@ export default function BlogAdmin() {
   });
   const isFiltering = statusFilter !== 'all' || normalizedQuery.length > 0;
   const statusCounts = {
-    all: posts.length,
-    published: posts.filter((p) => p.status === 'published').length,
-    draft: posts.filter((p) => p.status === 'draft').length,
-    archived: posts.filter((p) => p.status === 'archived').length,
+    all: visiblePosts.length,
+    published: visiblePosts.filter((p) => p.status === 'published').length,
+    draft: visiblePosts.filter((p) => p.status === 'draft').length,
+    archived: visiblePosts.filter((p) => p.status === 'archived').length,
   };
 
   return (
@@ -711,6 +734,12 @@ export default function BlogAdmin() {
               <TabsTrigger value="blacklist" className="gap-2">
                 <Ban className="h-4 w-4" />
                 Liste noire
+              </TabsTrigger>
+              <TabsTrigger value="trash" className="gap-2">
+                <Trash2 className="h-4 w-4" />
+                Corbeille{trashedPosts.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">{trashedPosts.length}</Badge>
+                )}
               </TabsTrigger>
             </TabsList>
 
@@ -1549,6 +1578,71 @@ curl -X POST \\
             {/* Blacklist Tab */}
             <TabsContent value="blacklist" className="space-y-4">
               <BlogBlacklistManager />
+            </TabsContent>
+
+            {/* Trash Tab */}
+            <TabsContent value="trash" className="space-y-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trash2 className="h-5 w-5 text-destructive" />
+                    <h3 className="font-semibold">Corbeille ({trashedPosts.length})</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Les articles supprimés sont conservés ici. L'API blog refuse leur recréation tant qu'ils sont en corbeille.
+                    Restaurez-les en brouillon, ou supprimez-les définitivement.
+                  </p>
+                  {trashedPosts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun article dans la corbeille.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {trashedPosts.map((p) => (
+                        <div key={p.id} className="border rounded-lg p-3 flex items-center justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium truncate">{p.title}</span>
+                              <Badge variant="destructive">Corbeille</Badge>
+                            </div>
+                            <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
+                            {(p as any).deleted_at && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
+                              <Undo2 className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" title="Supprimer définitivement">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
+                                    Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => purgePost(p.id)}>
+                                    Supprimer définitivement
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
