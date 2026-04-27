@@ -881,20 +881,34 @@ export function AdminSurveys() {
                       </div>
 
                       <div className="flex gap-1 shrink-0">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditing(survey)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          title={expandedSurveyId === survey.id ? 'Masquer les réponses' : 'Voir les réponses'}
+                          onClick={() => setExpandedSurveyId(expandedSurveyId === survey.id ? null : survey.id)}
+                        >
+                          <Eye className={`w-4 h-4 ${expandedSurveyId === survey.id ? 'text-primary' : ''}`} />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Modifier" onClick={() => startEditing(survey)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         {survey.status === 'draft' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => publishMutation.mutate(survey.id)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Publier" onClick={() => publishMutation.mutate(survey.id)}>
                             <Send className="w-4 h-4 text-primary" />
                           </Button>
                         )}
                         {survey.status === 'published' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => pauseMutation.mutate({ id: survey.id, status: 'paused' })}>
-                            <Eye className="w-4 h-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Mettre en pause" onClick={() => pauseMutation.mutate({ id: survey.id, status: 'paused' })}>
+                            <Pause className="w-4 h-4" />
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                        {survey.status === 'paused' && (
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Reprendre" onClick={() => pauseMutation.mutate({ id: survey.id, status: 'published' })}>
+                            <Play className="w-4 h-4 text-primary" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Supprimer" onClick={() => {
                           if (window.confirm(`Supprimer définitivement "${survey.title}" ?`)) {
                             deleteMutation.mutate(survey.id);
                           }
@@ -903,9 +917,10 @@ export function AdminSurveys() {
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              );
+
+                    {expandedSurveyId === survey.id && (
+                      <SurveyResponsesPanel surveyId={survey.id} />
+                    )}
             })}
           </div>
         </ScrollArea>
