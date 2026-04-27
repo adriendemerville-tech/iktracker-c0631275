@@ -419,6 +419,17 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
 
     const { data: prevData } = await supabase.from('blog_posts').select('*').eq('slug', postSlug).single()
 
+    // Soft-delete protection: refuse to recreate an article that's in the trash
+    if (prevData && prevData.status === 'deleted') {
+      await logAudit(supabase, 'blocked', 'post', postSlug, prevData, { reason: 'slug_in_trash' }, apiKeyName)
+      return jsonResp({
+        success: false,
+        error: 'slug_in_trash',
+        message: "Non, ce contenu existe déjà (dans la corbeille). Restaurez-le depuis l'admin ou choisissez un autre slug.",
+        slug: postSlug,
+      }, 409)
+    }
+
     // Anti-duplicate: if slug exists and no force flag, return existing post without modification
     const forceUpdate = body.force === true || body.overwrite === true
     if (prevData && !forceUpdate) {
