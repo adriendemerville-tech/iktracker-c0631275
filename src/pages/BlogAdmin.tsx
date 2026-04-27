@@ -466,9 +466,10 @@ export default function BlogAdmin() {
   };
 
   const deletePost = async (id: string) => {
+    // Soft-delete: move to trash instead of permanent delete
     const { error } = await supabase
       .from('blog_posts')
-      .delete()
+      .update({ status: 'deleted' as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
       .eq('id', id);
 
     if (error) {
@@ -476,7 +477,24 @@ export default function BlogAdmin() {
       return;
     }
 
-    toast.success('Article supprimé');
+    toast.success('Article déplacé dans la corbeille');
+    fetchPosts();
+  };
+
+  const restorePost = async (id: string) => {
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: 'draft' as BlogPostStatus, deleted_at: null } as any)
+      .eq('id', id);
+    if (error) { toast.error('Erreur lors de la restauration'); return; }
+    toast.success('Article restauré en brouillon');
+    fetchPosts();
+  };
+
+  const purgePost = async (id: string) => {
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+    if (error) { toast.error('Erreur lors de la purge'); return; }
+    toast.success('Article supprimé définitivement');
     fetchPosts();
   };
 
