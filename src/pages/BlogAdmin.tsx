@@ -530,6 +530,64 @@ export default function BlogAdmin() {
     fetchPosts();
   };
 
+  // Bulk actions on visible posts (Articles tab)
+  const bulkPublish = async (publish: boolean) => {
+    const ids = Array.from(selectedPostIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const updateData: Record<string, unknown> = { status: publish ? 'published' : 'draft' };
+    if (publish) updateData.published_at = new Date().toISOString();
+    const { error } = await supabase.from('blog_posts').update(updateData).in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la mise à jour groupée'); return; }
+    toast.success(`${ids.length} article(s) ${publish ? 'publié(s)' : 'dépublié(s)'}`);
+    clearPostSelection();
+    fetchPosts();
+  };
+
+  const bulkSoftDelete = async () => {
+    const ids = Array.from(selectedPostIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: 'deleted' as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
+      .in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la suppression groupée'); return; }
+    toast.success(`${ids.length} article(s) déplacé(s) dans la corbeille`);
+    clearPostSelection();
+    fetchPosts();
+  };
+
+  // Bulk actions on trash
+  const bulkRestore = async () => {
+    const ids = Array.from(selectedTrashIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: 'draft' as BlogPostStatus, deleted_at: null } as any)
+      .in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la restauration groupée'); return; }
+    toast.success(`${ids.length} article(s) restauré(s) en brouillon`);
+    clearTrashSelection();
+    fetchPosts();
+  };
+
+  const bulkPurge = async () => {
+    const ids = Array.from(selectedTrashIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const { error } = await supabase.from('blog_posts').delete().in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la purge groupée'); return; }
+    toast.success(`${ids.length} article(s) supprimé(s) définitivement`);
+    clearTrashSelection();
+    fetchPosts();
+  };
+
   const togglePostStatus = async (post: BlogPost) => {
     const newStatus: BlogPostStatus = post.status === 'published' ? 'draft' : 'published';
     const updateData: Record<string, unknown> = { status: newStatus };
