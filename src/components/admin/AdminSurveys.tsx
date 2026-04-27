@@ -18,7 +18,8 @@ import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import {
   Plus, Trash2, Edit, BarChart3, Eye, Send, Copy,
   Star, MessageSquare, Camera, Share2, ListChecks,
-  ChevronDown, ChevronUp, Loader2, ArrowLeft
+  ChevronDown, ChevronUp, Loader2, ArrowLeft,
+  Pause, Play, User as UserIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -365,6 +366,138 @@ function VariantEditor({ variant, onChange, onRemove, canRemove }: {
   );
 }
 
+// ---- Survey responses panel ----
+
+interface ResponseRow {
+  id: string;
+  user_id: string;
+  variant_id: string | null;
+  responses: Record<string, unknown>;
+  completed: boolean;
+  created_at: string;
+  user_email?: string | null;
+}
+
+function SurveyResponsesPanel({ surveyId }: { surveyId: string }) {
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+
+  const { data: variants = [] } = useQuery({
+    queryKey: ['survey-responses-variants', surveyId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('survey_variants')
+        .select('id, name, content_blocks')
+        .eq('survey_id', surveyId);
+      if (error) throw error;
+      return (data || []) as Array<{ id: string; name: string; content_blocks: unknown }>;
+    },
+  });
+
+  const { data: responses = [], isLoading } = useQuery({
+    queryKey: ['survey-responses', surveyId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('survey_responses')
+        .select('id, user_id, variant_id, responses, completed, created_at')
+        .eq('survey_id', surveyId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as unknown as ResponseRow[];
+    },
+  });
+
+  const variantMap = new Map(variants.map(v => [v.id, v]));
+
+  const getQuestionLabel = (variantId: string | null, blockId: string): string => {
+    if (!variantId) return blockId;
+    const variant = variantMap.get(variantId);
+    if (!variant) return blockId;
+    const blocks = (variant.content_blocks as ContentBlock[]) || [];
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return blockId;
+    const q = (block.config?.question as string) || (block.config?.prompt as string) || (block.config?.message as string);
+    return q || block.type;
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-border space-y-2">
+      <div className="flex items-center justify-between">
+        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          Réponses détaillées ({responses.length})
+        </h4>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
+        </div>
+      ) : responses.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic py-2">Aucune réponse pour le moment.</p>
+      ) : (
+        <ScrollArea className="max-h-[400px]">
+          <div className="space-y-1.5">
+            {responses.map(row => {
+              const isOpen = expandedRowId === row.id;
+              const variant = row.variant_id ? variantMap.get(row.variant_id) : null;
+              const entries = Object.entries(row.responses || {});
+              return (
+                <div key={row.id} className="border border-border rounded-md bg-muted/30">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedRowId(isOpen ? null : row.id)}
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60 transition-colors rounded-md"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <UserIcon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-xs font-mono truncate">{row.user_id.slice(0, 8)}…</span>
+                      {variant && (
+                        <Badge variant="outline" className="text-[10px] shrink-0">{variant.name}</Badge>
+                      )}
+                      {row.completed ? (
+                        <Badge variant="default" className="text-[10px] shrink-0">Complété</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-[10px] shrink-0">Partiel</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] text-muted-foreground">
+                        {format(new Date(row.created_at), 'dd MMM HH:mm', { locale: fr })}
+                      </span>
+                      {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="px-3 pb-3 pt-1 space-y-2 border-t border-border bg-background">
+                      {entries.length === 0 ? (
+                        <p className="text-xs text-muted-foreground italic">Aucun champ rempli.</p>
+                      ) : (
+                        entries.map(([blockId, answer]) => (
+                          <div key={blockId} className="text-xs">
+                            <p className="font-medium text-foreground">
+                              {getQuestionLabel(row.variant_id, blockId)}
+                            </p>
+                            <p className="text-muted-foreground mt-0.5 break-words whitespace-pre-wrap">
+                              {answer === null || answer === undefined || answer === ''
+                                ? <em>(vide)</em>
+                                : typeof answer === 'object'
+                                  ? JSON.stringify(answer)
+                                  : String(answer)}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </ScrollArea>
+      )}
+    </div>
+  );
+}
+
 // ---- Main component ----
 
 export function AdminSurveys() {
@@ -373,6 +506,7 @@ export function AdminSurveys() {
   const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
   const [editingVariants, setEditingVariants] = useState<SurveyVariant[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [expandedSurveyId, setExpandedSurveyId] = useState<string | null>(null);
 
   // Form state for new/edit
   const [form, setForm] = useState({
@@ -879,20 +1013,34 @@ export function AdminSurveys() {
                       </div>
 
                       <div className="flex gap-1 shrink-0">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditing(survey)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          title={expandedSurveyId === survey.id ? 'Masquer les réponses' : 'Voir les réponses'}
+                          onClick={() => setExpandedSurveyId(expandedSurveyId === survey.id ? null : survey.id)}
+                        >
+                          <Eye className={`w-4 h-4 ${expandedSurveyId === survey.id ? 'text-primary' : ''}`} />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Modifier" onClick={() => startEditing(survey)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         {survey.status === 'draft' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => publishMutation.mutate(survey.id)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Publier" onClick={() => publishMutation.mutate(survey.id)}>
                             <Send className="w-4 h-4 text-primary" />
                           </Button>
                         )}
                         {survey.status === 'published' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => pauseMutation.mutate({ id: survey.id, status: 'paused' })}>
-                            <Eye className="w-4 h-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Mettre en pause" onClick={() => pauseMutation.mutate({ id: survey.id, status: 'paused' })}>
+                            <Pause className="w-4 h-4" />
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                        {survey.status === 'paused' && (
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Reprendre" onClick={() => pauseMutation.mutate({ id: survey.id, status: 'published' })}>
+                            <Play className="w-4 h-4 text-primary" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Supprimer" onClick={() => {
                           if (window.confirm(`Supprimer définitivement "${survey.title}" ?`)) {
                             deleteMutation.mutate(survey.id);
                           }
@@ -901,6 +1049,10 @@ export function AdminSurveys() {
                         </Button>
                       </div>
                     </div>
+
+                    {expandedSurveyId === survey.id && (
+                      <SurveyResponsesPanel surveyId={survey.id} />
+                    )}
                   </CardContent>
                 </Card>
               );
