@@ -324,6 +324,33 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_slug_blacklist: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_pattern: boolean
+          reason: string | null
+          slug_pattern: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_pattern?: boolean
+          reason?: string | null
+          slug_pattern: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_pattern?: boolean
+          reason?: string | null
+          slug_pattern?: string
+        }
+        Relationships: []
+      }
       calendar_connections: {
         Row: {
           access_token: string | null
@@ -1816,6 +1843,7 @@ export type Database = {
         Args: { _partner_id: string }
         Returns: undefined
       }
+      is_slug_blacklisted: { Args: { _slug: string }; Returns: boolean }
       search_users:
         | {
             Args: { search_term: string }
