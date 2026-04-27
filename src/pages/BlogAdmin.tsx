@@ -837,7 +837,7 @@ export default function BlogAdmin() {
             <TabsContent value="posts" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">
-                  Articles ({isFiltering ? `${filteredPosts.length}/${posts.length}` : posts.length})
+                  Articles ({isFiltering ? `${filteredPosts.length}/${visiblePosts.length}` : visiblePosts.length})
                 </h2>
                 <Dialog open={postDialogOpen} onOpenChange={(open) => {
                   setPostDialogOpen(open);
@@ -1125,7 +1125,7 @@ export default function BlogAdmin() {
                     </Card>
                   ))}
                 </div>
-              ) : posts.length === 0 ? (
+              ) : visiblePosts.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center text-muted-foreground">
                     Aucun article. Créez votre premier article !
@@ -1219,9 +1219,9 @@ export default function BlogAdmin() {
                   collisionDetection={closestCenter}
                   onDragEnd={handleDragEnd}
                 >
-                  <SortableContext items={posts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <SortableContext items={visiblePosts.map(p => p.id)} strategy={verticalListSortingStrategy}>
                     <div className="space-y-3">
-                      {posts.map((post) => (
+                      {visiblePosts.map((post) => (
                         <SortablePostCard
                           key={post.id}
                           post={post}
