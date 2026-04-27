@@ -704,7 +704,9 @@ curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/
 
 **UI admin** : onglet **Liste noire** dans `/admin/blog`.
 
-**Doc agents** : `docs/CRAWLERS_SLUG_PERSISTENCE_PROMPT.md` — règles de persistance pour Crawlers / Parménion (mémoire locale, anti-variations, cooldown).
+**Docs agents externes**
+- `docs/CRAWLERS_SLUG_PERSISTENCE_PROMPT.md` — spécification côté IKtracker des codes de retour (`409 slug_blacklisted`, `200 _skipped`, `201`) et des règles de persistance attendues (mémoire locale, anti-variations, cooldown 7 jours).
+- `docs/LOVABLE_PROMPT_CRAWLERS_SLUG_MEMORY.md` — prompt opérationnel à coller dans le chat Lovable des projets `Crawlers` et `Parménion` pour qu'ils implémentent : table `iktracker_slug_memory`, module `iktracker-slug-memory.ts` (normalisation + Levenshtein ≤ 3 + hash de contenu), garde-fou avant `POST /posts`, page admin `/slug-memory`, tests Vitest.
 
 ---
 
