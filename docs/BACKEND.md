@@ -533,7 +533,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | Aspect | Détail |
 |---|---|
 | Auth | Clés API (table `blog_api_keys`) |
-| Edge Function | `blog-api` (831 lignes) |
+| Edge Function | `blog-api` (902 lignes) |
 | CRUD | Articles (`blog_posts`) + Pages (`page_contents`) |
 | Audit | Toute modification loggée dans `api_audit_logs` |
 | Webhook | `BLOG_WEBHOOK_TOKEN` pour notifications |
