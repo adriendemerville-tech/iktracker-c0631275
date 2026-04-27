@@ -378,15 +378,16 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
       return successResp(data)
     }
     const includeAll = url.searchParams.get('all') === 'true'
-    const statusFilter = url.searchParams.get('status') // 'draft' | 'published' | 'archived' | 'all'
+    const statusFilter = url.searchParams.get('status') // 'draft' | 'published' | 'archived' | 'deleted' | 'all'
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const offset = parseInt(url.searchParams.get('offset') || '0')
     let query = supabase.from('blog_posts').select('*', { count: 'exact' }).order('created_at', { ascending: false }).range(offset, offset + limit - 1)
     if (statusFilter === 'all' || includeAll) {
-      // No status filter — return everything
+      // No status filter — return everything (including deleted, admin/viewer only)
     } else if (statusFilter) {
       query = query.eq('status', statusFilter)
     } else {
+      // Default authenticated listing excludes the trash
       query = query.eq('status', 'published')
     }
     const { data, error, count } = await query
