@@ -774,6 +774,13 @@ export type Database = {
             referencedRelation: "partner_api_keys"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "partner_request_logs_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_api_keys_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       partner_users: {
@@ -816,6 +823,13 @@ export type Database = {
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "partner_api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_users_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_api_keys_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -863,6 +877,13 @@ export type Database = {
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "partner_api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_webhooks_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_api_keys_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1572,7 +1593,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      partner_api_keys_safe: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string | null
+          is_active: boolean | null
+          key_prefix: string | null
+          last_used_at: string | null
+          monthly_quota: number | null
+          partner_name: string | null
+          scopes: string[] | null
+          updated_at: string | null
+          usage_current_month: number | null
+          usage_reset_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          key_prefix?: string | null
+          last_used_at?: string | null
+          monthly_quota?: number | null
+          partner_name?: string | null
+          scopes?: string[] | null
+          updated_at?: string | null
+          usage_current_month?: number | null
+          usage_reset_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          key_prefix?: string | null
+          last_used_at?: string | null
+          monthly_quota?: number | null
+          partner_name?: string | null
+          scopes?: string[] | null
+          updated_at?: string | null
+          usage_current_month?: number | null
+          usage_reset_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_shares: { Args: never; Returns: undefined }
