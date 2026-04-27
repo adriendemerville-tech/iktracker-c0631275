@@ -1152,9 +1152,14 @@ export default function BlogAdmin() {
                 // reordering against an incomplete list.
                 <div className="space-y-3">
                   {filteredPosts.map((post) => (
-                    <Card key={post.id}>
+                    <Card key={post.id} className={selectedPostIds.has(post.id) ? 'ring-2 ring-primary/50' : ''}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between gap-4">
+                          <Checkbox
+                            checked={selectedPostIds.has(post.id)}
+                            onCheckedChange={(c) => toggleSelectPost(post.id, !!c)}
+                            aria-label={`Sélectionner ${post.title}`}
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-1">
                               <h3 className="font-medium text-foreground truncate">{post.title}</h3>
