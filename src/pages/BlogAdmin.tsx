@@ -1765,51 +1765,118 @@ curl -X POST \\
                   {trashedPosts.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Aucun article dans la corbeille.</p>
                   ) : (
-                    <div className="space-y-2">
-                      {trashedPosts.map((p) => (
-                        <div key={p.id} className="border rounded-lg p-3 flex items-center justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium truncate">{p.title}</span>
-                              <Badge variant="destructive">Corbeille</Badge>
-                            </div>
-                            <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
-                            {(p as any).deleted_at && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex gap-2 shrink-0">
-                            <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
-                              <Undo2 className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="outline" title="Supprimer définitivement">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
-                                    Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => purgePost(p.id)}>
-                                    Supprimer définitivement
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                    <>
+                      {/* Bulk actions bar - trash */}
+                      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={trashedPosts.length > 0 && trashedPosts.every((p) => selectedTrashIds.has(p.id))}
+                            onCheckedChange={(c) => {
+                              if (c) setSelectedTrashIds(new Set(trashedPosts.map((p) => p.id)));
+                              else clearTrashSelection();
+                            }}
+                            aria-label="Tout sélectionner"
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {selectedTrashIds.size > 0
+                              ? `${selectedTrashIds.size} sélectionné(s)`
+                              : 'Tout sélectionner'}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="ml-auto flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={selectedTrashIds.size === 0 || bulkActionLoading}
+                            onClick={bulkRestore}
+                          >
+                            <Undo2 className="mr-2 h-4 w-4" /> Restaurer
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={selectedTrashIds.size === 0 || bulkActionLoading}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Supprimer définitivement
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Supprimer définitivement {selectedTrashIds.size} article(s) ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Les articles sélectionnés seront supprimés de la base de données. Cette action est irréversible. Pensez à ajouter les slugs à la liste noire pour empêcher leur recréation par l'API.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={bulkPurge}>Supprimer définitivement</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                          {selectedTrashIds.size > 0 && (
+                            <Button size="sm" variant="ghost" onClick={clearTrashSelection}>
+                              <X className="mr-2 h-4 w-4" /> Effacer
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {trashedPosts.map((p) => (
+                          <div
+                            key={p.id}
+                            className={`border rounded-lg p-3 flex items-center justify-between gap-3 ${selectedTrashIds.has(p.id) ? 'ring-2 ring-primary/50' : ''}`}
+                          >
+                            <Checkbox
+                              checked={selectedTrashIds.has(p.id)}
+                              onCheckedChange={(c) => toggleSelectTrash(p.id, !!c)}
+                              aria-label={`Sélectionner ${p.title}`}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium truncate">{p.title}</span>
+                                <Badge variant="destructive">Corbeille</Badge>
+                              </div>
+                              <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
+                              {(p as any).deleted_at && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex gap-2 shrink-0">
+                              <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
+                                <Undo2 className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="outline" title="Supprimer définitivement">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
+                                      Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => purgePost(p.id)}>
+                                      Supprimer définitivement
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
