@@ -105,13 +105,17 @@ function SortablePostCard({
   onEdit, 
   onToggleStatus, 
   onDelete,
-  getStatusBadge 
+  getStatusBadge,
+  selected,
+  onSelectChange,
 }: { 
   post: BlogPost; 
   onEdit: (post: BlogPost) => void;
   onToggleStatus: (post: BlogPost) => void;
   onDelete: (id: string) => void;
   getStatusBadge: (status: BlogPostStatus) => React.ReactNode;
+  selected: boolean;
+  onSelectChange: (id: string, checked: boolean) => void;
 }) {
   const {
     attributes,
@@ -129,9 +133,14 @@ function SortablePostCard({
   };
 
   return (
-    <Card ref={setNodeRef} style={style} className={isDragging ? 'ring-2 ring-primary' : ''}>
+    <Card ref={setNodeRef} style={style} className={isDragging ? 'ring-2 ring-primary' : selected ? 'ring-2 ring-primary/50' : ''}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-4">
+          <Checkbox
+            checked={selected}
+            onCheckedChange={(c) => onSelectChange(post.id, !!c)}
+            aria-label={`Sélectionner ${post.title}`}
+          />
           <div 
             {...attributes} 
             {...listeners}
