@@ -11,10 +11,20 @@ const BodyEndInjections = () => {
   const [html, setHtml] = useState('');
 
   useEffect(() => {
-    fetch('https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/iktracker-actions?action=get-injections&location=body_end')
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => {
-        const injections = data?.injections || data?.result?.data?.data || data?.result?.data;
+    // Silently handle ad-blockers / network failures (e.g. ERR_BLOCKED_BY_CLIENT
+    // on third-party trackers like Taap.it). We do not want these to surface
+    // as console errors for end users.
+    const controller = new AbortController();
+
+    fetch(
+      'https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/iktracker-actions?action=get-injections&location=body_end',
+      { signal: controller.signal }
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const injections =
+          data?.injections || data?.result?.data?.data || data?.result?.data;
         if (!Array.isArray(injections) || !injections.length) return;
         setHtml(
           injections
@@ -23,7 +33,32 @@ const BodyEndInjections = () => {
             .join('')
         );
       })
-      .catch(() => {});
+      .catch(() => {
+        // Swallow: blocked by client, offline, CORS, etc. Non-critical.
+      });
+
+    // Globally swallow third-party script load errors that bubble up to window
+    // (e.g. ad-blocked Taap.it). We only mute errors coming from external
+    // hosts so app-level errors keep surfacing.
+    const onError = (e: ErrorEvent) => {
+      const src =
+        (e.target as HTMLScriptElement | HTMLImageElement | null)?.src || '';
+      if (
+        src &&
+        /taap\.it|googletagmanager|google-analytics|doubleclick|facebook\.net/i.test(
+          src
+        )
+      ) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('error', onError, true);
+
+    return () => {
+      controller.abort();
+      window.removeEventListener('error', onError, true);
+    };
   }, []);
 
   if (!html) return null;
