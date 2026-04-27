@@ -269,6 +269,28 @@ export default function BlogAdmin() {
   const [statusFilter, setStatusFilter] = useState<'all' | BlogPostStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Bulk selection state
+  const [selectedPostIds, setSelectedPostIds] = useState<Set<string>>(new Set());
+  const [selectedTrashIds, setSelectedTrashIds] = useState<Set<string>>(new Set());
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  const toggleSelectPost = (id: string, checked: boolean) => {
+    setSelectedPostIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id); else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectTrash = (id: string, checked: boolean) => {
+    setSelectedTrashIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id); else next.delete(id);
+      return next;
+    });
+  };
+  const clearPostSelection = () => setSelectedPostIds(new Set());
+  const clearTrashSelection = () => setSelectedTrashIds(new Set());
+
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
       navigate('/app');
