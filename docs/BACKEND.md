@@ -195,17 +195,29 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ## 3. Edge Functions
 
+### Volumétrie globale (avril 2026)
+
+| Périmètre | Lignes |
+|---|---|
+| **Backend total** | **~13 300** |
+| ├─ Edge Functions (`supabase/functions/`) | 7 103 |
+| └─ Migrations SQL (`supabase/migrations/`) | 6 204 |
+| Cloudflare Worker + scripts (`scripts/`, `cloudflare-worker/`) | 459 |
+| Frontend (`src/`, à titre de comparaison) | 54 512 |
+
+Le backend pèse ≈ 20 % du codebase total (~68 k lignes).
+
 ### Vue d'ensemble (16 fonctions)
 
 | Fonction | Lignes | Auth | Méthode | Rôle |
 |---|---|---|---|---|
-| `partner-api` | ~900 | API Key partenaire (+ JWT signé pour SSO) | GET/POST | API B2B (vehicle, IK, trips, stats, SSO) |
-| `blog-api` | 831 | API Key | GET/POST/PUT/DELETE | CMS headless CRUD |
-| `docs` | ~100 | JWT (admin/viewer) | GET | Documentation backend (markdown/HTML) |
-| `meta-renderer` | 826 | Non | GET | Pré-rendu HTML pour bots |
+| `partner-api` | 1 002 | API Key partenaire (+ JWT signé pour SSO) | GET/POST | API B2B (vehicle, IK, trips, stats, SSO) |
+| `blog-api` | 902 | API Key | GET/POST/PUT/DELETE | CMS headless CRUD (+ blacklist + corbeille) |
+| `meta-renderer` | 826 | Non | GET | Pré-rendu HTML pour bots & moteurs IA |
 | `sync-calendar-trips` | 705 | JWT | POST | Synchronisation calendrier → trajets |
-| `calendar-debug` | 495 | JWT | GET/POST | Debug des connexions calendrier |
+| `docs` | 668 | JWT (admin/viewer) | GET | Documentation backend (markdown/HTML) |
 | `parse-takeout` | 496 | JWT | POST | Import Google Takeout |
+| `calendar-debug` | 495 | JWT | GET/POST | Debug des connexions calendrier |
 | `vehicle-lookup` | 421 | JWT | POST | Recherche véhicule par plaque |
 | `view-report` | 387 | Non | GET | Affichage rapport partagé |
 | `recalculate-distances` | 374 | JWT | POST | Recalcul des distances via Google Maps |
