@@ -1125,7 +1125,7 @@ export default function BlogAdmin() {
                     </Card>
                   ))}
                 </div>
-              ) : posts.length === 0 ? (
+              ) : visiblePosts.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center text-muted-foreground">
                     Aucun article. Créez votre premier article !
