@@ -1579,6 +1579,71 @@ curl -X POST \\
             <TabsContent value="blacklist" className="space-y-4">
               <BlogBlacklistManager />
             </TabsContent>
+
+            {/* Trash Tab */}
+            <TabsContent value="trash" className="space-y-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trash2 className="h-5 w-5 text-destructive" />
+                    <h3 className="font-semibold">Corbeille ({trashedPosts.length})</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Les articles supprimés sont conservés ici. L'API blog refuse leur recréation tant qu'ils sont en corbeille.
+                    Restaurez-les en brouillon, ou supprimez-les définitivement.
+                  </p>
+                  {trashedPosts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun article dans la corbeille.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {trashedPosts.map((p) => (
+                        <div key={p.id} className="border rounded-lg p-3 flex items-center justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium truncate">{p.title}</span>
+                              <Badge variant="destructive">Corbeille</Badge>
+                            </div>
+                            <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
+                            {(p as any).deleted_at && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
+                              <Undo2 className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" title="Supprimer définitivement">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
+                                    Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => purgePost(p.id)}>
+                                    Supprimer définitivement
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
