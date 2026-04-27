@@ -242,14 +242,17 @@ Le backend pèse ≈ 20 % du codebase total (~68 k lignes).
 
 - **Auth** : Clé API via header `x-api-key` (validée contre `blog_api_keys`)
 - **Endpoints** :
-  - `GET /posts` — Liste des articles. Params : `status=published|draft|archived|all` (défaut: `published`), `all=true` (alias de `status=all`), `limit`, `offset`
-  - `POST /posts` — Créer un article
-  - `PUT /posts/:id` — Modifier un article
-  - `DELETE /posts/:id` — Supprimer un article
+  - `GET /posts` — Liste des articles publiés uniquement (défaut). Params : `status=published|draft|archived|deleted|all`, `all=true` (alias de `status=all` — inclut la corbeille), `limit`, `offset`
+  - `GET /posts/:slug` — Lire un article publié (404 si non publié)
+  - `POST /posts` — Créer ou mettre à jour un article (upsert par slug). Refus 409 si slug en corbeille (`slug_in_trash`) ou en blacklist (`slug_blacklisted`). Body : `title*, slug*, content, status (draft|published|archived), force` (booléen pour écraser un slug existant)
+  - `PUT /posts/:slug` — Modifier un article. Pour **archiver** : `status=archived`. Pour **restaurer** depuis la corbeille ou les archives : `status=published` (ou `draft`)
+  - `DELETE /posts/:slug` — **Soft-delete** par défaut : passe `status='deleted'` et `deleted_at=now()`. Réversible via `PUT`
+  - `DELETE /posts/:slug?hard=true` — **Purge définitive** (irréversible, à utiliser avec prudence)
   - `GET /pages/:key` — Lire le contenu d'une page
   - `PUT /pages/:key` — Modifier le contenu d'une page (voir clés dynamiques ci-dessous)
+- **Statuts d'article** : `draft` (brouillon), `published` (visible publiquement), `archived` (masqué de la liste mais conservé), `deleted` (corbeille — masqué partout, restaurable)
 - **Secrets** : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- **Audit** : Chaque modification est enregistrée dans `api_audit_logs`
+- **Audit** : Chaque modification est enregistrée dans `api_audit_logs` (actions : `create`, `update`, `soft_delete`, `purge`, `blocked`)
 
 ##### Clés dynamiques `page_contents` — Pages marketing
 
