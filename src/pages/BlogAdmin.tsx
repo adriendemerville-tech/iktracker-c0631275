@@ -1545,6 +1545,11 @@ curl -X POST \\
                 </div>
               )}
             </TabsContent>
+
+            {/* Blacklist Tab */}
+            <TabsContent value="blacklist" className="space-y-4">
+              <BlogBlacklistManager />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
