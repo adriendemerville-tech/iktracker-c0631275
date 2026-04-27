@@ -498,10 +498,24 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
 
   if (req.method === 'DELETE' && slug) {
     const { data: prevData } = await supabase.from('blog_posts').select('*').eq('slug', slug).single()
-    const { error } = await supabase.from('blog_posts').delete().eq('slug', slug)
-    if (error) return errorResp('Failed to delete post', 500)
-    await logAudit(supabase, 'delete', 'post', slug, prevData, null, apiKeyName)
-    return successResp({ deleted: true })
+    if (!prevData) return errorResp('Post not found', 404)
+
+    const hardDelete = url.searchParams.get('hard') === 'true'
+    if (hardDelete) {
+      // Permanent purge (admin-only via service role / RLS)
+      const { error } = await supabase.from('blog_posts').delete().eq('slug', slug)
+      if (error) return errorResp('Failed to purge post', 500)
+      await logAudit(supabase, 'purge', 'post', slug, prevData, null, apiKeyName)
+      return successResp({ deleted: true, hard: true })
+    }
+
+    // Soft-delete: move to trash
+    const { data, error } = await supabase.from('blog_posts')
+      .update({ status: 'deleted', deleted_at: new Date().toISOString() })
+      .eq('slug', slug).select().single()
+    if (error) return errorResp('Failed to delete post: ' + error.message, 500)
+    await logAudit(supabase, 'soft_delete', 'post', slug, prevData, data, apiKeyName)
+    return successResp({ deleted: true, soft: true, status: 'deleted' })
   }
 
   return errorResp('Not found', 404)
