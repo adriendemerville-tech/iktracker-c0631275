@@ -401,6 +401,21 @@ async function handlePosts(supabase: any, req: Request, url: URL, slug: string |
     const statusResolved = resolveField(body, ['status', 'state', 'postStatus'])
     const status = statusResolved.value ?? 'draft'
     if (!title || !postSlug) return errorResp('Title and slug are required', 400)
+
+    // Blacklist check: refuse to (re)create slugs that have been blacklisted by an admin
+    try {
+      const { data: blocked } = await supabase.rpc('is_slug_blacklisted', { _slug: postSlug })
+      if (blocked === true) {
+        await logAudit(supabase, 'blocked', 'post', postSlug, null, { reason: 'slug_blacklisted' }, apiKeyName)
+        return jsonResp({
+          success: false,
+          error: 'slug_blacklisted',
+          message: "Non, ce contenu existe déjà (ou a été retiré volontairement). Le slug est en liste noire — ne le republiez pas. Choisissez un autre angle/slug ou contactez l'admin.",
+          slug: postSlug,
+        }, 409)
+      }
+    } catch (e) { console.error('blacklist check error:', e) }
+
     const { data: prevData } = await supabase.from('blog_posts').select('*').eq('slug', postSlug).single()
 
     // Anti-duplicate: if slug exists and no force flag, return existing post without modification

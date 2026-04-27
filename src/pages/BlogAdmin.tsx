@@ -15,9 +15,10 @@ import { toast } from 'sonner';
 import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
 import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
+import { BlogBlacklistManager } from '@/components/admin/BlogBlacklistManager';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search, Ban
 } from 'lucide-react';
 import {
   DndContext,
@@ -706,6 +707,10 @@ export default function BlogAdmin() {
               <TabsTrigger value="audit" className="gap-2">
                 <History className="h-4 w-4" />
                 Journal API
+              </TabsTrigger>
+              <TabsTrigger value="blacklist" className="gap-2">
+                <Ban className="h-4 w-4" />
+                Liste noire
               </TabsTrigger>
             </TabsList>
 
@@ -1539,6 +1544,11 @@ curl -X POST \\
                   })}
                 </div>
               )}
+            </TabsContent>
+
+            {/* Blacklist Tab */}
+            <TabsContent value="blacklist" className="space-y-4">
+              <BlogBlacklistManager />
             </TabsContent>
           </Tabs>
         </div>

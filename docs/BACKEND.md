@@ -684,3 +684,24 @@ curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/
   -H "x-api-key: pk_live_xxx" -H "Content-Type: application/json" \
   -d '{"external_user_id":"u_42","external_email":"test@example.com"}'
 ```
+
+---
+
+## Liste noire de slugs blog (anti-recréation par API)
+
+**Table** : `blog_slug_blacklist`
+- `slug_pattern` (text, unique) : slug exact ou motif `LIKE` (`%` = wildcard).
+- `is_pattern` (bool) : si vrai, comparaison via `LIKE`, sinon égalité stricte.
+- `reason` (text) : note interne admin.
+- RLS : admins (lecture/écriture), viewers (lecture seule).
+
+**Fonction** : `public.is_slug_blacklisted(_slug text) returns boolean` (`SECURITY DEFINER`, `search_path=public`). Appelée par l'edge function `blog-api` lors d'un `POST /posts`.
+
+**Comportement API** : si le slug envoyé matche, l'edge function retourne :
+- HTTP `409`
+- `{ "success": false, "error": "slug_blacklisted", "message": "Non, ce contenu existe déjà…", "slug": "..." }`
+- Audit log : action `blocked` sur `resource_type=post`.
+
+**UI admin** : onglet **Liste noire** dans `/admin/blog`.
+
+**Doc agents** : `docs/CRAWLERS_SLUG_PERSISTENCE_PROMPT.md` — règles de persistance pour Crawlers / Parménion (mémoire locale, anti-variations, cooldown).
