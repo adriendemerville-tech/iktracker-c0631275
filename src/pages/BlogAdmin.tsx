@@ -708,6 +708,10 @@ export default function BlogAdmin() {
                 <History className="h-4 w-4" />
                 Journal API
               </TabsTrigger>
+              <TabsTrigger value="blacklist" className="gap-2">
+                <Ban className="h-4 w-4" />
+                Liste noire
+              </TabsTrigger>
             </TabsList>
 
             {/* Posts Tab */}
