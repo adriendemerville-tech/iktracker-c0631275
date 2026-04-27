@@ -17,7 +17,7 @@ import { ContentEditor } from '@/components/blog/ContentEditor';
 import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search
 } from 'lucide-react';
 import {
   DndContext,
