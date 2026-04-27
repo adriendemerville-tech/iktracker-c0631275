@@ -112,7 +112,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/app/mestrajets` | `MesTrajets` | Historique des trajets |
 | `/app/profile` | `Profile` | Profil utilisateur |
 | `/app/admin` | `Admin` | Dashboard admin |
-| `/app/admin/blog` | `BlogAdmin` | Gestion articles blog |
+| `/app/admin/blog` | `BlogAdmin` | Gestion articles blog (onglets : Articles, Brouillons, **Corbeille**, Journal API, **Liste noire**) |
 | `/app/admin/blog/edit/:id?` | `BlogEditor` | Éditeur d'article |
 | `/app/blog/edit/:id?` | `BlogEditor` | Éditeur (alias) |
 | `/app/theme-onboarding` | `ThemeOnboarding` | Choix du thème |
