@@ -17,7 +17,7 @@ import { ContentEditor } from '@/components/blog/ContentEditor';
 import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search
 } from 'lucide-react';
 import {
   DndContext,
@@ -253,6 +253,10 @@ export default function BlogAdmin() {
 
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Posts list filters
+  const [statusFilter, setStatusFilter] = useState<'all' | BlogPostStatus>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -638,6 +642,29 @@ export default function BlogAdmin() {
     }
   };
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredPosts = posts.filter((post) => {
+    if (statusFilter !== 'all' && post.status !== statusFilter) return false;
+    if (!normalizedQuery) return true;
+    const haystack = [
+      post.title,
+      post.subtitle ?? '',
+      post.slug,
+      post.author_name ?? '',
+      post.meta_description ?? '',
+    ]
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
+  const isFiltering = statusFilter !== 'all' || normalizedQuery.length > 0;
+  const statusCounts = {
+    all: posts.length,
+    published: posts.filter((p) => p.status === 'published').length,
+    draft: posts.filter((p) => p.status === 'draft').length,
+    archived: posts.filter((p) => p.status === 'archived').length,
+  };
+
   return (
     <>
       <Helmet>
@@ -685,7 +712,9 @@ export default function BlogAdmin() {
             {/* Posts Tab */}
             <TabsContent value="posts" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Articles ({posts.length})</h2>
+                <h2 className="text-xl font-semibold">
+                  Articles ({isFiltering ? `${filteredPosts.length}/${posts.length}` : posts.length})
+                </h2>
                 <Dialog open={postDialogOpen} onOpenChange={(open) => {
                   setPostDialogOpen(open);
                   if (!open) resetPostForm();
@@ -850,6 +879,44 @@ export default function BlogAdmin() {
                 </Dialog>
               </div>
 
+              {/* Filters: status + keyword search */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Rechercher par titre, slug, auteur, sous-titre…"
+                    className="pl-9 pr-9"
+                    aria-label="Rechercher un article"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground"
+                      aria-label="Effacer la recherche"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value) => setStatusFilter(value as 'all' | BlogPostStatus)}
+                >
+                  <SelectTrigger className="w-full sm:w-[220px]" aria-label="Filtrer par statut">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts ({statusCounts.all})</SelectItem>
+                    <SelectItem value="published">Publiés ({statusCounts.published})</SelectItem>
+                    <SelectItem value="draft">Brouillons ({statusCounts.draft})</SelectItem>
+                    <SelectItem value="archived">Archivés ({statusCounts.archived})</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {loadingPosts ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
@@ -867,6 +934,83 @@ export default function BlogAdmin() {
                     Aucun article. Créez votre premier article !
                   </CardContent>
                 </Card>
+              ) : filteredPosts.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center text-muted-foreground space-y-3">
+                    <p>Aucun article ne correspond à ces filtres.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setSearchQuery('');
+                      }}
+                    >
+                      Réinitialiser les filtres
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : isFiltering ? (
+                // Drag-and-drop reorder is disabled while filtering to avoid
+                // reordering against an incomplete list.
+                <div className="space-y-3">
+                  {filteredPosts.map((post) => (
+                    <Card key={post.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h3 className="font-medium text-foreground truncate">{post.title}</h3>
+                              {getStatusBadge(post.status)}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              /{post.slug} • {format(new Date(post.created_at), 'dd MMM yyyy', { locale: fr })}
+                              {post.author_name && ` • ${post.author_name}`}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => togglePostStatus(post)}
+                              title={post.status === 'published' ? 'Dépublier' : 'Publier'}
+                            >
+                              {post.status === 'published' ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => openEditPost(post)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Supprimer l'article ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Cette action est irréversible. L'article "{post.title}" sera définitivement supprimé.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => deletePost(post.id)}>
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               ) : (
                 <DndContext
                   sensors={sensors}
