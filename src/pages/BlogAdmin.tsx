@@ -642,6 +642,29 @@ export default function BlogAdmin() {
     }
   };
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredPosts = posts.filter((post) => {
+    if (statusFilter !== 'all' && post.status !== statusFilter) return false;
+    if (!normalizedQuery) return true;
+    const haystack = [
+      post.title,
+      post.subtitle ?? '',
+      post.slug,
+      post.author_name ?? '',
+      post.meta_description ?? '',
+    ]
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
+  const isFiltering = statusFilter !== 'all' || normalizedQuery.length > 0;
+  const statusCounts = {
+    all: posts.length,
+    published: posts.filter((p) => p.status === 'published').length,
+    draft: posts.filter((p) => p.status === 'draft').length,
+    archived: posts.filter((p) => p.status === 'archived').length,
+  };
+
   return (
     <>
       <Helmet>
