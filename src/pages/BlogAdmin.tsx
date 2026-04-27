@@ -1229,6 +1229,8 @@ export default function BlogAdmin() {
                           onToggleStatus={togglePostStatus}
                           onDelete={deletePost}
                           getStatusBadge={getStatusBadge}
+                          selected={selectedPostIds.has(post.id)}
+                          onSelectChange={toggleSelectPost}
                         />
                       ))}
                     </div>
