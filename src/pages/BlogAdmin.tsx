@@ -16,6 +16,7 @@ import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
 import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
 import { BlogBlacklistManager } from '@/components/admin/BlogBlacklistManager';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
   Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search, Ban
@@ -104,13 +105,17 @@ function SortablePostCard({
   onEdit, 
   onToggleStatus, 
   onDelete,
-  getStatusBadge 
+  getStatusBadge,
+  selected,
+  onSelectChange,
 }: { 
   post: BlogPost; 
   onEdit: (post: BlogPost) => void;
   onToggleStatus: (post: BlogPost) => void;
   onDelete: (id: string) => void;
   getStatusBadge: (status: BlogPostStatus) => React.ReactNode;
+  selected: boolean;
+  onSelectChange: (id: string, checked: boolean) => void;
 }) {
   const {
     attributes,
@@ -128,9 +133,14 @@ function SortablePostCard({
   };
 
   return (
-    <Card ref={setNodeRef} style={style} className={isDragging ? 'ring-2 ring-primary' : ''}>
+    <Card ref={setNodeRef} style={style} className={isDragging ? 'ring-2 ring-primary' : selected ? 'ring-2 ring-primary/50' : ''}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-4">
+          <Checkbox
+            checked={selected}
+            onCheckedChange={(c) => onSelectChange(post.id, !!c)}
+            aria-label={`Sélectionner ${post.title}`}
+          />
           <div 
             {...attributes} 
             {...listeners}
@@ -258,6 +268,28 @@ export default function BlogAdmin() {
   // Posts list filters
   const [statusFilter, setStatusFilter] = useState<'all' | BlogPostStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Bulk selection state
+  const [selectedPostIds, setSelectedPostIds] = useState<Set<string>>(new Set());
+  const [selectedTrashIds, setSelectedTrashIds] = useState<Set<string>>(new Set());
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  const toggleSelectPost = (id: string, checked: boolean) => {
+    setSelectedPostIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id); else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectTrash = (id: string, checked: boolean) => {
+    setSelectedTrashIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id); else next.delete(id);
+      return next;
+    });
+  };
+  const clearPostSelection = () => setSelectedPostIds(new Set());
+  const clearTrashSelection = () => setSelectedTrashIds(new Set());
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -495,6 +527,64 @@ export default function BlogAdmin() {
     const { error } = await supabase.from('blog_posts').delete().eq('id', id);
     if (error) { toast.error('Erreur lors de la purge'); return; }
     toast.success('Article supprimé définitivement');
+    fetchPosts();
+  };
+
+  // Bulk actions on visible posts (Articles tab)
+  const bulkPublish = async (publish: boolean) => {
+    const ids = Array.from(selectedPostIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const updateData: Record<string, unknown> = { status: publish ? 'published' : 'draft' };
+    if (publish) updateData.published_at = new Date().toISOString();
+    const { error } = await supabase.from('blog_posts').update(updateData).in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la mise à jour groupée'); return; }
+    toast.success(`${ids.length} article(s) ${publish ? 'publié(s)' : 'dépublié(s)'}`);
+    clearPostSelection();
+    fetchPosts();
+  };
+
+  const bulkSoftDelete = async () => {
+    const ids = Array.from(selectedPostIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: 'deleted' as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
+      .in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la suppression groupée'); return; }
+    toast.success(`${ids.length} article(s) déplacé(s) dans la corbeille`);
+    clearPostSelection();
+    fetchPosts();
+  };
+
+  // Bulk actions on trash
+  const bulkRestore = async () => {
+    const ids = Array.from(selectedTrashIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: 'draft' as BlogPostStatus, deleted_at: null } as any)
+      .in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la restauration groupée'); return; }
+    toast.success(`${ids.length} article(s) restauré(s) en brouillon`);
+    clearTrashSelection();
+    fetchPosts();
+  };
+
+  const bulkPurge = async () => {
+    const ids = Array.from(selectedTrashIds);
+    if (ids.length === 0) return;
+    setBulkActionLoading(true);
+    const { error } = await supabase.from('blog_posts').delete().in('id', ids);
+    setBulkActionLoading(false);
+    if (error) { toast.error('Erreur lors de la purge groupée'); return; }
+    toast.success(`${ids.length} article(s) supprimé(s) définitivement`);
+    clearTrashSelection();
     fetchPosts();
   };
 
@@ -951,6 +1041,79 @@ export default function BlogAdmin() {
                 </Select>
               </div>
 
+              {/* Bulk actions bar */}
+              {visiblePosts.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={
+                        (isFiltering ? filteredPosts : visiblePosts).length > 0 &&
+                        (isFiltering ? filteredPosts : visiblePosts).every((p) => selectedPostIds.has(p.id))
+                      }
+                      onCheckedChange={(c) => {
+                        const list = isFiltering ? filteredPosts : visiblePosts;
+                        if (c) {
+                          setSelectedPostIds(new Set(list.map((p) => p.id)));
+                        } else {
+                          clearPostSelection();
+                        }
+                      }}
+                      aria-label="Tout sélectionner"
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {selectedPostIds.size > 0
+                        ? `${selectedPostIds.size} sélectionné(s)`
+                        : 'Tout sélectionner'}
+                    </span>
+                  </div>
+                  <div className="ml-auto flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={selectedPostIds.size === 0 || bulkActionLoading}
+                      onClick={() => bulkPublish(true)}
+                    >
+                      <Eye className="mr-2 h-4 w-4" /> Publier
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={selectedPostIds.size === 0 || bulkActionLoading}
+                      onClick={() => bulkPublish(false)}
+                    >
+                      <EyeOff className="mr-2 h-4 w-4" /> Dépublier
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={selectedPostIds.size === 0 || bulkActionLoading}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Mettre à la corbeille
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Déplacer {selectedPostIds.size} article(s) à la corbeille ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Les articles sélectionnés seront déplacés dans la corbeille. Vous pourrez les restaurer ou les supprimer définitivement depuis l'onglet « Corbeille ».
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={bulkSoftDelete}>Déplacer</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    {selectedPostIds.size > 0 && (
+                      <Button size="sm" variant="ghost" onClick={clearPostSelection}>
+                        <X className="mr-2 h-4 w-4" /> Effacer
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
               {loadingPosts ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
@@ -989,9 +1152,14 @@ export default function BlogAdmin() {
                 // reordering against an incomplete list.
                 <div className="space-y-3">
                   {filteredPosts.map((post) => (
-                    <Card key={post.id}>
+                    <Card key={post.id} className={selectedPostIds.has(post.id) ? 'ring-2 ring-primary/50' : ''}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between gap-4">
+                          <Checkbox
+                            checked={selectedPostIds.has(post.id)}
+                            onCheckedChange={(c) => toggleSelectPost(post.id, !!c)}
+                            aria-label={`Sélectionner ${post.title}`}
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-1">
                               <h3 className="font-medium text-foreground truncate">{post.title}</h3>
@@ -1061,6 +1229,8 @@ export default function BlogAdmin() {
                           onToggleStatus={togglePostStatus}
                           onDelete={deletePost}
                           getStatusBadge={getStatusBadge}
+                          selected={selectedPostIds.has(post.id)}
+                          onSelectChange={toggleSelectPost}
                         />
                       ))}
                     </div>
@@ -1595,51 +1765,118 @@ curl -X POST \\
                   {trashedPosts.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Aucun article dans la corbeille.</p>
                   ) : (
-                    <div className="space-y-2">
-                      {trashedPosts.map((p) => (
-                        <div key={p.id} className="border rounded-lg p-3 flex items-center justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium truncate">{p.title}</span>
-                              <Badge variant="destructive">Corbeille</Badge>
-                            </div>
-                            <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
-                            {(p as any).deleted_at && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex gap-2 shrink-0">
-                            <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
-                              <Undo2 className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="outline" title="Supprimer définitivement">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
-                                    Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => purgePost(p.id)}>
-                                    Supprimer définitivement
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                    <>
+                      {/* Bulk actions bar - trash */}
+                      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={trashedPosts.length > 0 && trashedPosts.every((p) => selectedTrashIds.has(p.id))}
+                            onCheckedChange={(c) => {
+                              if (c) setSelectedTrashIds(new Set(trashedPosts.map((p) => p.id)));
+                              else clearTrashSelection();
+                            }}
+                            aria-label="Tout sélectionner"
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {selectedTrashIds.size > 0
+                              ? `${selectedTrashIds.size} sélectionné(s)`
+                              : 'Tout sélectionner'}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="ml-auto flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={selectedTrashIds.size === 0 || bulkActionLoading}
+                            onClick={bulkRestore}
+                          >
+                            <Undo2 className="mr-2 h-4 w-4" /> Restaurer
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={selectedTrashIds.size === 0 || bulkActionLoading}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Supprimer définitivement
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Supprimer définitivement {selectedTrashIds.size} article(s) ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Les articles sélectionnés seront supprimés de la base de données. Cette action est irréversible. Pensez à ajouter les slugs à la liste noire pour empêcher leur recréation par l'API.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={bulkPurge}>Supprimer définitivement</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                          {selectedTrashIds.size > 0 && (
+                            <Button size="sm" variant="ghost" onClick={clearTrashSelection}>
+                              <X className="mr-2 h-4 w-4" /> Effacer
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {trashedPosts.map((p) => (
+                          <div
+                            key={p.id}
+                            className={`border rounded-lg p-3 flex items-center justify-between gap-3 ${selectedTrashIds.has(p.id) ? 'ring-2 ring-primary/50' : ''}`}
+                          >
+                            <Checkbox
+                              checked={selectedTrashIds.has(p.id)}
+                              onCheckedChange={(c) => toggleSelectTrash(p.id, !!c)}
+                              aria-label={`Sélectionner ${p.title}`}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium truncate">{p.title}</span>
+                                <Badge variant="destructive">Corbeille</Badge>
+                              </div>
+                              <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
+                              {(p as any).deleted_at && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex gap-2 shrink-0">
+                              <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
+                                <Undo2 className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="outline" title="Supprimer définitivement">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
+                                      Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => purgePost(p.id)}>
+                                      Supprimer définitivement
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
