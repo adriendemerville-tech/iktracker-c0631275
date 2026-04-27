@@ -1504,6 +1504,7 @@ export type Database = {
           created_at: string
           id: string
           persona: string
+          tutorial_completed_at: string | null
           updated_at: string
           user_id: string
           visit_count: number
@@ -1513,6 +1514,7 @@ export type Database = {
           created_at?: string
           id?: string
           persona?: string
+          tutorial_completed_at?: string | null
           updated_at?: string
           user_id: string
           visit_count?: number
@@ -1522,6 +1524,7 @@ export type Database = {
           created_at?: string
           id?: string
           persona?: string
+          tutorial_completed_at?: string | null
           updated_at?: string
           user_id?: string
           visit_count?: number
