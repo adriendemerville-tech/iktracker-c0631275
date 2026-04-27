@@ -1219,9 +1219,9 @@ export default function BlogAdmin() {
                   collisionDetection={closestCenter}
                   onDragEnd={handleDragEnd}
                 >
-                  <SortableContext items={posts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <SortableContext items={visiblePosts.map(p => p.id)} strategy={verticalListSortingStrategy}>
                     <div className="space-y-3">
-                      {posts.map((post) => (
+                      {visiblePosts.map((post) => (
                         <SortablePostCard
                           key={post.id}
                           post={post}
