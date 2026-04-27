@@ -3,7 +3,7 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { isBrowser, isBot } from '@/lib/ssr-utils';
-import crawlersLogo from '@/assets/crawlers-logo.png';
+import crawlersLogo from '@/assets/crawlers-logo.webp';
 
 function CrawlersBannerComponent() {
   const trackClick = useCallback(() => {
