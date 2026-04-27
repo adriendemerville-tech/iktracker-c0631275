@@ -15,9 +15,10 @@ import { toast } from 'sonner';
 import { convertToWebP } from '@/lib/image-utils';
 import { ContentEditor } from '@/components/blog/ContentEditor';
 import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
+import { BlogBlacklistManager } from '@/components/admin/BlogBlacklistManager';
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search
+  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search, Ban
 } from 'lucide-react';
 import {
   DndContext,
