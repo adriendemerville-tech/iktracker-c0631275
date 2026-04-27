@@ -254,6 +254,10 @@ export default function BlogAdmin() {
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  // Posts list filters
+  const [statusFilter, setStatusFilter] = useState<'all' | BlogPostStatus>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
       navigate('/app');
