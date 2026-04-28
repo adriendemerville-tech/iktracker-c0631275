@@ -46,7 +46,9 @@ import {
   UserPlus,
   Map,
   MapPin,
-  RefreshCw
+  RefreshCw,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays, endOfWeek, addDays, addWeeks, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
