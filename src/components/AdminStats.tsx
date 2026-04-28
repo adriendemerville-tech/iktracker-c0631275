@@ -1006,9 +1006,26 @@ export function AdminStats() {
     <div className="space-y-4">
       {/* Period filter and export buttons */}
       <div className="sticky top-2 z-20 rounded-2xl border border-border bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/85">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        {/* Mobile collapse toggle */}
+        <div className="flex items-center justify-between lg:hidden mb-2">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Calendar className="w-4 h-4 text-primary" />
+            <span>Filtres ({periodConfig[period].label})</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setFiltersCollapsed(v => !v)}
+            className="h-7 w-7 p-0"
+            aria-label={filtersCollapsed ? 'Afficher les filtres' : 'Masquer les filtres'}
+          >
+            {filtersCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+          </Button>
+        </div>
+
+        <div className={`flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between ${filtersCollapsed ? 'hidden lg:flex' : 'flex'}`}>
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-foreground">
               <Calendar className="w-4 h-4 text-primary" />
               <span>Filtre de période</span>
             </div>
