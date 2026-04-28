@@ -212,6 +212,7 @@ export function AdminStats() {
   const queryClient = useQueryClient();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [period, setPeriod] = useState<PeriodFilter>('month');
+  const [filtersCollapsed, setFiltersCollapsed] = useState(false);
   const [topUserSort, setTopUserSort] = useState<TopUserSort>('trips');
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
