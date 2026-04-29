@@ -173,28 +173,6 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             </Button>
 
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-background/50 focus-visible-ring"
-              onClick={() => handleOAuthLogin('azure')}
-              disabled={oauthLoading !== null}
-              aria-label="Se connecter avec Microsoft"
-            >
-              {oauthLoading === 'azure' ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
-              ) : (
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 21 21" aria-hidden="true" role="img">
-                  <title>Logo Microsoft</title>
-                  <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-                  <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-                  <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-                  <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-                </svg>
-              )}
-              Continuer avec Microsoft
-            </Button>
-
             <div className="relative" role="separator" aria-orientation="horizontal">
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
                 <span className="w-full border-t" />
