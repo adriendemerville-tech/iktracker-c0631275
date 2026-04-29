@@ -101,9 +101,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  // Redirect to auth if user is logged out OR if auth is required
-  if (!user && requiresAuth) {
-    return <Navigate to="/auth" replace />;
+  // Show auth modal overlay if user is not logged in (instead of redirecting)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AuthRequiredModal open={true} />
+      </div>
+    );
   }
 
   return <>{children}</>;
