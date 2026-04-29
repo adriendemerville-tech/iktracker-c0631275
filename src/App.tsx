@@ -13,6 +13,7 @@ import { LogoutOverlay } from "@/components/LogoutOverlay";
 import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { GlobalTourRecovery } from "@/components/GlobalTourRecovery";
+import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 
 const SurveyWidget = lazy(() => import("@/components/SurveyWidget").then(m => ({ default: m.SurveyWidget })));
 
@@ -100,9 +101,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  // Redirect to auth if user is logged out OR if auth is required
-  if (!user && requiresAuth) {
-    return <Navigate to="/auth" replace />;
+  // Show auth modal overlay if user is not logged in (instead of redirecting)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AuthRequiredModal open={true} />
+      </div>
+    );
   }
 
   return <>{children}</>;
