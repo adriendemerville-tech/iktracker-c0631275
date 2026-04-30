@@ -284,8 +284,17 @@ export function GlobalTourRecovery() {
               city: s.city,
               duration: s.duration,
             }));
-            purpose = 'Tournée récupérée';
-            caseLabel = 'A_full_tour';
+            const loopResult = detectLoop(
+              session.stops.map(s => ({ lat: s.lat, lng: s.lng })),
+              distanceKm,
+            );
+            if (loopResult.isLoop) {
+              purpose = 'Tournée récupérée (aller-retour)';
+              caseLabel = 'A_full_tour_loop';
+            } else {
+              purpose = 'Tournée récupérée';
+              caseLabel = 'A_full_tour';
+            }
           } else if (stopsCount === 1) {
             const firstStop = session.stops[0];
             startLocation = firstStop.city || firstStop.address || 'Position';
