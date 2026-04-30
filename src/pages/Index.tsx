@@ -11,6 +11,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useGeolocationPermission } from '@/hooks/useGeolocationPermission';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { reverseGeocode } from '@/lib/geocoding';
+import { detectLoop } from '@/lib/loop-detection';
 import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
