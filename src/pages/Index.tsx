@@ -11,6 +11,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useGeolocationPermission } from '@/hooks/useGeolocationPermission';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { reverseGeocode } from '@/lib/geocoding';
+import { detectLoop } from '@/lib/loop-detection';
 import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 import { Counter } from '@/components/Counter';
 import { TripCard } from '@/components/TripCard';
@@ -612,6 +613,20 @@ const Index = () => {
       duration: stop.duration,
     })) : undefined;
 
+    // Auto-detect loop (start ≈ end with real excursion in between)
+    // Only meaningful for tours (≥2 stops)
+    let detectedRoundTrip = false;
+    if (isTour) {
+      const loopResult = detectLoop(
+        stops.map(s => ({ lat: s.lat, lng: s.lng })),
+        totalDistance,
+      );
+      detectedRoundTrip = loopResult.isLoop;
+      if (detectedRoundTrip) {
+        console.log('[Loop detection] Aller-retour détecté', loopResult);
+      }
+    }
+
     try {
       const result = await addTrip({
         vehicleId,
@@ -633,8 +648,8 @@ const Index = () => {
         },
         distance: totalDistance,
         baseDistance: totalDistance,
-        roundTrip: false,
-        purpose: isTour ? 'Tournée' : 'Trajet',
+        roundTrip: detectedRoundTrip,
+        purpose: isTour ? (detectedRoundTrip ? 'Tournée (aller-retour)' : 'Tournée') : 'Trajet',
         startTime: firstStop.timestamp,
         endTime: new Date(),
         tourStops: tourStopsData,

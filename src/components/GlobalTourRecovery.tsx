@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { logTourRecovery } from '@/lib/tour-recovery-log';
 import { loadGoogleMapsAsync } from '@/hooks/useGoogleMaps';
 import { reverseGeocode } from '@/lib/geocoding';
+import { detectLoop } from '@/lib/loop-detection';
 
 const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
 
@@ -283,8 +284,17 @@ export function GlobalTourRecovery() {
               city: s.city,
               duration: s.duration,
             }));
-            purpose = 'Tournée récupérée';
-            caseLabel = 'A_full_tour';
+            const loopResult = detectLoop(
+              session.stops.map(s => ({ lat: s.lat, lng: s.lng })),
+              distanceKm,
+            );
+            if (loopResult.isLoop) {
+              purpose = 'Tournée récupérée (aller-retour)';
+              caseLabel = 'A_full_tour_loop';
+            } else {
+              purpose = 'Tournée récupérée';
+              caseLabel = 'A_full_tour';
+            }
           } else if (stopsCount === 1) {
             const firstStop = session.stops[0];
             startLocation = firstStop.city || firstStop.address || 'Position';
@@ -316,7 +326,7 @@ export function GlobalTourRecovery() {
             end_location: endLocation,
             distance: distanceKm,
             date: new Date(session.started_at).toISOString().split('T')[0],
-            round_trip: false,
+            round_trip: caseLabel === 'A_full_tour_loop',
             purpose,
             tour_stops: tourStopsData,
             status: 'pending_location',
