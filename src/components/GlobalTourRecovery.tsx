@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { logTourRecovery } from '@/lib/tour-recovery-log';
 import { loadGoogleMapsAsync } from '@/hooks/useGoogleMaps';
 import { reverseGeocode } from '@/lib/geocoding';
+import { detectLoop } from '@/lib/loop-detection';
 
 const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
 
