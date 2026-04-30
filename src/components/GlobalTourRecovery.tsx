@@ -326,7 +326,7 @@ export function GlobalTourRecovery() {
             end_location: endLocation,
             distance: distanceKm,
             date: new Date(session.started_at).toISOString().split('T')[0],
-            round_trip: false,
+            round_trip: caseLabel === 'A_full_tour_loop',
             purpose,
             tour_stops: tourStopsData,
             status: 'pending_location',
