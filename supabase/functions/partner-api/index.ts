@@ -33,6 +33,40 @@ async function importHmacKey(secret: string): Promise<CryptoKey> {
   );
 }
 
+// Normalize a location string for duplicate detection
+// Lowercase, trim, remove diacritics, collapse spaces, drop trailing comma chunks
+function normalizeLocation(s: string | null | undefined): string {
+  if (!s) return '';
+  return s
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Strict duplicate detection: same user + same date + same normalized destination
+// Includes archived (deleted_at) trips so re-imports don't resurrect them
+async function findDuplicateTrip(
+  userId: string,
+  date: string,
+  endLocation: string,
+): Promise<{ id: string; deleted: boolean } | null> {
+  const norm = normalizeLocation(endLocation);
+  if (!norm) return null;
+  const { data } = await admin
+    .from('trips')
+    .select('id, end_location, deleted_at')
+    .eq('user_id', userId)
+    .eq('date', date);
+  if (!data?.length) return null;
+  for (const t of data) {
+    if (normalizeLocation(t.end_location) === norm) {
+      return { id: t.id, deleted: t.deleted_at !== null };
+    }
+  }
+  return null;
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -269,6 +303,20 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
   }
 
   const userId = await findOrCreateIktrackerUser(ctx.partnerId, externalUserId, external_email, body.metadata || {});
+
+  // Strict duplicate detection (user + date + normalized destination), includes archived trips
+  const dup = await findDuplicateTrip(userId, date, end_location);
+  if (dup) {
+    return jsonResponse({
+      success: false,
+      duplicate: true,
+      reason: dup.deleted ? 'duplicate_archived' : 'duplicate_active',
+      existing_trip_id: dup.id,
+      message: dup.deleted
+        ? 'A similar trip exists but was archived by the user; not re-imported.'
+        : 'A similar trip already exists for this user/date/destination.',
+    }, 200);
+  }
 
   // Compute IK if vehicle provided
   let ikAmount = 0;
