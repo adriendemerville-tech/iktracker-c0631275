@@ -304,6 +304,20 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
 
   const userId = await findOrCreateIktrackerUser(ctx.partnerId, externalUserId, external_email, body.metadata || {});
 
+  // Strict duplicate detection (user + date + normalized destination), includes archived trips
+  const dup = await findDuplicateTrip(userId, date, end_location);
+  if (dup) {
+    return jsonResponse({
+      success: false,
+      duplicate: true,
+      reason: dup.deleted ? 'duplicate_archived' : 'duplicate_active',
+      existing_trip_id: dup.id,
+      message: dup.deleted
+        ? 'A similar trip exists but was archived by the user; not re-imported.'
+        : 'A similar trip already exists for this user/date/destination.',
+    }, 200);
+  }
+
   // Compute IK if vehicle provided
   let ikAmount = 0;
   if (vehicle_id) {
