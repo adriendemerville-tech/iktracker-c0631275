@@ -745,3 +745,40 @@ La policy RLS publique reste `status = 'published'`, donc les articles `deleted`
 
 **UI admin**
 Onglet **Corbeille** dans `/admin/blog` (compteur, restauration en `draft`, purge définitive avec confirmation). La suppression depuis le listing principal envoie désormais l'article dans la corbeille au lieu de le détruire.
+
+---
+
+## Détection & purge des trajets en doublon
+
+**Problème** : avec deux sources d'import automatique (Google/Outlook Calendar via `sync-calendar-trips` et partenaires comme Dictadevi via `partner-api`), un même trajet réel peut générer plusieurs lignes dans `trips` (event ID différent ou source différente).
+
+**Stratégie de dédup (stricte)**
+Clé unique logique : `user_id` + `date` + destination normalisée (`end_location` minuscule, sans diacritiques, espaces compactés). Englobe les trajets archivés (`deleted_at IS NOT NULL`) afin de ne pas re-créer un trajet que l'utilisateur a explicitement supprimé.
+
+**Couches de protection**
+
+1. **`partner-api` `POST /trips`** : avant insertion, appelle `findDuplicateTrip(userId, date, end_location)`. Si match :
+   - Retourne `200 { success: false, duplicate: true, reason: "duplicate_active" | "duplicate_archived", existing_trip_id }`.
+   - Aucune insertion, aucun webhook `trip.created` envoyé.
+
+2. **`sync-calendar-trips`** : conserve la double garde existante :
+   - `tripExistsForEvent` (match exact par `calendar_event_id`).
+   - `similarTripExists` (match souple date + destination, archivés inclus).
+
+3. **`purge-duplicate-trips`** (nouvelle edge function) :
+   - Auth : utilisateur admin via JWT, ou cron interne via header `x-cron-secret` égal au service role key.
+   - Body : `{ "dry_run": true|false (def true), "user_id"?: uuid, "days_back"?: int (def 365) }`.
+   - Regroupe par clé stricte, conserve le plus ancien trajet actif, soft-delete les autres (`deleted_at = now()`).
+   - Mode `dry_run` retourne la liste des groupes sans modifier la base.
+   - Log dans `error_logs` (type `maintenance`) lors d'une exécution réelle.
+
+**Tâche planifiée**
+Cron `purge-duplicate-trips-daily` (`pg_cron`), tous les jours à **03:15 UTC**, exécute la purge réelle sur les **90 derniers jours**. Le secret cron est lu depuis `vault.decrypted_secrets`.
+
+**Test manuel admin**
+```bash
+curl -X POST https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/purge-duplicate-trips \
+  -H "Authorization: Bearer <user_jwt_admin>" \
+  -H "Content-Type: application/json" \
+  -d '{"dry_run": true, "days_back": 365}'
+```
