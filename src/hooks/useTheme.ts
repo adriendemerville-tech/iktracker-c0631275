@@ -4,12 +4,13 @@ import { isBrowser, safeLocalStorage, safeMatchMedia } from '@/lib/ssr-utils';
 type Theme = 'light' | 'dark';
 
 const getInitialTheme = (): Theme => {
-  if (!isBrowser()) return 'light'; // Default for SSR/bots
-  
+  if (!isBrowser()) return 'dark'; // Default for SSR/bots
+
   const stored = safeLocalStorage.getItem('theme') as Theme | null;
   if (stored === 'light' || stored === 'dark') return stored;
-  
-  return safeMatchMedia('(prefers-color-scheme: dark)') ? 'dark' : 'light';
+
+  // Default to dark unless user's OS explicitly prefers light
+  return safeMatchMedia('(prefers-color-scheme: light)') ? 'light' : 'dark';
 };
 
 export const useTheme = () => {
