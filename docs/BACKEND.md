@@ -664,6 +664,20 @@ Table `partner_webhooks` : URL + secret HMAC + liste d'événements abonnés. Pe
 
 La contrainte `trips_source_check` accepte les valeurs `manual`, `google_calendar`, `outlook_calendar`, `tour`, `takeout`, ainsi que toute valeur préfixée par `partner:` (ex: `partner:dictadevi`).
 
+### Scopes disponibles
+
+| Scope | Endpoints couverts |
+|-------|--------------------|
+| `vehicle:read` / `vehicle:lookup` | Lecture véhicules + lookup plaque |
+| `ik:calculate` | Calcul barème IK |
+| `trips:write` | `POST /trips` |
+| `trips:read` / `read` | Lecture trajets |
+| `reports` (ou `trips:read`/`read`) | `POST /reports/generate`, `POST /reports/send-email`, `GET /reports/{id}/pdf` |
+| `stats:read` | Stats agrégées partenaire |
+| `sso` | Magic links one-shot |
+
+⚠️ Pour qu'un partenaire puisse générer/télécharger les rapports IK PDF, sa clé doit avoir l'un des scopes `reports`, `trips:read` ou `read`. Sinon `partner-api` renvoie `403 "Missing reports / trips:read scope"`.
+
 ### Admin UI
 
 Le dashboard `/app/admin/partners` (réservé `admin`) permet de :
