@@ -219,7 +219,7 @@ export function useAddressAutocomplete() {
       } finally {
         setIsLoading(false);
       }
-    }, 650);
+    }, 400);
   }, []);
 
   const clear = useCallback(() => {
