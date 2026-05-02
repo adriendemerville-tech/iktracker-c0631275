@@ -80,72 +80,25 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     setAddressValidated(true);
   };
 
-  // Initialize Google Places Autocomplete
-  useEffect(() => {
-    if (!open || !addressInputRef.current) return;
-    
-    const initAutocomplete = () => {
-      if (!window.google?.maps?.places || !addressInputRef.current) return;
-
-      if (autocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+  // Geocode address using Géoplateforme search API as fallback
+  const geocodeAddressFallback = async (addressText: string): Promise<{ address: string; lat: number; lng: number } | null> => {
+    try {
+      const params = new URLSearchParams({ q: addressText, type: 'housenumber,street', limit: '1' });
+      const res = await fetch(`https://data.geopf.fr/geocodage/search?${params}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.features && data.features.length > 0) {
+        const f = data.features[0];
+        return {
+          address: f.properties?.label || addressText,
+          lat: f.geometry?.coordinates?.[1],
+          lng: f.geometry?.coordinates?.[0],
+        };
       }
-
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(addressInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
-
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          setAddress(place.formatted_address || place.name || '');
-          setLatitude(place.geometry.location.lat());
-          setLongitude(place.geometry.location.lng());
-          setAddressValidated(true);
-        }
-      });
-    };
-
-    // Small delay to ensure the input is rendered
-    const timer = setTimeout(() => {
-      if (window.google?.maps?.places) {
-        initAutocomplete();
-      }
-    }, 300);
-
-    return () => {
-      clearTimeout(timer);
-      if (autocompleteRef.current && window.google?.maps?.event) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
-    };
-  }, [open]);
-
-  // Geocode address if not validated via autocomplete
-  const geocodeAddress = async (addressText: string): Promise<{ address: string; lat: number; lng: number } | null> => {
-    if (!window.google?.maps?.Geocoder) return null;
-    
-    const geocoder = new window.google.maps.Geocoder();
-    
-    return new Promise((resolve) => {
-      geocoder.geocode(
-        { address: addressText, componentRestrictions: { country: 'fr' } },
-        (results, status) => {
-          if (status === 'OK' && results && results[0]) {
-            const result = results[0];
-            resolve({
-              address: result.formatted_address,
-              lat: result.geometry.location.lat(),
-              lng: result.geometry.location.lng(),
-            });
-          } else {
-            resolve(null);
-          }
-        }
-      );
-    });
+      return null;
+    } catch {
+      return null;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
