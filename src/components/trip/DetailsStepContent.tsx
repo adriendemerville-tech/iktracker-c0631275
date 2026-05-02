@@ -146,75 +146,63 @@ export function DetailsStepContent({
 
   // Initialize Google Places Autocomplete for end address
   useEffect(() => {
-    if (!endInputRef.current) return;
-    
-    const initEndAutocomplete = () => {
-      if (!window.google?.maps?.places || !endInputRef.current) return;
+    if (!googleMapsLoaded || !endInputRef.current) return;
+    if (!window.google?.maps?.places) return;
 
-      if (endAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
-      }
+    if (endAutocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
+    }
 
-      endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
+    endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
+      componentRestrictions: { country: 'fr' },
+      fields: ['formatted_address', 'geometry', 'name'],
+      types: ['geocode'],
+    });
 
-      endAutocompleteRef.current.addListener('place_changed', async () => {
-        const place = endAutocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          
-          // Use reverse geocoding to get the city name
-          let cityName = place.name || 'Lieu';
-          const geocodeResult = await reverseGeocode(lat, lng);
-          if (geocodeResult?.city) {
-            cityName = geocodeResult.city;
-          }
-          
-          const newLocation: Location = {
-            id: draft.endLocation?.id || `temp-${crypto.randomUUID()}`,
-            name: cityName,
-            address: place.formatted_address || '',
-            lat,
-            lng,
-            type: draft.endLocation?.type || 'other',
-          };
-          
-          setEndAddress(place.formatted_address || '');
-          setDraft(d => ({ ...d, endLocation: newLocation }));
-          
-          // Recalculate distance if both locations have coordinates
-          if (draft.startLocation?.lat && draft.startLocation?.lng) {
-            try {
-              const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, lat, lng);
-              setCalculatedDistance(distance);
-              setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
-            } catch (e) {
-              console.error('Error calculating distance:', e);
-            }
+    endAutocompleteRef.current.addListener('place_changed', async () => {
+      const place = endAutocompleteRef.current?.getPlace();
+      if (place?.geometry?.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        
+        let cityName = place.name || 'Lieu';
+        const geocodeResult = await reverseGeocode(lat, lng);
+        if (geocodeResult?.city) {
+          cityName = geocodeResult.city;
+        }
+        
+        const newLocation: Location = {
+          id: draft.endLocation?.id || `temp-${crypto.randomUUID()}`,
+          name: cityName,
+          address: place.formatted_address || '',
+          lat,
+          lng,
+          type: draft.endLocation?.type || 'other',
+        };
+        
+        setEndAddress(place.formatted_address || '');
+        setDraft(d => ({ ...d, endLocation: newLocation }));
+        
+        if (draft.startLocation?.lat && draft.startLocation?.lng) {
+          try {
+            const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, lat, lng);
+            setCalculatedDistance(distance);
+            setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
+          } catch (e) {
+            console.error('Error calculating distance:', e);
           }
         }
-      });
-    };
-
-    const timer = setTimeout(() => {
-      if (window.google?.maps?.places) {
-        initEndAutocomplete();
       }
-    }, 300);
+    });
     
     return () => {
-      clearTimeout(timer);
       if (endAutocompleteRef.current && window.google?.maps?.event) {
         try {
           window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
         } catch (e) {}
       }
     };
-  }, [draft.startLocation, roundTrip, setDraft, setCalculatedDistance, setManualDistance]);
+  }, [googleMapsLoaded, draft.startLocation, roundTrip, setDraft, setCalculatedDistance, setManualDistance]);
 
   return (
     <div className="animate-fade-in space-y-6">
