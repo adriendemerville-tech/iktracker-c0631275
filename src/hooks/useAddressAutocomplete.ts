@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AddressSuggestion {
   fulltext: string;
@@ -11,18 +12,149 @@ export interface AddressSuggestion {
 
 const GEOPF_URL = 'https://data.geopf.fr/geocodage/completion/';
 
+// --- Google Maps key cache ---
+let googleKeyPromise: Promise<string | null> | null = null;
+let googleKeyResolved: string | null | undefined = undefined; // undefined = not yet resolved
+
+function getGoogleApiKey(): Promise<string | null> {
+  if (googleKeyResolved !== undefined) return Promise.resolve(googleKeyResolved);
+  if (!googleKeyPromise) {
+    googleKeyPromise = supabase.functions
+      .invoke('google-maps-key')
+      .then(({ data, error }) => {
+        if (error || !data?.key) {
+          googleKeyResolved = null;
+          return null;
+        }
+        googleKeyResolved = data.key;
+        return data.key as string;
+      })
+      .catch(() => {
+        googleKeyResolved = null;
+        return null;
+      });
+  }
+  return googleKeyPromise;
+}
+
+// --- Google Places Autocomplete (New API via REST) ---
+async function searchGoogle(
+  text: string,
+  apiKey: string,
+  signal: AbortSignal
+): Promise<AddressSuggestion[] | null> {
+  try {
+    const res = await fetch(
+      'https://places.googleapis.com/v1/places:autocomplete',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+        },
+        body: JSON.stringify({
+          input: text,
+          languageCode: 'fr',
+          regionCode: 'FR',
+          includedPrimaryTypes: ['street_address', 'route', 'premise', 'subpremise'],
+        }),
+        signal,
+      }
+    );
+
+    if (!res.ok) {
+      console.warn('Google Places API error:', res.status);
+      return null; // signal to fallback
+    }
+
+    const data = await res.json();
+    const suggestions = data.suggestions;
+
+    if (!Array.isArray(suggestions) || suggestions.length === 0) {
+      return []; // Google responded but no results — still a valid response
+    }
+
+    // We need to get place details for coordinates
+    const results: AddressSuggestion[] = [];
+    for (const s of suggestions.slice(0, 5)) {
+      const prediction = s.placePrediction;
+      if (!prediction) continue;
+
+      const fulltext = prediction.text?.text || prediction.structuredFormat?.mainText?.text || '';
+      const secondary = prediction.structuredFormat?.secondaryText?.text || '';
+
+      // Extract city and zipcode from secondary text (e.g. "75001 Paris, France")
+      const zipMatch = secondary.match(/(\d{5})/);
+      const zipcode = zipMatch ? zipMatch[1] : '';
+      const city = secondary.replace(/\d{5}\s*/, '').replace(/,?\s*France\s*$/i, '').trim();
+
+      results.push({
+        fulltext: `${fulltext}, ${secondary}`.replace(/,?\s*France\s*$/i, '').trim(),
+        street: prediction.structuredFormat?.mainText?.text || fulltext,
+        city,
+        zipcode,
+        lat: 0, // Will be geocoded when selected if needed
+        lng: 0,
+      });
+    }
+
+    return results;
+  } catch (e: any) {
+    if (e.name === 'AbortError') throw e;
+    console.warn('Google Places fetch error:', e);
+    return null; // fallback
+  }
+}
+
+// --- Géoplateforme fallback ---
+async function searchGeopf(
+  text: string,
+  signal: AbortSignal
+): Promise<AddressSuggestion[]> {
+  const params = new URLSearchParams({
+    text,
+    type: 'StreetAddress',
+    maximumResponses: '5',
+  });
+
+  const res = await fetch(`${GEOPF_URL}?${params}`, { signal });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const data = await res.json();
+
+  if (data.status === 'OK' && Array.isArray(data.results)) {
+    return data.results.map((r: any) => ({
+      fulltext: r.fulltext,
+      street: r.street || '',
+      city: r.city || '',
+      zipcode: r.zipcode || '',
+      lat: r.y,
+      lng: r.x,
+    }));
+  }
+  return [];
+}
+
 /**
- * Hook for address autocomplete using the free French Géoplateforme API.
- * No API key required. Rate limit: 10 req/s.
+ * Hook for address autocomplete.
+ * Primary: Google Places Autocomplete API (requires GOOGLE_MAPS_API_KEY secret).
+ * Fallback: Free French Géoplateforme API (no key required).
  */
 export function useAddressAutocomplete() {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const googleKeyRef = useRef<string | null | undefined>(undefined);
+
+  // Pre-fetch Google key on mount
+  useEffect(() => {
+    getGoogleApiKey().then((key) => {
+      googleKeyRef.current = key;
+    });
+  }, []);
 
   const search = useCallback((text: string) => {
-    // Cancel previous request
     abortRef.current?.abort();
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -39,43 +171,32 @@ export function useAddressAutocomplete() {
       abortRef.current = controller;
 
       try {
-        const params = new URLSearchParams({
-          text,
-          type: 'StreetAddress',
-          maximumResponses: '5',
-        });
+        const apiKey = googleKeyRef.current ?? (await getGoogleApiKey());
+        googleKeyRef.current = apiKey;
 
-        const res = await fetch(`${GEOPF_URL}?${params}`, {
-          signal: controller.signal,
-        });
+        let results: AddressSuggestion[] | null = null;
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data = await res.json();
-
-        if (data.status === 'OK' && Array.isArray(data.results)) {
-          setSuggestions(
-            data.results.map((r: any) => ({
-              fulltext: r.fulltext,
-              street: r.street || '',
-              city: r.city || '',
-              zipcode: r.zipcode || '',
-              lat: r.y,
-              lng: r.x,
-            }))
-          );
-        } else {
-          setSuggestions([]);
+        // Try Google first if key available
+        if (apiKey) {
+          results = await searchGoogle(text, apiKey, controller.signal);
         }
+
+        // Fallback to Géoplateforme if Google unavailable or errored
+        if (results === null) {
+          console.info('Falling back to Géoplateforme autocomplete');
+          results = await searchGeopf(text, controller.signal);
+        }
+
+        setSuggestions(results);
       } catch (e: any) {
         if (e.name !== 'AbortError') {
-          console.warn('Géoplateforme autocomplete error:', e);
+          console.warn('Autocomplete error:', e);
           setSuggestions([]);
         }
       } finally {
         setIsLoading(false);
       }
-    }, 250); // 250ms debounce
+    }, 250);
   }, []);
 
   const clear = useCallback(() => {
