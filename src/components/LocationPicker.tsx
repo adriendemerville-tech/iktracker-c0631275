@@ -7,6 +7,8 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
 import { geocodeAddress, reverseGeocode, removeCountryFromAddress } from '@/lib/geocoding';
 import { toast } from '@/components/ui/sonner';
+import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
+import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
 
 const RECENT_LOCATIONS_KEY = 'ik-recent-locations';
 const MAX_RECENT = 2;
@@ -67,12 +69,6 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number } | null>(null);
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
   
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const addressInputRef = useRef<HTMLInputElement>(null);
-  const editAddressInputRef = useRef<HTMLInputElement>(null);
-  const searchAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const editAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Use ref to always have latest onSelect callback (avoids stale closure issues)
