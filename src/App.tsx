@@ -1,12 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect, lazy, Suspense, createContext, useContext } from "react";
+import { lazy, Suspense, createContext, useContext } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
-import { deferTask } from "@/lib/idle-callback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
@@ -179,22 +177,6 @@ const SmartSignup = () => {
 };
 
 
-function GoogleMapsPreloader() {
-  const location = useLocation();
-  
-  useEffect(() => {
-    // Defer Google Maps preload to idle time to improve TTI
-    if (location.pathname.startsWith('/app')) {
-      // Use requestIdleCallback to avoid blocking main thread
-      deferTask(() => {
-        preloadGoogleMaps();
-      }, 'medium', 3000);
-    }
-  }, [location.pathname]);
-  
-  return null;
-}
-
 const AppRoutes = () => {
   const { user, isLoggingOut, clearLogoutOverlay, signOut } = useAuth();
 
@@ -222,7 +204,6 @@ const AppRoutes = () => {
   return (
     <AuthContext.Provider value={{ handleLogout }}>
       <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
-      <GoogleMapsPreloader />
       {user && <GlobalTourRecovery />}
       {user && <Suspense fallback={null}><SurveyWidget /></Suspense>}
       <Routes>
