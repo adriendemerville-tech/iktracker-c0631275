@@ -163,12 +163,12 @@ export function CompleteAddressSheet({
             <Label htmlFor="start-address" className="text-xs font-medium text-muted-foreground">Départ</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
+              <AddressAutocompleteInput
                 id="start-address"
-                ref={startInputRef}
                 placeholder="Adresse de départ..."
                 value={startAddress}
                 onChange={(e) => setStartAddress(e.target.value)}
+                onSelect={(suggestion) => handleAddressSelect(suggestion, 'start')}
                 className="pl-10 h-10"
               />
               {startCoords && (
@@ -208,12 +208,12 @@ export function CompleteAddressSheet({
             <Label htmlFor="end-address" className="text-xs font-medium text-muted-foreground">Arrivée</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-              <Input
+              <AddressAutocompleteInput
                 id="end-address"
-                ref={endInputRef}
                 placeholder="Adresse d'arrivée..."
                 value={endAddress}
                 onChange={(e) => setEndAddress(e.target.value)}
+                onSelect={(suggestion) => handleAddressSelect(suggestion, 'end')}
                 className="pl-10 h-10"
               />
               {endCoords && (
