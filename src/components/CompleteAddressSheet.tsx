@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -164,10 +164,9 @@ export function CompleteAddressSheet({
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <AddressAutocompleteInput
-                id="start-address"
                 placeholder="Adresse de départ..."
                 value={startAddress}
-                onChange={(e) => setStartAddress(e.target.value)}
+                onChange={setStartAddress}
                 onSelect={(suggestion) => handleAddressSelect(suggestion, 'start')}
                 className="pl-10 h-10"
               />
@@ -209,10 +208,9 @@ export function CompleteAddressSheet({
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <AddressAutocompleteInput
-                id="end-address"
                 placeholder="Adresse d'arrivée..."
                 value={endAddress}
-                onChange={(e) => setEndAddress(e.target.value)}
+                onChange={setEndAddress}
                 onSelect={(suggestion) => handleAddressSelect(suggestion, 'end')}
                 className="pl-10 h-10"
               />
