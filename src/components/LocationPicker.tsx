@@ -212,17 +212,11 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       {/* Search input */}
       <div className="relative w-full">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          ref={searchInputRef}
+        <AddressAutocompleteInput
           placeholder="Rechercher une adresse..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearchSubmit();
-            }
-          }}
+          onChange={setSearchQuery}
+          onSelect={handleSuggestionSelect}
           className="pl-10 h-12 text-base w-full"
         />
       </div>
@@ -287,11 +281,16 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                     autoFocus
                   />
                   <div className="relative">
-                    <Input
-                      ref={editAddressInputRef}
+                    <AddressAutocompleteInput
                       placeholder="Adresse"
                       value={editingLocation.address}
-                      onChange={(e) => setEditingLocation({ ...editingLocation, address: e.target.value })}
+                      onChange={(value) => setEditingLocation({ ...editingLocation, address: value, lat: undefined, lng: undefined })}
+                      onSelect={(suggestion) => setEditingLocation({
+                        ...editingLocation,
+                        address: suggestion.fulltext,
+                        lat: suggestion.lat,
+                        lng: suggestion.lng,
+                      })}
                     />
                     {editingLocation.lat && editingLocation.lng && (
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">✓ GPS</span>
@@ -367,11 +366,14 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
             onChange={(e) => setNewName(e.target.value)}
           />
           <div className="relative">
-            <Input
-              ref={addressInputRef}
+            <AddressAutocompleteInput
               placeholder="Rechercher une adresse..."
               value={newAddress}
-              onChange={(e) => setNewAddress(e.target.value)}
+              onChange={(value) => { setNewAddress(value); setNewCoords(null); }}
+              onSelect={(suggestion) => {
+                setNewAddress(suggestion.fulltext);
+                setNewCoords(suggestion.lat && suggestion.lng ? { lat: suggestion.lat, lng: suggestion.lng } : null);
+              }}
               className="pr-10"
             />
             {newCoords && newAddress && (
