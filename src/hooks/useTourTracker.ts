@@ -338,21 +338,17 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     return true;
   }, [trackingInterval, accuracyThreshold]);
 
-  // Update total distance using Distance Matrix API
-  const updateTotalDistance = useCallback(async (fromLat: number, fromLng: number, toLat: number, toLng: number) => {
-    try {
-      const segmentDistance = await calculateDrivingDistance(fromLat, fromLng, toLat, toLng);
-      
-      setTotalDistanceKm((prev) => {
-        const newTotal = prev + segmentDistance;
-        // Ensure distance only increases
-        const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
-        maxDistanceReachedRef.current = maxDistance;
-        return maxDistance;
-      });
-    } catch (e) {
-      console.warn('Failed to calculate driving distance:', e);
-    }
+  // Update total distance using Haversine (real-time, fast, free).
+  // Final driving distance is recalculated between stops at tour end in Index.tsx.
+  const updateTotalDistance = useCallback((fromLat: number, fromLng: number, toLat: number, toLng: number) => {
+    const segmentDistanceKm = getDistanceInMeters(fromLat, fromLng, toLat, toLng) / 1000;
+    
+    setTotalDistanceKm((prev) => {
+      const newTotal = prev + segmentDistanceKm;
+      const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
+      maxDistanceReachedRef.current = maxDistance;
+      return maxDistance;
+    });
   }, []);
 
   // Process position from watchPosition
@@ -389,7 +385,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       
       // Only update distance if moved significantly (> 50m to avoid GPS jitter)
       if (distanceFromLast > 50) {
-        await updateTotalDistance(
+        updateTotalDistance(
           lastPositionRef.current.lat,
           lastPositionRef.current.lng,
           lat,
