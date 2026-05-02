@@ -118,7 +118,7 @@ async function searchGoogle(
 
     return results;
   } catch (e: any) {
-    if (e.name === 'AbortError') throw e;
+    if (e.name === 'AbortError' && signal.aborted) throw e;
     console.warn('Google Places fetch error:', e);
     return null; // fallback
   } finally {
