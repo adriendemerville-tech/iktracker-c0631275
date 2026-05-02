@@ -66,11 +66,18 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
   }, [editLocation, open]);
 
   // Reset validation when address changes manually
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress(e.target.value);
+  const handleAddressChange = (value: string) => {
+    setAddress(value);
     setAddressValidated(false);
     setLatitude(undefined);
     setLongitude(undefined);
+  };
+
+  const handleAddressSelect = (suggestion: AddressSuggestion) => {
+    setAddress(suggestion.fulltext);
+    setLatitude(suggestion.lat);
+    setLongitude(suggestion.lng);
+    setAddressValidated(true);
   };
 
   // Initialize Google Places Autocomplete
