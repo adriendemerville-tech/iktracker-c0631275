@@ -86,75 +86,63 @@ export function DetailsStepContent({
 
   // Initialize Google Places Autocomplete for start address
   useEffect(() => {
-    if (!startInputRef.current) return;
-    
-    const initStartAutocomplete = () => {
-      if (!window.google?.maps?.places || !startInputRef.current) return;
+    if (!googleMapsLoaded || !startInputRef.current) return;
+    if (!window.google?.maps?.places) return;
 
-      if (startAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
-      }
+    if (startAutocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
+    }
 
-      startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
+    startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
+      componentRestrictions: { country: 'fr' },
+      fields: ['formatted_address', 'geometry', 'name'],
+      types: ['geocode'],
+    });
 
-      startAutocompleteRef.current.addListener('place_changed', async () => {
-        const place = startAutocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          
-          // Use reverse geocoding to get the city name
-          let cityName = place.name || 'Lieu';
-          const geocodeResult = await reverseGeocode(lat, lng);
-          if (geocodeResult?.city) {
-            cityName = geocodeResult.city;
-          }
-          
-          const newLocation: Location = {
-            id: draft.startLocation?.id || `temp-${crypto.randomUUID()}`,
-            name: cityName,
-            address: place.formatted_address || '',
-            lat,
-            lng,
-            type: draft.startLocation?.type || 'other',
-          };
-          
-          setStartAddress(place.formatted_address || '');
-          setDraft(d => ({ ...d, startLocation: newLocation }));
-          
-          // Recalculate distance if both locations have coordinates
-          if (draft.endLocation?.lat && draft.endLocation?.lng) {
-            try {
-              const distance = await calculateDrivingDistance(lat, lng, draft.endLocation.lat, draft.endLocation.lng);
-              setCalculatedDistance(distance);
-              setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
-            } catch (e) {
-              console.error('Error calculating distance:', e);
-            }
+    startAutocompleteRef.current.addListener('place_changed', async () => {
+      const place = startAutocompleteRef.current?.getPlace();
+      if (place?.geometry?.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        
+        let cityName = place.name || 'Lieu';
+        const geocodeResult = await reverseGeocode(lat, lng);
+        if (geocodeResult?.city) {
+          cityName = geocodeResult.city;
+        }
+        
+        const newLocation: Location = {
+          id: draft.startLocation?.id || `temp-${crypto.randomUUID()}`,
+          name: cityName,
+          address: place.formatted_address || '',
+          lat,
+          lng,
+          type: draft.startLocation?.type || 'other',
+        };
+        
+        setStartAddress(place.formatted_address || '');
+        setDraft(d => ({ ...d, startLocation: newLocation }));
+        
+        if (draft.endLocation?.lat && draft.endLocation?.lng) {
+          try {
+            const distance = await calculateDrivingDistance(lat, lng, draft.endLocation.lat, draft.endLocation.lng);
+            setCalculatedDistance(distance);
+            setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
+          } catch (e) {
+            console.error('Error calculating distance:', e);
           }
         }
-      });
-    };
-
-    const timer = setTimeout(() => {
-      if (window.google?.maps?.places) {
-        initStartAutocomplete();
       }
-    }, 300);
+    });
     
     return () => {
-      clearTimeout(timer);
       if (startAutocompleteRef.current && window.google?.maps?.event) {
         try {
           window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
         } catch (e) {}
       }
     };
-  }, [draft.endLocation, roundTrip, setDraft, setCalculatedDistance, setManualDistance]);
+  }, [googleMapsLoaded, draft.endLocation, roundTrip, setDraft, setCalculatedDistance, setManualDistance]);
 
   // Initialize Google Places Autocomplete for end address
   useEffect(() => {
