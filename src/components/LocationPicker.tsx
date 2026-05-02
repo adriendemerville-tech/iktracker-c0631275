@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Location } from '@/types/trip';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -75,157 +75,20 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
 
-  useEffect(() => {
-    if (!searchInputRef.current) return;
-    
-    const initSearchAutocomplete = () => {
-      if (!window.google?.maps?.places || !searchInputRef.current) return;
-
-      try {
-        if (searchAutocompleteRef.current) {
-          window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
-        }
-
-        searchAutocompleteRef.current = new window.google.maps.places.Autocomplete(searchInputRef.current, {
-          componentRestrictions: { country: 'fr' },
-          fields: ['formatted_address', 'geometry', 'name'],
-          types: ['geocode'],
-        });
-
-        searchAutocompleteRef.current.addListener('place_changed', async () => {
-          const place = searchAutocompleteRef.current?.getPlace();
-          if (place?.geometry?.location) {
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            
-            // Use reverse geocoding to get the city name
-            let cityName = place.name || 'Lieu';
-            const geocodeResult = await reverseGeocode(lat, lng);
-            if (geocodeResult?.city) {
-              cityName = geocodeResult.city;
-            }
-            
-            // Create location WITHOUT saving to database
-            const tempLocation: Location = {
-              id: `temp-${crypto.randomUUID()}`,
-              name: cityName,
-              address: place.formatted_address || '',
-              lat,
-              lng,
-              type: 'other',
-            };
-            // Save to recents
-            const updatedRecents = saveRecentLocation(tempLocation);
-            setRecentLocations(updatedRecents);
-            // Select directly without saving - use ref to get latest callback
-            onSelectRef.current(tempLocation);
-            setSearchQuery('');
-          }
-        });
-      } catch (error) {
-        console.warn('Google Places Autocomplete not available:', error);
-      }
+  const handleSuggestionSelect = async (suggestion: AddressSuggestion) => {
+    const tempLocation: Location = {
+      id: `temp-${crypto.randomUUID()}`,
+      name: suggestion.city || suggestion.street || 'Lieu',
+      address: suggestion.fulltext,
+      lat: suggestion.lat,
+      lng: suggestion.lng,
+      type: 'other',
     };
-
-    const timer = setTimeout(() => {
-      if (window.google?.maps?.places) {
-        initSearchAutocomplete();
-      }
-    }, 300);
-    
-    return () => {
-      clearTimeout(timer);
-      if (searchAutocompleteRef.current && window.google?.maps?.event) {
-        try {
-          window.google.maps.event.clearInstanceListeners(searchAutocompleteRef.current);
-        } catch (e) {}
-      }
-    };
-  }, [onAddNew]); // onSelect handled via ref to avoid stale closures
-
-  // Initialize Google Places Autocomplete for new location
-  useEffect(() => {
-    if (!showNewForm || !addressInputRef.current) return;
-    
-    const initAutocomplete = () => {
-      if (!window.google?.maps?.places || !addressInputRef.current) return;
-
-      if (autocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
-
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(addressInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
-
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          setNewAddress(place.formatted_address || place.name || '');
-          setNewCoords({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-          });
-        }
-      });
-    };
-
-    if (window.google?.maps?.places) {
-      initAutocomplete();
-    } else {
-      const timer = setTimeout(initAutocomplete, 500);
-      return () => clearTimeout(timer);
-    }
-
-    return () => {
-      if (autocompleteRef.current && window.google?.maps?.event) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
-    };
-  }, [showNewForm]);
-
-  // Initialize Google Places Autocomplete for edit location
-  useEffect(() => {
-    if (!editingLocation || !editAddressInputRef.current) return;
-    
-    const initEditAutocomplete = () => {
-      if (!window.google?.maps?.places || !editAddressInputRef.current) return;
-
-      if (editAutocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(editAutocompleteRef.current);
-      }
-
-      editAutocompleteRef.current = new window.google.maps.places.Autocomplete(editAddressInputRef.current, {
-        componentRestrictions: { country: 'fr' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode'],
-      });
-
-      editAutocompleteRef.current.addListener('place_changed', () => {
-        const place = editAutocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          setEditingLocation(prev => prev ? {
-            ...prev,
-            address: place.formatted_address || place.name || '',
-            lat: place.geometry!.location!.lat(),
-            lng: place.geometry!.location!.lng(),
-          } : null);
-        }
-      });
-    };
-
-    if (window.google?.maps?.places) {
-      setTimeout(initEditAutocomplete, 100);
-    }
-
-    return () => {
-      if (editAutocompleteRef.current && window.google?.maps?.event) {
-        window.google.maps.event.clearInstanceListeners(editAutocompleteRef.current);
-      }
-    };
-  }, [editingLocation?.id]);
+    const updatedRecents = saveRecentLocation(tempLocation);
+    setRecentLocations(updatedRecents);
+    onSelectRef.current(tempLocation);
+    setSearchQuery('');
+  };
 
   const handleSearchSubmit = async () => {
     const query = searchQuery.trim();
