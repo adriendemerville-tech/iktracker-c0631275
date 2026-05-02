@@ -37,12 +37,30 @@ function getGoogleApiKey(): Promise<string | null> {
   return googleKeyPromise;
 }
 
+function createTimeoutSignal(parentSignal: AbortSignal, timeoutMs: number) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  const abort = () => controller.abort();
+  parentSignal.addEventListener('abort', abort, { once: true });
+
+  return {
+    signal: controller.signal,
+    cleanup: () => {
+      window.clearTimeout(timeout);
+      parentSignal.removeEventListener('abort', abort);
+    },
+  };
+}
+
 // --- Google Places Autocomplete (New API via REST) ---
 async function searchGoogle(
   text: string,
   apiKey: string,
   signal: AbortSignal
 ): Promise<AddressSuggestion[] | null> {
+  const timedSignal = createTimeoutSignal(signal, 1200);
+
   try {
     const res = await fetch(
       'https://places.googleapis.com/v1/places:autocomplete',
@@ -58,7 +76,7 @@ async function searchGoogle(
           regionCode: 'FR',
           includedPrimaryTypes: ['street_address', 'route', 'premise', 'subpremise'],
         }),
-        signal,
+        signal: timedSignal.signal,
       }
     );
 
@@ -71,7 +89,7 @@ async function searchGoogle(
     const suggestions = data.suggestions;
 
     if (!Array.isArray(suggestions) || suggestions.length === 0) {
-      return []; // Google responded but no results — still a valid response
+      return null;
     }
 
     // We need to get place details for coordinates
@@ -103,6 +121,8 @@ async function searchGoogle(
     if (e.name === 'AbortError') throw e;
     console.warn('Google Places fetch error:', e);
     return null; // fallback
+  } finally {
+    timedSignal.cleanup();
   }
 }
 
@@ -118,7 +138,10 @@ async function searchGeopf(
   });
 
   const res = await fetch(`${GEOPF_URL}?${params}`, { signal });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    console.warn('Géoplateforme autocomplete error:', res.status);
+    return [];
+  }
 
   const data = await res.json();
 
@@ -182,7 +205,7 @@ export function useAddressAutocomplete() {
         }
 
         // Fallback to Géoplateforme if Google unavailable or errored
-        if (results === null) {
+        if (results === null || results.length === 0) {
           console.info('Falling back to Géoplateforme autocomplete');
           results = await searchGeopf(text, controller.signal);
         }
@@ -196,7 +219,7 @@ export function useAddressAutocomplete() {
       } finally {
         setIsLoading(false);
       }
-    }, 250);
+    }, 650);
   }, []);
 
   const clear = useCallback(() => {
