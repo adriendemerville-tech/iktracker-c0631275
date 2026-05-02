@@ -59,7 +59,7 @@ async function searchGoogle(
   apiKey: string,
   signal: AbortSignal
 ): Promise<AddressSuggestion[] | null> {
-  const timedSignal = createTimeoutSignal(signal, 1200);
+  const timedSignal = createTimeoutSignal(signal, 1000);
 
   try {
     const res = await fetch(
@@ -219,7 +219,7 @@ export function useAddressAutocomplete() {
       } finally {
         setIsLoading(false);
       }
-    }, 650);
+    }, 400);
   }, []);
 
   const clear = useCallback(() => {
