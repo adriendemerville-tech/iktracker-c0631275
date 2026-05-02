@@ -110,9 +110,9 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     let finalLat = latitude;
     let finalLng = longitude;
     
-    if (!addressValidated && window.google?.maps) {
+    if (!addressValidated) {
       setIsValidating(true);
-      const geocoded = await geocodeAddress(address.trim());
+      const geocoded = await geocodeAddressFallback(address.trim());
       setIsValidating(false);
       
       if (geocoded) {
