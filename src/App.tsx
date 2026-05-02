@@ -177,22 +177,6 @@ const SmartSignup = () => {
 };
 
 
-function GoogleMapsPreloader() {
-  const location = useLocation();
-  
-  useEffect(() => {
-    // Defer Google Maps preload to idle time to improve TTI
-    if (location.pathname.startsWith('/app')) {
-      // Use requestIdleCallback to avoid blocking main thread
-      deferTask(() => {
-        preloadGoogleMaps();
-      }, 'medium', 3000);
-    }
-  }, [location.pathname]);
-  
-  return null;
-}
-
 const AppRoutes = () => {
   const { user, isLoggingOut, clearLogoutOverlay, signOut } = useAuth();
 
@@ -220,7 +204,6 @@ const AppRoutes = () => {
   return (
     <AuthContext.Provider value={{ handleLogout }}>
       <LogoutOverlay isVisible={isLoggingOut} userName={getUserFirstName()} onComplete={handleLogoutComplete} />
-      <GoogleMapsPreloader />
       {user && <GlobalTourRecovery />}
       {user && <Suspense fallback={null}><SurveyWidget /></Suspense>}
       <Routes>
