@@ -36,7 +36,6 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
   const [addressValidated, setAddressValidated] = useState(false);
   
   const addressInputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
