@@ -9,7 +9,7 @@ import { MapPin, Car, CalendarIcon, RefreshCw, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { reverseGeocode } from '@/lib/geocoding';
+import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
 import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
 import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
