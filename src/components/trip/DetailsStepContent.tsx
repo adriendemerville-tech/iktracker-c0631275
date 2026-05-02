@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from 'react';
-import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -10,8 +9,10 @@ import { MapPin, Car, CalendarIcon, RefreshCw, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
+import { reverseGeocode } from '@/lib/geocoding';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
+import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
+import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
 import wazeLogo from '@/assets/waze-logo.webp';
 import googleMapsLogo from '@/assets/google-maps-logo.webp';
 
