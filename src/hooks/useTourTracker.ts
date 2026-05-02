@@ -385,7 +385,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       
       // Only update distance if moved significantly (> 50m to avoid GPS jitter)
       if (distanceFromLast > 50) {
-        await updateTotalDistance(
+        updateTotalDistance(
           lastPositionRef.current.lat,
           lastPositionRef.current.lng,
           lat,
