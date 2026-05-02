@@ -216,18 +216,16 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
               )}
             </Label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                id="address"
+              <AddressAutocompleteInput
                 ref={addressInputRef}
                 placeholder="Rechercher une adresse..."
                 value={address}
                 onChange={handleAddressChange}
-                className={`pl-10 pr-10 transition-colors ${addressValidated ? 'border-emerald-500/50 focus-visible:ring-emerald-500/30' : ''}`}
-                required
+                onSelect={handleAddressSelect}
+                className={`transition-colors ${addressValidated ? 'border-emerald-500/50 focus-visible:ring-emerald-500/30' : ''}`}
               />
               {addressValidated && latitude && longitude && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
               )}
