@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin, Loader2, Navigation } from 'lucide-react';
 import { Trip, Location } from '@/types/trip';
@@ -9,7 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { reverseGeocode } from '@/lib/geocoding';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import { useGoogleMaps } from '@/hooks/useGoogleMaps';
+import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
+import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
 
 interface CompleteAddressSheetProps {
   open: boolean;
@@ -32,13 +32,7 @@ export function CompleteAddressSheet({
   const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
   
-  const startInputRef = useRef<HTMLInputElement>(null);
-  const endInputRef = useRef<HTMLInputElement>(null);
-  const startAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const endAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
-  const { loaded: googleMapsLoaded } = useGoogleMaps();
   // Pre-fill with home/office location
   useEffect(() => {
     if (open) {
@@ -60,77 +54,16 @@ export function CompleteAddressSheet({
     }
   }, [open, savedLocations]);
 
-  // Initialize Google Places Autocomplete for start address
-  useEffect(() => {
-    if (!open || !googleMapsLoaded || !startInputRef.current) return;
-    
-    if (!window.google?.maps?.places) return;
-
-    if (startAutocompleteRef.current) {
-      window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
+  const handleAddressSelect = (suggestion: AddressSuggestion, field: 'start' | 'end') => {
+    const coords = suggestion.lat && suggestion.lng ? { lat: suggestion.lat, lng: suggestion.lng } : null;
+    if (field === 'start') {
+      setStartAddress(suggestion.fulltext);
+      setStartCoords(coords);
+    } else {
+      setEndAddress(suggestion.fulltext);
+      setEndCoords(coords);
     }
-
-    startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
-      componentRestrictions: { country: 'fr' },
-      fields: ['formatted_address', 'geometry', 'name'],
-      types: ['geocode'],
-    });
-
-    startAutocompleteRef.current.addListener('place_changed', () => {
-      const place = startAutocompleteRef.current?.getPlace();
-      if (place?.geometry?.location) {
-        setStartAddress(place.formatted_address || place.name || '');
-        setStartCoords({
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-        });
-      }
-    });
-
-    return () => {
-      if (startAutocompleteRef.current && window.google?.maps?.event) {
-        try {
-          window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
-        } catch (e) {}
-      }
-    };
-  }, [open, googleMapsLoaded]);
-
-  // Initialize Google Places Autocomplete for end address
-  useEffect(() => {
-    if (!open || !googleMapsLoaded || !endInputRef.current) return;
-    
-    if (!window.google?.maps?.places) return;
-
-    if (endAutocompleteRef.current) {
-      window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
-    }
-
-    endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
-      componentRestrictions: { country: 'fr' },
-      fields: ['formatted_address', 'geometry', 'name'],
-      types: ['geocode'],
-    });
-
-    endAutocompleteRef.current.addListener('place_changed', () => {
-      const place = endAutocompleteRef.current?.getPlace();
-      if (place?.geometry?.location) {
-        setEndAddress(place.formatted_address || place.name || '');
-        setEndCoords({
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-        });
-      }
-    });
-
-    return () => {
-      if (endAutocompleteRef.current && window.google?.maps?.event) {
-        try {
-          window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
-        } catch (e) {}
-      }
-    };
-  }, [open, googleMapsLoaded]);
+  };
 
   const handleUseCurrentLocation = async (field: 'start' | 'end') => {
     try {
