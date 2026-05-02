@@ -1,12 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect, lazy, Suspense, createContext, useContext } from "react";
+import { lazy, Suspense, createContext, useContext } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { preloadGoogleMaps } from "@/hooks/useGoogleMaps";
-import { deferTask } from "@/lib/idle-callback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LogoutOverlay } from "@/components/LogoutOverlay";
