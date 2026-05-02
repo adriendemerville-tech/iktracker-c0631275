@@ -67,11 +67,8 @@ export function DetailsStepContent({
   purposeInputRef,
   handleConfirm,
 }: DetailsStepContentProps) {
-  const { loaded: googleMapsLoaded } = useGoogleMaps();
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
-  const startAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const endAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   
   const [startAddress, setStartAddress] = useState(draft.startLocation?.address || draft.startLocation?.name || '');
   const [endAddress, setEndAddress] = useState(draft.endLocation?.address || draft.endLocation?.name || '');
