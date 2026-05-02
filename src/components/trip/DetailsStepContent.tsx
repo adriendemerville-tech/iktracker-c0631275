@@ -66,6 +66,7 @@ export function DetailsStepContent({
   purposeInputRef,
   handleConfirm,
 }: DetailsStepContentProps) {
+  const { loaded: googleMapsLoaded } = useGoogleMaps();
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
   const startAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
