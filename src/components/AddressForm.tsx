@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Home, Building2, MapPin, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
+import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
 
 interface Location {
   id: string;
