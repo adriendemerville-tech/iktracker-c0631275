@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from 'react';
-import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -12,6 +11,8 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
 import { calculateDrivingDistance } from '@/hooks/useGeolocation';
+import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
+import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
 import wazeLogo from '@/assets/waze-logo.webp';
 import googleMapsLogo from '@/assets/google-maps-logo.webp';
 
@@ -66,11 +67,8 @@ export function DetailsStepContent({
   purposeInputRef,
   handleConfirm,
 }: DetailsStepContentProps) {
-  const { loaded: googleMapsLoaded } = useGoogleMaps();
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
-  const startAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const endAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   
   const [startAddress, setStartAddress] = useState(draft.startLocation?.address || draft.startLocation?.name || '');
   const [endAddress, setEndAddress] = useState(draft.endLocation?.address || draft.endLocation?.name || '');
@@ -84,125 +82,55 @@ export function DetailsStepContent({
     setEndAddress(draft.endLocation?.address || draft.endLocation?.name || '');
   }, [draft.endLocation]);
 
-  // Initialize Google Places Autocomplete for start address
-  useEffect(() => {
-    if (!googleMapsLoaded || !startInputRef.current) return;
-    if (!window.google?.maps?.places) return;
-
-    if (startAutocompleteRef.current) {
-      window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
-    }
-
-    startAutocompleteRef.current = new window.google.maps.places.Autocomplete(startInputRef.current, {
-      componentRestrictions: { country: 'fr' },
-      fields: ['formatted_address', 'geometry', 'name'],
-      types: ['geocode'],
-    });
-
-    startAutocompleteRef.current.addListener('place_changed', async () => {
-      const place = startAutocompleteRef.current?.getPlace();
-      if (place?.geometry?.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        
-        let cityName = place.name || 'Lieu';
-        const geocodeResult = await reverseGeocode(lat, lng);
-        if (geocodeResult?.city) {
-          cityName = geocodeResult.city;
-        }
-        
-        const newLocation: Location = {
-          id: draft.startLocation?.id || `temp-${crypto.randomUUID()}`,
-          name: cityName,
-          address: place.formatted_address || '',
-          lat,
-          lng,
-          type: draft.startLocation?.type || 'other',
-        };
-        
-        setStartAddress(place.formatted_address || '');
-        setDraft(d => ({ ...d, startLocation: newLocation }));
-        
-        if (draft.endLocation?.lat && draft.endLocation?.lng) {
-          try {
-            const distance = await calculateDrivingDistance(lat, lng, draft.endLocation.lat, draft.endLocation.lng);
-            setCalculatedDistance(distance);
-            setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
-          } catch (e) {
-            console.error('Error calculating distance:', e);
-          }
-        }
-      }
-    });
-    
-    return () => {
-      if (startAutocompleteRef.current && window.google?.maps?.event) {
-        try {
-          window.google.maps.event.clearInstanceListeners(startAutocompleteRef.current);
-        } catch (e) {}
-      }
+  // Handle Géoplateforme suggestion selection for start
+  const handleStartSelect = async (suggestion: AddressSuggestion) => {
+    const { lat, lng, city, fulltext } = suggestion;
+    const newLocation: Location = {
+      id: draft.startLocation?.id || `temp-${crypto.randomUUID()}`,
+      name: city || 'Lieu',
+      address: fulltext,
+      lat,
+      lng,
+      type: draft.startLocation?.type || 'other',
     };
-  }, [googleMapsLoaded, draft.endLocation, roundTrip, setDraft, setCalculatedDistance, setManualDistance]);
+    setStartAddress(fulltext);
+    setDraft(d => ({ ...d, startLocation: newLocation }));
 
-  // Initialize Google Places Autocomplete for end address
-  useEffect(() => {
-    if (!googleMapsLoaded || !endInputRef.current) return;
-    if (!window.google?.maps?.places) return;
-
-    if (endAutocompleteRef.current) {
-      window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
+    if (draft.endLocation?.lat && draft.endLocation?.lng) {
+      try {
+        const distance = await calculateDrivingDistance(lat, lng, draft.endLocation.lat, draft.endLocation.lng);
+        setCalculatedDistance(distance);
+        setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
+      } catch (e) {
+        console.error('Error calculating distance:', e);
+      }
     }
+  };
 
-    endAutocompleteRef.current = new window.google.maps.places.Autocomplete(endInputRef.current, {
-      componentRestrictions: { country: 'fr' },
-      fields: ['formatted_address', 'geometry', 'name'],
-      types: ['geocode'],
-    });
-
-    endAutocompleteRef.current.addListener('place_changed', async () => {
-      const place = endAutocompleteRef.current?.getPlace();
-      if (place?.geometry?.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        
-        let cityName = place.name || 'Lieu';
-        const geocodeResult = await reverseGeocode(lat, lng);
-        if (geocodeResult?.city) {
-          cityName = geocodeResult.city;
-        }
-        
-        const newLocation: Location = {
-          id: draft.endLocation?.id || `temp-${crypto.randomUUID()}`,
-          name: cityName,
-          address: place.formatted_address || '',
-          lat,
-          lng,
-          type: draft.endLocation?.type || 'other',
-        };
-        
-        setEndAddress(place.formatted_address || '');
-        setDraft(d => ({ ...d, endLocation: newLocation }));
-        
-        if (draft.startLocation?.lat && draft.startLocation?.lng) {
-          try {
-            const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, lat, lng);
-            setCalculatedDistance(distance);
-            setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
-          } catch (e) {
-            console.error('Error calculating distance:', e);
-          }
-        }
-      }
-    });
-    
-    return () => {
-      if (endAutocompleteRef.current && window.google?.maps?.event) {
-        try {
-          window.google.maps.event.clearInstanceListeners(endAutocompleteRef.current);
-        } catch (e) {}
-      }
+  // Handle Géoplateforme suggestion selection for end
+  const handleEndSelect = async (suggestion: AddressSuggestion) => {
+    const { lat, lng, city, fulltext } = suggestion;
+    const newLocation: Location = {
+      id: draft.endLocation?.id || `temp-${crypto.randomUUID()}`,
+      name: city || 'Lieu',
+      address: fulltext,
+      lat,
+      lng,
+      type: draft.endLocation?.type || 'other',
     };
-  }, [googleMapsLoaded, draft.startLocation, roundTrip, setDraft, setCalculatedDistance, setManualDistance]);
+    setEndAddress(fulltext);
+    setDraft(d => ({ ...d, endLocation: newLocation }));
+
+    if (draft.startLocation?.lat && draft.startLocation?.lng) {
+      try {
+        const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, lat, lng);
+        setCalculatedDistance(distance);
+        setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
+      } catch (e) {
+        console.error('Error calculating distance:', e);
+      }
+    }
+  };
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -214,11 +142,12 @@ export function DetailsStepContent({
             <MapPin className="w-3.5 h-3.5 text-primary" />
             Départ
           </div>
-          <Input
+          <AddressAutocompleteInput
             ref={startInputRef}
             placeholder="Adresse de départ..."
             value={startAddress}
-            onChange={(e) => setStartAddress(e.target.value)}
+            onChange={setStartAddress}
+            onSelect={handleStartSelect}
             className="text-sm"
           />
         </div>
@@ -229,11 +158,12 @@ export function DetailsStepContent({
             <MapPin className="w-3.5 h-3.5 text-accent" />
             Arrivée
           </div>
-          <Input
+          <AddressAutocompleteInput
             ref={endInputRef}
             placeholder="Adresse d'arrivée..."
             value={endAddress}
-            onChange={(e) => setEndAddress(e.target.value)}
+            onChange={setEndAddress}
+            onSelect={handleEndSelect}
             className="text-sm"
           />
         </div>
