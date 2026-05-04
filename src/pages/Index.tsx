@@ -966,6 +966,18 @@ ${IKTRACKER_MENTION}
         </Suspense>
       )}
 
+      {/* Floating restore pill when tour is minimized */}
+      {isTourActive && tourMinimized && (
+        <button
+          onClick={() => setTourMinimized(false)}
+          className="fixed top-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500 text-white text-xs font-semibold shadow-lg animate-pulse hover:bg-orange-600 active:scale-95 transition-all"
+          aria-label="Revenir à la tournée"
+        >
+          <Car className="w-3.5 h-3.5" />
+          <span>{totalDistanceKm.toFixed(1)} km</span>
+        </button>
+      )}
+
       {/* Desktop Sidebar - hidden on mobile */}
       <DesktopSidebar 
         vehicles={vehicles}
