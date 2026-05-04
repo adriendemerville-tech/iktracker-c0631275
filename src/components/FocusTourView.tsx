@@ -96,6 +96,14 @@ export function FocusTourView({
     return () => clearInterval(interval);
   }, [tourStartTime, isActive]);
 
+  const handleRefresh = () => {
+    if (isRefreshing || !onRefreshDistance) return;
+    setIsRefreshing(true);
+    onRefreshDistance();
+    // Visual feedback for 1.5s
+    setTimeout(() => setIsRefreshing(false), 1500);
+  };
+
   const handleStopClick = () => {
     setShowStopConfirm(true);
   };
