@@ -214,7 +214,7 @@ export function FocusTourView({
           )}
         </div>
         
-        {/* Right side - GPS Signal and Night mode */}
+        {/* Right side - GPS Signal, Night mode, Minimize */}
         <div className="flex items-center gap-2">
           {isNightMode && (
             <Moon className="w-4 h-4 text-indigo-400" />
@@ -227,6 +227,15 @@ export function FocusTourView({
               </span>
             )}
           </div>
+          {onMinimize && (
+            <button
+              onClick={onMinimize}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all"
+              aria-label="Réduire la tournée"
+            >
+              <Minimize2 className="w-4 h-4 text-gray-400" />
+            </button>
+          )}
         </div>
       </div>
 
