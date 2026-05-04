@@ -941,27 +941,30 @@ ${IKTRACKER_MENTION}
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Focus Tour View - Full screen immersive mode */}
-      <Suspense fallback={<SheetLoader />}>
-        <FocusTourView
-          isActive={isTourActive}
-          isLoading={isTourLoading}
-          totalDistanceKm={totalDistanceKm}
-          detectedStopsCount={Math.max(0, tourStops.length - 1)}
-          wakeLockActive={wakeLockActive}
-          lowBattery={lowBattery}
-          tourStartTime={tourStartTime || tourStops[0]?.timestamp}
-          gpsSignalStrength={gpsSignalStrength}
-          gpsAccuracy={gpsAccuracy}
-          pendingStop={pendingStop}
-          onFinish={handleFinishTour}
-          onRefreshDistance={refreshDistance}
-          onCancel={() => {
-            setTourStartRequested(false);
-            clearTour();
-          }}
-        />
-      </Suspense>
+      {/* Focus Tour View - Full screen immersive mode (hidden when minimized) */}
+      {!tourMinimized && (
+        <Suspense fallback={<SheetLoader />}>
+          <FocusTourView
+            isActive={isTourActive}
+            isLoading={isTourLoading}
+            totalDistanceKm={totalDistanceKm}
+            detectedStopsCount={Math.max(0, tourStops.length - 1)}
+            wakeLockActive={wakeLockActive}
+            lowBattery={lowBattery}
+            tourStartTime={tourStartTime || tourStops[0]?.timestamp}
+            gpsSignalStrength={gpsSignalStrength}
+            gpsAccuracy={gpsAccuracy}
+            pendingStop={pendingStop}
+            onFinish={handleFinishTour}
+            onRefreshDistance={refreshDistance}
+            onMinimize={() => setTourMinimized(true)}
+            onCancel={() => {
+              setTourStartRequested(false);
+              clearTour();
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Desktop Sidebar - hidden on mobile */}
       <DesktopSidebar 
