@@ -694,8 +694,10 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     if (!hasPermission) {
       setError("Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.");
       setIsLoading(false);
+      pendingStartRef.current = true;
       return;
     }
+    pendingStartRef.current = false;
 
     // Get initial position
     navigator.geolocation.getCurrentPosition(
