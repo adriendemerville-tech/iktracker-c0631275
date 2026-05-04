@@ -757,6 +757,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         if (err.code === 1) {
           setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
           setPermissionStatus('denied');
+          pendingStartRef.current = true;
         } else if (err.code === 2) {
           setError('Position indisponible. Vérifiez que le GPS est activé.');
         } else {
