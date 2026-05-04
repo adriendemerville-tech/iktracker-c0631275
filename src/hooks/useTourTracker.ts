@@ -166,6 +166,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const lastPointTimeRef = useRef<number>(0);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isResumingRef = useRef<boolean>(false);
+  const pendingStartRef = useRef<boolean>(false);
 
   // Persist state changes to localStorage (only when tour is active)
   // CRITICAL: never persist while inactive — would wipe restored state before resumeTour() reads it
