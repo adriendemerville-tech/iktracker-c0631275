@@ -34,6 +34,7 @@ interface FocusTourViewProps {
   pendingStop?: PendingStop | null;
   onFinish: () => void; // Directly finish and save the tour
   onCancel?: () => void; // Cancel during loading
+  onRefreshDistance?: () => void; // Force GPS refresh and distance update
 }
 
 // Hook to detect if on desktop (width >= 1024px)
