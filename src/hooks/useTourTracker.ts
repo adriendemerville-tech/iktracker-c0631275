@@ -545,7 +545,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                   setTotalDistanceKm((prev) => {
                     const newTotal = prev + fallbackKm;
                     maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
-                    return Math.max(newTotal, maxDistanceReachedRef.current);
+                    const result = Math.max(newTotal, maxDistanceReachedRef.current);
+                    saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
+                    return result;
                   });
                   toast.info('Retour de veille', {
                     description: `Distance estimée (+${fallbackKm.toFixed(1)} km)`,
