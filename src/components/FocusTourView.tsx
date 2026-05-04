@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2 } from 'lucide-react';
+import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2, RotateCw } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
