@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.2 — 23 avril 2026
+> Version 1.3 — 4 mai 2026
 
 ## Table des matières
 
@@ -166,7 +166,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `ErrorBoundary.tsx` | Boundary d'erreur global |
 | `FeedbackForm.tsx` | Formulaire de feedback (avec image) |
 | `FloatingActionButton.tsx` | FAB mobile |
-| `FocusTourView.tsx` | Vue focus mode tournée |
+| `FocusTourView.tsx` | Vue focus mode tournée (minimize, refresh km, signal GPS) |
 | `GeolocationBanner.tsx` | Bannière permission géolocalisation |
 | `GeolocationTutorialModal.tsx` | Tutoriel activation GPS |
 | `GlobalTourRecovery.tsx` | Récupération globale de tournée |
@@ -304,9 +304,25 @@ Custom UI : `optimized-image.tsx` (chargement lazy avec blurhash).
 
 | Hook | Rôle |
 |---|---|
-| `useTourTracker.ts` | Logique principale de tournée GPS |
+| `useTourTracker.ts` | Logique principale de tournée GPS. Gap-filling sérialisé (pas de double comptage). Expose `forceRefreshDistance()` pour mise à jour manuelle du compteur |
 | `useTourSessionDB.ts` | Persistence sessions tournée (Supabase) |
 | `useTourSessionRecovery.ts` | Récupération de session interrompue |
+
+### Mode tournée — Architecture résumée (v1.3)
+
+#### Minimisation / Restauration
+- `Index.tsx` gère un état `tourMinimized` : quand activé, `FocusTourView` est masqué et remplacé par un pill flottant orange (icône `Car` + distance) en haut à droite
+- Cliquer sur le pill restaure la vue focus. La tournée continue en arrière-plan (GPS tracking actif)
+
+#### Anti double-comptage (fix mai 2026)
+- Le `visibilitychange` handler dans `useTourTracker` est **sérialisé** : `watchPosition` ne redémarre qu'**après** la fin du gap-filling (`getCurrentPosition`) et la mise à jour de `lastPositionRef.current`
+- Le listener redondant dans `Index.tsx` a été supprimé — `useTourTracker` est la source unique de vérité pour la récupération de distance foreground/background
+
+#### Rafraîchissement manuel
+- Bouton `RotateCw` dans `FocusTourView` : appelle `forceRefreshDistance()` qui récupère la position GPS courante et met à jour le compteur
+
+#### Estimation IK en fin de tournée
+- `handleConvertToTrips` utilise la Distance Matrix API (route réelle) entre les stops pour le calcul final IK, indépendamment du compteur GPS temps réel
 
 ---
 
