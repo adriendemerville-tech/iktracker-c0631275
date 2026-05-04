@@ -341,6 +341,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   // Update total distance using Haversine (real-time, fast, free).
   // Final driving distance is recalculated between stops at tour end in Index.tsx.
+  // CRITICAL: persist immediately to localStorage to survive app kill/suspension
   const updateTotalDistance = useCallback((fromLat: number, fromLng: number, toLat: number, toLng: number) => {
     const segmentDistanceKm = getDistanceInMeters(fromLat, fromLng, toLat, toLng) / 1000;
     
@@ -348,6 +349,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       const newTotal = prev + segmentDistanceKm;
       const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
       maxDistanceReachedRef.current = maxDistance;
+      // Persist immediately — useEffect may not fire before app suspension
+      saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, maxDistance);
       return maxDistance;
     });
   }, []);
@@ -524,7 +527,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                   setTotalDistanceKm((prev) => {
                     const newTotal = prev + drivingDistance;
                     maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
-                    return Math.max(newTotal, maxDistanceReachedRef.current);
+                    const result = Math.max(newTotal, maxDistanceReachedRef.current);
+                    saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
+                    return result;
                   });
                   
                   toast.success('Retour de veille', {
@@ -540,7 +545,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                   setTotalDistanceKm((prev) => {
                     const newTotal = prev + fallbackKm;
                     maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
-                    return Math.max(newTotal, maxDistanceReachedRef.current);
+                    const result = Math.max(newTotal, maxDistanceReachedRef.current);
+                    saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
+                    return result;
                   });
                   toast.info('Retour de veille', {
                     description: `Distance estimée (+${fallbackKm.toFixed(1)} km)`,
@@ -937,7 +944,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             setTotalDistanceKm((prev) => {
               const newTotal = prev + drivingDistance;
               maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
-              return Math.max(newTotal, maxDistanceReachedRef.current);
+              const result = Math.max(newTotal, maxDistanceReachedRef.current);
+              saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
+              return result;
             });
           console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
             // Toast removed: GlobalTourRecovery handles all resume notifications
@@ -949,7 +958,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             setTotalDistanceKm((prev) => {
               const newTotal = prev + fallbackKm;
               maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
-              return Math.max(newTotal, maxDistanceReachedRef.current);
+              const result = Math.max(newTotal, maxDistanceReachedRef.current);
+              saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
+              return result;
             });
           }
           lastPositionRef.current = { lat, lng };
