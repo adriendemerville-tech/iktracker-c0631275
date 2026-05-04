@@ -944,7 +944,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             setTotalDistanceKm((prev) => {
               const newTotal = prev + drivingDistance;
               maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
-              return Math.max(newTotal, maxDistanceReachedRef.current);
+              const result = Math.max(newTotal, maxDistanceReachedRef.current);
+              saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
+              return result;
             });
           console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
             // Toast removed: GlobalTourRecovery handles all resume notifications
