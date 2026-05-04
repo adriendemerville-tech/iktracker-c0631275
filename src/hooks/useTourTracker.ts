@@ -341,6 +341,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   // Update total distance using Haversine (real-time, fast, free).
   // Final driving distance is recalculated between stops at tour end in Index.tsx.
+  // CRITICAL: persist immediately to localStorage to survive app kill/suspension
   const updateTotalDistance = useCallback((fromLat: number, fromLng: number, toLat: number, toLng: number) => {
     const segmentDistanceKm = getDistanceInMeters(fromLat, fromLng, toLat, toLng) / 1000;
     
@@ -348,6 +349,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       const newTotal = prev + segmentDistanceKm;
       const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
       maxDistanceReachedRef.current = maxDistance;
+      // Persist immediately — useEffect may not fire before app suspension
+      saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, maxDistance);
       return maxDistance;
     });
   }, []);
