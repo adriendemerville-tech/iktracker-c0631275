@@ -159,6 +159,9 @@ const Index = () => {
     accuracyThreshold: 50,
   });
 
+  // Tour minimized state
+  const [tourMinimized, setTourMinimized] = useState(false);
+
   // Session recovery state
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [recoveryInactivity, setRecoveryInactivity] = useState('');
