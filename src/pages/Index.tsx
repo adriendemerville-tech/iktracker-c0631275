@@ -983,6 +983,7 @@ ${IKTRACKER_MENTION}
           gpsAccuracy={gpsAccuracy}
           pendingStop={pendingStop}
           onFinish={handleFinishTour}
+          onRefreshDistance={refreshDistance}
           onCancel={() => {
             setTourStartRequested(false);
             clearTour();
