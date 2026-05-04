@@ -426,6 +426,7 @@ const Index = () => {
   };
 
   const handleFinishTour = async () => {
+    setTourMinimized(false);
     // Save the tour/trip based on number of stops
     if (tourStops.length >= 1) {
       await handleConvertToTrips(tourStops);
