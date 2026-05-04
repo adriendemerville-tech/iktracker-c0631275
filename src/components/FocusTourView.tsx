@@ -354,6 +354,21 @@ export function FocusTourView({
         </div>
       )}
 
+      {/* Refresh button */}
+      {onRefreshDistance && (
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 active:scale-95 transition-all disabled:opacity-50"
+            aria-label="Rafraîchir la distance"
+          >
+            <RotateCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+            <span>Rafraîchir</span>
+          </button>
+        </div>
+      )}
+
       {/* BOTTOM: Counters with fixed widths to prevent CLS */}
       <div className="flex items-end justify-center gap-16 w-full">
         {/* KM Counter - fixed width for stable layout */}
