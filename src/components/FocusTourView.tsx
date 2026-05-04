@@ -67,6 +67,7 @@ export function FocusTourView({
   onFinish,
   onCancel,
   onRefreshDistance,
+  onMinimize,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
