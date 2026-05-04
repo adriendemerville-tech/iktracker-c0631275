@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Minimize2 } from 'lucide-react';
 import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2, RotateCw } from 'lucide-react';
 import {
   AlertDialog,
@@ -35,6 +36,7 @@ interface FocusTourViewProps {
   onFinish: () => void; // Directly finish and save the tour
   onCancel?: () => void; // Cancel during loading
   onRefreshDistance?: () => void; // Force GPS refresh and distance update
+  onMinimize?: () => void; // Minimize the tour view to access app
 }
 
 // Hook to detect if on desktop (width >= 1024px)
@@ -65,6 +67,7 @@ export function FocusTourView({
   onFinish,
   onCancel,
   onRefreshDistance,
+  onMinimize,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
@@ -211,7 +214,7 @@ export function FocusTourView({
           )}
         </div>
         
-        {/* Right side - GPS Signal and Night mode */}
+        {/* Right side - GPS Signal, Night mode, Minimize */}
         <div className="flex items-center gap-2">
           {isNightMode && (
             <Moon className="w-4 h-4 text-indigo-400" />
@@ -224,6 +227,15 @@ export function FocusTourView({
               </span>
             )}
           </div>
+          {onMinimize && (
+            <button
+              onClick={onMinimize}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all"
+              aria-label="Réduire la tournée"
+            >
+              <Minimize2 className="w-4 h-4 text-gray-400" />
+            </button>
+          )}
         </div>
       </div>
 

@@ -159,6 +159,9 @@ const Index = () => {
     accuracyThreshold: 50,
   });
 
+  // Tour minimized state
+  const [tourMinimized, setTourMinimized] = useState(false);
+
   // Session recovery state
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [recoveryInactivity, setRecoveryInactivity] = useState('');
@@ -423,6 +426,7 @@ const Index = () => {
   };
 
   const handleFinishTour = async () => {
+    setTourMinimized(false);
     // Save the tour/trip based on number of stops
     if (tourStops.length >= 1) {
       await handleConvertToTrips(tourStops);
@@ -938,27 +942,42 @@ ${IKTRACKER_MENTION}
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Focus Tour View - Full screen immersive mode */}
-      <Suspense fallback={<SheetLoader />}>
-        <FocusTourView
-          isActive={isTourActive}
-          isLoading={isTourLoading}
-          totalDistanceKm={totalDistanceKm}
-          detectedStopsCount={Math.max(0, tourStops.length - 1)}
-          wakeLockActive={wakeLockActive}
-          lowBattery={lowBattery}
-          tourStartTime={tourStartTime || tourStops[0]?.timestamp}
-          gpsSignalStrength={gpsSignalStrength}
-          gpsAccuracy={gpsAccuracy}
-          pendingStop={pendingStop}
-          onFinish={handleFinishTour}
-          onRefreshDistance={refreshDistance}
-          onCancel={() => {
-            setTourStartRequested(false);
-            clearTour();
-          }}
-        />
-      </Suspense>
+      {/* Focus Tour View - Full screen immersive mode (hidden when minimized) */}
+      {!tourMinimized && (
+        <Suspense fallback={<SheetLoader />}>
+          <FocusTourView
+            isActive={isTourActive}
+            isLoading={isTourLoading}
+            totalDistanceKm={totalDistanceKm}
+            detectedStopsCount={Math.max(0, tourStops.length - 1)}
+            wakeLockActive={wakeLockActive}
+            lowBattery={lowBattery}
+            tourStartTime={tourStartTime || tourStops[0]?.timestamp}
+            gpsSignalStrength={gpsSignalStrength}
+            gpsAccuracy={gpsAccuracy}
+            pendingStop={pendingStop}
+            onFinish={handleFinishTour}
+            onRefreshDistance={refreshDistance}
+            onMinimize={() => setTourMinimized(true)}
+            onCancel={() => {
+              setTourStartRequested(false);
+              clearTour();
+            }}
+          />
+        </Suspense>
+      )}
+
+      {/* Floating restore pill when tour is minimized */}
+      {isTourActive && tourMinimized && (
+        <button
+          onClick={() => setTourMinimized(false)}
+          className="fixed top-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500 text-white text-xs font-semibold shadow-lg animate-pulse hover:bg-orange-600 active:scale-95 transition-all"
+          aria-label="Revenir à la tournée"
+        >
+          <Car className="w-3.5 h-3.5" />
+          <span>{totalDistanceKm.toFixed(1)} km</span>
+        </button>
+      )}
 
       {/* Desktop Sidebar - hidden on mobile */}
       <DesktopSidebar 
