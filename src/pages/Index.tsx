@@ -237,39 +237,10 @@ const Index = () => {
     checkSessionRecovery();
   }, [vehicles.length]);
 
-  // ⚡ FIX: On foreground return, if tour is NOT active in React state but IS active in localStorage,
-  // update TOUR_LAST_ACTIVITY immediately and trigger transparent resume
-  // This handles the case where the OS killed JS but the tour data is still in localStorage
+  // Listen for force resume event from GlobalTourRecovery (when already on /app)
+  // NOTE: Foreground recovery (visibilitychange) is handled exclusively by useTourTracker
+  // to avoid double gap-filling. Only the force-resume event bridge is kept here.
   useEffect(() => {
-    const handleForegroundRecovery = async () => {
-      if (document.visibilityState !== 'visible') return;
-      if (isTourActive || hasRecoveredTour) return;
-      
-      const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
-      if (!isActive) return;
-      
-      // Tour is active in localStorage but not in React state
-      // This means the component remounted after OS suspension
-      // Apply grace period: always resume transparently if < MODAL_THRESHOLD
-      const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
-      if (!lastActivityStr) return;
-      
-      const inactivity = Date.now() - new Date(lastActivityStr).getTime();
-      console.log('[ForegroundRecovery] Tour active in storage but not in state, inactivity:', Math.round(inactivity / 1000), 's');
-      
-      // Update activity timestamp immediately to prevent stale reads
-      saveTourData(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-      
-      if (inactivity < MODAL_THRESHOLD) {
-        // Grace: transparent resume for any background duration < 2h
-        console.log('[ForegroundRecovery] → Grace resume (< 2h)');
-        setTourStartRequested(true);
-        await resumeTour();
-      }
-      // If > MODAL_THRESHOLD, the mount useEffect will handle Case C
-    };
-    
-    // Listen for force resume event from GlobalTourRecovery (when already on /app)
     const handleForceResumeEvent = async () => {
       const forceResume = sessionStorage.getItem('tour_force_resume') === 'true';
       if (forceResume) {
@@ -280,13 +251,11 @@ const Index = () => {
       }
     };
     
-    document.addEventListener('visibilitychange', handleForegroundRecovery);
     window.addEventListener('tour_force_resume', handleForceResumeEvent);
     return () => {
-      document.removeEventListener('visibilitychange', handleForegroundRecovery);
       window.removeEventListener('tour_force_resume', handleForceResumeEvent);
     };
-  }, [isTourActive, hasRecoveredTour, resumeTour]);
+  }, [resumeTour]);
 
   // Handle recovery modal responses
   const handleRecoveryResume = async () => {
