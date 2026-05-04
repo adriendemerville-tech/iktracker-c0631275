@@ -166,6 +166,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const lastPointTimeRef = useRef<number>(0);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isResumingRef = useRef<boolean>(false);
+  const pendingStartRef = useRef<boolean>(false);
 
   // Persist state changes to localStorage (only when tour is active)
   // CRITICAL: never persist while inactive — would wipe restored state before resumeTour() reads it
@@ -693,8 +694,10 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     if (!hasPermission) {
       setError("Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.");
       setIsLoading(false);
+      pendingStartRef.current = true;
       return;
     }
+    pendingStartRef.current = false;
 
     // Get initial position
     navigator.geolocation.getCurrentPosition(
@@ -754,6 +757,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         if (err.code === 1) {
           setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
           setPermissionStatus('denied');
+          pendingStartRef.current = true;
         } else if (err.code === 2) {
           setError('Position indisponible. Vérifiez que le GPS est activé.');
         } else {
