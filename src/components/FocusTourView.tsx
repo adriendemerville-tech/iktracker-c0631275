@@ -64,9 +64,11 @@ export function FocusTourView({
   pendingStop,
   onFinish,
   onCancel,
+  onRefreshDistance,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'transitioning' | 'final'>('initial');
   const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
