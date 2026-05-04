@@ -151,6 +151,7 @@ const Index = () => {
     clearTour,
     resumeTour,
     getSavedTourData,
+    refreshDistance,
   } = useTourTracker({
     stopDurationThreshold: preferences.stopDetectionMinutes * 60,
     locationRadius: preferences.locationRadiusMeters,
