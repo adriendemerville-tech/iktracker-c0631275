@@ -1003,6 +1003,52 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     };
   }, []);
 
+  // Force a GPS position refresh and distance update
+  const refreshDistance = useCallback(() => {
+    if (!isActive || !navigator.geolocation) return;
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lng, accuracy } = position.coords;
+        
+        resetGpsTimeout();
+        updateGpsSignal(accuracy);
+        
+        if (accuracy > accuracyThreshold) {
+          console.log(`Refresh rejected: accuracy ${accuracy.toFixed(0)}m`);
+          return;
+        }
+        
+        setCurrentPosition({ lat, lng });
+        addGpsPoint(lat, lng, accuracy);
+        
+        if (lastPositionRef.current) {
+          const dist = getDistanceInMeters(
+            lastPositionRef.current.lat, lastPositionRef.current.lng,
+            lat, lng
+          );
+          if (dist > 10) { // Lower threshold for manual refresh (10m instead of 50m)
+            updateTotalDistance(
+              lastPositionRef.current.lat, lastPositionRef.current.lng,
+              lat, lng
+            );
+            lastPositionRef.current = { lat, lng };
+            console.log(`Refresh: +${(dist / 1000).toFixed(2)}km`);
+          } else {
+            console.log(`Refresh: no significant movement (${dist.toFixed(0)}m)`);
+          }
+        } else {
+          lastPositionRef.current = { lat, lng };
+        }
+      },
+      (err) => {
+        console.error('Refresh getCurrentPosition error:', err);
+        updateGpsSignal(null);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }, [isActive, accuracyThreshold, addGpsPoint, resetGpsTimeout, updateGpsSignal, updateTotalDistance]);
+
   return {
     isActive,
     isLoading,
@@ -1024,6 +1070,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     getTourData,
     resumeTour,
     getSavedTourData,
+    refreshDistance,
   };
 }
 
