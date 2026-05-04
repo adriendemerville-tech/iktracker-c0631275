@@ -151,6 +151,7 @@ const Index = () => {
     clearTour,
     resumeTour,
     getSavedTourData,
+    refreshDistance,
   } = useTourTracker({
     stopDurationThreshold: preferences.stopDetectionMinutes * 60,
     locationRadius: preferences.locationRadiusMeters,
@@ -982,6 +983,7 @@ ${IKTRACKER_MENTION}
           gpsAccuracy={gpsAccuracy}
           pendingStop={pendingStop}
           onFinish={handleFinishTour}
+          onRefreshDistance={refreshDistance}
           onCancel={() => {
             setTourStartRequested(false);
             clearTour();

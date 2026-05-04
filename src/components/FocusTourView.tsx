@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2 } from 'lucide-react';
+import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2, RotateCw } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +34,7 @@ interface FocusTourViewProps {
   pendingStop?: PendingStop | null;
   onFinish: () => void; // Directly finish and save the tour
   onCancel?: () => void; // Cancel during loading
+  onRefreshDistance?: () => void; // Force GPS refresh and distance update
 }
 
 // Hook to detect if on desktop (width >= 1024px)
@@ -63,9 +64,11 @@ export function FocusTourView({
   pendingStop,
   onFinish,
   onCancel,
+  onRefreshDistance,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'transitioning' | 'final'>('initial');
   const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
@@ -92,6 +95,14 @@ export function FocusTourView({
     const interval = setInterval(checkPhase, 100);
     return () => clearInterval(interval);
   }, [tourStartTime, isActive]);
+
+  const handleRefresh = () => {
+    if (isRefreshing || !onRefreshDistance) return;
+    setIsRefreshing(true);
+    onRefreshDistance();
+    // Visual feedback for 1.5s
+    setTimeout(() => setIsRefreshing(false), 1500);
+  };
 
   const handleStopClick = () => {
     setShowStopConfirm(true);
@@ -340,6 +351,21 @@ export function FocusTourView({
               Validation en cours...
             </span>
           </div>
+        </div>
+      )}
+
+      {/* Refresh button */}
+      {onRefreshDistance && (
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 active:scale-95 transition-all disabled:opacity-50"
+            aria-label="Rafraîchir la distance"
+          >
+            <RotateCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+            <span>Rafraîchir</span>
+          </button>
         </div>
       )}
 
