@@ -1010,12 +1010,9 @@ ${IKTRACKER_MENTION}
       </Helmet>
 
       <div className="min-h-screen bg-background font-urbanist cursor-default select-none md:pl-16">
-      {/* Header - Fintech Dark */}
+      {/* Header - Primary gradient light / Dark slate dark */}
       <header 
-        className="text-white px-4 pt-4 pb-4 md:pt-8 md:pb-8 rounded-b-[2rem] relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 100%)'
-        }}
+        className="text-white px-4 pt-4 pb-4 md:pt-8 md:pb-8 relative overflow-hidden shadow-[0_1px_3px_0_hsl(0_0%_0%/0.06),0_6px_16px_0_hsl(0_0%_0%/0.04)] dark:shadow-none bg-gradient-to-b from-primary to-primary/85 dark:from-[#0F172A] dark:to-[#1E293B]"
       >
         {/* Animated gradient - top left */}
         <div 
