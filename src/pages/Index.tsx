@@ -1014,18 +1014,36 @@ ${IKTRACKER_MENTION}
       <div className={`min-h-screen bg-background font-urbanist cursor-default select-none transition-[padding] duration-200 ${sidebarExpanded ? 'md:pl-56' : 'md:pl-24'}`}>
       {/* Header - Primary gradient light / Dark slate dark */}
       <header 
-        className="text-white px-4 pt-4 pb-4 md:pt-8 md:pb-8 relative overflow-hidden shadow-[0_1px_3px_0_hsl(0_0%_0%/0.06),0_6px_16px_0_hsl(0_0%_0%/0.04)] dark:shadow-none bg-gradient-to-b from-primary to-primary/85 dark:from-[#0F172A] dark:to-[#1E293B]"
+        className="text-foreground px-4 pt-4 pb-4 md:pt-8 md:pb-8 relative overflow-hidden 
+          mx-3 sm:mx-4 mt-3 sm:mt-4 rounded-2xl 
+          border border-border/70
+          shadow-[0_4px_12px_-2px_hsl(30_15%_20%/0.08),0_2px_4px_-2px_hsl(30_15%_20%/0.04)] 
+          dark:shadow-none 
+          bg-[hsl(38_35%_96%)] 
+          dark:bg-gradient-to-b dark:from-[#0F172A] dark:to-[#1E293B]"
       >
         {/* Animated gradient - top left */}
         <div 
-          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite]"
+          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite] dark:hidden"
+          style={{
+            background: 'radial-gradient(ellipse 80% 50% at 10% 20%, rgba(245, 158, 11, 0.06) 0%, transparent 50%)'
+          }}
+        />
+        <div 
+          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite] hidden dark:block"
           style={{
             background: 'radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)'
           }}
         />
         {/* Animated gradient - bottom right */}
         <div 
-          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s]"
+          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s] dark:hidden"
+          style={{
+            background: 'radial-gradient(ellipse 60% 40% at 90% 85%, rgba(245, 158, 11, 0.04) 0%, transparent 50%)'
+          }}
+        />
+        <div 
+          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s] hidden dark:block"
           style={{
             background: 'radial-gradient(ellipse 60% 40% at 90% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 50%)'
           }}
@@ -1041,17 +1059,17 @@ ${IKTRACKER_MENTION}
           <div className="flex items-center gap-3 mb-3 md:mb-6">
             {/* Desktop: Text + subtitle (logo is in sidebar) */}
             <div className="flex-1 hidden md:block">
-              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-white">IKtracker</h1>
-              <p className="text-xs text-white/50 font-urbanist">Outil communautaire.</p>
+              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-foreground">IKtracker</h1>
+              <p className="text-xs text-muted-foreground font-urbanist">Outil communautaire.</p>
             </div>
             {/* Mobile: Text only */}
-            <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-white">IKtracker</h1>
+            <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-foreground">IKtracker</h1>
             {isAdmin && (
               <Button 
                 variant="ghost" 
                 size="icon"
                 onClick={() => navigate('/app/admin?tab=stats')}
-                className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
+                className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15"
                 title="Dashboard statistiques"
                 aria-label="Dashboard statistiques"
               >
@@ -1064,7 +1082,7 @@ ${IKTRACKER_MENTION}
               onClick={previewHTMLReport}
               onMouseEnter={() => { import('@/lib/pdf-utils'); }}
               disabled={trips.length === 0}
-              className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15"
+              className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15"
               aria-label="Aperçu du relevé"
               title="Aperçu du relevé"
             >
@@ -1075,7 +1093,7 @@ ${IKTRACKER_MENTION}
                 variant="ghost" 
                 size="icon"
                 onClick={() => navigate('/app/profile')}
-                className="text-white hover:text-white hover:bg-white/20 dark:text-white dark:hover:bg-white/15 w-10 h-10"
+                className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15 w-10 h-10"
                 aria-label="Accéder au profil"
               >
                 <UserCircle className="w-20 h-20" />
