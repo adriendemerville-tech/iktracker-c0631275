@@ -247,14 +247,13 @@ export function SurveyWidget() {
   if (submitted) {
     return (
       <>
-        <div className="fixed inset-0 z-50 bg-black/50" />
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="w-80 bg-white border border-black rounded-xl shadow-2xl p-5 animate-fade-in">
-            <p className="text-center text-sm text-black">Merci pour votre retour ! 🙏</p>
+        <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setDismissed(true)} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="w-80 bg-card border border-border rounded-xl shadow-2xl p-5 animate-fade-in pointer-events-auto">
+            <p className="text-center text-sm text-card-foreground">Merci pour votre retour ! 🙏</p>
           </div>
         </div>
       </>
-    
     );
   }
 
