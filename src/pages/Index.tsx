@@ -1131,13 +1131,13 @@ ${IKTRACKER_MENTION}
         {/* Pending trips section - "À compléter" */}
         {trips.filter(t => t.status === 'pending_location').length > 0 && (
           <section 
-            className="rounded-lg p-4 border border-[hsl(270,50%,35%)]/40 transition-all duration-300 hover:border-[hsl(270,50%,45%)]/60 hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]" 
+            className="rounded-lg p-4 border border-border/70 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(0,0,0,0.12)] dark:border-[hsl(270,50%,35%)]/40 dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]" 
             style={{
-              background: 'linear-gradient(135deg, hsl(270, 50%, 20%) 0%, hsl(280, 45%, 15%) 100%)'
+              background: 'linear-gradient(135deg, hsl(38, 35%, 96%) 0%, hsl(40, 30%, 94%) 100%)'
             }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-lg font-semibold text-purple-100 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 dark:text-purple-100">
                 Trajets à compléter
                 <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
                   {trips.filter(t => t.status === 'pending_location').length}
@@ -1145,7 +1145,7 @@ ${IKTRACKER_MENTION}
               </h2>
               <button
                 onClick={toggleHidePendingTrips}
-                className="ml-auto p-1.5 rounded-md bg-purple-400/20 hover:bg-purple-400/30 text-purple-200 transition-colors"
+                className="ml-auto p-1.5 rounded-md bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors dark:bg-purple-400/20 dark:hover:bg-purple-400/30 dark:text-purple-200"
                 title={hidePendingTrips ? "Afficher les trajets" : "Masquer les trajets"}
               >
                 {hidePendingTrips ? <ChevronDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
