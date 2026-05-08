@@ -166,26 +166,43 @@ export const DesktopSidebar = ({
 
   return (
     <>
-      <aside className="fixed left-0 top-0 h-full w-16 bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40">
-        {/* Logo - clickable, links to app home */}
-        <Link to="/?from=app" className="mb-8" data-tutorial="home" title="Accueil">
-          <img 
-            src="/logo-iktracker-250.webp" 
-            alt="IKtracker" 
-            width={250}
-            height={250}
-            className="h-10 w-10 transition-transform duration-300 hover:scale-110" 
-          />
-        </Link>
+      <aside className={`fixed left-0 top-0 h-full ${expanded ? 'w-52' : 'w-16'} bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40 transition-all duration-200`}>
+        {/* Logo + expand toggle */}
+        <div className={`flex items-center ${expanded ? 'w-full px-4 justify-between' : 'justify-center'} mb-4`}>
+          <Link to="/?from=app" data-tutorial="home" title="Accueil">
+            <img 
+              src="/logo-iktracker-250.webp" 
+              alt="IKtracker" 
+              width={250}
+              height={250}
+              className="h-10 w-10 transition-transform duration-300 hover:scale-110" 
+            />
+          </Link>
+          {expanded && (
+            <span className="text-sm font-bold text-foreground select-none">IKtracker</span>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-8 h-8 rounded-lg hover:bg-accent"
+            onClick={toggleExpanded}
+            title={expanded ? "Réduire" : "Développer"}
+            aria-label={expanded ? "Réduire la barre latérale" : "Développer la barre latérale"}
+          >
+            {expanded ? <ChevronLeft className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+          </Button>
+        </div>
+
+        {/* Spacer to push nav below header — approx header height */}
+        <div className="h-28" />
 
         {/* Navigation items */}
-        <nav className="flex-1 flex flex-col items-center gap-2">
+        <nav className={`flex-1 flex flex-col ${expanded ? 'w-full px-3' : 'items-center'} gap-1`}>
           {navItems.map((item) => (
             <Button
               key={item.label}
               variant="ghost"
-              size="icon"
-              className={`w-12 h-12 rounded-xl transition-all duration-200 ${
+              className={`${expanded ? 'w-full justify-start gap-3 px-3' : 'w-12 justify-center'} h-11 rounded-xl transition-all duration-200 ${
                 item.isRecovery 
                   ? 'hover:bg-wizard-amber/10 group' 
                   : item.active 
@@ -197,13 +214,20 @@ export const DesktopSidebar = ({
               aria-label={item.label}
               data-tutorial={item.tutorialId}
             >
-              <item.icon className={`w-5 h-5 transition-colors ${
+              <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
                 item.isRecovery 
                   ? 'text-wizard-amber group-hover:scale-110 transition-transform' 
                   : item.active 
                     ? 'text-primary' 
                     : 'text-muted-foreground'
               }`} />
+              {expanded && (
+                <span className={`text-sm truncate ${
+                  item.isRecovery ? 'text-wizard-amber' : item.active ? 'text-primary font-medium' : 'text-muted-foreground'
+                }`}>
+                  {item.label}
+                </span>
+              )}
             </Button>
           ))}
         </nav>
@@ -211,13 +235,13 @@ export const DesktopSidebar = ({
         {/* Logout at bottom */}
         <Button
           variant="ghost"
-          size="icon"
-          className="w-12 h-12 rounded-xl hover:bg-destructive/10"
+          className={`${expanded ? 'w-[calc(100%-1.5rem)] mx-3 justify-start gap-3 px-3' : 'w-12 justify-center'} h-11 rounded-xl hover:bg-destructive/10`}
           onClick={handleSignOut}
           title="Déconnexion"
           aria-label="Se déconnecter"
         >
-          <LogOut className="w-5 h-5 text-muted-foreground" />
+          <LogOut className="w-5 h-5 flex-shrink-0 text-muted-foreground" />
+          {expanded && <span className="text-sm text-muted-foreground">Déconnexion</span>}
         </Button>
       </aside>
 
