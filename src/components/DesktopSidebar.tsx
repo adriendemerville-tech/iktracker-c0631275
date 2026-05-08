@@ -54,6 +54,7 @@ interface DesktopSidebarProps {
   isTourActive?: boolean;
   onStartTutorial?: () => void;
   totalKm?: number;
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
 export const DesktopSidebar = ({ 
