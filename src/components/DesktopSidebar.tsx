@@ -70,6 +70,7 @@ export const DesktopSidebar = ({
 }: DesktopSidebarProps) => {
   const navigate = useNavigate();
   const { handleLogout } = useAppAuth();
+  const [expanded, setExpanded] = useState(false);
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
@@ -77,6 +78,12 @@ export const DesktopSidebar = ({
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+
+  const toggleExpanded = () => {
+    const next = !expanded;
+    setExpanded(next);
+    onExpandedChange?.(next);
+  };
 
   const handleSignOut = async () => {
     await handleLogout();
