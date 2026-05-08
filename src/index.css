@@ -53,22 +53,22 @@
   }
 
   :root {
-    --background: 40 30% 97%;
+    --background: 38 40% 95%;
     --foreground: 240 20% 16%;
 
-    --card: 40 20% 99%;
+    --card: 38 30% 97%;
     --card-foreground: 240 20% 16%;
 
-    --popover: 40 20% 99%;
+    --popover: 38 30% 97%;
     --popover-foreground: 240 20% 16%;
 
     --primary: 245 58% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 15% 92%;
+    --secondary: 38 20% 90%;
     --secondary-foreground: 240 15% 25%;
 
-    --muted: 40 15% 94%;
+    --muted: 38 20% 92%;
     --muted-foreground: 240 8% 46%;
 
     --accent: 160 55% 42%;
