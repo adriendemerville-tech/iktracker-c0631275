@@ -49,6 +49,13 @@ export function SurveyWidget() {
   const [dismissed, setDismissed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    };
+  }, []);
 
   // Fetch eligible survey
   useEffect(() => {
