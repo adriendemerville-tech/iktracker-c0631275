@@ -990,6 +990,7 @@ ${IKTRACKER_MENTION}
         isTourActive={isTourActive}
         onStartTutorial={startTutorial}
         totalKm={totalKm}
+        onExpandedChange={setSidebarExpanded}
       />
 
       {/* Onboarding Tutorial - Desktop only */}
