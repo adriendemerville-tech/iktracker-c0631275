@@ -241,7 +241,7 @@ export const DesktopSidebar = ({
           aria-label="Se déconnecter"
         >
           <LogOut className="w-5 h-5 flex-shrink-0 text-muted-foreground" />
-          {expanded && <span className="text-sm text-muted-foreground">Déconnexion</span>}
+          {expanded && <span className="text-base text-muted-foreground">Déconnexion</span>}
         </Button>
       </aside>
 
