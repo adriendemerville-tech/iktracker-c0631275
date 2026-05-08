@@ -66,6 +66,7 @@ export const DesktopSidebar = ({
   isTourActive, 
   onStartTutorial,
   totalKm = 0,
+  onExpandedChange,
 }: DesktopSidebarProps) => {
   const navigate = useNavigate();
   const { handleLogout } = useAppAuth();
