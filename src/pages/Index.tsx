@@ -116,6 +116,7 @@ const Index = () => {
   const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
   const [showStopTourConfirm, setShowStopTourConfirm] = useState(false);
   const [tourStartRequested, setTourStartRequested] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
