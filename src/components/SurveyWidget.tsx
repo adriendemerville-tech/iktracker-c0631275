@@ -230,7 +230,7 @@ export function SurveyWidget() {
     }]);
 
     setSubmitted(true);
-    setTimeout(() => setDismissed(true), 2000);
+    dismissTimerRef.current = setTimeout(() => setDismissed(true), 2000);
   }, [survey, user, responses, otherTexts, syncPersonaIfNeeded]);
 
   const handleNext = () => {
