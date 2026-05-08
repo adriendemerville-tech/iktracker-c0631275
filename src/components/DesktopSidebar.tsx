@@ -166,7 +166,7 @@ export const DesktopSidebar = ({
 
   return (
     <>
-      <aside className={`fixed left-0 top-0 h-full ${expanded ? 'w-52' : 'w-16'} bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40 transition-all duration-200`}>
+      <aside className={`fixed left-0 top-0 h-full ${expanded ? 'w-56' : 'w-24'} bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40 transition-all duration-200`}>
         {/* Logo + expand toggle */}
         <div className={`flex items-center ${expanded ? 'w-full px-4 justify-between' : 'justify-center'} mb-4`}>
           <Link to="/?from=app" data-tutorial="home" title="Accueil">
@@ -175,7 +175,7 @@ export const DesktopSidebar = ({
               alt="IKtracker" 
               width={250}
               height={250}
-              className="h-10 w-10 transition-transform duration-300 hover:scale-110" 
+              className="h-20 w-20 transition-transform duration-300 hover:scale-110" 
             />
           </Link>
           {expanded && (
@@ -194,7 +194,7 @@ export const DesktopSidebar = ({
         </div>
 
         {/* Spacer to push nav below header — approx header height */}
-        <div className="h-28" />
+        <div className="h-44" />
 
         {/* Navigation items */}
         <nav className={`flex-1 flex flex-col ${expanded ? 'w-full px-3' : 'items-center'} gap-1`}>
@@ -222,7 +222,7 @@ export const DesktopSidebar = ({
                     : 'text-muted-foreground'
               }`} />
               {expanded && (
-                <span className={`text-sm truncate ${
+                <span className={`text-base truncate ${
                   item.isRecovery ? 'text-wizard-amber' : item.active ? 'text-primary font-medium' : 'text-muted-foreground'
                 }`}>
                   {item.label}
