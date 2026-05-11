@@ -201,33 +201,48 @@ export function SurveyWidget() {
 
     // Resolve free-text values
     const resolvedResponses: Record<string, unknown> = {};
-    for (const block of survey.blocks) {
-      const answer = responses[block.id] as string | undefined;
-      if (!answer) { resolvedResponses[block.id] = answer; continue; }
+    try {
+      for (const block of survey.blocks) {
+        const rawAnswer = responses[block.id];
+        if (rawAnswer === undefined || rawAnswer === null || rawAnswer === '') {
+          resolvedResponses[block.id] = rawAnswer ?? null;
+          continue;
+        }
 
-      const freeMatch = answer.match(/^__free_(\d+)__$/);
-      if (answer === '__other__') {
-        resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ''}`.trim();
-      } else if (freeMatch) {
-        const idx = parseInt(freeMatch[1]);
-        const options = (block.config.options as string[]) || [];
-        const label = options[idx] || 'Autre';
-        const freeKey = `${block.id}_${idx}`;
-        resolvedResponses[block.id] = `${label}: ${otherTexts[freeKey] || ''}`.trim();
-      } else {
-        resolvedResponses[block.id] = answer;
-        await syncPersonaIfNeeded(block, answer);
+        // Non-string answers (e.g. rating numbers) are stored as-is
+        if (typeof rawAnswer !== 'string') {
+          resolvedResponses[block.id] = rawAnswer;
+          continue;
+        }
+
+        const answer = rawAnswer;
+        const freeMatch = answer.match(/^__free_(\d+)__$/);
+        if (answer === '__other__') {
+          resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ''}`.trim();
+        } else if (freeMatch) {
+          const idx = parseInt(freeMatch[1]);
+          const options = (block.config.options as string[]) || [];
+          const label = options[idx] || 'Autre';
+          const freeKey = `${block.id}_${idx}`;
+          resolvedResponses[block.id] = `${label}: ${otherTexts[freeKey] || ''}`.trim();
+        } else {
+          resolvedResponses[block.id] = answer;
+          await syncPersonaIfNeeded(block, answer);
+        }
       }
-    }
 
-    // Save response
-    await supabase.from('survey_responses').insert([{
-      survey_id: survey.id,
-      user_id: user.id,
-      variant_id: survey.variant_id,
-      responses: JSON.parse(JSON.stringify(resolvedResponses)),
-      completed: true,
-    }]);
+      // Save response
+      const { error: insertError } = await supabase.from('survey_responses').insert([{
+        survey_id: survey.id,
+        user_id: user.id,
+        variant_id: survey.variant_id,
+        responses: JSON.parse(JSON.stringify(resolvedResponses)),
+        completed: true,
+      }]);
+      if (insertError) console.error('Survey insert failed:', insertError);
+    } catch (err) {
+      console.error('Survey submit error:', err);
+    }
 
     setSubmitted(true);
     dismissTimerRef.current = setTimeout(() => setDismissed(true), 2000);
