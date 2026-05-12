@@ -202,26 +202,38 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   }, [tourStartTime, isActive]);
 
   // Update last activity timestamp periodically when tour is active
-  // Also sync to DB every 30s for persistence across browser closure
+  // Also sync to DB every 15s for persistence across browser closure
   useEffect(() => {
     if (!isActive) return;
-    
+
     // Update immediately when becoming active
     saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-    
-    // Then update every 30 seconds (localStorage + DB)
-    const intervalId = setInterval(() => {
+
+    const flush = () => {
       saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-      // Sync full state to DB (force=true to bypass debounce)
       updateSession({
         stops,
         totalDistanceKm,
         gpsPoints,
         pendingStop: pendingStopRef.current,
       }, true).catch(e => console.warn('[TourTracker] DB sync failed:', e));
-    }, 30000);
-    
-    return () => clearInterval(intervalId);
+    };
+
+    // Periodic sync every 15 seconds
+    const intervalId = setInterval(flush, 15000);
+
+    // Flush immediately when tab is hidden or page is being closed
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', flush);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', flush);
+    };
   }, [isActive, stops, totalDistanceKm, gpsPoints, updateSession]);
 
   // Calculate GPS signal strength from accuracy
@@ -313,8 +325,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       navigator.vibrate([100, 50, 100, 50, 100]); // Triple vibration pattern
     }
     
-    setStops((prev) => [...prev, newStop]);
-  }, []);
+    setStops((prev) => {
+      const next = [...prev, newStop];
+      // Force immediate DB sync so a new stop is never lost on tab close
+      updateSession({ stops: next }, true).catch(e =>
+        console.warn('[TourTracker] Force sync on addStop failed:', e)
+      );
+      return next;
+    });
+  }, [updateSession]);
 
   // Add GPS point with filtering
   const addGpsPoint = useCallback((lat: number, lng: number, accuracy: number) => {
@@ -735,8 +754,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         setIsActive(true);
         setIsLoading(false);
 
-        // Create DB session for persistence across browser closure
-        createSession(startTime).catch(e => console.warn('[TourTracker] Failed to create DB session:', e));
+        // Create DB session for persistence across browser closure, then
+        // immediately force-sync the initial GPS point + start stop so a crash
+        // in the first few seconds never leaves a "0 km / 0 stop" zombie row.
+        createSession(startTime)
+          .then(() =>
+            updateSession({
+              stops: [startStop],
+              gpsPoints: [{ lat, lng, timestamp: Date.now(), accuracy }],
+              totalDistanceKm: 0,
+            }, true)
+          )
+          .catch(e => console.warn('[TourTracker] Failed to create/seed DB session:', e));
 
         // Request wake lock to keep screen on
         const wakeLockAcquired = await wakeLock.request();

@@ -15,7 +15,7 @@ export interface TourSessionDB {
 }
 
 // Debounce interval for DB writes (avoid spamming on every GPS point)
-const DB_SYNC_INTERVAL = 30_000; // 30 seconds
+const DB_SYNC_INTERVAL = 15_000; // 15 seconds
 
 /**
  * Hook to sync tour session state with the database.
@@ -94,8 +94,14 @@ export function useTourSessionDB() {
       updatePayload.total_distance_km = data.totalDistanceKm;
     }
     if (data.gpsPoints) {
-      // Only keep last 500 GPS points to avoid huge payloads
-      updatePayload.gps_points = data.gpsPoints.slice(-500);
+      // Keep last 500 GPS points BUT always preserve the very first point
+      // (origin/start of tour) so it's never lost to truncation.
+      const pts = data.gpsPoints;
+      if (pts.length <= 500) {
+        updatePayload.gps_points = pts;
+      } else {
+        updatePayload.gps_points = [pts[0], ...pts.slice(-499)];
+      }
     }
     if (data.pendingStop !== undefined) {
       updatePayload.pending_stop = data.pendingStop;
