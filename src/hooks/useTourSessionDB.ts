@@ -15,7 +15,7 @@ export interface TourSessionDB {
 }
 
 // Debounce interval for DB writes (avoid spamming on every GPS point)
-const DB_SYNC_INTERVAL = 30_000; // 30 seconds
+const DB_SYNC_INTERVAL = 15_000; // 15 seconds
 
 /**
  * Hook to sync tour session state with the database.
