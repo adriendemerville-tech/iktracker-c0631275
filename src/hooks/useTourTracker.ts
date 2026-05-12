@@ -202,26 +202,38 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   }, [tourStartTime, isActive]);
 
   // Update last activity timestamp periodically when tour is active
-  // Also sync to DB every 30s for persistence across browser closure
+  // Also sync to DB every 15s for persistence across browser closure
   useEffect(() => {
     if (!isActive) return;
-    
+
     // Update immediately when becoming active
     saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-    
-    // Then update every 30 seconds (localStorage + DB)
-    const intervalId = setInterval(() => {
+
+    const flush = () => {
       saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-      // Sync full state to DB (force=true to bypass debounce)
       updateSession({
         stops,
         totalDistanceKm,
         gpsPoints,
         pendingStop: pendingStopRef.current,
       }, true).catch(e => console.warn('[TourTracker] DB sync failed:', e));
-    }, 30000);
-    
-    return () => clearInterval(intervalId);
+    };
+
+    // Periodic sync every 15 seconds
+    const intervalId = setInterval(flush, 15000);
+
+    // Flush immediately when tab is hidden or page is being closed
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', flush);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', flush);
+    };
   }, [isActive, stops, totalDistanceKm, gpsPoints, updateSession]);
 
   // Calculate GPS signal strength from accuracy
