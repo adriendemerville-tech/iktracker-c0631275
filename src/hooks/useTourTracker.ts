@@ -325,8 +325,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       navigator.vibrate([100, 50, 100, 50, 100]); // Triple vibration pattern
     }
     
-    setStops((prev) => [...prev, newStop]);
-  }, []);
+    setStops((prev) => {
+      const next = [...prev, newStop];
+      // Force immediate DB sync so a new stop is never lost on tab close
+      updateSession({ stops: next }, true).catch(e =>
+        console.warn('[TourTracker] Force sync on addStop failed:', e)
+      );
+      return next;
+    });
+  }, [updateSession]);
 
   // Add GPS point with filtering
   const addGpsPoint = useCallback((lat: number, lng: number, accuracy: number) => {
