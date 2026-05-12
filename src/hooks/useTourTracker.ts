@@ -754,8 +754,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         setIsActive(true);
         setIsLoading(false);
 
-        // Create DB session for persistence across browser closure
-        createSession(startTime).catch(e => console.warn('[TourTracker] Failed to create DB session:', e));
+        // Create DB session for persistence across browser closure, then
+        // immediately force-sync the initial GPS point + start stop so a crash
+        // in the first few seconds never leaves a "0 km / 0 stop" zombie row.
+        createSession(startTime)
+          .then(() =>
+            updateSession({
+              stops: [startStop],
+              gpsPoints: [{ lat, lng, timestamp: Date.now(), accuracy }],
+              totalDistanceKm: 0,
+            }, true)
+          )
+          .catch(e => console.warn('[TourTracker] Failed to create/seed DB session:', e));
 
         // Request wake lock to keep screen on
         const wakeLockAcquired = await wakeLock.request();
