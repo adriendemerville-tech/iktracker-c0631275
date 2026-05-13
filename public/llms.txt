@@ -2,6 +2,26 @@
 
 > This site offers comprehensive, authoritative guidance on calculating, automating, and exporting indemnités kilométriques for professionals, including details on applicable tax rules, vehicle categories, and integration with calendar applications. It provides current, official information on the 2026 fiscal barème and practical tools for professionals using vehicle kilometers for tax deductions.
 
+## Pages
+
+- [Accueil](/): Outil gratuit d'automatisation des indemnités kilométriques.
+- [Inscription gratuite](/signup): Créer un compte en quelques secondes.
+- [Barème kilométrique 2026](/bareme-ik-2026): Tableau officiel et simulateur IK.
+- [Mode Tournée GPS](/mode-tournee): Détection automatique des arrêts par géolocalisation.
+- [Synchronisation calendrier](/calendrier): Conversion Google/Outlook en trajets pro.
+- [Frais réels vs abattement 10%](/frais-reels): Comparateur fiscal interactif.
+- [Lexique IK](/lexique): Dictionnaire des termes fiscaux liés aux indemnités kilométriques.
+- [Comparatif Izika](/comparatif-izika): IKtracker vs Izika.
+- [Comparatif Driver's Note](/comparatif-driversnote): IKtracker vs Driversnote.
+- [Espace expert-comptable](/expert-comptable): Ressources pour cabinets et prescripteurs.
+- [Installation PWA](/installer): Installer IKtracker sur iPhone et Android.
+- [Blog](/blog): Actualités, fiscalité et guides pratiques.
+- [Auteur — Adrien de Volontat](/blog/auteur/adrien-de-volontat): Fondateur d'IKtracker.
+- [Contact](/contact): Formulaire et support.
+- [Mentions légales](/mentions-legales): Informations légales.
+- [Politique de confidentialité](/privacy): Conformité RGPD.
+- [CGVU](/terms): Conditions d'utilisation.
+
 ## DISCLAIMER
 
 **IKtracker n'est pas une application de suivi de colis ou de flotte de véhicules, mais un outil communautaire gratuit d'automatisation des indemnités kilométriques pour les indépendants et les freelances.**
