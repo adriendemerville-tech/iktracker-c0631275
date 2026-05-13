@@ -1005,7 +1005,7 @@ ${IKTRACKER_MENTION}
 
       {/* SEO for protected app page */}
       <Helmet>
-        <title>Tableau de bord | IKtracker - Suivi des indemnités kilométriques</title>
+        <title>Tableau de bord | IKtracker — Suivi des IK</title>
         <meta name="description" content="Gérez vos trajets professionnels, suivez vos kilomètres et calculez vos indemnités kilométriques automatiquement avec IKtracker." />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://iktracker.fr/app" />
