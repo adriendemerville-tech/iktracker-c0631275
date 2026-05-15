@@ -18,7 +18,7 @@ export default function Tarifs() {
       <Helmet>
         <title>Tarifs IKtracker — 0€, gratuit à vie</title>
         <meta name="description" content="IKtracker est 100% gratuit. Aucune donnée vendue, aucune pub. Calculez vos indemnités kilométriques sans jamais payer." />
-        <link rel="canonical" href="https://iktracker.lovable.app/tarifs" />
+        <link rel="canonical" href="https://iktracker.fr/tarifs" />
       </Helmet>
 
       <MarketingNav />
