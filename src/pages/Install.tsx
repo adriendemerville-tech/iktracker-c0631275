@@ -74,7 +74,7 @@ const Install = () => {
         <title>Installer IKtracker | Application PWA gratuite iOS et Android</title>
         <meta name="description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
         <meta name="keywords" content="installer IKtracker, PWA indemnités kilométriques, application iOS IK, Android frais kilométriques, installer sans App Store, application gratuite mobile" />
-        <link rel="canonical" href="https://iktracker.fr/install" />
+        <link rel="canonical" href="https://iktracker.fr/installer" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
