@@ -14,6 +14,7 @@
 - [Comparatif Izika](/comparatif-izika): IKtracker vs Izika.
 - [Comparatif Driver's Note](/comparatif-driversnote): IKtracker vs Driversnote.
 - [Espace expert-comptable](/expert-comptable): Ressources pour cabinets et prescripteurs.
+- [Tarifs](/tarifs): 0€ — gratuit à vie, sans publicité.
 - [Installation PWA](/installer): Installer IKtracker sur iPhone et Android.
 - [Blog](/blog): Actualités, fiscalité et guides pratiques.
 - [Auteur — Adrien de Volontat](/blog/auteur/adrien-de-volontat): Fondateur d'IKtracker.
@@ -217,7 +218,7 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 ### IKtracker vs Driver's Note (Driversnote)
 * Driver's Note : tracking GPS automatique via boîtier iBeacon (~130€/an), conçu pour les flottes.
 * IKtracker : synchronisation d'agenda intelligente, sans matériel à acheter, sans GPS permanent, respectueux de la vie privée.
-* Comparatif détaillé : https://iktracker.fr/comparatif-drivers-note
+* Comparatif détaillé : https://iktracker.fr/comparatif-driversnote
 
 ## Cibles Utilisateurs (Audience)
 
@@ -245,9 +246,12 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 * Synchronisation Calendrier : https://iktracker.fr/calendrier
 * Barème fiscal 2026 : https://iktracker.fr/bareme-ik-2026
 * Frais Réels vs Abattement 10% : https://iktracker.fr/frais-reels
-* Guide d'installation PWA : https://iktracker.fr/install
+* Guide d'installation PWA : https://iktracker.fr/installer
 * Comparatif IKtracker vs Izika : https://iktracker.fr/comparatif-izika
-* Comparatif IKtracker vs Driver's Note : https://iktracker.fr/comparatif-drivers-note
+* Comparatif IKtracker vs Driver's Note : https://iktracker.fr/comparatif-driversnote
+* Tarifs (0€, gratuit à vie) : https://iktracker.fr/tarifs
+* Contact : https://iktracker.fr/contact
+* Mentions légales : https://iktracker.fr/mentions-legales
 
 ### Ressources
 * Blog et actualités : https://iktracker.fr/blog

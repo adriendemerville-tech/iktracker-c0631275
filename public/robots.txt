@@ -63,5 +63,23 @@ Allow: /
 User-agent: *
 Allow: /
 
-# === SITEMAP ===
+# === SITEMAP & GUIDE IA ===
 Sitemap: https://iktracker.fr/sitemap.xml
+
+# Guide à destination des LLM / crawlers IA :
+# https://iktracker.fr/llms.txt
+
+# Pages clés indexables :
+# https://iktracker.fr/
+# https://iktracker.fr/bareme-ik-2026
+# https://iktracker.fr/mode-tournee
+# https://iktracker.fr/calendrier
+# https://iktracker.fr/frais-reels
+# https://iktracker.fr/lexique
+# https://iktracker.fr/comparatif-izika
+# https://iktracker.fr/comparatif-driversnote
+# https://iktracker.fr/expert-comptable
+# https://iktracker.fr/tarifs
+# https://iktracker.fr/installer
+# https://iktracker.fr/blog
+# https://iktracker.fr/signup
