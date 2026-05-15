@@ -104,7 +104,7 @@ const ComparatifDriversNote = () => {
         <meta property="og:description" content="Comparatif 2026 : Le tracking GPS automatique vs la synchronisation d'agenda intelligente. Alternative gratuite et respectueuse de la vie privée." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/comparatif-drivers-note" />
+        <meta property="og:url" content="https://iktracker.fr/comparatif-driversnote" />
         <meta property="og:site_name" content="IKtracker" />
         <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
