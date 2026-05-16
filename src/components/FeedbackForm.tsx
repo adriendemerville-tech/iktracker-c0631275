@@ -206,6 +206,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
           image_url: imageUrl,
           phone_number: wantsCall ? phoneNumber.replace(/\s/g, '') : null,
           device_info: getDeviceInfo(),
+          rating: rating > 0 ? rating : null,
         } as any);
 
       if (insertError) {
