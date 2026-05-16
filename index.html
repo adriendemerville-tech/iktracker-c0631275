@@ -267,18 +267,9 @@
       "totalTime": "PT2M"
     }
     </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [{
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Accueil",
-        "item": "https://iktracker.fr/"
-      }]
-    }
-    </script>
+    <!-- BreadcrumbList JSON-LD is injected per route via the Breadcrumb React component (react-helmet-async). -->
+    <!-- Keeping a static breadcrumb here would mis-describe every child route as containing only "Accueil". -->
+
     
     <!-- Critical CSS for above-the-fold content - prevents render blocking -->
     <style>
