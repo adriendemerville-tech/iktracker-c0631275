@@ -820,39 +820,6 @@ const Admin = () => {
                                 </div>
                               )}
 
-                              {/* Reply form for the latest unreplied message, or last message */}
-                              {!msg.response && !msg.is_admin_message && (
-                                <div className="ml-4 space-y-2">
-                                  <Textarea
-                                    placeholder="Répondre à ce message..."
-                                    value={selectedFeedback?.id === msg.id ? responseText : ''}
-                                    onFocus={() => { setSelectedFeedback(msg); setResponseText(''); }}
-                                    onChange={(e) => {
-                                      if (selectedFeedback?.id !== msg.id) setSelectedFeedback(msg);
-                                      setResponseText(e.target.value);
-                                    }}
-                                    className="min-h-[70px] text-sm"
-                                  />
-                                  {selectedFeedback?.id === msg.id && responseText.trim() && (
-                                    <>
-                                      <p className="text-[10px] text-muted-foreground">Signature « Adrien. » ajoutée automatiquement.</p>
-                                      <Button 
-                                        onClick={() => handleRespond(msg)}
-                                        disabled={respondMutation.isPending}
-                                        size="sm"
-                                        className="w-full"
-                                      >
-                                        {respondMutation.isPending ? (
-                                          <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                        ) : (
-                                          <Send className="w-3 h-3 mr-1" />
-                                        )}
-                                        Envoyer
-                                      </Button>
-                                    </>
-                                  )}
-                                </div>
-                              )}
 
                               {/* Separator between messages */}
                               {idx < selectedConversation.messages.length - 1 && (
