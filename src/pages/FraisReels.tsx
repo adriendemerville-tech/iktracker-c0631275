@@ -137,6 +137,24 @@ export default function FraisReels() {
             }
           })}
         </script>
+        {/* HowTo Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            "name": "Comment choisir entre frais réels et abattement de 10%",
+            "description": "Méthode en 4 étapes pour déterminer l'option fiscale la plus avantageuse en tant que salarié ou indépendant.",
+            "totalTime": "PT5M",
+            "estimatedCost": { "@type": "MonetaryAmount", "currency": "EUR", "value": "0" },
+            "tool": [{ "@type": "HowToTool", "name": "IKtracker — calculateur gratuit" }],
+            "step": [
+              { "@type": "HowToStep", "position": 1, "name": "Estimez votre kilométrage professionnel annuel", "text": "Comptez les déplacements professionnels et le trajet domicile-travail (dans la limite de 40 km aller).", "url": "https://iktracker.fr/frais-reels#etape-1" },
+              { "@type": "HowToStep", "position": 2, "name": "Identifiez la puissance fiscale de votre véhicule", "text": "Elle figure sur la carte grise (case P.6). Les véhicules 100% électriques bénéficient d'une majoration de 20%.", "url": "https://iktracker.fr/frais-reels#etape-2" },
+              { "@type": "HowToStep", "position": 3, "name": "Calculez vos IK avec le barème 2026", "text": "Appliquez le barème officiel selon votre tranche kilométrique et votre puissance fiscale.", "url": "https://iktracker.fr/frais-reels#etape-3" },
+              { "@type": "HowToStep", "position": 4, "name": "Comparez au montant de l'abattement de 10%", "text": "Si vos frais réels dépassent 10% de votre salaire brut imposable, optez pour les frais réels sur le formulaire 2042.", "url": "https://iktracker.fr/frais-reels#etape-4" }
+            ]
+          })}
+        </script>
         {/* FAQ Schema */}
         <script type="application/ld+json">
           {JSON.stringify({
