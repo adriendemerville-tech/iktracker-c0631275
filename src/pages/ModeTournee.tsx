@@ -186,10 +186,13 @@ export default function ModeTournee() {
               {
                 "@type": "HowTo",
                 "name": "Comment utiliser le Mode Tournée IKtracker",
+                "description": "Suivez automatiquement vos arrêts clients et calculez vos indemnités kilométriques en 3 étapes.",
+                "totalTime": "PT1M",
+                "tool": [{ "@type": "HowToTool", "name": "Smartphone avec GPS activé" }],
                 "step": [
-                  { "@type": "HowToStep", "name": "Démarrez votre tournée", "text": "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS." },
-                  { "@type": "HowToStep", "name": "Ajoutez vos arrêts", "text": "Chaque client visité est automatiquement enregistré grâce à la géolocalisation." },
-                  { "@type": "HowToStep", "name": "Récapitulatif complet", "text": "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF." }
+                  { "@type": "HowToStep", "position": 1, "name": "Démarrez votre tournée", "text": "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS.", "url": "https://iktracker.fr/mode-tournee#etape-1" },
+                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos arrêts", "text": "Chaque client visité est automatiquement enregistré grâce à la géolocalisation.", "url": "https://iktracker.fr/mode-tournee#etape-2" },
+                  { "@type": "HowToStep", "position": 3, "name": "Récapitulatif complet", "text": "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF.", "url": "https://iktracker.fr/mode-tournee#etape-3" }
                 ]
               }
             ]

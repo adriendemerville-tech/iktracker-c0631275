@@ -112,25 +112,15 @@ const Install = () => {
             },
             "mainEntity": {
               "@type": "HowTo",
-              "name": "Comment installer IKtracker",
+              "name": "Comment installer IKtracker en tant qu'application (PWA)",
+              "description": "Installez IKtracker sur iPhone ou Android sans passer par les stores en 3 étapes.",
+              "totalTime": "PT2M",
+              "tool": [{ "@type": "HowToTool", "name": "Smartphone (iOS Safari ou Android Chrome)" }],
               "step": [
-                {
-                  "@type": "HowToStep",
-                  "name": "Ouvrir iktracker.fr",
-                  "text": "Accédez à iktracker.fr depuis votre navigateur mobile"
-                },
-                {
-                  "@type": "HowToStep",
-                  "name": "Ajouter à l'écran d'accueil",
-                  "text": "Cliquez sur Partager puis 'Ajouter à l'écran d'accueil'"
-                },
-                {
-                  "@type": "HowToStep",
-                  "name": "Lancer l'application",
-                  "text": "L'icône IKtracker apparaît sur votre écran d'accueil"
-                }
-              ],
-              "totalTime": "PT2M"
+                { "@type": "HowToStep", "position": 1, "name": "Ouvrir iktracker.fr", "text": "Accédez à iktracker.fr depuis Safari (iOS) ou Chrome (Android).", "url": "https://iktracker.fr/installer#etape-1" },
+                { "@type": "HowToStep", "position": 2, "name": "Ajouter à l'écran d'accueil", "text": "Sur iOS : bouton Partager puis « Sur l'écran d'accueil ». Sur Android : menu ⋮ puis « Installer l'application ».", "url": "https://iktracker.fr/installer#etape-2" },
+                { "@type": "HowToStep", "position": 3, "name": "Lancer l'application", "text": "L'icône IKtracker apparaît sur votre écran d'accueil et s'ouvre en plein écran comme une vraie app.", "url": "https://iktracker.fr/installer#etape-3" }
+              ]
             }
           })}
         </script>

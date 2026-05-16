@@ -171,10 +171,13 @@ export default function Calendrier() {
               {
                 "@type": "HowTo",
                 "name": "Comment synchroniser son calendrier avec IKtracker",
+                "description": "Transformez automatiquement vos rendez-vous Google Calendar ou Outlook en trajets professionnels.",
+                "totalTime": "PT2M",
+                "tool": [{ "@type": "HowToTool", "name": "Compte Google ou Microsoft / Outlook" }],
                 "step": [
-                  { "@type": "HowToStep", "name": "Connectez votre calendrier", "text": "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé." },
-                  { "@type": "HowToStep", "name": "Ajoutez vos RDV comme d'habitude", "text": "Avec l'adresse dans le champ lieu de votre événement." },
-                  { "@type": "HowToStep", "name": "Les trajets se créent seuls", "text": "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026." }
+                  { "@type": "HowToStep", "position": 1, "name": "Connectez votre calendrier", "text": "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé.", "url": "https://iktracker.fr/calendrier#etape-1" },
+                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos RDV comme d'habitude", "text": "Avec l'adresse dans le champ lieu de votre événement.", "url": "https://iktracker.fr/calendrier#etape-2" },
+                  { "@type": "HowToStep", "position": 3, "name": "Les trajets se créent seuls", "text": "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026.", "url": "https://iktracker.fr/calendrier#etape-3" }
                 ]
               }
             ]
