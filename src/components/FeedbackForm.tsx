@@ -224,6 +224,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
       setImagePreview(null);
       setWantsCall(false);
       setPhoneNumber('');
+      setRating(0);
     } catch (error: any) {
       toast({
         title: 'Erreur',
