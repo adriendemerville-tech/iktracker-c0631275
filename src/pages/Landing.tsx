@@ -208,7 +208,16 @@ const Landing = () => {
                 "audience": {
                   "@type": "BusinessAudience",
                   "audienceType": "Indépendants, professions libérales, artisans, commerciaux, infirmiers"
-                }
+                },
+                ...(aggregateRating ? {
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: aggregateRating.ratingValue,
+                    ratingCount: aggregateRating.ratingCount,
+                    bestRating: 5,
+                    worstRating: 1
+                  }
+                } : {})
               },
               {
                 "@type": "FAQPage",
