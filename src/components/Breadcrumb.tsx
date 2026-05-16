@@ -26,7 +26,7 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
         "@type": "ListItem",
         "position": 1,
         "name": "Accueil",
-        "item": BASE_URL
+        "item": `${BASE_URL}/`
       },
       ...items.map((item, index) => ({
         "@type": "ListItem",
