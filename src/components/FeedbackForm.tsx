@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock, Phone } from 'lucide-react';
+import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock, Phone, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ import { useFeedback } from '@/hooks/useFeedback';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 const MAX_CHARS = 700;
 
@@ -31,6 +32,8 @@ interface FeedbackFormProps {
 export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
