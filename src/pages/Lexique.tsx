@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { toast } from 'sonner';
 
 import { supabase } from '@/integrations/supabase/client';
@@ -935,6 +936,7 @@ export default function Lexique() {
         </header>
 
         <main className="container mx-auto px-4 py-12">
+          <Breadcrumb items={[{ label: 'Lexique' }]} />
           {/* Hero */}
           <section className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">

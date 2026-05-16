@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -24,6 +25,9 @@ export default function Tarifs() {
       <MarketingNav />
 
       <main className="min-h-screen bg-background pt-20">
+        <div className="container mx-auto px-4 pt-6">
+          <Breadcrumb items={[{ label: 'Tarifs' }]} />
+        </div>
         {/* Hero question */}
         <section className="max-w-3xl mx-auto px-4 pt-16 pb-8 text-center">
           <p className="text-lg text-muted-foreground mb-4">La question que tout le monde pose :</p>

@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { Breadcrumb } from '@/components/Breadcrumb';
 
 const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/partner-api`;
 
@@ -30,6 +31,7 @@ export default function ApiDocs() {
       <MarketingNav />
 
       <main className="max-w-4xl mx-auto px-6 py-12 space-y-10">
+        <Breadcrumb items={[{ label: 'API Partenaires' }]} />
         <header className="space-y-3">
           <h1 className="text-4xl font-bold">API Partenaires IKtracker</h1>
           <p className="text-lg text-muted-foreground">
