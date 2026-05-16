@@ -540,6 +540,7 @@ export type Database = {
           is_admin_message: boolean
           message: string
           phone_number: string | null
+          rating: number | null
           read_by_user: boolean | null
           responded_at: string | null
           response: string | null
@@ -553,6 +554,7 @@ export type Database = {
           is_admin_message?: boolean
           message: string
           phone_number?: string | null
+          rating?: number | null
           read_by_user?: boolean | null
           responded_at?: string | null
           response?: string | null
@@ -566,6 +568,7 @@ export type Database = {
           is_admin_message?: boolean
           message?: string
           phone_number?: string | null
+          rating?: number | null
           read_by_user?: boolean | null
           responded_at?: string | null
           response?: string | null
@@ -1679,6 +1682,7 @@ export type Database = {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
       }
+      get_aggregate_rating: { Args: never; Returns: Json }
       get_api_cost_by_day: {
         Args: { days_back?: number }
         Returns: {
