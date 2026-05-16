@@ -128,7 +128,16 @@ const LANDING_DEFAULTS = {
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [aggregateRating, setAggregateRating] = useState<{ ratingValue: number; ratingCount: number } | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.rpc('get_aggregate_rating' as any).then(({ data }: any) => {
+      if (data && data.rating_count >= 5) {
+        setAggregateRating({ ratingValue: Number(data.rating_value), ratingCount: Number(data.rating_count) });
+      }
+    });
+  }, []);
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker('landing');
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
@@ -199,7 +208,16 @@ const Landing = () => {
                 "audience": {
                   "@type": "BusinessAudience",
                   "audienceType": "Indépendants, professions libérales, artisans, commerciaux, infirmiers"
-                }
+                },
+                ...(aggregateRating ? {
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: aggregateRating.ratingValue,
+                    ratingCount: aggregateRating.ratingCount,
+                    bestRating: 5,
+                    worstRating: 1
+                  }
+                } : {})
               },
               {
                 "@type": "FAQPage",
