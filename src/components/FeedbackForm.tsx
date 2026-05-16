@@ -306,6 +306,35 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
               </div>
             )}
 
+            {/* Star rating */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Votre note (optionnel)</p>
+              <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setRating(n === rating ? 0 : n)}
+                    onMouseEnter={() => setHoverRating(n)}
+                    className="p-1 hover:scale-110 transition-transform"
+                    aria-label={`Noter ${n} étoile${n > 1 ? 's' : ''}`}
+                  >
+                    <Star
+                      className={cn(
+                        'w-6 h-6 transition-colors',
+                        n <= (hoverRating || rating)
+                          ? 'fill-amber-400 text-amber-400'
+                          : 'text-muted-foreground/40'
+                      )}
+                    />
+                  </button>
+                ))}
+                {rating > 0 && (
+                  <span className="ml-2 text-sm text-muted-foreground">{rating}/5</span>
+                )}
+              </div>
+            </div>
+
             {/* New message form */}
             <div className="space-y-2">
               <Textarea
