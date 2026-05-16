@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import founderImage from '@/assets/founder-adrien-optimized.webp';
+import { Breadcrumb } from '@/components/Breadcrumb';
 
 const Privacy = () => {
   const navigate = useNavigate();
@@ -91,6 +92,7 @@ const Privacy = () => {
         className="container mx-auto px-4 py-8 max-w-3xl outline-none"
         aria-labelledby="page-heading"
       >
+        <Breadcrumb items={[{ label: 'Confidentialité' }]} />
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           <section aria-labelledby="section-intro">
             <h2 id="section-intro" className="text-lg font-semibold text-foreground">1. Introduction</h2>

@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import founderImage from '@/assets/founder-adrien-optimized.webp';
+import { Breadcrumb } from '@/components/Breadcrumb';
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -125,6 +126,7 @@ const Contact = () => {
       </header>
 
       <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-xl outline-none" aria-labelledby="page-heading">
+        <Breadcrumb items={[{ label: 'Contact' }]} />
 
         {/* Direct email */}
         <div className="bg-muted/50 rounded-xl p-5 mb-8 flex items-start gap-3">

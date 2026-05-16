@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import founderImage from '@/assets/founder-adrien-optimized.webp';
+import { Breadcrumb } from '@/components/Breadcrumb';
 
 const MentionsLegales = () => {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ const MentionsLegales = () => {
       </header>
 
       <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-3xl outline-none" aria-labelledby="page-heading">
+        <Breadcrumb items={[{ label: 'Mentions légales' }]} />
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
 
           <section aria-labelledby="ml-editeur">
