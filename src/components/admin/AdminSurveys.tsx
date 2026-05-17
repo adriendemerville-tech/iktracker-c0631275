@@ -420,7 +420,11 @@ function SurveyResponsesPanel({ surveyId }: { surveyId: string }) {
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-border space-y-2">
+    <div className="mt-3 pt-3 border-t border-border space-y-4">
+      {!isLoading && responses.length > 0 && (
+        <SurveyAggregatedStats responses={responses} variants={variants} />
+      )}
+
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Réponses détaillées ({responses.length})
