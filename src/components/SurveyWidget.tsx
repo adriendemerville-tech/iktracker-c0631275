@@ -264,8 +264,8 @@ export function SurveyWidget() {
           resolvedResponses[block.id] = `${label}: ${otherTexts[freeKey] || ''}`.trim();
         } else {
           resolvedResponses[block.id] = answer;
-          await syncPersonaIfNeeded(block, answer);
         }
+        await syncPersonaIfNeeded(block, resolvedResponses[block.id]);
       }
 
       // Save response
