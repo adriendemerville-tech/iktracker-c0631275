@@ -34,9 +34,46 @@ function isPersonaPoll(block: ContentBlock): boolean {
   return matches.length >= 3;
 }
 
-function getPersonaValueFromLabel(label: string): PersonaValue | null {
-  const match = PERSONA_OPTIONS.find(p => p.label === label);
-  return match ? match.value : null;
+// Keyword-based fallback matching for tolerant persona detection
+const PERSONA_KEYWORDS: Record<PersonaValue, string[]> = {
+  sante_liberal: ['sante', 'santé', 'medical', 'médical', 'liberal', 'libéral', 'infirmier', 'medecin', 'médecin', 'kine', 'kiné'],
+  artisan_btp: ['artisan', 'btp', 'batiment', 'bâtiment', 'maitre', 'maître', 'oeuvre', 'œuvre', 'plombier', 'electricien', 'électricien', 'macon', 'maçon'],
+  consultant_freelance: ['consultant', 'freelance', 'independant', 'indépendant', 'avocat', 'coach'],
+  commercial_immobilier: ['commercial', 'immobilier', 'agent', 'vente', 'vendeur', 'vrp'],
+  expert_comptable_tns: ['comptable', 'expert', 'tns', 'dirigeant', 'gerant', 'gérant'],
+};
+
+function normalize(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+export function getPersonaValueFromLabel(label: string): PersonaValue | null {
+  if (!label) return null;
+  // 1. Exact match
+  const exact = PERSONA_OPTIONS.find(p => p.label === label);
+  if (exact) return exact.value;
+
+  // 2. Strip "Autre:" / "Autre :" prefix
+  const cleaned = label.replace(/^autre\s*:?\s*/i, '').trim();
+  const norm = normalize(cleaned);
+  if (!norm) return null;
+
+  // 3. Case-insensitive label match (partial)
+  const labelMatch = PERSONA_OPTIONS.find(p => {
+    const pn = normalize(p.label);
+    return pn === norm || pn.includes(norm) || norm.includes(pn);
+  });
+  if (labelMatch) return labelMatch.value;
+
+  // 4. Keyword match — score by number of keywords found
+  let best: { value: PersonaValue; score: number } | null = null;
+  for (const [value, keywords] of Object.entries(PERSONA_KEYWORDS) as [PersonaValue, string[]][]) {
+    const score = keywords.filter(kw => norm.includes(kw)).length;
+    if (score > 0 && (!best || score > best.score)) {
+      best = { value, score };
+    }
+  }
+  return best ? best.value : null;
 }
 
 export function SurveyWidget() {
