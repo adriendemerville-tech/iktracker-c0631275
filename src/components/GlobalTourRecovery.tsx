@@ -470,21 +470,127 @@ export function GlobalTourRecovery() {
     setIsProcessing(false);
   }, [sessionData]);
 
+  const [isAddingLocation, setIsAddingLocation] = useState(false);
+
+  const handleAddCurrentLocation = useCallback(async () => {
+    if (!sessionData || isAddingLocation) return;
+    if (!('geolocation' in navigator)) {
+      toast.error('Géolocalisation indisponible sur ce navigateur');
+      return;
+    }
+    setIsAddingLocation(true);
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10_000,
+          maximumAge: 0,
+        });
+      });
+
+      const { latitude: lat, longitude: lng } = position.coords;
+
+      // Best-effort reverse geocoding (don't block on failure)
+      let city = '';
+      let address = '';
+      try {
+        const ok = await loadGoogleMapsAsync(5000);
+        if (ok) {
+          const geo = await reverseGeocode(lat, lng);
+          if (geo) {
+            city = geo.city || '';
+            address = geo.fullAddress || '';
+          }
+        }
+      } catch { /* fallback to coords */ }
+
+      const newStop: TourStop = {
+        id: `manual-${Date.now()}`,
+        timestamp: new Date(),
+        lat,
+        lng,
+        address: address || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        city: city || 'Position actuelle',
+      };
+
+      // Compute incremental distance from previous stop (Haversine fallback —
+      // finalisation re-calcule via Distance Matrix de toute façon)
+      const prevStop = sessionData.stops[sessionData.stops.length - 1];
+      const deltaKm = prevStop
+        ? getDistanceMeters({ lat: prevStop.lat, lng: prevStop.lng }, { lat, lng }) / 1000
+        : 0;
+
+      const updatedStops = [...sessionData.stops, newStop];
+      const updatedDistance = (sessionData.total_distance_km || 0) + deltaKm;
+
+      // Persist to DB
+      const { error } = await supabase
+        .from('tour_sessions')
+        .update({
+          stops: updatedStops.map(s => ({
+            ...s,
+            timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
+          })),
+          total_distance_km: updatedDistance,
+          last_activity: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as any)
+        .eq('id', sessionData.id);
+
+      if (error) throw error;
+
+      // Update local state so modal re-renders with the new stop
+      setSessionData({
+        ...sessionData,
+        stops: updatedStops,
+        total_distance_km: updatedDistance,
+      });
+
+      toast.success('Position ajoutée', {
+        description: city || address || 'Position GPS enregistrée',
+        duration: 2500,
+      });
+      logTourRecovery({
+        eventType: 'manual_stop_added',
+        sessionId: sessionData.id,
+        isMobile: true,
+        stopsCount: updatedStops.length,
+        distanceKm: updatedDistance,
+      });
+    } catch (e: any) {
+      const msg = e?.code === 1
+        ? 'Autorisation de localisation refusée'
+        : e?.code === 3
+          ? 'Localisation trop longue — réessayez'
+          : 'Impossible d\'obtenir votre position';
+      toast.error(msg);
+      logTourRecovery({
+        eventType: 'manual_stop_error',
+        sessionId: sessionData.id,
+        errorMessage: e?.message ?? String(e),
+        isMobile: true,
+      });
+    } finally {
+      setIsAddingLocation(false);
+    }
+  }, [sessionData, isAddingLocation]);
+
   if (!showModal || !sessionData) return null;
 
   return (
-    <Suspense fallback={null}>
-      <TourRecoveryModal
-        open={showModal}
-        inactivityDuration={inactivityText}
-        stopsCount={sessionData.stops.length}
-        distanceKm={sessionData.total_distance_km}
-        stops={sessionData.stops}
-        startedAt={sessionData.started_at}
-        onResume={handleResume}
-        onFinalize={handleFinalize}
-        isProcessing={isProcessing}
-      />
-    </Suspense>
+    <TourRecoveryModal
+      open={showModal}
+      inactivityDuration={inactivityText}
+      stopsCount={sessionData.stops.length}
+      distanceKm={sessionData.total_distance_km}
+      stops={sessionData.stops}
+      startedAt={sessionData.started_at}
+      onResume={handleResume}
+      onFinalize={handleFinalize}
+      onAddCurrentLocation={handleAddCurrentLocation}
+      isAddingLocation={isAddingLocation}
+      isProcessing={isProcessing}
+    />
   );
 }
+
