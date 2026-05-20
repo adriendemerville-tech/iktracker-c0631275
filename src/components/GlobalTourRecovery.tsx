@@ -14,7 +14,7 @@ const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').th
 
 // Time thresholds
 const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
-const MODAL_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
+const MODAL_THRESHOLD = 6 * 60 * 60 * 1000; // 6 hours
 
 // Minimum GPS distance to consider a tour without stops as a real trip (km)
 const MIN_GPS_DISTANCE_KM = 2;
@@ -478,6 +478,8 @@ export function GlobalTourRecovery() {
         inactivityDuration={inactivityText}
         stopsCount={sessionData.stops.length}
         distanceKm={sessionData.total_distance_km}
+        stops={sessionData.stops}
+        startedAt={sessionData.started_at}
         onResume={handleResume}
         onFinalize={handleFinalize}
         isProcessing={isProcessing}
