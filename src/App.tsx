@@ -56,6 +56,7 @@ const Tarifs = lazy(() => import("./pages/Tarifs"));
 const Sso = lazy(() => import("./pages/Sso"));
 const ApiDocs = lazy(() => import("./pages/ApiDocs"));
 const AdminPartners = lazy(() => import("./pages/AdminPartners"));
+const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
