@@ -14,7 +14,9 @@ export type TourRecoveryEventType =
   | 'auto_finalize_error'
   | 'toast_shown'
   | 'session_end'
-  | 'check_error';
+  | 'check_error'
+  | 'manual_stop_added'
+  | 'manual_stop_error';
 
 interface LogPayload {
   eventType: TourRecoveryEventType;
