@@ -354,7 +354,9 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/debug/tour-modal" element={<Suspense fallback={<PageLoader />}><DebugTourModal /></Suspense>} />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
+
       </Routes>
     </AuthContext.Provider>
   );
