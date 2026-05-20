@@ -31,8 +31,10 @@ const STOPS_LONG: TourStop[] = [
 ];
 
 export default function DebugTourModal() {
-  const [scenario, setScenario] = useState<'short' | 'long'>('short');
+  const initial = new URLSearchParams(window.location.search).get('stops') === '8' ? 'long' : 'short';
+  const [scenario, setScenario] = useState<'short' | 'long'>(initial as any);
   const [loading, setLoading] = useState(false);
+
   const stops = scenario === 'short' ? STOPS_SHORT : STOPS_LONG;
   const distance = scenario === 'short' ? 18.4 : 72.3;
   const inactivity = scenario === 'short' ? '2h 15min' : '5h 20min';
