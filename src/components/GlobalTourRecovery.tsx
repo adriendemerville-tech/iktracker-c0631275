@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTourSessionDB, TourSessionDB } from '@/hooks/useTourSessionDB';
@@ -9,12 +9,13 @@ import { logTourRecovery } from '@/lib/tour-recovery-log';
 import { loadGoogleMapsAsync } from '@/hooks/useGoogleMaps';
 import { reverseGeocode } from '@/lib/geocoding';
 import { detectLoop } from '@/lib/loop-detection';
-
-const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
+import { getDistanceMeters } from '@/lib/loop-detection';
+import { TourRecoveryModal } from '@/components/TourRecoveryModal';
+import type { TourStop } from '@/hooks/useTourTracker';
 
 // Time thresholds
 const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
-const MODAL_THRESHOLD = 6 * 60 * 60 * 1000; // 6 hours
+const MODAL_THRESHOLD = 4 * 60 * 60 * 1000; // 4 hours
 
 // Minimum GPS distance to consider a tour without stops as a real trip (km)
 const MIN_GPS_DISTANCE_KM = 2;
