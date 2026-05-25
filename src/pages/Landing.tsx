@@ -99,9 +99,9 @@ const CalendarPlaceholder = memo(() => (
 ));
 
 const LANDING_DEFAULTS = {
-  hero_title: "Calcul automatisé des indemnités kilométriques",
-  hero_highlight: "Barème 2026",
-  hero_subtitle: "Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics. Outil communautaire.",
+  hero_title: "Indemnités kilométriques & barème kilométrique 2026",
+  hero_highlight: "100% gratuit",
+  hero_subtitle: "Calculez, enregistrez et exportez vos frais kilométriques selon le barème URSSAF officiel 2026. Mode Tournée GPS, sync calendrier, export expert-comptable. Outil communautaire gratuit à vie.",
   pain_badge: "Fini les tableaux Excel",
   pain_title_prefix: "Vous perdez encore du temps avec des",
   pain_title_strike: "fichiers Excel",

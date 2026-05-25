@@ -129,95 +129,72 @@
     
     
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "IKtracker",
-      "alternateName": ["IK Tracker", "Indemnités Kilométriques Tracker", "Outil Communautaire IK"],
-      "applicationCategory": "BusinessApplication",
-      "applicationSubCategory": "Outil communautaire de comptabilité et finance",
-      "operatingSystem": "Web, iOS, Android",
-      "offers": {
-        "@type": "Offer",
-        "price": "0.00",
-        "priceCurrency": "EUR",
-        "availability": "https://schema.org/InStock",
-        "priceValidUntil": "2026-12-31"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "IKtracker",
-        "url": "https://iktracker.fr"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "IKtracker",
-        "url": "https://iktracker.fr",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://iktracker.fr/logo-iktracker-250.webp"
-        }
-      },
-      "description": "Outil communautaire 100% gratuit pour le calcul et la gestion des indemnités kilométriques. Automatisation via Google Calendar et Outlook, Mode Tournée GPS avec détection automatique des arrêts, comparateur frais réels vs abattement 10%, lexique fiscal, export PDF/CSV conforme pour comptables. Application PWA installable pour indépendants, libéraux et artisans.",
-      "featureList": [
-        "Outil communautaire 100% gratuit, sans publicité, sans abonnement",
-        "Calcul automatique des distances via Google Maps",
-        "Synchronisation calendrier Google Calendar et Outlook",
-        "Mode Tournée GPS avec détection automatique des arrêts",
-        "Détection et traçage automatique des trajets par localisation GPS précise",
-        "Comparateur Frais Réels vs Abattement forfaitaire 10%",
-        "Lexique fiscal interactif avec export PDF",
-        "Gestion multi-véhicules avec puissance fiscale et majoration véhicule électrique (+20%)",
-        "Exports PDF et CSV pour experts-comptables",
-        "Barème kilométrique officiel 2026 à jour",
-        "Application mobile PWA installable sur iPhone et Android",
-        "Mode hors-ligne disponible",
-        "Espace Expert-Comptable dédié",
-        "Sélection du profil métier (infirmier, artisan, commercial, consultant, chef d'entreprise)"
-      ],
-      "screenshot": "https://iktracker.fr/logo-iktracker-250.webp",
-      "softwareVersion": "1.0",
-      "releaseNotes": "Version stable avec toutes les fonctionnalités",
-      "downloadUrl": "https://iktracker.fr/install",
-      "installUrl": "https://iktracker.fr/install",
-      "permissions": "Accès au calendrier (optionnel), géolocalisation (optionnel)",
-      "storageRequirements": "Moins de 5 MB",
-      "memoryRequirements": "Aucune configuration requise",
-      "inLanguage": "fr-FR",
-      "isAccessibleForFree": true,
-      "audience": {
-        "@type": "BusinessAudience",
-        "audienceType": "Indépendants, professions libérales, artisans, commerciaux, infirmiers"
-      }
-    }
-    </script>
-    <!-- FAQPage is now managed dynamically by React Helmet in each page component -->
+    <!-- Note: SoftwareApplication is injected per-route via React Helmet (see src/lib/seo-schemas.ts)
+         to avoid duplicate @type SoftwareApplication entities. Only sitewide Organization + WebSite live here. -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://iktracker.fr/#organization",
       "name": "IKtracker",
       "url": "https://iktracker.fr",
-      "logo": "https://iktracker.fr/logo-iktracker-250.webp",
-      "description": "Outil communautaire d'automatisation des indemnités kilométriques pour indépendants. 100% gratuit.",
-      "slogan": "Outil communautaire",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://iktracker.fr/logo-iktracker-250.webp",
+        "width": 250,
+        "height": 250
+      },
+      "description": "Outil communautaire 100% gratuit d'automatisation des indemnités kilométriques. Conçu par un entrepreneur indépendant, financé par l'agence Avenir Rénovations, sans investisseur ni monétisation des données.",
+      "slogan": "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
+      "foundingDate": "2025-03-01",
       "founder": {
         "@type": "Person",
+        "@id": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
         "name": "Adrien de Volontat",
-        "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat"
+        "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
+        "jobTitle": "Fondateur d'IKtracker, dirigeant d'agence indépendante",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Avenir Rénovations"
+        },
+        "sameAs": ["https://www.linkedin.com/in/adrien-de-volontat"]
+      },
+      "foundingLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Saint-Rémy-de-Provence",
+          "addressCountry": "FR"
+        }
       },
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "FR",
-        "addressLocality": "Paris"
+        "addressLocality": "Saint-Rémy-de-Provence"
       },
       "areaServed": {
         "@type": "Country",
         "name": "France"
       },
-      "knowsAbout": ["indemnités kilométriques", "barème fiscal", "frais réels", "comptabilité indépendant"],
-      "sameAs": []
+      "knowsAbout": [
+        "Indemnités kilométriques",
+        "Barème fiscal URSSAF 2025-2026",
+        "Frais réels professionnels",
+        "Carnet de bord automobile opposable",
+        "Comptabilité indépendants",
+        "Déclaration BNC BIC",
+        "Fiscalité véhicules électriques"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Support utilisateurs",
+        "url": "https://iktracker.fr/contact",
+        "availableLanguage": ["fr"]
+      },
+      "sameAs": [
+        "https://www.linkedin.com/in/adrien-de-volontat",
+        "https://iktracker.fr/blog/auteur/adrien-de-volontat"
+      ]
     }
     </script>
     <script type="application/ld+json">
