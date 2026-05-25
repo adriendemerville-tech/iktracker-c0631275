@@ -116,8 +116,8 @@
     <meta name="distribution" content="France" />
     <meta name="target" content="France" />
     
-    <!-- Fonts stylesheet - core fonts only, Playfair Display deferred to blog pages -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Fonts stylesheet - fully non-blocking via media="print" → media="all" swap (Lighthouse-safe) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     
     <!-- DNS prefetch for non-critical resources (Google Maps deferred to app routes) -->
