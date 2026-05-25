@@ -122,7 +122,7 @@ const ComparatifIzika = () => {
                   Arrêtez de payer pour vos<br />
                   <span className="text-gradient">Indemnités Kilométriques</span>
                 </h1>
-                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Le comparatif honnête : <strong className="text-foreground">Izika est excellent</strong>, mais IKtracker fait le même travail{" "}
                   <strong className="text-success font-bold">100% Gratuitement</strong>.
                 </p>
