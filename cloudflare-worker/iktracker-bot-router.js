@@ -188,7 +188,11 @@ export default {
     if (isStaticAsset(path)) {
       const originResponse = await fetch(request);
       const isHashedAsset = path.startsWith('/assets/');
-      const cacheControl = isHashedAsset
+      // Long-lived immutable cache for static media/fonts (rarely change, names are stable)
+      // Hashed bundle assets stay immutable 1y. Everything else (sw.js handled elsewhere) 1y too,
+      // since these files are versioned via deploy and PageSpeed flags <1y as inefficient.
+      const isLongLived = isHashedAsset || /\.(webp|png|jpg|jpeg|svg|ico|woff2?|ttf|avif|gif)$/i.test(path);
+      const cacheControl = isLongLived
         ? 'public, max-age=31536000, immutable'
         : 'public, max-age=86400';
       const response = new Response(originResponse.body, {
