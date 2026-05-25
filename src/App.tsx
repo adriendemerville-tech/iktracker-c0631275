@@ -46,6 +46,7 @@ const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
 const BlogEditor = lazy(() => import("./pages/BlogEditor"));
 const AuthorPage = lazy(() => import("./pages/AuthorPage"));
 const FraisReels = lazy(() => import("./pages/FraisReels"));
+const NoteDeFraisKilometrique = lazy(() => import("./pages/NoteDeFraisKilometrique"));
 const Lexique = lazy(() => import("./pages/Lexique"));
 const ComparatifIzika = lazy(() => import("./pages/ComparatifIzika"));
 const ComparatifDriversNote = lazy(() => import("./pages/ComparatifDriversNote"));
@@ -335,6 +336,7 @@ const AppRoutes = () => {
         <Route path="/install" element={<Navigate to="/installer" replace />} />
         <Route path="/experts-comptables" element={<Navigate to="/expert-comptable" replace />} />
         <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
+        <Route path="/note-de-frais-kilometrique" element={<Suspense fallback={<PageLoader />}><NoteDeFraisKilometrique /></Suspense>} />
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
         <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
         <Route path="/comparatif-driversnote" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
