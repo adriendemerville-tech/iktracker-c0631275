@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { buildSoftwareApplicationSchema } from '@/lib/seo-schemas';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
@@ -171,6 +172,9 @@ export default function FraisReels() {
               { "@type": "Question", "name": "Comment prouver l'usage professionnel de son véhicule personnel ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous devez tenir un carnet de bord détaillant chaque déplacement professionnel. IKtracker automatise cette tâche en synchronisant votre agenda et en calculant les distances via GPS." }}
             ]
           })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/frais-reels", pageDescription: "Calculateur Frais Réels vs Abattement 10% selon barème kilométrique 2026. Outil gratuit pour optimiser sa déclaration d'impôts. Conçu par un entrepreneur indépendant pour les indépendants." }))}
         </script>
       </Helmet>
 

@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { buildSoftwareApplicationSchema } from '@/lib/seo-schemas';
 import { Link } from 'react-router-dom';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { Breadcrumb } from '@/components/Breadcrumb';
@@ -25,6 +26,9 @@ export default function Tarifs() {
         <meta property="og:description" content="IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans pub." />
         <meta property="og:url" content="https://iktracker.fr/tarifs" />
         <meta property="og:type" content="website" />
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/tarifs", pageDescription: "IKtracker est gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité. Outil communautaire financé par l'agence du fondateur, conçu par un entrepreneur indépendant pour ses confrères." }))}
+        </script>
       </Helmet>
 
       <MarketingNav />

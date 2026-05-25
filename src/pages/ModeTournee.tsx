@@ -1,4 +1,5 @@
 import { useEffect, lazy, Suspense, memo } from "react";
+import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -197,6 +198,9 @@ export default function ModeTournee() {
               }
             ]
           })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/mode-tournee", pageDescription: "Mode Tournée IKtracker : enregistrement GPS multi-arrêts pour professionnels itinérants (infirmiers libéraux, commerciaux, artisans). Détection automatique des stops, reprise de session après fermeture, finalisation intelligente." }))}
         </script>
       </Helmet>
       <MarketingNav />
