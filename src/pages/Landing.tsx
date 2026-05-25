@@ -178,6 +178,10 @@ const Landing = () => {
         <title>IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit</title>
         <meta name="description" content="Calculez vos frais kilométriques 2025-2026 selon le barème URSSAF officiel. Outil gratuit pour salariés, auto-entrepreneurs, infirmières libérales et artisans. Mode Tournée GPS, agenda et export expert-comptable." />
         <link rel="canonical" href="https://iktracker.fr/" />
+        <meta property="og:title" content="IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit" />
+        <meta property="og:description" content="Calculez vos frais kilométriques 2025-2026 selon le barème URSSAF officiel. Outil gratuit pour salariés, auto-entrepreneurs, infirmières libérales et artisans." />
+        <meta property="og:url" content="https://iktracker.fr/" />
+        <meta property="og:type" content="website" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
