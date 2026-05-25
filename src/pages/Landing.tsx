@@ -175,8 +175,8 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
       <Helmet>
-        <title>IKtracker — Indemnités kilométriques automatisées 2026</title>
-        <meta name="description" content="Automatisez vos indemnités kilométriques : mode tournée GPS, agenda et calcul auto. Outil gratuit conforme au barème fiscal 2026." />
+        <title>IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit</title>
+        <meta name="description" content="Calculez vos frais kilométriques 2025-2026 selon le barème URSSAF officiel. Outil gratuit pour salariés, auto-entrepreneurs, infirmières libérales et artisans. Mode Tournée GPS, agenda et export expert-comptable." />
         <link rel="canonical" href="https://iktracker.fr/" />
         <script type="application/ld+json">
           {JSON.stringify({

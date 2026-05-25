@@ -115,9 +115,9 @@ export default function ModeTournee() {
   return (
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
-        <title>Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans</title>
-        <meta name="description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
-        <meta name="keywords" content="mode tournée, suivi kilométrique infirmier, indemnités kilométriques artisan, tournée commerciaux, frais kilométriques multi-arrêts, IK libéral, application gratuite tournée" />
+        <title>Mode Tournée GPS | Suivi kilométrique commercial, infirmier, artisan</title>
+        <meta name="description" content="Mode Tournée IKtracker : enregistrez automatiquement chaque arrêt client par GPS. Idéal pour commerciaux itinérants, VRP, infirmières libérales, artisans, livreurs et aide à domicile. Note de frais kilométrique générée en un clic." />
+        <meta name="keywords" content="mode tournée GPS, commercial itinérant, tournée VRP, note de frais kilométrique, suivi kilométrique infirmière libérale, indemnités kilométriques artisan, frais kilométriques multi-arrêts, auto-entrepreneur déplacement, application gratuite tournée" />
         <link rel="canonical" href="https://iktracker.fr/mode-tournee" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         

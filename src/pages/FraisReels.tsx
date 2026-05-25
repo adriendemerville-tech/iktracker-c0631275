@@ -102,12 +102,12 @@ export default function FraisReels() {
   return (
     <>
       <Helmet>
-        <title>Frais Réels vs Abattement 10% : Calculateur Gratuit 2026 | IKtracker</title>
+        <title>Frais réels 2025-2026 vs Abattement 10% — Simulateur impôts gratuit</title>
         <meta 
           name="description" 
-          content="Comparez gratuitement l'abattement forfaitaire de 10% et les frais réels kilométriques. Calculateur barème 2026 pour optimiser votre déclaration d'impôts."
+          content="Calcul frais réels 2025-2026 : comparez l'abattement forfaitaire de 10% et les frais kilométriques pour impôts. Simulateur gratuit, barème URSSAF officiel, justificatifs pour l'administration fiscale."
         />
-        <meta name="keywords" content="frais réels, abattement 10%, indemnités kilométriques, déclaration impôts, barème kilométrique 2026, optimisation fiscale" />
+        <meta name="keywords" content="frais réels 2025, frais reel impot, calcul frais réel, frais kilometrique impot, abattement 10%, déclaration impôts 2026, optimisation fiscale, justifier frais kilométrique" />
         <link rel="canonical" href="https://iktracker.fr/frais-reels" />
         
         {/* Open Graph */}
