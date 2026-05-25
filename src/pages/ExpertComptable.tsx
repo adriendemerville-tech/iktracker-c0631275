@@ -182,7 +182,7 @@ const ExpertComptable = () => {
                 <br />
               <span className="text-primary">déclarations IK</span>
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground min-h-[5rem] md:min-h-[3.5rem]">
               Exports standardisés. Calcul automatique. Gain de temps garanti.
             </p>
             <p className="text-sm text-muted-foreground">

@@ -101,7 +101,7 @@ export default function NoteDeFraisKilometrique() {
             <br />
             <span className="text-primary">2025 - 2026</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+          <p className="mt-6 text-lg text-muted-foreground leading-relaxed min-h-[7rem] sm:min-h-[5.5rem] md:min-h-[5rem]">
             Le modèle conforme URSSAF, le calcul automatique selon le barème officiel,
             et l'export PDF ou Excel prêt à transmettre à votre employeur ou expert-comptable.
             <strong className="text-foreground"> Gratuit, sans abonnement.</strong>
