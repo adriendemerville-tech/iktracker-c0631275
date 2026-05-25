@@ -30,8 +30,9 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ThemeOnboarding = lazy(() => import("./pages/ThemeOnboarding"));
 const Admin = lazy(() => import("./pages/Admin"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const Terms = lazy(() => import("./pages/Terms"));
+  const Privacy = lazy(() => import("./pages/Privacy"));
+  const Terms = lazy(() => import("./pages/Terms"));
+  const Rgpd = lazy(() => import("./pages/Rgpd"));
 const Install = lazy(() => import("./pages/Install"));
 const ExpertComptable = lazy(() => import("./pages/ExpertComptable"));
 const ModeTournee = lazy(() => import("./pages/ModeTournee"));
@@ -326,6 +327,7 @@ const AppRoutes = () => {
         <Route path="/blog/auteur/:slug" element={<Suspense fallback={<PageLoader />}><AuthorPage /></Suspense>} />
         {/* Public content pages */}
         <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
+        <Route path="/rgpd" element={<Suspense fallback={<PageLoader />}><Rgpd /></Suspense>} />
         <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
         <Route path="/installer" element={<Suspense fallback={<PageLoader />}><Install /></Suspense>} />
         <Route path="/expert-comptable" element={<Suspense fallback={<PageLoader />}><ExpertComptable /></Suspense>} />
