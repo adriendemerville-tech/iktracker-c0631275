@@ -431,6 +431,15 @@ export const DesktopSidebar = ({
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Crawlers.fr</span>
                   <span className="block text-xs text-muted-foreground leading-snug mt-0.5">La plateforme SEO-GEO pour automatiser la maintenance des sites internet</span>
                 </a>
+                <a
+                  href="https://dictadevi.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
+                >
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Dictadevi.io</span>
+                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">Gérez vos locations meublées : loyers, charges, fiscalité et fiscalité en toute simplicité</span>
+                </a>
               </div>
             </div>
           </div>
