@@ -24,6 +24,7 @@ export function MarketingFooter() {
       { label: 'Expert-Comptable', href: '/expert-comptable' },
       { label: 'Lexique IK', href: '/lexique' },
       { label: 'Confidentialité', href: '/privacy' },
+      { label: 'RGPD', href: '/rgpd' },
       { label: 'CGVU', href: '/terms' },
     ],
   };
@@ -127,6 +128,15 @@ export function MarketingFooter() {
                   className="text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md"
                 >
                   Confidentialité
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/rgpd" 
+                  onClick={handleLinkClick('/rgpd')}
+                  className="text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md"
+                >
+                  RGPD
                 </Link>
               </li>
               <li>
