@@ -1121,7 +1121,18 @@ const Admin = () => {
 
           {/* Tour Recovery Tab */}
           <TabsContent value="tour-recovery">
-            <AdminTourRecovery />
+            <Tabs defaultValue="usage" className="w-full">
+              <TabsList>
+                <TabsTrigger value="usage" className="text-xs sm:text-sm">Usage</TabsTrigger>
+                <TabsTrigger value="recovery" className="text-xs sm:text-sm">Reprise</TabsTrigger>
+              </TabsList>
+              <TabsContent value="usage" className="mt-4">
+                <AdminTourMode />
+              </TabsContent>
+              <TabsContent value="recovery" className="mt-4">
+                <AdminTourRecovery />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           {/* API Partners Tab */}
