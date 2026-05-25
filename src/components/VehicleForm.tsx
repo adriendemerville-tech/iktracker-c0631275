@@ -49,15 +49,26 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   }, [open, editVehicle]);
 
   const formatLicensePlate = (value: string) => {
-    // French format: AA-123-BB
     const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!cleaned) return '';
+
+    // FNI (ancien format pre-2009): commence par un chiffre. Ex: 1234-AB-56
+    if (/^\d/.test(cleaned)) {
+      const m = cleaned.match(/^(\d{1,4})([A-Z]{0,3})(\d{0,2})/);
+      if (!m) return cleaned;
+      const [, d1, letters, d2] = m;
+      return [d1, letters, d2].filter(Boolean).join('-');
+    }
+
+    // SIV (format actuel): AA-123-BB
     if (cleaned.length <= 2) return cleaned;
     if (cleaned.length <= 5) return `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
     return `${cleaned.slice(0, 2)}-${cleaned.slice(2, 5)}-${cleaned.slice(5, 7)}`;
   };
 
   const isPlateComplete = (plate: string) => {
-    return /^[A-Z]{2}-\d{3}-[A-Z]{2}$/.test(plate);
+    // SIV: AA-123-BB | FNI: 1-4 chiffres, 1-3 lettres, 2 chiffres
+    return /^[A-Z]{2}-\d{3}-[A-Z]{2}$/.test(plate) || /^\d{1,4}-[A-Z]{1,3}-\d{2}$/.test(plate);
   };
 
   const handleLicensePlateChange = async (value: string) => {
@@ -65,7 +76,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     setLicensePlate(formatted);
     setLookupDone(false);
     
-    // Auto-trigger lookup when plate is complete
     if (isPlateComplete(formatted) && !isLookingUp) {
       await performLookup(formatted);
     }
@@ -173,10 +183,10 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 <div className="relative">
                   <Input
                     id="licensePlate"
-                    placeholder="AA-123-BB"
+                    placeholder="AA-123-BB ou 1234-AB-56"
                     value={licensePlate}
                     onChange={(e) => handleLicensePlateChange(e.target.value)}
-                    maxLength={9}
+                    maxLength={11}
                     className={cn(
                       "font-mono text-base sm:text-lg tracking-wider pr-10 h-12",
                       isPlateEmpty && "ring-2 ring-primary/50 border-primary"
