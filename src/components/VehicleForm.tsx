@@ -183,10 +183,10 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 <div className="relative">
                   <Input
                     id="licensePlate"
-                    placeholder="AA-123-BB"
+                    placeholder="AA-123-BB ou 1234-AB-56"
                     value={licensePlate}
                     onChange={(e) => handleLicensePlateChange(e.target.value)}
-                    maxLength={9}
+                    maxLength={11}
                     className={cn(
                       "font-mono text-base sm:text-lg tracking-wider pr-10 h-12",
                       isPlateEmpty && "ring-2 ring-primary/50 border-primary"
