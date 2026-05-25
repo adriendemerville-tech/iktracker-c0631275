@@ -199,7 +199,7 @@ export default function FraisReels() {
                 <span className="block text-primary mt-2">Calculez la meilleure option en 2026</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                 Comparez gratuitement les deux méthodes de déduction fiscale pour vos frais kilométriques 
                 et optimisez votre déclaration d'impôts en quelques clics.
               </p>
