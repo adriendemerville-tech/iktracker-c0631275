@@ -74,7 +74,7 @@ export default function Tarifs() {
         </section>
 
         <section className="max-w-2xl mx-auto px-4 pb-20 text-center">
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
             Parce que. Aucune donnée vendue, aucune pub.
             <br className="hidden md:block" />{' '}
             IKtracker est gratuit, parce que tout ne doit pas être payant.
