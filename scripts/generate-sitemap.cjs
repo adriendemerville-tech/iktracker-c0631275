@@ -21,6 +21,8 @@ const staticPages = [
   { url: '/installer', priority: '0.6', changefreq: 'monthly', lastmod: '2026-01-05' },
   { url: '/bareme-ik-2026', priority: '0.9', changefreq: 'yearly', lastmod: '2026-01-01' },
   { url: '/frais-reels', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
+  { url: '/note-de-frais-kilometrique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-05-25' },
+  { url: '/tarifs', priority: '0.7', changefreq: 'monthly', lastmod: '2026-05-25' },
   { url: '/lexique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-19' },
   { url: '/comparatif-izika', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },
   { url: '/comparatif-driversnote', priority: '0.8', changefreq: 'monthly', lastmod: '2026-02-03' },

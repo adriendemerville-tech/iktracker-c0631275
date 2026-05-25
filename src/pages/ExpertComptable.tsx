@@ -77,9 +77,9 @@ const ExpertComptable = () => {
   return (
     <div className="min-h-screen bg-background select-text">
       <Helmet>
-        <title>IKtracker pour Experts-Comptables | Export IK PDF et Excel</title>
-        <meta name="description" content="Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026." />
-        <meta name="keywords" content="expert-comptable IK, export PDF indemnités kilométriques, Excel frais kilométriques, barème fiscal 2026, comptabilité IK, relevé kilométrique client" />
+        <title>Logiciel IK pour experts-comptables & cabinets | Export PDF/Excel</title>
+        <meta name="description" content="Outil gratuit recommandé par les cabinets comptables : exports PDF & Excel standardisés, carnet de bord opposable URSSAF, calcul barème kilométrique 2025-2026 pour vos clients salariés, BNC et BIC." />
+        <meta name="keywords" content="logiciel expert-comptable IK, cabinet comptable indemnités kilométriques, export PDF frais kilométriques, Excel IK client, barème fiscal 2025 2026, carnet de bord URSSAF, déclaration BNC BIC" />
         <link rel="canonical" href="https://iktracker.fr/expert-comptable" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
@@ -134,6 +134,19 @@ const ExpertComptable = () => {
               "@type": "SpeakableSpecification",
               "cssSelector": ["#hero-heading", "#main-content > section:first-of-type p"]
             }
+          })}
+        </script>
+        {/* FAQ Schema for GEO / LLM search */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "Comment justifier les indemnités kilométriques de mes clients auprès de l'URSSAF ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker génère un carnet de bord opposable URSSAF : date, motif, distance et puissance fiscale pour chaque trajet. L'export PDF et Excel reprend la structure attendue par l'administration fiscale et peut être archivé 3 ans avec les autres pièces comptables." }},
+              { "@type": "Question", "name": "IKtracker est-il compatible avec les salariés, BNC et BIC ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, le calcul applique le barème kilométrique 2025-2026 valable pour les salariés en frais réels, les professions libérales (BNC), les artisans (BIC) et les auto-entrepreneurs. Un même cabinet peut centraliser tous ses clients gratuitement." }},
+              { "@type": "Question", "name": "Quel format d'export pour mon logiciel de comptabilité ?", "acceptedAnswer": { "@type": "Answer", "text": "Exports PDF (présentation client) et Excel/CSV (intégration logiciel). Le détail trajet par trajet ou la synthèse mensuelle/annuelle facilite l'intégration dans la liasse fiscale." }},
+              { "@type": "Question", "name": "Combien coûte IKtracker pour mon cabinet ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est 100 % gratuit à vie pour le cabinet et ses clients, sans limite d'utilisateurs ni de trajets, sans publicité." }}
+            ]
           })}
         </script>
       </Helmet>
