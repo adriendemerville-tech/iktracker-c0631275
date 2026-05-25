@@ -90,6 +90,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/privacy` | `Privacy` | Politique de confidentialité |
 | `/terms` | `Terms` | CGVU (Conditions Générales de Vente et d'Utilisation) |
 | `/mentions-legales` | `MentionsLegales` | Mentions légales |
+| `/rgpd` | `Rgpd` | Conformité RGPD (droits, sécurité, hébergement) |
 | `/contact` | `Contact` | Page contact |
 | `/installer` | `Install` | Guide d'installation PWA |
 | `/expert-comptable` | `ExpertComptable` | Landing expert-comptable |
