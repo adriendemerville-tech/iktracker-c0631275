@@ -335,7 +335,7 @@ Content-Type: application/json
 
 - **Auth** : Aucune
 - **Endpoint** : `GET`
-- **Logique** : 17 pages statiques + articles blog (paginated)
+- **Logique** : 18 pages statiques + articles blog (paginated)
 - **Cache** : `max-age=300` (5 minutes)
 - **Proxy** : Servi via le Worker Cloudflare sur `/sitemap.xml`
 
