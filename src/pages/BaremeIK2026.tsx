@@ -1,6 +1,7 @@
 import { useState, useMemo, lazy, Suspense, memo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
@@ -198,6 +199,9 @@ const BaremeIK2026 = () => {
               }
             }))
           })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/bareme-ik-2026", pageDescription: "Barème kilométrique 2026 officiel URSSAF : tableau par CV, simulateur gratuit, majoration +20% véhicule électrique. Outil communautaire gratuit à vie, conçu par un entrepreneur indépendant." }))}
         </script>
       </Helmet>
 

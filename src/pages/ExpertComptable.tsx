@@ -1,4 +1,5 @@
 import { lazy, Suspense, memo, useCallback, useEffect, useState, useRef } from "react";
+import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -148,6 +149,9 @@ const ExpertComptable = () => {
               { "@type": "Question", "name": "Combien coûte IKtracker pour mon cabinet ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est 100 % gratuit à vie pour le cabinet et ses clients, sans limite d'utilisateurs ni de trajets, sans publicité." }}
             ]
           })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/expert-comptable", pageDescription: "IKtracker pour cabinets comptables : export PDF/Excel standardisé, carnet de bord opposable URSSAF, calcul barème 2025-2026 pour clients salariés, BNC, BIC et auto-entrepreneurs. Gratuit, illimité, sans publicité." }))}
         </script>
       </Helmet>
       

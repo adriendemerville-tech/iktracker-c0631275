@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
+import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Helmet } from "react-helmet-async";
@@ -286,6 +287,10 @@ const Landing = () => {
               }
             ]
           })}
+        </script>
+        {/* Canonical SoftwareApplication + Organization + Founder (GEO / LLM E-E-A-T) */}
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/" }))}
         </script>
       </Helmet>
       

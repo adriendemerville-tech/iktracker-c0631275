@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "react-router-dom";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
@@ -80,6 +81,9 @@ export default function NoteDeFraisKilometrique() {
               acceptedAnswer: { "@type": "Answer", text: f.a },
             })),
           })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/note-de-frais-kilometrique", pageDescription: "Note de frais kilométrique 2025-2026 : modèle conforme URSSAF, calcul automatique selon barème officiel, export PDF/Excel. Gratuit, conçu par un entrepreneur indépendant pour les salariés, libéraux et auto-entrepreneurs." }))}
         </script>
       </Helmet>
 
