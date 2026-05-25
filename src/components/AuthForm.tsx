@@ -25,11 +25,11 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('ik_remember_me') === 'true');
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | 'apple' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleOAuthLogin = async (provider: 'google' | 'azure') => {
+  const handleOAuthLogin = async (provider: 'google' | 'azure' | 'apple') => {
     setOauthLoading(provider);
     try {
       const options: any = {};
