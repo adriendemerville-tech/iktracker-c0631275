@@ -211,7 +211,7 @@ export default function Calendrier() {
                   Votre calendrier génère vos <span className="text-gradient">trajets</span>
                 </h1>
                 
-                <p className="text-lg md:text-xl text-muted-foreground mb-8">
+                <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Connectez librement Google Calendar ou Outlook. Chaque rendez-vous avec une adresse 
                   génère automatiquement un trajet avec localisation GPS et IK calculées.
                 </p>
