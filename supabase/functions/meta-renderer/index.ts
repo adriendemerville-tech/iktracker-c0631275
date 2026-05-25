@@ -55,6 +55,7 @@ const NAV_LINKS = [
   { href: '/calendrier', label: 'Synchronisation Calendrier' },
   { href: '/bareme-ik-2026', label: 'Barème IK 2026' },
   { href: '/frais-reels', label: 'Frais Réels vs Abattement' },
+  { href: '/note-de-frais-kilometrique', label: 'Note de frais kilométrique' },
   { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
   { href: '/install', label: 'Installer l\'application' },
   { href: '/lexique', label: 'Lexique IK' },
@@ -396,6 +397,41 @@ const STATIC_PAGES: Record<string, PageMeta> = {
           <li><strong>Frais de formation</strong> : formations professionnelles en lien avec votre activité</li>
           <li><strong>Cotisations syndicales</strong> : adhésion à un syndicat professionnel</li>
         </ul>
+      </section>`,
+  },
+
+  '/note-de-frais-kilometrique': {
+    title: 'Note de frais kilométrique 2025-2026 | Modèle & calcul gratuit',
+    description: 'Comment faire une note de frais kilométrique conforme URSSAF en 2025-2026 : modèle, calcul automatique selon barème officiel, export PDF & Excel. Gratuit pour salariés, libéraux et auto-entrepreneurs.',
+    canonical: `${BASE_URL}/note-de-frais-kilometrique`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Comment faire une note de frais kilométrique ?", "acceptedAnswer": { "@type": "Answer", "text": "Mentionnez la date, le motif professionnel, l'adresse de départ et d'arrivée, la distance, la puissance fiscale du véhicule (case P.6 de la carte grise) et le montant calculé selon le barème URSSAF en vigueur. IKtracker génère tout cela automatiquement." } },
+        { "@type": "Question", "name": "Quel modèle de note de frais kilométrique utiliser ?", "acceptedAnswer": { "@type": "Answer", "text": "Un modèle conforme reprend les colonnes : date, trajet, motif, kilomètres, taux barème, total. IKtracker exporte directement au format PDF et Excel attendu par les employeurs et experts-comptables." } },
+        { "@type": "Question", "name": "Comment justifier une note de frais kilométrique auprès de l'URSSAF ?", "acceptedAnswer": { "@type": "Answer", "text": "L'URSSAF exige un carnet de bord daté, motivé et géolocalisable. Le Mode Tournée GPS d'IKtracker conserve un historique opposable pendant 3 ans, durée légale d'archivage des justificatifs fiscaux." } },
+        { "@type": "Question", "name": "Une note de frais kilométrique pour un véhicule électrique : quelle particularité ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème est majoré de 20 % pour les véhicules 100 % électriques. Les hybrides ne sont pas concernés. IKtracker applique cette majoration automatiquement." } }
+      ]
+    },
+    content: `
+      <section>
+        <h2>Note de frais kilométrique : définition</h2>
+        <p>Une <strong>note de frais kilométrique</strong> est le document remis à un employeur ou à un expert-comptable pour demander le remboursement des trajets professionnels effectués avec un véhicule personnel. Elle s'appuie sur le <strong>barème kilométrique URSSAF 2025-2026</strong> et reprend, pour chaque déplacement : la date, le motif, les adresses de départ et d'arrivée, la distance et le taux applicable selon la puissance fiscale.</p>
+        <h3>Ce que la note doit contenir</h3>
+        <ul>
+          <li><strong>Date et motif</strong> du déplacement professionnel</li>
+          <li><strong>Trajet</strong> (adresse de départ, adresse d'arrivée) et distance opposable</li>
+          <li><strong>Puissance fiscale</strong> du véhicule (case P.6 de la carte grise)</li>
+          <li>Majoration <strong>+20 %</strong> si le véhicule est 100 % électrique</li>
+          <li>Montant calculé selon le <a href="${BASE_URL}/bareme-ik-2026">barème kilométrique 2025-2026</a></li>
+        </ul>
+        <h3>Pour qui ?</h3>
+        <p>Salariés en frais réels, commerciaux itinérants, VRP, infirmières libérales, artisans, livreurs, auto-entrepreneurs, aides à domicile. <a href="${BASE_URL}/mode-tournee">Le Mode Tournée GPS</a> automatise la collecte pour les professionnels itinérants.</p>
+      </section>
+      <section>
+        <h2>Archivage et opposabilité</h2>
+        <p>Les notes de frais kilométriques doivent être conservées <strong>3 ans</strong>, durée légale d'archivage en cas de contrôle fiscal ou URSSAF. L'export PDF d'IKtracker est horodaté et reprend la structure exigée par l'administration.</p>
       </section>`,
   },
 
