@@ -318,7 +318,8 @@ const Landing = () => {
                 <br />
                 <span className="text-gradient">{c.hero_highlight}</span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
+              {/* min-height reserves space → prevents CLS when React subtitle replaces static shell */}
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5.5rem] md:min-h-[6rem]">
                 {c.hero_subtitle}
               </p>
               
