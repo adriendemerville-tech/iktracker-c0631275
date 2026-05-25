@@ -230,7 +230,7 @@ export default function ModeTournee() {
                   Le <span className="text-gradient">Mode Tournée</span> pour les pros itinérants
                 </h1>
                 
-                <p className="text-lg md:text-xl text-muted-foreground mb-8">
+                <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts grâce à la localisation GPS. 
                   Distance totale calculée automatiquement.
                 </p>
