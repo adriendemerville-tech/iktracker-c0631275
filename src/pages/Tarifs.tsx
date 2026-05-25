@@ -21,6 +21,10 @@ export default function Tarifs() {
         <meta name="description" content="IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans pub. Calculez vos indemnités kilométriques et frais réels 2025-2026 sans jamais payer." />
         <meta name="keywords" content="indemnités kilométriques gratuit, calcul IK sans abonnement, logiciel frais kilométriques 0€, alternative gratuite Izika Drivers Note" />
         <link rel="canonical" href="https://iktracker.fr/tarifs" />
+        <meta property="og:title" content="Tarifs IKtracker — 0€, gratuit à vie" />
+        <meta property="og:description" content="IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans pub." />
+        <meta property="og:url" content="https://iktracker.fr/tarifs" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <MarketingNav />
