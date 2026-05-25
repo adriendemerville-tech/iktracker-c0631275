@@ -1814,6 +1814,23 @@ export type Database = {
       get_total_tours_count:
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
         | { Args: { end_date?: string; start_date?: string }; Returns: number }
+      get_tour_mode_daily: {
+        Args: { days_back?: number }
+        Returns: {
+          day: string
+          tours_created: number
+          unique_users_7d_rolling: number
+        }[]
+      }
+      get_tour_mode_personas: {
+        Args: { days_back?: number }
+        Returns: {
+          persona: string
+          tours_count: number
+          users_count: number
+        }[]
+      }
+      get_tour_mode_stats: { Args: { days_back?: number }; Returns: Json }
       get_tour_recovery_registry: {
         Args: { days_back?: number; limit_count?: number }
         Returns: {
