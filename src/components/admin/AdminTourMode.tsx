@@ -117,6 +117,15 @@ export const AdminTourMode = () => {
     },
   });
 
+  const { data: users = [], isLoading: usersLoading, refetch: refetchUsers } = useQuery({
+    queryKey: ['tour-mode-users', daysBack],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_tour_mode_users' as any, { days_back: daysBack });
+      if (error) throw error;
+      return (data || []) as UserRow[];
+    },
+  });
+
   const handleRefresh = () => {
     refetchStats();
     refetchDaily();
