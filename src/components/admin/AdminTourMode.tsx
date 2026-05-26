@@ -348,6 +348,69 @@ export const AdminTourMode = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Registre des utilisateurs */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Registre des utilisateurs ({users.length})
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Utilisateurs uniques ayant lancé au moins une tournée sur la période.
+          </p>
+        </CardHeader>
+        <CardContent className="p-0">
+          {usersLoading ? (
+            <div className="p-4 space-y-2">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-8 w-full" />
+              ))}
+            </div>
+          ) : users.length === 0 ? (
+            <p className="p-6 text-center text-muted-foreground text-sm">
+              Aucun utilisateur sur la période.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Utilisateur</TableHead>
+                  <TableHead>Persona</TableHead>
+                  <TableHead className="text-right">Tournées</TableHead>
+                  <TableHead className="text-right">Km totaux</TableHead>
+                  <TableHead className="text-right hidden md:table-cell">Dernière</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((u) => (
+                  <TableRow key={u.user_id}>
+                    <TableCell className="text-sm font-medium max-w-[240px] truncate">
+                      {u.email}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-xs">
+                        {PERSONA_LABELS[u.persona] || u.persona}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right text-sm font-semibold">{u.tours_count}</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">
+                      {Number(u.total_km).toFixed(1)}
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground hidden md:table-cell">
+                      {new Date(u.last_tour_at).toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit',
+                      })}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
