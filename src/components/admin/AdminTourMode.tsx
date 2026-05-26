@@ -130,6 +130,7 @@ export const AdminTourMode = () => {
     refetchStats();
     refetchDaily();
     refetchPersonas();
+    refetchUsers();
   };
 
   const manualPct =
