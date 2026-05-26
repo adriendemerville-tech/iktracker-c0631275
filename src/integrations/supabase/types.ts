@@ -1831,6 +1831,18 @@ export type Database = {
         }[]
       }
       get_tour_mode_stats: { Args: { days_back?: number }; Returns: Json }
+      get_tour_mode_users: {
+        Args: { days_back?: number }
+        Returns: {
+          email: string
+          first_tour_at: string
+          last_tour_at: string
+          persona: string
+          total_km: number
+          tours_count: number
+          user_id: string
+        }[]
+      }
       get_tour_recovery_registry: {
         Args: { days_back?: number; limit_count?: number }
         Returns: {
