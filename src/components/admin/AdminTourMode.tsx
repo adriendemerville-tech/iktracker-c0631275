@@ -59,6 +59,16 @@ interface DailyRow {
   unique_users_7d_rolling: number;
 }
 
+interface UserRow {
+  user_id: string;
+  email: string;
+  persona: string;
+  tours_count: number;
+  total_km: number;
+  first_tour_at: string;
+  last_tour_at: string;
+}
+
 interface PersonaRow {
   persona: string;
   users_count: number;
