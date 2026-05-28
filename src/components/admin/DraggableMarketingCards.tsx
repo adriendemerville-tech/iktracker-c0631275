@@ -56,13 +56,13 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`relative group ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      className={`relative group/card ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       {isDesktop && (
         <div
           {...attributes}
           {...listeners}
-          className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors"
+          className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors opacity-0 group-hover/card:opacity-100"
         >
           <Move className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
