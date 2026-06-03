@@ -48,6 +48,7 @@ const AuthFormSkeleton = memo(() => (
 const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
 const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
+const IKSimulator = lazy(() => import("@/components/marketing/IKSimulator").then(m => ({ default: m.IKSimulator })));
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
@@ -387,6 +388,15 @@ const Landing = () => {
               )}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Simulateur IK 2026 - Lead magnet */}
+      <section className="py-12 md:py-16 px-4 bg-muted/30 section-contained" aria-labelledby="simulateur-landing">
+        <div className="container mx-auto max-w-4xl">
+          <Suspense fallback={<LazyPlaceholder height={420} />}>
+            <IKSimulator idSuffix="-landing" trackerPage="landing" />
+          </Suspense>
         </div>
       </section>
 
