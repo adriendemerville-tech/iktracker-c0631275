@@ -15,6 +15,7 @@ interface IKSimulatorProps {
   title?: string;
   subtitle?: string;
   className?: string;
+  trackerPage?: string;
 }
 
 export const IKSimulator = ({
@@ -22,8 +23,9 @@ export const IKSimulator = ({
   title = "Simulateur indemnités kilométriques 2026",
   subtitle = "Calculez vos indemnités kilométriques 2026 en quelques secondes avec notre simulateur basé sur le barème IK 2026.",
   className = "",
+  trackerPage = "landing",
 }: IKSimulatorProps) => {
-  const { trackIKSimulation, trackCTAClick } = useMarketingTracker();
+  const { trackIKSimulation, trackCTAClick } = useMarketingTracker(trackerPage);
   const [fiscalPower, setFiscalPower] = useState<string>("5");
   const [annualKm, setAnnualKm] = useState<string>("10000");
   const [isElectric, setIsElectric] = useState<boolean>(false);
