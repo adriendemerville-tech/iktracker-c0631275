@@ -391,6 +391,15 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Simulateur IK 2026 - Lead magnet */}
+      <section className="py-12 md:py-16 px-4 bg-muted/30 section-contained" aria-labelledby="simulateur-landing">
+        <div className="container mx-auto max-w-4xl">
+          <Suspense fallback={<LazyPlaceholder height={420} />}>
+            <IKSimulator idSuffix="-landing" trackerPage="landing" />
+          </Suspense>
+        </div>
+      </section>
+
       {/* Pain Point Section - Excel */}
       <section className="py-16 md:py-24 bg-muted/30 relative overflow-hidden section-contained">
         {/* Excel grid background */}
