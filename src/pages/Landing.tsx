@@ -48,6 +48,7 @@ const AuthFormSkeleton = memo(() => (
 const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
 const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
+const IKSimulator = lazy(() => import("@/components/marketing/IKSimulator").then(m => ({ default: m.IKSimulator })));
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
