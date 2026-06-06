@@ -615,10 +615,19 @@ function generateReportHTML(options: PrintReportOptions): string {
       const resetBtn = document.getElementById('btn-reset-date');
       
       if (!startStr && !endStr) {
-        const rows = document.querySelectorAll('.content-wrapper tbody tr');
+        const rows = document.querySelectorAll('#trips-table tbody tr');
         rows.forEach(function(row) { row.style.display = ''; });
         if (resetBtn) resetBtn.style.display = 'none';
-        recalcTotals();
+        let tKm = 0, tIk = 0, tCount = 0;
+        rows.forEach(function(row) {
+          const cells = row.querySelectorAll('td');
+          if (cells.length >= 7) {
+            tKm += parseFloat((cells[4].textContent || '').replace(/\\s/g, '').replace(',', '.')) || 0;
+            tIk += parseFloat((cells[6].textContent || '').replace(/[^0-9,.-]/g, '').replace(',', '.')) || 0;
+            tCount++;
+          }
+        });
+        updateSummaryCards(tCount, tKm, tIk);
         return;
       }
       
