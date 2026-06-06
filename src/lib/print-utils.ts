@@ -650,8 +650,8 @@ function generateReportHTML(options: PrintReportOptions): string {
           row.style.display = '';
           const cells = row.querySelectorAll('td');
           if (cells.length >= 7) {
-            visibleKm += parseFloat(cells[4].textContent) || 0;
-            visibleIk += parseFloat(cells[6].textContent) || 0;
+            visibleKm += parseFloat((cells[4].textContent || '').replace(/\\s/g, '').replace(',', '.')) || 0;
+            visibleIk += parseFloat((cells[6].textContent || '').replace(/[^0-9,.-]/g, '').replace(',', '.')) || 0;
             visibleCount++;
           }
         } else {
@@ -702,15 +702,21 @@ function generateReportHTML(options: PrintReportOptions): string {
     }
     
     function updateSummaryCards(count, km, ik) {
-      const statsCells = document.querySelectorAll('#summary-cards > tr > td');
+      const statsCells = document.querySelectorAll('#summary-cards tr > td');
       if (statsCells.length >= 3) {
-        const countDiv = statsCells[0].querySelector('div:last-child');
-        if (countDiv) countDiv.textContent = count;
-        const kmDiv = statsCells[1].querySelector('div:last-child');
+        const kmDiv = statsCells[0].querySelector('div:last-child');
         if (kmDiv) kmDiv.textContent = km.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' km';
+        const countDiv = statsCells[1].querySelector('div:last-child');
+        if (countDiv) countDiv.textContent = count;
         const ikDiv = statsCells[2].querySelector('div:last-child');
         if (ikDiv) ikDiv.textContent = ik.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
       }
+      const periodTrips = document.getElementById('period-trips-count');
+      if (periodTrips) periodTrips.textContent = count;
+      const totalRowKm = document.getElementById('total-row-km');
+      if (totalRowKm) totalRowKm.textContent = km.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' km';
+      const totalRowIk = document.getElementById('total-row-ik');
+      if (totalRowIk) totalRowIk.textContent = ik.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
     }
     
     function recalcTotals() {
