@@ -881,8 +881,8 @@ function generateReportHTML(options: PrintReportOptions): string {
       <tr>
         <td style="padding: 14px 20px; font-size: 13px; font-weight: 600; color: #111;">Total à déclarer</td>
         <td style="padding: 14px 20px; text-align: right;">
-          <span style="font-size: 14px; font-weight: 600; color: #111; margin-right: 20px;">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</span>
-          <span style="font-size: 16px; font-weight: 700; color: #ffffff; background: #2563eb; padding: 6px 14px; border-radius: 6px;">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+          <span id="total-row-km" style="font-size: 14px; font-weight: 600; color: #111; margin-right: 20px;">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</span>
+          <span id="total-row-ik" style="font-size: 16px; font-weight: 700; color: #ffffff; background: #2563eb; padding: 6px 14px; border-radius: 6px;">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
         </td>
       </tr>
     </table>
