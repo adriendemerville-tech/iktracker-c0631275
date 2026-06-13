@@ -130,6 +130,7 @@ interface NewTripSheetProps {
     purpose: string;
     daysOfWeek: number[];
   }) => Promise<void> | void;
+  recurringOnly?: boolean;
 }
 
 type Step = 'vehicle' | 'start' | 'end' | 'details';
