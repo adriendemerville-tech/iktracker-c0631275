@@ -921,6 +921,65 @@ export type Database = {
           },
         ]
       }
+      recurring_trips: {
+        Row: {
+          base_distance: number
+          created_at: string
+          days_of_week: number[]
+          distance: number
+          end_location: Json
+          id: string
+          is_active: boolean
+          last_generated_date: string | null
+          purpose: string | null
+          round_trip: boolean
+          start_location: Json
+          updated_at: string
+          user_id: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          base_distance?: number
+          created_at?: string
+          days_of_week?: number[]
+          distance?: number
+          end_location: Json
+          id?: string
+          is_active?: boolean
+          last_generated_date?: string | null
+          purpose?: string | null
+          round_trip?: boolean
+          start_location: Json
+          updated_at?: string
+          user_id: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          base_distance?: number
+          created_at?: string
+          days_of_week?: number[]
+          distance?: number
+          end_location?: Json
+          id?: string
+          is_active?: boolean
+          last_generated_date?: string | null
+          purpose?: string | null
+          round_trip?: boolean
+          start_location?: Json
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_trips_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_sources: {
         Row: {
           created_at: string

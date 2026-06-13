@@ -799,3 +799,10 @@ curl -X POST https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/purge-duplica
   -H "Content-Type: application/json" \
   -d '{"dry_run": true, "days_back": 365}'
 ```
+
+## Trajets récurrents (juin 2026)
+
+- **Table** `recurring_trips` : modèle de trajet (vehicle_id, start/end_location JSONB, distance, round_trip, purpose, `days_of_week SMALLINT[]` (0=Dim..6=Sam), is_active, last_generated_date). RLS scopée `auth.uid() = user_id`.
+- **Edge function** `generate-recurring-trips` : insère un trip dans `trips` (source='recurring') pour chaque récurrence active dont `days_of_week` contient le jour courant (UTC). Calcule `ik_amount` via le barème embarqué + bonus 20% EV.
+- **Cron** `generate-recurring-trips-daily` (pg_cron) : exécution quotidienne à 05:00 UTC via `net.http_post`.
+- Source `'recurring'` ajoutée à la contrainte `trips_source_check`.

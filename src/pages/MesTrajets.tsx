@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat } from 'lucide-react';
+import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -24,6 +25,7 @@ import { cn } from '@/lib/utils';
 const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
 const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
 const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
+const RecurringTripsModal = lazy(() => import('@/components/RecurringTripsModal').then(m => ({ default: m.RecurringTripsModal })));
 
 const SheetLoader = () => <div className="p-4 text-center text-muted-foreground">Chargement...</div>;
 
@@ -43,9 +45,11 @@ export default function Report() {
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [showToursDropdown, setShowToursDropdown] = useState(false);
   const [showBaremeDropdown, setShowBaremeDropdown] = useState(false);
+  const [showRecurringModal, setShowRecurringModal] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const { create: createRecurring, items: recurringItems } = useRecurringTrips();
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
@@ -1046,6 +1050,25 @@ ${IKTRACKER_URL}`;
             </div>
           </div>
         </div>
+
+        {/* Trajets récurrents */}
+        <button
+          onClick={() => setShowRecurringModal(true)}
+          className="w-full bg-card rounded-md shadow-md overflow-hidden p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+              <Repeat className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium">Trajets récurrents</p>
+              <p className="text-sm text-muted-foreground">
+                {recurringItems.length === 0 ? "Aucun trajet récurrent" : `${recurringItems.length} trajet${recurringItems.length > 1 ? 's' : ''} configuré${recurringItems.length > 1 ? 's' : ''}`}
+              </p>
+            </div>
+          </div>
+          <ChevronDown className="w-5 h-5 text-muted-foreground -rotate-90" />
+        </button>
       </main>
 
       {/* Bottom action buttons */}
@@ -1094,6 +1117,20 @@ ${IKTRACKER_URL}`;
           onCreateTrip={addTrip}
           onUpdateTrip={updateTrip}
           getTotalAnnualKm={getTotalAnnualKm}
+          onCreateRecurring={async (data) => {
+            await createRecurring({
+              vehicleId: data.vehicleId,
+              startLocation: data.startLocation,
+              endLocation: data.endLocation,
+              distance: data.distance,
+              baseDistance: data.baseDistance,
+              roundTrip: data.roundTrip,
+              purpose: data.purpose,
+              daysOfWeek: data.daysOfWeek,
+              isActive: true,
+            });
+            toast.success("Trajet récurrent enregistré");
+          }}
         />
       </Suspense>
 
@@ -1110,6 +1147,14 @@ ${IKTRACKER_URL}`;
               addVehicle(vehicleData);
             }
           }}
+        />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RecurringTripsModal
+          open={showRecurringModal}
+          onOpenChange={setShowRecurringModal}
+          vehicles={vehicles}
         />
       </Suspense>
       </div>

@@ -5,7 +5,8 @@ import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Location, TripDraft, Vehicle } from '@/types/trip';
-import { MapPin, Car, CalendarIcon, RefreshCw, Pencil } from 'lucide-react';
+import { MapPin, Car, CalendarIcon, RefreshCw, Pencil, Repeat } from 'lucide-react';
+import { DAYS_FR } from '@/hooks/useRecurringTrips';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -40,6 +41,11 @@ interface DetailsStepContentProps {
   distanceInputRef: React.RefObject<HTMLInputElement>;
   purposeInputRef: React.RefObject<HTMLInputElement>;
   handleConfirm: () => void;
+  isRecurring?: boolean;
+  setIsRecurring?: (v: boolean) => void;
+  recurringDays?: number[];
+  setRecurringDays?: (days: number[]) => void;
+  showRecurring?: boolean;
 }
 
 export function DetailsStepContent({
@@ -66,9 +72,18 @@ export function DetailsStepContent({
   distanceInputRef,
   purposeInputRef,
   handleConfirm,
+  isRecurring = false,
+  setIsRecurring,
+  recurringDays = [],
+  setRecurringDays,
+  showRecurring = false,
 }: DetailsStepContentProps) {
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
+  const toggleDay = (d: number) => {
+    if (!setRecurringDays) return;
+    setRecurringDays(recurringDays.includes(d) ? recurringDays.filter(x => x !== d) : [...recurringDays, d].sort());
+  };
   
   const [startAddress, setStartAddress] = useState(draft.startLocation?.address || draft.startLocation?.name || '');
   const [endAddress, setEndAddress] = useState(draft.endLocation?.address || draft.endLocation?.name || '');
@@ -365,6 +380,48 @@ export function DetailsStepContent({
           }}
         />
       </div>
+
+      {showRecurring && setIsRecurring && (
+        <div className="space-y-3">
+          <div className={cn(
+            "flex items-center justify-between p-4 rounded-md transition-colors w-[85%] mx-auto",
+            isRecurring ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
+          )}>
+            <div className="flex items-center gap-3">
+              <Repeat className={cn("w-5 h-5", isRecurring ? "text-primary" : "text-muted-foreground")} />
+              <p className="font-medium">Récurrent</p>
+            </div>
+            <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
+          </div>
+          {isRecurring && (
+            <div className="space-y-2 w-[85%] mx-auto">
+              <p className="text-xs text-muted-foreground">Jours de la semaine</p>
+              <div className="grid grid-cols-7 gap-1.5">
+                {[1, 2, 3, 4, 5, 6, 0].map(d => {
+                  const active = recurringDays.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => toggleDay(d)}
+                      className={cn(
+                        "py-2 rounded-md text-xs font-medium transition-colors",
+                        active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                      )}
+                    >
+                      {DAYS_FR[d]}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Le trajet sera créé automatiquement chaque jour coché.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
 
       <div className="flex justify-center">
         <Button

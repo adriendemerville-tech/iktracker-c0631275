@@ -120,6 +120,16 @@ interface NewTripSheetProps {
     endTime: Date;
   }) => void;
   getTotalAnnualKm: (vehicleId: string) => number;
+  onCreateRecurring?: (data: {
+    vehicleId: string;
+    startLocation: Location;
+    endLocation: Location;
+    distance: number;
+    baseDistance: number;
+    roundTrip: boolean;
+    purpose: string;
+    daysOfWeek: number[];
+  }) => Promise<void> | void;
 }
 
 type Step = 'vehicle' | 'start' | 'end' | 'details';
@@ -140,6 +150,7 @@ export function NewTripSheet({
   onCreateTrip,
   onUpdateTrip,
   getTotalAnnualKm,
+  onCreateRecurring,
 }: NewTripSheetProps) {
   const [step, setStep] = useState<Step>('vehicle');
   const [draft, setDraft] = useState<TripDraft>({});
@@ -150,6 +161,8 @@ export function NewTripSheet({
   const [tripDate, setTripDate] = useState<Date>(new Date());
   const [roundTrip, setRoundTrip] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringDays, setRecurringDays] = useState<number[]>([]);
 
   const distanceInputRef = useRef<HTMLInputElement>(null);
   const purposeInputRef = useRef<HTMLInputElement>(null);
@@ -278,6 +291,8 @@ export function NewTripSheet({
     setCalculatedDistance(null);
     setTripDate(new Date());
     setRoundTrip(false);
+    setIsRecurring(false);
+    setRecurringDays([]);
   };
 
   const handleClose = () => {
@@ -422,6 +437,18 @@ export function NewTripSheet({
       onUpdateTrip(editTrip.id, tripData);
     } else {
       onCreateTrip(tripData);
+      if (isRecurring && recurringDays.length > 0 && onCreateRecurring) {
+        onCreateRecurring({
+          vehicleId: draft.vehicleId,
+          startLocation: draft.startLocation,
+          endLocation: draft.endLocation,
+          distance,
+          baseDistance,
+          roundTrip,
+          purpose,
+          daysOfWeek: recurringDays,
+        });
+      }
     }
 
     handleClose();
@@ -682,6 +709,11 @@ export function NewTripSheet({
               distanceInputRef={distanceInputRef}
               purposeInputRef={purposeInputRef}
               handleConfirm={handleConfirm}
+              showRecurring={!isEditing}
+              isRecurring={isRecurring}
+              setIsRecurring={setIsRecurring}
+              recurringDays={recurringDays}
+              setRecurringDays={setRecurringDays}
             />
           )}
         </div>
