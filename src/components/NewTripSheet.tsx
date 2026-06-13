@@ -120,6 +120,16 @@ interface NewTripSheetProps {
     endTime: Date;
   }) => void;
   getTotalAnnualKm: (vehicleId: string) => number;
+  onCreateRecurring?: (data: {
+    vehicleId: string;
+    startLocation: Location;
+    endLocation: Location;
+    distance: number;
+    baseDistance: number;
+    roundTrip: boolean;
+    purpose: string;
+    daysOfWeek: number[];
+  }) => Promise<void> | void;
 }
 
 type Step = 'vehicle' | 'start' | 'end' | 'details';
