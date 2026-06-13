@@ -291,6 +291,8 @@ export function NewTripSheet({
     setCalculatedDistance(null);
     setTripDate(new Date());
     setRoundTrip(false);
+    setIsRecurring(false);
+    setRecurringDays([]);
   };
 
   const handleClose = () => {
