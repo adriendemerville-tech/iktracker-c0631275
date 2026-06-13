@@ -1084,7 +1084,7 @@ ${IKTRACKER_URL}`;
               disabled={vehicles.length === 0}
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden lg:inline ml-1">Nouveau</span>
+              Nouveau
             </Button>
           </div>
         </div>
