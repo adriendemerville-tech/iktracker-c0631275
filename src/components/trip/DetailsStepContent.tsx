@@ -72,9 +72,18 @@ export function DetailsStepContent({
   distanceInputRef,
   purposeInputRef,
   handleConfirm,
+  isRecurring = false,
+  setIsRecurring,
+  recurringDays = [],
+  setRecurringDays,
+  showRecurring = false,
 }: DetailsStepContentProps) {
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
+  const toggleDay = (d: number) => {
+    if (!setRecurringDays) return;
+    setRecurringDays(recurringDays.includes(d) ? recurringDays.filter(x => x !== d) : [...recurringDays, d].sort());
+  };
   
   const [startAddress, setStartAddress] = useState(draft.startLocation?.address || draft.startLocation?.name || '');
   const [endAddress, setEndAddress] = useState(draft.endLocation?.address || draft.endLocation?.name || '');
