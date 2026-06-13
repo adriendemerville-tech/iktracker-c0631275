@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Trash2, Repeat, Pencil, Check, X } from "lucide-react";
+import { Trash2, Repeat, Pencil, Check, X, Plus } from "lucide-react";
 import { useRecurringTrips, DAYS_FR, RecurringTrip } from "@/hooks/useRecurringTrips";
 import { Vehicle } from "@/types/trip";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   vehicles: Vehicle[];
+  onAddNew?: () => void;
 }
 
 const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
