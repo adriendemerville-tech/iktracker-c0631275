@@ -923,6 +923,7 @@ export type Database = {
       }
       recurring_trips: {
         Row: {
+          active_months: number[] | null
           base_distance: number
           created_at: string
           days_of_week: number[]
@@ -937,8 +938,10 @@ export type Database = {
           updated_at: string
           user_id: string
           vehicle_id: string | null
+          weeks_duration: number | null
         }
         Insert: {
+          active_months?: number[] | null
           base_distance?: number
           created_at?: string
           days_of_week?: number[]
@@ -953,8 +956,10 @@ export type Database = {
           updated_at?: string
           user_id: string
           vehicle_id?: string | null
+          weeks_duration?: number | null
         }
         Update: {
+          active_months?: number[] | null
           base_distance?: number
           created_at?: string
           days_of_week?: number[]
@@ -969,6 +974,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vehicle_id?: string | null
+          weeks_duration?: number | null
         }
         Relationships: [
           {
