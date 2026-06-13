@@ -435,6 +435,18 @@ export function NewTripSheet({
       onUpdateTrip(editTrip.id, tripData);
     } else {
       onCreateTrip(tripData);
+      if (isRecurring && recurringDays.length > 0 && onCreateRecurring) {
+        onCreateRecurring({
+          vehicleId: draft.vehicleId,
+          startLocation: draft.startLocation,
+          endLocation: draft.endLocation,
+          distance,
+          baseDistance,
+          roundTrip,
+          purpose,
+          daysOfWeek: recurringDays,
+        });
+      }
     }
 
     handleClose();
