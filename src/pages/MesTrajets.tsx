@@ -1097,7 +1097,10 @@ ${IKTRACKER_URL}`;
           open={showNewTrip}
           onOpenChange={(open) => {
             setShowNewTrip(open);
-            if (!open) setEditingTrip(null);
+            if (!open) {
+              setEditingTrip(null);
+              setNewTripRecurringOnly(false);
+            }
           }}
           savedLocations={savedLocations}
           vehicles={vehicles}
@@ -1109,6 +1112,7 @@ ${IKTRACKER_URL}`;
           onCreateTrip={addTrip}
           onUpdateTrip={updateTrip}
           getTotalAnnualKm={getTotalAnnualKm}
+          recurringOnly={newTripRecurringOnly}
           onCreateRecurring={async (data) => {
             await createRecurring({
               vehicleId: data.vehicleId,
@@ -1150,6 +1154,10 @@ ${IKTRACKER_URL}`;
           open={showRecurringModal}
           onOpenChange={setShowRecurringModal}
           vehicles={vehicles}
+          onAddNew={() => {
+            setNewTripRecurringOnly(true);
+            setShowNewTrip(true);
+          }}
         />
       </Suspense>
       </div>
