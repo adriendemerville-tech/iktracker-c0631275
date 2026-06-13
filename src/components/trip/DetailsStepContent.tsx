@@ -46,6 +46,7 @@ interface DetailsStepContentProps {
   recurringDays?: number[];
   setRecurringDays?: (days: number[]) => void;
   showRecurring?: boolean;
+  hideDatePicker?: boolean;
 }
 
 export function DetailsStepContent({
