@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
 const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
 const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
+const RecurringTripsModal = lazy(() => import('@/components/RecurringTripsModal').then(m => ({ default: m.RecurringTripsModal })));
 
 const SheetLoader = () => <div className="p-4 text-center text-muted-foreground">Chargement...</div>;
 
