@@ -1128,6 +1128,9 @@ ${IKTRACKER_URL}`;
               purpose: data.purpose,
               daysOfWeek: data.daysOfWeek,
               isActive: true,
+              weeksDuration: null,
+              activeMonths: null,
+              createdAt: null,
             });
             toast.success("Trajet récurrent enregistré");
           }}
