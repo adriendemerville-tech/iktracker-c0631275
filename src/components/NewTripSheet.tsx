@@ -437,20 +437,21 @@ export function NewTripSheet({
 
     if (isEditing && editTrip && onUpdateTrip) {
       onUpdateTrip(editTrip.id, tripData);
-    } else {
+    } else if (!recurringOnly) {
       onCreateTrip(tripData);
-      if (isRecurring && recurringDays.length > 0 && onCreateRecurring) {
-        onCreateRecurring({
-          vehicleId: draft.vehicleId,
-          startLocation: draft.startLocation,
-          endLocation: draft.endLocation,
-          distance,
-          baseDistance,
-          roundTrip,
-          purpose,
-          daysOfWeek: recurringDays,
-        });
-      }
+    }
+
+    if (isRecurring && recurringDays.length > 0 && onCreateRecurring) {
+      onCreateRecurring({
+        vehicleId: draft.vehicleId,
+        startLocation: draft.startLocation,
+        endLocation: draft.endLocation,
+        distance,
+        baseDistance,
+        roundTrip,
+        purpose,
+        daysOfWeek: recurringDays,
+      });
     }
 
     handleClose();
