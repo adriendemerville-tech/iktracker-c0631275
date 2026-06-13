@@ -78,6 +78,7 @@ export function DetailsStepContent({
   recurringDays = [],
   setRecurringDays,
   showRecurring = false,
+  hideDatePicker = false,
 }: DetailsStepContentProps) {
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
