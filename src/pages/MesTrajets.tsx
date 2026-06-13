@@ -1117,6 +1117,20 @@ ${IKTRACKER_URL}`;
           onCreateTrip={addTrip}
           onUpdateTrip={updateTrip}
           getTotalAnnualKm={getTotalAnnualKm}
+          onCreateRecurring={async (data) => {
+            await createRecurring({
+              vehicleId: data.vehicleId,
+              startLocation: data.startLocation,
+              endLocation: data.endLocation,
+              distance: data.distance,
+              baseDistance: data.baseDistance,
+              roundTrip: data.roundTrip,
+              purpose: data.purpose,
+              daysOfWeek: data.daysOfWeek,
+              isActive: true,
+            });
+            toast.success("Trajet récurrent enregistré");
+          }}
         />
       </Suspense>
 
