@@ -44,6 +44,7 @@ Deno.serve(async (req) => {
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0];
     const dow = today.getUTCDay(); // 0..6
+    const month = today.getUTCMonth() + 1; // 1..12
 
     const { data: recurring, error } = await supabase
       .from("recurring_trips")
@@ -59,6 +60,17 @@ Deno.serve(async (req) => {
       const days: number[] = r.days_of_week ?? [];
       if (!days.includes(dow)) { skipped++; continue; }
       if (r.last_generated_date === todayStr) { skipped++; continue; }
+
+      const activeMonths: number[] | null = r.active_months ?? null;
+      if (activeMonths && activeMonths.length > 0 && !activeMonths.includes(month)) {
+        skipped++; continue;
+      }
+
+      if (r.weeks_duration && r.created_at) {
+        const createdAt = new Date(r.created_at);
+        const endDate = new Date(createdAt.getTime() + r.weeks_duration * 7 * 24 * 3600 * 1000);
+        if (today > endDate) { skipped++; continue; }
+      }
 
       // Sum annual km for vehicle this fiscal year (simple: from Jan 1)
       const yearStart = `${today.getUTCFullYear()}-01-01`;

@@ -15,6 +15,9 @@ export interface RecurringTrip {
   daysOfWeek: number[]; // 0=Sun..6=Sat
   isActive: boolean;
   lastGeneratedDate: string | null;
+  weeksDuration: number | null; // null = illimité
+  activeMonths: number[] | null; // null/empty = tous les mois (1..12)
+  createdAt: string | null;
 }
 
 function mapRow(r: any): RecurringTrip {
@@ -30,6 +33,9 @@ function mapRow(r: any): RecurringTrip {
     daysOfWeek: (r.days_of_week || []) as number[],
     isActive: r.is_active,
     lastGeneratedDate: r.last_generated_date,
+    weeksDuration: r.weeks_duration ?? null,
+    activeMonths: (r.active_months ?? null) as number[] | null,
+    createdAt: r.created_at ?? null,
   };
 }
 
@@ -86,6 +92,8 @@ export function useRecurringTrips() {
     if (patch.purpose !== undefined) payload.purpose = patch.purpose;
     if (patch.daysOfWeek !== undefined) payload.days_of_week = patch.daysOfWeek;
     if (patch.isActive !== undefined) payload.is_active = patch.isActive;
+    if (patch.weeksDuration !== undefined) payload.weeks_duration = patch.weeksDuration;
+    if (patch.activeMonths !== undefined) payload.active_months = patch.activeMonths;
     const { data, error } = await supabase
       .from("recurring_trips" as any)
       .update(payload)
