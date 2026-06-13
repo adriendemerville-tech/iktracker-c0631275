@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Trash2, Repeat, Pencil, Check, X } from "lucide-react";
+import { Trash2, Repeat, Pencil, Check, X, Plus } from "lucide-react";
 import { useRecurringTrips, DAYS_FR, RecurringTrip } from "@/hooks/useRecurringTrips";
 import { Vehicle } from "@/types/trip";
 import { cn } from "@/lib/utils";
@@ -14,11 +14,12 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   vehicles: Vehicle[];
+  onAddNew?: () => void;
 }
 
 const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
-export function RecurringTripsModal({ open, onOpenChange, vehicles }: Props) {
+export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: Props) {
   const { items, update, remove, loading } = useRecurringTrips();
   const [editing, setEditing] = useState<string | null>(null);
   const [editDays, setEditDays] = useState<number[]>([]);
@@ -60,11 +61,16 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="flex items-center gap-2">
             <Repeat className="w-5 h-5 text-primary" />
             Trajets récurrents
           </DialogTitle>
+          {onAddNew && (
+            <Button size="sm" variant="outline" onClick={onAddNew} className="h-8 w-8 p-0 rounded-full">
+              <Plus className="w-4 h-4" />
+            </Button>
+          )}
         </DialogHeader>
 
         {loading ? (

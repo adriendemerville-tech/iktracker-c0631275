@@ -46,6 +46,7 @@ interface DetailsStepContentProps {
   recurringDays?: number[];
   setRecurringDays?: (days: number[]) => void;
   showRecurring?: boolean;
+  hideDatePicker?: boolean;
 }
 
 export function DetailsStepContent({
@@ -77,6 +78,7 @@ export function DetailsStepContent({
   recurringDays = [],
   setRecurringDays,
   showRecurring = false,
+  hideDatePicker = false,
 }: DetailsStepContentProps) {
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
@@ -257,30 +259,32 @@ export function DetailsStepContent({
         />
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Date du trajet</label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-left font-normal"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {format(tripDate, "EEEE d MMMM yyyy", { locale: fr })}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={tripDate}
-              onSelect={(date) => date && setTripDate(date)}
-              initialFocus
-              className="pointer-events-auto"
-              locale={fr}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+      {!hideDatePicker && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Date du trajet</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-left font-normal"
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(tripDate, "EEEE d MMMM yyyy", { locale: fr })}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={tripDate}
+                onSelect={(date) => date && setTripDate(date)}
+                initialFocus
+                className="pointer-events-auto"
+                locale={fr}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Distance *</label>

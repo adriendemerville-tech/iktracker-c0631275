@@ -130,6 +130,7 @@ interface NewTripSheetProps {
     purpose: string;
     daysOfWeek: number[];
   }) => Promise<void> | void;
+  recurringOnly?: boolean;
 }
 
 type Step = 'vehicle' | 'start' | 'end' | 'details';
@@ -151,6 +152,7 @@ export function NewTripSheet({
   onUpdateTrip,
   getTotalAnnualKm,
   onCreateRecurring,
+  recurringOnly = false,
 }: NewTripSheetProps) {
   const [step, setStep] = useState<Step>('vehicle');
   const [draft, setDraft] = useState<TripDraft>({});
@@ -161,7 +163,7 @@ export function NewTripSheet({
   const [tripDate, setTripDate] = useState<Date>(new Date());
   const [roundTrip, setRoundTrip] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(recurringOnly);
   const [recurringDays, setRecurringDays] = useState<number[]>([]);
 
   const distanceInputRef = useRef<HTMLInputElement>(null);
@@ -435,20 +437,21 @@ export function NewTripSheet({
 
     if (isEditing && editTrip && onUpdateTrip) {
       onUpdateTrip(editTrip.id, tripData);
-    } else {
+    } else if (!recurringOnly) {
       onCreateTrip(tripData);
-      if (isRecurring && recurringDays.length > 0 && onCreateRecurring) {
-        onCreateRecurring({
-          vehicleId: draft.vehicleId,
-          startLocation: draft.startLocation,
-          endLocation: draft.endLocation,
-          distance,
-          baseDistance,
-          roundTrip,
-          purpose,
-          daysOfWeek: recurringDays,
-        });
-      }
+    }
+
+    if (isRecurring && recurringDays.length > 0 && onCreateRecurring) {
+      onCreateRecurring({
+        vehicleId: draft.vehicleId,
+        startLocation: draft.startLocation,
+        endLocation: draft.endLocation,
+        distance,
+        baseDistance,
+        roundTrip,
+        purpose,
+        daysOfWeek: recurringDays,
+      });
     }
 
     handleClose();
@@ -709,7 +712,8 @@ export function NewTripSheet({
               distanceInputRef={distanceInputRef}
               purposeInputRef={purposeInputRef}
               handleConfirm={handleConfirm}
-              showRecurring={!isEditing}
+              showRecurring={!isEditing && !recurringOnly}
+              hideDatePicker={recurringOnly}
               isRecurring={isRecurring}
               setIsRecurring={setIsRecurring}
               recurringDays={recurringDays}

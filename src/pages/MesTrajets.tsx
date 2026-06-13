@@ -46,6 +46,7 @@ export default function Report() {
   const [showToursDropdown, setShowToursDropdown] = useState(false);
   const [showBaremeDropdown, setShowBaremeDropdown] = useState(false);
   const [showRecurringModal, setShowRecurringModal] = useState(false);
+  const [newTripRecurringOnly, setNewTripRecurringOnly] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -1064,7 +1065,7 @@ ${IKTRACKER_URL}`;
               onClick={() => setShowRecurringModal(true)}
             >
               <Repeat className="w-4 h-4" />
-              <span className="hidden lg:inline ml-1">Trajets récurrents</span>
+              <span className="hidden lg:inline ml-1">Récurrents</span>
             </Button>
             <Link to="/app/profile#mes-adresses" className="w-full">
               <Button 
@@ -1096,7 +1097,10 @@ ${IKTRACKER_URL}`;
           open={showNewTrip}
           onOpenChange={(open) => {
             setShowNewTrip(open);
-            if (!open) setEditingTrip(null);
+            if (!open) {
+              setEditingTrip(null);
+              setNewTripRecurringOnly(false);
+            }
           }}
           savedLocations={savedLocations}
           vehicles={vehicles}
@@ -1108,6 +1112,7 @@ ${IKTRACKER_URL}`;
           onCreateTrip={addTrip}
           onUpdateTrip={updateTrip}
           getTotalAnnualKm={getTotalAnnualKm}
+          recurringOnly={newTripRecurringOnly}
           onCreateRecurring={async (data) => {
             await createRecurring({
               vehicleId: data.vehicleId,
@@ -1149,6 +1154,10 @@ ${IKTRACKER_URL}`;
           open={showRecurringModal}
           onOpenChange={setShowRecurringModal}
           vehicles={vehicles}
+          onAddNew={() => {
+            setNewTripRecurringOnly(true);
+            setShowNewTrip(true);
+          }}
         />
       </Suspense>
       </div>
