@@ -150,6 +150,7 @@ export function NewTripSheet({
   onCreateTrip,
   onUpdateTrip,
   getTotalAnnualKm,
+  onCreateRecurring,
 }: NewTripSheetProps) {
   const [step, setStep] = useState<Step>('vehicle');
   const [draft, setDraft] = useState<TripDraft>({});
@@ -160,6 +161,8 @@ export function NewTripSheet({
   const [tripDate, setTripDate] = useState<Date>(new Date());
   const [roundTrip, setRoundTrip] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringDays, setRecurringDays] = useState<number[]>([]);
 
   const distanceInputRef = useRef<HTMLInputElement>(null);
   const purposeInputRef = useRef<HTMLInputElement>(null);
