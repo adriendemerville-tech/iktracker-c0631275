@@ -46,6 +46,7 @@ export default function Report() {
   const [showToursDropdown, setShowToursDropdown] = useState(false);
   const [showBaremeDropdown, setShowBaremeDropdown] = useState(false);
   const [showRecurringModal, setShowRecurringModal] = useState(false);
+  const [newTripRecurringOnly, setNewTripRecurringOnly] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
