@@ -19,7 +19,7 @@ interface Props {
 
 const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
-export function RecurringTripsModal({ open, onOpenChange, vehicles }: Props) {
+export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: Props) {
   const { items, update, remove, loading } = useRecurringTrips();
   const [editing, setEditing] = useState<string | null>(null);
   const [editDays, setEditDays] = useState<number[]>([]);
