@@ -764,17 +764,17 @@ ${IKTRACKER_URL}`;
           )}
         </div>
 
-        <div className="space-y-2 flex flex-col items-center -my-1">
+        <div className="flex flex-col lg:flex-row items-center gap-2 -my-1">
           {/* Show email input only if not sent yet - hidden on mobile */}
           {!isMobile && (!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
-            <div className="flex items-center gap-2 w-full">
+            <div className="flex items-center gap-2 w-full lg:w-auto lg:max-w-[260px]">
               <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <Input
                 type="email"
                 placeholder="Email du destinataire"
                 value={preferences.accountantEmail}
                 onChange={(e) => updatePreference('accountantEmail', e.target.value)}
-                className="flex-1"
+                className="flex-1 lg:w-[220px]"
               />
             </div>
           )}
