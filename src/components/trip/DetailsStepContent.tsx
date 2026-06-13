@@ -381,6 +381,53 @@ export function DetailsStepContent({
         />
       </div>
 
+      {showRecurring && setIsRecurring && (
+        <div className="space-y-3">
+          <div className={cn(
+            "flex items-center justify-between p-4 rounded-md transition-colors w-[85%] mx-auto",
+            isRecurring ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
+          )}>
+            <div className="flex items-center gap-3">
+              <Repeat className={cn("w-5 h-5", isRecurring ? "text-primary" : "text-muted-foreground")} />
+              <p className="font-medium">Récurrent</p>
+            </div>
+            <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
+          </div>
+          {isRecurring && (
+            <div className="space-y-2 w-[85%] mx-auto">
+              <p className="text-xs text-muted-foreground">Jours de la semaine</p>
+              <div className="grid grid-cols-7 gap-1.5">
+                {DAYS_FR.map((label, idx) => {
+                  // Display Lun..Dim order (idx 1..6, then 0)
+                  const dayValue = idx === 0 ? 0 : idx;
+                  return null;
+                })}
+                {[1, 2, 3, 4, 5, 6, 0].map(d => {
+                  const active = recurringDays.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => toggleDay(d)}
+                      className={cn(
+                        "py-2 rounded-md text-xs font-medium transition-colors",
+                        active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                      )}
+                    >
+                      {DAYS_FR[d]}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Le trajet sera créé automatiquement chaque jour coché.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+
       <div className="flex justify-center">
         <Button
           variant="gradient"
