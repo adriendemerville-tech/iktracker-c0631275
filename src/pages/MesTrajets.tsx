@@ -1065,7 +1065,7 @@ ${IKTRACKER_URL}`;
               onClick={() => setShowRecurringModal(true)}
             >
               <Repeat className="w-4 h-4" />
-              <span className="hidden lg:inline ml-1">Trajets récurrents</span>
+              <span className="hidden lg:inline ml-1">Récurrents</span>
             </Button>
             <Link to="/app/profile#mes-adresses" className="w-full">
               <Button 
