@@ -41,6 +41,11 @@ interface DetailsStepContentProps {
   distanceInputRef: React.RefObject<HTMLInputElement>;
   purposeInputRef: React.RefObject<HTMLInputElement>;
   handleConfirm: () => void;
+  isRecurring?: boolean;
+  setIsRecurring?: (v: boolean) => void;
+  recurringDays?: number[];
+  setRecurringDays?: (days: number[]) => void;
+  showRecurring?: boolean;
 }
 
 export function DetailsStepContent({
