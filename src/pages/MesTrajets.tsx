@@ -1051,49 +1051,40 @@ ${IKTRACKER_URL}`;
           </div>
         </div>
 
-        {/* Trajets récurrents */}
-        <button
-          onClick={() => setShowRecurringModal(true)}
-          className="w-full bg-card rounded-md shadow-md overflow-hidden p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-              <Repeat className="w-5 h-5 text-primary" />
-            </div>
-            <div className="text-left">
-              <p className="font-medium">Trajets récurrents</p>
-              <p className="text-sm text-muted-foreground">
-                {recurringItems.length === 0 ? "Aucun trajet récurrent" : `${recurringItems.length} trajet${recurringItems.length > 1 ? 's' : ''} configuré${recurringItems.length > 1 ? 's' : ''}`}
-              </p>
-            </div>
-          </div>
-          <ChevronDown className="w-5 h-5 text-muted-foreground -rotate-90" />
-        </button>
       </main>
 
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
-          <div className="grid grid-cols-2 gap-3 w-3/5 min-w-[240px]">
+          <div className="grid grid-cols-3 gap-3 w-4/5 min-w-[280px]">
+            <Button 
+              variant="outline" 
+              size="default"
+              className="w-full h-12 px-2 text-sm"
+              onClick={() => setShowRecurringModal(true)}
+            >
+              <Repeat className="w-4 h-4" />
+              <span className="hidden lg:inline ml-1">Trajets récurrents</span>
+            </Button>
             <Link to="/app/profile#mes-adresses" className="w-full">
               <Button 
                 variant="outline" 
                 size="default"
-                className="w-full h-12 px-4 text-sm"
+                className="w-full h-12 px-2 text-sm"
               >
                 <Home className="w-4 h-4" />
-                Adresses
+                <span className="hidden lg:inline ml-1">Adresses</span>
               </Button>
             </Link>
             <Button 
               variant="gradient" 
               size="default"
-              className="w-full h-12 px-4 text-sm"
+              className="w-full h-12 px-2 text-sm"
               onClick={() => setShowNewTrip(true)}
               disabled={vehicles.length === 0}
             >
               <Plus className="w-4 h-4" />
-              Nouveau
+              <span className="hidden lg:inline ml-1">Nouveau</span>
             </Button>
           </div>
         </div>
