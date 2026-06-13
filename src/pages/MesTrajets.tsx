@@ -1149,6 +1149,14 @@ ${IKTRACKER_URL}`;
           }}
         />
       </Suspense>
+
+      <Suspense fallback={null}>
+        <RecurringTripsModal
+          open={showRecurringModal}
+          onOpenChange={setShowRecurringModal}
+          vehicles={vehicles}
+        />
+      </Suspense>
       </div>
     </>
   );
