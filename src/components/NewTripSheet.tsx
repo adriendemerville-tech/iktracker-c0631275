@@ -709,6 +709,11 @@ export function NewTripSheet({
               distanceInputRef={distanceInputRef}
               purposeInputRef={purposeInputRef}
               handleConfirm={handleConfirm}
+              showRecurring={!isEditing}
+              isRecurring={isRecurring}
+              setIsRecurring={setIsRecurring}
+              recurringDays={recurringDays}
+              setRecurringDays={setRecurringDays}
             />
           )}
         </div>
