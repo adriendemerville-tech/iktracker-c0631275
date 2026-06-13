@@ -61,11 +61,16 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="flex items-center gap-2">
             <Repeat className="w-5 h-5 text-primary" />
             Trajets récurrents
           </DialogTitle>
+          {onAddNew && (
+            <Button size="sm" variant="outline" onClick={onAddNew} className="h-8 w-8 p-0 rounded-full">
+              <Plus className="w-4 h-4" />
+            </Button>
+          )}
         </DialogHeader>
 
         {loading ? (
