@@ -397,11 +397,6 @@ export function DetailsStepContent({
             <div className="space-y-2 w-[85%] mx-auto">
               <p className="text-xs text-muted-foreground">Jours de la semaine</p>
               <div className="grid grid-cols-7 gap-1.5">
-                {DAYS_FR.map((label, idx) => {
-                  // Display Lun..Dim order (idx 1..6, then 0)
-                  const dayValue = idx === 0 ? 0 : idx;
-                  return null;
-                })}
                 {[1, 2, 3, 4, 5, 6, 0].map(d => {
                   const active = recurringDays.includes(d);
                   return (
