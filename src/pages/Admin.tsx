@@ -467,7 +467,12 @@ const Admin = () => {
         userEmail: latest.user_email || userId.slice(0, 8) + '...',
         messages: sorted,
         lastMessageAt: latest.created_at,
-        unrespondedCount: sorted.filter(m => !m.response && !m.is_admin_message).length,
+        // Badge rouge uniquement si le dernier message de la conversation est
+        // un message utilisateur sans réponse de l'admin.
+        unrespondedCount: (() => {
+          const last = sorted[sorted.length - 1];
+          return last && !last.is_admin_message && !last.response ? 1 : 0;
+        })(),
         totalCount: sorted.length,
       };
     }).sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
