@@ -52,6 +52,16 @@ export default function Report() {
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
+
+  // Open recurring modal from survey tab=RECURRENT
+  useEffect(() => {
+    if (searchParams.get('tab') === 'RECURRENT') {
+      setShowRecurringModal(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('tab');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
