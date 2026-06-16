@@ -1,5 +1,5 @@
-import { useState, useMemo, lazy, Suspense } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTrips } from '@/hooks/useTrips';
 import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
