@@ -75,6 +75,7 @@ const CONTENT_BLOCK_TYPES = [
   { value: 'poll', label: 'Sondage', icon: ListChecks },
   { value: 'rating', label: 'Note sur 5', icon: Star },
   { value: 'text_question', label: 'Question ouverte', icon: MessageSquare },
+  { value: 'info', label: 'Texte / info', icon: Info },
   { value: 'screenshot', label: 'Capture d\'écran', icon: Camera },
   { value: 'share', label: 'Partage', icon: Share2 },
 ] as const;
