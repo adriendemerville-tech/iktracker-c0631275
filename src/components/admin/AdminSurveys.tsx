@@ -21,7 +21,7 @@ import {
   ChevronDown, ChevronUp, Loader2, ArrowLeft,
   Pause, Play, User as UserIcon
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 // ---- Types ----
@@ -1167,7 +1167,7 @@ export function AdminSurveys() {
                         </p>
                         {survey.published_at && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Publié le {format(new Date(survey.published_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                            Publié le {format(new Date(survey.published_at), 'dd MMM yyyy HH:mm', { locale: fr })} · en ligne depuis {differenceInDays(new Date(), new Date(survey.published_at))} jours
                           </p>
                         )}
 
