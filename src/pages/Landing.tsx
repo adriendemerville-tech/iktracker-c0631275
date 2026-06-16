@@ -25,7 +25,8 @@ import {
   Star,
   Smartphone,
   Plus,
-  Users
+  Users,
+  Repeat
 } from "lucide-react";
 
 // Lazy load AuthForm - not needed for initial LCP
@@ -203,6 +204,7 @@ const Landing = () => {
                 "featureList": [
                   "Mode Tournée GPS avec détection automatique des arrêts",
                   "Synchronisation Google Calendar et Outlook",
+                  "Trajets récurrents pour les déplacements réguliers",
                   "Comparateur Frais Réels vs Abattement 10%",
                   "Lexique fiscal interactif",
                   "Export PDF/CSV pour experts-comptables",
@@ -337,7 +339,7 @@ const Landing = () => {
               )}
 
               <ul className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-muted-foreground" role="list" aria-label="Avantages">
-                {["Sans carte bancaire", "Tournée par GPS", "Export PDF/CSV"].map((item, i) => (
+                {["Sans carte bancaire", "Tournée par GPS", "Trajets récurrents", "Export PDF/CSV"].map((item, i) => (
                   <li key={i} className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                     {item}
@@ -531,12 +533,13 @@ const Landing = () => {
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.features_title}</h2>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6">
             {[
               { icon: Car, title: "Multi-véhicules" },
               { icon: Calculator, title: "Calcul IK auto" },
               { icon: MapPin, title: "GPS intégré" },
               { icon: Calendar, title: "Sync calendriers" },
+              { icon: Repeat, title: "Trajets récurrents" },
               { icon: FileText, title: "Export PDF/CSV" },
             ].map((feature, i) => (
               <div 
