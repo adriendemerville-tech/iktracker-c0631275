@@ -375,7 +375,11 @@ export function SurveyWidget() {
             onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
           />
         )}
+        {block.type === 'info' && (
+          <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
+        )}
       </div>
+
 
       {/* Footer */}
       <div className="px-4 pb-3 flex items-center justify-between">
