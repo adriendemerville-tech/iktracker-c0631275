@@ -25,6 +25,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Index = lazy(() => import("./pages/Index"));
 const MesTrajets = lazy(() => import("./pages/MesTrajets"));
+const MesTrajetsLanding = lazy(() => import("./pages/MesTrajetsLanding"));
 const TemporaryReport = lazy(() => import("./pages/TemporaryReport"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -339,6 +340,7 @@ const AppRoutes = () => {
         <Route path="/experts-comptables" element={<Navigate to="/expert-comptable" replace />} />
         <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
         <Route path="/note-de-frais-kilometrique" element={<Suspense fallback={<PageLoader />}><NoteDeFraisKilometrique /></Suspense>} />
+        <Route path="/mes-trajets" element={<Suspense fallback={<PageLoader />}><MesTrajetsLanding /></Suspense>} />
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
         <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
         <Route path="/comparatif-driversnote" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />

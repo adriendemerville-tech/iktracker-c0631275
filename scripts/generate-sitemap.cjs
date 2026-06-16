@@ -22,6 +22,7 @@ const staticPages = [
   { url: '/bareme-ik-2026', priority: '0.9', changefreq: 'yearly', lastmod: '2026-05-25' },
   { url: '/frais-reels', priority: '0.8', changefreq: 'monthly', lastmod: '2026-05-25' },
   { url: '/note-de-frais-kilometrique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-05-25' },
+  { url: '/mes-trajets', priority: '0.8', changefreq: 'monthly', lastmod: '2026-06-16' },
   { url: '/tarifs', priority: '0.7', changefreq: 'monthly', lastmod: '2026-05-25' },
   { url: '/lexique', priority: '0.8', changefreq: 'monthly', lastmod: '2026-05-25' },
   { url: '/comparatif-izika', priority: '0.8', changefreq: 'monthly', lastmod: '2026-05-25' },
