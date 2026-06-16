@@ -19,7 +19,7 @@ import {
   Plus, Trash2, Edit, BarChart3, Eye, Send, Copy,
   Star, MessageSquare, Camera, Share2, ListChecks,
   ChevronDown, ChevronUp, Loader2, ArrowLeft,
-  Pause, Play, User as UserIcon
+  Pause, Play, User as UserIcon, Info
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
