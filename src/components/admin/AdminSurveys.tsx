@@ -576,7 +576,7 @@ function SurveyAggregatedStats({
     if (variantResponses.length === 0) continue;
 
     for (const block of blocks) {
-      if (block.type === 'screenshot' || block.type === 'share') continue;
+      if (block.type === 'screenshot' || block.type === 'share' || block.type === 'info') continue;
 
       const question =
         (block.config?.question as string) ||
