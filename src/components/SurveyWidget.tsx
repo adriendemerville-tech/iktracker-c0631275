@@ -79,6 +79,7 @@ export function getPersonaValueFromLabel(label: string): PersonaValue | null {
 export function SurveyWidget() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [survey, setSurvey] = useState<ActiveSurvey | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, unknown>>({});
