@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { X, Star, Send, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface ContentBlock {
   id: string;
-  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share';
+  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share' | 'info';
   config: Record<string, unknown>;
 }
 
@@ -79,6 +79,7 @@ export function getPersonaValueFromLabel(label: string): PersonaValue | null {
 export function SurveyWidget() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [survey, setSurvey] = useState<ActiveSurvey | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, unknown>>({});
@@ -314,7 +315,25 @@ export function SurveyWidget() {
   const rawAnswer = responses[block.id] as string | undefined;
   const isFreeAnswer = typeof rawAnswer === 'string' && (rawAnswer === '__other__' || rawAnswer.startsWith('__free_'));
   const freeKey = rawAnswer === '__other__' ? block.id : `${block.id}_${rawAnswer?.match(/__free_(\d+)__/)?.[1] ?? ''}`;
-  const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0);
+  const hasAnswer = block.type === 'info' || block.type === 'screenshot' || block.type === 'share'
+    || (rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0));
+
+  const handleInfoButtonClick = (url: string) => {
+    if (!url) return;
+    if (url.startsWith('tab=')) {
+      const params = new URLSearchParams(location.search);
+      params.set('tab', url.slice(4));
+      navigate(`${location.pathname}?${params.toString()}`);
+      setDismissed(true);
+      return;
+    }
+    if (/^https?:\/\//i.test(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    navigate(url);
+    setDismissed(true);
+  };
 
   return (
     <>
@@ -356,7 +375,11 @@ export function SurveyWidget() {
             onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
           />
         )}
+        {block.type === 'info' && (
+          <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
+        )}
       </div>
+
 
       {/* Footer */}
       <div className="px-4 pb-3 flex items-center justify-between">
@@ -506,6 +529,24 @@ function TextBlock({ block, value, onChange }: { block: ContentBlock; value: str
         rows={3}
         className="text-xs resize-none"
       />
+    </div>
+  );
+}
+
+function InfoBlock({ block, onButtonClick }: { block: ContentBlock; onButtonClick: (url: string) => void }) {
+  const title = (block.config.title as string) || '';
+  const text = (block.config.text as string) || '';
+  const buttonLabel = (block.config.buttonLabel as string) || '';
+  const buttonUrl = (block.config.buttonUrl as string) || '';
+  return (
+    <div className="space-y-2">
+      {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
+      {text && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{text}</p>}
+      {buttonLabel && buttonUrl && (
+        <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => onButtonClick(buttonUrl)}>
+          {buttonLabel}
+        </Button>
+      )}
     </div>
   );
 }

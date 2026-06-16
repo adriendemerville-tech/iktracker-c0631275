@@ -19,7 +19,7 @@ import {
   Plus, Trash2, Edit, BarChart3, Eye, Send, Copy,
   Star, MessageSquare, Camera, Share2, ListChecks,
   ChevronDown, ChevronUp, Loader2, ArrowLeft,
-  Pause, Play, User as UserIcon
+  Pause, Play, User as UserIcon, Info
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -28,7 +28,7 @@ import { fr } from 'date-fns/locale';
 
 interface ContentBlock {
   id: string;
-  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share';
+  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share' | 'info';
   config: Record<string, unknown>;
 }
 
@@ -75,6 +75,7 @@ const CONTENT_BLOCK_TYPES = [
   { value: 'poll', label: 'Sondage', icon: ListChecks },
   { value: 'rating', label: 'Note sur 5', icon: Star },
   { value: 'text_question', label: 'Question ouverte', icon: MessageSquare },
+  { value: 'info', label: 'Texte / info', icon: Info },
   { value: 'screenshot', label: 'Capture d\'écran', icon: Camera },
   { value: 'share', label: 'Partage', icon: Share2 },
 ] as const;
@@ -109,6 +110,8 @@ function defaultContentBlock(type: ContentBlock['type']): ContentBlock {
       return { ...base, config: { prompt: 'Partagez une capture d\'écran pour nous aider à améliorer l\'app' } };
     case 'share':
       return { ...base, config: { message: 'Découvre IKtracker pour suivre tes indemnités kilométriques !', channels: ['whatsapp', 'sms'] } };
+    case 'info':
+      return { ...base, config: { title: '', text: '', buttonLabel: '', buttonUrl: '' } };
     default:
       return base;
   }
@@ -274,6 +277,45 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
                   {ch === 'whatsapp' ? 'WhatsApp' : 'SMS'}
                 </label>
               ))}
+            </div>
+          </>
+        )}
+        {block.type === 'info' && (
+          <>
+            <div>
+              <Label className="text-xs">Titre (optionnel)</Label>
+              <Input
+                value={(block.config.title as string) || ''}
+                onChange={e => onChange({ ...block, config: { ...block.config, title: e.target.value } })}
+                placeholder="Titre..."
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Texte</Label>
+              <Textarea
+                value={(block.config.text as string) || ''}
+                onChange={e => onChange({ ...block, config: { ...block.config, text: e.target.value } })}
+                placeholder="Votre message..."
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Libellé bouton (optionnel)</Label>
+                <Input
+                  value={(block.config.buttonLabel as string) || ''}
+                  onChange={e => onChange({ ...block, config: { ...block.config, buttonLabel: e.target.value } })}
+                  placeholder="En savoir plus"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Lien (URL ou tab=NOM)</Label>
+                <Input
+                  value={(block.config.buttonUrl as string) || ''}
+                  onChange={e => onChange({ ...block, config: { ...block.config, buttonUrl: e.target.value } })}
+                  placeholder="/app/mestrajets ou tab=stats"
+                />
+              </div>
             </div>
           </>
         )}
@@ -534,7 +576,7 @@ function SurveyAggregatedStats({
     if (variantResponses.length === 0) continue;
 
     for (const block of blocks) {
-      if (block.type === 'screenshot' || block.type === 'share') continue;
+      if (block.type === 'screenshot' || block.type === 'share' || block.type === 'info') continue;
 
       const question =
         (block.config?.question as string) ||
