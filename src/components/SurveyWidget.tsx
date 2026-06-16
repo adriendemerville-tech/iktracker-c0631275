@@ -532,3 +532,21 @@ function TextBlock({ block, value, onChange }: { block: ContentBlock; value: str
     </div>
   );
 }
+
+function InfoBlock({ block, onButtonClick }: { block: ContentBlock; onButtonClick: (url: string) => void }) {
+  const title = (block.config.title as string) || '';
+  const text = (block.config.text as string) || '';
+  const buttonLabel = (block.config.buttonLabel as string) || '';
+  const buttonUrl = (block.config.buttonUrl as string) || '';
+  return (
+    <div className="space-y-2">
+      {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
+      {text && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{text}</p>}
+      {buttonLabel && buttonUrl && (
+        <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => onButtonClick(buttonUrl)}>
+          {buttonLabel}
+        </Button>
+      )}
+    </div>
+  );
+}
