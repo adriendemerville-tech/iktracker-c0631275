@@ -472,6 +472,8 @@ const STATIC_PAGES: Record<string, PageMeta> = {
         <p>L'historique de vos trajets est conservé sans limite tant que le compte est actif. L'export PDF horodaté satisfait l'obligation légale d'archivage de <strong>3 ans</strong> des justificatifs de frais professionnels. IKtracker est une PWA fonctionnant <strong>hors-ligne</strong> : aucun trajet n'est perdu en cas de coupure réseau.</p>
       </section>`,
   },
+
+  '/lexique': {
     title: 'Lexique des indemnités kilométriques France 2026 | IKtracker',
     description: 'Dictionnaire complet des termes liés aux indemnités kilométriques en France : barème 2026, frais réels, BNC, URSSAF, professions libérales.',
     canonical: `${BASE_URL}/lexique`,
