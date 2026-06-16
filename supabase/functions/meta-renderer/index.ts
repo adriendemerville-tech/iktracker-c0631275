@@ -436,7 +436,42 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/lexique': {
+  '/mes-trajets': {
+    title: 'Mes Trajets — Journal kilométrique pro gratuit | IKtracker',
+    description: 'Centralisez vos déplacements professionnels : saisie, trajets récurrents, import Google Agenda / Outlook, Mode Tournée GPS, export PDF & Excel conforme URSSAF. Gratuit à vie.',
+    canonical: `${BASE_URL}/mes-trajets`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "À quoi sert la page Mes Trajets d'IKtracker ?", "acceptedAnswer": { "@type": "Answer", "text": "Mes Trajets centralise tous vos déplacements professionnels : saisie manuelle, trajets récurrents, import Google Agenda / Outlook et Mode Tournée GPS. Chaque ligne affiche date, motif, distance et indemnité kilométrique calculée selon le barème en vigueur." } },
+        { "@type": "Question", "name": "Comment ajouter un trajet récurrent ?", "acceptedAnswer": { "@type": "Answer", "text": "Depuis Mes Trajets, ouvrez la modale Récurrents et cliquez sur +. Renseignez départ, arrivée, jours de la semaine et période. IKtracker génère automatiquement chaque occurrence dans votre journal." } },
+        { "@type": "Question", "name": "Peut-on importer ses trajets depuis son agenda ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker se synchronise avec Google Agenda et Outlook quatre fois par jour. Chaque événement avec adresse devient un trajet pré-rempli, rattaché au véhicule par défaut." } },
+        { "@type": "Question", "name": "Comment exporter sa note de frais depuis Mes Trajets ?", "acceptedAnswer": { "@type": "Answer", "text": "Cliquez sur Exporter pour générer un PDF ou Excel filtré par mois, véhicule ou catégorie. Format conforme employeur, expert-comptable et URSSAF, avec bonus +20 % automatique pour les véhicules 100 % électriques." } }
+      ]
+    },
+    content: `
+      <section>
+        <h2>Mes Trajets : le journal kilométrique centralisé</h2>
+        <p><strong>Mes Trajets</strong> est l'écran principal d'IKtracker. Il rassemble tous vos déplacements professionnels en un seul journal opposable URSSAF : saisie manuelle rapide, <strong>trajets récurrents</strong> (domicile-travail, tournées hebdomadaires), <strong>import depuis Google Agenda et Outlook</strong>, et trajets enregistrés via le <a href="${BASE_URL}/mode-tournee">Mode Tournée GPS</a>.</p>
+        <h3>Fonctionnalités principales</h3>
+        <ul>
+          <li><strong>Saisie rapide</strong> avec autocomplétion d'adresses Géoplateforme</li>
+          <li><strong>Trajets récurrents</strong> : déclarez une fois, IKtracker génère chaque occurrence</li>
+          <li><strong>Synchronisation calendrier</strong> Google &amp; Outlook quatre fois par jour</li>
+          <li><strong>Mode Tournée GPS</strong> pour la détection automatique des arrêts</li>
+          <li><strong>Filtres</strong> par mois, véhicule, motif (pro, domicile-travail, mixte)</li>
+          <li><strong>Multi-véhicules</strong> avec bonus <strong>+20 %</strong> automatique pour les 100 % électriques</li>
+          <li><strong>Export PDF &amp; Excel</strong> conforme employeur, expert-comptable et <a href="${BASE_URL}/note-de-frais-kilometrique">URSSAF</a></li>
+        </ul>
+        <h3>Pour qui ?</h3>
+        <p>Salariés en frais réels, commerciaux et VRP, professions libérales (BNC), artisans, infirmières libérales, livreurs, auto-entrepreneurs, aides à domicile. <a href="${BASE_URL}/bareme-ik-2026">Tous les taux du barème kilométrique 2025-2026</a> sont appliqués automatiquement selon la puissance fiscale du véhicule.</p>
+      </section>
+      <section>
+        <h2>Archivage et conformité</h2>
+        <p>L'historique de vos trajets est conservé sans limite tant que le compte est actif. L'export PDF horodaté satisfait l'obligation légale d'archivage de <strong>3 ans</strong> des justificatifs de frais professionnels. IKtracker est une PWA fonctionnant <strong>hors-ligne</strong> : aucun trajet n'est perdu en cas de coupure réseau.</p>
+      </section>`,
+  },
     title: 'Lexique des indemnités kilométriques France 2026 | IKtracker',
     description: 'Dictionnaire complet des termes liés aux indemnités kilométriques en France : barème 2026, frais réels, BNC, URSSAF, professions libérales.',
     canonical: `${BASE_URL}/lexique`,
