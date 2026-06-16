@@ -28,7 +28,7 @@ import { fr } from 'date-fns/locale';
 
 interface ContentBlock {
   id: string;
-  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share';
+  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share' | 'info';
   config: Record<string, unknown>;
 }
 
