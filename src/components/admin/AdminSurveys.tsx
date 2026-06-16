@@ -110,6 +110,8 @@ function defaultContentBlock(type: ContentBlock['type']): ContentBlock {
       return { ...base, config: { prompt: 'Partagez une capture d\'écran pour nous aider à améliorer l\'app' } };
     case 'share':
       return { ...base, config: { message: 'Découvre IKtracker pour suivre tes indemnités kilométriques !', channels: ['whatsapp', 'sms'] } };
+    case 'info':
+      return { ...base, config: { title: '', text: '', buttonLabel: '', buttonUrl: '' } };
     default:
       return base;
   }
