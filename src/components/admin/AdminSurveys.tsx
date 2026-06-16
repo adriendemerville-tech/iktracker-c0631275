@@ -280,6 +280,45 @@ function ContentBlockEditor({ block, onChange, onRemove }: {
             </div>
           </>
         )}
+        {block.type === 'info' && (
+          <>
+            <div>
+              <Label className="text-xs">Titre (optionnel)</Label>
+              <Input
+                value={(block.config.title as string) || ''}
+                onChange={e => onChange({ ...block, config: { ...block.config, title: e.target.value } })}
+                placeholder="Titre..."
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Texte</Label>
+              <Textarea
+                value={(block.config.text as string) || ''}
+                onChange={e => onChange({ ...block, config: { ...block.config, text: e.target.value } })}
+                placeholder="Votre message..."
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Libellé bouton (optionnel)</Label>
+                <Input
+                  value={(block.config.buttonLabel as string) || ''}
+                  onChange={e => onChange({ ...block, config: { ...block.config, buttonLabel: e.target.value } })}
+                  placeholder="En savoir plus"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Lien (URL ou tab=NOM)</Label>
+                <Input
+                  value={(block.config.buttonUrl as string) || ''}
+                  onChange={e => onChange({ ...block, config: { ...block.config, buttonUrl: e.target.value } })}
+                  placeholder="/app/mestrajets ou tab=stats"
+                />
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
