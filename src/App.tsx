@@ -25,6 +25,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Index = lazy(() => import("./pages/Index"));
 const MesTrajets = lazy(() => import("./pages/MesTrajets"));
+const MesTrajetsLanding = lazy(() => import("./pages/MesTrajetsLanding"));
 const TemporaryReport = lazy(() => import("./pages/TemporaryReport"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Signup = lazy(() => import("./pages/Signup"));
