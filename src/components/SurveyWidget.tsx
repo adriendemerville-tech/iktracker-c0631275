@@ -315,7 +315,25 @@ export function SurveyWidget() {
   const rawAnswer = responses[block.id] as string | undefined;
   const isFreeAnswer = typeof rawAnswer === 'string' && (rawAnswer === '__other__' || rawAnswer.startsWith('__free_'));
   const freeKey = rawAnswer === '__other__' ? block.id : `${block.id}_${rawAnswer?.match(/__free_(\d+)__/)?.[1] ?? ''}`;
-  const hasAnswer = rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0);
+  const hasAnswer = block.type === 'info' || block.type === 'screenshot' || block.type === 'share'
+    || (rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0));
+
+  const handleInfoButtonClick = (url: string) => {
+    if (!url) return;
+    if (url.startsWith('tab=')) {
+      const params = new URLSearchParams(location.search);
+      params.set('tab', url.slice(4));
+      navigate(`${location.pathname}?${params.toString()}`);
+      setDismissed(true);
+      return;
+    }
+    if (/^https?:\/\//i.test(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    navigate(url);
+    setDismissed(true);
+  };
 
   return (
     <>
