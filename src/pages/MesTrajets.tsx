@@ -1,5 +1,5 @@
-import { useState, useMemo, lazy, Suspense } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTrips } from '@/hooks/useTrips';
 import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
@@ -31,6 +31,7 @@ const SheetLoader = () => <div className="p-4 text-center text-muted-foreground"
 
 export default function Report() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
@@ -51,6 +52,16 @@ export default function Report() {
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
+
+  // Open recurring modal from survey tab=RECURRENT
+  useEffect(() => {
+    if (searchParams.get('tab') === 'RECURRENT') {
+      setShowRecurringModal(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('tab');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
