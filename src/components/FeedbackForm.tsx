@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock, Phone, Star } from 'lucide-react';
+import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock, Phone, Star, Paperclip, FileIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -54,22 +54,27 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         toast({
-          title: 'Image trop volumineuse',
-          description: 'La taille maximale est de 5 Mo',
+          title: 'Fichier trop volumineux',
+          description: 'La taille maximale est de 10 Mo',
           variant: 'destructive',
         });
         return;
       }
       setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setImagePreview(null);
+      }
     }
   };
+
 
   const removeImage = () => {
     setImage(null);
@@ -382,24 +387,31 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
               )}
             </div>
 
-            {/* Image upload */}
+            {/* File attachment */}
             <div className="space-y-2">
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"
                 onChange={handleImageChange}
                 className="hidden"
                 id="feedback-image"
               />
-              
-              {imagePreview ? (
+
+              {image ? (
                 <div className="relative inline-block">
-                  <img
-                    src={imagePreview}
-                    alt="Aperçu"
-                    className="max-h-24 rounded-lg border"
-                  />
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Aperçu"
+                      className="max-h-24 rounded-lg border"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 pr-8 max-w-xs">
+                      <FileIcon className="w-4 h-4 text-primary shrink-0" />
+                      <span className="text-sm truncate">{image.name}</span>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={removeImage}
@@ -415,11 +427,15 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Camera className="w-4 h-4 mr-2" />
-                  Ajouter une capture d'écran
+                  <Paperclip className="w-4 h-4 mr-2" />
+                  Ajouter une pièce jointe
                 </Button>
               )}
+              <p className="text-xs text-muted-foreground">
+                Image, PDF, document, archive — 10 Mo max
+              </p>
             </div>
+
 
             {/* Submit button */}
             <Button
