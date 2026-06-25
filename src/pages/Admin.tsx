@@ -853,7 +853,8 @@ const Admin = () => {
                   {selectedConversationUserId && (
                     <div className="border-t mt-3 pt-3">
                       <div className="flex gap-2">
-                        <Input
+                        <Textarea
+                          ref={adminMessageRef}
                           placeholder="Envoyer un message..."
                           value={adminMessageText}
                           onChange={(e) => setAdminMessageText(e.target.value)}
@@ -863,7 +864,8 @@ const Admin = () => {
                               sendAdminMessage.mutate(selectedConversationUserId);
                             }
                           }}
-                          className="flex-1 text-sm"
+                          rows={1}
+                          className="flex-1 text-sm min-h-[40px] max-h-[200px] resize-none overflow-y-auto"
                         />
                         <Button
                           size="icon"
