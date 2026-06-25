@@ -131,6 +131,7 @@ const Admin = () => {
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState('');
+  const adminMessageRef = useRef<HTMLTextAreaElement>(null);
 
   // Unresolved critical errors count for header alert
   const { data: unresolvedErrors = 0 } = useQuery({
