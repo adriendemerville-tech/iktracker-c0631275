@@ -54,22 +54,27 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         toast({
-          title: 'Image trop volumineuse',
-          description: 'La taille maximale est de 5 Mo',
+          title: 'Fichier trop volumineux',
+          description: 'La taille maximale est de 10 Mo',
           variant: 'destructive',
         });
         return;
       }
       setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setImagePreview(null);
+      }
     }
   };
+
 
   const removeImage = () => {
     setImage(null);
