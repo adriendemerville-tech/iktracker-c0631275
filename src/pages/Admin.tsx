@@ -148,6 +148,14 @@ const Admin = () => {
     refetchInterval: 5 * 60 * 1000,
   });
 
+  // Auto-resize admin message textarea
+  useEffect(() => {
+    const el = adminMessageRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }, [adminMessageText]);
+
   const sendAdminMessage = useMutation({
     mutationFn: async (targetUserId: string) => {
       if (!user || !adminMessageText.trim()) return;
