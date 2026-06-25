@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -131,6 +131,7 @@ const Admin = () => {
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState('');
+  const adminMessageRef = useRef<HTMLTextAreaElement>(null);
 
   // Unresolved critical errors count for header alert
   const { data: unresolvedErrors = 0 } = useQuery({
@@ -146,6 +147,14 @@ const Admin = () => {
     enabled: isAdmin,
     refetchInterval: 5 * 60 * 1000,
   });
+
+  // Auto-resize admin message textarea
+  useEffect(() => {
+    const el = adminMessageRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }, [adminMessageText]);
 
   const sendAdminMessage = useMutation({
     mutationFn: async (targetUserId: string) => {
@@ -844,7 +853,8 @@ const Admin = () => {
                   {selectedConversationUserId && (
                     <div className="border-t mt-3 pt-3">
                       <div className="flex gap-2">
-                        <Input
+                        <Textarea
+                          ref={adminMessageRef}
                           placeholder="Envoyer un message..."
                           value={adminMessageText}
                           onChange={(e) => setAdminMessageText(e.target.value)}
@@ -854,7 +864,8 @@ const Admin = () => {
                               sendAdminMessage.mutate(selectedConversationUserId);
                             }
                           }}
-                          className="flex-1 text-sm"
+                          rows={1}
+                          className="flex-1 text-sm min-h-[40px] max-h-[200px] resize-none overflow-y-auto"
                         />
                         <Button
                           size="icon"
