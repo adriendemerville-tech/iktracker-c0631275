@@ -56,6 +56,7 @@ const NAV_LINKS = [
   { href: '/bareme-ik-2026', label: 'Barème IK 2026' },
   { href: '/frais-reels', label: 'Frais Réels vs Abattement' },
   { href: '/note-de-frais-kilometrique', label: 'Note de frais kilométrique' },
+  { href: '/indemnite-kilometrique-velo', label: 'Indemnité kilométrique vélo' },
   { href: '/mes-trajets', label: 'Mes Trajets — journal kilométrique' },
   { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
   { href: '/install', label: 'Installer l\'application' },
@@ -433,6 +434,42 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       <section>
         <h2>Archivage et opposabilité</h2>
         <p>Les notes de frais kilométriques doivent être conservées <strong>3 ans</strong>, durée légale d'archivage en cas de contrôle fiscal ou URSSAF. L'export PDF d'IKtracker est horodaté et reprend la structure exigée par l'administration.</p>
+      </section>`,
+  },
+
+  '/indemnite-kilometrique-velo': {
+    title: 'Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables',
+    description: "Guide complet de l'indemnité kilométrique vélo et du Forfait Mobilités Durables en 2025-2026 : plafond 700 €, exonération URSSAF, conditions, justificatifs. Pour salariés, freelances et employeurs.",
+    canonical: `${BASE_URL}/indemnite-kilometrique-velo`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Qu'est-ce que l'indemnité kilométrique vélo ?", "acceptedAnswer": { "@type": "Answer", "text": "Une somme versée par l'employeur au salarié qui se rend au travail à vélo. Depuis 2020, elle est intégrée au Forfait Mobilités Durables (FMD)." } },
+        { "@type": "Question", "name": "Quel est le plafond exonéré en 2025-2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "700 € par an et par salarié, porté à 800 € si cumulé avec un abonnement transport public. Exonéré de cotisations URSSAF et d'impôt sur le revenu dans cette limite." } },
+        { "@type": "Question", "name": "L'IK vélo est-elle obligatoire pour l'employeur ?", "acceptedAnswer": { "@type": "Answer", "text": "Non dans le secteur privé (sauf accord d'entreprise ou de branche). Oui dans la fonction publique d'État, plafonnée à 300 € par an." } },
+        { "@type": "Question", "name": "Peut-on cumuler IK vélo et IK voiture ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Le FMD vélo couvre le domicile-travail, les indemnités kilométriques voiture couvrent les déplacements professionnels. Les deux dispositifs se cumulent dans leurs plafonds respectifs." } }
+      ]
+    },
+    content: `
+      <section>
+        <h2>Indemnité kilométrique vélo : définition</h2>
+        <p>L'<strong>indemnité kilométrique vélo</strong> (IK vélo) désigne la prise en charge par l'employeur des frais engagés par un salarié qui se rend à son travail à vélo, qu'il soit musculaire ou à assistance électrique. Depuis la Loi d'Orientation des Mobilités (LOM, décembre 2019), elle est intégrée au <strong>Forfait Mobilités Durables</strong> (FMD).</p>
+        <h3>Montant et plafond 2025-2026</h3>
+        <ul>
+          <li><strong>Plafond annuel</strong> : 700 € par salarié, exonérés de cotisations sociales et d'impôt sur le revenu</li>
+          <li><strong>Cumul transport public</strong> : plafond porté à 800 €</li>
+          <li><strong>Fonction publique d'État</strong> : 300 € par an, obligatoire depuis 2020</li>
+          <li>Le montant est libre (forfaitaire ou au km selon l'accord d'entreprise)</li>
+        </ul>
+        <h3>Pour qui ?</h3>
+        <p>Tous les salariés qui utilisent leur vélo personnel (classique ou VAE) pour le trajet domicile-travail. Le FMD couvre aussi le covoiturage, l'autopartage, la trottinette et certains transports collectifs.</p>
+        <h3>Justifier ses trajets vélo</h3>
+        <p>L'employeur peut exiger une <strong>déclaration sur l'honneur</strong> annuelle ou un journal de bord. <a href="${BASE_URL}/app/mestrajets">IKtracker</a> permet de consigner chaque trajet vélo daté et géolocalisé, et d'exporter un PDF récapitulatif à transmettre au service paie — gratuit, sans abonnement.</p>
+      </section>
+      <section>
+        <h2>Différence avec l'indemnité kilométrique voiture</h2>
+        <p>L'<a href="${BASE_URL}/bareme-ik-2026">indemnité kilométrique voiture</a> concerne les <strong>déplacements professionnels</strong> effectués pour le compte de l'employeur, calculés selon le <a href="${BASE_URL}/bareme-ik-2026">barème URSSAF</a>. Le Forfait Mobilités Durables vélo concerne uniquement le <strong>trajet domicile-travail</strong>. Les deux peuvent se cumuler.</p>
       </section>`,
   },
 
