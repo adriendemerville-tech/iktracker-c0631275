@@ -3,6 +3,17 @@
 
 import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
 
+// Escape user-controlled values before interpolating into HTML to prevent XSS.
+function esc(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 interface UserInfo {
   email?: string;
   firstName?: string;
@@ -149,15 +160,16 @@ function generateReportHTML(options: PrintReportOptions): string {
     const year = tripDate.getFullYear().toString().slice(-2);
     const startCity = extractCity(t.startLocation.address || t.startLocation.name);
     const endCity = extractCity(t.endLocation.address || t.endLocation.name);
-    const motif = t.purpose || '-';
+    const motifRaw = t.purpose || '-';
+    const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + '…' : motifRaw;
     const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
     
     return `
       <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${startCity}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${endCity}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 180px; min-width: 180px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${motif.length > 60 ? motif.substring(0, 59) + '…' : motif}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(startCity)}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(endCity)}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 180px; min-width: 180px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(motif)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px; width: 60px; min-width: 60px;">${Math.round(t.distance)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 65px; min-width: 65px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>
@@ -387,13 +399,13 @@ function generateReportHTML(options: PrintReportOptions): string {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     // User info embedded from the app
-    const USER_INFO = {
-      firstName: '${userInfo?.firstName || ''}',
-      lastName: '${userInfo?.lastName || ''}',
-      email: '${userInfo?.email || ''}'
-    };
-    const SUPABASE_URL = '${supabaseUrl}';
-    const SUPABASE_KEY = '${supabaseKey}';
+    const USER_INFO = ${JSON.stringify({
+      firstName: userInfo?.firstName || '',
+      lastName: userInfo?.lastName || '',
+      email: userInfo?.email || '',
+    })};
+    const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
+    const SUPABASE_KEY = ${JSON.stringify(supabaseKey)};
     
     function getUserDisplayName() {
       if (USER_INFO.firstName || USER_INFO.lastName) {
@@ -795,8 +807,8 @@ function generateReportHTML(options: PrintReportOptions): string {
                 </table>
               </td>
             </tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${titulaireNom || '-'}</td></tr></table></td></tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${userEmail || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(userEmail) || '-'}</td></tr></table></td></tr>
           </table>
         </td>
         
@@ -815,9 +827,9 @@ function generateReportHTML(options: PrintReportOptions): string {
                 </table>
               </td>
             </tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Modèle</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${vehicleName || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Modèle</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || '-'}</td></tr></table></td></tr>
             <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Puissance</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + ' CV' : '-'}</td></tr></table></td></tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Immatriculation</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.licensePlate || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Immatriculation</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicle?.licensePlate) || '-'}</td></tr></table></td></tr>
             ${vehicle?.isElectric ? `<tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Type</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #059669;">⚡ Électrique (+20%)</td></tr></table></td></tr>` : ''}
           </table>
         </td>
@@ -1089,15 +1101,16 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     const year = tripDate.getFullYear().toString().slice(-2);
     const startCity = extractCity(t.startLocation.address || t.startLocation.name);
     const endCity = extractCity(t.endLocation.address || t.endLocation.name);
-    const motif = t.purpose || '-';
+    const motifRaw = t.purpose || '-';
+    const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + '…' : motifRaw;
     const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
     
     return `
       <tr style="background-color: ${bgColor};">
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${startCity}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${endCity}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280;">${motif.length > 60 ? motif.substring(0, 59) + '…' : motif}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(startCity)}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(endCity)}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280;">${esc(motif)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px;">${Math.round(t.distance)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
@@ -1167,7 +1180,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
             <span style="margin-left: 8px; font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase;">TITULAIRE</span>
           </div>
           <div style="font-size: 11px; color: #9ca3af; margin-bottom: 2px;">Nom</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${titulaireNom || '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || '-'}</div>
         </td>
         <td style="width: 33.33%; vertical-align: top; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;">
           <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -1175,7 +1188,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
             <span style="margin-left: 8px; font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase;">VÉHICULE</span>
           </div>
           <div style="font-size: 11px; color: #9ca3af; margin-bottom: 2px;">Modèle</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${vehicleName || '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || '-'}</div>
           <div style="font-size: 11px; color: #9ca3af; margin-top: 6px; margin-bottom: 2px;">Puissance</div>
           <div style="font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + ' CV' : '-'}</div>
         </td>
