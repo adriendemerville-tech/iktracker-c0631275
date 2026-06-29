@@ -1180,7 +1180,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
             <span style="margin-left: 8px; font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase;">TITULAIRE</span>
           </div>
           <div style="font-size: 11px; color: #9ca3af; margin-bottom: 2px;">Nom</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${titulaireNom || '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || '-'}</div>
         </td>
         <td style="width: 33.33%; vertical-align: top; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;">
           <div style="display: flex; align-items: center; margin-bottom: 10px;">
