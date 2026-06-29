@@ -506,6 +506,22 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
+  // Recurring trips stats — total + last 7 days
+  const { data: recurringTripsStats, isLoading: recurringTripsStatsLoading } = useQuery({
+    queryKey: ['admin-recurring-trips-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_recurring_trips_stats' as any);
+      if (error) throw error;
+      const rows = (data ?? []) as Array<{ total_count: number; day: string; count: number }>;
+      const total = rows[0]?.total_count ?? 0;
+      const series = rows.map((r) => ({
+        day: format(new Date(r.day), 'dd/MM', { locale: fr }),
+        count: Number(r.count) || 0,
+      }));
+      return { total: Number(total) || 0, series };
+    },
+    refetchInterval: 60 * 60 * 1000,
+
   // Helper: fill missing days in chart data
   const fillMissingDays = (
     rawData: { day: string; [key: string]: any }[],
