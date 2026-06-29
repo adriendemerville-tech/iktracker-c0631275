@@ -400,6 +400,11 @@ const Landing = () => {
           <Suspense fallback={<LazyPlaceholder height={420} />}>
             <IKSimulator idSuffix="-landing" trackerPage="landing" />
           </Suspense>
+          <div className="mt-6">
+            <Suspense fallback={null}>
+              <PartnerCard page="/" placement="under_simulator" />
+            </Suspense>
+          </div>
         </div>
       </section>
 
