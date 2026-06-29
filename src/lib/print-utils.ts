@@ -1101,15 +1101,16 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     const year = tripDate.getFullYear().toString().slice(-2);
     const startCity = extractCity(t.startLocation.address || t.startLocation.name);
     const endCity = extractCity(t.endLocation.address || t.endLocation.name);
-    const motif = t.purpose || '-';
+    const motifRaw = t.purpose || '-';
+    const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + '…' : motifRaw;
     const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
     
     return `
       <tr style="background-color: ${bgColor};">
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${startCity}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${endCity}</td>
-        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280;">${motif.length > 60 ? motif.substring(0, 59) + '…' : motif}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(startCity)}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(endCity)}</td>
+        <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280;">${esc(motif)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px;">${Math.round(t.distance)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
