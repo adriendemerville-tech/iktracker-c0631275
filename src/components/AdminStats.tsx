@@ -1942,6 +1942,66 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
+                case 'recurring-trips-stats':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Repeat className="w-5 h-5 text-cyan-500" />
+                          Trajets récurrents
+                          {!recurringTripsStatsLoading && (
+                            <span className="ml-auto text-xl font-bold text-cyan-600">
+                              {formatNumber(recurringTripsStats?.total ?? 0)}
+                            </span>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {recurringTripsStatsLoading ? (
+                          <Skeleton className="h-[200px] w-full" />
+                        ) : (
+                          <ResponsiveContainer width="100%" height={200}>
+                            <LineChart data={recurringTripsStats?.series ?? []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                              <XAxis
+                                dataKey="day"
+                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <YAxis
+                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                allowDecimals={false}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <Tooltip
+                                formatter={(value: number) => [value, 'Créés']}
+                                contentStyle={{
+                                  background: 'hsl(var(--card))',
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                }}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="count"
+                                stroke="#06b6d4"
+                                strokeWidth={2.5}
+                                dot={{ r: 4, fill: '#06b6d4', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                                activeDot={{ r: 6 }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Créations sur les 7 derniers jours
+                        </p>
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
                 case 'top-users':
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
