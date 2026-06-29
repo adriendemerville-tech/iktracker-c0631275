@@ -50,6 +50,7 @@ const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPh
 const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
 const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
 const IKSimulator = lazy(() => import("@/components/marketing/IKSimulator").then(m => ({ default: m.IKSimulator })));
+const PartnerCard = lazy(() => import("@/components/marketing/PartnerCard").then(m => ({ default: m.PartnerCard })));
 const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
 const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
