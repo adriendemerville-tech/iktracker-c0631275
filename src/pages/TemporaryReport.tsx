@@ -116,8 +116,9 @@ export default function TemporaryReport() {
           image: { type: "jpeg", quality: 0.95 },
           html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
           jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+          // @ts-expect-error - pagebreak supported at runtime but missing from types in latest html2pdf.js
           pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
+        } as never)
         .from(container)
         .save();
 
