@@ -521,6 +521,9 @@ export function AdminStats() {
       return { total: Number(total) || 0, series };
     },
     refetchInterval: 60 * 60 * 1000,
+  });
+
+
 
   // Helper: fill missing days in chart data
   const fillMissingDays = (
