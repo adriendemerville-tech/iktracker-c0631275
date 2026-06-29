@@ -1110,7 +1110,9 @@ const Landing = () => {
         </section>
       </main>
 
-      <PartnerStrip page="/" />
+      <Suspense fallback={null}>
+        <PartnerStrip page="/" />
+      </Suspense>
 
       <BodyEndInjections />
       <Suspense fallback={<div className="min-h-[600px] bg-muted/30 animate-pulse" />}>
