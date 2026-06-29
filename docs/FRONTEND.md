@@ -455,3 +455,18 @@ src/
 │   └── types.ts         (auto-généré)
 └── assets/
 ```
+
+## Trajets récurrents (UI)
+
+- `src/components/NewTripSheet.tsx` : toggle **Récurrent** sous le motif, expose checkboxes jours, durée en semaines, mois actifs. Mode `recurringOnly` pour création directe d'une récurrence sans trip ponctuel.
+- `src/components/RecurringTripsModal.tsx` : liste/édition/suppression des récurrences (jours, `weeks_duration`, `active_months`). Bouton **+** ouvrant `NewTripSheet` en mode `recurringOnly`.
+- `src/hooks/useRecurringTrips.ts` : CRUD via React Query sur `recurring_trips`.
+- `src/pages/MesTrajets.tsx` : footer 3 colonnes (Adresses / Récurrents / Nouveau), bouton "Récurrents" icône seule sur mobile. Support `?tab=RECURRENT` pour auto-ouvrir la modal.
+- `src/pages/MesTrajetsLanding.tsx` : landing SEO/GEO `/mes-trajets` avec JSON-LD `FAQPage` + `HowTo` + `SoftwareApplication`.
+- `src/components/marketing/IKSimulator.tsx` : simulateur IK réutilisable (lead magnet) embarqué sur `Landing.tsx` et `BaremeIK2026.tsx`.
+
+## Sécurité front (juin 2026)
+
+- `src/lib/print-utils.ts` : helper `esc()` pour échapper toutes les données utilisateur dans le HTML/JS des rapports imprimables (XSS).
+- `useAuth` : nettoyage explicite du token Supabase en `localStorage` au signOut pour éviter les sessions fantômes après 403 serveur.
+
