@@ -47,6 +47,7 @@ import {
   Map,
   MapPin,
   RefreshCw,
+  Repeat,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
