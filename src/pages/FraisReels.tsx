@@ -658,6 +658,8 @@ export default function FraisReels() {
           </section>
         </main>
 
+        <PartnerStrip page="/frais-reels" />
+
         <EnhancedMarketingFooter />
       </div>
     </>

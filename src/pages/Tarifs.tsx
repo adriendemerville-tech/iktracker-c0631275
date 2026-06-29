@@ -91,6 +91,8 @@ export default function Tarifs() {
         </section>
       </main>
 
+      <PartnerStrip page="/tarifs" />
+
       <EnhancedMarketingFooter />
     </>
   );
