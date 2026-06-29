@@ -231,10 +231,15 @@ export default function BlogPost() {
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="author" content={post.author_name || "IKtracker"} />
         
-        {/* Structured Data - Article */}
-        <script type="application/ld+json">
-          {JSON.stringify(articleSchema)}
-        </script>
+        {/* Structured Data */}
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        {faqSchema && (
+          <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        )}
+        {howToSchema && (
+          <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>
+        )}
       </Helmet>
 
       <div className="min-h-screen bg-background">
