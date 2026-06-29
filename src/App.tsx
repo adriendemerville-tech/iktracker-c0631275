@@ -49,6 +49,7 @@ const BlogEditor = lazy(() => import("./pages/BlogEditor"));
 const AuthorPage = lazy(() => import("./pages/AuthorPage"));
 const FraisReels = lazy(() => import("./pages/FraisReels"));
 const NoteDeFraisKilometrique = lazy(() => import("./pages/NoteDeFraisKilometrique"));
+const IndemniteKilometriqueVelo = lazy(() => import("./pages/IndemniteKilometriqueVelo"));
 const Lexique = lazy(() => import("./pages/Lexique"));
 const ComparatifIzika = lazy(() => import("./pages/ComparatifIzika"));
 const ComparatifDriversNote = lazy(() => import("./pages/ComparatifDriversNote"));
