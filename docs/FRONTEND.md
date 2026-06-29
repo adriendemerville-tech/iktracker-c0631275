@@ -470,3 +470,12 @@ src/
 - `src/lib/print-utils.ts` : helper `esc()` pour échapper toutes les données utilisateur dans le HTML/JS des rapports imprimables (XSS).
 - `useAuth` : nettoyage explicite du token Supabase en `localStorage` au signOut pour éviter les sessions fantômes après 403 serveur.
 
+
+## Partenaires sortants (UI)
+
+- `src/hooks/usePartners.ts` : React Query, filtre `is_active`, ciblage `target_pages` + `target_personas`. Helper `buildPartnerRedirectUrl()` qui construit l'URL via `partner-redirect` edge function avec UTM auto.
+- `src/components/marketing/PartnerCard.tsx` : bloc inline (variant `inline`/`compact`). Retourne `null` si aucun partenaire actif ne match → invisible par défaut.
+- `src/components/marketing/PartnerStrip.tsx` : bandeau multi-logos placé en bas des landings (`/`, `/frais-reels`, `/tarifs`).
+- `src/components/admin/AdminPartners.tsx` : CRUD admin (onglet **Admin → Coûts → Partenaires**) avec KPIs (clics, sessions uniques, revenu estimé, courbe 7j).
+- Intégrations actuelles : `Landing.tsx` (sous `<IKSimulator />` + footer strip), `FraisReels.tsx` (strip), `Tarifs.tsx` (strip).
+- Tous les liens sortants : `target="_blank"` + `rel="sponsored nofollow noopener"`.
