@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.partner-api]
 verify_jwt = false
+
+[functions.partner-redirect]
+verify_jwt = false
