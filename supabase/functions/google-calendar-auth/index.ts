@@ -25,6 +25,52 @@ function validateRedirectUrl(url: string | undefined): string {
   return isAllowed ? url : fallback;
 }
 
+function b64urlEncode(bytes: Uint8Array): string {
+  let s = btoa(String.fromCharCode(...bytes));
+  return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlEncodeStr(s: string): string {
+  return b64urlEncode(new TextEncoder().encode(s));
+}
+function b64urlDecodeStr(s: string): string {
+  const pad = '='.repeat((4 - (s.length % 4)) % 4);
+  const norm = (s + pad).replace(/-/g, '+').replace(/_/g, '/');
+  return atob(norm);
+}
+
+async function hmacSign(payload: string, key: string): Promise<string> {
+  const k = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(key),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+  );
+  const sig = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(payload));
+  return b64urlEncode(new Uint8Array(sig));
+}
+
+async function signState(payload: object, key: string): Promise<string> {
+  const body = b64urlEncodeStr(JSON.stringify(payload));
+  const sig = await hmacSign(body, key);
+  return `${body}.${sig}`;
+}
+
+async function verifyState(state: string, key: string): Promise<any | null> {
+  const dot = state.indexOf('.');
+  if (dot < 0) return null;
+  const body = state.slice(0, dot);
+  const sig = state.slice(dot + 1);
+  const expected = await hmacSign(body, key);
+  // constant-time compare
+  if (expected.length !== sig.length) return null;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ sig.charCodeAt(i);
+  if (diff !== 0) return null;
+  try {
+    const data = JSON.parse(b64urlDecodeStr(body));
+    if (typeof data.exp === 'number' && Date.now() / 1000 > data.exp) return null;
+    return data;
+  } catch { return null; }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -36,7 +82,7 @@ serve(async (req) => {
 
     console.log('Google Calendar Auth - Action:', action);
 
-    // Generate OAuth URL
+    // Generate OAuth URL — REQUIRES authenticated user; user_id is derived from JWT, not from client state.
     if (action === 'authorize') {
       if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
         console.error('Missing Google OAuth credentials');
@@ -46,9 +92,39 @@ serve(async (req) => {
         });
       }
 
+      const authHeader = req.headers.get('Authorization') || '';
+      const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+      if (!bearer) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+      const { data: userData, error: userErr } = await supabase.auth.getUser(bearer);
+      if (userErr || !userData?.user) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Parse optional client-supplied state for non-trusted fields (redirect_url, use_redirect)
+      const rawClientState = url.searchParams.get('state') || '';
+      let clientPayload: { redirect_url?: string; use_redirect?: boolean } = {};
+      if (rawClientState) {
+        try {
+          clientPayload = JSON.parse(atob(rawClientState));
+        } catch { /* ignore */ }
+      }
+
+      const signedState = await signState({
+        user_id: userData.user.id,
+        redirect_url: clientPayload.redirect_url,
+        use_redirect: clientPayload.use_redirect,
+        nonce: crypto.randomUUID(),
+        exp: Math.floor(Date.now() / 1000) + 600,
+      }, SUPABASE_SERVICE_ROLE_KEY!);
+
       const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
-      const state = url.searchParams.get('state') || '';
-      
       const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
       authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID!);
       authUrl.searchParams.set('redirect_uri', redirectUri);
@@ -56,60 +132,41 @@ serve(async (req) => {
       authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events.readonly');
       authUrl.searchParams.set('access_type', 'offline');
       authUrl.searchParams.set('prompt', 'consent');
-      authUrl.searchParams.set('state', state);
+      authUrl.searchParams.set('state', signedState);
 
       return new Response(JSON.stringify({ url: authUrl.toString() }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Handle OAuth callback
+    // Handle OAuth callback — verify signed state
     if (action === 'callback') {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const error = url.searchParams.get('error');
 
-      // Parse state first to get use_redirect and redirect_url
-      let stateData: { user_id?: string; redirect_url?: string; use_redirect?: boolean } = {};
-      if (state) {
-        try {
-          stateData = JSON.parse(atob(state));
-        } catch {
-          return new Response('Invalid state', { status: 400 });
-        }
+      const stateData = state ? await verifyState(state, SUPABASE_SERVICE_ROLE_KEY!) : null;
+      if (!stateData) {
+        return new Response('Invalid or expired state', { status: 400 });
       }
 
-      const { user_id, redirect_url, use_redirect } = stateData;
-      
-      // Validate redirect_url against allowlist
+      const { user_id, redirect_url, use_redirect } = stateData as {
+        user_id?: string; redirect_url?: string; use_redirect?: boolean;
+      };
+
       const finalRedirectUrl = validateRedirectUrl(redirect_url);
-      
-      // Helper function to return response based on mode (popup vs redirect)
+
       const returnResponse = (success: boolean, errorMessage?: string) => {
-        if (use_redirect) {
-          const redirectTarget = new URL(finalRedirectUrl);
-          if (success) {
-            redirectTarget.searchParams.set('oauth_success', 'true');
-            redirectTarget.searchParams.set('oauth_provider', 'google');
-          } else {
-            const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '');
-            redirectTarget.searchParams.set('oauth_error', safeError);
-            redirectTarget.searchParams.set('oauth_provider', 'google');
-          }
-          return Response.redirect(redirectTarget.toString(), 302);
+        const redirectTarget = new URL(finalRedirectUrl);
+        if (success) {
+          redirectTarget.searchParams.set('oauth_success', 'true');
+          redirectTarget.searchParams.set('oauth_provider', 'google');
         } else {
-          // Desktop mode: always redirect (eliminates script injection risk)
-          const redirectTarget = new URL(finalRedirectUrl);
-          if (success) {
-            redirectTarget.searchParams.set('oauth_success', 'true');
-            redirectTarget.searchParams.set('oauth_provider', 'google');
-          } else {
-            const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '');
-            redirectTarget.searchParams.set('oauth_error', safeError);
-            redirectTarget.searchParams.set('oauth_provider', 'google');
-          }
-          return Response.redirect(redirectTarget.toString(), 302);
+          const safeError = (errorMessage || 'Unknown error').replace(/[<>"'&\\]/g, '');
+          redirectTarget.searchParams.set('oauth_error', safeError);
+          redirectTarget.searchParams.set('oauth_provider', 'google');
         }
+        return Response.redirect(redirectTarget.toString(), 302);
       };
 
       if (error) {
@@ -123,7 +180,6 @@ serve(async (req) => {
 
       console.log('Callback received, processing...');
 
-      // Exchange code for tokens
       const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -144,10 +200,8 @@ serve(async (req) => {
         return returnResponse(false, 'Authentication failed');
       }
 
-      // Save tokens to database
       const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-      // Check if connection exists
       const { data: existing } = await supabase
         .from('calendar_connections')
         .select('id')
