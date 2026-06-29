@@ -822,3 +822,15 @@ Correctifs appliqués suite au scan sécurité :
 
 Secrets associés (Supabase Vault / env edge) : `CRON_SECRET`, `RECURRING_TRIPS_CRON_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY`.
 
+
+## Partenaires sortants (juin 2026)
+
+Système d'affiliation **sortante** (IKtracker → partenaires type Qonto, Indy), distinct des codes affiliés entrants (`affiliate_codes`).
+
+- **Table** `outbound_partners` : catalogue (slug, name, logo_url, tagline, description, `category` enum, `target_url`, `commission_amount`, `commission_model` enum cpa/cps/cpc, is_active, priority, `target_personas` text[], `target_pages` text[]). RLS : `SELECT` public sur `is_active = true`, `ALL` réservé admin.
+- **Table** `partner_clicks` : tracking serveur des clics (partner_id, user_id?, session_id, page, placement, persona, referrer, user_agent, ip_address). INSERT public autorisé, SELECT réservé admin/viewer.
+- **Edge function** `partner-redirect` (publique, no JWT) : `GET /functions/v1/partner-redirect?slug=qonto&page=/&placement=inline_card&sid=...` → enregistre un clic puis 302 redirect vers `target_url` avec UTM auto-injectés (`utm_source=iktracker`, `utm_medium=partner_card`, `utm_content=<placement>`, `utm_campaign=<page>`).
+- **RPC** `get_partner_stats(days_back)` : total_clicks, unique_sessions, estimated_revenue (clics × commission × 4% conversion), top_page, last_click_at — filtre admins/IPs exclues. Accès admin/viewer.
+- **RPC** `get_partner_clicks_by_day(_partner_id?, days_back)` : courbe clics/jour pour graphiques admin.
+- **Frontend** : composants `<PartnerCard />` (bloc inline, max 1/page) et `<PartnerStrip />` (bandeau footer multi-logos). Hook `usePartners({ page, persona, limit })` avec ciblage `target_pages` + `target_personas`. Liens toujours `rel="sponsored nofollow noopener"`. Onglet Admin → Coûts → Partenaires pour CRUD.
+
