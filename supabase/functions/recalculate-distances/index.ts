@@ -148,12 +148,51 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    
+
     const body = await req.json().catch(() => ({}));
     const { tripId, newStartLocation, newEndLocation } = body;
 
+    // Authentication gate
+    const cronSecret = Deno.env.get('CRON_SECRET');
+    const providedCronSecret = req.headers.get('x-cron-secret');
+    const authHeader = req.headers.get('Authorization');
+    let authedUserId: string | null = null;
+
+    if (providedCronSecret && cronSecret && providedCronSecret === cronSecret) {
+      // cron-authenticated; full access
+    } else if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+      if (userErr || !userData?.user) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      authedUserId = userData.user.id;
+      // Users may only invoke single-trip mode on their own trips
+      if (!tripId) {
+        return new Response(JSON.stringify({ error: 'Forbidden: batch mode requires cron secret' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    } else {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // If tripId and newEndLocation provided, update single trip
     if (tripId && newEndLocation) {
+      // Ownership check for user-authenticated single-trip updates
+      if (authedUserId) {
+        const { data: ownerCheck } = await supabase
+          .from('trips').select('user_id').eq('id', tripId).single();
+        if (!ownerCheck || ownerCheck.user_id !== authedUserId) {
+          return new Response(JSON.stringify({ error: 'Forbidden' }), {
+            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
       console.log(`Updating single trip ${tripId} with start: ${newStartLocation || 'auto'}, end: ${newEndLocation}`);
       
       // Get trip details
