@@ -1837,6 +1837,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_recurring_trips_stats: {
+        Args: never
+        Returns: {
+          count: number
+          day: string
+          total_count: number
+        }[]
+      }
       get_registrations_by_day: {
         Args: { days_back?: number }
         Returns: {

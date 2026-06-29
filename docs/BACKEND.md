@@ -806,3 +806,4 @@ curl -X POST https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/purge-duplica
 - **Edge function** `generate-recurring-trips` : insère un trip dans `trips` (source='recurring') pour chaque récurrence active dont `days_of_week` contient le jour courant (UTC). Calcule `ik_amount` via le barème embarqué + bonus 20% EV.
 - **Cron** `generate-recurring-trips-daily` (pg_cron) : exécution quotidienne à 05:00 UTC via `net.http_post`.
 - Source `'recurring'` ajoutée à la contrainte `trips_source_check`.
+- **RPC** `get_recurring_trips_stats()` (SECURITY DEFINER) : retourne le total de récurrences créées + le nombre de créations par jour sur les 7 derniers jours. Accès restreint aux rôles `admin` et `viewer`. Utilisé par la card "Trajets récurrents" dans Admin → Statistiques.
