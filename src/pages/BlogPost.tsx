@@ -15,6 +15,8 @@ import { fr } from 'date-fns/locale';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { ArticleSummary } from '@/components/blog/ArticleSummary';
 import { BlogContentWithRelated } from '@/components/blog/BlogContentWithRelated';
+import { ArticleCTABlock } from '@/components/blog/ArticleCTABlock';
+import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from '@/lib/blog-schema-extractors';
 
 interface BlogPost {
   id: string;
@@ -150,11 +152,7 @@ export default function BlogPost() {
     "headline": post.title,
     "description": metaDescription,
     "image": post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
-    "author": {
-      "@type": "Person",
-      "name": post.author_name || "IKtracker",
-      "url": "https://iktracker.fr"
-    },
+    "author": buildAuthorPerson(post.author_name),
     "publisher": {
       "@type": "Organization",
       "name": "IKtracker",
@@ -177,6 +175,19 @@ export default function BlogPost() {
       "cssSelector": ["article header h1", "article header + .article-summary"]
     }
   };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://iktracker.fr/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://iktracker.fr/blog" },
+      { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl },
+    ],
+  };
+
+  const faqSchema = buildFAQSchema(post.content);
+  const howToSchema = buildHowToSchema(post.content, post.title);
 
   // Breadcrumb structured data is now handled by Breadcrumb component
 
@@ -220,10 +231,15 @@ export default function BlogPost() {
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="author" content={post.author_name || "IKtracker"} />
         
-        {/* Structured Data - Article */}
-        <script type="application/ld+json">
-          {JSON.stringify(articleSchema)}
-        </script>
+        {/* Structured Data */}
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        {faqSchema && (
+          <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        )}
+        {howToSchema && (
+          <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>
+        )}
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -307,6 +323,8 @@ export default function BlogPost() {
               content={post.content} 
               postId={post.id}
             />
+
+            <ArticleCTABlock />
 
             <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
               <Link 
