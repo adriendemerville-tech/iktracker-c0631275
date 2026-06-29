@@ -583,6 +583,20 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Auth: only allow service-role callers (pg_cron) or matching CRON_SECRET header.
+  const serviceRoleKey = SUPABASE_SERVICE_ROLE_KEY!;
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  const authHeader = req.headers.get('Authorization') || '';
+  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  const xCronSecret = req.headers.get('x-cron-secret');
+  const authorized = (bearer && bearer === serviceRoleKey) ||
+    (cronSecret && xCronSecret === cronSecret);
+  if (!authorized) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     // Parse request body to get monthsBack parameter
     let monthsBack = 0;

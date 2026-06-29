@@ -58,7 +58,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.26",
-    "html2pdf.js": "0.10.2",
+    "html2pdf.js": "^0.14.0",
     "input-otp": "^1.4.2",
     "jsdom": "^20.0.3",
     "jszip": "^3.10.1",
@@ -86,7 +86,7 @@
     "vaul": "^0.9.9",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^3.2.4",
+    "vitest": "^3.2.6",
     "zod": "^3.25.76"
   },
   "devDependencies": {
