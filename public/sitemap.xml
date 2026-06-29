@@ -55,6 +55,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://iktracker.fr/indemnite-kilometrique-velo</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://iktracker.fr/mes-trajets</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
