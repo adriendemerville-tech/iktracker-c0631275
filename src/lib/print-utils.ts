@@ -1188,7 +1188,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
             <span style="margin-left: 8px; font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase;">VÉHICULE</span>
           </div>
           <div style="font-size: 11px; color: #9ca3af; margin-bottom: 2px;">Modèle</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${vehicleName || '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || '-'}</div>
           <div style="font-size: 11px; color: #9ca3af; margin-top: 6px; margin-bottom: 2px;">Puissance</div>
           <div style="font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + ' CV' : '-'}</div>
         </td>
