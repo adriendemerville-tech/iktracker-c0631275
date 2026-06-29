@@ -802,8 +802,23 @@ curl -X POST https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/purge-duplica
 
 ## Trajets récurrents (juin 2026)
 
-- **Table** `recurring_trips` : modèle de trajet (vehicle_id, start/end_location JSONB, distance, round_trip, purpose, `days_of_week SMALLINT[]` (0=Dim..6=Sam), is_active, last_generated_date). RLS scopée `auth.uid() = user_id`.
-- **Edge function** `generate-recurring-trips` : insère un trip dans `trips` (source='recurring') pour chaque récurrence active dont `days_of_week` contient le jour courant (UTC). Calcule `ik_amount` via le barème embarqué + bonus 20% EV.
-- **Cron** `generate-recurring-trips-daily` (pg_cron) : exécution quotidienne à 05:00 UTC via `net.http_post`.
+- **Table** `recurring_trips` : modèle de trajet (vehicle_id, start/end_location JSONB, distance, round_trip, purpose, `days_of_week SMALLINT[]` (0=Dim..6=Sam), `weeks_duration INT?`, `active_months SMALLINT[]?` (1..12), is_active, last_generated_date). RLS scopée `auth.uid() = user_id`.
+- **Edge function** `generate-recurring-trips` : insère un trip dans `trips` (source='recurring') pour chaque récurrence active dont `days_of_week` contient le jour courant (UTC), filtrée par `active_months` et la fenêtre `weeks_duration` depuis `created_at`. Calcule `ik_amount` via le barème embarqué + bonus 20% EV. **Auth obligatoire** : Bearer = `SUPABASE_SERVICE_ROLE_KEY` ou `RECURRING_TRIPS_CRON_TOKEN`, ou header `x-cron-secret` = `CRON_SECRET`/`RECURRING_TRIPS_CRON_TOKEN`.
+- **Cron** `generate-recurring-trips-daily` (pg_cron) : exécution quotidienne à 05:00 UTC via `net.http_post`, en envoyant le service role key (lu depuis `vault.decrypted_secrets`) en Authorization Bearer.
 - Source `'recurring'` ajoutée à la contrainte `trips_source_check`.
-- **RPC** `get_recurring_trips_stats()` (SECURITY DEFINER) : retourne le total de récurrences créées + le nombre de créations par jour sur les 7 derniers jours. Accès restreint aux rôles `admin` et `viewer`. Utilisé par la card "Trajets récurrents" dans Admin → Statistiques.
+- **RPC** `get_recurring_trips_stats()` (SECURITY DEFINER) : total + créations par jour sur 7 jours. Accès `admin`/`viewer`. Utilisé par la card "Trajets récurrents" dans Admin → Statistiques.
+
+## Durcissement sécurité (juin 2026)
+
+Correctifs appliqués suite au scan sécurité :
+
+- **Auth gates sur edge functions sensibles** : `convert-blog-images` exige un JWT admin (vérifie `has_role(_, 'admin')`). `generate-recurring-trips`, `sync-calendar-trips`, `recalculate-distances` n'acceptent plus que le service role key (Bearer), un token cron dédié (`RECURRING_TRIPS_CRON_TOKEN`) ou un `x-cron-secret` valide.
+- **Ownership check** sur `recalculate-distances` : un utilisateur authentifié ne peut déclencher le recalcul que pour ses propres trajets.
+- **HMAC-signed OAuth state** : `google-calendar-auth` et `outlook-calendar-auth` signent maintenant `state` (HMAC-SHA256 sur `user_id|nonce|exp` avec `SUPABASE_SERVICE_ROLE_KEY` comme clé) et vérifient signature + expiration au callback. Empêche la forgery de `user_id` dans le flux OAuth.
+- **XSS reports** : helper `esc()` dans `src/lib/print-utils.ts`. Toutes les données utilisateur interpolées dans le HTML/JS du rapport sont échappées (titres, adresses, motifs, plaques).
+- **Storage `feedback-images`** : policy INSERT scopée au préfixe `<auth.uid()>/...` — un user ne peut uploader que dans son propre dossier.
+- **Audit `report_shares`** : policy SELECT admin ajoutée pour permettre l'audit des liens partagés sans casser l'accès public via service role.
+- **Dépendances** : `html2pdf.js` et `vitest` mis à jour pour corriger les vulnérabilités critiques remontées par le scan.
+
+Secrets associés (Supabase Vault / env edge) : `CRON_SECRET`, `RECURRING_TRIPS_CRON_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY`.
+
