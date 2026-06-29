@@ -341,6 +341,7 @@ const AppRoutes = () => {
         <Route path="/experts-comptables" element={<Navigate to="/expert-comptable" replace />} />
         <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
         <Route path="/note-de-frais-kilometrique" element={<Suspense fallback={<PageLoader />}><NoteDeFraisKilometrique /></Suspense>} />
+        <Route path="/indemnite-kilometrique-velo" element={<Suspense fallback={<PageLoader />}><IndemniteKilometriqueVelo /></Suspense>} />
         <Route path="/mes-trajets" element={<Suspense fallback={<PageLoader />}><MesTrajetsLanding /></Suspense>} />
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
         <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
