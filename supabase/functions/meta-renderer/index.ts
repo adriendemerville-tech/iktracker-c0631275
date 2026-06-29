@@ -986,28 +986,72 @@ serve(async (req) => {
         const renderedContent = renderBlogContent(post.content || '');
         const articleDate = post.published_at || '';
 
+        const articleSchema = {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": post.title,
+          "description": desc,
+          "image": post.featured_image_url || LOGO,
+          "author": buildAuthorPerson(post.author_name),
+          "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
+          "datePublished": articleDate,
+          "inLanguage": "fr-FR",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": `${BASE_URL}/blog/${slug}` },
+          "url": `${BASE_URL}/blog/${slug}`,
+        };
+        const breadcrumbSchema = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Accueil", "item": `${BASE_URL}/` },
+            { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${BASE_URL}/blog` },
+            { "@type": "ListItem", "position": 3, "name": post.title, "item": `${BASE_URL}/blog/${slug}` },
+          ],
+        };
+        const faqItems = extractFAQ(post.content || '');
+        const howToSteps = extractHowToSteps(post.content || '');
+        const schemas: object[] = [articleSchema, breadcrumbSchema];
+        if (faqItems.length > 0) {
+          schemas.push({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqItems.map(i => ({
+              "@type": "Question",
+              "name": i.question,
+              "acceptedAnswer": { "@type": "Answer", "text": i.answer },
+            })),
+          });
+        }
+        if (howToSteps.length >= 2) {
+          schemas.push({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            "name": post.title,
+            "step": howToSteps.map((s, idx) => ({
+              "@type": "HowToStep",
+              "position": idx + 1,
+              "name": s.name,
+              "text": s.text,
+            })),
+          });
+        }
+
         const meta: PageMeta = {
           title: `${post.title} | Blog IKtracker`,
           description: desc,
           ogType: 'article',
           ogImage: post.featured_image_url || LOGO,
           canonical: `${BASE_URL}/blog/${slug}`,
-          jsonLd: {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": post.title,
-            "description": desc,
-            "image": post.featured_image_url || LOGO,
-            "author": { "@type": "Person", "name": post.author_name || "Adrien de Volontat" },
-            "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
-            "datePublished": articleDate,
-            "url": `${BASE_URL}/blog/${slug}`,
-          },
+          jsonLd: schemas,
           content: `
             <article>
               ${post.author_name ? `<p>Par <strong>${escapeHtml(post.author_name)}</strong>${articleDate ? ` — ${articleDate.slice(0, 10)}` : ''}</p>` : ''}
               ${post.featured_image_url ? `<img src="${post.featured_image_url}" alt="${escapeHtml(post.title)}" width="800" height="450" loading="lazy">` : ''}
               ${renderedContent}
+              <nav aria-label="Passez à l'action">
+                <h2>Passez à l'action</h2>
+                <p><a href="${BASE_URL}/bareme-ik-2026">Calculer mes indemnités kilométriques</a> (salarié, particulier) — <a href="${BASE_URL}/signup">Créer un compte gratuit</a> (commercial, libéral, profession mobile).</p>
+              </nav>
             </article>`,
         };
 
