@@ -15,6 +15,8 @@ import { fr } from 'date-fns/locale';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { ArticleSummary } from '@/components/blog/ArticleSummary';
 import { BlogContentWithRelated } from '@/components/blog/BlogContentWithRelated';
+import { ArticleCTABlock } from '@/components/blog/ArticleCTABlock';
+import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from '@/lib/blog-schema-extractors';
 
 interface BlogPost {
   id: string;
