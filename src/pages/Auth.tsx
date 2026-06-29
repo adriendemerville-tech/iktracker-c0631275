@@ -379,7 +379,7 @@ const Auth = () => {
                   <div className="flex items-center gap-3 mb-8">
                     <img 
                       src="/logo-iktracker-250.webp" 
-                      alt="IKtracker" 
+                      alt="Logo IKtracker"
                       width={40}
                       height={40}
                       className="w-10 h-10"
@@ -389,9 +389,9 @@ const Auth = () => {
                     <span className="text-xl font-semibold text-white">IKtracker</span>
                   </div>
                   
-                  <h2 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
                     Automatisez gratuitement*<br />vos <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">indemnités kilométriques</span>
-                  </h2>
+                  </h1>
                   
                   <p className="text-slate-400 text-base leading-relaxed mb-8">
                     Connectez-vous pour suivre vos trajets professionnels.
