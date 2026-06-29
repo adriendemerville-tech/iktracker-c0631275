@@ -314,7 +314,14 @@ Content-Type: application/json
 - **Endpoint** : `GET ?path=/chemin`
 - **Logique** : Génère un HTML complet avec contenu statique, JSON-LD, Open Graph
 - **Pages supportées** : ~20 pages marketing + tous les articles de blog
+- **Extracteurs blog SSR** (mirror de `src/lib/blog-schema-extractors.ts`) :
+  - `FAQPage` JSON-LD auto-extrait depuis `## Questions fréquentes` / `## FAQ` (Q en H3 ou **gras**, R en dessous)
+  - `HowTo` JSON-LD auto-extrait depuis `## Étapes` / `## Procédure` / `## Déroulé` (liste numérotée ou H3)
+  - `Article.author` enrichi en `Person` avec `sameAs` (LinkedIn + page fondateur) lorsqu'il s'agit de "Rédaction IKtracker" → résolu vers Adrien de Volontat
+  - `BreadcrumbList` JSON-LD injecté côté serveur
+  - Version texte du CTA segmenté (Salarié/Particulier vs Commercial/Libéral) rendue pour les bots qui n'exécutent pas JS (GPTBot, PerplexityBot, ClaudeBot)
 - **Secrets** : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+
 
 #### `sync-calendar-trips` — Synchronisation calendrier
 
