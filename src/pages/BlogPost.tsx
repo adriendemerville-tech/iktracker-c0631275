@@ -152,11 +152,7 @@ export default function BlogPost() {
     "headline": post.title,
     "description": metaDescription,
     "image": post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
-    "author": {
-      "@type": "Person",
-      "name": post.author_name || "IKtracker",
-      "url": "https://iktracker.fr"
-    },
+    "author": buildAuthorPerson(post.author_name),
     "publisher": {
       "@type": "Organization",
       "name": "IKtracker",
@@ -179,6 +175,19 @@ export default function BlogPost() {
       "cssSelector": ["article header h1", "article header + .article-summary"]
     }
   };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://iktracker.fr/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://iktracker.fr/blog" },
+      { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl },
+    ],
+  };
+
+  const faqSchema = buildFAQSchema(post.content);
+  const howToSchema = buildHowToSchema(post.content, post.title);
 
   // Breadcrumb structured data is now handled by Breadcrumb component
 
