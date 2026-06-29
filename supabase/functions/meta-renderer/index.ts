@@ -798,6 +798,111 @@ function renderBlogContent(content: string): string {
 }
 
 // ──────────────────────────────────────────────────────
+// Blog schema extractors (FAQ, HowTo, Author) — mirror src/lib/blog-schema-extractors.ts
+// ──────────────────────────────────────────────────────
+
+const FAQ_HEADING_RE = /^##\s+(?:FAQ|Questions?\s+fr[ée]quentes?|Foire\s+aux\s+questions)\b.*$/im;
+const HOWTO_HEADING_RE = /^##\s+(?:Phasage|[ÉE]tapes|D[ée]roul[ée]|Proc[ée]dure|Comment\s+(?:faire|proc[ée]der)|Tutoriel|Mode\s+op[ée]ratoire|Marche\s+[àa]\s+suivre)\b.*$/im;
+
+function extractSection(content: string, headingRegex: RegExp): string | null {
+  const lines = content.split('\n');
+  let start = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (headingRegex.test(lines[i])) { start = i + 1; break; }
+  }
+  if (start === -1) return null;
+  let end = lines.length;
+  for (let i = start; i < lines.length; i++) {
+    if (/^##\s+/.test(lines[i])) { end = i; break; }
+  }
+  return lines.slice(start, end).join('\n').trim();
+}
+
+function extractFAQ(content: string): Array<{ question: string; answer: string }> {
+  const section = extractSection(content, FAQ_HEADING_RE);
+  if (!section) return [];
+  const items: Array<{ question: string; answer: string }> = [];
+  const lines = section.split('\n');
+  let currentQ: string | null = null;
+  let currentA: string[] = [];
+  const flush = () => {
+    if (currentQ && currentA.length) {
+      const answer = currentA.join(' ').replace(/\s+/g, ' ').trim();
+      if (answer) items.push({ question: currentQ, answer });
+    }
+    currentQ = null; currentA = [];
+  };
+  for (const raw of lines) {
+    const line = raw.trim();
+    const h3 = line.match(/^###\s+(.+?)\s*\??$/);
+    const bold = line.match(/^\*\*(.+?)\s*\??\*\*\s*$/);
+    if (h3 || bold) {
+      flush();
+      const q = (h3 ? h3[1] : bold![1]).trim();
+      currentQ = q.endsWith('?') ? q : `${q} ?`;
+    } else if (currentQ && line) {
+      currentA.push(line.replace(/^[-*]\s+/, ''));
+    }
+  }
+  flush();
+  return items;
+}
+
+function extractHowToSteps(content: string): Array<{ name: string; text: string }> {
+  const section = extractSection(content, HOWTO_HEADING_RE);
+  if (!section) return [];
+  const steps: Array<{ name: string; text: string }> = [];
+  const lines = section.split('\n');
+  let currentName: string | null = null;
+  let currentText: string[] = [];
+  const flush = () => {
+    if (currentName) {
+      const text = currentText.join(' ').replace(/\s+/g, ' ').trim() || currentName;
+      steps.push({ name: currentName, text });
+    }
+    currentName = null; currentText = [];
+  };
+  for (const raw of lines) {
+    const line = raw.trim();
+    const h3 = line.match(/^###\s+(.+)$/);
+    const numbered = line.match(/^(\d+)[.)]\s+(.+)$/);
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    if (h3) { flush(); currentName = h3[1].trim(); }
+    else if (numbered) { flush(); currentName = numbered[2].trim(); }
+    else if (bullet && !currentName) { steps.push({ name: bullet[1].trim(), text: bullet[1].trim() }); }
+    else if (currentName && line) { currentText.push(line); }
+  }
+  flush();
+  return steps.filter(s => s.name.length > 0).slice(0, 12);
+}
+
+function buildAuthorPerson(authorName: string | null | undefined) {
+  const name = (authorName || '').trim();
+  const isFounder = !name
+    || /adrien\s+de\s+volontat/i.test(name)
+    || /r[ée]daction\s+iktracker/i.test(name)
+    || /iktracker/i.test(name);
+  if (isFounder) {
+    return {
+      "@type": "Person",
+      "name": "Adrien de Volontat",
+      "url": `${BASE_URL}/blog/auteur/adrien-de-volontat`,
+      "jobTitle": "Fondateur d'IKtracker",
+      "sameAs": [
+        `${BASE_URL}/blog/auteur/adrien-de-volontat`,
+        "https://www.linkedin.com/in/adriendevolontat/",
+      ],
+      "worksFor": { "@type": "Organization", "name": "IKtracker", "url": BASE_URL },
+    };
+  }
+  return {
+    "@type": "Person",
+    "name": name,
+    "worksFor": { "@type": "Organization", "name": "IKtracker", "url": BASE_URL },
+  };
+}
+
+// ──────────────────────────────────────────────────────
 // Main handler
 // ──────────────────────────────────────────────────────
 
