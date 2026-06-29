@@ -807,8 +807,8 @@ function generateReportHTML(options: PrintReportOptions): string {
                 </table>
               </td>
             </tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${titulaireNom || '-'}</td></tr></table></td></tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${userEmail || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(userEmail) || '-'}</td></tr></table></td></tr>
           </table>
         </td>
         
