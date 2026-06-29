@@ -56,6 +56,7 @@ const NAV_LINKS = [
   { href: '/bareme-ik-2026', label: 'Barème IK 2026' },
   { href: '/frais-reels', label: 'Frais Réels vs Abattement' },
   { href: '/note-de-frais-kilometrique', label: 'Note de frais kilométrique' },
+  { href: '/indemnite-kilometrique-velo', label: 'Indemnité kilométrique vélo' },
   { href: '/mes-trajets', label: 'Mes Trajets — journal kilométrique' },
   { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
   { href: '/install', label: 'Installer l\'application' },
