@@ -153,23 +153,25 @@ serve(async (req) => {
     const { tripId, newStartLocation, newEndLocation } = body;
 
     // Authentication gate
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const cronSecret = Deno.env.get('CRON_SECRET');
     const providedCronSecret = req.headers.get('x-cron-secret');
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get('Authorization') || '';
+    const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
     let authedUserId: string | null = null;
+    const isCron = (bearer && bearer === serviceRoleKey) ||
+      (cronSecret && providedCronSecret === cronSecret);
 
-    if (providedCronSecret && cronSecret && providedCronSecret === cronSecret) {
+    if (isCron) {
       // cron-authenticated; full access
-    } else if (authHeader?.startsWith('Bearer ')) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    } else if (bearer) {
+      const { data: userData, error: userErr } = await supabase.auth.getUser(bearer);
       if (userErr || !userData?.user) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       authedUserId = userData.user.id;
-      // Users may only invoke single-trip mode on their own trips
       if (!tripId) {
         return new Response(JSON.stringify({ error: 'Forbidden: batch mode requires cron secret' }), {
           status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
