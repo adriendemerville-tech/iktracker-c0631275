@@ -399,13 +399,13 @@ function generateReportHTML(options: PrintReportOptions): string {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     // User info embedded from the app
-    const USER_INFO = {
-      firstName: '${userInfo?.firstName || ''}',
-      lastName: '${userInfo?.lastName || ''}',
-      email: '${userInfo?.email || ''}'
-    };
-    const SUPABASE_URL = '${supabaseUrl}';
-    const SUPABASE_KEY = '${supabaseKey}';
+    const USER_INFO = ${JSON.stringify({
+      firstName: userInfo?.firstName || '',
+      lastName: userInfo?.lastName || '',
+      email: userInfo?.email || '',
+    })};
+    const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
+    const SUPABASE_KEY = ${JSON.stringify(supabaseKey)};
     
     function getUserDisplayName() {
       if (USER_INFO.firstName || USER_INFO.lastName) {
