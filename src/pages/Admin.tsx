@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AdminStats } from '@/components/AdminStats';
 import { AdminCosts } from '@/components/admin/AdminCosts';
 import { AdminAffiliation } from '@/components/admin/AdminAffiliation';
+import { AdminPartners } from '@/components/admin/AdminPartners';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
 import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
@@ -1115,12 +1116,19 @@ const Admin = () => {
                   <Link2 className="w-3.5 h-3.5 mr-1.5" />
                   Affiliation
                 </TabsTrigger>
+                <TabsTrigger value="partners" className="text-xs sm:text-sm">
+                  <Link2 className="w-3.5 h-3.5 mr-1.5" />
+                  Partenaires
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="costs-sub">
                 <AdminCosts />
               </TabsContent>
               <TabsContent value="affiliation">
                 <AdminAffiliation />
+              </TabsContent>
+              <TabsContent value="partners">
+                <AdminPartners />
               </TabsContent>
             </Tabs>
           </TabsContent>

@@ -672,6 +672,63 @@ export type Database = {
         }
         Relationships: []
       }
+      outbound_partners: {
+        Row: {
+          category: Database["public"]["Enums"]["partner_category"]
+          commission_amount: number | null
+          commission_model: Database["public"]["Enums"]["commission_model"]
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          priority: number
+          slug: string
+          tagline: string | null
+          target_pages: string[]
+          target_personas: string[]
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["partner_category"]
+          commission_amount?: number | null
+          commission_model?: Database["public"]["Enums"]["commission_model"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          priority?: number
+          slug: string
+          tagline?: string | null
+          target_pages?: string[]
+          target_personas?: string[]
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["partner_category"]
+          commission_amount?: number | null
+          commission_model?: Database["public"]["Enums"]["commission_model"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          priority?: number
+          slug?: string
+          tagline?: string | null
+          target_pages?: string[]
+          target_personas?: string[]
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_contents: {
         Row: {
           canonical_url: string | null
@@ -761,6 +818,56 @@ export type Database = {
           usage_reset_at?: string
         }
         Relationships: []
+      }
+      partner_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          ip_address: unknown
+          page: string | null
+          partner_id: string
+          persona: string | null
+          placement: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          ip_address?: unknown
+          page?: string | null
+          partner_id: string
+          persona?: string | null
+          placement?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          ip_address?: unknown
+          page?: string | null
+          partner_id?: string
+          persona?: string | null
+          placement?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_clicks_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "outbound_partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       partner_request_logs: {
         Row: {
@@ -1828,6 +1935,28 @@ export type Database = {
           total_users: number
         }[]
       }
+      get_partner_clicks_by_day: {
+        Args: { _partner_id?: string; days_back?: number }
+        Returns: {
+          clicks: number
+          day: string
+        }[]
+      }
+      get_partner_stats: {
+        Args: { days_back?: number }
+        Returns: {
+          category: Database["public"]["Enums"]["partner_category"]
+          estimated_revenue: number
+          is_active: boolean
+          last_click_at: string
+          name: string
+          partner_id: string
+          slug: string
+          top_page: string
+          total_clicks: number
+          unique_sessions: number
+        }[]
+      }
       get_persona_distribution: { Args: never; Returns: Json }
       get_recent_signups: {
         Args: { limit_count?: number }
@@ -1994,6 +2123,14 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user" | "viewer"
       blog_post_status: "draft" | "published" | "archived" | "deleted"
+      commission_model: "cpa" | "cps" | "cpc"
+      partner_category:
+        | "neobank"
+        | "accounting"
+        | "insurance"
+        | "fuel_card"
+        | "leasing"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2123,6 +2260,15 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user", "viewer"],
       blog_post_status: ["draft", "published", "archived", "deleted"],
+      commission_model: ["cpa", "cps", "cpc"],
+      partner_category: [
+        "neobank",
+        "accounting",
+        "insurance",
+        "fuel_card",
+        "leasing",
+        "other",
+      ],
     },
   },
 } as const

@@ -117,7 +117,7 @@ export default function TemporaryReport() {
           html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
           jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
           pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
+        } as never)
         .from(container)
         .save();
 

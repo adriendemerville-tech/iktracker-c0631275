@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { PartnerStrip } from '@/components/marketing/PartnerStrip';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
@@ -90,6 +91,8 @@ export default function Tarifs() {
           </Link>
         </section>
       </main>
+
+      <PartnerStrip page="/tarifs" />
 
       <EnhancedMarketingFooter />
     </>

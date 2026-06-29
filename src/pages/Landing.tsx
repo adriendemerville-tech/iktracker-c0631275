@@ -55,6 +55,7 @@ const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncD
 const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
 const TestimonialsCarousel = lazy(() => import("@/components/marketing/TestimonialsCarousel").then(m => ({ default: m.TestimonialsCarousel })));
 const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
+const PartnerStrip = lazy(() => import("@/components/marketing/PartnerStrip").then(m => ({ default: m.PartnerStrip })));
 const QRCodeSVG = lazy(() => import("qrcode.react").then(m => ({ default: m.QRCodeSVG })));
 
 // Lazy load below-the-fold assets - use public path for lazy loading
@@ -1108,6 +1109,10 @@ const Landing = () => {
         </div>
         </section>
       </main>
+
+      <Suspense fallback={null}>
+        <PartnerStrip page="/" />
+      </Suspense>
 
       <BodyEndInjections />
       <Suspense fallback={<div className="min-h-[600px] bg-muted/30 animate-pulse" />}>
