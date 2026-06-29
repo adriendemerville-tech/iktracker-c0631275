@@ -833,4 +833,6 @@ Système d'affiliation **sortante** (IKtracker → partenaires type Qonto, Indy)
 - **RPC** `get_partner_stats(days_back)` : total_clicks, unique_sessions, estimated_revenue (clics × commission × 4% conversion), top_page, last_click_at — filtre admins/IPs exclues. Accès admin/viewer.
 - **RPC** `get_partner_clicks_by_day(_partner_id?, days_back)` : courbe clics/jour pour graphiques admin.
 - **Frontend** : composants `<PartnerCard />` (bloc inline, max 1/page) et `<PartnerStrip />` (bandeau footer multi-logos). Hook `usePartners({ page, persona, limit })` avec ciblage `target_pages` + `target_personas`. Liens toujours `rel="sponsored nofollow noopener"`. Onglet Admin → Coûts → Partenaires pour CRUD.
+- **config.toml** : `[functions.partner-redirect] verify_jwt = false` (endpoint public — l'auth utilisateur est résolue best-effort via bearer optionnel).
+- **Seeds** : Qonto + Indy insérés en `is_active = false` avec URLs placeholder. Aucun affichage public tant que l'admin n'a pas activé et renseigné les vraies URLs d'affiliation.
 
