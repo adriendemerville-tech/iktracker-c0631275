@@ -198,6 +198,7 @@ const DEFAULT_SECTION_ORDER = [
   'referral-sources',
   'comparison-chart',
   'registrations-chart',
+  'recurring-trips-stats',
   'top-users',
 ];
 
