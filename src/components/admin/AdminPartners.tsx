@@ -124,6 +124,8 @@ export function AdminPartners() {
     mutationFn: async () => {
       const payload = {
         ...form,
+        category: form.category as "neobank" | "accounting" | "insurance" | "fuel_card" | "leasing" | "other",
+        commission_model: form.commission_model as "cpa" | "cps" | "cpc",
         logo_url: form.logo_url?.trim() || null,
         tagline: form.tagline?.trim() || null,
         description: form.description?.trim() || null,
