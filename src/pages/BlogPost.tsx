@@ -324,6 +324,8 @@ export default function BlogPost() {
               postId={post.id}
             />
 
+            <ArticleCTABlock />
+
             <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
               <Link 
                 to="/blog" 
