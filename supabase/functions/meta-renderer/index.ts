@@ -39,6 +39,7 @@ function escapeHtml(str: string): string {
 
 interface PageMeta {
   title: string;
+  h1?: string; // Optional separate H1 (defaults to title without site suffix)
   description: string;
   ogType?: string;
   ogImage?: string;
