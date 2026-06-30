@@ -1134,8 +1134,9 @@ const Admin = () => {
           </TabsContent>
 
           {/* Monitoring Tab */}
-          <TabsContent value="monitoring">
+          <TabsContent value="monitoring" className="space-y-4">
             <AdminMonitoring />
+            <AdminBotTest />
           </TabsContent>
 
           {/* Autopilot Tab */}
