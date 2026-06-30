@@ -182,10 +182,10 @@ const Landing = () => {
       <Helmet>
         <title>IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit</title>
         <meta name="description" content="Calculez vos indemnités kilométriques 2025-2026 selon le barème URSSAF. Gratuit pour indépendants et salariés. Mode Tournée GPS et export comptable." />
-        <link rel="canonical" href="https://iktracker.fr/" />
+        <link rel="canonical" href="https://www.iktracker.fr/" />
         <meta property="og:title" content="IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit" />
         <meta property="og:description" content="Calculez vos indemnités kilométriques 2025-2026 selon le barème URSSAF. Gratuit pour indépendants et salariés. Mode Tournée GPS et export comptable." />
-        <meta property="og:url" content="https://iktracker.fr/" />
+        <meta property="og:url" content="https://www.iktracker.fr/" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -195,7 +195,7 @@ const Landing = () => {
                 "@type": "WebApplication",
                 "name": "IKtracker",
                 "description": "Outil communautaire 100% gratuit de calcul et suivi des indemnités kilométriques. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, lexique fiscal, export PDF/CSV.",
-                "url": "https://iktracker.fr/",
+                "url": "https://www.iktracker.fr/",
                 "applicationCategory": "BusinessApplication",
                 "operatingSystem": "Web, iOS, Android",
                 "offers": {
@@ -295,7 +295,7 @@ const Landing = () => {
         </script>
         {/* Canonical SoftwareApplication + Organization + Founder (GEO / LLM E-E-A-T) */}
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/" }))}
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://www.iktracker.fr/" }))}
         </script>
       </Helmet>
       
@@ -982,7 +982,7 @@ const Landing = () => {
             <div className="bg-white p-4 rounded-xl shadow-lg">
               <Suspense fallback={<div className="w-[140px] h-[140px] bg-gray-200 animate-pulse rounded" />}>
                 <QRCodeSVG 
-                  value="https://iktracker.fr/install" 
+                  value="https://www.iktracker.fr/install" 
                   size={140}
                   level="M"
                   includeMargin={false}

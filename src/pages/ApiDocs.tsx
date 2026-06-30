@@ -26,7 +26,7 @@ export default function ApiDocs() {
       <Helmet>
         <title>API Partenaires — IKtracker</title>
         <meta name="description" content="Documentation de l'API Partenaires IKtracker : intégrez le calcul d'indemnités kilométriques, la création de trajets et le SSO dans votre plateforme." />
-        <link rel="canonical" href="https://iktracker.fr/api-docs" />
+        <link rel="canonical" href="https://www.iktracker.fr/api-docs" />
       </Helmet>
       <MarketingNav />
 
@@ -163,7 +163,7 @@ x-api-key: ikt_live_xxx...
 }`}</Code>
           <Code>{`{
   "success": true,
-  "sso_url": "https://iktracker.fr/sso?token=...&partner=dictadevi&redirect=/app/mestrajets",
+  "sso_url": "https://www.iktracker.fr/sso?token=...&partner=dictadevi&redirect=/app/mestrajets",
   "expires_in": 300,
   "iktracker_user_id": "uuid"
 }`}</Code>

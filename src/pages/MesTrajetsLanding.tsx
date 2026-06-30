@@ -102,14 +102,14 @@ export default function MesTrajetsLanding() {
           name="keywords"
           content="mes trajets, journal de bord kilométrique, suivi trajets professionnels, trajets récurrents, carnet de bord URSSAF, application trajets pro, registre kilométrique"
         />
-        <link rel="canonical" href="https://iktracker.fr/mes-trajets" />
+        <link rel="canonical" href="https://www.iktracker.fr/mes-trajets" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <meta property="og:title" content="Mes Trajets — Journal kilométrique pro gratuit" />
         <meta
           property="og:description"
           content="Saisie, trajets récurrents, import agenda, GPS, export PDF. Le journal de bord kilométrique conforme URSSAF, gratuit à vie."
         />
-        <meta property="og:url" content="https://iktracker.fr/mes-trajets" />
+        <meta property="og:url" content="https://www.iktracker.fr/mes-trajets" />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
@@ -166,7 +166,7 @@ export default function MesTrajetsLanding() {
         <script type="application/ld+json">
           {JSON.stringify(
             buildSoftwareApplicationSchema({
-              pageUrl: "https://iktracker.fr/mes-trajets",
+              pageUrl: "https://www.iktracker.fr/mes-trajets",
               pageDescription:
                 "Mes Trajets IKtracker : journal kilométrique professionnel centralisant saisie manuelle, trajets récurrents, import agenda, Mode Tournée GPS et export PDF/Excel conforme URSSAF. Gratuit à vie.",
             })

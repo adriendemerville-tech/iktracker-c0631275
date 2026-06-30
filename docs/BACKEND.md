@@ -24,14 +24,15 @@
 | Frontend | Lovable Publish | SPA React déployée automatiquement |
 | Backend | Lovable Cloud (Supabase) | PostgreSQL + Edge Functions (Deno) |
 | DNS & Edge | Cloudflare | Proxy, Workers, SSL (mode Full) |
-| Domaine principal | iktracker.fr | Apex, toute autorité SEO consolidée ici |
-| Domaine secondaire | iktracker.com | Redirigé 301 vers .fr via Worker |
+| Domaine canonique | www.iktracker.fr | Hôte SEO/GEO — Worker Cloudflare actif, pre-rendering bots |
+| Apex | iktracker.fr | Sert le SPA aux humains (Worker bypassé par Lovable Publish cross-account) |
+| Domaine secondaire | iktracker.com | Redirigé 301 vers www.iktracker.fr via Worker |
 
 ### Flux de requête
 
 ```
 Utilisateur → Cloudflare DNS (proxied)
-  → Cloudflare Worker (iktracker-bot-router)
+  → Cloudflare Worker (iktracker-bot-router) [www uniquement, apex bypassé]
     ├─ Bot détecté → Edge Function meta-renderer → HTML pré-rendu
     ├─ /sitemap.xml → Edge Function sitemap (fallback: fichier statique)
     ├─ Asset statique → Origin + cache headers
@@ -41,10 +42,10 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ### Domaines & Redirections
 
-- `www.iktracker.fr` → 301 → `iktracker.fr`
-- `iktracker.com` → 301 → `iktracker.fr`
-- `www.iktracker.com` → 301 → `iktracker.fr`
-- Exception : `/robots.txt` et `/llms.txt` sur .com sont servis par proxy depuis .fr
+- Hôte canonique : **www.iktracker.fr** (canonicals, og:url, sitemap, JSON-LD, robots).
+- `iktracker.fr` (apex) → sert le SPA directement (Worker non exécuté côté Lovable Publish) ; les canonicals pointent vers www pour consolider l'autorité SEO/GEO.
+- `iktracker.com` / `www.iktracker.com` → 301 → `https://www.iktracker.fr`.
+- Exception : `/robots.txt` et `/llms.txt` sur .com sont servis par proxy depuis www.iktracker.fr.
 
 ---
 
@@ -485,7 +486,7 @@ Sert un HTML complet avec :
 ### robots.txt
 
 ```
-Sitemap: https://iktracker.fr/sitemap.xml
+Sitemap: https://www.iktracker.fr/sitemap.xml
 User-agent: * → Allow: /
 ```
 
@@ -708,10 +709,10 @@ node scripts/validate-sitemap-sync.cjs
 node scripts/generate-sitemap.cjs
 
 # Vérifier la source du sitemap en production
-curl -sI https://iktracker.fr/sitemap.xml | grep X-Sitemap-Source
+curl -sI https://www.iktracker.fr/sitemap.xml | grep X-Sitemap-Source
 
 # Tester le meta-renderer
-curl -s "https://iktracker.fr/" -H "User-Agent: Googlebot" | head -50
+curl -s "https://www.iktracker.fr/" -H "User-Agent: Googlebot" | head -50
 
 # Tester la Partner API (lookup véhicule)
 curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/vehicle/lookup" \

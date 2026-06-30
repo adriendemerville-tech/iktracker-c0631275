@@ -13,12 +13,12 @@ const Rgpd = () => {
     "@type": "WebPage",
     "name": "RGPD — Protection des données personnelles | IKtracker",
     "description": "Politique RGPD d'IKtracker : droits d'accès, rectification, effacement, portabilité. Conformité totale au Règlement Général sur la Protection des Données pour les indépendants français.",
-    "url": "https://iktracker.fr/rgpd",
+    "url": "https://www.iktracker.fr/rgpd",
     "inLanguage": "fr-FR",
     "isPartOf": {
       "@type": "WebSite",
       "name": "IKtracker",
-      "url": "https://iktracker.fr"
+      "url": "https://www.iktracker.fr"
     },
     "about": {
       "@type": "Thing",
@@ -33,13 +33,13 @@ const Rgpd = () => {
         <title>RGPD — Protection des données personnelles | IKtracker</title>
         <meta name="description" content="Politique RGPD d'IKtracker : droits d'accès, rectification, effacement, portabilité. Conformité totale au Règlement Général sur la Protection des Données pour les indépendants français." />
         <meta name="keywords" content="RGPD, protection données personnelles, conformité RGPD, droits utilisateurs, CNIL, IKtracker, données trajets" />
-        <link rel="canonical" href="https://iktracker.fr/rgpd" />
+        <link rel="canonical" href="https://www.iktracker.fr/rgpd" />
         <meta name="robots" content="index, follow" />
 
         <meta property="og:title" content="RGPD — Protection des données personnelles | IKtracker" />
         <meta property="og:description" content="Conformité RGPD totale d'IKtracker. Exercez vos droits d'accès, rectification, effacement et portabilité en toute simplicité." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/rgpd" />
+        <meta property="og:url" content="https://www.iktracker.fr/rgpd" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
 

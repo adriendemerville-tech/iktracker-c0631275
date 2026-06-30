@@ -9,7 +9,7 @@ import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketin
 const founderPhoto = '/founder-adrien.jpg';
 
 export default function AuthorPage() {
-  const canonicalUrl = 'https://iktracker.fr/blog/auteur/adrien-de-volontat';
+  const canonicalUrl = 'https://www.iktracker.fr/blog/auteur/adrien-de-volontat';
 
   // JSON-LD structured data for Person
   const personSchema = {
