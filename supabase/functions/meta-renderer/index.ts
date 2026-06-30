@@ -757,7 +757,7 @@ function buildFullHtml(meta: PageMeta): string {
     </nav>
   </header>
   <main>
-    <h1>${escapeHtml(meta.title)}</h1>
+    <h1>${escapeHtml(meta.h1 || meta.title.replace(/ \| (Blog )?IKtracker$/, ''))}</h1>
     <p>${escapeHtml(meta.description)}</p>
     ${bodyContent}
   </main>
