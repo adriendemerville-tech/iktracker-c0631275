@@ -100,13 +100,10 @@ export default {
     const ua = request.headers.get('user-agent') || '';
     const botDetected = isBot(ua);
 
-    // ── 1. www.iktracker.fr → redirect 301 vers apex ──
-    if (hostname === 'www.iktracker.fr') {
-      const redirectUrl = `https://iktracker.fr${path}${url.search}`;
-      const response = Response.redirect(redirectUrl, 301);
-      ctx.waitUntil(sendLog(request, response, botDetected));
-      return response;
-    }
+    // ── 1. www.iktracker.fr → host canonique (l'apex redirige vers www via Cloudflare Redirect Rule).
+    // On NE redirige PLUS www → apex car le Worker est bypassé sur l'apex (cross-account
+    // Cloudflare → Lovable Publish). www devient l'hôte servant le pre-rendering aux bots.
+
 
     // ── 2. iktracker.com → redirect 301 vers .fr ──
     if (hostname === 'iktracker.com' || hostname === 'www.iktracker.com') {
