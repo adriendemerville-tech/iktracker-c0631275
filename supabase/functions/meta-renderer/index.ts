@@ -39,6 +39,7 @@ function escapeHtml(str: string): string {
 
 interface PageMeta {
   title: string;
+  h1?: string; // Optional separate H1 (defaults to title without site suffix)
   description: string;
   ogType?: string;
   ogImage?: string;
@@ -756,7 +757,7 @@ function buildFullHtml(meta: PageMeta): string {
     </nav>
   </header>
   <main>
-    <h1>${escapeHtml(meta.title)}</h1>
+    <h1>${escapeHtml(meta.h1 || meta.title.replace(/ \| (Blog )?IKtracker$/, ''))}</h1>
     <p>${escapeHtml(meta.description)}</p>
     ${bodyContent}
   </main>
@@ -1038,7 +1039,9 @@ serve(async (req) => {
 
         const meta: PageMeta = {
           title: `${post.title} | Blog IKtracker`,
+          h1: post.title,
           description: desc,
+
           ogType: 'article',
           ogImage: post.featured_image_url || LOGO,
           canonical: `${BASE_URL}/blog/${slug}`,
