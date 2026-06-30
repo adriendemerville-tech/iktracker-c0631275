@@ -1039,7 +1039,9 @@ serve(async (req) => {
 
         const meta: PageMeta = {
           title: `${post.title} | Blog IKtracker`,
+          h1: post.title,
           description: desc,
+
           ogType: 'article',
           ogImage: post.featured_image_url || LOGO,
           canonical: `${BASE_URL}/blog/${slug}`,
