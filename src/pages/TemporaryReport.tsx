@@ -176,7 +176,7 @@ export default function TemporaryReport() {
 
   const handleShareLink = async () => {
     // Use clean /temporaryreport/ URL (without www)
-    const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
+    const shareUrl = `https://www.iktracker.fr/temporaryreport/${id}`;
     
     try {
       // Fallback to clipboard
@@ -200,7 +200,7 @@ export default function TemporaryReport() {
 
   const handleSendEmail = () => {
     // Construct clean URL for email (without www)
-    const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
+    const shareUrl = `https://www.iktracker.fr/temporaryreport/${id}`;
     const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
     
@@ -220,7 +220,7 @@ Cordialement
 
 ---
 Document généré via IKtracker
-https://iktracker.fr`;
+https://www.iktracker.fr`;
 
     const body = encodeURIComponent(emailBody);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;

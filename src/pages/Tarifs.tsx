@@ -22,13 +22,13 @@ export default function Tarifs() {
         <title>Tarifs IKtracker — 0€, gratuit à vie, sans abonnement</title>
         <meta name="description" content="IKtracker est 100% gratuit à vie : 0€, sans abonnement ni carte bancaire. Calculez vos indemnités kilométriques 2025-2026 sans payer." />
         <meta name="keywords" content="indemnités kilométriques gratuit, calcul IK sans abonnement, logiciel frais kilométriques 0€, alternative gratuite Izika Drivers Note" />
-        <link rel="canonical" href="https://iktracker.fr/tarifs" />
+        <link rel="canonical" href="https://www.iktracker.fr/tarifs" />
         <meta property="og:title" content="Tarifs IKtracker — 0€, gratuit à vie" />
         <meta property="og:description" content="IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans pub." />
-        <meta property="og:url" content="https://iktracker.fr/tarifs" />
+        <meta property="og:url" content="https://www.iktracker.fr/tarifs" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/tarifs", pageDescription: "IKtracker est gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité. Outil communautaire financé par l'agence du fondateur, conçu par un entrepreneur indépendant pour ses confrères." }))}
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://www.iktracker.fr/tarifs", pageDescription: "IKtracker est gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité. Outil communautaire financé par l'agence du fondateur, conçu par un entrepreneur indépendant pour ses confrères." }))}
         </script>
       </Helmet>
 

@@ -37,7 +37,7 @@ const staticPages = [
   { url: '/terms', priority: '0.5', changefreq: 'yearly', lastmod: '2025-12-01' },
 ];
 
-const BASE_URL = 'https://iktracker.fr';
+const BASE_URL = 'https://www.iktracker.fr';
 
 const PAGE_SIZE = 1000;
 

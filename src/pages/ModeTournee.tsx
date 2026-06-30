@@ -119,23 +119,23 @@ export default function ModeTournee() {
         <title>Mode Tournée GPS | Suivi kilométrique commercial, infirmier, artisan</title>
         <meta name="description" content="Mode Tournée IKtracker : enregistrez automatiquement chaque arrêt client par GPS. Idéal pour commerciaux itinérants, VRP, infirmières libérales, artisans, livreurs et aide à domicile. Note de frais kilométrique générée en un clic." />
         <meta name="keywords" content="mode tournée GPS, commercial itinérant, tournée VRP, note de frais kilométrique, suivi kilométrique infirmière libérale, indemnités kilométriques artisan, frais kilométriques multi-arrêts, auto-entrepreneur déplacement, application gratuite tournée" />
-        <link rel="canonical" href="https://iktracker.fr/mode-tournee" />
+        <link rel="canonical" href="https://www.iktracker.fr/mode-tournee" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
         <meta property="og:description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/mode-tournee" />
+        <meta property="og:url" content="https://www.iktracker.fr/mode-tournee" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
         <meta name="twitter:description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta name="twitter:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
         <meta name="geo.region" content="FR" />
@@ -151,11 +151,11 @@ export default function ModeTournee() {
                 "@type": "WebPage",
                 "name": "Mode Tournée IKtracker - Outil communautaire",
                 "description": "Fonctionnalité de suivi kilométrique multi-arrêts par GPS pour professionnels itinérants. Outil communautaire gratuit.",
-                "url": "https://iktracker.fr/mode-tournee",
+                "url": "https://www.iktracker.fr/mode-tournee",
                 "isPartOf": {
                   "@type": "WebSite",
                   "name": "IKtracker",
-                  "url": "https://iktracker.fr"
+                  "url": "https://www.iktracker.fr"
                 },
                 "speakable": {
                   "@type": "SpeakableSpecification",
@@ -191,16 +191,16 @@ export default function ModeTournee() {
                 "totalTime": "PT1M",
                 "tool": [{ "@type": "HowToTool", "name": "Smartphone avec GPS activé" }],
                 "step": [
-                  { "@type": "HowToStep", "position": 1, "name": "Démarrez votre tournée", "text": "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS.", "url": "https://iktracker.fr/mode-tournee#etape-1" },
-                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos arrêts", "text": "Chaque client visité est automatiquement enregistré grâce à la géolocalisation.", "url": "https://iktracker.fr/mode-tournee#etape-2" },
-                  { "@type": "HowToStep", "position": 3, "name": "Récapitulatif complet", "text": "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF.", "url": "https://iktracker.fr/mode-tournee#etape-3" }
+                  { "@type": "HowToStep", "position": 1, "name": "Démarrez votre tournée", "text": "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS.", "url": "https://www.iktracker.fr/mode-tournee#etape-1" },
+                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos arrêts", "text": "Chaque client visité est automatiquement enregistré grâce à la géolocalisation.", "url": "https://www.iktracker.fr/mode-tournee#etape-2" },
+                  { "@type": "HowToStep", "position": 3, "name": "Récapitulatif complet", "text": "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF.", "url": "https://www.iktracker.fr/mode-tournee#etape-3" }
                 ]
               }
             ]
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/mode-tournee", pageDescription: "Mode Tournée IKtracker : enregistrement GPS multi-arrêts pour professionnels itinérants (infirmiers libéraux, commerciaux, artisans). Détection automatique des stops, reprise de session après fermeture, finalisation intelligente." }))}
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://www.iktracker.fr/mode-tournee", pageDescription: "Mode Tournée IKtracker : enregistrement GPS multi-arrêts pour professionnels itinérants (infirmiers libéraux, commerciaux, artisans). Détection automatique des stops, reprise de session après fermeture, finalisation intelligente." }))}
         </script>
       </Helmet>
       <MarketingNav />

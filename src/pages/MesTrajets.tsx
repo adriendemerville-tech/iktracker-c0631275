@@ -221,7 +221,7 @@ export default function Report() {
     setShowVehicleForm(true);
   };
 
-  const IKTRACKER_URL = 'https://iktracker.fr';
+  const IKTRACKER_URL = 'https://www.iktracker.fr';
   const IKTRACKER_MENTION = `Généré conformément à la législation par IKtracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
 
   const generateReadmeContent = () => {
@@ -612,7 +612,7 @@ ${IKTRACKER_MENTION}
         throw new Error("Impossible de créer le lien de partage");
       }
       
-      const shareLink = `https://iktracker.fr/temporaryreport/${shareData.id}`;
+      const shareLink = `https://www.iktracker.fr/temporaryreport/${shareData.id}`;
 
       // Get user identity for signature
       const vehicle = vehicles.length > 0 ? vehicles[0] : null;
@@ -682,7 +682,7 @@ ${IKTRACKER_URL}`;
         <title>Relevé des trajets | IKtracker - Suivi kilométrique</title>
         <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2026." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/app/mestrajets" />
+        <link rel="canonical" href="https://www.iktracker.fr/app/mestrajets" />
       </Helmet>
       
       {/* Desktop Sidebar - hidden on mobile */}

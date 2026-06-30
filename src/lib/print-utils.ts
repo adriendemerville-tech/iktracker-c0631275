@@ -199,9 +199,9 @@ function generateReportHTML(options: PrintReportOptions): string {
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="https://iktracker.fr/favicon.ico" sizes="48x48">
-  <link rel="icon" type="image/svg+xml" href="https://iktracker.fr/favicon.svg">
-  <link rel="icon" type="image/png" sizes="48x48" href="https://iktracker.fr/favicon-48x48.png">
+  <link rel="icon" href="https://www.iktracker.fr/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="https://www.iktracker.fr/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://www.iktracker.fr/favicon-48x48.png">
   <title>Relevé IK - ${currentMonth} ${currentYear}</title>
   <style>
     @page {
@@ -918,7 +918,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     <table style="width: 100%; border-top: 1px solid #e5e7eb; padding-top: 12px;">
       <tr>
         <td style="font-size: 11px; color: #6b7280;">Document généré automatiquement • Conforme au barème fiscal 2026</td>
-        <td style="text-align: right; font-size: 11px;"><a href="https://iktracker.fr" style="color: #2563eb; font-weight: 500; text-decoration: none;">iktracker.fr</a></td>
+        <td style="text-align: right; font-size: 11px;"><a href="https://www.iktracker.fr" style="color: #2563eb; font-weight: 500; text-decoration: none;">iktracker.fr</a></td>
       </tr>
     </table>
   </div>
@@ -932,7 +932,7 @@ function generateReportHTML(options: PrintReportOptions): string {
           <table>
             <tr>
               <td style="vertical-align: middle; padding-right: 12px;">
-                <img src="https://iktracker.fr/logo-iktracker-250.webp" alt="IKtracker" style="width: 48px; height: 48px; object-fit: contain;" />
+                <img src="https://www.iktracker.fr/logo-iktracker-250.webp" alt="IKtracker" style="width: 48px; height: 48px; object-fit: contain;" />
               </td>
               <td style="vertical-align: middle;">
                 <div style="font-size: 22px; font-weight: 700; color: #2563eb; letter-spacing: -0.5px;">IKtracker</div>
@@ -1000,7 +1000,7 @@ function generateReportHTML(options: PrintReportOptions): string {
     <table style="width: 100%; border-top: 1px solid #e5e7eb; padding-top: 12px;">
       <tr>
         <td style="font-size: 11px; color: #6b7280;">Document généré automatiquement • Conforme au barème fiscal 2026</td>
-        <td style="text-align: right; font-size: 11px;"><a href="https://iktracker.fr" style="color: #2563eb; font-weight: 500; text-decoration: none;">iktracker.fr</a></td>
+        <td style="text-align: right; font-size: 11px;"><a href="https://www.iktracker.fr" style="color: #2563eb; font-weight: 500; text-decoration: none;">iktracker.fr</a></td>
       </tr>
     </table>
   </div>

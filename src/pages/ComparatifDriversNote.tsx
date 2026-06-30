@@ -99,14 +99,14 @@ const ComparatifDriversNote = () => {
           content="Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite." 
         />
         <meta name="keywords" content="driversnote alternative, driversnote gratuit, ibeacon frais kilométriques, mouchard gps voiture, alternative driversnote france, suivi kilométrique sans gps" />
-        <link rel="canonical" href="https://iktracker.fr/comparatif-driversnote" />
+        <link rel="canonical" href="https://www.iktracker.fr/comparatif-driversnote" />
         <meta property="og:title" content="Driversnote vs IKtracker : Avez-vous vraiment besoin d'un mouchard GPS ?" />
         <meta property="og:description" content="Comparatif 2026 : Le tracking GPS automatique vs la synchronisation d'agenda intelligente. Alternative gratuite et respectueuse de la vie privée." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/comparatif-driversnote" />
+        <meta property="og:url" content="https://www.iktracker.fr/comparatif-driversnote" />
         <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Alternative Driversnote Gratuite 2026" />
         <meta name="twitter:description" content="Driversnote trop cher ? Découvrez IKtracker, l'alternative sans GPS permanent et 100% gratuite." />
@@ -122,19 +122,19 @@ const ComparatifDriversNote = () => {
             "author": {
               "@type": "Person",
               "name": "Adrien de Volontat",
-              "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat"
+              "url": "https://www.iktracker.fr/blog/auteur/adrien-de-volontat"
             },
             "publisher": {
               "@type": "Organization",
               "name": "IKtracker",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://iktracker.fr/logo-iktracker-250.webp"
+                "url": "https://www.iktracker.fr/logo-iktracker-250.webp"
               }
             },
             "datePublished": "2026-02-03",
             "dateModified": "2026-02-03",
-            "mainEntityOfPage": "https://iktracker.fr/comparatif-drivers-note",
+            "mainEntityOfPage": "https://www.iktracker.fr/comparatif-drivers-note",
             "inLanguage": "fr-FR"
           })}
         </script>

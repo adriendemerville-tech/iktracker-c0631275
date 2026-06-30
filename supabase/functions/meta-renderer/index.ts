@@ -15,7 +15,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const BASE_URL = 'https://iktracker.fr';
+const BASE_URL = 'https://www.iktracker.fr';
 const LOGO = `${BASE_URL}/logo-iktracker-250.webp`;
 
 const BOT_PATTERNS = [

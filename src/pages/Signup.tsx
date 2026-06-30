@@ -209,18 +209,18 @@ const Signup = () => {
         <Helmet>
           <title>Créer un compte gratuit - Outil communautaire IK | IKtracker</title>
           <meta name="description" content="Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit." />
-          <link rel="canonical" href="https://iktracker.fr/signup" />
+          <link rel="canonical" href="https://www.iktracker.fr/signup" />
           <meta property="og:title" content="Créer un compte gratuit | IKtracker - Outil communautaire" />
           <meta property="og:description" content="Rejoignez la communauté IKtracker. Automatisez vos IK : mode tournée GPS, synchronisation calendrier, comparateur frais réels. 100% gratuit." />
-          <meta property="og:url" content="https://iktracker.fr/signup" />
+          <meta property="og:url" content="https://www.iktracker.fr/signup" />
           <meta property="og:type" content="website" />
-          <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+          <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
           <meta property="og:locale" content="fr_FR" />
           <meta property="og:site_name" content="IKtracker" />
           <meta name="twitter:card" content="summary" />
           <meta name="twitter:title" content="Créer un compte gratuit | IKtracker - Outil communautaire" />
           <meta name="twitter:description" content="Outil communautaire 100% gratuit. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF." />
-          <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+          <meta name="twitter:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
           <script type="application/ld+json">{JSON.stringify({
             "@context": "https://schema.org",
@@ -229,9 +229,9 @@ const Signup = () => {
                 "@type": "WebPage",
                 "name": "Inscription gratuite IKtracker - Outil communautaire",
                 "description": "Rejoignez la communauté IKtracker pour automatiser le suivi de vos indemnités kilométriques professionnelles. 100% gratuit.",
-                "url": "https://iktracker.fr/signup",
-                "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://iktracker.fr" },
-                "potentialAction": { "@type": "RegisterAction", "target": "https://iktracker.fr/signup", "name": "Créer mon compte gratuitement" }
+                "url": "https://www.iktracker.fr/signup",
+                "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://www.iktracker.fr" },
+                "potentialAction": { "@type": "RegisterAction", "target": "https://www.iktracker.fr/signup", "name": "Créer mon compte gratuitement" }
               },
               {
                 "@type": "SoftwareApplication",
@@ -263,18 +263,18 @@ const Signup = () => {
       <Helmet>
         <title>Créer un compte gratuit - Outil communautaire IK | IKtracker</title>
         <meta name="description" content="Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit." />
-        <link rel="canonical" href="https://iktracker.fr/signup" />
+        <link rel="canonical" href="https://www.iktracker.fr/signup" />
         <meta property="og:title" content="Créer un compte gratuit | IKtracker - Outil communautaire" />
         <meta property="og:description" content="Rejoignez la communauté IKtracker. Automatisez vos IK : mode tournée GPS, synchronisation calendrier, comparateur frais réels. 100% gratuit." />
-        <meta property="og:url" content="https://iktracker.fr/signup" />
+        <meta property="og:url" content="https://www.iktracker.fr/signup" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="Créer un compte gratuit | IKtracker - Outil communautaire" />
         <meta name="twitter:description" content="Outil communautaire 100% gratuit. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
+        <meta name="twitter:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -283,9 +283,9 @@ const Signup = () => {
               "@type": "WebPage",
               "name": "Inscription gratuite IKtracker - Outil communautaire",
               "description": "Rejoignez la communauté IKtracker pour automatiser le suivi de vos indemnités kilométriques professionnelles. 100% gratuit.",
-              "url": "https://iktracker.fr/signup",
-              "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://iktracker.fr" },
-              "potentialAction": { "@type": "RegisterAction", "target": "https://iktracker.fr/signup", "name": "Créer mon compte gratuitement" }
+              "url": "https://www.iktracker.fr/signup",
+              "isPartOf": { "@type": "WebSite", "name": "IKtracker", "url": "https://www.iktracker.fr" },
+              "potentialAction": { "@type": "RegisterAction", "target": "https://www.iktracker.fr/signup", "name": "Créer mon compte gratuitement" }
             },
             {
               "@type": "SoftwareApplication",

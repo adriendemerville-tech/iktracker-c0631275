@@ -13,13 +13,13 @@ const MentionsLegales = () => {
       <Helmet>
         <title>Mentions Légales | IKtracker - Éditeur et Hébergeur</title>
         <meta name="description" content="Mentions légales d'IKtracker : informations sur l'éditeur, l'hébergeur, la propriété intellectuelle et les conditions d'utilisation du site iktracker.fr." />
-        <link rel="canonical" href="https://iktracker.fr/mentions-legales" />
+        <link rel="canonical" href="https://www.iktracker.fr/mentions-legales" />
         <meta name="robots" content="index, follow" />
 
         <meta property="og:title" content="Mentions Légales | IKtracker" />
         <meta property="og:description" content="Mentions légales d'IKtracker : éditeur, hébergeur et informations juridiques." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/mentions-legales" />
+        <meta property="og:url" content="https://www.iktracker.fr/mentions-legales" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
 
@@ -33,12 +33,12 @@ const MentionsLegales = () => {
             "@type": "WebPage",
             "name": "Mentions Légales IKtracker",
             "description": "Mentions légales du site iktracker.fr",
-            "url": "https://iktracker.fr/mentions-legales",
+            "url": "https://www.iktracker.fr/mentions-legales",
             "inLanguage": "fr-FR",
             "isPartOf": {
               "@type": "WebSite",
               "name": "IKtracker",
-              "url": "https://iktracker.fr"
+              "url": "https://www.iktracker.fr"
             }
           })}
         </script>

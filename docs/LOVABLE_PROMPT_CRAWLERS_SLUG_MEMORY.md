@@ -9,7 +9,7 @@
 
 ```
 Implémente une mémoire persistante des slugs publiés vers l'API blog IKtracker
-(endpoint POST https://iktracker.fr/functions/v1/blog-api/posts).
+(endpoint POST https://www.iktracker.fr/functions/v1/blog-api/posts).
 
 CONTEXTE
 --------

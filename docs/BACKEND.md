@@ -485,7 +485,7 @@ Sert un HTML complet avec :
 ### robots.txt
 
 ```
-Sitemap: https://iktracker.fr/sitemap.xml
+Sitemap: https://www.iktracker.fr/sitemap.xml
 User-agent: * → Allow: /
 ```
 
@@ -708,10 +708,10 @@ node scripts/validate-sitemap-sync.cjs
 node scripts/generate-sitemap.cjs
 
 # Vérifier la source du sitemap en production
-curl -sI https://iktracker.fr/sitemap.xml | grep X-Sitemap-Source
+curl -sI https://www.iktracker.fr/sitemap.xml | grep X-Sitemap-Source
 
 # Tester le meta-renderer
-curl -s "https://iktracker.fr/" -H "User-Agent: Googlebot" | head -50
+curl -s "https://www.iktracker.fr/" -H "User-Agent: Googlebot" | head -50
 
 # Tester la Partner API (lookup véhicule)
 curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/vehicle/lookup" \
