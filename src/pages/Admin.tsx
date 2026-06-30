@@ -21,6 +21,7 @@ import { AdminAffiliation } from '@/components/admin/AdminAffiliation';
 import { AdminPartners } from '@/components/admin/AdminPartners';
 import { AdminDocumentation } from '@/components/admin/AdminDocumentation';
 import { AdminMonitoring } from '@/components/admin/AdminMonitoring';
+import { AdminBotTest } from '@/components/admin/AdminBotTest';
 import { AdminAutopilot } from '@/components/admin/AdminAutopilot';
 import { UserKPISheet } from '@/components/admin/UserKPISheet';
 import { AdminSurveys } from '@/components/admin/AdminSurveys';
@@ -1134,8 +1135,9 @@ const Admin = () => {
           </TabsContent>
 
           {/* Monitoring Tab */}
-          <TabsContent value="monitoring">
+          <TabsContent value="monitoring" className="space-y-4">
             <AdminMonitoring />
+            <AdminBotTest />
           </TabsContent>
 
           {/* Autopilot Tab */}
