@@ -720,16 +720,16 @@ export function AdminStats() {
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
     queryKey: ['admin-signup-clicks-by-day', period, granularity],
     queryFn: async () => {
-      const config = periodConfig[period];
-      const startDate = config.getStartDate();
+      const daysBack = periodConfig[period].daysBack;
       const endDate = new Date();
-      
-      const { data, error } = await supabase.rpc('get_signup_clicks_by_day', { 
+      const startDate = new Date(endDate);
+      startDate.setDate(startDate.getDate() - daysBack);
+
+      const { data, error } = await supabase.rpc('get_signup_clicks_by_day', {
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString()
       });
       if (error) throw error;
-      const daysBack = periodConfig[period].daysBack;
       return fillMissingDays(
         (data as unknown as { day: string; clicks: number }[]).map(d => ({ day: d.day, clicks: Number(d.clicks) })),
         ['clicks'], daysBack, period
