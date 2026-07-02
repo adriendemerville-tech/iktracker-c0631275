@@ -165,6 +165,25 @@ const Profile = () => {
     await handleLogout();
   };
 
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+      if (error) throw error;
+      toast.success('Votre compte a été supprimé.');
+      try { await supabase.auth.signOut(); } catch (_) {}
+      setTimeout(() => { window.location.href = '/'; }, 800);
+    } catch (e: any) {
+      console.error('Delete account failed', e);
+      toast.error("Impossible de supprimer le compte. Réessayez plus tard.");
+      setDeletingAccount(false);
+      setDeleteAccountOpen(false);
+    }
+  };
+
   const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>) => {
     if (editingVehicle) {
       updateVehicle(editingVehicle.id, vehicleData);
