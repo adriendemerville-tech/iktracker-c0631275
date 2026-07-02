@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.partner-redirect]
 verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = true

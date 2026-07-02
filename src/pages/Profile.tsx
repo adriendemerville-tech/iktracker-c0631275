@@ -18,7 +18,17 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2, Calendar as CalendarIcon, Trash2, Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { GoogleCalendarStatus } from '@/components/GoogleCalendarStatus';
@@ -153,6 +163,25 @@ const Profile = () => {
 
   const handleSignOut = async () => {
     await handleLogout();
+  };
+
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+      if (error) throw error;
+      toast.success('Votre compte a été supprimé.');
+      try { await supabase.auth.signOut(); } catch (_) {}
+      setTimeout(() => { window.location.href = '/'; }, 800);
+    } catch (e: any) {
+      console.error('Delete account failed', e);
+      toast.error("Impossible de supprimer le compte. Réessayez plus tard.");
+      setDeletingAccount(false);
+      setDeleteAccountOpen(false);
+    }
   };
 
   const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>) => {
@@ -620,6 +649,31 @@ const Profile = () => {
                   )}
                 </div>
 
+                {/* Delete account */}
+                {user && (
+                  <div className="pt-4 mt-2 border-t border-border">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Trash2 className="w-5 h-5 text-destructive shrink-0" />
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm">Supprimer mon compte</p>
+                          <p className="text-xs text-muted-foreground">
+                            Suppression définitive de vos données
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="h-8 text-xs px-3 shrink-0"
+                        onClick={() => setDeleteAccountOpen(true)}
+                      >
+                        Supprimer
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           </div>
@@ -885,6 +939,32 @@ const Profile = () => {
         </div>
       </main>
       </div>
+
+      <AlertDialog open={deleteAccountOpen} onOpenChange={(o) => !deletingAccount && setDeleteAccountOpen(o)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est <strong>irréversible</strong>. Toutes vos données seront perdues :
+              trajets, véhicules, adresses, préférences et votre compte lui-même.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingAccount}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+              disabled={deletingAccount}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingAccount ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Suppression…</>
+              ) : (
+                'Supprimer définitivement'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
