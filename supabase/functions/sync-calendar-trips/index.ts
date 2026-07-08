@@ -915,8 +915,8 @@ async function processEventsAsTour(
     let ikAmount = 0;
     if (vehicle) {
       const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
-      const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power);
-      const ikAfter = calculateTotalAnnualIK(annualKm + totalDistance, vehicle.fiscal_power);
+      const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power, ikRateOverride);
+      const ikAfter = calculateTotalAnnualIK(annualKm + totalDistance, vehicle.fiscal_power, ikRateOverride);
       ikAmount = ikAfter - ikBefore;
       if (vehicle.is_electric) ikAmount *= 1.20;
       ikAmount = Math.round(ikAmount * 100) / 100;
