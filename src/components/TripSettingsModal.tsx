@@ -503,11 +503,109 @@ export function TripSettingsModal(props: Props) {
                     </div>
                   </section>
                 )}
+
+                {activeTab === 'danger' && (
+                  <section className="space-y-6">
+                    <SectionHeader
+                      title="Zone de danger"
+                      description="Actions irréversibles depuis l'application. Réfléchissez à deux fois."
+                    />
+
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-semibold text-destructive">Supprimer tous mes trajets</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Vide entièrement votre journal : trajets, tournées et archives disparaissent de l'application.
+                            Vos véhicules, adresses et préférences ne sont pas touchés.
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Les données sont conservées <strong>120 jours</strong> en base pour une éventuelle restauration
+                            sur demande, puis définitivement effacées.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => { setWipeConfirmText(''); setWipeConfirmOpen(true); }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer tous mes trajets
+                        </Button>
+                      </div>
+                    </div>
+                  </section>
+                )}
               </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation modal for wiping all trips */}
+      <Dialog open={wipeConfirmOpen} onOpenChange={(o) => { if (!wipeLoading) setWipeConfirmOpen(o); }}>
+        <DialogContent className="max-w-md">
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="w-5 h-5" />
+            Supprimer tous mes trajets ?
+          </DialogTitle>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Cette action vide entièrement votre journal : <strong>tous les trajets, toutes les tournées
+              et toutes les archives</strong> seront retirés de l'application.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Vos données restent conservées 120 jours en base pour une restauration éventuelle, puis
+              sont définitivement effacées.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="wipe-confirm" className="text-sm">
+                Pour confirmer, tapez <span className="font-mono font-semibold text-destructive">SUPPRIMER</span> :
+              </Label>
+              <Input
+                id="wipe-confirm"
+                value={wipeConfirmText}
+                onChange={(e) => setWipeConfirmText(e.target.value)}
+                placeholder="SUPPRIMER"
+                autoComplete="off"
+                disabled={wipeLoading}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setWipeConfirmOpen(false)}
+                disabled={wipeLoading}
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={wipeConfirmText !== 'SUPPRIMER' || wipeLoading}
+                onClick={async () => {
+                  setWipeLoading(true);
+                  const res = await onDeleteAllTrips();
+                  setWipeLoading(false);
+                  if (res.success) {
+                    toast.success(`${res.count} trajet${res.count > 1 ? 's' : ''} supprimé${res.count > 1 ? 's' : ''}. Journal vidé.`);
+                    setWipeConfirmOpen(false);
+                    setWipeConfirmText('');
+                    onOpenChange(false);
+                  } else {
+                    toast.error("Échec de la suppression. Réessayez.");
+                  }
+                }}
+              >
+                {wipeLoading ? 'Suppression…' : 'Supprimer définitivement'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       {/* Nested forms */}
       <Suspense fallback={null}>
