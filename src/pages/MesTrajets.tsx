@@ -1390,7 +1390,9 @@ ${IKTRACKER_URL}`;
             onUpdateLocation={updateLocation}
             onDeleteLocation={deleteLocation}
             onOpenRecurring={() => setShowRecurringModal(true)}
+            onDeleteAllTrips={deleteAllTrips}
           />
+
         )}
       </Suspense>
       </div>
