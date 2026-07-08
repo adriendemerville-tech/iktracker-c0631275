@@ -71,6 +71,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | Table | Description | RLS |
 |---|---|---|
 | `calendar_connections` | Connexions Google/Outlook Calendar (tokens OAuth) | ✅ user_id |
+| `calendar_connection_attempts` | Journal des tentatives de connexion/synchronisation calendrier (Google, Outlook, ICS) | ✅ user_id + admin |
 
 #### Partage & Export
 
