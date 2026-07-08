@@ -14,6 +14,7 @@ import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Ca
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,7 @@ export default function Report() {
   const isMobile = useIsMobile();
   const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const { preferences, updatePreference } = usePreferences();
   
   const [showNewTrip, setShowNewTrip] = useState(false);
@@ -837,7 +839,7 @@ ${IKTRACKER_URL}`;
               <Button
                 variant="ghost"
                 size="icon"
-                className="hidden md:inline-flex"
+                className={isAdmin ? "inline-flex" : "hidden md:inline-flex"}
                 onClick={() => setShowSettings(true)}
                 aria-label="Réglages des trajets"
               >
