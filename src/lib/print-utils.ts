@@ -1,7 +1,7 @@
 // HTML/CSS based print utility - replaces heavy PDF libraries
 // Uses native browser print dialog with @media print for PDF generation
 
-import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
+import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme, IKRateOverride } from '@/types/trip';
 
 // Escape user-controlled values before interpolating into HTML to prevent XSS.
 function esc(value: unknown): string {
