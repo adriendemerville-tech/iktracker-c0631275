@@ -1709,6 +1709,7 @@ export type Database = {
           calendar_import_mode: string
           created_at: string
           id: string
+          ik_rate_override: string
           persona: string
           tutorial_completed_at: string | null
           updated_at: string
@@ -1720,6 +1721,7 @@ export type Database = {
           calendar_import_mode?: string
           created_at?: string
           id?: string
+          ik_rate_override?: string
           persona?: string
           tutorial_completed_at?: string | null
           updated_at?: string
@@ -1731,6 +1733,7 @@ export type Database = {
           calendar_import_mode?: string
           created_at?: string
           id?: string
+          ik_rate_override?: string
           persona?: string
           tutorial_completed_at?: string | null
           updated_at?: string
