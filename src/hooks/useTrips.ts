@@ -285,18 +285,27 @@ export function useTrips() {
   };
 
   // CRUD Operations
-  const addTrip = async (trip: Omit<Trip, 'id' | 'ikAmount'>) => {
+  const addTrip = async (
+    trip: Omit<Trip, 'id' | 'ikAmount'>,
+    options?: { ikAmountOverride?: number },
+  ) => {
     const vehicle = vehicles.find(v => v.id === trip.vehicleId);
     if (!vehicle) return null;
 
-    const totalAnnualKm = getTotalAnnualKm(trip.vehicleId) + trip.distance;
-    const rateOverride = preferences.ikRateOverride;
-    let ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower, rateOverride) - 
-                   calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower, rateOverride);
-    
-    // Apply 20% bonus for electric vehicles
-    if (vehicle.isElectric) {
-      ikAmount = ikAmount * 1.2;
+    let ikAmount: number;
+    if (typeof options?.ikAmountOverride === 'number') {
+      // Explicit IK provided (e.g. regrouping existing trips into a tour) — trust it verbatim.
+      ikAmount = options.ikAmountOverride;
+    } else {
+      const totalAnnualKm = getTotalAnnualKm(trip.vehicleId) + trip.distance;
+      const rateOverride = preferences.ikRateOverride;
+      ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower, rateOverride) -
+                 calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower, rateOverride);
+
+      // Apply 20% bonus for electric vehicles
+      if (vehicle.isElectric) {
+        ikAmount = ikAmount * 1.2;
+      }
     }
 
     if (user) {

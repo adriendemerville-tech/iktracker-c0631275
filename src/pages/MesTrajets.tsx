@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTrips } from '@/hooks/useTrips';
-import { Trip, Vehicle, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
+import { Trip, Vehicle, Location as TripLocation, TourStopData, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
 import { TripCard } from '@/components/TripCard';
 import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
@@ -82,10 +82,16 @@ export default function Report() {
       toast.error("Les trajets doivent être du même jour");
       return;
     }
-    // Same vehicle check
-    const firstVehicle = chosen[0].vehicleId;
-    if (!firstVehicle || !chosen.every(t => t.vehicleId === firstVehicle)) {
+    // Same vehicle check — accepts null (unassigned) as long as it's consistent.
+    // Fall back to the first available vehicle when everyone is unassigned.
+    const firstVehicleRaw = chosen[0].vehicleId ?? null;
+    if (!chosen.every(t => (t.vehicleId ?? null) === firstVehicleRaw)) {
       toast.error("Les trajets doivent utiliser le même véhicule");
+      return;
+    }
+    const tourVehicleId = firstVehicleRaw ?? vehicles[0]?.id ?? null;
+    if (!tourVehicleId) {
+      toast.error("Aucun véhicule disponible pour créer la tournée");
       return;
     }
 
@@ -96,31 +102,48 @@ export default function Report() {
         (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
       );
 
-      // Build tour_stops: chained locations, dedup consecutive identical addresses
-      const stops: any[] = [];
-      const pushStop = (loc: { name: string; address?: string; lat?: number; lng?: number }, ts: string) => {
+      // Build tour_stops: chained locations, dedup consecutive identical addresses.
+      // Coordinates are left undefined when unknown — never fabricated as (0,0).
+      const stops: TourStopData[] = [];
+      const pushStop = (loc: TripLocation, ts: string) => {
         const addr = loc.address || loc.name;
         const last = stops[stops.length - 1];
         if (last && (last.address || '') === addr) return;
-        stops.push({
+        const stop: TourStopData = {
           id: crypto.randomUUID(),
           timestamp: ts,
-          lat: loc.lat ?? 0,
-          lng: loc.lng ?? 0,
           address: loc.address || loc.name,
           city: loc.name,
-        });
+        };
+        if (typeof loc.lat === 'number' && typeof loc.lng === 'number') {
+          stop.lat = loc.lat;
+          stop.lng = loc.lng;
+        }
+        stops.push(stop);
       };
       sorted.forEach(t => {
         pushStop(t.startLocation, new Date(t.startTime).toISOString());
         pushStop(t.endLocation, new Date(t.endTime || t.startTime).toISOString());
       });
 
+      if (stops.length < 3) {
+        toast.error("Une tournée doit avoir au moins 3 étapes distinctes");
+        return;
+      }
+
       const totalDistance = sorted.reduce((s, t) => s + t.distance, 0);
       const baseDistance = sorted.reduce((s, t) => s + (t.baseDistance || t.distance), 0);
+      // Preserve the exact IK by summing sources (1:1 replacement, avoids double-counting
+      // the annual cumul before the source trips are archived).
+      const sumIK = sorted.reduce((s, t) => s + (t.ikAmount || 0), 0);
+
+      // Archive source trips FIRST so downstream reads see the reduced annual cumul.
+      for (const t of sorted) {
+        await deleteTrip(t.id);
+      }
 
       const created = await addTrip({
-        vehicleId: firstVehicle,
+        vehicleId: tourVehicleId,
         startLocation: sorted[0].startLocation,
         endLocation: sorted[sorted.length - 1].endLocation,
         distance: totalDistance,
@@ -131,16 +154,11 @@ export default function Report() {
         endTime: sorted[sorted.length - 1].endTime || sorted[sorted.length - 1].startTime,
         tourStops: stops,
         status: 'validated',
-      } as any);
+      } as any, { ikAmountOverride: sumIK });
 
       if (!created) {
-        toast.error("Impossible de créer la tournée");
+        toast.error("Impossible de créer la tournée (les trajets sources ont été archivés, restaurez-les)");
         return;
-      }
-
-      // Delete (archive) source trips
-      for (const t of sorted) {
-        await deleteTrip(t.id);
       }
 
       toast.success(`Tournée créée avec ${stops.length} étapes`);
