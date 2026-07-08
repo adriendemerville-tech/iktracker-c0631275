@@ -203,14 +203,14 @@ function generateReportHTML(options: PrintReportOptions): string {
     let tourDetailRow = '';
     if (isTour) {
       const stopsHtml = t.tourStops!.map((s, idx) => {
-        const dt = s.timestamp ? new Date(s.timestamp) : null;
-        const hh = dt ? dt.getHours().toString().padStart(2, '0') : '--';
-        const mm = dt ? dt.getMinutes().toString().padStart(2, '0') : '--';
+        const { time, missing } = formatStopTime(s.timestamp);
         const label = s.address || s.city || `Étape ${idx + 1}`;
+        const timeColor = missing ? '#9ca3af' : '#111827';
+        const suffix = missing ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>' : '';
         return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
           <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
-          <span style="display: inline-block; width: 50px; font-weight: 600; color: #111827;">${hh}:${mm}</span>
-          <span style="flex: 1; color: #4b5563;">${esc(label)}</span>
+          <span style="display: inline-block; width: 50px; font-weight: 600; color: ${timeColor};">${time}</span>
+          <span style="flex: 1; color: #4b5563;">${esc(label)}${suffix}</span>
         </div>`;
       }).join('');
       tourDetailRow = `
