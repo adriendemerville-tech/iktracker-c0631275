@@ -58,7 +58,7 @@ export function TripSettingsModal(props: Props) {
     open, onOpenChange, vehicles, savedLocations, getTotalAnnualKm,
     onAddVehicle, onUpdateVehicle, onDeleteVehicle,
     onAddLocation, onUpdateLocation, onDeleteLocation,
-    onOpenRecurring,
+    onOpenRecurring, onDeleteAllTrips,
   } = props;
   const { preferences, updatePreference } = usePreferences();
   const [activeTab, setActiveTab] = useState<TabId>('vehicles');
@@ -68,6 +68,12 @@ export function TripSettingsModal(props: Props) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [addressFormOpen, setAddressFormOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<TripLocation | null>(null);
+
+  // Danger zone: wipe all trips
+  const [wipeConfirmOpen, setWipeConfirmOpen] = useState(false);
+  const [wipeConfirmText, setWipeConfirmText] = useState('');
+  const [wipeLoading, setWipeLoading] = useState(false);
+
 
   return (
     <>
