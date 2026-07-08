@@ -14,6 +14,7 @@ import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Ca
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
