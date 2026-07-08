@@ -1805,6 +1805,76 @@ export function AdminStats() {
                       </CardContent>
                     </DraggableStatsSection>
                   );
+
+                case 'calendar-connection-stats': {
+                  const providerLabels: Record<string, string> = {
+                    google: 'Google Calendar',
+                    outlook: 'Outlook Calendar',
+                    ics: 'Agenda ICS',
+                  };
+                  const providerIcons: Record<string, JSX.Element> = {
+                    google: <svg viewBox="0 0 24 24" className="w-4 h-4"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>,
+                    outlook: <svg viewBox="0 0 24 24" className="w-4 h-4"><path fill="#0078D4" d="M24 7.387v10.478c0 .23-.08.424-.238.576-.158.152-.356.228-.594.228h-8.168v-6.182l1.602 1.176a.477.477 0 0 0 .29.096.5.5 0 0 0 .29-.096.42.42 0 0 0 0-.656l-2.182-1.6V7.387c0-.238.08-.436.238-.594.158-.158.356-.237.594-.237h7.574c.238 0 .436.08.594.237.158.158.238.356.238.594z"/><path fill="#0078D4" d="M14.875 9.75l-2.182 1.6a.42.42 0 0 0 0 .655.5.5 0 0 0 .29.097.477.477 0 0 0 .29-.097l1.602-1.175v6.182H6.708c-.238 0-.436-.076-.594-.228A.776.776 0 0 1 5.876 16.21V7.387c0-.238.08-.436.238-.594.158-.158.356-.237.594-.237h7.573c.239 0 .437.08.594.237.159.158.239.356.239.594v2.363h-.239z"/><path fill="#28A8EA" d="M9.143 8.625v6.75A1.131 1.131 0 0 1 8.018 16.5H.375V7.125C.375 6.504.879 6 1.5 6h6.518c.621 0 1.125.504 1.125 1.125v1.5z"/><path fill="#0078D4" d="M9.143 8.625v6.75A1.131 1.131 0 0 1 8.018 16.5H.375V7.125C.375 6.504.879 6 1.5 6h6.518c.621 0 1.125.504 1.125 1.125v1.5z"/><path fill="#50D9FF" d="M4.5 10.125c-1.036 0-1.875.84-1.875 1.875s.84 1.875 1.875 1.875S6.375 13.036 6.375 12s-.84-1.875-1.875-1.875z"/></svg>,
+                    ics: <Calendar className="w-4 h-4 text-primary" />,
+                  };
+                  const statsByProvider: Record<string, CalendarConnectionStatsData> = {
+                    google: { provider: 'google', total_attempts: 0, successful_attempts: 0, failed_attempts: 0 },
+                    outlook: { provider: 'outlook', total_attempts: 0, successful_attempts: 0, failed_attempts: 0 },
+                    ics: { provider: 'ics', total_attempts: 0, successful_attempts: 0, failed_attempts: 0 },
+                  };
+                  (calendarConnectionStats || []).forEach((s) => {
+                    statsByProvider[s.provider] = s;
+                  });
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Calendar className="w-5 h-5 text-primary" />
+                          Connexions agendas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {calendarConnectionStatsLoading ? (
+                          <div className="space-y-3">
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                            <Skeleton className="h-16" />
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {(['google', 'outlook', 'ics'] as const).map((provider) => {
+                              const s = statsByProvider[provider];
+                              const successPct = s.total_attempts > 0 ? Math.round((s.successful_attempts / s.total_attempts) * 100) : 0;
+                              const failurePct = s.total_attempts > 0 ? Math.round((s.failed_attempts / s.total_attempts) * 100) : 0;
+                              return (
+                                <div key={provider} className="p-3 rounded-lg border bg-card">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    {providerIcons[provider]}
+                                    <span className="font-medium text-sm">{providerLabels[provider]}</span>
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <div className="text-center p-2 bg-muted/50 rounded-md">
+                                      <p className="text-lg font-bold">{formatNumber(s.total_attempts)}</p>
+                                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Tentatives</p>
+                                    </div>
+                                    <div className="text-center p-2 bg-green-500/10 rounded-md">
+                                      <p className="text-lg font-bold text-green-600">{formatNumber(s.successful_attempts)}</p>
+                                      <p className="text-[10px] text-green-700 dark:text-green-400 uppercase tracking-wide">{successPct}% réussies</p>
+                                    </div>
+                                    <div className="text-center p-2 bg-red-500/10 rounded-md">
+                                      <p className="text-lg font-bold text-red-600">{formatNumber(s.failed_attempts)}</p>
+                                      <p className="text-[10px] text-red-700 dark:text-red-400 uppercase tracking-wide">{failurePct}% échouées</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        <p className="text-xs text-muted-foreground text-center">sur les 30 derniers jours</p>
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
                 }
 
                 case 'comparison-chart':
