@@ -3,6 +3,7 @@ import { Trip, Vehicle, Location } from '@/types/trip';
 import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { extractCityFromAddress } from '@/lib/geocoding';
 import { TourDetailSheet } from './TourDetailSheet';
 import { CompleteAddressSheet } from './CompleteAddressSheet';
