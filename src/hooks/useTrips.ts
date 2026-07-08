@@ -895,6 +895,38 @@ export function useTrips() {
     return total;
   }, [filteredTrips, vehicles, preferences.fiscalYearStartMonth, preferences.fiscalYearStartDay]);
 
+  // Wipe entire journal: soft-delete every trip (active + archived) of the current user.
+  // We set deleted_at to a date older than the 30-day archive window so nothing shows up
+  // in the UI anymore, while the rows physically remain in DB for ~120 days of possible
+  // admin restoration before a future purge job removes them.
+  const deleteAllTrips = async (): Promise<{ success: boolean; count: number }> => {
+    if (!user) {
+      // Local mode: just clear localStorage journal
+      const count = trips.length + archivedTrips.length;
+      saveTripsLocal([]);
+      localStorage.removeItem('ik-tracker-archived-trips');
+      setArchivedTrips([]);
+      return { success: true, count };
+    }
+
+    // 31 days ago → out of the 30-day archive window, so archives UI is empty too
+    const wipedAt = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString();
+    const { error, count } = await supabase
+      .from('trips')
+      .update({ deleted_at: wipedAt }, { count: 'exact' })
+      .eq('user_id', user.id)
+      .or(`deleted_at.is.null,deleted_at.gte.${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()}`);
+
+    if (error) {
+      console.error('deleteAllTrips failed:', error);
+      return { success: false, count: 0 };
+    }
+
+    setTrips([]);
+    setArchivedTrips([]);
+    return { success: true, count: count ?? 0 };
+  };
+
   return {
     trips,
     archivedTrips,
@@ -909,6 +941,7 @@ export function useTrips() {
     deleteTrip,
     restoreTrip,
     permanentlyDeleteTrip,
+    deleteAllTrips,
     addLocation,
     updateLocation,
     deleteLocation,
@@ -917,3 +950,4 @@ export function useTrips() {
     deleteVehicle,
   };
 }
+
