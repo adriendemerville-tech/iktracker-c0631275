@@ -49,11 +49,15 @@ export const TripCard = memo(function TripCard({
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
   const [showTripView, setShowTripView] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
   // On mobile, action buttons (edit/delete) only show when card is selected in selection mode.
-  // On desktop, they are revealed on card hover.
+  // On desktop, they are always mounted but revealed via CSS on hover/focus (see `group-hover` classes),
+  // ce qui évite les re-renders et le layout shift au passage de la souris.
   const showActionButtons = !isMobile || (selectionMode && selected);
+  // Classes de visibilité desktop : réserve la place, révèle au survol ou au focus clavier.
+  const desktopHoverReveal = isMobile
+    ? ''
+    : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-opacity';
   
   const isPending = trip.status === 'pending_location';
   
