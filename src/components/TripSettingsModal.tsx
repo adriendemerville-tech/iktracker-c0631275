@@ -685,8 +685,60 @@ export function TripSettingsModal(props: Props) {
         </DialogContent>
       </Dialog>
 
+      {/* Conflict modal: current journal not empty → merge or replace? */}
+      <Dialog open={restoreConflictOpen} onOpenChange={(o) => { if (!restoreLoading) setRestoreConflictOpen(o); }}>
+        <DialogContent className="max-w-md">
+          <DialogTitle className="flex items-center gap-2 text-primary">
+            <ArchiveRestore className="w-5 h-5" />
+            Restaurer votre sauvegarde
+          </DialogTitle>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Votre journal actuel contient déjà <strong>{currentTripsCount} trajet{currentTripsCount > 1 ? 's' : ''}</strong>{' '}
+              enregistré{currentTripsCount > 1 ? 's' : ''} depuis la suppression.
+            </p>
+            <p className="text-sm text-foreground leading-relaxed">
+              En restaurant votre sauvegarde{backupInfo.available ? ` (${backupInfo.count} trajet${backupInfo.count > 1 ? 's' : ''})` : ''},
+              souhaitez-vous <strong>conserver</strong> ou <strong>écraser</strong> les trajets et tournées actuellement présents dans votre journal ?
+            </p>
+            <div className="space-y-2 pt-1">
+              <Button
+                variant="outline"
+                className="w-full justify-start h-auto py-3"
+                disabled={restoreLoading}
+                onClick={() => doRestore('merge')}
+              >
+                <div className="text-left">
+                  <div className="text-sm font-medium">Conserver mes trajets actuels</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Fusionne la sauvegarde avec le journal existant (recommandé).
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start h-auto py-3 border-destructive/50 hover:bg-destructive/5"
+                disabled={restoreLoading}
+                onClick={() => doRestore('replace')}
+              >
+                <div className="text-left">
+                  <div className="text-sm font-medium text-destructive">Écraser mon journal actuel</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Les {currentTripsCount} trajet{currentTripsCount > 1 ? 's' : ''} actuel{currentTripsCount > 1 ? 's' : ''} rejoindra la corbeille (récupérable 120 j).
+                  </div>
+                </div>
+              </Button>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button variant="ghost" size="sm" disabled={restoreLoading} onClick={() => setRestoreConflictOpen(false)}>
+                Annuler
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {/* Nested forms */}
+
       <Suspense fallback={null}>
         {vehicleFormOpen && (
           <VehicleForm
