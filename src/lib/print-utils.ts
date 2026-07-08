@@ -188,16 +188,16 @@ function generateReportHTML(options: PrintReportOptions): string {
         </div>`;
       }).join('');
       tourDetailRow = `
-      <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
+      <tr style="background-color: ${bgColor};">
         <td colspan="7" style="padding: 6px 12px 12px 20px; border-bottom: 1px solid #e5e7eb;">
-          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes</div>
+          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes${TZ_LABEL_SUFFIX}</div>
           ${stopsHtml}
         </td>
       </tr>`;
     }
 
-    return `
-      <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
+    const mainRow = `
+      <tr style="background-color: ${bgColor};">
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(startCity)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(endCity)}</td>
@@ -205,9 +205,13 @@ function generateReportHTML(options: PrintReportOptions): string {
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px; width: 60px; min-width: 60px;">${Math.round(t.distance)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 65px; min-width: 65px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>
-      </tr>
-      ${tourDetailRow}
-    `;
+      </tr>`;
+
+    // Regrouper trajet + détail de tournée dans un même <tbody> pour éviter
+    // qu'un saut de page ne sépare la ligne parent du détail (indispensable pour l'audit).
+    return isTour
+      ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
+      : mainRow;
   }).join('');
 
   const baremeRows = IK_BAREME_2024.map((b, i) => {
