@@ -55,6 +55,7 @@ export default function Report() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isRegrouping, setIsRegrouping] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
 
   const toggleSelect = (id: string) => {
