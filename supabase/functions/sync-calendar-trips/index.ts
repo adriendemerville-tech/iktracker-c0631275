@@ -818,13 +818,15 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request body to get monthsBack parameter
+    // Parse request body to get monthsBack + optional targetUserId
     let monthsBack = 0;
     let trigger = 'cron';
+    let targetUserId: string | null = null;
     try {
       const body = await req.json();
       monthsBack = body.monthsBack || 0;
       trigger = body.trigger || 'cron';
+      targetUserId = body.userId || null;
     } catch {
       // No body or invalid JSON - use default
     }
@@ -832,15 +834,18 @@ serve(async (req) => {
     console.log('Starting calendar sync...');
     console.log('Time:', new Date().toISOString());
     console.log('Months back:', monthsBack);
+    if (targetUserId) console.log('Target user:', targetUserId);
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Get all active Google Calendar connections
-    const { data: connections, error: connectionsError } = await supabase
+    // Get all active Google Calendar connections (or one user)
+    let googleQuery = supabase
       .from('calendar_connections')
       .select('id, user_id, access_token, refresh_token, token_expires_at')
       .eq('provider', 'google')
       .eq('is_active', true);
+    if (targetUserId) googleQuery = googleQuery.eq('user_id', targetUserId);
+    const { data: connections, error: connectionsError } = await googleQuery;
 
     if (connectionsError) {
       console.error('Failed to fetch calendar connections:', connectionsError);
@@ -918,11 +923,13 @@ serve(async (req) => {
     }
 
     // ============ ICS connections (any calendar: Outlook, iCloud, generic .ics) ============
-    const { data: icsConnections, error: icsError } = await supabase
+    let icsQuery = supabase
       .from('calendar_connections')
       .select('id, user_id, ics_url')
       .eq('provider', 'ics')
       .eq('is_active', true);
+    if (targetUserId) icsQuery = icsQuery.eq('user_id', targetUserId);
+    const { data: icsConnections, error: icsError } = await icsQuery;
 
     if (icsError) {
       console.error('Failed to fetch ICS connections:', icsError);
