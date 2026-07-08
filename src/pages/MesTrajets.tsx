@@ -287,17 +287,23 @@ export default function Report() {
         }
 
         // Calculate marginal IK for this trip
-        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
-        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower);
-        const recalculatedIK = ikAfter - ikBefore;
+        const rateOverride = preferences.ikRateOverride;
+        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower, rateOverride);
+        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower, rateOverride);
+        let recalculatedIK = ikAfter - ikBefore;
+        if (vehicle.isElectric) recalculatedIK = recalculatedIK * 1.2;
 
-        // Determine applied rate based on cumulative km
+        // Determine applied rate
         const bareme = getIKBareme(vehicle.fiscalPower);
-        let appliedRate = bareme.upTo5000.rate;
-        if (cumulativeKm > 20000) {
-          appliedRate = bareme.over20000.rate;
-        } else if (cumulativeKm > 5000) {
+        let appliedRate: number;
+        if (rateOverride === 'tier2') {
           appliedRate = bareme.from5001To20000.rate;
+        } else if (rateOverride === 'tier3') {
+          appliedRate = bareme.over20000.rate;
+        } else {
+          appliedRate = bareme.upTo5000.rate;
+          if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
+          else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
         }
 
         result.push({
@@ -311,7 +317,8 @@ export default function Report() {
 
     // Sort by date descending for display
     return result.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
-  }, [trips, vehicles]);
+  }, [trips, vehicles, preferences.ikRateOverride]);
+
 
   // Recalculated totals
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
