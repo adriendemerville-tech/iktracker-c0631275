@@ -970,7 +970,7 @@ serve(async (req) => {
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Unknown ICS error';
           console.error(`Error processing ICS user ${conn.user_id}:`, error);
-          await logCalendarAttempt(supabase, conn.user_id, 'ics', 'failure', message, { trigger });
+          // Sync failures not logged as user connection attempts.
         }
       }
     }
