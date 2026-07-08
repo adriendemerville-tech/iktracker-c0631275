@@ -780,14 +780,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Auth: only allow service-role callers (pg_cron) or matching CRON_SECRET header.
+  // Auth: only allow service-role callers (pg_cron) or matching CRON_SECRET/SYNC_CRON_TOKEN header.
   const serviceRoleKey = SUPABASE_SERVICE_ROLE_KEY!;
   const cronSecret = Deno.env.get('CRON_SECRET');
+  const syncCronToken = Deno.env.get('SYNC_CRON_TOKEN');
   const authHeader = req.headers.get('Authorization') || '';
   const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   const xCronSecret = req.headers.get('x-cron-secret');
   const authorized = (bearer && bearer === serviceRoleKey) ||
-    (cronSecret && xCronSecret === cronSecret);
+    (cronSecret && xCronSecret === cronSecret) ||
+    (syncCronToken && xCronSecret === syncCronToken);
   if (!authorized) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
