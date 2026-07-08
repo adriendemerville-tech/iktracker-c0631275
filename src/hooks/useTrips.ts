@@ -290,8 +290,9 @@ export function useTrips() {
     if (!vehicle) return null;
 
     const totalAnnualKm = getTotalAnnualKm(trip.vehicleId) + trip.distance;
-    let ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                   calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower);
+    const rateOverride = preferences.ikRateOverride;
+    let ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower, rateOverride) - 
+                   calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower, rateOverride);
     
     // Apply 20% bonus for electric vehicles
     if (vehicle.isElectric) {
