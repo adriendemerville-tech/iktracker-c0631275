@@ -1172,26 +1172,26 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     let tourDetailRow = '';
     if (isTour) {
       const stopsHtml = t.tourStops!.map((s, idx) => {
-        const dt = s.timestamp ? new Date(s.timestamp) : null;
-        const hh = dt ? dt.getHours().toString().padStart(2, '0') : '--';
-        const mm = dt ? dt.getMinutes().toString().padStart(2, '0') : '--';
+        const { time, missing } = formatStopTime(s.timestamp);
         const label = s.address || s.city || `Étape ${idx + 1}`;
+        const timeColor = missing ? '#9ca3af' : '#111827';
+        const suffix = missing ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>' : '';
         return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
           <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
-          <span style="display: inline-block; width: 50px; font-weight: 600; color: #111827;">${hh}:${mm}</span>
-          <span style="flex: 1; color: #4b5563;">${esc(label)}</span>
+          <span style="display: inline-block; width: 50px; font-weight: 600; color: ${timeColor};">${time}</span>
+          <span style="flex: 1; color: #4b5563;">${esc(label)}${suffix}</span>
         </div>`;
       }).join('');
       tourDetailRow = `
       <tr style="background-color: ${bgColor};">
         <td colspan="7" style="padding: 6px 12px 10px 20px; border-bottom: 1px solid #e5e7eb;">
-          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes</div>
+          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes${TZ_LABEL_SUFFIX}</div>
           ${stopsHtml}
         </td>
       </tr>`;
     }
 
-    return `
+    const mainRow = `
       <tr style="background-color: ${bgColor};">
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(startCity)}</td>
@@ -1200,9 +1200,11 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px;">${Math.round(t.distance)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
-      </tr>
-      ${tourDetailRow}
-    `;
+      </tr>`;
+
+    return isTour
+      ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
+      : mainRow;
   }).join('');
 
   const baremeRows = IK_BAREME_2024.map((b, i) => {
