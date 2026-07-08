@@ -118,7 +118,7 @@ function extractCity(address: string): string {
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl, sinceDate } = options;
+  const { trips, vehicles, totalKm, userInfo, logoUrl, sinceDate, ikRateOverride = 'auto' } = options;
   const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
   // Get Supabase config for the share link feature
