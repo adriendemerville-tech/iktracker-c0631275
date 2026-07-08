@@ -624,7 +624,8 @@ async function createTripFromEvent(
   event: CalendarEvent,
   vehicle: VehicleInfo | null,
   userHomeLocation: { address: string; name: string } | null,
-  supabase: any
+  supabase: any,
+  source: string = 'google_calendar'
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
   console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
