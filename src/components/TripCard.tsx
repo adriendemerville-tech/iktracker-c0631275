@@ -96,6 +96,10 @@ export const TripCard = memo(function TripCard({
   const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length >= 3;
 
   const handleCardClick = () => {
+    if (selectionMode && onToggleSelect && !isPending) {
+      onToggleSelect(trip.id);
+      return;
+    }
     if (isPending) return; // Pending trips have their own action
     if (isTour) {
       setShowTourDetail(true);
