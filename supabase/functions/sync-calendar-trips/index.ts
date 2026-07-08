@@ -153,6 +153,202 @@ async function fetchGoogleCalendarEvents(accessToken: string, monthsBack: number
   };
 }
 
+// ============ ICS Parsing (RFC 5545, pragmatic subset) ============
+
+function unfoldICS(text: string): string[] {
+  const rawLines = text.replace(/\r\n/g, '\n').split('\n');
+  const lines: string[] = [];
+  for (const line of rawLines) {
+    if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length > 0) {
+      lines[lines.length - 1] += line.slice(1);
+    } else {
+      lines.push(line);
+    }
+  }
+  return lines;
+}
+
+function unescapeICSText(v: string): string {
+  return v
+    .replace(/\\n/gi, ' ')
+    .replace(/\\,/g, ',')
+    .replace(/\\;/g, ';')
+    .replace(/\\\\/g, '\\')
+    .trim();
+}
+
+function parseICSDate(value: string): Date | null {
+  if (!value) return null;
+  const s = value.trim();
+  if (/^\d{8}$/.test(s)) {
+    return new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T00:00:00Z`);
+  }
+  const m = s.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/);
+  if (!m) return null;
+  const [, y, mo, d, h, mi, se] = m;
+  // Best-effort: treat naive/TZID as UTC. Sync window is 14 days so small TZ drift is harmless.
+  return new Date(`${y}-${mo}-${d}T${h}:${mi}:${se}Z`);
+}
+
+interface ICSRawEvent {
+  uid: string;
+  summary: string;
+  location: string;
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  rrule?: string;
+  exdates: Date[];
+}
+
+function parseICS(text: string): ICSRawEvent[] {
+  const lines = unfoldICS(text);
+  const events: ICSRawEvent[] = [];
+  let current: Partial<ICSRawEvent> | null = null;
+
+  for (const line of lines) {
+    if (line === 'BEGIN:VEVENT') {
+      current = { exdates: [] };
+      continue;
+    }
+    if (line === 'END:VEVENT') {
+      if (current && current.uid && current.start && current.end) {
+        events.push({
+          uid: current.uid,
+          summary: current.summary || '',
+          location: current.location || '',
+          start: current.start,
+          end: current.end,
+          allDay: current.allDay || false,
+          rrule: current.rrule,
+          exdates: current.exdates || [],
+        });
+      }
+      current = null;
+      continue;
+    }
+    if (!current) continue;
+
+    const colonIdx = line.indexOf(':');
+    if (colonIdx < 0) continue;
+    const keyPart = line.slice(0, colonIdx);
+    const value = line.slice(colonIdx + 1);
+    const [prop, ...paramPairs] = keyPart.split(';');
+    const params: Record<string, string> = {};
+    for (const p of paramPairs) {
+      const [k, v] = p.split('=');
+      if (k && v) params[k.toUpperCase()] = v;
+    }
+
+    switch (prop.toUpperCase()) {
+      case 'UID': current.uid = value.trim(); break;
+      case 'SUMMARY': current.summary = unescapeICSText(value); break;
+      case 'LOCATION': current.location = unescapeICSText(value); break;
+      case 'DTSTART': {
+        const d = parseICSDate(value);
+        if (d) current.start = d;
+        current.allDay = params.VALUE === 'DATE';
+        break;
+      }
+      case 'DTEND': {
+        const d = parseICSDate(value);
+        if (d) current.end = d;
+        break;
+      }
+      case 'RRULE': current.rrule = value.trim(); break;
+      case 'EXDATE': {
+        for (const part of value.split(',')) {
+          const d = parseICSDate(part);
+          if (d) current.exdates!.push(d);
+        }
+        break;
+      }
+    }
+  }
+  return events;
+}
+
+function expandRRULE(event: ICSRawEvent, windowStart: Date, windowEnd: Date): Date[] {
+  const rule: Record<string, string> = {};
+  for (const part of (event.rrule || '').split(';')) {
+    const [k, v] = part.split('=');
+    if (k && v) rule[k.toUpperCase()] = v;
+  }
+  const freq = rule.FREQ;
+  if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(freq)) return [];
+  const interval = Math.max(1, parseInt(rule.INTERVAL || '1', 10));
+  const count = rule.COUNT ? parseInt(rule.COUNT, 10) : Infinity;
+  const until = rule.UNTIL ? parseICSDate(rule.UNTIL) : null;
+  const exSet = new Set(event.exdates.map(d => d.toISOString().slice(0, 10)));
+
+  const stopAt = until && until.getTime() < windowEnd.getTime() ? until : windowEnd;
+  const occurrences: Date[] = [];
+  const cur = new Date(event.start.getTime());
+  let emitted = 0;
+  let iter = 0;
+  const MAX_ITER = 1000;
+
+  while (cur.getTime() <= stopAt.getTime() && emitted < count && iter++ < MAX_ITER) {
+    if (cur.getTime() >= windowStart.getTime() && cur.getTime() <= windowEnd.getTime()) {
+      const dayKey = cur.toISOString().slice(0, 10);
+      if (!exSet.has(dayKey)) occurrences.push(new Date(cur.getTime()));
+    }
+    emitted++;
+    if (freq === 'DAILY') cur.setUTCDate(cur.getUTCDate() + interval);
+    else if (freq === 'WEEKLY') cur.setUTCDate(cur.getUTCDate() + 7 * interval);
+    else if (freq === 'MONTHLY') cur.setUTCMonth(cur.getUTCMonth() + interval);
+    else if (freq === 'YEARLY') cur.setUTCFullYear(cur.getUTCFullYear() + interval);
+  }
+  return occurrences;
+}
+
+async function fetchICSEvents(icsUrl: string, monthsBack: number = 0): Promise<{ events: CalendarEvent[]; dateRange: { startDate: string; endDate: string } }> {
+  const { startDate, endDate } = getCalendarSyncDateRange(monthsBack);
+  const emptyRange = {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0],
+  };
+
+  try {
+    const response = await fetch(icsUrl, {
+      headers: { 'User-Agent': 'IKTracker/1.0 (+https://iktracker.fr)' },
+      redirect: 'follow',
+    });
+    if (!response.ok) {
+      console.error(`ICS fetch failed [${response.status}] for ${icsUrl}`);
+      return { events: [], dateRange: emptyRange };
+    }
+    const text = await response.text();
+    const raw = parseICS(text);
+    console.log(`Parsed ${raw.length} raw VEVENTs from ICS`);
+
+    const events: CalendarEvent[] = [];
+    for (const ev of raw) {
+      const occurrences = ev.rrule
+        ? expandRRULE(ev, startDate, endDate)
+        : (ev.start.getTime() >= startDate.getTime() && ev.start.getTime() <= endDate.getTime() ? [ev.start] : []);
+
+      const duration = Math.max(0, ev.end.getTime() - ev.start.getTime());
+      for (const occ of occurrences) {
+        const endOcc = new Date(occ.getTime() + duration);
+        const id = ev.rrule ? `${ev.uid}_${occ.toISOString().slice(0, 10)}` : ev.uid;
+        events.push({
+          id,
+          summary: ev.summary,
+          location: ev.location,
+          start: ev.allDay ? { date: occ.toISOString().slice(0, 10) } : { dateTime: occ.toISOString() },
+          end: ev.allDay ? { date: endOcc.toISOString().slice(0, 10) } : { dateTime: endOcc.toISOString() },
+        });
+      }
+    }
+    console.log(`Expanded to ${events.length} event occurrences in window`);
+    return { events, dateRange: emptyRange };
+  } catch (err) {
+    console.error('ICS fetch/parse error:', err);
+    return { events: [], dateRange: emptyRange };
+  }
+}
+
 // IK Barème 2024 (same as frontend)
 interface IKBareme {
   cv: string;
@@ -428,7 +624,8 @@ async function createTripFromEvent(
   event: CalendarEvent,
   vehicle: VehicleInfo | null,
   userHomeLocation: { address: string; name: string } | null,
-  supabase: any
+  supabase: any,
+  source: string = 'google_calendar'
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
   console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
@@ -559,7 +756,7 @@ async function createTripFromEvent(
     purpose: event.summary || 'Rendez-vous calendrier',
     date: eventDate,
     ik_amount: ikAmount,
-    source: 'google_calendar',
+    source: source,
     calendar_event_id: event.id,
     status: tripStatus,
   });
@@ -583,14 +780,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Auth: only allow service-role callers (pg_cron) or matching CRON_SECRET header.
+  // Auth: only allow service-role callers (pg_cron) or matching CRON_SECRET/SYNC_CRON_TOKEN header.
   const serviceRoleKey = SUPABASE_SERVICE_ROLE_KEY!;
   const cronSecret = Deno.env.get('CRON_SECRET');
+  const syncCronToken = Deno.env.get('SYNC_CRON_TOKEN');
   const authHeader = req.headers.get('Authorization') || '';
   const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   const xCronSecret = req.headers.get('x-cron-secret');
   const authorized = (bearer && bearer === serviceRoleKey) ||
-    (cronSecret && xCronSecret === cronSecret);
+    (cronSecret && xCronSecret === cronSecret) ||
+    (syncCronToken && xCronSecret === syncCronToken);
   if (!authorized) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -694,6 +893,54 @@ serve(async (req) => {
         console.error(`Error processing user ${connection.user_id}:`, error);
       }
     }
+
+    // ============ ICS connections (any calendar: Outlook, iCloud, generic .ics) ============
+    const { data: icsConnections, error: icsError } = await supabase
+      .from('calendar_connections')
+      .select('id, user_id, ics_url')
+      .eq('provider', 'ics')
+      .eq('is_active', true);
+
+    if (icsError) {
+      console.error('Failed to fetch ICS connections:', icsError);
+    } else {
+      console.log(`Found ${icsConnections?.length || 0} active ICS connections`);
+      for (const conn of icsConnections || []) {
+        try {
+          if (!conn.ics_url) {
+            console.log(`Skipping ICS user ${conn.user_id} - no url`);
+            continue;
+          }
+          console.log(`Processing ICS user ${conn.user_id}...`);
+          const { events, dateRange } = await fetchICSEvents(conn.ics_url, monthsBack);
+          if (!syncDateRange) syncDateRange = dateRange;
+          console.log(`Found ${events.length} ICS events for user ${conn.user_id}`);
+
+          const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
+          const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
+
+          let tripsCreated = 0;
+          let skippedNoLocation = 0;
+          let skippedAlreadyExists = 0;
+          let skippedOther = 0;
+          for (const event of events) {
+            const result = await createTripFromEvent(
+              conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+            );
+            if (result.created) tripsCreated++;
+            else if (result.reason === 'no_location') skippedNoLocation++;
+            else if (result.reason === 'already_exists') skippedAlreadyExists++;
+            else skippedOther++;
+          }
+          totalTripsCreated += tripsCreated;
+          usersProcessed++;
+          console.log(`ICS user ${conn.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+        } catch (error) {
+          console.error(`Error processing ICS user ${conn.user_id}:`, error);
+        }
+      }
+    }
+
 
     const result = {
       success: true,
