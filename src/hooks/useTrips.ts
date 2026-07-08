@@ -784,8 +784,8 @@ export function useTrips() {
           const previousCumulativeKm = cumulativeKm;
           cumulativeKm += trip.distance;
           
-          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower) - 
-                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower);
+          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower, preferences.ikRateOverride) - 
+                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower, preferences.ikRateOverride);
           
           if (newIsElectric) {
             newIkAmount = newIkAmount * 1.2;
