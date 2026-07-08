@@ -115,18 +115,25 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
       return;
     }
 
+    const created = data?.totalTripsCreated || 0;
+
+    if (created === 0) {
+      // Nothing new to import → discret toast vert, pas de modale
+      toast.success('Import à jour');
+      setSyncingProvider(null);
+      return;
+    }
+
     setSyncResult({
-      totalTripsCreated: data?.totalTripsCreated || 0,
+      totalTripsCreated: created,
       dateRange: data?.dateRange || null,
     });
     setSyncingProvider(null);
     setShowSyncNotification(true);
 
-    if (data?.totalTripsCreated > 0) {
-      // Trigger refresh of trips data
-      queryClient.invalidateQueries({ queryKey: ['trips'] });
-      onTripsUpdated?.();
-    }
+    // Trigger refresh of trips data
+    queryClient.invalidateQueries({ queryKey: ['trips'] });
+    onTripsUpdated?.();
   }, [user, queryClient, onTripsUpdated, monthsBack]);
 
   const googleConnection = getConnection('google');
