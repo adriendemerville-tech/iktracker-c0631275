@@ -719,8 +719,8 @@ export function useTrips() {
           cumulativeKm += trip.distance;
           
           // Calculate new IK based on cumulative distance
-          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower) - 
-                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower);
+          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower, preferences.ikRateOverride) - 
+                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower, preferences.ikRateOverride);
           
           // Apply 20% bonus for electric vehicles
           if (newIsElectric) {
