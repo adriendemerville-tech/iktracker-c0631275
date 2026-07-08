@@ -579,8 +579,45 @@ export function TripSettingsModal(props: Props) {
                         </Button>
                       </div>
                     </div>
+
+                    {/* Restore backup (only visible if a wipe backup is available) */}
+                    {backupInfo.available && (
+                      <div className="rounded-lg border border-primary/40 bg-primary/5 p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                          <ArchiveRestore className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                          <div className="space-y-1">
+                            <h4 className="text-sm font-semibold text-primary">Restaurer ma dernière sauvegarde</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              Une sauvegarde de <strong>{backupInfo.count} trajet{backupInfo.count > 1 ? 's' : ''}</strong> supprimé{backupInfo.count > 1 ? 's' : ''}
+                              {' '}le {new Date(backupInfo.wipedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} est encore récupérable.
+                            </p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              Il reste <strong>{backupInfo.daysLeft} jour{backupInfo.daysLeft > 1 ? 's' : ''}</strong> avant la purge définitive.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            size="sm"
+                            disabled={restoreLoading}
+                            onClick={async () => {
+                              // No conflict → restore directly (merge is a no-op if no current trips)
+                              if (currentTripsCount === 0) {
+                                await doRestore('merge');
+                              } else {
+                                setRestoreConflictOpen(true);
+                              }
+                            }}
+                          >
+                            <ArchiveRestore className="w-4 h-4 mr-2" />
+                            {restoreLoading ? 'Restauration…' : 'Restaurer la sauvegarde'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </section>
                 )}
+
               </div>
             </div>
           </div>
