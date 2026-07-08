@@ -96,8 +96,13 @@ export const TripCard = memo(function TripCard({
 
   const startCityName = getDisplayName(trip.startLocation);
   const endCityName = getDisplayName(trip.endLocation);
-  // Une tournée doit avoir minimum 3 stops (villes), sinon c'est un trajet simple
-  const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length >= 3;
+  // Une tournée = présence d'étapes (>=2), quelle que soit son origine :
+  // - Mode Tournée live (GPS) → purpose === 'Tournée'
+  // - Import Calendar (mode 'tour') → purpose === 'Tournée · N rendez-vous : ...'
+  // - Regroupement manuel de trajets → purpose === 'Tournée'
+  // La source de vérité est tourStops (chaque étape porte son timestamp d'arrivée,
+  // indispensable pour les audits).
+  const isTour = !!(trip.tourStops && trip.tourStops.length >= 2);
 
   const handleCardClick = () => {
     if (selectionMode && onToggleSelect && !isPending) {
