@@ -251,7 +251,7 @@ export const TripCard = memo(function TripCard({
               )}
             </div>
           )}
-          {showDelete && onDelete && showActionButtons && (
+          {showDelete && onDelete && showActionButtons && (isMobile || isHovered) && (
             <Button
               variant="ghost"
               size="icon"
