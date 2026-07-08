@@ -29,6 +29,7 @@ interface PrintReportOptions {
   logoUrl?: string;
   userInfo?: UserInfo;
   sinceDate?: Date;
+  ikRateOverride?: IKRateOverride;
 }
 
 interface RecalculatedTrip extends Trip {
@@ -37,7 +38,7 @@ interface RecalculatedTrip extends Trip {
   appliedRate: number;
 }
 
-function recalculateTrips(trips: Trip[], vehicles: Vehicle[]): RecalculatedTrip[] {
+function recalculateTrips(trips: Trip[], vehicles: Vehicle[], override: IKRateOverride = 'auto'): RecalculatedTrip[] {
   const getVehicle = (id: string) => vehicles.find(v => v.id === id);
   const grouped = new Map<string, Trip[]>();
   
@@ -67,14 +68,20 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[]): RecalculatedTrip[
         return;
       }
 
-      const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
-      const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower);
-      const recalculatedIK = ikAfter - ikBefore;
+      const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower, override);
+      const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower, override);
+      let recalculatedIK = ikAfter - ikBefore;
+      if (vehicle.isElectric) recalculatedIK = recalculatedIK * 1.2;
 
       const bareme = getIKBareme(vehicle.fiscalPower);
-      let appliedRate = bareme.upTo5000.rate;
-      if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
-      else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
+      let appliedRate: number;
+      if (override === 'tier2') appliedRate = bareme.from5001To20000.rate;
+      else if (override === 'tier3') appliedRate = bareme.over20000.rate;
+      else {
+        appliedRate = bareme.upTo5000.rate;
+        if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
+        else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
+      }
 
       result.push({ ...trip, recalculatedIK, cumulativeKm, appliedRate });
     });
@@ -82,6 +89,7 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[]): RecalculatedTrip[
 
   return result.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 }
+
 
 // Extract city name from full address (e.g., "255 chemin des masques, 13160 Châteaurenard" → "Châteaurenard")
 function extractCity(address: string): string {
