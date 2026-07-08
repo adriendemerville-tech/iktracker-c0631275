@@ -1856,15 +1856,15 @@ export function AdminStats() {
                                   <div className="grid grid-cols-3 gap-2">
                                     <div className="text-center p-2 bg-muted/50 rounded-md">
                                       <p className="text-lg font-bold">{formatNumber(s.total_attempts)}</p>
-                                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Tentatives</p>
+                                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Utilisateurs</p>
                                     </div>
                                     <div className="text-center p-2 bg-green-500/10 rounded-md">
                                       <p className="text-lg font-bold text-green-600">{formatNumber(s.successful_attempts)}</p>
-                                      <p className="text-[10px] text-green-700 dark:text-green-400 uppercase tracking-wide">{successPct}% réussies</p>
+                                      <p className="text-[10px] text-green-700 dark:text-green-400 uppercase tracking-wide">{successPct}% réussis</p>
                                     </div>
                                     <div className="text-center p-2 bg-red-500/10 rounded-md">
                                       <p className="text-lg font-bold text-red-600">{formatNumber(s.failed_attempts)}</p>
-                                      <p className="text-[10px] text-red-700 dark:text-red-400 uppercase tracking-wide">{failurePct}% échouées</p>
+                                      <p className="text-[10px] text-red-700 dark:text-red-400 uppercase tracking-wide">{failurePct}% échoués</p>
                                     </div>
                                   </div>
                                 </div>
@@ -1872,7 +1872,7 @@ export function AdminStats() {
                             })}
                           </div>
                         )}
-                        <p className="text-xs text-muted-foreground text-center">sur les 30 derniers jours</p>
+                        <p className="text-xs text-muted-foreground text-center">Utilisateurs uniques ayant tenté une connexion (90 derniers jours)</p>
                       </CardContent>
                     </DraggableStatsSection>
                   );
