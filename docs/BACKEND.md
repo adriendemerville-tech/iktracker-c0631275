@@ -326,10 +326,14 @@ Content-Type: application/json
 
 #### `sync-calendar-trips` — Synchronisation calendrier
 
-- **Auth** : JWT utilisateur
-- **Endpoint** : `POST` avec body `{ connectionId, syncDays }`
-- **Logique** : Lit les événements Google/Outlook, extrait les adresses, calcule les distances, crée les trajets
-- **Secrets** : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- **Auth** : JWT utilisateur OU header `x-cron-secret: $SYNC_CRON_TOKEN` (cron horaire via `pg_cron` + `pg_net`)
+- **Endpoint** : `POST` avec body `{ connectionId, syncDays }` (ou aucun body en mode cron → sync de toutes les connexions actives)
+- **Sources supportées** :
+  - `google` : OAuth Google Calendar API (refresh token stocké dans `calendar_connections`)
+  - `outlook` : OAuth Microsoft Graph
+  - `ics` : lien public ICS (Outlook perso/pro sans OAuth, Apple Calendar, tout fournisseur exposant un `.ics`). L'URL est stockée dans `calendar_connections.ics_url`. La fonction fetch le flux, parse les blocs `VEVENT` (avec gestion du RFC 5545 line folding, unescape des caractères, expansion des `RRULE` DAILY/WEEKLY/MONTHLY/YEARLY sur la fenêtre `syncDays`) et route chaque événement dans le même pipeline `createTripFromEvent` que Google/Outlook (déduplication par `calendar_event_id`, extraction d'adresse, calcul de distance, statut `pending_location` si aucune adresse détectable).
+- **Logique** : Lit les événements, extrait les adresses, calcule les distances, crée les trajets (`source = google_calendar` | `outlook_calendar` selon la connexion)
+- **Secrets** : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `SYNC_CRON_TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `vehicle-lookup` — Recherche par plaque
 
@@ -514,6 +518,17 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | Scopes | `Calendars.Read` |
 | Edge Function | `outlook-calendar-auth` |
 | Secrets | `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET` |
+
+### ICS (lien public)
+
+| Aspect | Détail |
+|---|---|
+| Auth | Aucune — URL publique `.ics` collée par l'utilisateur |
+| Fournisseurs | Outlook perso/pro (tenants sans consent OAuth), Apple Calendar, tout provider RFC 5545 |
+| Parsing | `sync-calendar-trips` : fetch HTTP, unfold RFC 5545, unescape (`\,` `\;` `\n`), expansion `RRULE` (DAILY/WEEKLY/MONTHLY/YEARLY) sur `syncDays` |
+| Stockage | `calendar_connections.ics_url` + `provider = 'ics'` |
+| Fallback | Événements sans adresse détectable → trajet `pending_location` à compléter côté front |
+
 
 ### API Véhicules (immatriculation)
 
