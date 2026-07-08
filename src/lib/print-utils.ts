@@ -156,7 +156,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   
   const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
   
-  const recalculatedTrips = recalculateTrips(trips, vehicles);
+  const recalculatedTrips = recalculateTrips(trips, vehicles, ikRateOverride);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
   // Generate trip rows - columns: Date, Départ, Arrivée, Motif, Km, Cumul, IK
