@@ -51,7 +51,107 @@ export default function Report() {
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isRegrouping, setIsRegrouping] = useState(false);
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const handleRegroupToTour = async () => {
+    const chosen = trips.filter(t => selectedIds.has(t.id));
+    if (chosen.length < 2) {
+      toast.error("Sélectionnez au moins 2 trajets");
+      return;
+    }
+    // Same day check
+    const dayKey = (d: Date) => new Date(d).toISOString().split('T')[0];
+    const firstDay = dayKey(chosen[0].startTime);
+    if (!chosen.every(t => dayKey(t.startTime) === firstDay)) {
+      toast.error("Les trajets doivent être du même jour");
+      return;
+    }
+    // Same vehicle check
+    const firstVehicle = chosen[0].vehicleId;
+    if (!firstVehicle || !chosen.every(t => t.vehicleId === firstVehicle)) {
+      toast.error("Les trajets doivent utiliser le même véhicule");
+      return;
+    }
+
+    setIsRegrouping(true);
+    try {
+      // Sort chronologically
+      const sorted = [...chosen].sort(
+        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      );
+
+      // Build tour_stops: chained locations, dedup consecutive identical addresses
+      const stops: any[] = [];
+      const pushStop = (loc: { name: string; address?: string; lat?: number; lng?: number }, ts: string) => {
+        const addr = loc.address || loc.name;
+        const last = stops[stops.length - 1];
+        if (last && (last.address || '') === addr) return;
+        stops.push({
+          id: crypto.randomUUID(),
+          timestamp: ts,
+          lat: loc.lat ?? 0,
+          lng: loc.lng ?? 0,
+          address: loc.address || loc.name,
+          city: loc.name,
+        });
+      };
+      sorted.forEach(t => {
+        pushStop(t.startLocation, new Date(t.startTime).toISOString());
+        pushStop(t.endLocation, new Date(t.endTime || t.startTime).toISOString());
+      });
+
+      const totalDistance = sorted.reduce((s, t) => s + t.distance, 0);
+      const baseDistance = sorted.reduce((s, t) => s + (t.baseDistance || t.distance), 0);
+
+      const created = await addTrip({
+        vehicleId: firstVehicle,
+        startLocation: sorted[0].startLocation,
+        endLocation: sorted[sorted.length - 1].endLocation,
+        distance: totalDistance,
+        baseDistance,
+        roundTrip: false,
+        purpose: 'Tournée',
+        startTime: sorted[0].startTime,
+        endTime: sorted[sorted.length - 1].endTime || sorted[sorted.length - 1].startTime,
+        tourStops: stops,
+        status: 'validated',
+      } as any);
+
+      if (!created) {
+        toast.error("Impossible de créer la tournée");
+        return;
+      }
+
+      // Delete (archive) source trips
+      for (const t of sorted) {
+        await deleteTrip(t.id);
+      }
+
+      toast.success(`Tournée créée avec ${stops.length} étapes`);
+      exitSelectionMode();
+    } catch (e) {
+      console.error('Regroup error:', e);
+      toast.error("Erreur lors du regroupement");
+    } finally {
+      setIsRegrouping(false);
+    }
+  };
 
   // Open recurring modal from survey tab=RECURRENT
   useEffect(() => {
