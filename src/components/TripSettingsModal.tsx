@@ -50,6 +50,11 @@ interface Props {
   onDeleteLocation: (id: string) => void;
   onOpenRecurring: () => void;
   onDeleteAllTrips: () => Promise<{ success: boolean; count: number }>;
+  onGetWipeBackupInfo: () => Promise<
+    { available: false } | { available: true; count: number; wipedAt: string; daysLeft: number }
+  >;
+  onRestoreWipedTrips: (mode: 'merge' | 'replace') => Promise<{ success: boolean; restored: number }>;
+  currentTripsCount: number;
 }
 
 
@@ -59,6 +64,7 @@ export function TripSettingsModal(props: Props) {
     onAddVehicle, onUpdateVehicle, onDeleteVehicle,
     onAddLocation, onUpdateLocation, onDeleteLocation,
     onOpenRecurring, onDeleteAllTrips,
+    onGetWipeBackupInfo, onRestoreWipedTrips, currentTripsCount,
   } = props;
   const { preferences, updatePreference } = usePreferences();
   const [activeTab, setActiveTab] = useState<TabId>('vehicles');
@@ -73,6 +79,42 @@ export function TripSettingsModal(props: Props) {
   const [wipeConfirmOpen, setWipeConfirmOpen] = useState(false);
   const [wipeConfirmText, setWipeConfirmText] = useState('');
   const [wipeLoading, setWipeLoading] = useState(false);
+
+  // Danger zone: restore backup
+  const [backupInfo, setBackupInfo] = useState<
+    { available: false } | { available: true; count: number; wipedAt: string; daysLeft: number }
+  >({ available: false });
+  const [restoreLoading, setRestoreLoading] = useState(false);
+  const [restoreConflictOpen, setRestoreConflictOpen] = useState(false);
+
+  // Load backup info when opening the danger tab (or modal itself)
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    onGetWipeBackupInfo().then((info) => {
+      if (!cancelled) setBackupInfo(info);
+    }).catch(() => { /* noop */ });
+    return () => { cancelled = true; };
+  }, [open, activeTab, onGetWipeBackupInfo]);
+
+  const doRestore = async (mode: 'merge' | 'replace') => {
+    setRestoreLoading(true);
+    const res = await onRestoreWipedTrips(mode);
+    setRestoreLoading(false);
+    setRestoreConflictOpen(false);
+    if (res.success) {
+      toast.success(
+        `${res.restored} trajet${res.restored > 1 ? 's' : ''} restauré${res.restored > 1 ? 's' : ''}${
+          mode === 'replace' ? ' (journal actuel remplacé)' : ''
+        }.`
+      );
+      const info = await onGetWipeBackupInfo();
+      setBackupInfo(info);
+    } else {
+      toast.error('Échec de la restauration. Réessayez.');
+    }
+  };
+
 
 
   return (
