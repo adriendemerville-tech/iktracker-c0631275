@@ -514,11 +514,12 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Recurring trips stats — total + last 7 days
+  // Recurring trips stats — total + série sur la période sélectionnée
   const { data: recurringTripsStats, isLoading: recurringTripsStatsLoading } = useQuery({
-    queryKey: ['admin-recurring-trips-stats'],
+    queryKey: ['admin-recurring-trips-stats', period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_recurring_trips_stats' as any);
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_recurring_trips_stats' as any, { days_back: daysBack });
       if (error) throw error;
       const rows = (data ?? []) as Array<{ total_count: number; day: string; count: number }>;
       const total = rows[0]?.total_count ?? 0;
@@ -530,6 +531,7 @@ export function AdminStats() {
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
 
 
 
@@ -631,28 +633,30 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch referral sources stats
+  // Fetch referral sources stats (admins exclus via RPC)
   const { data: referralStats, isLoading: referralLoading } = useQuery({
-    queryKey: ['admin-referral-sources'],
+    queryKey: ['admin-referral-sources', period],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('referral_sources')
-        .select('source');
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_referral_sources_stats' as any, { days_back: daysBack });
       if (error) throw error;
+      const rows = (data as unknown as { source: string; count: number }[]) || [];
       const counts: Record<string, number> = {};
       let total = 0;
       let totalExposed = 0;
-      (data || []).forEach((r: { source: string }) => {
-        totalExposed++;
-        if (r.source === 'skip') return;
-        counts[r.source] = (counts[r.source] || 0) + 1;
-        total++;
-      });
+      for (const r of rows) {
+        const n = Number(r.count) || 0;
+        totalExposed += n;
+        if (r.source === 'skip') continue;
+        counts[r.source] = (counts[r.source] || 0) + n;
+        total += n;
+      }
       const responseRate = totalExposed > 0 ? Math.round((total / totalExposed) * 100) : 0;
       return { counts, total, totalExposed, responseRate };
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
 
   // Fetch per-user persona map (for recent signups display)
   const { data: userPersonaMap } = useQuery({
@@ -671,16 +675,25 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch persona distribution (all auth.users via RPC)
+  // Fetch persona distribution (via RPC, admins exclus)
   const { data: personaDistribution, isLoading: personaLoading } = useQuery({
     queryKey: ['admin-persona-distribution'],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_persona_distribution');
       if (error) throw error;
-      return data as { counts: Record<string, number>; total: number };
+      const rows = (data as unknown as { persona: string; count: number }[]) || [];
+      const counts: Record<string, number> = {};
+      let total = 0;
+      for (const r of rows) {
+        const key = r.persona || 'undefined';
+        counts[key] = (counts[key] || 0) + Number(r.count);
+        total += Number(r.count);
+      }
+      return { counts, total };
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
 
 
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
