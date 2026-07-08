@@ -519,6 +519,17 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | Edge Function | `outlook-calendar-auth` |
 | Secrets | `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET` |
 
+### ICS (lien public)
+
+| Aspect | Détail |
+|---|---|
+| Auth | Aucune — URL publique `.ics` collée par l'utilisateur |
+| Fournisseurs | Outlook perso/pro (tenants sans consent OAuth), Apple Calendar, tout provider RFC 5545 |
+| Parsing | `sync-calendar-trips` : fetch HTTP, unfold RFC 5545, unescape (`\,` `\;` `\n`), expansion `RRULE` (DAILY/WEEKLY/MONTHLY/YEARLY) sur `syncDays` |
+| Stockage | `calendar_connections.ics_url` + `provider = 'ics'` |
+| Fallback | Événements sans adresse détectable → trajet `pending_location` à compléter côté front |
+
+
 ### API Véhicules (immatriculation)
 
 | Aspect | Détail |
