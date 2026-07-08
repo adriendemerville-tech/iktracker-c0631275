@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2, AlertTriangle } from 'lucide-react';
+import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2, AlertTriangle, ArchiveRestore } from 'lucide-react';
 import { Vehicle, Location as TripLocation } from '@/types/trip';
 import { usePreferences, IKRateOverride, CalendarImportMode } from '@/hooks/usePreferences';
 import { VehicleCard } from '@/components/VehicleCard';
