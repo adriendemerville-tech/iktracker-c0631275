@@ -736,6 +736,7 @@ const Profile = () => {
                   </p>
                 </div>
 
+              </div>
             </div>
           </div>
         </div>
