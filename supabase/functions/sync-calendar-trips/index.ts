@@ -972,6 +972,17 @@ async function getUserCalendarImportMode(userId: string, supabase: any): Promise
   return mode === 'tour' ? 'tour' : 'individual';
 }
 
+async function getUserIkRateOverride(userId: string, supabase: any): Promise<IKRateOverride> {
+  const { data } = await supabase
+    .from('user_preferences')
+    .select('ik_rate_override')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const v = (data as any)?.ik_rate_override;
+  return v === 'tier2' || v === 'tier3' ? v : 'auto';
+}
+
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
