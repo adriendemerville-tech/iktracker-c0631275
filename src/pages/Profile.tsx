@@ -895,6 +895,31 @@ const Profile = () => {
           Télécharger l'application
         </Button>
 
+        {/* Delete account - just before feedback */}
+        {user && (
+          <Card className="border-destructive/30">
+            <CardContent className="flex items-center justify-between gap-3 py-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <Trash2 className="w-5 h-5 text-destructive shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-medium text-sm">Supprimer mon compte</p>
+                  <p className="text-xs text-muted-foreground">
+                    Suppression définitive de vos données
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-8 text-xs px-3 shrink-0"
+                onClick={() => setDeleteAccountOpen(true)}
+              >
+                Supprimer
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Feedback Button - Normal position when no unread responses */}
         {user && unreadResponsesCount === 0 && <FeedbackForm />}
 
