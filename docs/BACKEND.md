@@ -364,6 +364,7 @@ Content-Type: application/json
 
 - **Auth** : Aucune (callbacks OAuth)
 - **Logique** : Échange le code OAuth contre un token, stocke dans `calendar_connections`
+- **Observabilité** : Chaque callback OAuth (succès ou échec) est journalisé dans `calendar_connection_attempts` avec le provider (`google`/`outlook`), le statut et le message d'erreur éventuel.
 - **Sécurité** : Validation des redirect URLs contre une whitelist
 - **Secrets** : `GOOGLE_CLIENT_ID/SECRET`, `MICROSOFT_CLIENT_ID/SECRET`
 
