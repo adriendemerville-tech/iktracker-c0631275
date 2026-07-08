@@ -734,8 +734,8 @@ async function createTripFromEvent(
     const newAnnualTotal = annualKm + distance;
     
     // Calculate incremental IK (what this trip adds to total)
-    const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power);
-    const ikAfter = calculateTotalAnnualIK(newAnnualTotal, vehicle.fiscal_power);
+    const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power, ikRateOverride);
+    const ikAfter = calculateTotalAnnualIK(newAnnualTotal, vehicle.fiscal_power, ikRateOverride);
     ikAmount = ikAfter - ikBefore;
     
     // Apply 20% bonus for electric vehicles
