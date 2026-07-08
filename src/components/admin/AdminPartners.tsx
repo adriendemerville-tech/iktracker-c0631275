@@ -244,7 +244,8 @@ export function AdminPartners() {
               <Euro className="h-5 w-5 text-emerald-500" />
             </div>
             <p className="text-2xl font-bold">{totalRevenue.toFixed(0)}€</p>
-            <p className="text-xs text-muted-foreground">Revenu estimé 30j</p>
+            <p className="text-xs text-muted-foreground" title="Estimation basée sur un taux de conversion forfaitaire de 4% appliqué aux clics">Revenu estimé 30j (conv. 4%)</p>
+
           </CardContent>
         </Card>
       </div>
