@@ -730,14 +730,21 @@ ${IKTRACKER_MENTION}
           return;
         }
 
-        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
-        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower);
-        const recalculatedIK = ikAfter - ikBefore;
+        const override = preferences.ikRateOverride;
+        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower, override);
+        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower, override);
+        let recalculatedIK = ikAfter - ikBefore;
+        if (vehicle.isElectric) recalculatedIK = recalculatedIK * 1.2;
 
         const bareme = getIKBareme(vehicle.fiscalPower);
-        let appliedRate = bareme.upTo5000.rate;
-        if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
-        else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
+        let appliedRate: number;
+        if (override === 'tier2') appliedRate = bareme.from5001To20000.rate;
+        else if (override === 'tier3') appliedRate = bareme.over20000.rate;
+        else {
+          appliedRate = bareme.upTo5000.rate;
+          if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
+          else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
+        }
 
         recalculatedTrips.push({ ...trip, recalculatedIK, cumulativeKm, appliedRate });
       });
