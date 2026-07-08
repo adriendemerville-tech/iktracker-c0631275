@@ -103,6 +103,13 @@ interface TakeoutImportStatsData {
   unique_users_imported: number;
 }
 
+interface CalendarConnectionStatsData {
+  provider: string;
+  total_attempts: number;
+  successful_attempts: number;
+  failed_attempts: number;
+}
+
 interface MarketingStatsData {
   total_views: number;
   unique_sessions: number;
