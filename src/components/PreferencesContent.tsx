@@ -4,6 +4,7 @@ import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Moon, Sun, Clock, Timer, MapPin, Route, CalendarClock, Calculator } from 'lucide-react';
 
 export const PreferencesContent = () => {
