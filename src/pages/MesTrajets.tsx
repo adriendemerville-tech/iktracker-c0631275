@@ -483,6 +483,7 @@ ${IKTRACKER_MENTION}
       logoUrl: '/logo-iktracker-250.webp',
       userInfo,
       sinceDate: reportSinceDate,
+      ikRateOverride: preferences.ikRateOverride,
     });
   };
 
@@ -496,6 +497,7 @@ ${IKTRACKER_MENTION}
       logoUrl: '/logo-iktracker-250.webp',
       userInfo,
       sinceDate: reportSinceDate,
+      ikRateOverride: preferences.ikRateOverride,
     });
   };
 
