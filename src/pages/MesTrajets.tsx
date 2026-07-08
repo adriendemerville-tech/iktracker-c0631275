@@ -1193,8 +1193,41 @@ ${IKTRACKER_URL}`;
 
       </main>
 
+      {/* Selection action bar - shown above the main bottom bar */}
+      {selectionMode && (
+        <div className="fixed bottom-[76px] left-0 right-0 z-20 px-4 md:pl-16 animate-fade-in">
+          <div className="max-w-lg mx-auto bg-primary text-primary-foreground rounded-xl shadow-lg px-4 py-3 flex items-center justify-between gap-3">
+            <span className="text-sm font-medium">
+              {selectedIds.size} trajet{selectedIds.size > 1 ? 's' : ''} sélectionné{selectedIds.size > 1 ? 's' : ''}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-primary-foreground hover:bg-primary-foreground/10"
+                onClick={exitSelectionMode}
+                disabled={isRegrouping}
+              >
+                Annuler
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="h-8"
+                onClick={handleRegroupToTour}
+                disabled={selectedIds.size < 2 || isRegrouping}
+              >
+                <Truck className="w-4 h-4 mr-1" />
+                {isRegrouping ? 'Regroupement…' : `Regrouper (${selectedIds.size})`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
+
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="grid grid-cols-3 gap-3 w-4/5 min-w-[280px]">
             <Button 
