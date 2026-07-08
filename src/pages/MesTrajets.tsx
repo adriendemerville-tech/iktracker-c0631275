@@ -37,6 +37,7 @@ export default function Report() {
   const isMobile = useIsMobile();
   const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm } = useTrips();
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const { preferences, updatePreference } = usePreferences();
   
   const [showNewTrip, setShowNewTrip] = useState(false);
