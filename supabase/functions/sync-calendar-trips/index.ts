@@ -829,6 +829,7 @@ async function processEventsAsTour(
   userHomeLocation: { address: string; name: string } | null,
   supabase: any,
   source: string,
+  ikRateOverride: IKRateOverride = 'auto',
 ): Promise<{ toursCreated: number; fallbackEvents: CalendarEvent[] }> {
   if (!userHomeLocation?.address) {
     console.log(`⚠️ [tour-mode] No home address for user ${userId} - falling back to individual`);
