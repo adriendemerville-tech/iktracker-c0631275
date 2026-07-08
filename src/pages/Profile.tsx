@@ -17,8 +17,9 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2, Calendar as CalendarIcon, Trash2, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2, Calendar as CalendarIcon, CalendarClock, Calculator, Trash2, Loader2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -649,30 +650,91 @@ const Profile = () => {
                   )}
                 </div>
 
-                {/* Delete account */}
-                {user && (
-                  <div className="pt-4 mt-2 border-t border-border">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Trash2 className="w-5 h-5 text-destructive shrink-0" />
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm">Supprimer mon compte</p>
-                          <p className="text-xs text-muted-foreground">
-                            Suppression définitive de vos données
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="h-8 text-xs px-3 shrink-0"
-                        onClick={() => setDeleteAccountOpen(true)}
-                      >
-                        Supprimer
-                      </Button>
+                {/* Calendar Import Mode */}
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <CalendarClock className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Import calendrier</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Comportement lors de la synchronisation
+                      </p>
                     </div>
                   </div>
-                )}
+                  <RadioGroup
+                    value={preferences.calendarImportMode}
+                    onValueChange={(v) => updatePreference('calendarImportMode', v as 'individual' | 'tour')}
+                    className="pl-8 space-y-2"
+                  >
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="individual" id="prof-cal-individual" className="mt-1" />
+                      <Label htmlFor="prof-cal-individual" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Trajets individuels</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Chaque événement devient un aller-retour depuis mon domicile
+                        </span>
+                      </Label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="tour" id="prof-cal-tour" className="mt-1" />
+                      <Label htmlFor="prof-cal-tour" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Tournée journalière</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Rendez-vous d'une même journée regroupés : domicile → étapes → domicile
+                        </span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* IK rate override */}
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <Calculator className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Taux d'indemnité kilométrique</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Utile pour figer un taux stable sur l'année
+                      </p>
+                    </div>
+                  </div>
+                  <RadioGroup
+                    value={preferences.ikRateOverride}
+                    onValueChange={(v) => updatePreference('ikRateOverride', v as 'auto' | 'tier2' | 'tier3')}
+                    className="pl-8 space-y-2"
+                  >
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="auto" id="prof-ik-auto" className="mt-1" />
+                      <Label htmlFor="prof-ik-auto" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Barème automatique (recommandé)</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Le taux évolue selon le cumul annuel (jusqu'à 5 000, 5 001–20 000, au-delà)
+                        </span>
+                      </Label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="tier2" id="prof-ik-tier2" className="mt-1" />
+                      <Label htmlFor="prof-ik-tier2" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Forcer la tranche 5 001–20 000 km</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Applique ce taux à tous les trajets, dès le 1er km
+                        </span>
+                      </Label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="tier3" id="prof-ik-tier3" className="mt-1" />
+                      <Label htmlFor="prof-ik-tier3" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Forcer la tranche &gt; 20 000 km</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Pour les gros rouleurs qui dépassent 20 000 km chaque année
+                        </span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  <p className="pl-8 text-[11px] text-muted-foreground italic">
+                    Les trajets déjà enregistrés ne sont pas recalculés.
+                  </p>
+                </div>
 
               </div>
             </div>
@@ -832,6 +894,31 @@ const Profile = () => {
           <Download className="w-4 h-4 mr-2" />
           Télécharger l'application
         </Button>
+
+        {/* Delete account - just before feedback */}
+        {user && (
+          <Card className="border-destructive/30">
+            <CardContent className="flex items-center justify-between gap-3 py-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <Trash2 className="w-5 h-5 text-destructive shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-medium text-sm">Supprimer mon compte</p>
+                  <p className="text-xs text-muted-foreground">
+                    Suppression définitive de vos données
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-8 text-xs px-3 shrink-0"
+                onClick={() => setDeleteAccountOpen(true)}
+              >
+                Supprimer
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Feedback Button - Normal position when no unread responses */}
         {user && unreadResponsesCount === 0 && <FeedbackForm />}
