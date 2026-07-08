@@ -14,6 +14,32 @@ function esc(value: unknown): string {
     .replace(/'/g, '&#39;');
 }
 
+// Fuseau horaire d'affichage des horodatages d'étapes (fixe pour l'audit).
+const AUDIT_TIMEZONE = 'Europe/Paris';
+const TZ_LABEL_SUFFIX = ` · heures ${AUDIT_TIMEZONE}`;
+
+// Formatte un timestamp d'étape en HH:MM dans le fuseau d'audit, avec fallback.
+function formatStopTime(iso: string | undefined | null): { time: string; missing: boolean } {
+  if (!iso) return { time: '--:--', missing: true };
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return { time: '--:--', missing: true };
+  try {
+    return {
+      time: new Intl.DateTimeFormat('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: AUDIT_TIMEZONE,
+      }).format(d),
+      missing: false,
+    };
+  } catch {
+    const hh = d.getHours().toString().padStart(2, '0');
+    const mm = d.getMinutes().toString().padStart(2, '0');
+    return { time: `${hh}:${mm}`, missing: false };
+  }
+}
+
 interface UserInfo {
   email?: string;
   firstName?: string;
@@ -177,27 +203,27 @@ function generateReportHTML(options: PrintReportOptions): string {
     let tourDetailRow = '';
     if (isTour) {
       const stopsHtml = t.tourStops!.map((s, idx) => {
-        const dt = s.timestamp ? new Date(s.timestamp) : null;
-        const hh = dt ? dt.getHours().toString().padStart(2, '0') : '--';
-        const mm = dt ? dt.getMinutes().toString().padStart(2, '0') : '--';
+        const { time, missing } = formatStopTime(s.timestamp);
         const label = s.address || s.city || `Étape ${idx + 1}`;
+        const timeColor = missing ? '#9ca3af' : '#111827';
+        const suffix = missing ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>' : '';
         return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
           <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
-          <span style="display: inline-block; width: 50px; font-weight: 600; color: #111827;">${hh}:${mm}</span>
-          <span style="flex: 1; color: #4b5563;">${esc(label)}</span>
+          <span style="display: inline-block; width: 50px; font-weight: 600; color: ${timeColor};">${time}</span>
+          <span style="flex: 1; color: #4b5563;">${esc(label)}${suffix}</span>
         </div>`;
       }).join('');
       tourDetailRow = `
-      <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
+      <tr style="background-color: ${bgColor};">
         <td colspan="7" style="padding: 6px 12px 12px 20px; border-bottom: 1px solid #e5e7eb;">
-          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes</div>
+          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes${TZ_LABEL_SUFFIX}</div>
           ${stopsHtml}
         </td>
       </tr>`;
     }
 
-    return `
-      <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
+    const mainRow = `
+      <tr style="background-color: ${bgColor};">
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(startCity)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(endCity)}</td>
@@ -205,9 +231,13 @@ function generateReportHTML(options: PrintReportOptions): string {
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px; width: 60px; min-width: 60px;">${Math.round(t.distance)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 65px; min-width: 65px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>
-      </tr>
-      ${tourDetailRow}
-    `;
+      </tr>`;
+
+    // Regrouper trajet + détail de tournée dans un même <tbody> pour éviter
+    // qu'un saut de page ne sépare la ligne parent du détail (indispensable pour l'audit).
+    return isTour
+      ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
+      : mainRow;
   }).join('');
 
   const baremeRows = IK_BAREME_2024.map((b, i) => {
@@ -1142,26 +1172,26 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     let tourDetailRow = '';
     if (isTour) {
       const stopsHtml = t.tourStops!.map((s, idx) => {
-        const dt = s.timestamp ? new Date(s.timestamp) : null;
-        const hh = dt ? dt.getHours().toString().padStart(2, '0') : '--';
-        const mm = dt ? dt.getMinutes().toString().padStart(2, '0') : '--';
+        const { time, missing } = formatStopTime(s.timestamp);
         const label = s.address || s.city || `Étape ${idx + 1}`;
+        const timeColor = missing ? '#9ca3af' : '#111827';
+        const suffix = missing ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>' : '';
         return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
           <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
-          <span style="display: inline-block; width: 50px; font-weight: 600; color: #111827;">${hh}:${mm}</span>
-          <span style="flex: 1; color: #4b5563;">${esc(label)}</span>
+          <span style="display: inline-block; width: 50px; font-weight: 600; color: ${timeColor};">${time}</span>
+          <span style="flex: 1; color: #4b5563;">${esc(label)}${suffix}</span>
         </div>`;
       }).join('');
       tourDetailRow = `
       <tr style="background-color: ${bgColor};">
         <td colspan="7" style="padding: 6px 12px 10px 20px; border-bottom: 1px solid #e5e7eb;">
-          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes</div>
+          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes${TZ_LABEL_SUFFIX}</div>
           ${stopsHtml}
         </td>
       </tr>`;
     }
 
-    return `
+    const mainRow = `
       <tr style="background-color: ${bgColor};">
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(startCity)}</td>
@@ -1170,9 +1200,11 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px;">${Math.round(t.distance)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
-      </tr>
-      ${tourDetailRow}
-    `;
+      </tr>`;
+
+    return isTour
+      ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
+      : mainRow;
   }).join('');
 
   const baremeRows = IK_BAREME_2024.map((b, i) => {

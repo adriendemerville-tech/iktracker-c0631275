@@ -49,11 +49,15 @@ export const TripCard = memo(function TripCard({
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
   const [showTripView, setShowTripView] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
   // On mobile, action buttons (edit/delete) only show when card is selected in selection mode.
-  // On desktop, they are revealed on card hover.
+  // On desktop, they are always mounted but revealed via CSS on hover/focus (see `group-hover` classes),
+  // ce qui évite les re-renders et le layout shift au passage de la souris.
   const showActionButtons = !isMobile || (selectionMode && selected);
+  // Classes de visibilité desktop : réserve la place, révèle au survol ou au focus clavier.
+  const desktopHoverReveal = isMobile
+    ? ''
+    : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-opacity';
   
   const isPending = trip.status === 'pending_location';
   
@@ -134,9 +138,8 @@ export const TripCard = memo(function TripCard({
           selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
         )}
         onClick={handleCardClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
+
         {/* Selection checkbox */}
         {selectionMode && !isPending && (
           <div
@@ -205,18 +208,21 @@ export const TripCard = memo(function TripCard({
           {trip.calendarEventId && (
             <Calendar className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
           )}
-          {onEdit && !isTour && !isPending && showActionButtons && (isMobile || isHovered) && (
+          {onEdit && !isTour && !isPending && showActionButtons && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-5 w-5 hover:bg-transparent shrink-0 text-muted-foreground/60 hover:text-primary"
+              className={cn(
+                "h-5 w-5 hover:bg-transparent shrink-0 text-muted-foreground/60 hover:text-primary",
+                desktopHoverReveal
+              )}
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(trip);
               }}
               aria-label="Modifier le trajet"
             >
-              <Pencil className="w-2.5 h-2.5" />
+              <Pencil className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>
@@ -251,18 +257,21 @@ export const TripCard = memo(function TripCard({
               )}
             </div>
           )}
-          {showDelete && onDelete && showActionButtons && (isMobile || isHovered) && (
+          {showDelete && onDelete && showActionButtons && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent"
+              className={cn(
+                "h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent",
+                desktopHoverReveal
+              )}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(trip.id);
               }}
               aria-label="Supprimer le trajet"
             >
-              <X className="w-2.5 h-2.5" />
+              <X className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>
