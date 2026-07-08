@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Trip, Vehicle } from '@/types/trip';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Accordion,
   AccordionContent,
@@ -17,8 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Archive, RotateCcw, Trash2, Calendar } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Archive, RotateCcw, Trash2, Calendar, CheckSquare, X } from 'lucide-react';
 
 interface ArchivedTripsSectionProps {
   archivedTrips: Trip[];
@@ -34,6 +34,9 @@ export const ArchivedTripsSection = ({
   onPermanentDelete,
 }: ArchivedTripsSectionProps) => {
   const [tripToDelete, setTripToDelete] = useState<string | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   if (archivedTrips.length === 0) return null;
 
@@ -43,11 +46,33 @@ export const ArchivedTripsSection = ({
     return vehicle ? `${vehicle.make} ${vehicle.model}` : null;
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-    }).format(date);
+  const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date);
+
+  const toggle = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allSelected = selectedIds.size === archivedTrips.length && archivedTrips.length > 0;
+  const toggleAll = () => {
+    if (allSelected) setSelectedIds(new Set());
+    else setSelectedIds(new Set(archivedTrips.map(t => t.id)));
+  };
+
+  const exitSelection = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const confirmBulkDelete = () => {
+    selectedIds.forEach(id => onPermanentDelete(id));
+    exitSelection();
+    setBulkDeleteOpen(false);
   };
 
   return (
@@ -60,18 +85,72 @@ export const ArchivedTripsSection = ({
               <span>Archivés ({archivedTrips.length})</span>
             </div>
           </AccordionTrigger>
-          
+
           <AccordionContent className="space-y-2 pt-2">
-            <p className="text-xs text-muted-foreground px-2 mb-3">
-              Les trajets archivés sont conservés 30 jours.
-            </p>
-            
+            <div className="flex items-center justify-between gap-2 px-2 mb-2">
+              <p className="text-xs text-muted-foreground">
+                Les trajets archivés sont conservés 30 jours.
+              </p>
+              {!selectionMode ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => setSelectionMode(true)}
+                >
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  Sélectionner
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={exitSelection}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Annuler
+                </Button>
+              )}
+            </div>
+
+            {selectionMode && (
+              <div className="flex items-center justify-between gap-2 px-2 py-2 bg-muted/50 rounded-lg mb-2">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+                  <span>{allSelected ? 'Tout désélectionner' : 'Tout sélectionner'}</span>
+                  {selectedIds.size > 0 && (
+                    <span className="text-xs text-muted-foreground">({selectedIds.size})</span>
+                  )}
+                </label>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  disabled={selectedIds.size === 0}
+                  onClick={() => setBulkDeleteOpen(true)}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Supprimer
+                </Button>
+              </div>
+            )}
+
             {archivedTrips.map((trip) => (
-              <div 
+              <div
                 key={trip.id}
                 className="bg-muted/30 border border-border/50 rounded-lg p-3 space-y-2"
               >
                 <div className="flex items-start justify-between gap-2">
+                  {selectionMode && (
+                    <div className="pt-1">
+                      <Checkbox
+                        checked={selectedIds.has(trip.id)}
+                        onCheckedChange={() => toggle(trip.id)}
+                        aria-label="Sélectionner le trajet"
+                      />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
@@ -96,29 +175,31 @@ export const ArchivedTripsSection = ({
                       )}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
-                      onClick={() => onRestore(trip.id)}
-                      title="Restaurer"
-                      aria-label="Restaurer le trajet"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setTripToDelete(trip.id)}
-                      title="Supprimer définitivement"
-                      aria-label="Supprimer définitivement le trajet"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+
+                  {!selectionMode && (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
+                        onClick={() => onRestore(trip.id)}
+                        title="Restaurer"
+                        aria-label="Restaurer le trajet"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setTripToDelete(trip.id)}
+                        title="Supprimer définitivement"
+                        aria-label="Supprimer définitivement le trajet"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -126,7 +207,7 @@ export const ArchivedTripsSection = ({
         </AccordionItem>
       </Accordion>
 
-      {/* Permanent delete confirmation */}
+      {/* Single permanent delete */}
       <AlertDialog open={!!tripToDelete} onOpenChange={() => setTripToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -145,6 +226,29 @@ export const ArchivedTripsSection = ({
                   setTripToDelete(null);
                 }
               }}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk permanent delete */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Supprimer {selectedIds.size} trajet{selectedIds.size > 1 ? 's' : ''} ?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Les trajets sélectionnés seront supprimés de façon permanente et ne pourront plus être restaurés.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmBulkDelete}
             >
               Supprimer
             </AlertDialogAction>
