@@ -192,6 +192,19 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save IK rate override to database
+  const saveIkRateOverrideToDatabase = useCallback(async (override: IKRateOverride) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, ik_rate_override: override } as any, { onConflict: 'user_id' });
+      if (error) console.warn('Failed to save ik_rate_override:', error);
+    } catch (e) {
+      console.warn('Failed to save ik_rate_override:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
@@ -211,6 +224,11 @@ export function usePreferences() {
     // Sync calendar import mode to database
     if (key === 'calendarImportMode' && user) {
       saveCalendarImportModeToDatabase(value as CalendarImportMode);
+    }
+
+    // Sync IK rate override to database
+    if (key === 'ikRateOverride' && user) {
+      saveIkRateOverrideToDatabase(value as IKRateOverride);
     }
   };
 
