@@ -201,6 +201,7 @@ const DEFAULT_SECTION_ORDER = [
   'dau-chart',
   'recent-signups',
   'persona-distribution',
+  'calendar-connection-stats',
   'download-stats',
   'share-stats',
   'referral-sources',
