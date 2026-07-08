@@ -72,6 +72,14 @@ export function useCalendarConnections() {
 
       if (error) throw error;
 
+      // Log successful user-initiated ICS connection attempt
+      await supabase.from('calendar_connection_attempts').insert({
+        user_id: user.id,
+        provider: 'ics',
+        status: 'success',
+        metadata: { trigger: 'user_add_ics' },
+      });
+
       const newConnection: CalendarConnection = {
         id: data.id,
         provider: 'ics',
@@ -85,6 +93,14 @@ export function useCalendarConnections() {
       return newConnection;
     } catch (error) {
       console.error('Error adding ICS connection:', error);
+      // Log failed user-initiated ICS connection attempt
+      await supabase.from('calendar_connection_attempts').insert({
+        user_id: user.id,
+        provider: 'ics',
+        status: 'failure',
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+        metadata: { trigger: 'user_add_ics' },
+      });
       toast.error('Erreur lors de l\'ajout de l\'agenda');
       return null;
     }
