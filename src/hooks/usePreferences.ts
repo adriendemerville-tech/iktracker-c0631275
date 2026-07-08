@@ -19,6 +19,15 @@ export interface Preferences {
   fiscalYearStartDay: number; // 1-31, default 1
   calendarImportMode: CalendarImportMode;
   ikRateOverride: IKRateOverride;
+  // Trip defaults (local-only)
+  defaultVehicleId: string | null;
+  defaultPurpose: string;
+  defaultRoundTrip: boolean;
+  // Notifications (local-only)
+  notifTourReminder: boolean;
+  notifAnnualThreshold: boolean;
+  // Automation (local-only, sent to server later)
+  autoMonthlyExport: boolean;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -36,6 +45,12 @@ const defaultPreferences: Preferences = {
   fiscalYearStartDay: 1,
   calendarImportMode: 'individual',
   ikRateOverride: 'auto',
+  defaultVehicleId: null,
+  defaultPurpose: '',
+  defaultRoundTrip: false,
+  notifTourReminder: true,
+  notifAnnualThreshold: true,
+  autoMonthlyExport: false,
 };
 
 // Get the fiscal year start date for a given reference date

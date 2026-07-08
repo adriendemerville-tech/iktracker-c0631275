@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck, Settings } from 'lucide-react';
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
@@ -26,6 +26,7 @@ const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({
 const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
 const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
 const RecurringTripsModal = lazy(() => import('@/components/RecurringTripsModal').then(m => ({ default: m.RecurringTripsModal })));
+const TripSettingsModal = lazy(() => import('@/components/TripSettingsModal').then(m => ({ default: m.TripSettingsModal })));
 
 const SheetLoader = () => <div className="p-4 text-center text-muted-foreground">Chargement...</div>;
 
@@ -54,6 +55,7 @@ export default function Report() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isRegrouping, setIsRegrouping] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
 
   const toggleSelect = (id: string) => {
@@ -832,6 +834,15 @@ ${IKTRACKER_URL}`;
             </Link>
             <h1 className="text-lg font-semibold">Mes trajets</h1>
             <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden md:inline-flex"
+                onClick={() => setShowSettings(true)}
+                aria-label="Réglages des trajets"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={previewHTMLReport} disabled={trips.length === 0} aria-label="Prévisualiser le relevé">
                 <Download className="w-5 h-5" />
               </Button>
@@ -1359,6 +1370,26 @@ ${IKTRACKER_URL}`;
             setShowNewTrip(true);
           }}
         />
+      </Suspense>
+
+      {/* Trip settings modal (desktop only entry point) */}
+      <Suspense fallback={null}>
+        {showSettings && (
+          <TripSettingsModal
+            open={showSettings}
+            onOpenChange={setShowSettings}
+            vehicles={vehicles}
+            savedLocations={savedLocations}
+            getTotalAnnualKm={getTotalAnnualKm}
+            onAddVehicle={addVehicle}
+            onUpdateVehicle={updateVehicle}
+            onDeleteVehicle={deleteVehicle}
+            onAddLocation={addLocation}
+            onUpdateLocation={updateLocation}
+            onDeleteLocation={deleteLocation}
+            onOpenRecurring={() => setShowRecurringModal(true)}
+          />
+        )}
       </Suspense>
       </div>
     </>
