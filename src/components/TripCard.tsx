@@ -138,9 +138,8 @@ export const TripCard = memo(function TripCard({
           selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
         )}
         onClick={handleCardClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
+
         {/* Selection checkbox */}
         {selectionMode && !isPending && (
           <div
