@@ -1805,6 +1805,7 @@ export function AdminStats() {
                       </CardContent>
                     </DraggableStatsSection>
                   );
+                }
 
                 case 'calendar-connection-stats': {
                   const providerLabels: Record<string, string> = {
