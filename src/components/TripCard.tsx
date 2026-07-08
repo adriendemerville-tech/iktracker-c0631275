@@ -257,18 +257,21 @@ export const TripCard = memo(function TripCard({
               )}
             </div>
           )}
-          {showDelete && onDelete && showActionButtons && (isMobile || isHovered) && (
+          {showDelete && onDelete && showActionButtons && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent"
+              className={cn(
+                "h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent",
+                desktopHoverReveal
+              )}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(trip.id);
               }}
               aria-label="Supprimer le trajet"
             >
-              <X className="w-2.5 h-2.5" />
+              <X className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>
