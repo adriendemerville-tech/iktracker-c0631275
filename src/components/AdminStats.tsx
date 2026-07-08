@@ -1007,6 +1007,7 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] }),
       queryClient.invalidateQueries({ queryKey: ['admin-monthly-stats'] }),
       queryClient.invalidateQueries({ queryKey: ['admin-bareme-simulations-by-day'] }),
+      queryClient.invalidateQueries({ queryKey: ['admin-calendar-connection-stats'] }),
     ]);
     // Small delay to show animation
     setTimeout(() => setIsRefreshing(false), 500);
