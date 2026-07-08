@@ -165,6 +165,55 @@ export const PreferencesContent = () => {
           </div>
         </RadioGroup>
       </div>
+
+      {/* IK rate override */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <div className="flex items-center gap-3">
+          <Calculator className="w-5 h-5 text-muted-foreground" />
+          <div>
+            <Label>Taux d'indemnité kilométrique</Label>
+            <p className="text-xs text-muted-foreground">
+              Utile si vous vous remboursez chaque mois et souhaitez un taux stable
+            </p>
+          </div>
+        </div>
+        <RadioGroup
+          value={preferences.ikRateOverride}
+          onValueChange={(v) => updatePreference('ikRateOverride', v as 'auto' | 'tier2' | 'tier3')}
+          className="pl-8 space-y-2"
+        >
+          <div className="flex items-start gap-2">
+            <RadioGroupItem value="auto" id="ik-auto" className="mt-1" />
+            <Label htmlFor="ik-auto" className="cursor-pointer font-normal leading-snug">
+              <span className="block text-sm font-medium">Barème automatique (recommandé)</span>
+              <span className="block text-xs text-muted-foreground">
+                Le taux évolue selon le cumul annuel de kilomètres (jusqu'à 5 000, 5 001–20 000, au-delà)
+              </span>
+            </Label>
+          </div>
+          <div className="flex items-start gap-2">
+            <RadioGroupItem value="tier2" id="ik-tier2" className="mt-1" />
+            <Label htmlFor="ik-tier2" className="cursor-pointer font-normal leading-snug">
+              <span className="block text-sm font-medium">Forcer la tranche 5 001–20 000 km</span>
+              <span className="block text-xs text-muted-foreground">
+                Applique ce taux à tous les trajets, dès le 1er km
+              </span>
+            </Label>
+          </div>
+          <div className="flex items-start gap-2">
+            <RadioGroupItem value="tier3" id="ik-tier3" className="mt-1" />
+            <Label htmlFor="ik-tier3" className="cursor-pointer font-normal leading-snug">
+              <span className="block text-sm font-medium">Forcer la tranche &gt; 20 000 km</span>
+              <span className="block text-xs text-muted-foreground">
+                Pour les gros rouleurs qui dépassent 20 000 km chaque année
+              </span>
+            </Label>
+          </div>
+        </RadioGroup>
+        <p className="pl-8 text-[11px] text-muted-foreground italic">
+          Le changement ne recalcule pas les trajets déjà enregistrés. Les nouveaux trajets et exports utiliseront ce taux.
+        </p>
+      </div>
     </div>
   );
 };
