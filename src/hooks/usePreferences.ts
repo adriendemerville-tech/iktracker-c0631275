@@ -170,6 +170,19 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save calendar import mode to database
+  const saveCalendarImportModeToDatabase = useCallback(async (mode: CalendarImportMode) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, calendar_import_mode: mode } as any, { onConflict: 'user_id' });
+      if (error) console.warn('Failed to save calendar_import_mode:', error);
+    } catch (e) {
+      console.warn('Failed to save calendar_import_mode:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
