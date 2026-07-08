@@ -671,16 +671,25 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch persona distribution (all auth.users via RPC)
+  // Fetch persona distribution (via RPC, admins exclus)
   const { data: personaDistribution, isLoading: personaLoading } = useQuery({
     queryKey: ['admin-persona-distribution'],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_persona_distribution');
       if (error) throw error;
-      return data as { counts: Record<string, number>; total: number };
+      const rows = (data as unknown as { persona: string; count: number }[]) || [];
+      const counts: Record<string, number> = {};
+      let total = 0;
+      for (const r of rows) {
+        const key = r.persona || 'undefined';
+        counts[key] = (counts[key] || 0) + Number(r.count);
+        total += Number(r.count);
+      }
+      return { counts, total };
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
 
 
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
