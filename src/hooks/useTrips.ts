@@ -290,8 +290,9 @@ export function useTrips() {
     if (!vehicle) return null;
 
     const totalAnnualKm = getTotalAnnualKm(trip.vehicleId) + trip.distance;
-    let ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                   calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower);
+    const rateOverride = preferences.ikRateOverride;
+    let ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower, rateOverride) - 
+                   calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower, rateOverride);
     
     // Apply 20% bonus for electric vehicles
     if (vehicle.isElectric) {
@@ -446,8 +447,8 @@ export function useTrips() {
       const existingKmOnThisVehicle = existingTrip.vehicleId === vehicle.id ? existingTrip.distance : 0;
       const otherTripsKm = getTotalAnnualKm(vehicle.id) - existingKmOnThisVehicle;
       const totalAnnualKm = otherTripsKm + newDistance;
-      ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower) - 
-                 calculateTotalAnnualIK(otherTripsKm, vehicle.fiscalPower);
+      ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower, preferences.ikRateOverride) - 
+                 calculateTotalAnnualIK(otherTripsKm, vehicle.fiscalPower, preferences.ikRateOverride);
       
       // Apply 20% bonus for electric vehicles
       if (vehicle.isElectric) {
@@ -643,8 +644,8 @@ export function useTrips() {
           let cumulativeKm = 0;
           for (const trip of sortedTrips) {
             cumulativeKm += trip.distance;
-            let ikAmount = calculateTotalAnnualIK(cumulativeKm, newVehicle.fiscalPower) - 
-                           calculateTotalAnnualIK(cumulativeKm - trip.distance, newVehicle.fiscalPower);
+            let ikAmount = calculateTotalAnnualIK(cumulativeKm, newVehicle.fiscalPower, preferences.ikRateOverride) - 
+                           calculateTotalAnnualIK(cumulativeKm - trip.distance, newVehicle.fiscalPower, preferences.ikRateOverride);
             
             if (newVehicle.isElectric) {
               ikAmount = ikAmount * 1.2;
@@ -718,8 +719,8 @@ export function useTrips() {
           cumulativeKm += trip.distance;
           
           // Calculate new IK based on cumulative distance
-          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower) - 
-                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower);
+          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower, preferences.ikRateOverride) - 
+                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower, preferences.ikRateOverride);
           
           // Apply 20% bonus for electric vehicles
           if (newIsElectric) {
@@ -783,8 +784,8 @@ export function useTrips() {
           const previousCumulativeKm = cumulativeKm;
           cumulativeKm += trip.distance;
           
-          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower) - 
-                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower);
+          let newIkAmount = calculateTotalAnnualIK(cumulativeKm, newFiscalPower, preferences.ikRateOverride) - 
+                           calculateTotalAnnualIK(previousCumulativeKm, newFiscalPower, preferences.ikRateOverride);
           
           if (newIsElectric) {
             newIkAmount = newIkAmount * 1.2;
@@ -867,7 +868,7 @@ export function useTrips() {
     vehicleKms.forEach(({ vehicleId, km }) => {
       const vehicle = vehicles.find(v => v.id === vehicleId);
       if (vehicle) {
-        let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower);
+        let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower, preferences.ikRateOverride);
         if (vehicle.isElectric) {
           vehicleIK = vehicleIK * 1.2;
         }

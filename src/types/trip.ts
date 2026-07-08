@@ -80,23 +80,45 @@ export function getIKBareme(fiscalPower: number): IKBareme {
   return IK_BAREME_2024[4]; // 7 CV et plus
 }
 
-export function calculateIK(distance: number, totalAnnualKm: number, fiscalPower: number): number {
+export type IKRateOverride = 'auto' | 'tier2' | 'tier3';
+
+// Returns the forced €/km rate for a given override, or null if 'auto'
+export function getForcedRate(fiscalPower: number, override: IKRateOverride | undefined | null): number | null {
+  if (!override || override === 'auto') return null;
   const bareme = getIKBareme(fiscalPower);
-  
-  // Apply the correct formula based on total annual distance
+  if (override === 'tier2') return bareme.from5001To20000.rate;
+  if (override === 'tier3') return bareme.over20000.rate;
+  return null;
+}
+
+export function calculateIK(
+  distance: number,
+  totalAnnualKm: number,
+  fiscalPower: number,
+  override?: IKRateOverride | null,
+): number {
+  const forced = getForcedRate(fiscalPower, override);
+  if (forced !== null) return distance * forced;
+
+  const bareme = getIKBareme(fiscalPower);
   if (totalAnnualKm <= 5000) {
     return distance * bareme.upTo5000.rate;
   } else if (totalAnnualKm <= 20000) {
-    // For individual trip, use the rate portion
     return distance * bareme.from5001To20000.rate;
   } else {
     return distance * bareme.over20000.rate;
   }
 }
 
-export function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number): number {
+export function calculateTotalAnnualIK(
+  totalAnnualKm: number,
+  fiscalPower: number,
+  override?: IKRateOverride | null,
+): number {
+  const forced = getForcedRate(fiscalPower, override);
+  if (forced !== null) return totalAnnualKm * forced;
+
   const bareme = getIKBareme(fiscalPower);
-  
   if (totalAnnualKm <= 5000) {
     return totalAnnualKm * bareme.upTo5000.rate;
   } else if (totalAnnualKm <= 20000) {
@@ -105,3 +127,4 @@ export function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: numbe
     return totalAnnualKm * bareme.over20000.rate;
   }
 }
+

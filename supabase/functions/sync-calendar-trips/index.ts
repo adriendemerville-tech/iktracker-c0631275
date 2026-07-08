@@ -373,8 +373,12 @@ function getIKBareme(fiscalPower: number): IKBareme {
   return IK_BAREME_2024[4];
 }
 
-function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number): number {
+type IKRateOverride = 'auto' | 'tier2' | 'tier3';
+
+function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number, override: IKRateOverride = 'auto'): number {
   const bareme = getIKBareme(fiscalPower);
+  if (override === 'tier2') return totalAnnualKm * bareme.from5001To20000.rate;
+  if (override === 'tier3') return totalAnnualKm * bareme.over20000.rate;
   if (totalAnnualKm <= 5000) {
     return totalAnnualKm * bareme.upTo5000.rate;
   } else if (totalAnnualKm <= 20000) {
@@ -625,7 +629,8 @@ async function createTripFromEvent(
   vehicle: VehicleInfo | null,
   userHomeLocation: { address: string; name: string } | null,
   supabase: any,
-  source: string = 'google_calendar'
+  source: string = 'google_calendar',
+  ikRateOverride: IKRateOverride = 'auto'
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
   console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
@@ -729,8 +734,8 @@ async function createTripFromEvent(
     const newAnnualTotal = annualKm + distance;
     
     // Calculate incremental IK (what this trip adds to total)
-    const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power);
-    const ikAfter = calculateTotalAnnualIK(newAnnualTotal, vehicle.fiscal_power);
+    const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power, ikRateOverride);
+    const ikAfter = calculateTotalAnnualIK(newAnnualTotal, vehicle.fiscal_power, ikRateOverride);
     ikAmount = ikAfter - ikBefore;
     
     // Apply 20% bonus for electric vehicles
@@ -824,6 +829,7 @@ async function processEventsAsTour(
   userHomeLocation: { address: string; name: string } | null,
   supabase: any,
   source: string,
+  ikRateOverride: IKRateOverride = 'auto',
 ): Promise<{ toursCreated: number; fallbackEvents: CalendarEvent[] }> {
   if (!userHomeLocation?.address) {
     console.log(`⚠️ [tour-mode] No home address for user ${userId} - falling back to individual`);
@@ -909,8 +915,8 @@ async function processEventsAsTour(
     let ikAmount = 0;
     if (vehicle) {
       const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
-      const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power);
-      const ikAfter = calculateTotalAnnualIK(annualKm + totalDistance, vehicle.fiscal_power);
+      const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power, ikRateOverride);
+      const ikAfter = calculateTotalAnnualIK(annualKm + totalDistance, vehicle.fiscal_power, ikRateOverride);
       ikAmount = ikAfter - ikBefore;
       if (vehicle.is_electric) ikAmount *= 1.20;
       ikAmount = Math.round(ikAmount * 100) / 100;
@@ -967,6 +973,17 @@ async function getUserCalendarImportMode(userId: string, supabase: any): Promise
   const mode = (data as any)?.calendar_import_mode;
   return mode === 'tour' ? 'tour' : 'individual';
 }
+
+async function getUserIkRateOverride(userId: string, supabase: any): Promise<IKRateOverride> {
+  const { data } = await supabase
+    .from('user_preferences')
+    .select('ik_rate_override')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const v = (data as any)?.ik_rate_override;
+  return v === 'tier2' || v === 'tier3' ? v : 'auto';
+}
+
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -1078,9 +1095,10 @@ serve(async (req) => {
         const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
         console.log(`User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : 'not found'}`);
 
-        // Determine import mode for this user
+        // Determine import mode + IK rate override for this user
         const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
-        console.log(`User ${connection.user_id}: calendar_import_mode=${importMode}`);
+        const ikRateOverride = await getUserIkRateOverride(connection.user_id, supabase);
+        console.log(`User ${connection.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`);
 
         // Create trips from events
         let tripsCreated = 0;
@@ -1095,7 +1113,7 @@ serve(async (req) => {
         let eventsToProcess = events;
         if (importMode === 'tour') {
           const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
-            connection.user_id, events, vehicle, userHomeLocation, supabase, 'google_calendar'
+            connection.user_id, events, vehicle, userHomeLocation, supabase, 'google_calendar', ikRateOverride
           );
           toursCreated = nTours;
           tripsCreated += nTours;
@@ -1108,7 +1126,9 @@ serve(async (req) => {
             event,
             vehicle,
             userHomeLocation,
-            supabase
+            supabase,
+            'google_calendar',
+            ikRateOverride
           );
           if (result.created) {
             tripsCreated++;
@@ -1159,7 +1179,8 @@ serve(async (req) => {
           const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
           const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
           const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
-          console.log(`ICS user ${conn.user_id}: calendar_import_mode=${importMode}`);
+          const ikRateOverride = await getUserIkRateOverride(conn.user_id, supabase);
+          console.log(`ICS user ${conn.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`);
 
           let tripsCreated = 0;
           let toursCreated = 0;
@@ -1170,7 +1191,7 @@ serve(async (req) => {
           let eventsToProcess = events;
           if (importMode === 'tour') {
             const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
-              conn.user_id, events, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+              conn.user_id, events, vehicle, userHomeLocation, supabase, 'outlook_calendar', ikRateOverride
             );
             toursCreated = nTours;
             tripsCreated += nTours;
@@ -1179,7 +1200,7 @@ serve(async (req) => {
 
           for (const event of eventsToProcess) {
             const result = await createTripFromEvent(
-              conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+              conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar', ikRateOverride
             );
             if (result.created) tripsCreated++;
             else if (result.reason === 'no_location') skippedNoLocation++;

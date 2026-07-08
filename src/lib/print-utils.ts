@@ -1,7 +1,7 @@
 // HTML/CSS based print utility - replaces heavy PDF libraries
 // Uses native browser print dialog with @media print for PDF generation
 
-import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
+import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme, IKRateOverride } from '@/types/trip';
 
 // Escape user-controlled values before interpolating into HTML to prevent XSS.
 function esc(value: unknown): string {
@@ -29,6 +29,7 @@ interface PrintReportOptions {
   logoUrl?: string;
   userInfo?: UserInfo;
   sinceDate?: Date;
+  ikRateOverride?: IKRateOverride;
 }
 
 interface RecalculatedTrip extends Trip {
@@ -37,7 +38,7 @@ interface RecalculatedTrip extends Trip {
   appliedRate: number;
 }
 
-function recalculateTrips(trips: Trip[], vehicles: Vehicle[]): RecalculatedTrip[] {
+function recalculateTrips(trips: Trip[], vehicles: Vehicle[], override: IKRateOverride = 'auto'): RecalculatedTrip[] {
   const getVehicle = (id: string) => vehicles.find(v => v.id === id);
   const grouped = new Map<string, Trip[]>();
   
@@ -67,14 +68,20 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[]): RecalculatedTrip[
         return;
       }
 
-      const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower);
-      const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower);
-      const recalculatedIK = ikAfter - ikBefore;
+      const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower, override);
+      const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower, override);
+      let recalculatedIK = ikAfter - ikBefore;
+      if (vehicle.isElectric) recalculatedIK = recalculatedIK * 1.2;
 
       const bareme = getIKBareme(vehicle.fiscalPower);
-      let appliedRate = bareme.upTo5000.rate;
-      if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
-      else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
+      let appliedRate: number;
+      if (override === 'tier2') appliedRate = bareme.from5001To20000.rate;
+      else if (override === 'tier3') appliedRate = bareme.over20000.rate;
+      else {
+        appliedRate = bareme.upTo5000.rate;
+        if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
+        else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
+      }
 
       result.push({ ...trip, recalculatedIK, cumulativeKm, appliedRate });
     });
@@ -82,6 +89,7 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[]): RecalculatedTrip[
 
   return result.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 }
+
 
 // Extract city name from full address (e.g., "255 chemin des masques, 13160 Châteaurenard" → "Châteaurenard")
 function extractCity(address: string): string {
@@ -110,7 +118,7 @@ function extractCity(address: string): string {
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl, sinceDate } = options;
+  const { trips, vehicles, totalKm, userInfo, logoUrl, sinceDate, ikRateOverride = 'auto' } = options;
   const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
   // Get Supabase config for the share link feature
@@ -148,7 +156,7 @@ function generateReportHTML(options: PrintReportOptions): string {
   
   const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
   
-  const recalculatedTrips = recalculateTrips(trips, vehicles);
+  const recalculatedTrips = recalculateTrips(trips, vehicles, ikRateOverride);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
   // Generate trip rows - columns: Date, Départ, Arrivée, Motif, Km, Cumul, IK
@@ -1062,7 +1070,7 @@ export function generatePrintableHTML(options: PrintReportOptions): string {
 
 // Generate clean HTML without action bar and scripts - optimized for PDF export via html2pdf.js
 export function generateCleanPdfHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl } = options;
+  const { trips, vehicles, totalKm, userInfo, logoUrl, ikRateOverride = 'auto' } = options;
   const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
   const now = new Date();
@@ -1091,7 +1099,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
   
   const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
   
-  const recalculatedTrips = recalculateTrips(trips, vehicles);
+  const recalculatedTrips = recalculateTrips(trips, vehicles, ikRateOverride);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
   const tripRows = recalculatedTrips.map((t, i) => {

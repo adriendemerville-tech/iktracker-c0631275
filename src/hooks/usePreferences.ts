@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
 export type CalendarImportMode = 'individual' | 'tour';
+export type IKRateOverride = 'auto' | 'tier2' | 'tier3';
 
 export interface Preferences {
   showTripTime: boolean;
@@ -17,6 +18,7 @@ export interface Preferences {
   fiscalYearStartMonth: number; // 1-12, default 1 (January)
   fiscalYearStartDay: number; // 1-31, default 1
   calendarImportMode: CalendarImportMode;
+  ikRateOverride: IKRateOverride;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -33,6 +35,7 @@ const defaultPreferences: Preferences = {
   fiscalYearStartMonth: 1,
   fiscalYearStartDay: 1,
   calendarImportMode: 'individual',
+  ikRateOverride: 'auto',
 };
 
 // Get the fiscal year start date for a given reference date
@@ -69,7 +72,7 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona, calendar_import_mode')
+          .select('accountant_email, persona, calendar_import_mode, ik_rate_override')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -100,6 +103,12 @@ export function usePreferences() {
           const mode = (data as any)?.calendar_import_mode as CalendarImportMode | undefined;
           if (mode === 'tour' || mode === 'individual') {
             updates.calendarImportMode = mode;
+          }
+
+          // Sync IK rate override
+          const override = (data as any)?.ik_rate_override as IKRateOverride | undefined;
+          if (override === 'auto' || override === 'tier2' || override === 'tier3') {
+            updates.ikRateOverride = override;
           }
 
           if (Object.keys(updates).length > 0) {
@@ -183,6 +192,19 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save IK rate override to database
+  const saveIkRateOverrideToDatabase = useCallback(async (override: IKRateOverride) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, ik_rate_override: override } as any, { onConflict: 'user_id' });
+      if (error) console.warn('Failed to save ik_rate_override:', error);
+    } catch (e) {
+      console.warn('Failed to save ik_rate_override:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
@@ -202,6 +224,11 @@ export function usePreferences() {
     // Sync calendar import mode to database
     if (key === 'calendarImportMode' && user) {
       saveCalendarImportModeToDatabase(value as CalendarImportMode);
+    }
+
+    // Sync IK rate override to database
+    if (key === 'ikRateOverride' && user) {
+      saveIkRateOverrideToDatabase(value as IKRateOverride);
     }
   };
 
