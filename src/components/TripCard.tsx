@@ -49,8 +49,10 @@ export const TripCard = memo(function TripCard({
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
   const [showTripView, setShowTripView] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
   // On mobile, action buttons (edit/delete) only show when card is selected in selection mode.
+  // On desktop, they are revealed on card hover.
   const showActionButtons = !isMobile || (selectionMode && selected);
   
   const isPending = trip.status === 'pending_location';
