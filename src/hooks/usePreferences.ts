@@ -105,6 +105,12 @@ export function usePreferences() {
             updates.calendarImportMode = mode;
           }
 
+          // Sync IK rate override
+          const override = (data as any)?.ik_rate_override as IKRateOverride | undefined;
+          if (override === 'auto' || override === 'tier2' || override === 'tier3') {
+            updates.ikRateOverride = override;
+          }
+
           if (Object.keys(updates).length > 0) {
             setPreferences(prev => ({ ...prev, ...updates }));
           }
