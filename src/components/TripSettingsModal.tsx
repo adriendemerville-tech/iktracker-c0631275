@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2 } from 'lucide-react';
+import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2, AlertTriangle } from 'lucide-react';
 import { Vehicle, Location as TripLocation } from '@/types/trip';
 import { usePreferences, IKRateOverride, CalendarImportMode } from '@/hooks/usePreferences';
 import { VehicleCard } from '@/components/VehicleCard';
@@ -19,7 +19,7 @@ const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ d
 const AddressForm = lazy(() => import('@/components/AddressForm').then(m => ({ default: m.AddressForm })));
 const CalendarConnections = lazy(() => import('@/components/CalendarConnections').then(m => ({ default: m.CalendarConnections })));
 
-type TabId = 'vehicles' | 'addresses' | 'calculation' | 'import' | 'general';
+type TabId = 'vehicles' | 'addresses' | 'calculation' | 'import' | 'general' | 'danger';
 
 interface Tab {
   id: TabId;
@@ -33,6 +33,7 @@ const TABS: Tab[] = [
   { id: 'calculation', label: 'Calcul & fiscalité', icon: Calculator },
   { id: 'import', label: 'Import & tournées', icon: CalendarClock },
   { id: 'general', label: 'Général', icon: SlidersHorizontal },
+  { id: 'danger', label: 'Zone de danger', icon: AlertTriangle },
 ];
 
 interface Props {
@@ -48,7 +49,9 @@ interface Props {
   onUpdateLocation: (id: string, updates: Partial<TripLocation>) => void;
   onDeleteLocation: (id: string) => void;
   onOpenRecurring: () => void;
+  onDeleteAllTrips: () => Promise<{ success: boolean; count: number }>;
 }
+
 
 export function TripSettingsModal(props: Props) {
   const {
