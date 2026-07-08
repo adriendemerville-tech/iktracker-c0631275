@@ -126,7 +126,7 @@ export const TripCard = memo(function TripCard({
     <>
       <div 
         className={cn(
-          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors",
+          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors group",
           isPending 
             ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
             : "border-border/50",
@@ -134,6 +134,8 @@ export const TripCard = memo(function TripCard({
           selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
         )}
         onClick={handleCardClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Selection checkbox */}
         {selectionMode && !isPending && (
