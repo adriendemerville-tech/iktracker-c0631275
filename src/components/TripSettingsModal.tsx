@@ -296,18 +296,24 @@ export function TripSettingsModal(props: Props) {
                         <Calculator className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <Label>Taux d'indemnité kilométrique</Label>
-                          <p className="text-xs text-muted-foreground">Utile pour un remboursement mensuel à taux stable.</p>
+                          <p className="text-xs text-muted-foreground">Utile pour figer un taux stable sur l'année.</p>
                         </div>
                       </div>
-                      <RadioGroup
-                        value={preferences.ikRateOverride}
-                        onValueChange={v => updatePreference('ikRateOverride', v as IKRateOverride)}
-                        className="pl-8 space-y-2"
-                      >
-                        <RadioOption id="ik-auto" value="auto" title="Barème automatique (recommandé)" desc="Le taux évolue selon le cumul annuel (jusqu'à 5 000, 5 001–20 000, au-delà)." />
-                        <RadioOption id="ik-tier2" value="tier2" title="Forcer la tranche 5 001–20 000 km" desc="Applique ce taux à tous les trajets, dès le 1er km." />
-                        <RadioOption id="ik-tier3" value="tier3" title="Forcer la tranche > 20 000 km" desc="Pour les gros rouleurs qui dépassent 20 000 km chaque année." />
-                      </RadioGroup>
+                      <div className="pl-8">
+                        <Select
+                          value={preferences.ikRateOverride}
+                          onValueChange={v => updatePreference('ikRateOverride', v as IKRateOverride)}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="auto">Automatique (barème officiel)</SelectItem>
+                            <SelectItem value="tier2">Tranche 5 001–20 000 km · 31,6 à 39,4 c€/km</SelectItem>
+                            <SelectItem value="tier3">Tranche &gt; 20 000 km · 37,0 à 47,0 c€/km</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <p className="pl-8 text-[11px] text-muted-foreground italic">
                         Le bonus véhicule électrique (+20 %) reste appliqué. Les trajets déjà enregistrés ne sont pas recalculés.
                       </p>
