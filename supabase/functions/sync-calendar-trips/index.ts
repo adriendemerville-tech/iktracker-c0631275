@@ -373,8 +373,12 @@ function getIKBareme(fiscalPower: number): IKBareme {
   return IK_BAREME_2024[4];
 }
 
-function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number): number {
+type IKRateOverride = 'auto' | 'tier2' | 'tier3';
+
+function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number, override: IKRateOverride = 'auto'): number {
   const bareme = getIKBareme(fiscalPower);
+  if (override === 'tier2') return totalAnnualKm * bareme.from5001To20000.rate;
+  if (override === 'tier3') return totalAnnualKm * bareme.over20000.rate;
   if (totalAnnualKm <= 5000) {
     return totalAnnualKm * bareme.upTo5000.rate;
   } else if (totalAnnualKm <= 20000) {
