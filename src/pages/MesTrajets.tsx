@@ -1391,6 +1391,10 @@ ${IKTRACKER_URL}`;
             onDeleteLocation={deleteLocation}
             onOpenRecurring={() => setShowRecurringModal(true)}
             onDeleteAllTrips={deleteAllTrips}
+            onGetWipeBackupInfo={getWipeBackupInfo}
+            onRestoreWipedTrips={restoreWipedTrips}
+            currentTripsCount={trips.length}
+
           />
 
         )}
