@@ -35,7 +35,7 @@ export default function Report() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
-  const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm, deleteAllTrips } = useTrips();
+  const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm, deleteAllTrips, getWipeBackupInfo, restoreWipedTrips } = useTrips();
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
   const { preferences, updatePreference } = usePreferences();
