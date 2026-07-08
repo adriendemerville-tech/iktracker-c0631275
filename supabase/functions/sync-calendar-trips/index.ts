@@ -923,11 +923,13 @@ serve(async (req) => {
     }
 
     // ============ ICS connections (any calendar: Outlook, iCloud, generic .ics) ============
-    const { data: icsConnections, error: icsError } = await supabase
+    let icsQuery = supabase
       .from('calendar_connections')
       .select('id, user_id, ics_url')
       .eq('provider', 'ics')
       .eq('is_active', true);
+    if (targetUserId) icsQuery = icsQuery.eq('user_id', targetUserId);
+    const { data: icsConnections, error: icsError } = await icsQuery;
 
     if (icsError) {
       console.error('Failed to fetch ICS connections:', icsError);
