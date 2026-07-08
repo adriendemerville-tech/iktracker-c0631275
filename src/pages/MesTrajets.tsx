@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck } from 'lucide-react';
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
@@ -51,7 +51,107 @@ export default function Report() {
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isRegrouping, setIsRegrouping] = useState(false);
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const handleRegroupToTour = async () => {
+    const chosen = trips.filter(t => selectedIds.has(t.id));
+    if (chosen.length < 2) {
+      toast.error("Sélectionnez au moins 2 trajets");
+      return;
+    }
+    // Same day check
+    const dayKey = (d: Date) => new Date(d).toISOString().split('T')[0];
+    const firstDay = dayKey(chosen[0].startTime);
+    if (!chosen.every(t => dayKey(t.startTime) === firstDay)) {
+      toast.error("Les trajets doivent être du même jour");
+      return;
+    }
+    // Same vehicle check
+    const firstVehicle = chosen[0].vehicleId;
+    if (!firstVehicle || !chosen.every(t => t.vehicleId === firstVehicle)) {
+      toast.error("Les trajets doivent utiliser le même véhicule");
+      return;
+    }
+
+    setIsRegrouping(true);
+    try {
+      // Sort chronologically
+      const sorted = [...chosen].sort(
+        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      );
+
+      // Build tour_stops: chained locations, dedup consecutive identical addresses
+      const stops: any[] = [];
+      const pushStop = (loc: { name: string; address?: string; lat?: number; lng?: number }, ts: string) => {
+        const addr = loc.address || loc.name;
+        const last = stops[stops.length - 1];
+        if (last && (last.address || '') === addr) return;
+        stops.push({
+          id: crypto.randomUUID(),
+          timestamp: ts,
+          lat: loc.lat ?? 0,
+          lng: loc.lng ?? 0,
+          address: loc.address || loc.name,
+          city: loc.name,
+        });
+      };
+      sorted.forEach(t => {
+        pushStop(t.startLocation, new Date(t.startTime).toISOString());
+        pushStop(t.endLocation, new Date(t.endTime || t.startTime).toISOString());
+      });
+
+      const totalDistance = sorted.reduce((s, t) => s + t.distance, 0);
+      const baseDistance = sorted.reduce((s, t) => s + (t.baseDistance || t.distance), 0);
+
+      const created = await addTrip({
+        vehicleId: firstVehicle,
+        startLocation: sorted[0].startLocation,
+        endLocation: sorted[sorted.length - 1].endLocation,
+        distance: totalDistance,
+        baseDistance,
+        roundTrip: false,
+        purpose: 'Tournée',
+        startTime: sorted[0].startTime,
+        endTime: sorted[sorted.length - 1].endTime || sorted[sorted.length - 1].startTime,
+        tourStops: stops,
+        status: 'validated',
+      } as any);
+
+      if (!created) {
+        toast.error("Impossible de créer la tournée");
+        return;
+      }
+
+      // Delete (archive) source trips
+      for (const t of sorted) {
+        await deleteTrip(t.id);
+      }
+
+      toast.success(`Tournée créée avec ${stops.length} étapes`);
+      exitSelectionMode();
+    } catch (e) {
+      console.error('Regroup error:', e);
+      toast.error("Erreur lors du regroupement");
+    } finally {
+      setIsRegrouping(false);
+    }
+  };
 
   // Open recurring modal from survey tab=RECURRENT
   useEffect(() => {
@@ -988,7 +1088,30 @@ ${IKTRACKER_URL}`;
           </div>
         ) : Object.keys(groupedByMonth).length > 0 && (
           <>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Trajets passés</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Trajets passés</h3>
+              {selectionMode ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-muted-foreground"
+                  onClick={exitSelectionMode}
+                >
+                  <XIcon className="w-3.5 h-3.5 mr-1" />
+                  Annuler
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-muted-foreground hover:text-primary"
+                  onClick={() => setSelectionMode(true)}
+                >
+                  <CheckSquare className="w-3.5 h-3.5 mr-1" />
+                  Regrouper en tournée
+                </Button>
+              )}
+            </div>
             {Object.entries(groupedByMonth).map(([month, monthTrips], index) => (
             <div key={month}>
               {index > 0 && (
@@ -997,6 +1120,7 @@ ${IKTRACKER_URL}`;
               <div className="space-y-3">
                 {monthTrips.map(trip => {
                   const vehicle = getVehicle(trip.vehicleId);
+                  const isTourTrip = !!(trip.tourStops && trip.tourStops.length > 0);
                   return (
                     <TripCard
                       key={trip.id}
@@ -1011,6 +1135,9 @@ ${IKTRACKER_URL}`;
                       showDelete
                       savedLocations={savedLocations}
                       onTripUpdated={() => window.location.reload()}
+                      selectionMode={selectionMode && !isTourTrip}
+                      selected={selectedIds.has(trip.id)}
+                      onToggleSelect={toggleSelect}
                     />
                   );
                 })}
@@ -1018,6 +1145,7 @@ ${IKTRACKER_URL}`;
             </div>
           ))}
           </>
+
         )}
 
         {/* Archived trips section - above barème */}
@@ -1065,8 +1193,41 @@ ${IKTRACKER_URL}`;
 
       </main>
 
+      {/* Selection action bar - shown above the main bottom bar */}
+      {selectionMode && (
+        <div className="fixed bottom-[76px] left-0 right-0 z-20 px-4 md:pl-16 animate-fade-in">
+          <div className="max-w-lg mx-auto bg-primary text-primary-foreground rounded-xl shadow-lg px-4 py-3 flex items-center justify-between gap-3">
+            <span className="text-sm font-medium">
+              {selectedIds.size} trajet{selectedIds.size > 1 ? 's' : ''} sélectionné{selectedIds.size > 1 ? 's' : ''}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-primary-foreground hover:bg-primary-foreground/10"
+                onClick={exitSelectionMode}
+                disabled={isRegrouping}
+              >
+                Annuler
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="h-8"
+                onClick={handleRegroupToTour}
+                disabled={selectedIds.size < 2 || isRegrouping}
+              >
+                <Truck className="w-4 h-4 mr-1" />
+                {isRegrouping ? 'Regroupement…' : `Regrouper (${selectedIds.size})`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
+
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="grid grid-cols-3 gap-3 w-4/5 min-w-[280px]">
             <Button 

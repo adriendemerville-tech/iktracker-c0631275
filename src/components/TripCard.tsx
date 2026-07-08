@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
 import { Trip, Vehicle, Location } from '@/types/trip';
-import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff } from 'lucide-react';
+import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -17,6 +17,9 @@ interface TripCardProps {
   savedLocations?: Location[];
   onTripUpdated?: () => void;
   showTripTime?: boolean;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 const getDisplayName = (location: { name: string; address?: string }): string => {
@@ -38,6 +41,9 @@ export const TripCard = memo(function TripCard({
   savedLocations = [],
   onTripUpdated,
   showTripTime = true,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
 }: TripCardProps) {
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
@@ -90,6 +96,10 @@ export const TripCard = memo(function TripCard({
   const isTour = trip.purpose === 'Tournée' && trip.tourStops && trip.tourStops.length >= 3;
 
   const handleCardClick = () => {
+    if (selectionMode && onToggleSelect && !isPending) {
+      onToggleSelect(trip.id);
+      return;
+    }
     if (isPending) return; // Pending trips have their own action
     if (isTour) {
       setShowTourDetail(true);
@@ -108,10 +118,26 @@ export const TripCard = memo(function TripCard({
           "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors",
           isPending 
             ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
-            : "border-border/50"
+            : "border-border/50",
+          selectionMode && !isPending && "pl-11",
+          selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
         )}
         onClick={handleCardClick}
       >
+        {/* Selection checkbox */}
+        {selectionMode && !isPending && (
+          <div
+            className={cn(
+              "absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors shrink-0",
+              selected
+                ? "bg-primary border-primary text-primary-foreground"
+                : "bg-background border-muted-foreground/40"
+            )}
+            aria-hidden
+          >
+            {selected && <Check className="w-4 h-4" />}
+          </div>
+        )}
         {/* Pending location badge */}
         {isPending && (
           <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-400 rounded-full shadow-sm flex items-center justify-center border-2 border-white">
