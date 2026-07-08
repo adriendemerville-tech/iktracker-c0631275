@@ -128,6 +128,43 @@ export const PreferencesContent = () => {
           </p>
         )}
       </div>
+
+      {/* Calendar Import Mode */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <div className="flex items-center gap-3">
+          <CalendarClock className="w-5 h-5 text-muted-foreground" />
+          <div>
+            <Label>Import calendrier</Label>
+            <p className="text-xs text-muted-foreground">
+              Comportement lors de la synchronisation
+            </p>
+          </div>
+        </div>
+        <RadioGroup
+          value={preferences.calendarImportMode}
+          onValueChange={(v) => updatePreference('calendarImportMode', v as 'individual' | 'tour')}
+          className="pl-8 space-y-2"
+        >
+          <div className="flex items-start gap-2">
+            <RadioGroupItem value="individual" id="cal-mode-individual" className="mt-1" />
+            <Label htmlFor="cal-mode-individual" className="cursor-pointer font-normal leading-snug">
+              <span className="block text-sm font-medium">Trajets individuels</span>
+              <span className="block text-xs text-muted-foreground">
+                Chaque événement devient un aller-retour depuis mon domicile
+              </span>
+            </Label>
+          </div>
+          <div className="flex items-start gap-2">
+            <RadioGroupItem value="tour" id="cal-mode-tour" className="mt-1" />
+            <Label htmlFor="cal-mode-tour" className="cursor-pointer font-normal leading-snug">
+              <span className="block text-sm font-medium">Tournée journalière</span>
+              <span className="block text-xs text-muted-foreground">
+                Tous mes rendez-vous d'une même journée sont regroupés : domicile → étapes → domicile
+              </span>
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
     </div>
   );
 };
