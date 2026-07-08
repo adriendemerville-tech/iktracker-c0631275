@@ -1070,7 +1070,7 @@ export function generatePrintableHTML(options: PrintReportOptions): string {
 
 // Generate clean HTML without action bar and scripts - optimized for PDF export via html2pdf.js
 export function generateCleanPdfHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl } = options;
+  const { trips, vehicles, totalKm, userInfo, logoUrl, ikRateOverride = 'auto' } = options;
   const logoSrc = logoUrl || '/logo-iktracker-250.webp';
   
   const now = new Date();
