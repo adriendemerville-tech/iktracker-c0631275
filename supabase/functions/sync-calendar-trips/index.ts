@@ -756,7 +756,7 @@ async function createTripFromEvent(
     purpose: event.summary || 'Rendez-vous calendrier',
     date: eventDate,
     ik_amount: ikAmount,
-    source: 'google_calendar',
+    source: source,
     calendar_event_id: event.id,
     status: tripStatus,
   });
