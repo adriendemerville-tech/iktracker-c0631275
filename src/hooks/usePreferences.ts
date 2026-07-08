@@ -3,6 +3,8 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
+export type CalendarImportMode = 'individual' | 'tour';
+
 export interface Preferences {
   showTripTime: boolean;
   stopDetectionMinutes: number;
@@ -14,6 +16,7 @@ export interface Preferences {
   counterResetDate: string | null; // ISO date string
   fiscalYearStartMonth: number; // 1-12, default 1 (January)
   fiscalYearStartDay: number; // 1-31, default 1
+  calendarImportMode: CalendarImportMode;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -29,6 +32,7 @@ const defaultPreferences: Preferences = {
   counterResetDate: null,
   fiscalYearStartMonth: 1,
   fiscalYearStartDay: 1,
+  calendarImportMode: 'individual',
 };
 
 // Get the fiscal year start date for a given reference date
@@ -65,7 +69,7 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona')
+          .select('accountant_email, persona, calendar_import_mode')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -90,6 +94,12 @@ export function usePreferences() {
             }
           } else {
             updates.profession = '';
+          }
+
+          // Sync calendar import mode
+          const mode = (data as any)?.calendar_import_mode as CalendarImportMode | undefined;
+          if (mode === 'tour' || mode === 'individual') {
+            updates.calendarImportMode = mode;
           }
 
           if (Object.keys(updates).length > 0) {
@@ -160,6 +170,19 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save calendar import mode to database
+  const saveCalendarImportModeToDatabase = useCallback(async (mode: CalendarImportMode) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, calendar_import_mode: mode } as any, { onConflict: 'user_id' });
+      if (error) console.warn('Failed to save calendar_import_mode:', error);
+    } catch (e) {
+      console.warn('Failed to save calendar_import_mode:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
@@ -174,6 +197,11 @@ export function usePreferences() {
     // Sync profession → persona to database
     if (key === 'profession' && user) {
       savePersonaToDatabase(value as string);
+    }
+
+    // Sync calendar import mode to database
+    if (key === 'calendarImportMode' && user) {
+      saveCalendarImportModeToDatabase(value as CalendarImportMode);
     }
   };
 

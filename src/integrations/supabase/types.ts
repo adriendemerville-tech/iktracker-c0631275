@@ -1706,6 +1706,7 @@ export type Database = {
       user_preferences: {
         Row: {
           accountant_email: string | null
+          calendar_import_mode: string
           created_at: string
           id: string
           persona: string
@@ -1716,6 +1717,7 @@ export type Database = {
         }
         Insert: {
           accountant_email?: string | null
+          calendar_import_mode?: string
           created_at?: string
           id?: string
           persona?: string
@@ -1726,6 +1728,7 @@ export type Database = {
         }
         Update: {
           accountant_email?: string | null
+          calendar_import_mode?: string
           created_at?: string
           id?: string
           persona?: string

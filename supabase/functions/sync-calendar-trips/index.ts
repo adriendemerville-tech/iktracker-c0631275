@@ -796,6 +796,178 @@ async function logCalendarAttempt(
   }
 }
 
+// ============================================================================
+// TOUR MODE: group events of the same day into a single home→...→home tour trip
+// ============================================================================
+
+interface ResolvedEvent {
+  event: CalendarEvent;
+  eventDate: string; // YYYY-MM-DD (local)
+  destinationAddress: string;
+  startTs: number; // for sorting
+}
+
+async function resolveEventDestination(
+  userId: string,
+  event: CalendarEvent,
+  supabase: any,
+): Promise<string | null> {
+  if (event.location && event.location.trim()) return event.location.trim();
+  const matched = await findFrequentDestination(userId, event.summary || '', supabase);
+  return matched || null;
+}
+
+async function processEventsAsTour(
+  userId: string,
+  events: CalendarEvent[],
+  vehicle: VehicleInfo | null,
+  userHomeLocation: { address: string; name: string } | null,
+  supabase: any,
+  source: string,
+): Promise<{ toursCreated: number; fallbackEvents: CalendarEvent[] }> {
+  if (!userHomeLocation?.address) {
+    console.log(`⚠️ [tour-mode] No home address for user ${userId} - falling back to individual`);
+    return { toursCreated: 0, fallbackEvents: events };
+  }
+
+  // Resolve destinations + group by local date
+  const byDate = new Map<string, ResolvedEvent[]>();
+  const unresolved: CalendarEvent[] = [];
+
+  for (const ev of events) {
+    const startIso = ev.start.dateTime || ev.start.date;
+    if (!startIso) { unresolved.push(ev); continue; }
+    const destination = await resolveEventDestination(userId, ev, supabase);
+    if (!destination) { unresolved.push(ev); continue; }
+    const d = new Date(startIso);
+    const eventDate = d.toISOString().split('T')[0];
+    const startTs = d.getTime();
+    const arr = byDate.get(eventDate) || [];
+    arr.push({ event: ev, eventDate, destinationAddress: destination, startTs });
+    byDate.set(eventDate, arr);
+  }
+
+  const fallback: CalendarEvent[] = [...unresolved];
+  let toursCreated = 0;
+
+  for (const [eventDate, group] of byDate) {
+    if (group.length < 2) {
+      // Not a real tour — let individual flow handle it
+      fallback.push(...group.map(g => g.event));
+      continue;
+    }
+
+    // Sort chronologically
+    group.sort((a, b) => a.startTs - b.startTs);
+
+    // Idempotency: a tour for this day already exists?
+    const tourEventId = `tour:${eventDate}:${source}`;
+    const { data: existingTour } = await supabase
+      .from('trips')
+      .select('id, deleted_at')
+      .eq('user_id', userId)
+      .eq('calendar_event_id', tourEventId)
+      .limit(1);
+    if (existingTour && existingTour.length > 0) {
+      if (existingTour[0].deleted_at) {
+        console.log(`⏭️ [tour-mode] Tour for ${eventDate} previously archived — skipping`);
+      } else {
+        console.log(`⏭️ [tour-mode] Tour for ${eventDate} already exists`);
+      }
+      continue;
+    }
+
+    // Also skip if any of the individual events was already imported as a trip
+    let alreadyImportedIndividually = false;
+    for (const g of group) {
+      const { exists } = await tripExistsForEvent(userId, g.event.id, supabase);
+      if (exists) { alreadyImportedIndividually = true; break; }
+    }
+    if (alreadyImportedIndividually) {
+      console.log(`⏭️ [tour-mode] Some events on ${eventDate} already imported individually — skipping tour`);
+      continue;
+    }
+
+    // Compute segments: home → stop1 → stop2 → ... → home
+    const stops = group.map(g => g.destinationAddress);
+    const legs = [userHomeLocation.address, ...stops, userHomeLocation.address];
+    let totalDistance = 0;
+    let allLegsOk = true;
+    for (let i = 0; i < legs.length - 1; i++) {
+      const d = await calculateDrivingDistance(legs[i], legs[i + 1]);
+      if (d === null || d <= 0) { allLegsOk = false; break; }
+      totalDistance += d;
+    }
+    if (!allLegsOk || totalDistance <= 0) {
+      console.log(`⚠️ [tour-mode] Distance calc failed on ${eventDate} — falling back to individual`);
+      fallback.push(...group.map(g => g.event));
+      continue;
+    }
+    totalDistance = Math.round(totalDistance * 10) / 10;
+
+    // IK
+    let ikAmount = 0;
+    if (vehicle) {
+      const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
+      const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power);
+      const ikAfter = calculateTotalAnnualIK(annualKm + totalDistance, vehicle.fiscal_power);
+      ikAmount = ikAfter - ikBefore;
+      if (vehicle.is_electric) ikAmount *= 1.20;
+      ikAmount = Math.round(ikAmount * 100) / 100;
+    }
+
+    // Build tour_stops JSON (matching existing Tour Mode shape)
+    const tourStops = group.map(g => ({
+      id: crypto.randomUUID(),
+      address: g.destinationAddress,
+      timestamp: new Date(g.startTs).toISOString(),
+      purpose: g.event.summary || null,
+      calendar_event_id: g.event.id,
+    }));
+
+    const purposeLine = `Tournée · ${group.length} rendez-vous : ${
+      group.map(g => g.event.summary || 'RDV').join(' → ')
+    }`.slice(0, 500);
+
+    const { error: insErr } = await supabase.from('trips').insert({
+      user_id: userId,
+      vehicle_id: vehicle?.id || null,
+      start_location: userHomeLocation.address,
+      end_location: userHomeLocation.address,
+      distance: totalDistance,
+      round_trip: false, // distance already includes return leg
+      purpose: purposeLine,
+      date: eventDate,
+      ik_amount: ikAmount,
+      source,
+      calendar_event_id: tourEventId,
+      tour_stops: tourStops,
+      status: 'validated',
+    });
+
+    if (insErr) {
+      console.error(`❌ [tour-mode] Insert failed for ${eventDate}:`, insErr);
+      fallback.push(...group.map(g => g.event));
+      continue;
+    }
+
+    console.log(`✅ [tour-mode] Created tour on ${eventDate}: ${group.length} stops, ${totalDistance} km, ${ikAmount}€`);
+    toursCreated++;
+  }
+
+  return { toursCreated, fallbackEvents: fallback };
+}
+
+async function getUserCalendarImportMode(userId: string, supabase: any): Promise<'individual' | 'tour'> {
+  const { data } = await supabase
+    .from('user_preferences')
+    .select('calendar_import_mode')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const mode = (data as any)?.calendar_import_mode;
+  return mode === 'tour' ? 'tour' : 'individual';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -906,14 +1078,31 @@ serve(async (req) => {
         const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
         console.log(`User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : 'not found'}`);
 
+        // Determine import mode for this user
+        const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
+        console.log(`User ${connection.user_id}: calendar_import_mode=${importMode}`);
+
         // Create trips from events
         let tripsCreated = 0;
+        let toursCreated = 0;
         let tripsWithDistance = 0;
         let skippedNoLocation = 0;
         let skippedAlreadyExists = 0;
         let skippedOther = 0;
 
-        for (const event of events) {
+        // In tour mode, first try to group same-day events into tours.
+        // Events that can't be grouped (single-event days, no address, no home) fall back to individual.
+        let eventsToProcess = events;
+        if (importMode === 'tour') {
+          const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
+            connection.user_id, events, vehicle, userHomeLocation, supabase, 'google_calendar'
+          );
+          toursCreated = nTours;
+          tripsCreated += nTours;
+          eventsToProcess = fallbackEvents;
+        }
+
+        for (const event of eventsToProcess) {
           const result = await createTripFromEvent(
             connection.user_id,
             event,
@@ -937,7 +1126,7 @@ serve(async (req) => {
 
         totalTripsCreated += tripsCreated;
         usersProcessed++;
-        console.log(`User ${connection.user_id}: created=${tripsCreated} (with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+        console.log(`User ${connection.user_id}: created=${tripsCreated} (tours=${toursCreated}, with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
       } catch (error) {
         console.error(`Error processing user ${connection.user_id}:`, error);
       }
@@ -969,12 +1158,26 @@ serve(async (req) => {
 
           const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
           const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
+          const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
+          console.log(`ICS user ${conn.user_id}: calendar_import_mode=${importMode}`);
 
           let tripsCreated = 0;
+          let toursCreated = 0;
           let skippedNoLocation = 0;
           let skippedAlreadyExists = 0;
           let skippedOther = 0;
-          for (const event of events) {
+
+          let eventsToProcess = events;
+          if (importMode === 'tour') {
+            const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
+              conn.user_id, events, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+            );
+            toursCreated = nTours;
+            tripsCreated += nTours;
+            eventsToProcess = fallbackEvents;
+          }
+
+          for (const event of eventsToProcess) {
             const result = await createTripFromEvent(
               conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar'
             );
@@ -987,7 +1190,7 @@ serve(async (req) => {
           usersProcessed++;
           // Note: sync runs are NOT logged in calendar_connection_attempts.
           // That table now tracks only user-initiated connection attempts.
-          console.log(`ICS user ${conn.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+          console.log(`ICS user ${conn.user_id}: created=${tripsCreated} (tours=${toursCreated}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Unknown ICS error';
           console.error(`Error processing ICS user ${conn.user_id}:`, error);
