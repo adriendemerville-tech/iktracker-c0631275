@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2, AlertTriangle } from 'lucide-react';
+import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2, AlertTriangle, ArchiveRestore } from 'lucide-react';
 import { Vehicle, Location as TripLocation } from '@/types/trip';
 import { usePreferences, IKRateOverride, CalendarImportMode } from '@/hooks/usePreferences';
 import { VehicleCard } from '@/components/VehicleCard';
@@ -50,6 +50,11 @@ interface Props {
   onDeleteLocation: (id: string) => void;
   onOpenRecurring: () => void;
   onDeleteAllTrips: () => Promise<{ success: boolean; count: number }>;
+  onGetWipeBackupInfo: () => Promise<
+    { available: false } | { available: true; count: number; wipedAt: string; daysLeft: number }
+  >;
+  onRestoreWipedTrips: (mode: 'merge' | 'replace') => Promise<{ success: boolean; restored: number }>;
+  currentTripsCount: number;
 }
 
 
@@ -59,6 +64,7 @@ export function TripSettingsModal(props: Props) {
     onAddVehicle, onUpdateVehicle, onDeleteVehicle,
     onAddLocation, onUpdateLocation, onDeleteLocation,
     onOpenRecurring, onDeleteAllTrips,
+    onGetWipeBackupInfo, onRestoreWipedTrips, currentTripsCount,
   } = props;
   const { preferences, updatePreference } = usePreferences();
   const [activeTab, setActiveTab] = useState<TabId>('vehicles');
@@ -73,6 +79,42 @@ export function TripSettingsModal(props: Props) {
   const [wipeConfirmOpen, setWipeConfirmOpen] = useState(false);
   const [wipeConfirmText, setWipeConfirmText] = useState('');
   const [wipeLoading, setWipeLoading] = useState(false);
+
+  // Danger zone: restore backup
+  const [backupInfo, setBackupInfo] = useState<
+    { available: false } | { available: true; count: number; wipedAt: string; daysLeft: number }
+  >({ available: false });
+  const [restoreLoading, setRestoreLoading] = useState(false);
+  const [restoreConflictOpen, setRestoreConflictOpen] = useState(false);
+
+  // Load backup info when opening the danger tab (or modal itself)
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    onGetWipeBackupInfo().then((info) => {
+      if (!cancelled) setBackupInfo(info);
+    }).catch(() => { /* noop */ });
+    return () => { cancelled = true; };
+  }, [open, activeTab, onGetWipeBackupInfo]);
+
+  const doRestore = async (mode: 'merge' | 'replace') => {
+    setRestoreLoading(true);
+    const res = await onRestoreWipedTrips(mode);
+    setRestoreLoading(false);
+    setRestoreConflictOpen(false);
+    if (res.success) {
+      toast.success(
+        `${res.restored} trajet${res.restored > 1 ? 's' : ''} restauré${res.restored > 1 ? 's' : ''}${
+          mode === 'replace' ? ' (journal actuel remplacé)' : ''
+        }.`
+      );
+      const info = await onGetWipeBackupInfo();
+      setBackupInfo(info);
+    } else {
+      toast.error('Échec de la restauration. Réessayez.');
+    }
+  };
+
 
 
   return (
@@ -537,8 +579,45 @@ export function TripSettingsModal(props: Props) {
                         </Button>
                       </div>
                     </div>
+
+                    {/* Restore backup (only visible if a wipe backup is available) */}
+                    {backupInfo.available && (
+                      <div className="rounded-lg border border-primary/40 bg-primary/5 p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                          <ArchiveRestore className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                          <div className="space-y-1">
+                            <h4 className="text-sm font-semibold text-primary">Restaurer ma dernière sauvegarde</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              Une sauvegarde de <strong>{backupInfo.count} trajet{backupInfo.count > 1 ? 's' : ''}</strong> supprimé{backupInfo.count > 1 ? 's' : ''}
+                              {' '}le {new Date(backupInfo.wipedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} est encore récupérable.
+                            </p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              Il reste <strong>{backupInfo.daysLeft} jour{backupInfo.daysLeft > 1 ? 's' : ''}</strong> avant la purge définitive.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            size="sm"
+                            disabled={restoreLoading}
+                            onClick={async () => {
+                              // No conflict → restore directly (merge is a no-op if no current trips)
+                              if (currentTripsCount === 0) {
+                                await doRestore('merge');
+                              } else {
+                                setRestoreConflictOpen(true);
+                              }
+                            }}
+                          >
+                            <ArchiveRestore className="w-4 h-4 mr-2" />
+                            {restoreLoading ? 'Restauration…' : 'Restaurer la sauvegarde'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </section>
                 )}
+
               </div>
             </div>
           </div>
@@ -606,8 +685,60 @@ export function TripSettingsModal(props: Props) {
         </DialogContent>
       </Dialog>
 
+      {/* Conflict modal: current journal not empty → merge or replace? */}
+      <Dialog open={restoreConflictOpen} onOpenChange={(o) => { if (!restoreLoading) setRestoreConflictOpen(o); }}>
+        <DialogContent className="max-w-md">
+          <DialogTitle className="flex items-center gap-2 text-primary">
+            <ArchiveRestore className="w-5 h-5" />
+            Restaurer votre sauvegarde
+          </DialogTitle>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Votre journal actuel contient déjà <strong>{currentTripsCount} trajet{currentTripsCount > 1 ? 's' : ''}</strong>{' '}
+              enregistré{currentTripsCount > 1 ? 's' : ''} depuis la suppression.
+            </p>
+            <p className="text-sm text-foreground leading-relaxed">
+              En restaurant votre sauvegarde{backupInfo.available ? ` (${backupInfo.count} trajet${backupInfo.count > 1 ? 's' : ''})` : ''},
+              souhaitez-vous <strong>conserver</strong> ou <strong>écraser</strong> les trajets et tournées actuellement présents dans votre journal ?
+            </p>
+            <div className="space-y-2 pt-1">
+              <Button
+                variant="outline"
+                className="w-full justify-start h-auto py-3"
+                disabled={restoreLoading}
+                onClick={() => doRestore('merge')}
+              >
+                <div className="text-left">
+                  <div className="text-sm font-medium">Conserver mes trajets actuels</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Fusionne la sauvegarde avec le journal existant (recommandé).
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start h-auto py-3 border-destructive/50 hover:bg-destructive/5"
+                disabled={restoreLoading}
+                onClick={() => doRestore('replace')}
+              >
+                <div className="text-left">
+                  <div className="text-sm font-medium text-destructive">Écraser mon journal actuel</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Les {currentTripsCount} trajet{currentTripsCount > 1 ? 's' : ''} actuel{currentTripsCount > 1 ? 's' : ''} rejoindra la corbeille (récupérable 120 j).
+                  </div>
+                </div>
+              </Button>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button variant="ghost" size="sm" disabled={restoreLoading} onClick={() => setRestoreConflictOpen(false)}>
+                Annuler
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {/* Nested forms */}
+
       <Suspense fallback={null}>
         {vehicleFormOpen && (
           <VehicleForm

@@ -895,13 +895,18 @@ export function useTrips() {
     return total;
   }, [filteredTrips, vehicles, preferences.fiscalYearStartMonth, preferences.fiscalYearStartDay]);
 
-  // Wipe entire journal: soft-delete every trip (active + archived) of the current user.
-  // We set deleted_at to a date older than the 30-day archive window so nothing shows up
-  // in the UI anymore, while the rows physically remain in DB for ~120 days of possible
-  // admin restoration before a future purge job removes them.
+  // ----------------------------------------------------------------------
+  // Danger zone: wipe & restore
+  // ----------------------------------------------------------------------
+  // We store a per-user marker in localStorage that identifies the last wipe
+  // (the exact `deleted_at` value we stamped on every row of the batch).
+  // This lets us later restore *only* that specific batch, without also
+  // un-archiving trips the user had individually thrown in the trash.
+  const wipeMarkerKey = user ? `ik-tracker-last-wipe:${user.id}` : null;
+
   const deleteAllTrips = async (): Promise<{ success: boolean; count: number }> => {
     if (!user) {
-      // Local mode: just clear localStorage journal
+      // Local mode: clear localStorage journal (no restore in local mode)
       const count = trips.length + archivedTrips.length;
       saveTripsLocal([]);
       localStorage.removeItem('ik-tracker-archived-trips');
@@ -922,9 +927,115 @@ export function useTrips() {
       return { success: false, count: 0 };
     }
 
+    // Record the marker so we can restore later
+    if (wipeMarkerKey) {
+      try {
+        localStorage.setItem(wipeMarkerKey, JSON.stringify({
+          deletedAt: wipedAt,
+          wipedAt: new Date().toISOString(),
+        }));
+      } catch (e) {
+        console.warn('Failed to store wipe marker:', e);
+      }
+    }
+
     setTrips([]);
     setArchivedTrips([]);
     return { success: true, count: count ?? 0 };
+  };
+
+  // Return info about the last wipe backup, if any is still restorable (< 120 days)
+  const getWipeBackupInfo = useCallback(async (): Promise<
+    { available: false } | { available: true; count: number; wipedAt: string; daysLeft: number }
+  > => {
+    if (!user || !wipeMarkerKey) return { available: false };
+    let raw: string | null = null;
+    try { raw = localStorage.getItem(wipeMarkerKey); } catch { /* noop */ }
+    if (!raw) return { available: false };
+
+    let marker: { deletedAt: string; wipedAt: string };
+    try { marker = JSON.parse(raw); } catch { return { available: false }; }
+
+    const daysSinceWipe = (Date.now() - new Date(marker.wipedAt).getTime()) / 86400000;
+    if (daysSinceWipe > 120) {
+      localStorage.removeItem(wipeMarkerKey);
+      return { available: false };
+    }
+
+    const { count, error } = await supabase
+      .from('trips')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('deleted_at', marker.deletedAt);
+
+    if (error || !count || count === 0) {
+      if (!error) localStorage.removeItem(wipeMarkerKey);
+      return { available: false };
+    }
+
+    return {
+      available: true,
+      count,
+      wipedAt: marker.wipedAt,
+      daysLeft: Math.max(0, Math.ceil(120 - daysSinceWipe)),
+    };
+  }, [user, wipeMarkerKey]);
+
+  // Restore the last wipe backup.
+  // mode='merge'   → un-delete the backup, keep current trips
+  // mode='replace' → soft-delete current trips first (new wipe), then restore backup
+  const restoreWipedTrips = async (
+    mode: 'merge' | 'replace'
+  ): Promise<{ success: boolean; restored: number }> => {
+    if (!user || !wipeMarkerKey) return { success: false, restored: 0 };
+    let raw: string | null = null;
+    try { raw = localStorage.getItem(wipeMarkerKey); } catch { /* noop */ }
+    if (!raw) return { success: false, restored: 0 };
+
+    let marker: { deletedAt: string; wipedAt: string };
+    try { marker = JSON.parse(raw); } catch { return { success: false, restored: 0 }; }
+
+    // If replace mode → first wipe currently-active trips with a fresh marker,
+    // so those get their own restorable batch (edge case: user wants to undo).
+    if (mode === 'replace') {
+      const newWipedAt = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000 - 1000).toISOString();
+      const { error: wipeErr } = await supabase
+        .from('trips')
+        .update({ deleted_at: newWipedAt })
+        .eq('user_id', user.id)
+        .is('deleted_at', null);
+      if (wipeErr) {
+        console.error('restoreWipedTrips: replace-wipe failed:', wipeErr);
+        return { success: false, restored: 0 };
+      }
+      // Overwrite marker with the new batch (previous backup will be lost after restore)
+      try {
+        localStorage.setItem(wipeMarkerKey, JSON.stringify({
+          deletedAt: newWipedAt,
+          wipedAt: new Date().toISOString(),
+        }));
+      } catch { /* noop */ }
+    }
+
+    // Un-delete the target backup
+    const { error, count } = await supabase
+      .from('trips')
+      .update({ deleted_at: null }, { count: 'exact' })
+      .eq('user_id', user.id)
+      .eq('deleted_at', marker.deletedAt);
+
+    if (error) {
+      console.error('restoreWipedTrips failed:', error);
+      return { success: false, restored: 0 };
+    }
+
+    if (mode === 'merge') {
+      // Consumed marker: it's no longer a "backup"
+      try { localStorage.removeItem(wipeMarkerKey); } catch { /* noop */ }
+    }
+
+    await loadFromDatabase();
+    return { success: true, restored: count ?? 0 };
   };
 
   return {
@@ -942,6 +1053,8 @@ export function useTrips() {
     restoreTrip,
     permanentlyDeleteTrip,
     deleteAllTrips,
+    getWipeBackupInfo,
+    restoreWipedTrips,
     addLocation,
     updateLocation,
     deleteLocation,
@@ -949,5 +1062,6 @@ export function useTrips() {
     updateVehicle,
     deleteVehicle,
   };
+
 }
 
