@@ -957,9 +957,19 @@ serve(async (req) => {
           }
           totalTripsCreated += tripsCreated;
           usersProcessed++;
+          await logCalendarAttempt(supabase, conn.user_id, 'ics', 'success', undefined, {
+            trigger,
+            events_count: events.length,
+            trips_created: tripsCreated,
+            skipped_no_location: skippedNoLocation,
+            skipped_already_exists: skippedAlreadyExists,
+            skipped_other: skippedOther,
+          });
           console.log(`ICS user ${conn.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
         } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unknown ICS error';
           console.error(`Error processing ICS user ${conn.user_id}:`, error);
+          await logCalendarAttempt(supabase, conn.user_id, 'ics', 'failure', message, { trigger });
         }
       }
     }
