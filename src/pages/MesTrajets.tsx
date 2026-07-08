@@ -1088,7 +1088,30 @@ ${IKTRACKER_URL}`;
           </div>
         ) : Object.keys(groupedByMonth).length > 0 && (
           <>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Trajets passés</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Trajets passés</h3>
+              {selectionMode ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-muted-foreground"
+                  onClick={exitSelectionMode}
+                >
+                  <XIcon className="w-3.5 h-3.5 mr-1" />
+                  Annuler
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-muted-foreground hover:text-primary"
+                  onClick={() => setSelectionMode(true)}
+                >
+                  <CheckSquare className="w-3.5 h-3.5 mr-1" />
+                  Regrouper en tournée
+                </Button>
+              )}
+            </div>
             {Object.entries(groupedByMonth).map(([month, monthTrips], index) => (
             <div key={month}>
               {index > 0 && (
@@ -1097,6 +1120,7 @@ ${IKTRACKER_URL}`;
               <div className="space-y-3">
                 {monthTrips.map(trip => {
                   const vehicle = getVehicle(trip.vehicleId);
+                  const isTourTrip = !!(trip.tourStops && trip.tourStops.length > 0);
                   return (
                     <TripCard
                       key={trip.id}
@@ -1111,6 +1135,9 @@ ${IKTRACKER_URL}`;
                       showDelete
                       savedLocations={savedLocations}
                       onTripUpdated={() => window.location.reload()}
+                      selectionMode={selectionMode && !isTourTrip}
+                      selected={selectedIds.has(trip.id)}
+                      onToggleSelect={toggleSelect}
                     />
                   );
                 })}
@@ -1118,6 +1145,7 @@ ${IKTRACKER_URL}`;
             </div>
           ))}
           </>
+
         )}
 
         {/* Archived trips section - above barème */}
