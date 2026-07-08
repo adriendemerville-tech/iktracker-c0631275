@@ -41,6 +41,9 @@ export const TripCard = memo(function TripCard({
   savedLocations = [],
   onTripUpdated,
   showTripTime = true,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
 }: TripCardProps) {
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
