@@ -1,0 +1,1 @@
+UPDATE public.trips SET deleted_at = NOW() WHERE user_id='0a5fad88-4038-4f31-92d7-61ead30888ce' AND source='outlook_calendar' AND deleted_at IS NULL AND date < CURRENT_DATE - INTERVAL '14 days';
