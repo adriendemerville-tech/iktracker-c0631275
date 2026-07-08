@@ -3,6 +3,8 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
+export type CalendarImportMode = 'individual' | 'tour';
+
 export interface Preferences {
   showTripTime: boolean;
   stopDetectionMinutes: number;
@@ -14,6 +16,7 @@ export interface Preferences {
   counterResetDate: string | null; // ISO date string
   fiscalYearStartMonth: number; // 1-12, default 1 (January)
   fiscalYearStartDay: number; // 1-31, default 1
+  calendarImportMode: CalendarImportMode;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -29,6 +32,7 @@ const defaultPreferences: Preferences = {
   counterResetDate: null,
   fiscalYearStartMonth: 1,
   fiscalYearStartDay: 1,
+  calendarImportMode: 'individual',
 };
 
 // Get the fiscal year start date for a given reference date
