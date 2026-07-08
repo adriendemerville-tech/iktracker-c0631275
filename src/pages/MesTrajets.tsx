@@ -705,6 +705,7 @@ ${IKTRACKER_MENTION}
         logoUrl: '/logo-iktracker-250.webp',
         userInfo,
         sinceDate: reportSinceDate,
+        ikRateOverride: preferences.ikRateOverride,
       });
       
       // Create the share in the database
