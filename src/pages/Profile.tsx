@@ -650,10 +650,92 @@ const Profile = () => {
                   )}
                 </div>
 
+                {/* Calendar Import Mode */}
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <CalendarClock className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Import calendrier</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Comportement lors de la synchronisation
+                      </p>
+                    </div>
+                  </div>
+                  <RadioGroup
+                    value={preferences.calendarImportMode}
+                    onValueChange={(v) => updatePreference('calendarImportMode', v as 'individual' | 'tour')}
+                    className="pl-8 space-y-2"
+                  >
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="individual" id="prof-cal-individual" className="mt-1" />
+                      <Label htmlFor="prof-cal-individual" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Trajets individuels</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Chaque événement devient un aller-retour depuis mon domicile
+                        </span>
+                      </Label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="tour" id="prof-cal-tour" className="mt-1" />
+                      <Label htmlFor="prof-cal-tour" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Tournée journalière</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Rendez-vous d'une même journée regroupés : domicile → étapes → domicile
+                        </span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
 
+                {/* IK rate override */}
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <Calculator className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <Label>Taux d'indemnité kilométrique</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Utile pour figer un taux stable sur l'année
+                      </p>
+                    </div>
+                  </div>
+                  <RadioGroup
+                    value={preferences.ikRateOverride}
+                    onValueChange={(v) => updatePreference('ikRateOverride', v as 'auto' | 'tier2' | 'tier3')}
+                    className="pl-8 space-y-2"
+                  >
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="auto" id="prof-ik-auto" className="mt-1" />
+                      <Label htmlFor="prof-ik-auto" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Barème automatique (recommandé)</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Le taux évolue selon le cumul annuel (jusqu'à 5 000, 5 001–20 000, au-delà)
+                        </span>
+                      </Label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="tier2" id="prof-ik-tier2" className="mt-1" />
+                      <Label htmlFor="prof-ik-tier2" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Forcer la tranche 5 001–20 000 km</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Applique ce taux à tous les trajets, dès le 1er km
+                        </span>
+                      </Label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value="tier3" id="prof-ik-tier3" className="mt-1" />
+                      <Label htmlFor="prof-ik-tier3" className="cursor-pointer font-normal leading-snug">
+                        <span className="block text-sm font-medium">Forcer la tranche &gt; 20 000 km</span>
+                        <span className="block text-xs text-muted-foreground">
+                          Pour les gros rouleurs qui dépassent 20 000 km chaque année
+                        </span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  <p className="pl-8 text-[11px] text-muted-foreground italic">
+                    Les trajets déjà enregistrés ne sont pas recalculés.
+                  </p>
+                </div>
 
-
-              </div>
             </div>
           </div>
         </div>
