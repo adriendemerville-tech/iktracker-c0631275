@@ -198,6 +198,11 @@ export function usePreferences() {
     if (key === 'profession' && user) {
       savePersonaToDatabase(value as string);
     }
+
+    // Sync calendar import mode to database
+    if (key === 'calendarImportMode' && user) {
+      saveCalendarImportModeToDatabase(value as CalendarImportMode);
+    }
   };
 
   const resetCounters = useCallback(() => {
