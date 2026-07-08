@@ -514,11 +514,12 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Recurring trips stats — total + last 7 days
+  // Recurring trips stats — total + série sur la période sélectionnée
   const { data: recurringTripsStats, isLoading: recurringTripsStatsLoading } = useQuery({
-    queryKey: ['admin-recurring-trips-stats'],
+    queryKey: ['admin-recurring-trips-stats', period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_recurring_trips_stats' as any);
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_recurring_trips_stats' as any, { days_back: daysBack });
       if (error) throw error;
       const rows = (data ?? []) as Array<{ total_count: number; day: string; count: number }>;
       const total = rows[0]?.total_count ?? 0;
@@ -530,6 +531,7 @@ export function AdminStats() {
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
 
 
 
