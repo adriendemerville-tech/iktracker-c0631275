@@ -14,6 +14,32 @@ function esc(value: unknown): string {
     .replace(/'/g, '&#39;');
 }
 
+// Fuseau horaire d'affichage des horodatages d'étapes (fixe pour l'audit).
+const AUDIT_TIMEZONE = 'Europe/Paris';
+const TZ_LABEL_SUFFIX = ` · heures ${AUDIT_TIMEZONE}`;
+
+// Formatte un timestamp d'étape en HH:MM dans le fuseau d'audit, avec fallback.
+function formatStopTime(iso: string | undefined | null): { time: string; missing: boolean } {
+  if (!iso) return { time: '--:--', missing: true };
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return { time: '--:--', missing: true };
+  try {
+    return {
+      time: new Intl.DateTimeFormat('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: AUDIT_TIMEZONE,
+      }).format(d),
+      missing: false,
+    };
+  } catch {
+    const hh = d.getHours().toString().padStart(2, '0');
+    const mm = d.getMinutes().toString().padStart(2, '0');
+    return { time: `${hh}:${mm}`, missing: false };
+  }
+}
+
 interface UserInfo {
   email?: string;
   firstName?: string;
