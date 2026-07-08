@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
 import { Trip, Vehicle, Location } from '@/types/trip';
-import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff } from 'lucide-react';
+import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { extractCityFromAddress } from '@/lib/geocoding';
@@ -17,6 +17,9 @@ interface TripCardProps {
   savedLocations?: Location[];
   onTripUpdated?: () => void;
   showTripTime?: boolean;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 const getDisplayName = (location: { name: string; address?: string }): string => {
