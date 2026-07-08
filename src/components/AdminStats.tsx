@@ -633,28 +633,30 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch referral sources stats
+  // Fetch referral sources stats (admins exclus via RPC)
   const { data: referralStats, isLoading: referralLoading } = useQuery({
-    queryKey: ['admin-referral-sources'],
+    queryKey: ['admin-referral-sources', period],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('referral_sources')
-        .select('source');
+      const daysBack = periodConfig[period].daysBack;
+      const { data, error } = await supabase.rpc('get_referral_sources_stats' as any, { days_back: daysBack });
       if (error) throw error;
+      const rows = (data as unknown as { source: string; count: number }[]) || [];
       const counts: Record<string, number> = {};
       let total = 0;
       let totalExposed = 0;
-      (data || []).forEach((r: { source: string }) => {
-        totalExposed++;
-        if (r.source === 'skip') return;
-        counts[r.source] = (counts[r.source] || 0) + 1;
-        total++;
-      });
+      for (const r of rows) {
+        const n = Number(r.count) || 0;
+        totalExposed += n;
+        if (r.source === 'skip') continue;
+        counts[r.source] = (counts[r.source] || 0) + n;
+        total += n;
+      }
       const responseRate = totalExposed > 0 ? Math.round((total / totalExposed) * 100) : 0;
       return { counts, total, totalExposed, responseRate };
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
 
   // Fetch per-user persona map (for recent signups display)
   const { data: userPersonaMap } = useQuery({
