@@ -775,6 +775,27 @@ async function createTripFromEvent(
   return { created: true, distanceCalculated };
 }
 
+async function logCalendarAttempt(
+  supabase: any,
+  userId: string,
+  provider: 'google' | 'outlook' | 'ics',
+  status: 'success' | 'failure',
+  errorMessage?: string,
+  metadata: Record<string, any> = {},
+) {
+  try {
+    await supabase.from('calendar_connection_attempts').insert({
+      user_id: userId,
+      provider,
+      status,
+      error_message: errorMessage || null,
+      metadata,
+    });
+  } catch (e) {
+    console.error(`Failed to log ${provider} attempt:`, e);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -799,9 +820,11 @@ serve(async (req) => {
   try {
     // Parse request body to get monthsBack parameter
     let monthsBack = 0;
+    let trigger = 'cron';
     try {
       const body = await req.json();
       monthsBack = body.monthsBack || 0;
+      trigger = body.trigger || 'cron';
     } catch {
       // No body or invalid JSON - use default
     }
@@ -934,9 +957,19 @@ serve(async (req) => {
           }
           totalTripsCreated += tripsCreated;
           usersProcessed++;
+          await logCalendarAttempt(supabase, conn.user_id, 'ics', 'success', undefined, {
+            trigger,
+            events_count: events.length,
+            trips_created: tripsCreated,
+            skipped_no_location: skippedNoLocation,
+            skipped_already_exists: skippedAlreadyExists,
+            skipped_other: skippedOther,
+          });
           console.log(`ICS user ${conn.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
         } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unknown ICS error';
           console.error(`Error processing ICS user ${conn.user_id}:`, error);
+          await logCalendarAttempt(supabase, conn.user_id, 'ics', 'failure', message, { trigger });
         }
       }
     }

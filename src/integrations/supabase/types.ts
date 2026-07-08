@@ -354,6 +354,36 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_connection_attempts: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          provider: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          provider: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          provider?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       calendar_connections: {
         Row: {
           access_token: string | null
@@ -1890,6 +1920,24 @@ export type Database = {
         Returns: {
           count: number
           day: string
+        }[]
+      }
+      get_calendar_attempts_by_day: {
+        Args: { _provider?: string; days_back?: number }
+        Returns: {
+          day: string
+          failed_attempts: number
+          successful_attempts: number
+          total_attempts: number
+        }[]
+      }
+      get_calendar_connection_stats: {
+        Args: { days_back?: number }
+        Returns: {
+          failed_attempts: number
+          provider: string
+          successful_attempts: number
+          total_attempts: number
         }[]
       }
       get_daily_active_users: {

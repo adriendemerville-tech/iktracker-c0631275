@@ -71,6 +71,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | Table | Description | RLS |
 |---|---|---|
 | `calendar_connections` | Connexions Google/Outlook Calendar (tokens OAuth) | ✅ user_id |
+| `calendar_connection_attempts` | Journal des tentatives de connexion/synchronisation calendrier (Google, Outlook, ICS) | ✅ user_id + admin |
 
 #### Partage & Export
 
@@ -333,6 +334,7 @@ Content-Type: application/json
   - `outlook` : OAuth Microsoft Graph
   - `ics` : lien public ICS (Outlook perso/pro sans OAuth, Apple Calendar, tout fournisseur exposant un `.ics`). L'URL est stockée dans `calendar_connections.ics_url`. La fonction fetch le flux, parse les blocs `VEVENT` (avec gestion du RFC 5545 line folding, unescape des caractères, expansion des `RRULE` DAILY/WEEKLY/MONTHLY/YEARLY sur la fenêtre `syncDays`) et route chaque événement dans le même pipeline `createTripFromEvent` que Google/Outlook (déduplication par `calendar_event_id`, extraction d'adresse, calcul de distance, statut `pending_location` si aucune adresse détectable).
 - **Logique** : Lit les événements, extrait les adresses, calcule les distances, crée les trajets (`source = google_calendar` | `outlook_calendar` selon la connexion)
+- **Observabilité** : Chaque synchronisation ICS est journalisée dans `calendar_connection_attempts` avec le statut `success`/`failure`, le nombre d'événements récupérés, le nombre de trajets créés et le déclencheur (`cron` ou `manual`).
 - **Secrets** : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `SYNC_CRON_TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `vehicle-lookup` — Recherche par plaque
@@ -362,6 +364,7 @@ Content-Type: application/json
 
 - **Auth** : Aucune (callbacks OAuth)
 - **Logique** : Échange le code OAuth contre un token, stocke dans `calendar_connections`
+- **Observabilité** : Chaque callback OAuth (succès ou échec) est journalisé dans `calendar_connection_attempts` avec le provider (`google`/`outlook`), le statut et le message d'erreur éventuel.
 - **Sécurité** : Validation des redirect URLs contre une whitelist
 - **Secrets** : `GOOGLE_CLIENT_ID/SECRET`, `MICROSOFT_CLIENT_ID/SECRET`
 

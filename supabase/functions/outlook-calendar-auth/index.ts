@@ -60,6 +60,27 @@ async function verifyState(state: string, key: string): Promise<any | null> {
   } catch { return null; }
 }
 
+async function logCalendarAttempt(
+  supabase: any,
+  userId: string,
+  provider: 'google' | 'outlook' | 'ics',
+  status: 'success' | 'failure',
+  errorMessage?: string,
+  metadata: Record<string, any> = {},
+) {
+  try {
+    await supabase.from('calendar_connection_attempts').insert({
+      user_id: userId,
+      provider,
+      status,
+      error_message: errorMessage || null,
+      metadata,
+    });
+  } catch (e) {
+    console.error(`Failed to log ${provider} attempt:`, e);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -129,6 +150,7 @@ serve(async (req) => {
       };
 
       const finalRedirectUrl = validateRedirectUrl(redirect_url);
+      const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
       const returnResponse = (success: boolean, errorMessage?: string) => {
         const redirectTarget = new URL(finalRedirectUrl);
@@ -143,12 +165,14 @@ serve(async (req) => {
         return Response.redirect(redirectTarget.toString(), 302);
       };
 
-      if (error) {
+      if (error || !user_id) {
         console.error('OAuth error:', error);
+        await logCalendarAttempt(supabase, user_id || '00000000-0000-0000-0000-000000000000', 'outlook', 'failure', error || 'Missing user id');
         return returnResponse(false, 'Authentication failed');
       }
 
-      if (!code || !user_id) {
+      if (!code) {
+        await logCalendarAttempt(supabase, user_id, 'outlook', 'failure', 'Missing authorization code');
         return new Response('Missing required parameters', { status: 400 });
       }
 
@@ -170,10 +194,10 @@ serve(async (req) => {
       const tokens = await tokenResponse.json();
       if (!tokenResponse.ok) {
         console.error('Token exchange failed:', tokens);
+        await logCalendarAttempt(supabase, user_id, 'outlook', 'failure', tokens?.error_description || tokens?.error || 'Token exchange failed');
         return returnResponse(false, 'Authentication failed');
       }
 
-      const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
       const { data: existing } = await supabase
         .from('calendar_connections')
         .select('id')
@@ -202,6 +226,9 @@ serve(async (req) => {
         });
       }
 
+      await logCalendarAttempt(supabase, user_id, 'outlook', 'success', undefined, {
+        has_refresh_token: !!tokens.refresh_token,
+      });
       console.log('Calendar connection saved successfully');
       return returnResponse(true);
     }
