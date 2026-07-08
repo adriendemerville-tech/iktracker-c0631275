@@ -868,7 +868,7 @@ export function useTrips() {
     vehicleKms.forEach(({ vehicleId, km }) => {
       const vehicle = vehicles.find(v => v.id === vehicleId);
       if (vehicle) {
-        let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower);
+        let vehicleIK = calculateTotalAnnualIK(km, vehicle.fiscalPower, preferences.ikRateOverride);
         if (vehicle.isElectric) {
           vehicleIK = vehicleIK * 1.2;
         }
