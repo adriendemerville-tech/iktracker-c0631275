@@ -1158,12 +1158,26 @@ serve(async (req) => {
 
           const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
           const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
+          const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
+          console.log(`ICS user ${conn.user_id}: calendar_import_mode=${importMode}`);
 
           let tripsCreated = 0;
+          let toursCreated = 0;
           let skippedNoLocation = 0;
           let skippedAlreadyExists = 0;
           let skippedOther = 0;
-          for (const event of events) {
+
+          let eventsToProcess = events;
+          if (importMode === 'tour') {
+            const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
+              conn.user_id, events, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+            );
+            toursCreated = nTours;
+            tripsCreated += nTours;
+            eventsToProcess = fallbackEvents;
+          }
+
+          for (const event of eventsToProcess) {
             const result = await createTripFromEvent(
               conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar'
             );
@@ -1176,7 +1190,7 @@ serve(async (req) => {
           usersProcessed++;
           // Note: sync runs are NOT logged in calendar_connection_attempts.
           // That table now tracks only user-initiated connection attempts.
-          console.log(`ICS user ${conn.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+          console.log(`ICS user ${conn.user_id}: created=${tripsCreated} (tours=${toursCreated}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Unknown ICS error';
           console.error(`Error processing ICS user ${conn.user_id}:`, error);
