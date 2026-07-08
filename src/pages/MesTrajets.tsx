@@ -105,7 +105,7 @@ export default function Report() {
       // Build tour_stops: chained locations, dedup consecutive identical addresses.
       // Coordinates are left undefined when unknown — never fabricated as (0,0).
       const stops: TourStopData[] = [];
-      const pushStop = (loc: Location, ts: string) => {
+      const pushStop = (loc: TripLocation, ts: string) => {
         const addr = loc.address || loc.name;
         const last = stops[stops.length - 1];
         if (last && (last.address || '') === addr) return;
