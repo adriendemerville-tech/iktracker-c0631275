@@ -49,8 +49,10 @@ export const TripCard = memo(function TripCard({
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
   const [showTripView, setShowTripView] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
   // On mobile, action buttons (edit/delete) only show when card is selected in selection mode.
+  // On desktop, they are revealed on card hover.
   const showActionButtons = !isMobile || (selectionMode && selected);
   
   const isPending = trip.status === 'pending_location';
@@ -124,7 +126,7 @@ export const TripCard = memo(function TripCard({
     <>
       <div 
         className={cn(
-          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors",
+          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors group",
           isPending 
             ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
             : "border-border/50",
@@ -132,6 +134,8 @@ export const TripCard = memo(function TripCard({
           selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
         )}
         onClick={handleCardClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Selection checkbox */}
         {selectionMode && !isPending && (
@@ -201,7 +205,7 @@ export const TripCard = memo(function TripCard({
           {trip.calendarEventId && (
             <Calendar className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
           )}
-          {onEdit && !isTour && !isPending && showActionButtons && (
+          {onEdit && !isTour && !isPending && showActionButtons && (isMobile || isHovered) && (
             <Button
               variant="ghost"
               size="icon"
@@ -247,7 +251,7 @@ export const TripCard = memo(function TripCard({
               )}
             </div>
           )}
-          {showDelete && onDelete && showActionButtons && (
+          {showDelete && onDelete && showActionButtons && (isMobile || isHovered) && (
             <Button
               variant="ghost"
               size="icon"
