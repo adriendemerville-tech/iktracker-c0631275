@@ -69,7 +69,7 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona')
+          .select('accountant_email, persona, calendar_import_mode')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -94,6 +94,12 @@ export function usePreferences() {
             }
           } else {
             updates.profession = '';
+          }
+
+          // Sync calendar import mode
+          const mode = (data as any)?.calendar_import_mode as CalendarImportMode | undefined;
+          if (mode === 'tour' || mode === 'individual') {
+            updates.calendarImportMode = mode;
           }
 
           if (Object.keys(updates).length > 0) {
