@@ -1078,14 +1078,31 @@ serve(async (req) => {
         const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
         console.log(`User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : 'not found'}`);
 
+        // Determine import mode for this user
+        const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
+        console.log(`User ${connection.user_id}: calendar_import_mode=${importMode}`);
+
         // Create trips from events
         let tripsCreated = 0;
+        let toursCreated = 0;
         let tripsWithDistance = 0;
         let skippedNoLocation = 0;
         let skippedAlreadyExists = 0;
         let skippedOther = 0;
 
-        for (const event of events) {
+        // In tour mode, first try to group same-day events into tours.
+        // Events that can't be grouped (single-event days, no address, no home) fall back to individual.
+        let eventsToProcess = events;
+        if (importMode === 'tour') {
+          const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
+            connection.user_id, events, vehicle, userHomeLocation, supabase, 'google_calendar'
+          );
+          toursCreated = nTours;
+          tripsCreated += nTours;
+          eventsToProcess = fallbackEvents;
+        }
+
+        for (const event of eventsToProcess) {
           const result = await createTripFromEvent(
             connection.user_id,
             event,
@@ -1109,7 +1126,7 @@ serve(async (req) => {
 
         totalTripsCreated += tripsCreated;
         usersProcessed++;
-        console.log(`User ${connection.user_id}: created=${tripsCreated} (with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+        console.log(`User ${connection.user_id}: created=${tripsCreated} (tours=${toursCreated}, with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
       } catch (error) {
         console.error(`Error processing user ${connection.user_id}:`, error);
       }
