@@ -62,7 +62,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `locations` | Adresses enregistrées (domicile, travail) | ✅ user_id |
 | `frequent_destinations` | Destinations fréquentes (mot-clé → adresse) | ✅ user_id |
 | `distance_cache` | Cache des distances calculées | ✅ user_id |
-| `user_preferences` | Préférences (persona, comptable, visites, didacticiel terminé, `calendar_import_mode` : `individual` ou `tour`) | ✅ user_id |
+| `user_preferences` | Préférences (persona, comptable, visites, didacticiel terminé, `calendar_import_mode` : `individual` ou `tour`, `ik_rate_override` : `auto` \| `tier2` \| `tier3` pour figer le taux IK) | ✅ user_id |
 | `tour_sessions` | Sessions de tournée GPS en cours (+ compteurs reprise) | ✅ user_id |
 | `tour_recovery_events` | Journal des événements de reprise de tournée (modal, auto-finalize, erreurs, toasts) | ✅ user_id + admin/viewer |
 
