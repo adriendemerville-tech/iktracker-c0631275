@@ -1371,6 +1371,26 @@ ${IKTRACKER_URL}`;
           }}
         />
       </Suspense>
+
+      {/* Trip settings modal (desktop only entry point) */}
+      <Suspense fallback={null}>
+        {showSettings && (
+          <TripSettingsModal
+            open={showSettings}
+            onOpenChange={setShowSettings}
+            vehicles={vehicles}
+            savedLocations={savedLocations}
+            getTotalAnnualKm={getTotalAnnualKm}
+            onAddVehicle={addVehicle}
+            onUpdateVehicle={updateVehicle}
+            onDeleteVehicle={deleteVehicle}
+            onAddLocation={addLocation}
+            onUpdateLocation={updateLocation}
+            onDeleteLocation={deleteLocation}
+            onOpenRecurring={() => setShowRecurringModal(true)}
+          />
+        )}
+      </Suspense>
       </div>
     </>
   );
