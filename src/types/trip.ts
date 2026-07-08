@@ -22,8 +22,8 @@ export interface Vehicle {
 export interface TourStopData {
   id: string;
   timestamp: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   address?: string;
   city?: string;
   duration?: number;
