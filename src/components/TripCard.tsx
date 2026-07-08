@@ -118,10 +118,26 @@ export const TripCard = memo(function TripCard({
           "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors",
           isPending 
             ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
-            : "border-border/50"
+            : "border-border/50",
+          selectionMode && !isPending && "pl-11",
+          selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
         )}
         onClick={handleCardClick}
       >
+        {/* Selection checkbox */}
+        {selectionMode && !isPending && (
+          <div
+            className={cn(
+              "absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors shrink-0",
+              selected
+                ? "bg-primary border-primary text-primary-foreground"
+                : "bg-background border-muted-foreground/40"
+            )}
+            aria-hidden
+          >
+            {selected && <Check className="w-4 h-4" />}
+          </div>
+        )}
         {/* Pending location badge */}
         {isPending && (
           <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-400 rounded-full shadow-sm flex items-center justify-center border-2 border-white">
