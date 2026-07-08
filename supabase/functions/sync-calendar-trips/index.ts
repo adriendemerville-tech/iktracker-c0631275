@@ -1095,9 +1095,10 @@ serve(async (req) => {
         const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
         console.log(`User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : 'not found'}`);
 
-        // Determine import mode for this user
+        // Determine import mode + IK rate override for this user
         const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
-        console.log(`User ${connection.user_id}: calendar_import_mode=${importMode}`);
+        const ikRateOverride = await getUserIkRateOverride(connection.user_id, supabase);
+        console.log(`User ${connection.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`);
 
         // Create trips from events
         let tripsCreated = 0;
@@ -1112,7 +1113,7 @@ serve(async (req) => {
         let eventsToProcess = events;
         if (importMode === 'tour') {
           const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
-            connection.user_id, events, vehicle, userHomeLocation, supabase, 'google_calendar'
+            connection.user_id, events, vehicle, userHomeLocation, supabase, 'google_calendar', ikRateOverride
           );
           toursCreated = nTours;
           tripsCreated += nTours;
@@ -1125,7 +1126,9 @@ serve(async (req) => {
             event,
             vehicle,
             userHomeLocation,
-            supabase
+            supabase,
+            'google_calendar',
+            ikRateOverride
           );
           if (result.created) {
             tripsCreated++;
