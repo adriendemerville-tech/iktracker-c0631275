@@ -1,70 +1,65 @@
 
-## Données Semrush (FR) — synthèse
+# Mode d'import "Tournée" pour la synchronisation calendrier
 
-**Volume où on est sous-exploités :**
-- "barème kilométrique 2025" : 40 500/mo (KD 1) — encore dominant face à 2026 (70/mo)
-- "frais kilometrique 2025" : 27 100/mo · "indemnité kilométrique 2025" : 18 100/mo
-- "frais kilometrique impot" : 9 900/mo · "calcul frais kilometrique" : 9 900/mo
-- "ik" : 9 900/mo (on est 22e — page d'accueil)
-- "simulateur frais kilométrique" : 5 400/mo (on est 13e sur /bareme-ik-2026)
-- "frais de déplacement" : 2 900/mo · "déplacement professionnel" : 1 300/mo (aucune page dédiée)
-- "note de frais kilométrique" : 210/mo, KD 17 (aucune page dédiée — quick win)
+Nouvelle option dans les préférences utilisateur : quand elle est activée, la synchronisation calendrier (Google / Outlook / ICS) regroupe **tous les événements pro d'une même journée** en une seule tournée (domicile → RDV₁ → RDV₂ → … → domicile) au lieu de créer N trajets individuels aller depuis le domicile.
 
-**Personas BtoB à clarifier dans le texte :**
-- Commercial itinérant · Auto-entrepreneur · Artisan · Infirmière libérale · Expert-comptable
-- Le contenu BtoB doit lever : "puis-je déduire ?", "comment justifier ?", "où déclarer ?", "carnet de bord obligatoire ?"
+## Comportement fonctionnel
 
-**GEO (LLM) — questions à insérer en FAQ JSON-LD :**
-- "comment calculer les indemnités kilométriques"
-- "où déclarer les frais kilométriques"
-- "comment justifier frais kilométrique impôt" (2 400/mo)
-- "que comprend l'indemnité kilométrique"
-- "est-ce que les indemnités kilométriques sont imposables"
+- Trois modes possibles côté préférences :
+  - `individual` (défaut, comportement actuel) — 1 event = 1 trajet
+  - `tour` — regroupement automatique en tournée si ≥ 2 events pro le même jour
+  - Si un seul event pro sur la journée en mode `tour` → fallback silencieux sur `individual` pour ce jour (pas de "tournée" à une seule étape)
+- La tournée est enregistrée comme **`tour_session` finalisée + trip lié** (même chemin que le Mode Tournée existant), donc :
+  - Visible dans "Mes trajets" comme une tournée avec ses étapes
+  - Distance = somme des segments Distance Matrix domicile→RDV₁, RDV₁→RDV₂, …, RDV_N→domicile
+  - IK calculé une seule fois sur la distance totale (barème tiered inchangé, bonus EV 20% inchangé)
+  - `source = 'google_calendar' | 'outlook_calendar' | 'ics'`, `tour_stops` = JSON des étapes
+- Idempotence : si la tournée du jour existe déjà (même user_id, même date, même signature d'events) → skip (comme aujourd'hui pour les trips individuels via `google_event_id` / `outlook_event_id` / `ics_uid`)
+- Contrainte "future events" préservée : une journée n'est agrégée qu'une fois **le jour même arrivé** (respect de `calendar-import-timing-constraint`)
 
----
+## Changements techniques
 
-## Pages à enrichir (8) — règle d'or : un ajout = une section, pas un patchwork
+### 1. Base de données (migration)
+- Ajouter colonne `calendar_import_mode text not null default 'individual'` sur `public.user_preferences` avec check `in ('individual','tour')`
 
-### 1. `/` (Index/Landing) — focus mot-clé "ik" + "frais kilometrique"
-- H1 : garder la promesse marketing, ajouter sous-titre H2 sémantique "Calcul d'indemnités kilométriques 2025-2026"
-- Meta description : intégrer "frais kilométriques", "barème URSSAF", "gratuit"
-- FAQ JSON-LD (5 questions GEO ci-dessus) — pas de section visible si déjà chargée, sinon mini accordéon discret
+### 2. Edge Function `sync-calendar-trips`
+- Après récupération des events d'un utilisateur, lire son `calendar_import_mode`
+- Si `tour` : grouper les events par date locale utilisateur, pour chaque jour à ≥ 2 events :
+  1. Récupérer adresse domicile (locations type=home, fallback logique existante)
+  2. Trier events par heure de début
+  3. Extraire l'adresse de chaque event (déjà géocodée par le parser existant)
+  4. Appeler Distance Matrix pour chaque segment consécutif → distance totale
+  5. Calculer IK via la logique tiered existante (même helpers que `recalculate-distances`)
+  6. Insérer `tour_session` finalisée + `trip` avec `tour_stops` JSON, `source` = provider
+  7. Marquer chaque event source comme importé (même table de dédoublonnage qu'aujourd'hui) pour éviter les re-imports individuels
+- Si `individual` : comportement actuel inchangé
+- Ne PAS traiter les jours à 1 seul event en mode `tour` → passer au flux individuel pour ce jour
 
-### 2. `/bareme-ik-2026` — capter aussi le trafic "2025"
-- Title : "Barème kilométrique 2025-2026 | Simulateur officiel URSSAF"
-- Ajouter une section comparative tableau 2025 vs 2026 (déjà tiered scale en mémoire)
-- Renforcer ancrage "simulateur frais kilométrique" dans H2 + alt
+### 3. UI Préférences (`PreferencesContent.tsx`)
+- Nouvelle section "Import calendrier" avec un `RadioGroup` :
+  - **Trajets individuels** (défaut) — "Chaque événement devient un trajet aller depuis mon domicile"
+  - **Tournée journalière** — "Tous mes rendez-vous d'une même journée sont regroupés en une seule tournée domicile → étapes → domicile"
+- Persistance via `usePreferences` (ajout du champ dans le hook + type)
 
-### 3. `/frais-reels` — capter "frais réels impôt"
-- Meta + H2 : ajouter "Frais réels 2025-2026 vs abattement 10%"
-- FAQ JSON-LD : "calcul frais réel", "où déclarer"
+### 4. Documentation
+- Mettre à jour `docs/BACKEND.md` (nouvelle colonne + comportement sync) et régénérer le PDF puisque c'est un changement significatif sur la fonction sync
 
-### 4. `/expert-comptable` — BtoB
-- Persona "expert-comptable" + "cabinet" dans intro
-- Bénéfices : audit, export CSV, opposabilité URSSAF
-- Schema Service
+## Schéma du flux
 
-### 5. `/mode-tournee` — BtoB itinérants
-- Cibler "commercial itinérant", "tournée VRP", "note de frais kilométrique"
-- Section "Pour qui ?" : commercial, artisan, infirmière libérale, livreur
+```text
+Mode individual (actuel):
+  Event A 09h → Trip domicile→A
+  Event B 14h → Trip domicile→B
+  Event C 16h → Trip domicile→C
 
-### 6. `/installer` — déjà bien, juste affiner meta keywords (laisser tel quel sinon)
+Mode tour (nouveau):
+  Events A,B,C du même jour →
+    1 Tournée: domicile → A → B → C → domicile
+    (distance cumulée, IK unique, tour_stops = [A,B,C])
+```
 
-### 7. `/tarifs` — déjà excellent, juste enrichir meta avec "gratuit à vie", "0€", "sans abonnement"
+## Points explicitement hors scope
 
-### 8. **Nouvelle page** `/note-de-frais-kilometrique` (quick win KD 17, 210/mo)
-- Guide pratique + modèle téléchargeable (lien vers app)
-- Ciblage : "comment faire une note de frais kilométrique", "modèle note de frais"
-- Routage + sitemap + lien depuis footer & blog
-
----
-
-## Hors-scope (volontairement)
-- Pas de refonte visuelle
-- Pas de nouveau contenu marketing long sur les pages existantes : on ajoute uniquement **meta + 1 FAQ JSON-LD + 1-2 H2 sémantiques** par page
-- Pas de surcharge de mots-clés (densité ≤ 2%)
-
----
-
-## Validation
-Ce plan touche 7 fichiers existants + 1 nouvelle page. Tu valides l'ensemble ou tu veux retirer/prioriser certains points (ex: ne pas créer la nouvelle page, ou ne traiter que le top 4) ?
+- Pas de rétroactivité automatique sur les trajets calendrier déjà importés (l'utilisateur peut les supprimer manuellement s'il veut re-synchroniser en mode tournée)
+- Pas de détection intelligente "cet event est-il vraiment pro ?" — on garde le filtre actuel de `sync-calendar-trips`
+- Pas de changement sur le mode Tournée manuel mobile (module Tour Mode intact)
