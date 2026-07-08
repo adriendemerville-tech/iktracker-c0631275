@@ -336,6 +336,7 @@ Content-Type: application/json
 - **Logique** : Lit les événements, extrait les adresses, calcule les distances, crée les trajets (`source = google_calendar` | `outlook_calendar` selon la connexion). Deux modes d'import pilotés par `user_preferences.calendar_import_mode` :
   - `individual` (défaut) : 1 événement calendrier = 1 trajet aller-retour depuis le domicile.
   - `tour` : tous les rendez-vous d'une même journée (≥ 2 avec adresse résolue) sont regroupés en une seule tournée `domicile → RDV₁ → … → RDV_N → domicile` — 1 seul `trip` avec `tour_stops` JSON, distance = somme des segments Distance Matrix, IK calculé une fois via le barème tiered (bonus EV 20% inchangé), `calendar_event_id = tour:YYYY-MM-DD:<source>` pour l'idempotence. Les jours avec 1 seul rendez-vous, sans adresse home configurée ou sans adresse d'événement retombent silencieusement sur le flux individuel.
+  - Le calcul IK respecte `user_preferences.ik_rate_override` : `auto` (barème tiered), `tier2` (taux 5001–20000 forcé sur chaque km) ou `tier3` (taux >20000 forcé). Utile pour les utilisateurs qui se remboursent mensuellement et veulent un taux stable toute l'année.
 - **Observabilité** : Chaque synchronisation ICS est journalisée dans `calendar_connection_attempts` avec le statut `success`/`failure`, le nombre d'événements récupérés, le nombre de trajets créés et le déclencheur (`cron` ou `manual`).
 - **Secrets** : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `SYNC_CRON_TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
