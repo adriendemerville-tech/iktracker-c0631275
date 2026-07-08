@@ -839,7 +839,7 @@ ${IKTRACKER_URL}`;
               <Button
                 variant="ghost"
                 size="icon"
-                className="hidden md:inline-flex"
+                className={isAdmin ? "inline-flex" : "hidden md:inline-flex"}
                 onClick={() => setShowSettings(true)}
                 aria-label="Réglages des trajets"
               >
