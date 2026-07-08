@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2 } from 'lucide-react';
+import { Car, MapPin, Calculator, CalendarClock, SlidersHorizontal, Plus, Home, Mail, Bell, FileDown, Repeat, Zap, Trash2, AlertTriangle } from 'lucide-react';
 import { Vehicle, Location as TripLocation } from '@/types/trip';
 import { usePreferences, IKRateOverride, CalendarImportMode } from '@/hooks/usePreferences';
 import { VehicleCard } from '@/components/VehicleCard';
@@ -19,7 +19,7 @@ const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ d
 const AddressForm = lazy(() => import('@/components/AddressForm').then(m => ({ default: m.AddressForm })));
 const CalendarConnections = lazy(() => import('@/components/CalendarConnections').then(m => ({ default: m.CalendarConnections })));
 
-type TabId = 'vehicles' | 'addresses' | 'calculation' | 'import' | 'general';
+type TabId = 'vehicles' | 'addresses' | 'calculation' | 'import' | 'general' | 'danger';
 
 interface Tab {
   id: TabId;
@@ -33,6 +33,7 @@ const TABS: Tab[] = [
   { id: 'calculation', label: 'Calcul & fiscalité', icon: Calculator },
   { id: 'import', label: 'Import & tournées', icon: CalendarClock },
   { id: 'general', label: 'Général', icon: SlidersHorizontal },
+  { id: 'danger', label: 'Zone de danger', icon: AlertTriangle },
 ];
 
 interface Props {
@@ -48,14 +49,16 @@ interface Props {
   onUpdateLocation: (id: string, updates: Partial<TripLocation>) => void;
   onDeleteLocation: (id: string) => void;
   onOpenRecurring: () => void;
+  onDeleteAllTrips: () => Promise<{ success: boolean; count: number }>;
 }
+
 
 export function TripSettingsModal(props: Props) {
   const {
     open, onOpenChange, vehicles, savedLocations, getTotalAnnualKm,
     onAddVehicle, onUpdateVehicle, onDeleteVehicle,
     onAddLocation, onUpdateLocation, onDeleteLocation,
-    onOpenRecurring,
+    onOpenRecurring, onDeleteAllTrips,
   } = props;
   const { preferences, updatePreference } = usePreferences();
   const [activeTab, setActiveTab] = useState<TabId>('vehicles');
@@ -65,6 +68,12 @@ export function TripSettingsModal(props: Props) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [addressFormOpen, setAddressFormOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<TripLocation | null>(null);
+
+  // Danger zone: wipe all trips
+  const [wipeConfirmOpen, setWipeConfirmOpen] = useState(false);
+  const [wipeConfirmText, setWipeConfirmText] = useState('');
+  const [wipeLoading, setWipeLoading] = useState(false);
+
 
   return (
     <>
@@ -78,8 +87,8 @@ export function TripSettingsModal(props: Props) {
                 <h2 className="text-sm font-semibold">Réglages</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">Trajets & préférences</p>
               </div>
-              <nav className="flex-1 overflow-y-auto py-2">
-                {TABS.map(tab => {
+              <nav className="flex-1 overflow-y-auto py-2 flex flex-col">
+                {TABS.filter(t => t.id !== 'danger').map(tab => {
                   const Icon = tab.icon;
                   const active = activeTab === tab.id;
                   return (
@@ -98,7 +107,30 @@ export function TripSettingsModal(props: Props) {
                     </button>
                   );
                 })}
+                {/* Danger zone pinned to the bottom */}
+                <div className="mt-auto pt-4 border-t border-border">
+                  {(() => {
+                    const tab = TABS.find(t => t.id === 'danger')!;
+                    const Icon = tab.icon;
+                    const active = activeTab === 'danger';
+                    return (
+                      <button
+                        onClick={() => setActiveTab('danger')}
+                        className={cn(
+                          "w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition-colors border-l-2",
+                          active
+                            ? "bg-destructive/10 text-destructive border-destructive font-medium"
+                            : "border-transparent text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                        )}
+                      >
+                        <Icon className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{tab.label}</span>
+                      </button>
+                    );
+                  })()}
+                </div>
               </nav>
+
             </aside>
 
             {/* Content */}
@@ -471,11 +503,109 @@ export function TripSettingsModal(props: Props) {
                     </div>
                   </section>
                 )}
+
+                {activeTab === 'danger' && (
+                  <section className="space-y-6">
+                    <SectionHeader
+                      title="Zone de danger"
+                      description="Actions irréversibles depuis l'application. Réfléchissez à deux fois."
+                    />
+
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-semibold text-destructive">Supprimer tous mes trajets</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Vide entièrement votre journal : trajets, tournées et archives disparaissent de l'application.
+                            Vos véhicules, adresses et préférences ne sont pas touchés.
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Les données sont conservées <strong>120 jours</strong> en base pour une éventuelle restauration
+                            sur demande, puis définitivement effacées.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => { setWipeConfirmText(''); setWipeConfirmOpen(true); }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer tous mes trajets
+                        </Button>
+                      </div>
+                    </div>
+                  </section>
+                )}
               </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation modal for wiping all trips */}
+      <Dialog open={wipeConfirmOpen} onOpenChange={(o) => { if (!wipeLoading) setWipeConfirmOpen(o); }}>
+        <DialogContent className="max-w-md">
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="w-5 h-5" />
+            Supprimer tous mes trajets ?
+          </DialogTitle>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Cette action vide entièrement votre journal : <strong>tous les trajets, toutes les tournées
+              et toutes les archives</strong> seront retirés de l'application.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Vos données restent conservées 120 jours en base pour une restauration éventuelle, puis
+              sont définitivement effacées.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="wipe-confirm" className="text-sm">
+                Pour confirmer, tapez <span className="font-mono font-semibold text-destructive">SUPPRIMER</span> :
+              </Label>
+              <Input
+                id="wipe-confirm"
+                value={wipeConfirmText}
+                onChange={(e) => setWipeConfirmText(e.target.value)}
+                placeholder="SUPPRIMER"
+                autoComplete="off"
+                disabled={wipeLoading}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setWipeConfirmOpen(false)}
+                disabled={wipeLoading}
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={wipeConfirmText !== 'SUPPRIMER' || wipeLoading}
+                onClick={async () => {
+                  setWipeLoading(true);
+                  const res = await onDeleteAllTrips();
+                  setWipeLoading(false);
+                  if (res.success) {
+                    toast.success(`${res.count} trajet${res.count > 1 ? 's' : ''} supprimé${res.count > 1 ? 's' : ''}. Journal vidé.`);
+                    setWipeConfirmOpen(false);
+                    setWipeConfirmText('');
+                    onOpenChange(false);
+                  } else {
+                    toast.error("Échec de la suppression. Réessayez.");
+                  }
+                }}
+              >
+                {wipeLoading ? 'Suppression…' : 'Supprimer définitivement'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       {/* Nested forms */}
       <Suspense fallback={null}>
