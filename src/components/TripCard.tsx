@@ -208,18 +208,21 @@ export const TripCard = memo(function TripCard({
           {trip.calendarEventId && (
             <Calendar className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
           )}
-          {onEdit && !isTour && !isPending && showActionButtons && (isMobile || isHovered) && (
+          {onEdit && !isTour && !isPending && showActionButtons && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-5 w-5 hover:bg-transparent shrink-0 text-muted-foreground/60 hover:text-primary"
+              className={cn(
+                "h-5 w-5 hover:bg-transparent shrink-0 text-muted-foreground/60 hover:text-primary",
+                desktopHoverReveal
+              )}
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(trip);
               }}
               aria-label="Modifier le trajet"
             >
-              <Pencil className="w-2.5 h-2.5" />
+              <Pencil className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>
