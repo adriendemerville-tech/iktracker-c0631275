@@ -1179,7 +1179,8 @@ serve(async (req) => {
           const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
           const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
           const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
-          console.log(`ICS user ${conn.user_id}: calendar_import_mode=${importMode}`);
+          const ikRateOverride = await getUserIkRateOverride(conn.user_id, supabase);
+          console.log(`ICS user ${conn.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`);
 
           let tripsCreated = 0;
           let toursCreated = 0;
@@ -1190,7 +1191,7 @@ serve(async (req) => {
           let eventsToProcess = events;
           if (importMode === 'tour') {
             const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
-              conn.user_id, events, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+              conn.user_id, events, vehicle, userHomeLocation, supabase, 'outlook_calendar', ikRateOverride
             );
             toursCreated = nTours;
             tripsCreated += nTours;
@@ -1199,7 +1200,7 @@ serve(async (req) => {
 
           for (const event of eventsToProcess) {
             const result = await createTripFromEvent(
-              conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+              conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar', ikRateOverride
             );
             if (result.created) tripsCreated++;
             else if (result.reason === 'no_location') skippedNoLocation++;
