@@ -2005,7 +2005,13 @@ export type Database = {
           unique_sessions: number
         }[]
       }
-      get_persona_distribution: { Args: never; Returns: Json }
+      get_persona_distribution: {
+        Args: never
+        Returns: {
+          count: number
+          persona: string
+        }[]
+      }
       get_recent_signups: {
         Args: { limit_count?: number }
         Returns: {
