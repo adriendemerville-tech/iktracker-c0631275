@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck } from 'lucide-react';
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
