@@ -171,7 +171,31 @@ function generateReportHTML(options: PrintReportOptions): string {
     const motifRaw = t.purpose || '-';
     const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + '…' : motifRaw;
     const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
-    
+
+    // Tour stop details for audit trail (arrival time per stop)
+    const isTour = Array.isArray(t.tourStops) && t.tourStops.length >= 2;
+    let tourDetailRow = '';
+    if (isTour) {
+      const stopsHtml = t.tourStops!.map((s, idx) => {
+        const dt = s.timestamp ? new Date(s.timestamp) : null;
+        const hh = dt ? dt.getHours().toString().padStart(2, '0') : '--';
+        const mm = dt ? dt.getMinutes().toString().padStart(2, '0') : '--';
+        const label = s.address || s.city || `Étape ${idx + 1}`;
+        return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
+          <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
+          <span style="display: inline-block; width: 50px; font-weight: 600; color: #111827;">${hh}:${mm}</span>
+          <span style="flex: 1; color: #4b5563;">${esc(label)}</span>
+        </div>`;
+      }).join('');
+      tourDetailRow = `
+      <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
+        <td colspan="7" style="padding: 6px 12px 12px 20px; border-bottom: 1px solid #e5e7eb;">
+          <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes</div>
+          ${stopsHtml}
+        </td>
+      </tr>`;
+    }
+
     return `
       <tr style="background-color: ${bgColor}; page-break-inside: avoid;">
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
@@ -182,6 +206,7 @@ function generateReportHTML(options: PrintReportOptions): string {
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 65px; min-width: 65px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>
       </tr>
+      ${tourDetailRow}
     `;
   }).join('');
 
