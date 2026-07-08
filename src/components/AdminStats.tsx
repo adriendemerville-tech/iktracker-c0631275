@@ -826,6 +826,17 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
+  // Fetch calendar connection attempt stats - refresh every hour
+  const { data: calendarConnectionStats, isLoading: calendarConnectionStatsLoading } = useQuery({
+    queryKey: ['admin-calendar-connection-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_calendar_connection_stats', { days_back: 30 });
+      if (error) throw error;
+      return (data as unknown as CalendarConnectionStatsData[]) || [];
+    },
+    refetchInterval: 60 * 60 * 1000, // 1 hour
+  });
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
