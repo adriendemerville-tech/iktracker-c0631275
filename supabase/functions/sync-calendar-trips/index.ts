@@ -801,17 +801,31 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Auth: only allow service-role callers (pg_cron) or matching CRON_SECRET/SYNC_CRON_TOKEN header.
+  // Auth: allow (a) service-role / CRON secret for scheduled global runs,
+  // or (b) a valid user JWT — in which case the sync is FORCED to that user only.
   const serviceRoleKey = SUPABASE_SERVICE_ROLE_KEY!;
   const cronSecret = Deno.env.get('CRON_SECRET');
   const syncCronToken = Deno.env.get('SYNC_CRON_TOKEN');
   const authHeader = req.headers.get('Authorization') || '';
   const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   const xCronSecret = req.headers.get('x-cron-secret');
-  const authorized = (bearer && bearer === serviceRoleKey) ||
+
+  const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+
+  const isServiceCaller =
+    (bearer && bearer === serviceRoleKey) ||
     (cronSecret && xCronSecret === cronSecret) ||
     (syncCronToken && xCronSecret === syncCronToken);
-  if (!authorized) {
+
+  let callerUserId: string | null = null;
+  if (!isServiceCaller && bearer) {
+    const { data: userData, error: userErr } = await supabase.auth.getUser(bearer);
+    if (!userErr && userData?.user) {
+      callerUserId = userData.user.id;
+    }
+  }
+
+  if (!isServiceCaller && !callerUserId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -830,13 +844,20 @@ serve(async (req) => {
     } catch {
       // No body or invalid JSON - use default
     }
-    
+
+    // If caller is a regular user (not service/cron), FORCE scope to their own user_id.
+    // This prevents any user from triggering a global sync of all calendars.
+    if (callerUserId) {
+      targetUserId = callerUserId;
+      trigger = trigger || 'manual';
+    }
+
     console.log('Starting calendar sync...');
     console.log('Time:', new Date().toISOString());
+    console.log('Trigger:', trigger);
     console.log('Months back:', monthsBack);
+    console.log('Caller:', isServiceCaller ? 'service/cron' : `user:${callerUserId}`);
     if (targetUserId) console.log('Target user:', targetUserId);
-
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
     // Get all active Google Calendar connections (or one user)
     let googleQuery = supabase
