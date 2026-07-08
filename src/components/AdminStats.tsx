@@ -830,7 +830,7 @@ export function AdminStats() {
   const { data: calendarConnectionStats, isLoading: calendarConnectionStatsLoading } = useQuery({
     queryKey: ['admin-calendar-connection-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_calendar_connection_stats', { days_back: 30 });
+      const { data, error } = await supabase.rpc('get_calendar_connection_stats', { days_back: 90 });
       if (error) throw error;
       return (data as unknown as CalendarConnectionStatsData[]) || [];
     },
