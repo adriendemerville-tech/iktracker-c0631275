@@ -892,6 +892,54 @@ serve(async (req) => {
       }
     }
 
+    // ============ ICS connections (any calendar: Outlook, iCloud, generic .ics) ============
+    const { data: icsConnections, error: icsError } = await supabase
+      .from('calendar_connections')
+      .select('id, user_id, ics_url')
+      .eq('provider', 'ics')
+      .eq('is_active', true);
+
+    if (icsError) {
+      console.error('Failed to fetch ICS connections:', icsError);
+    } else {
+      console.log(`Found ${icsConnections?.length || 0} active ICS connections`);
+      for (const conn of icsConnections || []) {
+        try {
+          if (!conn.ics_url) {
+            console.log(`Skipping ICS user ${conn.user_id} - no url`);
+            continue;
+          }
+          console.log(`Processing ICS user ${conn.user_id}...`);
+          const { events, dateRange } = await fetchICSEvents(conn.ics_url, monthsBack);
+          if (!syncDateRange) syncDateRange = dateRange;
+          console.log(`Found ${events.length} ICS events for user ${conn.user_id}`);
+
+          const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
+          const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
+
+          let tripsCreated = 0;
+          let skippedNoLocation = 0;
+          let skippedAlreadyExists = 0;
+          let skippedOther = 0;
+          for (const event of events) {
+            const result = await createTripFromEvent(
+              conn.user_id, event, vehicle, userHomeLocation, supabase, 'outlook_calendar'
+            );
+            if (result.created) tripsCreated++;
+            else if (result.reason === 'no_location') skippedNoLocation++;
+            else if (result.reason === 'already_exists') skippedAlreadyExists++;
+            else skippedOther++;
+          }
+          totalTripsCreated += tripsCreated;
+          usersProcessed++;
+          console.log(`ICS user ${conn.user_id}: created=${tripsCreated}, skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`);
+        } catch (error) {
+          console.error(`Error processing ICS user ${conn.user_id}:`, error);
+        }
+      }
+    }
+
+
     const result = {
       success: true,
       usersProcessed,
