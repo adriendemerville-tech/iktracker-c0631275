@@ -141,7 +141,7 @@ export default function BlogPost() {
   }
 
   const publishDate = post.published_at || post.created_at;
-  const canonicalUrl = `https://www.iktracker.fr/blog/${post.slug}`;
+  const canonicalUrl = `https://iktracker.fr/blog/${post.slug}`;
   const dateISO = new Date(publishDate).toISOString();
   const modifiedDateISO = new Date(post.updated_at || publishDate).toISOString();
 
@@ -151,14 +151,14 @@ export default function BlogPost() {
     "@type": "Article",
     "headline": post.title,
     "description": metaDescription,
-    "image": post.featured_image_url || "https://www.iktracker.fr/logo-iktracker-250.webp",
+    "image": post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
     "author": buildAuthorPerson(post.author_name),
     "publisher": {
       "@type": "Organization",
       "name": "IKtracker",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.iktracker.fr/logo-iktracker-250.webp"
+        "url": "https://iktracker.fr/logo-iktracker-250.webp"
       }
     },
     "datePublished": dateISO,
@@ -180,8 +180,8 @@ export default function BlogPost() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://www.iktracker.fr/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.iktracker.fr/blog" },
+      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://iktracker.fr/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://iktracker.fr/blog" },
       { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl },
     ],
   };
@@ -204,7 +204,7 @@ export default function BlogPost() {
         {/* Open Graph */}
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={post.featured_image_url || "https://www.iktracker.fr/logo-iktracker-250.webp"} />
+        <meta property="og:image" content={post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp"} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:site_name" content="IKtracker" />
@@ -214,7 +214,7 @@ export default function BlogPost() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={post.featured_image_url || "https://www.iktracker.fr/logo-iktracker-250.webp"} />
+        <meta name="twitter:image" content={post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp"} />
         
         {/* Article metadata */}
         <meta property="article:published_time" content={dateISO} />

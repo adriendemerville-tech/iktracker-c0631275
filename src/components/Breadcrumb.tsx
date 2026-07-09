@@ -12,7 +12,7 @@ interface BreadcrumbProps {
   className?: string;
 }
 
-const BASE_URL = 'https://www.iktracker.fr';
+const BASE_URL = 'https://iktracker.fr';
 
 export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
   const location = useLocation();
