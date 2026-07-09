@@ -479,3 +479,10 @@ src/
 - `src/components/admin/AdminPartners.tsx` : CRUD admin (onglet **Admin → Coûts → Partenaires**) avec KPIs (clics, sessions uniques, revenu estimé, courbe 7j).
 - Intégrations actuelles : `Landing.tsx` (sous `<IKSimulator />` + footer strip), `FraisReels.tsx` (strip), `Tarifs.tsx` (strip).
 - Tous les liens sortants : `target="_blank"` + `rel="sponsored nofollow noopener"`.
+
+
+## Tournées — étapes horodatées & audit (juillet 2026)
+
+- `src/types/trip.ts` : `TourStopData.timestamp` (Date d'arrivée à l'étape) — source de vérité pour l'audit, alimentée par les 3 origines de tournée (GPS live, import Calendar mode `tour`, regroupement manuel).
+- `src/components/TripCard.tsx` : détection tournée unifiée sur `tourStops.length >= 2` (indépendante du `purpose`). Sur desktop, boutons **édition** (crayon) et **suppression** (croix) toujours montés mais révélés au survol/focus clavier via `group-hover` + `group-focus-within` (`opacity-0 → opacity-100`), évitant le layout shift et préservant l'accessibilité clavier. Sur mobile, comportement inchangé (sélection multi).
+- `src/lib/print-utils.ts` : rapport PDF affiche pour chaque tournée le détail des étapes avec heure d'arrivée (`Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris' })`), fallback explicite `(heure non enregistrée)` si absent, suffixe `· heures Europe/Paris` dans l'en-tête pour lever toute ambiguïté d'audit. Trip parent + détail regroupés dans un `<tbody style="page-break-inside: avoid">` pour empêcher l'orphelinage lors des sauts de page.
