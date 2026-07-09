@@ -115,7 +115,7 @@ export default {
     if (hostname === 'iktracker.com' || hostname === 'www.iktracker.com') {
       // Servir robots.txt et llms.txt directement depuis .fr
       if (path === '/robots.txt' || path === '/llms.txt') {
-        const proxyUrl = `https://www.iktracker.fr${path}`;
+        const proxyUrl = `https://iktracker.fr${path}`;
         const proxyRes = await fetch(proxyUrl);
         const response = new Response(proxyRes.body, {
           status: proxyRes.status,
