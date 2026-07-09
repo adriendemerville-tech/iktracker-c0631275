@@ -130,7 +130,7 @@ export default {
       }
 
       // Tout le reste → 301
-      const redirectUrl = `https://www.iktracker.fr${path}${url.search}`;
+      const redirectUrl = `https://iktracker.fr${path}${url.search}`;
       const response = Response.redirect(redirectUrl, 301);
       ctx.waitUntil(sendLog(request, response, botDetected));
       return response;
