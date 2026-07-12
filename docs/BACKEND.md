@@ -386,17 +386,24 @@ Content-Type: application/json
 - **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`
 - **Cache** : `Cache-Control: public, max-age=3600, s-maxage=3600`
 
-#### `linkedin-weekly-post` — Publication LinkedIn automatisée (hebdo)
+#### `linkedin-weekly-post` — Publication LinkedIn automatisée (mensuelle)
 
-- **Auth** : En-tête `x-cron-secret` (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin
-- **Cron** : `0 7 * * 4` (jeudi 07:00 UTC ≈ 8h Paris hiver / 9h été)
-- **Format alterné** : chaque sujet est étiqueté `video` ou `carousel` dans la rotation de 12 topics
-  - `video` (features UI : simulateur, mode tournée, sync calendrier, plaque, export PDF) → screencast Browserless MP4 → recipe `feedshare-video` → `shareMediaCategory: VIDEO`
-  - `carousel` (data/narratif : barème, bonus EV, IK vélo, gratuit à vie, confidentialité, comparatif, import Takeout) → plan de 5 slides généré via Lovable AI (JSON strict) → PDF 1200×1200 rendu côté serveur avec `pdf-lib` (palette ivoire chaud / indigo-violet, style éditorial sobre) → recipe `feedshare-document` → `shareMediaCategory: DOCUMENT`
-- **Flow** : (1) sélection sujet par n° de semaine, (2) génération texte via Gemini 2.5 Flash, (3) construction média selon `format`, (4) `registerUpload` LinkedIn, (5) PUT bytes, (6) polling `AVAILABLE`, (7) publication `/v2/ugcPosts`
-- **Dry-run** : `?dry_run=1` renvoie texte + sujet + slide_plan (si carousel) sans publier ; `?format=video|carousel` force le format pour tests
-- **Logs** : `public.linkedin_post_log` (colonne `media_type` = `video`|`carousel`)
-- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
+> Nom historique conservé pour ne pas casser l'URL invoke ; le rythme est **mensuel** depuis juillet 2026.
+
+- **Auth** : En-tête `x-cron-secret` (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin (`has_role(user, 'admin')`)
+- **Cron** : `0 7 1-7 * 3` (1<sup>er</sup> mercredi du mois, 07:00 UTC ≈ 8h Paris hiver / 9h été)
+- **Rotation** : 12 topics étiquetés par `format` (`video` / `carousel`) et par `mediaSource` (`browserless` / `wavespeed`). Sélection : `(année × 12 + mois) mod 12`.
+- **Texte** : Mistral hébergé sur Wavespeed (`mistral/mistral-large-latest` via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash (Lovable AI Gateway) en cas d'échec. Idem pour la génération du plan de slides des carrousels (`response_format: json_object`).
+- **Média** :
+  - `mediaSource: 'browserless'` → screencast MP4 d'une UI réelle du site (simulateur, mode tournée, sync calendrier, plaque, export PDF).
+  - `mediaSource: 'wavespeed'` → visuel IA :
+    - `format: 'video'` → text-to-video via `wavespeed-ai/wan-2.1-t2v-720p`, MP4 téléchargé puis uploadé.
+    - `format: 'carousel'` → image de cover générée via `wavespeed-ai/flux-dev` puis embarquée en fond du slide 1 (scrim ivoire pour lisibilité) ; slides 2-5 restent en typographie pdf-lib pure. En cas d'échec Wavespeed, fallback silencieux sur le rendu typographique seul.
+- **Upload LinkedIn** : `feedshare-video` → `shareMediaCategory: VIDEO` / `feedshare-document` → `shareMediaCategory: DOCUMENT`. Polling asset jusqu'à `AVAILABLE`, puis `POST /v2/ugcPosts`.
+- **Query params** : `?topic=<slug>` force le topic, `?format=video|carousel` force le format, `?dry_run=1` renvoie texte + slide_plan sans publier ni uploader.
+- **Logs** : `public.linkedin_post_log` (colonnes `media_type`, `triggered_by`, `duration_ms`, `error_message`).
+- **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run + historique des 15 derniers runs.
+- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `gsc-analytics` — Google Search Console
 
