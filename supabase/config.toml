@@ -44,3 +44,6 @@ verify_jwt = true
 
 [functions.linkedin-profile]
 verify_jwt = false
+
+[functions.linkedin-weekly-post]
+verify_jwt = false
