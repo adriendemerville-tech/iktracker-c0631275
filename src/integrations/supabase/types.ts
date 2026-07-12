@@ -637,6 +637,7 @@ export type Database = {
           id: string
           linkedin_asset_urn: string | null
           linkedin_post_id: string | null
+          media_type: string | null
           post_text: string | null
           posted_at: string
           status: string
@@ -651,6 +652,7 @@ export type Database = {
           id?: string
           linkedin_asset_urn?: string | null
           linkedin_post_id?: string | null
+          media_type?: string | null
           post_text?: string | null
           posted_at?: string
           status?: string
@@ -665,6 +667,7 @@ export type Database = {
           id?: string
           linkedin_asset_urn?: string | null
           linkedin_post_id?: string | null
+          media_type?: string | null
           post_text?: string | null
           posted_at?: string
           status?: string
