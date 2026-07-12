@@ -1,12 +1,22 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { supabase } from '@/integrations/supabase/client';
 const founderPhoto = '/founder-adrien.jpg';
+
+type LinkedInProfile = {
+  name?: string;
+  picture?: string;
+  profile_url?: string;
+  verified?: boolean;
+};
 
 export default function AuthorPage() {
   const canonicalUrl = 'https://www.iktracker.fr/blog/auteur/adrien-de-volontat';
