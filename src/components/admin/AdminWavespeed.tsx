@@ -152,8 +152,8 @@ export function AdminWavespeed() {
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => fetchBalance.mutate()} disabled={fetchBalance.isPending}>
-              {fetchBalance.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Wallet className="w-4 h-4 mr-2" />}
-              Solde
+              {fetchBalance.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Activity className="w-4 h-4 mr-2" />}
+              Tester la connexion
               {balance !== null && <Badge variant="secondary" className="ml-2">{balance}</Badge>}
             </Button>
           </div>
