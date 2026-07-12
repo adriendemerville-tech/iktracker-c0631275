@@ -30,8 +30,17 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Track signup_view when the form is in signup mode
+  useEffect(() => {
+    if (mode === 'signup') {
+      trackSignupEvent('signup_view', undefined, 'auth');
+    }
+  }, [mode]);
+
   const handleOAuthLogin = async (provider: 'google' | 'azure' | 'apple') => {
     setOauthLoading(provider);
+    // Track OAuth start as a signup funnel event (OAuth on /auth can create accounts)
+    trackSignupEvent('signup_oauth_start', provider, 'auth');
     try {
       const options: any = {};
       if (provider === 'azure') {
@@ -47,6 +56,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
       });
       if (error) throw error;
     } catch (error: any) {
+      trackSignupEvent('signup_error', error?.message ?? 'oauth_error', 'auth');
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
