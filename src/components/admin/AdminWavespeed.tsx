@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, RefreshCw, Copy, ExternalLink, Wallet } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Copy, ExternalLink, Activity } from 'lucide-react';
 
 const DEFAULT_MODEL = 'wavespeed-ai/flux-dev';
 const DEFAULT_INPUT = JSON.stringify(
@@ -58,6 +58,7 @@ export function AdminWavespeed() {
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [rawResponse, setRawResponse] = useState<string>('');
   const [balance, setBalance] = useState<string | null>(null);
+  const [connectionTest, setConnectionTest] = useState<{ ok: boolean; message: string; raw: string } | null>(null);
 
   const generate = useMutation({
     mutationFn: async () => {
@@ -116,9 +117,20 @@ export function AdminWavespeed() {
     },
     onSuccess: (data) => {
       const b = data?.data?.balance ?? data?.balance ?? JSON.stringify(data);
-      setBalance(typeof b === 'string' ? b : JSON.stringify(b));
+      const value = typeof b === 'string' ? b : JSON.stringify(b);
+      setBalance(value);
+      setConnectionTest({
+        ok: true,
+        message: `Connexion OK — solde : ${value}`,
+        raw: JSON.stringify(data, null, 2),
+      });
     },
     onError: (e: any) => {
+      setConnectionTest({
+        ok: false,
+        message: e?.message ?? 'Impossible de contacter Wavespeed',
+        raw: JSON.stringify(e, null, 2),
+      });
       toast({ title: 'Erreur', description: e?.message ?? 'Impossible de récupérer le solde', variant: 'destructive' });
     },
   });
@@ -140,13 +152,25 @@ export function AdminWavespeed() {
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => fetchBalance.mutate()} disabled={fetchBalance.isPending}>
-              {fetchBalance.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Wallet className="w-4 h-4 mr-2" />}
-              Solde
+              {fetchBalance.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Activity className="w-4 h-4 mr-2" />}
+              Tester la connexion
               {balance !== null && <Badge variant="secondary" className="ml-2">{balance}</Badge>}
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {connectionTest && (
+            <div className={`p-3 rounded-md text-sm space-y-2 ${connectionTest.ok ? 'bg-green-500/10 text-green-700' : 'bg-destructive/10 text-destructive'}`}>
+              <p className="font-medium">{connectionTest.message}</p>
+              <details>
+                <summary className="cursor-pointer opacity-80 hover:opacity-100">Détails de la réponse</summary>
+                <pre className="mt-2 p-2 rounded bg-background/50 overflow-auto max-h-40 whitespace-pre-wrap break-all text-xs">
+                  {connectionTest.raw}
+                </pre>
+              </details>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="ws-model">Modèle</Label>
             <Input
