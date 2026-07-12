@@ -29,6 +29,7 @@ import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
 import { AdminTourMode } from '@/components/admin/AdminTourMode';
 import { AdminApiPartners } from '@/components/admin/AdminApiPartners';
 import { AdminWavespeed } from '@/components/admin/AdminWavespeed';
+import { AdminLinkedIn } from '@/components/admin/AdminLinkedIn';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
