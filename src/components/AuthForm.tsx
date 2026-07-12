@@ -77,6 +77,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         onSuccess?.();
         navigate('/app');
       } else if (mode === 'signup') {
+        trackSignupEvent('signup_form_submit', 'email', 'auth');
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -85,6 +86,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
           },
         });
         if (error) throw error;
+        trackSignupEvent('signup_success', 'email', 'auth');
         toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
         onSuccess?.();
         navigate('/app');
@@ -109,6 +111,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         message = 'Le mot de passe doit contenir au moins 6 caractères';
       } else if (error.message.includes('User not found')) {
         message = 'Aucun compte trouvé avec cet email';
+      }
+      if (mode === 'signup') {
+        trackSignupEvent('signup_error', message, 'auth');
       }
       toast({ title: 'Erreur', description: message, variant: 'destructive' });
     } finally {
