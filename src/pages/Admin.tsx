@@ -29,6 +29,7 @@ import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
 import { AdminTourMode } from '@/components/admin/AdminTourMode';
 import { AdminApiPartners } from '@/components/admin/AdminApiPartners';
 import { AdminWavespeed } from '@/components/admin/AdminWavespeed';
+import { AdminLinkedIn } from '@/components/admin/AdminLinkedIn';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
@@ -621,7 +622,7 @@ const Admin = () => {
 
       <main className="max-w-4xl mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-7' : 'grid-cols-10'}`}>
+          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-7' : 'grid-cols-11'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
@@ -672,6 +673,12 @@ const Admin = () => {
               <TabsTrigger value="wavespeed" className="flex items-center gap-1 text-xs sm:text-sm">
                 <Sparkles className="w-4 h-4" />
                 <span className="hidden sm:inline">Wavespeed</span>
+              </TabsTrigger>
+            )}
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="linkedin" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Send className="w-4 h-4" />
+                <span className="hidden sm:inline">LinkedIn</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -1186,6 +1193,10 @@ const Admin = () => {
 
           <TabsContent value="wavespeed">
             <AdminWavespeed />
+          </TabsContent>
+
+          <TabsContent value="linkedin">
+            <AdminLinkedIn />
           </TabsContent>
 
         </Tabs>

@@ -1,65 +1,89 @@
+# Automatisation LinkedIn — intégration Wavespeed (texte Mistral + média IA)
 
-# Mode d'import "Tournée" pour la synchronisation calendrier
+## Objectif
 
-Nouvelle option dans les préférences utilisateur : quand elle est activée, la synchronisation calendrier (Google / Outlook / ICS) regroupe **tous les événements pro d'une même journée** en une seule tournée (domicile → RDV₁ → RDV₂ → … → domicile) au lieu de créer N trajets individuels aller depuis le domicile.
+Faire évoluer `linkedin-weekly-post` pour :
+- Générer le **texte** du post via **Mistral hébergé sur Wavespeed**.
+- Générer les **médias non-screencast** (images de carousel + vidéos courtes) via **Wavespeed**.
+- Conserver **Browserless** uniquement pour les topics dont le média est une **capture d'écran vidéo** d'une feature réelle du site (Simulateur, Mode Tournée, Sync Calendrier, Détection plaque…).
+- **Nouveau rythme** : passer d'un cron hebdo à un cron **mensuel, le 1er mercredi du mois à 07h UTC** (~08h Paris) + bouton "Tester maintenant" dans l'admin.
 
-## Comportement fonctionnel
+## Classification des topics
 
-- Trois modes possibles côté préférences :
-  - `individual` (défaut, comportement actuel) — 1 event = 1 trajet
-  - `tour` — regroupement automatique en tournée si ≥ 2 events pro le même jour
-  - Si un seul event pro sur la journée en mode `tour` → fallback silencieux sur `individual` pour ce jour (pas de "tournée" à une seule étape)
-- La tournée est enregistrée comme **`tour_session` finalisée + trip lié** (même chemin que le Mode Tournée existant), donc :
-  - Visible dans "Mes trajets" comme une tournée avec ses étapes
-  - Distance = somme des segments Distance Matrix domicile→RDV₁, RDV₁→RDV₂, …, RDV_N→domicile
-  - IK calculé une seule fois sur la distance totale (barème tiered inchangé, bonus EV 20% inchangé)
-  - `source = 'google_calendar' | 'outlook_calendar' | 'ics'`, `tour_stops` = JSON des étapes
-- Idempotence : si la tournée du jour existe déjà (même user_id, même date, même signature d'events) → skip (comme aujourd'hui pour les trips individuels via `google_event_id` / `outlook_event_id` / `ics_uid`)
-- Contrainte "future events" préservée : une journée n'est agrégée qu'une fois **le jour même arrivé** (respect de `calendar-import-timing-constraint`)
+Chaque topic gagne un champ `mediaSource: 'browserless' | 'wavespeed'` :
+
+| Slug                    | Format   | mediaSource |
+| ----------------------- | -------- | ----------- |
+| simulateur              | video    | browserless |
+| mode-tournee            | video    | browserless |
+| sync-calendrier         | video    | browserless |
+| detection-plaque        | video    | browserless |
+| import-takeout          | carousel | wavespeed   |
+| bareme-progressif       | carousel | wavespeed   |
+| bonus-electrique        | carousel | wavespeed   |
+| *(autres non-UI)*       | *        | wavespeed   |
+
+Règle : `browserless` uniquement pour un carousel/vidéo d'une **UI existante** du produit. Sinon Wavespeed.
+
+## Flux global (par run)
+
+```text
+1. Sélection topic (rotation mensuelle — 12 topics = ~1 an sans répétition)
+2. TEXTE   → Wavespeed → Mistral
+3. MEDIA   → selon mediaSource :
+     a) browserless → screencast MP4 (flux actuel inchangé)
+     b) wavespeed   → video : modèle vidéo Wavespeed → MP4
+                      carousel : N images Wavespeed → PDF pdf-lib
+4. Upload LinkedIn (VIDEO / DOCUMENT ugcPost)
+5. Log dans linkedin_post_log
+```
 
 ## Changements techniques
 
-### 1. Base de données (migration)
-- Ajouter colonne `calendar_import_mode text not null default 'individual'` sur `public.user_preferences` avec check `in ('individual','tour')`
+### 1. Cron — passage hebdo → mensuel
+- Mettre à jour le job `pg_cron` existant : expression `0 7 1-7 * 3` → 07h UTC le mercredi de la première semaine du mois (= 1er mercredi).
+- Renommer le job en `linkedin-monthly-post` pour la lisibilité (l'edge function garde son nom `linkedin-weekly-post` pour éviter les cassures d'URL / signature ; on documente le décalage).
+- Suppression de l'ancienne planification hebdo dans la même migration.
 
-### 2. Edge Function `sync-calendar-trips`
-- Après récupération des events d'un utilisateur, lire son `calendar_import_mode`
-- Si `tour` : grouper les events par date locale utilisateur, pour chaque jour à ≥ 2 events :
-  1. Récupérer adresse domicile (locations type=home, fallback logique existante)
-  2. Trier events par heure de début
-  3. Extraire l'adresse de chaque event (déjà géocodée par le parser existant)
-  4. Appeler Distance Matrix pour chaque segment consécutif → distance totale
-  5. Calculer IK via la logique tiered existante (même helpers que `recalculate-distances`)
-  6. Insérer `tour_session` finalisée + `trip` avec `tour_stops` JSON, `source` = provider
-  7. Marquer chaque event source comme importé (même table de dédoublonnage qu'aujourd'hui) pour éviter les re-imports individuels
-- Si `individual` : comportement actuel inchangé
-- Ne PAS traiter les jours à 1 seul event en mode `tour` → passer au flux individuel pour ce jour
+### 2. Accès Mistral via Wavespeed
+- Nouveau helper `callMistral(system, prompt)` dans `linkedin-weekly-post/index.ts` qui POST `https://api.wavespeed.ai/api/v3/<mistral-model-path>` avec `WAVESPEED_API_KEY` (déjà configuré).
+- Modèle par défaut : `mistral/mistral-large-latest` (ajusté selon catalogue Wavespeed après premier test).
+- Fallback silencieux sur Gemini (Lovable AI) si l'appel échoue → cron résilient.
 
-### 3. UI Préférences (`PreferencesContent.tsx`)
-- Nouvelle section "Import calendrier" avec un `RadioGroup` :
-  - **Trajets individuels** (défaut) — "Chaque événement devient un trajet aller depuis mon domicile"
-  - **Tournée journalière** — "Tous mes rendez-vous d'une même journée sont regroupés en une seule tournée domicile → étapes → domicile"
-- Persistance via `usePreferences` (ajout du champ dans le hook + type)
+### 3. Génération média Wavespeed
+- **Image (carousel)** : `wavespeed-ai/flux-dev` (ou `bytedance/seedream-v4`) avec `?wait=1`, télécharge chaque image, embed dans PDF pdf-lib 1080×1080 avec overlay texte via helper existant.
+- **Vidéo** : modèle text-to-video Wavespeed (ex: `wavespeed-ai/wan-2.1-t2v-720p`), `?wait=1` avec timeout élargi si nécessaire.
+- Helper `generateWavespeedMedia(format, prompt, count)` → `{ buffer: Uint8Array, mimeType: string }`.
 
-### 4. Documentation
-- Mettre à jour `docs/BACKEND.md` (nouvelle colonne + comportement sync) et régénérer le PDF puisque c'est un changement significatif sur la fonction sync
+### 4. Prompts média
+- Nouveau champ `visualPrompt: string` sur chaque topic `mediaSource: 'wavespeed'` — description visuelle (style, ambiance) sans texte incrusté (géré par pdf-lib pour les slides).
 
-## Schéma du flux
+### 5. Bouton "Tester maintenant" dans l'admin
+- Nouveau composant `AdminLinkedIn.tsx` avec :
+  - Sélecteur de topic (dropdown 12 topics)
+  - Toggle **Dry-run** (génère texte + média, ne poste PAS sur LinkedIn)
+  - Bouton **Lancer** → invoke `linkedin-weekly-post?topic=<slug>&dry_run=1`
+  - Affichage : texte généré, aperçu média, request_id Wavespeed, logs
+- Onglet "LinkedIn" ajouté dans `src/pages/Admin.tsx` (admin uniquement).
 
-```text
-Mode individual (actuel):
-  Event A 09h → Trip domicile→A
-  Event B 14h → Trip domicile→B
-  Event C 16h → Trip domicile→C
+### 6. Edge Function — évolutions
+- Nouveaux query params : `?topic=<slug>` (force topic), `?dry_run=1` (skip upload LinkedIn).
+- Auth du bouton test : check `has_role(auth.uid(), 'admin')` via JWT côté fonction (plus propre que partager `x-cron-secret` côté client).
+- Le cron continue avec `x-cron-secret` (inchangé).
 
-Mode tour (nouveau):
-  Events A,B,C du même jour →
-    1 Tournée: domicile → A → B → C → domicile
-    (distance cumulée, IK unique, tour_stops = [A,B,C])
-```
+### 7. Documentation
+- Mise à jour `docs/BACKEND.md` :
+  - Section `linkedin-weekly-post` : nouveau rythme mensuel, source texte Mistral/Wavespeed, source média Wavespeed, matrice topic→source.
+  - Régénération du PDF `IKTracker_Backend_Documentation.pdf`.
 
-## Points explicitement hors scope
+## Hors scope
 
-- Pas de rétroactivité automatique sur les trajets calendrier déjà importés (l'utilisateur peut les supprimer manuellement s'il veut re-synchroniser en mode tournée)
-- Pas de détection intelligente "cet event est-il vraiment pro ?" — on garde le filtre actuel de `sync-calendar-trips`
-- Pas de changement sur le mode Tournée manuel mobile (module Tour Mode intact)
+- Pas de nouveau secret (WAVESPEED_API_KEY déjà en place, pas de clé Mistral séparée).
+- Pas de refonte des topics (juste enrichissement métadonnées).
+- Pas de génération audio / voice-over.
+- Pas de renommage de l'edge function (reste `linkedin-weekly-post` malgré le rythme mensuel — trace documentée).
+
+## Points à valider pendant l'implémentation
+
+- Modèle Mistral exact disponible sur Wavespeed → test rapide via balance/catalog avant de câbler.
+- Latence text-to-video Wavespeed : si > 90s, élargir le timeout de `pollUntilDone` ou basculer en async (submit + poll séparé).

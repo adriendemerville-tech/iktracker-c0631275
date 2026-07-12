@@ -1,11 +1,22 @@
-// Weekly LinkedIn auto-post for Adrien de Volontat (IKtracker founder identity).
+// Monthly LinkedIn auto-post for Adrien de Volontat (IKtracker founder identity).
 //
-// Two media formats, chosen per topic:
-//   • "video"    → scripted screencast via Browserless → LinkedIn VIDEO ugcPost
-//   • "carousel" → 4-slide PDF rendered with pdf-lib   → LinkedIn DOCUMENT ugcPost
+// Text generation:
+//   • Primary  : Mistral via Wavespeed proxy (WAVESPEED_API_KEY)
+//   • Fallback : Gemini via Lovable AI Gateway (LOVABLE_API_KEY)
 //
-// Text is always AI-generated (Gemini via Lovable AI Gateway).
-// Triggered by pg_cron every Thursday at 07:00 UTC (~8h Paris CET).
+// Media pipeline, chosen per topic via `mediaSource`:
+//   • "browserless" → screencast of an actual UI feature (Browserless → MP4)
+//   • "wavespeed"   → AI-generated image/video (Wavespeed → MP4 or IA-backed PDF carousel)
+//
+// Format still drives the LinkedIn upload:
+//   • "video"    → LinkedIn VIDEO ugcPost (MP4)
+//   • "carousel" → LinkedIn DOCUMENT ugcPost (PDF slides)
+//
+// Triggered by pg_cron the 1st Wednesday of each month at 07:00 UTC.
+// Runtime overrides via query params:
+//   ?topic=<slug>      force a specific topic
+//   ?format=video|carousel  override the topic's default format
+//   ?dry_run=1         generate text (+ slide plan) only, do not upload/post
 // Every run is logged in public.linkedin_post_log.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -21,8 +32,15 @@ const corsHeaders = {
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/linkedin";
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const BROWSERLESS_BASE = "https://production-sfo.browserless.io";
+const WAVESPEED_BASE = "https://api.wavespeed.ai/api/v3";
+
+// Wavespeed model ids (adjust to whatever the catalog exposes; safe defaults).
+const WS_MISTRAL_MODEL = "mistral/mistral-large-latest";
+const WS_IMAGE_MODEL = "wavespeed-ai/flux-dev";
+const WS_VIDEO_MODEL = "wavespeed-ai/wan-2.1-t2v-720p";
 
 type MediaFormat = "video" | "carousel";
+type MediaSource = "browserless" | "wavespeed";
 
 type Topic = {
   slug: string;
@@ -30,18 +48,21 @@ type Topic = {
   url: string;
   focus: string;
   format: MediaFormat;
-  durationMs: number; // only used for video
+  mediaSource: MediaSource;
+  durationMs: number;     // browserless screencast length
+  visualPrompt?: string;  // Wavespeed image/video prompt (mediaSource='wavespeed')
 };
 
-// Rotation of 12 topics — covers ~3 months of Thursdays before repetition.
-// "video" = UI/feature we want to *show in motion*.
-// "carousel" = data / narrative / comparison better told with typography.
+// Rotation of 12 topics — with a monthly cadence this covers ~1 year.
+// mediaSource='browserless' → real UI screencast (features that must be *shown*).
+// mediaSource='wavespeed'   → AI-generated visual (concepts, comparisons, values).
 const TOPICS: Topic[] = [
   {
     slug: "simulateur",
     title: "Simulateur d'indemnités kilométriques 2026",
     url: "https://iktracker.fr/simulateur",
     format: "video",
+    mediaSource: "browserless",
     focus:
       "Le simulateur calcule instantanément les IK selon le barème officiel progressif (5 000 / 20 000 km) et applique le bonus 20% pour véhicules 100% électriques. Utile pour un indépendant qui veut estimer son remboursement avant de facturer un client ou d'arbitrer entre véhicule perso et pro.",
     durationMs: 10000,
@@ -51,6 +72,7 @@ const TOPICS: Topic[] = [
     title: "Mode Tournée GPS",
     url: "https://iktracker.fr/mode-tournee",
     format: "video",
+    mediaSource: "browserless",
     focus:
       "Détection automatique des arrêts pendant une tournée terrain (2 min à l'arrêt = nouvel arrêt). Pensé pour les visiteurs médicaux, commerciaux, artisans multi-chantiers, aides à domicile. Zéro saisie manuelle, le trajet complet est reconstruit à la fin de la journée.",
     durationMs: 12000,
@@ -60,15 +82,19 @@ const TOPICS: Topic[] = [
     title: "Récupération des trajets passés (Google Takeout)",
     url: "https://iktracker.fr/import-google-timeline",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "Import des trajets Google Timeline depuis un export Takeout. Sauve les indépendants qui n'ont pas suivi leurs déplacements pros toute l'année et qui doivent rattraper en fin d'exercice. Import 100% côté client, aucune donnée transite sur des serveurs tiers.",
     durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract representation of GPS trip data being imported, subtle map lines and timeline dots, flat design, clean typography-friendly composition with negative space on the right, no text",
   },
   {
     slug: "sync-calendrier",
     title: "Synchronisation Google Calendar & Outlook",
     url: "https://iktracker.fr/synchronisation-calendrier",
     format: "video",
+    mediaSource: "browserless",
     focus:
       "Chaque rendez-vous professionnel dans l'agenda devient automatiquement un trajet indemnisable. Sync 4x par jour, gestion des adresses par défaut (bureau, domicile). Idéal pour les indépendants qui vivent déjà dans leur agenda.",
     durationMs: 10000,
@@ -78,6 +104,7 @@ const TOPICS: Topic[] = [
     title: "Détection véhicule par plaque d'immatriculation",
     url: "https://iktracker.fr/detection-vehicule",
     format: "video",
+    mediaSource: "browserless",
     focus:
       "Saisir une plaque d'immatriculation renseigne automatiquement la puissance fiscale et la motorisation du véhicule. Le barème IK exact et le bonus électrique 20% s'appliquent sans effort. Fini les recherches sur la carte grise.",
     durationMs: 8000,
@@ -87,24 +114,31 @@ const TOPICS: Topic[] = [
     title: "Barème progressif fiscal 2026",
     url: "https://iktracker.fr/bareme-kilometrique-2026",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "Le barème IK est progressif avec 3 tranches (0-5 000, 5 001-20 000, +20 000 km). Beaucoup d'indépendants perdent de l'argent en appliquant un taux moyen. IKtracker gère les tranches et le reset annuel fiscal automatiquement.",
     durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract layered bar-chart representing progressive tax tiers, three tiers of ascending height, clean flat design, ample negative space, no text",
   },
   {
     slug: "bonus-electrique",
     title: "Bonus 20% véhicule électrique",
     url: "https://iktracker.fr/bonus-vehicule-electrique",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "Un véhicule 100% électrique donne droit à un bonus fiscal de 20% sur les indemnités kilométriques. C'est cumulable avec le barème standard et souvent oublié. Calculé automatiquement dès que le véhicule est identifié comme électrique.",
     durationMs: 8000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, sleek profile of a modern electric car with a subtle green leaf accent, flat design, clean lines, generous negative space on the right, no text, no logos",
   },
   {
     slug: "export-pdf",
     title: "Export PDF pour l'expert-comptable",
     url: "https://iktracker.fr/experts-comptables",
     format: "video",
+    mediaSource: "browserless",
     focus:
       "Export PDF prêt à transmettre au comptable : tableau récapitulatif conforme, signature du dirigeant, détail par trajet, totaux par tranche fiscale. Adieu les Excel bricolés en fin d'exercice.",
     durationMs: 10000,
@@ -114,52 +148,132 @@ const TOPICS: Topic[] = [
     title: "Indemnité kilométrique vélo",
     url: "https://iktracker.fr/indemnite-kilometrique-velo",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "L'IK vélo existe pour les indépendants qui pédalent en ville pour leurs rendez-vous pros. Fiscalement encadrée, souvent ignorée. IKtracker la calcule et la trace comme n'importe quel autre trajet.",
     durationMs: 8000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, elegant urban bicycle silhouette from side view, flat design, clean lines, ample negative space on the right, no text, no logos",
   },
   {
     slug: "gratuit-a-vie",
     title: "Gratuit à vie — modèle communautaire",
     url: "https://iktracker.fr/",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "IKtracker est gratuit à vie : pas d'abonnement, pas de freemium castré, pas d'investisseurs à rémunérer. Outil créé par un dirigeant qui avait le même problème et qui le partage avec la communauté des indépendants.",
     durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract concept of an open community: interconnected human silhouettes forming a light circle, flat design, generous negative space, no text",
   },
   {
     slug: "confidentialite",
     title: "Aucune exploitation commerciale des données",
     url: "https://iktracker.fr/confidentialite",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "Zéro revente de données, zéro publicité, zéro tracking commercial. Contrairement à la plupart des GPS trackers gratuits en apparence dont le vrai business est la donnée. Les trajets restent la propriété de l'utilisateur.",
     durationMs: 8000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract closed padlock over a subtle map grid, flat design, clean lines, generous negative space on the right, no text",
   },
   {
     slug: "comparatif",
     title: "IKtracker vs applications payantes",
     url: "https://iktracker.fr/comparatif-drivers-note",
     format: "carousel",
+    mediaSource: "wavespeed",
     focus:
       "Face aux applications payantes du marché (Drivers Note, Izika, MileageWise) : mêmes fonctionnalités cœur, zéro euro, sans engagement, avec le barème français à jour et un focus indépendants français.",
     durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract split composition contrasting a heavy price tag with a light feather, flat design, clean lines, no text, no logos",
   },
 ];
 
-function pickTopicForThisWeek(now: Date = new Date()): Topic {
-  const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
-  const dayOfYear = Math.floor((now.getTime() - start.getTime()) / 86400000);
-  const week = Math.floor(dayOfYear / 7);
-  return TOPICS[week % TOPICS.length];
+// Monthly cadence: pick topic by (year*12 + month) % TOPICS.length
+function pickTopicForThisMonth(now: Date = new Date()): Topic {
+  const idx = (now.getUTCFullYear() * 12 + now.getUTCMonth()) % TOPICS.length;
+  return TOPICS[idx];
 }
 
-// ─── Post text (shared between video and carousel) ─────────────────────────
+function findTopic(slug: string | null): Topic | null {
+  if (!slug) return null;
+  return TOPICS.find((t) => t.slug === slug) ?? null;
+}
 
-async function generatePostText(topic: Topic): Promise<string> {
+// ─── Wavespeed helpers ─────────────────────────────────────────────────────
+
+async function wavespeedFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const key = Deno.env.get("WAVESPEED_API_KEY");
+  if (!key) throw new Error("WAVESPEED_API_KEY missing");
+  const url = `${WAVESPEED_BASE}/${path.replace(/^\/+/, "")}`;
+  const headers = new Headers(init.headers ?? {});
+  headers.set("Authorization", `Bearer ${key}`);
+  if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  return fetch(url, { ...init, headers });
+}
+
+async function wavespeedPollUntilDone(requestId: string, timeoutMs = 180_000): Promise<any> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const r = await wavespeedFetch(`predictions/${requestId}/result`);
+    if (r.ok) {
+      const d = await r.json();
+      const status = d?.data?.status ?? d?.status;
+      if (status === "completed" || status === "failed") return d;
+    }
+    await new Promise((res) => setTimeout(res, 2000));
+  }
+  throw new Error(`Wavespeed polling timeout for ${requestId}`);
+}
+
+// ─── Text generation ─── Mistral (Wavespeed) with Gemini fallback ─────────
+
+async function callMistralViaWavespeed(system: string, userMsg: string, opts: { json?: boolean; temperature?: number } = {}): Promise<string> {
+  // Wavespeed-hosted LLMs are called through the standard /predictions endpoint.
+  // Endpoint shape follows Wavespeed's OpenAI-compatible chat schema.
+  const res = await wavespeedFetch(`${WS_MISTRAL_MODEL}`, {
+    method: "POST",
+    body: JSON.stringify({
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: userMsg },
+      ],
+      temperature: opts.temperature ?? 0.8,
+      max_tokens: 1500,
+      ...(opts.json ? { response_format: { type: "json_object" } } : {}),
+    }),
+  });
+  if (!res.ok) throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  const raw = await res.json();
+  // Wavespeed may return an OpenAI-style response directly, or a prediction envelope.
+  // Try both shapes.
+  const direct = raw?.choices?.[0]?.message?.content;
+  if (direct) return String(direct).trim();
+  const outputs: unknown = raw?.data?.outputs ?? raw?.outputs;
+  if (Array.isArray(outputs) && outputs.length > 0 && typeof outputs[0] === "string") {
+    return (outputs[0] as string).trim();
+  }
+  // Prediction envelope: poll if we got a request id back.
+  const requestId = raw?.data?.id ?? raw?.id;
+  if (requestId) {
+    const polled = await wavespeedPollUntilDone(String(requestId));
+    const pOutputs: unknown = polled?.data?.outputs ?? polled?.outputs;
+    const content = polled?.data?.choices?.[0]?.message?.content ?? polled?.choices?.[0]?.message?.content;
+    if (content) return String(content).trim();
+    if (Array.isArray(pOutputs) && pOutputs.length > 0 && typeof pOutputs[0] === "string") {
+      return (pOutputs[0] as string).trim();
+    }
+  }
+  throw new Error(`Unrecognized Wavespeed/Mistral response: ${JSON.stringify(raw).slice(0, 300)}`);
+}
+
+async function callGeminiFallback(system: string, userMsg: string, opts: { json?: boolean; temperature?: number } = {}): Promise<string> {
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
   if (!lovableKey) throw new Error("LOVABLE_API_KEY missing");
-
   const res = await fetch(AI_GATEWAY, {
     method: "POST",
     headers: {
@@ -169,10 +283,34 @@ async function generatePostText(topic: Topic): Promise<string> {
     body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       messages: [
-        {
-          role: "system",
-          content:
-            `Tu rédiges un post LinkedIn pour Adrien de Volontat, dirigeant d'entreprise et fondateur d'IKtracker (iktracker.fr) — outil GRATUIT À VIE de suivi des indemnités kilométriques pour indépendants (auto-entrepreneurs, freelances, professions libérales, artisans, commerciaux, aides à domicile).
+        { role: "system", content: system },
+        { role: "user", content: userMsg },
+      ],
+      temperature: opts.temperature ?? 0.8,
+      ...(opts.json ? { response_format: { type: "json_object" } } : {}),
+    }),
+  });
+  if (!res.ok) throw new Error(`Gemini fallback ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  const json = await res.json();
+  const text = json.choices?.[0]?.message?.content?.trim();
+  if (!text) throw new Error("Empty Gemini response");
+  return text;
+}
+
+async function callLLM(system: string, userMsg: string, opts: { json?: boolean; temperature?: number } = {}): Promise<{ text: string; source: "mistral" | "gemini" }> {
+  try {
+    const text = await callMistralViaWavespeed(system, userMsg, opts);
+    return { text, source: "mistral" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`[llm] Mistral failed, falling back to Gemini: ${message}`);
+    const text = await callGeminiFallback(system, userMsg, opts);
+    return { text, source: "gemini" };
+  }
+}
+
+async function generatePostText(topic: Topic): Promise<{ text: string; source: string }> {
+  const system = `Tu rédiges un post LinkedIn pour Adrien de Volontat, dirigeant d'entreprise et fondateur d'IKtracker (iktracker.fr) — outil GRATUIT À VIE de suivi des indemnités kilométriques pour indépendants (auto-entrepreneurs, freelances, professions libérales, artisans, commerciaux, aides à domicile).
 
 Règles STRICTES :
 - Français, à la première personne (je / mon), ton pragmatique entrepreneurial
@@ -183,23 +321,10 @@ Règles STRICTES :
 - Termine par un appel doux vers iktracker.fr (utilise "accédez à" ou "jetez un œil à", JAMAIS "testez")
 - 2 à 3 hashtags maximum en toute fin (dont #indépendants)
 - Interdit : "🚀", "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez"
-- Reste crédible, humain, factuel. Comme un dirigeant qui parle à ses pairs.`,
-        },
-        {
-          role: "user",
-          content:
-            `Sujet de cette semaine : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier.`,
-        },
-      ],
-      temperature: 0.85,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`AI Gateway ${res.status}: ${await res.text()}`);
-  const json = await res.json();
-  const text = json.choices?.[0]?.message?.content?.trim();
-  if (!text) throw new Error("Empty AI response");
-  return text;
+- Reste crédible, humain, factuel. Comme un dirigeant qui parle à ses pairs.`;
+  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier.`;
+  const { text, source } = await callLLM(system, user, { temperature: 0.85 });
+  return { text, source };
 }
 
 // ─── Video pipeline (Browserless screencast → MP4) ─────────────────────────
@@ -264,69 +389,88 @@ export default async function ({ page, context }) {
   return bytes;
 }
 
+// ─── Wavespeed media generation ────────────────────────────────────────────
+
+async function submitWavespeedJob(modelPath: string, input: Record<string, unknown>): Promise<any> {
+  const res = await wavespeedFetch(`${modelPath}?wait=1`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(`Wavespeed ${modelPath} ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  const json = await res.json();
+  const status = json?.data?.status ?? json?.status;
+  if (status === "completed") return json;
+  // Wait=1 timed out on gateway side → poll ourselves
+  const id = json?.data?.id ?? json?.id;
+  if (!id) throw new Error(`No request id in Wavespeed response: ${JSON.stringify(json).slice(0, 300)}`);
+  return await wavespeedPollUntilDone(String(id));
+}
+
+function extractOutputs(payload: any): string[] {
+  const outputs = payload?.data?.outputs ?? payload?.outputs;
+  if (!Array.isArray(outputs)) throw new Error("Wavespeed response has no outputs[]");
+  return outputs.filter((u: unknown): u is string => typeof u === "string");
+}
+
+async function downloadBinary(url: string): Promise<Uint8Array> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Download ${url} → ${res.status}`);
+  return new Uint8Array(await res.arrayBuffer());
+}
+
+async function generateWavespeedImage(prompt: string): Promise<Uint8Array> {
+  const payload = await submitWavespeedJob(WS_IMAGE_MODEL, {
+    prompt,
+    size: "1024*1024",
+    num_inference_steps: 28,
+    guidance_scale: 3.5,
+    num_images: 1,
+    enable_safety_checker: true,
+  });
+  const outputs = extractOutputs(payload);
+  if (outputs.length === 0) throw new Error("Wavespeed image job returned no output");
+  return await downloadBinary(outputs[0]);
+}
+
+async function generateWavespeedVideo(prompt: string): Promise<Uint8Array> {
+  const payload = await submitWavespeedJob(WS_VIDEO_MODEL, {
+    prompt,
+    duration: 5,
+    aspect_ratio: "16:9",
+  });
+  const outputs = extractOutputs(payload);
+  if (outputs.length === 0) throw new Error("Wavespeed video job returned no output");
+  return await downloadBinary(outputs[0]);
+}
+
 // ─── Carousel pipeline (AI slide plan → pdf-lib PDF) ───────────────────────
 
 type SlidePlan = {
-  cover_title: string;      // ≤ 60 chars, punchy
-  cover_subtitle: string;   // ≤ 90 chars, sub-line
-  slides: Array<{
-    heading: string;        // ≤ 40 chars
-    body: string;           // ≤ 180 chars, one clear idea
-  }>;                       // exactly 3 items
-  cta: string;              // ≤ 60 chars, e.g. "iktracker.fr — gratuit à vie"
+  cover_title: string;
+  cover_subtitle: string;
+  slides: Array<{ heading: string; body: string }>; // exactly 3
+  cta: string;
 };
 
-async function generateSlidePlan(topic: Topic): Promise<SlidePlan> {
-  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-  if (!lovableKey) throw new Error("LOVABLE_API_KEY missing");
-
-  const res = await fetch(AI_GATEWAY, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      messages: [
-        {
-          role: "system",
-          content:
-            `Tu structures un carrousel LinkedIn éditorial sobre pour IKtracker (iktracker.fr), outil gratuit à vie de suivi des indemnités kilométriques pour indépendants français.
+async function generateSlidePlan(topic: Topic): Promise<{ plan: SlidePlan; source: string }> {
+  const system = `Tu structures un carrousel LinkedIn éditorial sobre pour IKtracker (iktracker.fr), outil gratuit à vie de suivi des indemnités kilométriques pour indépendants français.
 
 Contraintes ABSOLUES :
 - Français, ton pragmatique entrepreneurial
 - AUCUN emoji
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
-- Respecte STRICTEMENT les limites de caractères indiquées dans le schéma
-- Exactement 3 slides intermédiaires (heading + body)`,
-        },
-        {
-          role: "user",
-          content:
-            `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de 3 objets {heading, body}), cta. Rien d'autre.`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`AI slide plan ${res.status}: ${await res.text()}`);
-  const json = await res.json();
-  const raw = json.choices?.[0]?.message?.content?.trim();
-  if (!raw) throw new Error("Empty slide plan");
-  const plan = JSON.parse(raw) as SlidePlan;
+- Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
+- Exactement 3 slides intermédiaires (heading + body)`;
+  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de 3 objets {heading, body}), cta. Rien d'autre.`;
+  const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
+  const plan = JSON.parse(text) as SlidePlan;
   if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== 3) {
-    throw new Error(`Malformed slide plan: ${raw.slice(0, 300)}`);
+    throw new Error(`Malformed slide plan: ${text.slice(0, 300)}`);
   }
-  return plan;
+  return { plan, source };
 }
 
-// Latin-1 safe text (StandardFonts don't support arbitrary unicode).
-// Replace common French curly quotes / dashes / non-breaking chars so pdf-lib
-// doesn't throw "WinAnsi cannot encode …".
 function toWinAnsi(s: string): string {
   return s
     .replace(/[’‘‚‛]/g, "'")
@@ -359,8 +503,11 @@ function wrapText(
   return lines;
 }
 
-async function renderCarouselPdf(topic: Topic, plan: SlidePlan): Promise<Uint8Array> {
-  // Square 1200x1200 slides — LinkedIn documents render best in square/portrait.
+async function renderCarouselPdf(
+  topic: Topic,
+  plan: SlidePlan,
+  coverBg: Uint8Array | null,
+): Promise<Uint8Array> {
   const W = 1200;
   const H = 1200;
   const pdf = await PDFDocument.create();
@@ -371,63 +518,64 @@ async function renderCarouselPdf(topic: Topic, plan: SlidePlan): Promise<Uint8Ar
   const helv = await pdf.embedFont(StandardFonts.Helvetica);
   const helvBold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-  // Editorial sobre iktracker palette
-  const bg = rgb(0.984, 0.973, 0.949);        // warm ivory  #FBF8F2
-  const ink = rgb(0.09, 0.09, 0.13);           // near-black indigo #171721
-  const primary = rgb(0.361, 0.294, 0.902);    // indigo-violet #5C4BE6
-  const muted = rgb(0.38, 0.38, 0.44);         // #616170
+  const bg = rgb(0.984, 0.973, 0.949);
+  const ink = rgb(0.09, 0.09, 0.13);
+  const primary = rgb(0.361, 0.294, 0.902);
+  const muted = rgb(0.38, 0.38, 0.44);
+
+  const coverImage = coverBg
+    ? await (async () => {
+        try { return await pdf.embedJpg(coverBg); }
+        catch { return await pdf.embedPng(coverBg); }
+      })()
+    : null;
 
   const drawFrame = (page: import("npm:pdf-lib@1.17.1").PDFPage, slideNum: number, total: number) => {
-    // Full ivory background
     page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
-    // Top accent bar
     page.drawRectangle({ x: 80, y: H - 100, width: 60, height: 4, color: primary });
-    // Brand mark (top-left)
-    page.drawText("IKtracker", {
-      x: 80, y: H - 140, size: 22, font: helvBold, color: ink,
-    });
-    // Slide counter (top-right)
+    page.drawText("IKtracker", { x: 80, y: H - 140, size: 22, font: helvBold, color: ink });
     const counter = `${slideNum} / ${total}`;
     const cw = helv.widthOfTextAtSize(counter, 18);
     page.drawText(counter, { x: W - 80 - cw, y: H - 140, size: 18, font: helv, color: muted });
-    // Footer URL
     page.drawText("iktracker.fr", { x: 80, y: 80, size: 16, font: helv, color: muted });
-    // Footer accent
     page.drawRectangle({ x: 80, y: 74, width: 40, height: 2, color: primary });
   };
 
-  const totalSlides = 5; // cover + 3 content + cta
+  const totalSlides = 5;
 
-  // Slide 1: cover
+  // Cover
   {
     const page = pdf.addPage([W, H]);
+    page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
+    if (coverImage) {
+      // AI-generated visual as a soft right-side panel (60% width, faded via low opacity rectangle overlay).
+      page.drawImage(coverImage, { x: W * 0.42, y: 0, width: W * 0.58, height: H });
+      // Soft ivory scrim on the left for text legibility
+      page.drawRectangle({ x: 0, y: 0, width: W * 0.55, height: H, color: bg, opacity: 0.92 });
+    }
     drawFrame(page, 1, totalSlides);
 
-    const titleSize = 72;
-    const titleLines = wrapText(plan.cover_title, helvBold, titleSize, W - 160);
+    const titleSize = 68;
+    const titleLines = wrapText(plan.cover_title, helvBold, titleSize, W * 0.55 - 100);
     let y = H / 2 + (titleLines.length * titleSize) / 2 + 40;
     for (const line of titleLines) {
       page.drawText(line, { x: 80, y, size: titleSize, font: helvBold, color: ink });
       y -= titleSize + 8;
     }
     y -= 20;
-    const subSize = 28;
-    for (const line of wrapText(plan.cover_subtitle, helv, subSize, W - 160)) {
+    const subSize = 26;
+    for (const line of wrapText(plan.cover_subtitle, helv, subSize, W * 0.55 - 100)) {
       page.drawText(line, { x: 80, y, size: subSize, font: helv, color: muted });
       y -= subSize + 8;
     }
   }
 
-  // Slides 2-4: content
+  // Content slides
   plan.slides.forEach((s, i) => {
     const page = pdf.addPage([W, H]);
     drawFrame(page, i + 2, totalSlides);
-
-    // Slide number badge
     const badge = `0${i + 1}`;
     page.drawText(badge, { x: 80, y: H - 260, size: 96, font: helvBold, color: primary });
-
-    // Heading
     const headSize = 52;
     const headLines = wrapText(s.heading, helvBold, headSize, W - 160);
     let y = H - 380;
@@ -435,13 +583,9 @@ async function renderCarouselPdf(topic: Topic, plan: SlidePlan): Promise<Uint8Ar
       page.drawText(line, { x: 80, y, size: headSize, font: helvBold, color: ink });
       y -= headSize + 6;
     }
-
-    // Divider
     y -= 20;
     page.drawRectangle({ x: 80, y, width: 80, height: 3, color: primary });
     y -= 40;
-
-    // Body
     const bodySize = 30;
     for (const line of wrapText(s.body, helv, bodySize, W - 160)) {
       page.drawText(line, { x: 80, y, size: bodySize, font: helv, color: ink });
@@ -449,14 +593,11 @@ async function renderCarouselPdf(topic: Topic, plan: SlidePlan): Promise<Uint8Ar
     }
   });
 
-  // Slide 5: CTA
+  // CTA
   {
     const page = pdf.addPage([W, H]);
     drawFrame(page, totalSlides, totalSlides);
-
-    // Big primary block
     page.drawRectangle({ x: 80, y: H / 2 - 60, width: W - 160, height: 8, color: primary });
-
     const ctaSize = 56;
     const ctaLines = wrapText(plan.cta, helvBold, ctaSize, W - 160);
     let y = H / 2 + 40;
@@ -464,11 +605,8 @@ async function renderCarouselPdf(topic: Topic, plan: SlidePlan): Promise<Uint8Ar
       page.drawText(line, { x: 80, y, size: ctaSize, font: helvBold, color: ink });
       y -= ctaSize + 8;
     }
-
     const sub = "Outil gratuit a vie pour les independants francais.";
-    page.drawText(toWinAnsi(sub), {
-      x: 80, y: H / 2 - 120, size: 26, font: helv, color: muted,
-    });
+    page.drawText(toWinAnsi(sub), { x: 80, y: H / 2 - 120, size: 26, font: helv, color: muted });
   }
 
   const bytes = await pdf.save();
@@ -633,6 +771,7 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const dryRun = url.searchParams.get("dry_run") === "1";
   const forceFormat = url.searchParams.get("format") as MediaFormat | null;
+  const forcedTopicSlug = url.searchParams.get("topic");
 
   // Auth: cron secret OR admin JWT
   const cronSecret = Deno.env.get("CRON_SECRET");
@@ -679,33 +818,46 @@ Deno.serve(async (req) => {
   );
 
   const startedAt = Date.now();
-  const topic = pickTopicForThisWeek();
+  const topic = findTopic(forcedTopicSlug) ?? pickTopicForThisMonth();
   const format: MediaFormat = forceFormat === "video" || forceFormat === "carousel"
     ? forceFormat
     : topic.format;
-  console.log(`[linkedin-weekly-post] topic=${topic.slug} format=${format} dryRun=${dryRun}`);
+  console.log(`[linkedin-monthly-post] topic=${topic.slug} format=${format} mediaSource=${topic.mediaSource} dryRun=${dryRun} triggeredBy=${triggeredBy}`);
 
   let postText = "";
+  let textSource = "";
   let mediaBytes = 0;
   let assetUrn: string | null = null;
   let postId: string | null = null;
   let slidePlan: SlidePlan | null = null;
+  let slideSource = "";
 
   try {
-    // 1) Post text (always)
-    postText = await generatePostText(topic);
-    console.log(`Generated post text (${postText.length} chars)`);
+    // 1) Text
+    const t = await generatePostText(topic);
+    postText = t.text;
+    textSource = t.source;
+    console.log(`Generated post text (${postText.length} chars) via ${textSource}`);
 
-    // 1bis) If carousel, also generate slide plan up front so dry-run can preview it
+    // 1bis) Carousel → slide plan up front (needed for dry-run preview too)
     if (format === "carousel") {
-      slidePlan = await generateSlidePlan(topic);
-      console.log(`Slide plan ready (${slidePlan.slides.length} content slides)`);
+      const sp = await generateSlidePlan(topic);
+      slidePlan = sp.plan;
+      slideSource = sp.source;
+      console.log(`Slide plan ready (${slidePlan.slides.length} content slides) via ${slideSource}`);
     }
 
     if (dryRun) {
       return new Response(
         JSON.stringify({
-          dry_run: true, topic, format, post_text: postText, slide_plan: slidePlan,
+          dry_run: true,
+          topic,
+          format,
+          media_source: topic.mediaSource,
+          post_text: postText,
+          text_source: textSource,
+          slide_plan: slidePlan,
+          slide_source: slideSource || null,
         }, null, 2),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
@@ -717,7 +869,9 @@ Deno.serve(async (req) => {
 
     // 3) Build media + upload
     if (format === "video") {
-      const mp4 = await recordScreencast(topic);
+      const mp4 = topic.mediaSource === "browserless"
+        ? await recordScreencast(topic)
+        : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
       mediaBytes = mp4.length;
 
       const upload = await registerUpload(ownerUrn, "feedshare-video");
@@ -726,7 +880,18 @@ Deno.serve(async (req) => {
       await waitForAssetReady(assetUrn);
       postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "VIDEO");
     } else {
-      const pdf = await renderCarouselPdf(topic, slidePlan!);
+      // Carousel: optionally generate a Wavespeed cover background
+      let coverBg: Uint8Array | null = null;
+      if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
+        try {
+          coverBg = await generateWavespeedImage(topic.visualPrompt);
+          console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          console.warn(`Wavespeed cover image failed, falling back to plain typography: ${message}`);
+        }
+      }
+      const pdf = await renderCarouselPdf(topic, slidePlan!, coverBg);
       mediaBytes = pdf.length;
 
       const upload = await registerUpload(ownerUrn, "feedshare-document");
@@ -755,6 +920,8 @@ Deno.serve(async (req) => {
         ok: true,
         topic_slug: topic.slug,
         format,
+        media_source: topic.mediaSource,
+        text_source: textSource,
         post_id: postId,
         asset_urn: assetUrn,
         media_bytes: mediaBytes,
@@ -764,7 +931,7 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[linkedin-weekly-post] failed:", message);
+    console.error("[linkedin-monthly-post] failed:", message);
     await logRun(admin, {
       topic_slug: topic.slug,
       topic_title: topic.title,
