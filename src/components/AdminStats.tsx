@@ -76,6 +76,7 @@ import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection'
 import { AdaptiveChart } from '@/components/admin/AdaptiveChart';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
+import { SignupFunnelCard } from '@/components/admin/SignupFunnelCard';
 
 interface AdminStatsData {
   total_users: number;
