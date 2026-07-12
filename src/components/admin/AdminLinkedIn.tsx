@@ -204,7 +204,32 @@ export function AdminLinkedIn() {
                 <Label className="text-xs text-muted-foreground">Post LinkedIn</Label>
                 <pre className="mt-1 p-3 rounded-md bg-muted whitespace-pre-wrap text-sm">{result.post_text}</pre>
               </div>
+            {result.style_profile && result.style_profile.samples_count > 0 && (
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  Profil de style ({result.style_profile.samples_count} posts analysés)
+                </Label>
+                <div className="mt-1 p-3 rounded-md bg-muted text-xs grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">
+                  <div><span className="text-muted-foreground">Longueur moy. :</span> {result.style_profile.avg_word_count} mots ({result.style_profile.avg_char_length} car.)</div>
+                  <div><span className="text-muted-foreground">Phrases / post :</span> {result.style_profile.avg_sentence_count}</div>
+                  <div><span className="text-muted-foreground">Mots / phrase :</span> {result.style_profile.avg_sentence_words}</div>
+                  <div><span className="text-muted-foreground">Paragraphes :</span> {result.style_profile.avg_paragraph_count} ({result.style_profile.avg_paragraph_words} mots)</div>
+                  <div><span className="text-muted-foreground">Phrases courtes :</span> {result.style_profile.short_sentence_ratio}%</div>
+                  <div><span className="text-muted-foreground">"Je" en début :</span> {result.style_profile.first_person_ratio}%</div>
+                  <div><span className="text-muted-foreground">Questions :</span> {result.style_profile.question_ratio}%</div>
+                </div>
+                {result.style_profile.top_opening_words.length > 0 && (
+                  <p className="mt-2 text-xs"><span className="text-muted-foreground">Ouvertures :</span> {result.style_profile.top_opening_words.join(', ')}</p>
+                )}
+                {result.style_profile.frequent_content_words.length > 0 && (
+                  <p className="mt-1 text-xs"><span className="text-muted-foreground">Vocabulaire signature :</span> {result.style_profile.frequent_content_words.join(', ')}</p>
+                )}
+                {result.style_profile.frequent_bigrams.length > 0 && (
+                  <p className="mt-1 text-xs"><span className="text-muted-foreground">Bigrammes :</span> {result.style_profile.frequent_bigrams.join(' · ')}</p>
+                )}
+              </div>
             )}
+
             {result.slide_plan && (
               <div>
                 <Label className="text-xs text-muted-foreground">Plan du carrousel</Label>
