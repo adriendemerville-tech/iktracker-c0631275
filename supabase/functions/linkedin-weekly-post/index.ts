@@ -887,13 +887,26 @@ Deno.serve(async (req) => {
   let slideSource = "";
 
   try {
-    // 1) Text
-    const t = await generatePostText(topic);
-    postText = t.text;
-    textSource = t.source;
-    console.log(`Generated post text (${postText.length} chars) via ${textSource}`);
+    // 1) Récupération de l'URN + des posts passés (échantillons de style)
+    //    On le fait avant la génération pour que le prompt puisse imiter le ton d'Adrien,
+    //    y compris en dry-run. En cas d'échec, on continue sans échantillon.
+    let ownerUrn: string | null = null;
+    let styleSamples: string[] = [];
+    try {
+      ownerUrn = await getMemberUrn();
+      console.log(`LinkedIn owner: ${ownerUrn}`);
+      styleSamples = await fetchRecentAuthorPosts(ownerUrn, 10);
+    } catch (err) {
+      console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
+    }
 
-    // 1bis) Carousel → slide plan up front (needed for dry-run preview too)
+    // 2) Text
+    const t = await generatePostText(topic, styleSamples);
+    postText = sanitizePostText(t.text);
+    textSource = t.source;
+    console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
+
+    // 2bis) Carousel → slide plan up front (needed for dry-run preview too)
     if (format === "carousel") {
       const sp = await generateSlidePlan(topic);
       slidePlan = sp.plan;
@@ -910,6 +923,7 @@ Deno.serve(async (req) => {
           media_source: topic.mediaSource,
           post_text: postText,
           text_source: textSource,
+          style_samples_count: styleSamples.length,
           slide_plan: slidePlan,
           slide_source: slideSource || null,
         }, null, 2),
@@ -917,9 +931,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 2) LinkedIn owner URN
-    const ownerUrn = await getMemberUrn();
-    console.log(`LinkedIn owner: ${ownerUrn}`);
+    // 3) LinkedIn owner URN (fallback si non résolu plus haut)
+    if (!ownerUrn) ownerUrn = await getMemberUrn();
 
     // 3) Build media + upload
     if (format === "video") {
