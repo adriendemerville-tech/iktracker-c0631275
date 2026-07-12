@@ -43,7 +43,11 @@ export default function AuthorPage() {
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Adrien de Volontat",
+    "givenName": "Adrien",
+    "familyName": "de Volontat",
     "jobTitle": "Fondateur",
+    "url": canonicalUrl,
+    "image": linkedInProfile?.picture || founderPhoto,
     "worksFor": {
       "@type": "Organization",
       "name": "Avenir Rénovations",
@@ -54,9 +58,20 @@ export default function AuthorPage() {
       }
     },
     "description": "Dirigeant de l'agence Avenir Rénovations et créateur d'IKtracker, outil de suivi des indemnités kilométriques.",
+    "knowsAbout": [
+      "Indemnités kilométriques",
+      "Fiscalité automobile professionnelle",
+      "Suivi des déplacements professionnels"
+    ],
     "sameAs": [
       "https://www.linkedin.com/in/adrien-de-volontat"
-    ]
+    ],
+    "identifier": {
+      "@type": "PropertyValue",
+      "propertyID": "LinkedIn",
+      "value": "adrien-de-volontat",
+      "url": "https://www.linkedin.com/in/adrien-de-volontat"
+    }
   };
 
   return (
