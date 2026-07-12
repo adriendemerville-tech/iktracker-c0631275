@@ -655,6 +655,45 @@ async function getMemberUrn(): Promise<string> {
   return `urn:li:person:${json.sub}`;
 }
 
+// Récupère les derniers posts LinkedIn de l'auteur pour servir d'échantillons de style.
+// Renvoie [] silencieusement si l'endpoint échoue (scope manquant, quota, etc.) — le
+// prompt reste fonctionnel sans échantillons.
+async function fetchRecentAuthorPosts(ownerUrn: string, count = 10): Promise<string[]> {
+  try {
+    const encoded = encodeURIComponent(ownerUrn);
+    const url = `/v2/ugcPosts?q=authors&authors=List(${encoded})&count=${count}&sortBy=LAST_MODIFIED`;
+    const res = await gatewayFetch(url, {
+      headers: { "X-Restli-Protocol-Version": "2.0.0" },
+    });
+    if (!res.ok) {
+      console.warn(`[style-samples] ugcPosts list ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      return [];
+    }
+    const json = await res.json();
+    const elements: any[] = Array.isArray(json.elements) ? json.elements : [];
+    const texts = elements
+      .map((el) => el?.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text)
+      .filter((t): t is string => typeof t === "string" && t.trim().length >= 80)
+      .map((t) => t.trim());
+    console.log(`[style-samples] fetched ${texts.length} past posts for style reference`);
+    return texts;
+  } catch (err) {
+    console.warn(`[style-samples] failed: ${err instanceof Error ? err.message : String(err)}`);
+    return [];
+  }
+}
+
+// Nettoie les tirets d'incise (— – -) laissés par le modèle malgré la consigne.
+// Conserve les traits d'union intra-mots (ex : auto-entrepreneur).
+function sanitizePostText(text: string): string {
+  let out = text.replace(/[—–]/g, ",");
+  // " - " (tiret d'incise entouré d'espaces) → ", "
+  out = out.replace(/\s-\s/g, ", ");
+  // "- " en début de ligne (puce résiduelle) → ""
+  out = out.replace(/^-\s+/gm, "");
+  return out;
+}
+
 function toGatewayUrl(linkedinUrl: string): string {
   const u = new URL(linkedinUrl);
   return `${GATEWAY_URL}${u.pathname}${u.search}`;
