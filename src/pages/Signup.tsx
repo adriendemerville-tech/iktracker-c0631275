@@ -155,6 +155,7 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackSignupEvent('signup_form_submit', 'email');
     
     if (recaptchaToken) {
       await performSignup(recaptchaToken);
@@ -166,6 +167,7 @@ const Signup = () => {
       recaptchaRef.current?.execute();
     } catch (error) {
       setLoading(false);
+      trackSignupEvent('signup_error', 'recaptcha_execute_failed');
       toast({ title: 'Erreur', description: 'Erreur lors de la vérification. Veuillez réessayer.', variant: 'destructive' });
     }
   };
@@ -196,6 +198,7 @@ const Signup = () => {
       } else if (error.message.includes('Password should be at least')) {
         message = 'Le mot de passe doit contenir au moins 6 caractères';
       }
+      trackSignupEvent('signup_error', `email: ${(message || 'unknown').slice(0, 200)}`);
       toast({ title: 'Erreur', description: message, variant: 'destructive' });
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
