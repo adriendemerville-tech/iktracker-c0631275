@@ -417,12 +417,15 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const dryRun = url.searchParams.get("dry_run") === "1";
 
-  // Auth: CRON_SECRET header OR admin JWT
+  // Auth: CRON_SECRET (or SYNC_CRON_TOKEN fallback) header OR admin JWT
   const cronSecret = Deno.env.get("CRON_SECRET");
+  const altCronSecret = Deno.env.get("SYNC_CRON_TOKEN");
   const xCronSecret = req.headers.get("x-cron-secret");
-  const isCron = cronSecret && xCronSecret === cronSecret;
-
-  let triggeredBy = "cron";
+  const isCron = !!xCronSecret && (
+    (cronSecret && xCronSecret === cronSecret) ||
+    (altCronSecret && xCronSecret === altCronSecret)
+  );
+  console.log(`[linkedin-weekly-post] auth: hasHeader=${!!xCronSecret} hasCronEnv=${!!cronSecret} hasAltEnv=${!!altCronSecret} isCron=${isCron}`);
 
   if (!isCron) {
     triggeredBy = "admin";
