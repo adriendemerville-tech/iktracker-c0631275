@@ -9,6 +9,7 @@ import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, User } from 
 import confetti from 'canvas-confetti';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from '@/components/PersonaPicker';
+import { trackSignupEvent } from '@/lib/signup-tracking';
 
 const RECAPTCHA_SITE_KEY = '6LeqDVMsAAAAAE_prKZwP9zj8ovr49OFOQnoISsP';
 
@@ -77,6 +78,9 @@ const Signup = () => {
   };
 
   useEffect(() => {
+    // Track signup page view once
+    trackSignupEvent('signup_view');
+
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -88,6 +92,10 @@ const Signup = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Determine provider (google/apple for OAuth, else email)
+        const provider = (session.user.app_metadata?.provider as string) || 'email';
+        trackSignupEvent('signup_success', provider);
+
         // Save persona to database after signup
         if (selectedPersona) {
           const personaOption = PERSONA_OPTIONS.find(p => p.value === selectedPersona);
@@ -132,12 +140,14 @@ const Signup = () => {
 
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
+    trackSignupEvent('signup_oauth_start', 'google');
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
       });
       if (error) throw error;
     } catch (error: any) {
+      trackSignupEvent('signup_error', `oauth_google: ${(error?.message || 'unknown').slice(0, 200)}`);
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
@@ -145,6 +155,7 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackSignupEvent('signup_form_submit', 'email');
     
     if (recaptchaToken) {
       await performSignup(recaptchaToken);
@@ -156,6 +167,7 @@ const Signup = () => {
       recaptchaRef.current?.execute();
     } catch (error) {
       setLoading(false);
+      trackSignupEvent('signup_error', 'recaptcha_execute_failed');
       toast({ title: 'Erreur', description: 'Erreur lors de la vérification. Veuillez réessayer.', variant: 'destructive' });
     }
   };
@@ -186,6 +198,7 @@ const Signup = () => {
       } else if (error.message.includes('Password should be at least')) {
         message = 'Le mot de passe doit contenir au moins 6 caractères';
       }
+      trackSignupEvent('signup_error', `email: ${(message || 'unknown').slice(0, 200)}`);
       toast({ title: 'Erreur', description: message, variant: 'destructive' });
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);

@@ -2063,6 +2063,7 @@ export type Database = {
           day: string
         }[]
       }
+      get_signup_funnel: { Args: { days_back?: number }; Returns: Json }
       get_takeout_import_stats: { Args: never; Returns: Json }
       get_top_users: {
         Args: { limit_count?: number; sort_by?: string }
