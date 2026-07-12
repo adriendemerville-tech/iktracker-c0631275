@@ -427,8 +427,9 @@ Deno.serve(async (req) => {
   );
   console.log(`[linkedin-weekly-post] auth: hasHeader=${!!xCronSecret} hasCronEnv=${!!cronSecret} hasAltEnv=${!!altCronSecret} isCron=${isCron}`);
 
+  let triggeredBy: "cron" | "admin" = isCron ? "cron" : "admin";
+
   if (!isCron) {
-    triggeredBy = "admin";
     const authHeader = req.headers.get("Authorization") || "";
     if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
