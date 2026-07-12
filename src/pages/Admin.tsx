@@ -28,6 +28,7 @@ import { AdminSurveys } from '@/components/admin/AdminSurveys';
 import { AdminTourRecovery } from '@/components/admin/AdminTourRecovery';
 import { AdminTourMode } from '@/components/admin/AdminTourMode';
 import { AdminApiPartners } from '@/components/admin/AdminApiPartners';
+import { AdminWavespeed } from '@/components/admin/AdminWavespeed';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
@@ -59,7 +60,8 @@ import {
   Trash2,
   AlertTriangle,
   Car,
-  Key
+  Key,
+  Sparkles
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -666,6 +668,12 @@ const Admin = () => {
                 <span className="hidden sm:inline">Docs</span>
               </TabsTrigger>
             )}
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="wavespeed" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Sparkles className="w-4 h-4" />
+                <span className="hidden sm:inline">Wavespeed</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Stats Tab */}
@@ -1175,6 +1183,11 @@ const Admin = () => {
           <TabsContent value="docs">
             <AdminDocumentation />
           </TabsContent>
+
+          <TabsContent value="wavespeed">
+            <AdminWavespeed />
+          </TabsContent>
+
         </Tabs>
       </main>
 
