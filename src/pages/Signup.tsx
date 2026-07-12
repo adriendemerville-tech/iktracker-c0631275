@@ -140,12 +140,14 @@ const Signup = () => {
 
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
+    trackSignupEvent('signup_oauth_start', 'google');
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
       });
       if (error) throw error;
     } catch (error: any) {
+      trackSignupEvent('signup_error', `oauth_google: ${(error?.message || 'unknown').slice(0, 200)}`);
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
