@@ -20,6 +20,23 @@ type LinkedInProfile = {
 
 export default function AuthorPage() {
   const canonicalUrl = 'https://www.iktracker.fr/blog/auteur/adrien-de-volontat';
+  const [linkedInProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.functions
+      .invoke('linkedin-profile')
+      .then(({ data, error }) => {
+        if (cancelled || error || !data) return;
+        setLinkedInProfile(data as LinkedInProfile);
+      })
+      .catch(() => {
+        /* silent — badge simply hides */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // JSON-LD structured data for Person
   const personSchema = {
