@@ -630,6 +630,51 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_post_log: {
+        Row: {
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          linkedin_asset_urn: string | null
+          linkedin_post_id: string | null
+          post_text: string | null
+          posted_at: string
+          status: string
+          topic_slug: string
+          topic_title: string
+          triggered_by: string
+          video_bytes: number | null
+        }
+        Insert: {
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          linkedin_asset_urn?: string | null
+          linkedin_post_id?: string | null
+          post_text?: string | null
+          posted_at?: string
+          status?: string
+          topic_slug: string
+          topic_title: string
+          triggered_by?: string
+          video_bytes?: number | null
+        }
+        Update: {
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          linkedin_asset_urn?: string | null
+          linkedin_post_id?: string | null
+          post_text?: string | null
+          posted_at?: string
+          status?: string
+          topic_slug?: string
+          topic_title?: string
+          triggered_by?: string
+          video_bytes?: number | null
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string | null
