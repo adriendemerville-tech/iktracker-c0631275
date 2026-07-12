@@ -175,6 +175,7 @@ Utilisateur → Cloudflare DNS (proxied)
 |---|---|
 | `get_marketing_stats(days_back)` | Stats marketing (vues, CTA, simulations) |
 | `get_marketing_stats_by_page(days_back)` | Stats par page |
+| `get_signup_funnel(days_back)` | Funnel signup (vues → OAuth/form → erreurs → comptes créés) + répartition par provider et top erreurs. Admin/viewer uniquement. |
 | `get_marketing_views_by_day(days_back)` | Vues marketing par jour |
 | `get_signup_clicks_by_day(start, end)` | Clics signup par jour |
 | `get_bareme_simulations_by_day(days_back)` | Simulations barème par jour |
