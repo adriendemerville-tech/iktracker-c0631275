@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, RefreshCw, Copy, ExternalLink, Wallet } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Copy, ExternalLink, Activity } from 'lucide-react';
 
 const DEFAULT_MODEL = 'wavespeed-ai/flux-dev';
 const DEFAULT_INPUT = JSON.stringify(
