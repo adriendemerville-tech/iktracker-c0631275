@@ -36,6 +36,22 @@ type RunResult = {
   media_source?: string;
   post_text?: string;
   text_source?: string;
+  style_samples_count?: number;
+  style_profile?: {
+    samples_count: number;
+    avg_char_length: number;
+    avg_word_count: number;
+    avg_sentence_count: number;
+    avg_sentence_words: number;
+    avg_paragraph_count: number;
+    avg_paragraph_words: number;
+    short_sentence_ratio: number;
+    first_person_ratio: number;
+    question_ratio: number;
+    top_opening_words: string[];
+    frequent_bigrams: string[];
+    frequent_content_words: string[];
+  };
   slide_plan?: unknown;
   slide_source?: string;
   post_id?: string;
