@@ -78,6 +78,9 @@ const Signup = () => {
   };
 
   useEffect(() => {
+    // Track signup page view once
+    trackSignupEvent('signup_view');
+
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
