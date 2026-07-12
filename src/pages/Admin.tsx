@@ -675,6 +675,12 @@ const Admin = () => {
                 <span className="hidden sm:inline">Wavespeed</span>
               </TabsTrigger>
             )}
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="linkedin" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Send className="w-4 h-4" />
+                <span className="hidden sm:inline">LinkedIn</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Stats Tab */}
