@@ -1,22 +1,53 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
+import { supabase } from '@/integrations/supabase/client';
 const founderPhoto = '/founder-adrien.jpg';
+
+type LinkedInProfile = {
+  name?: string;
+  picture?: string;
+  profile_url?: string;
+  verified?: boolean;
+};
 
 export default function AuthorPage() {
   const canonicalUrl = 'https://www.iktracker.fr/blog/auteur/adrien-de-volontat';
+  const [linkedInProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.functions
+      .invoke('linkedin-profile')
+      .then(({ data, error }) => {
+        if (cancelled || error || !data) return;
+        setLinkedInProfile(data as LinkedInProfile);
+      })
+      .catch(() => {
+        /* silent — badge simply hides */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // JSON-LD structured data for Person
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Adrien de Volontat",
+    "givenName": "Adrien",
+    "familyName": "de Volontat",
     "jobTitle": "Fondateur",
+    "url": canonicalUrl,
+    "image": linkedInProfile?.picture || founderPhoto,
     "worksFor": {
       "@type": "Organization",
       "name": "Avenir Rénovations",
@@ -27,9 +58,20 @@ export default function AuthorPage() {
       }
     },
     "description": "Dirigeant de l'agence Avenir Rénovations et créateur d'IKtracker, outil de suivi des indemnités kilométriques.",
+    "knowsAbout": [
+      "Indemnités kilométriques",
+      "Fiscalité automobile professionnelle",
+      "Suivi des déplacements professionnels"
+    ],
     "sameAs": [
       "https://www.linkedin.com/in/adrien-de-volontat"
-    ]
+    ],
+    "identifier": {
+      "@type": "PropertyValue",
+      "propertyID": "LinkedIn",
+      "value": "adrien-de-volontat",
+      "url": "https://www.linkedin.com/in/adrien-de-volontat"
+    }
   };
 
   return (
@@ -81,19 +123,38 @@ export default function AuthorPage() {
                 <div className="flex flex-col md:flex-row gap-6 items-start">
                   {/* Avatar */}
                   <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
-                    <AvatarImage 
-                      src={founderPhoto} 
-                      alt="Adrien de Volontat" 
+                    <AvatarImage
+                      src={linkedInProfile?.picture || founderPhoto}
+                      alt="Adrien de Volontat"
                       className="object-cover"
                     />
                     <AvatarFallback className="text-2xl font-bold">AV</AvatarFallback>
                   </Avatar>
-                  
+
                   {/* Name and title */}
                   <div className="flex-1 pt-4 md:pt-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                      Adrien de Volontat
-                    </h1>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                        Adrien de Volontat
+                      </h1>
+                      {linkedInProfile?.verified && (
+                        <a
+                          href={linkedInProfile.profile_url || 'https://www.linkedin.com/in/adrien-de-volontat'}
+                          target="_blank"
+                          rel="noopener noreferrer me author"
+                          aria-label="Profil LinkedIn vérifié d'Adrien de Volontat"
+                          title="Identité vérifiée via LinkedIn"
+                        >
+                          <Badge
+                            variant="secondary"
+                            className="gap-1 bg-[#0A66C2]/10 text-[#0A66C2] hover:bg-[#0A66C2]/15 border border-[#0A66C2]/20"
+                          >
+                            <BadgeCheck className="h-3.5 w-3.5" />
+                            LinkedIn vérifié
+                          </Badge>
+                        </a>
+                      )}
+                    </div>
                     <p className="text-lg text-primary font-medium mb-3">
                       Fondateur d'IKtracker
                     </p>

@@ -378,6 +378,22 @@ Content-Type: application/json
 - **Endpoint** : `POST` (soumettre un document), `GET ?job_id=` (poll le statut)
 - **Secrets** : `MARINA_API_KEY`
 
+#### `linkedin-profile` — Profil LinkedIn vérifié (E-E-A-T)
+
+- **Auth** : Publique (`verify_jwt = false`) — servi à la page `/blog/auteur/adrien-de-volontat`
+- **Endpoint** : `GET` — renvoie `{ name, given_name, family_name, picture, locale, verified, profile_url }`
+- **Gateway** : `https://connector-gateway.lovable.dev/linkedin/v2/userinfo`
+- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY` (connector LinkedIn lié au projet)
+- **Cache** : `Cache-Control: public, max-age=3600, s-maxage=3600`
+
+#### `gsc-analytics` — Google Search Console
+
+- **Auth** : JWT utilisateur + rôle `admin`/`viewer`
+- **Actions** : `sites`, `summary`, `query` (dimensions/days/rowLimit configurables)
+- **Gateway** : `https://connector-gateway.lovable.dev/google_search_console`
+- **Secrets** : `LOVABLE_API_KEY`, `GOOGLE_SEARCH_CONSOLE_API_KEY`
+
+
 ### Configuration (supabase/config.toml)
 
 Toutes les Edge Functions utilisent `verify_jwt = false` — la validation JWT est faite dans le code de chaque fonction.
