@@ -117,9 +117,20 @@ export function AdminWavespeed() {
     },
     onSuccess: (data) => {
       const b = data?.data?.balance ?? data?.balance ?? JSON.stringify(data);
-      setBalance(typeof b === 'string' ? b : JSON.stringify(b));
+      const value = typeof b === 'string' ? b : JSON.stringify(b);
+      setBalance(value);
+      setConnectionTest({
+        ok: true,
+        message: `Connexion OK — solde : ${value}`,
+        raw: JSON.stringify(data, null, 2),
+      });
     },
     onError: (e: any) => {
+      setConnectionTest({
+        ok: false,
+        message: e?.message ?? 'Impossible de contacter Wavespeed',
+        raw: JSON.stringify(e, null, 2),
+      });
       toast({ title: 'Erreur', description: e?.message ?? 'Impossible de récupérer le solde', variant: 'destructive' });
     },
   });
