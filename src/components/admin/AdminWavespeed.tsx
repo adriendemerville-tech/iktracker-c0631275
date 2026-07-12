@@ -159,6 +159,18 @@ export function AdminWavespeed() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {connectionTest && (
+            <div className={`p-3 rounded-md text-sm space-y-2 ${connectionTest.ok ? 'bg-green-500/10 text-green-700' : 'bg-destructive/10 text-destructive'}`}>
+              <p className="font-medium">{connectionTest.message}</p>
+              <details>
+                <summary className="cursor-pointer opacity-80 hover:opacity-100">Détails de la réponse</summary>
+                <pre className="mt-2 p-2 rounded bg-background/50 overflow-auto max-h-40 whitespace-pre-wrap break-all text-xs">
+                  {connectionTest.raw}
+                </pre>
+              </details>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="ws-model">Modèle</Label>
             <Input
