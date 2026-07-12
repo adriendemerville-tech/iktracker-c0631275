@@ -383,8 +383,17 @@ Content-Type: application/json
 - **Auth** : Publique (`verify_jwt = false`) — servi à la page `/blog/auteur/adrien-de-volontat`
 - **Endpoint** : `GET` — renvoie `{ name, given_name, family_name, picture, locale, verified, profile_url }`
 - **Gateway** : `https://connector-gateway.lovable.dev/linkedin/v2/userinfo`
-- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY` (connector LinkedIn lié au projet)
+- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`
 - **Cache** : `Cache-Control: public, max-age=3600, s-maxage=3600`
+
+#### `linkedin-weekly-post` — Publication LinkedIn automatisée (hebdo)
+
+- **Auth** : En-tête `x-cron-secret` (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin
+- **Cron** : `0 7 * * 4` (jeudi 07:00 UTC ≈ 8h Paris hiver / 9h été)
+- **Flow** : (1) sélection sujet par n° de semaine parmi 12 rotations, (2) génération texte via Lovable AI (`google/gemini-2.5-flash`), (3) enregistrement screencast MP4 via Browserless `/function` + ffmpeg, (4) upload asset LinkedIn `/v2/assets?action=registerUpload`, (5) polling `AVAILABLE`, (6) publication `/v2/ugcPosts`
+- **Dry-run** : `?dry_run=1` renvoie texte + sujet sans publier
+- **Logs** : chaque exécution loggée dans `public.linkedin_post_log`
+- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `gsc-analytics` — Google Search Console
 
@@ -392,6 +401,7 @@ Content-Type: application/json
 - **Actions** : `sites`, `summary`, `query` (dimensions/days/rowLimit configurables)
 - **Gateway** : `https://connector-gateway.lovable.dev/google_search_console`
 - **Secrets** : `LOVABLE_API_KEY`, `GOOGLE_SEARCH_CONSOLE_API_KEY`
+
 
 
 ### Configuration (supabase/config.toml)
