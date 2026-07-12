@@ -309,7 +309,163 @@ async function callLLM(system: string, userMsg: string, opts: { json?: boolean; 
   }
 }
 
-async function generatePostText(topic: Topic, styleSamples: string[]): Promise<{ text: string; source: string }> {
+// ─── Style profiling ───────────────────────────────────────────────────────
+// Analyse déterministe des posts passés pour extraire les motifs stylistiques
+// (longueurs, rythme, vocabulaire). Injecté dans le prompt en plus des exemples
+// bruts, pour guider le modèle avec des cibles chiffrées imitables.
+
+export type StyleProfile = {
+  samples_count: number;
+  avg_char_length: number;
+  avg_word_count: number;
+  avg_sentence_count: number;
+  avg_sentence_words: number;
+  avg_paragraph_count: number;
+  avg_paragraph_words: number;
+  short_sentence_ratio: number;   // % phrases <= 8 mots (rythme sec)
+  first_person_ratio: number;     // % phrases commençant par "je"
+  question_ratio: number;         // % phrases interrogatives
+  top_opening_words: string[];    // mots typiques de première ligne
+  frequent_bigrams: string[];     // bigrammes récurrents (signature lexicale)
+  frequent_content_words: string[]; // vocabulaire fort récurrent
+};
+
+const FR_STOPWORDS = new Set<string>([
+  "le","la","les","un","une","des","de","du","d","l","et","ou","mais","donc","or","ni","car",
+  "je","tu","il","elle","on","nous","vous","ils","elles","me","te","se","lui","leur","y","en",
+  "mon","ma","mes","ton","ta","tes","son","sa","ses","notre","votre","nos","vos","leurs",
+  "ce","cet","cette","ces","ça","cela","celui","celle","ceux","celles",
+  "que","qui","quoi","dont","où","quand","comme","si","pour","par","sur","sous","avec","sans","dans","chez","vers","entre","aussi","très","plus","moins","bien","peu","tout","toute","tous","toutes","aux","au","à","a","est","être","été","suis","es","sommes","êtes","sont","était","étaient","serai","sera","seront","fait","faire","fais","font","ai","as","avons","avez","ont","avait","avaient",
+  "pas","ne","n","oui","non","déjà","encore","toujours","jamais","alors","puis","ensuite","enfin","ici","là","hier","aujourd","demain","c","s","t","m","qu",
+]);
+
+function tokenizeWords(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[’']/g, " ")
+    .split(/[^\p{L}\p{N}\-]+/u)
+    .filter((w) => w.length > 0);
+}
+
+function splitSentences(text: string): string[] {
+  return text
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?…])\s+(?=[A-ZÀ-Ý"«])/u)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+function splitParagraphs(text: string): string[] {
+  return text.split(/\n\s*\n+/).map((p) => p.trim()).filter((p) => p.length > 0);
+}
+
+function topK<T extends string>(counter: Map<T, number>, k: number): T[] {
+  return [...counter.entries()].sort((a, b) => b[1] - a[1]).slice(0, k).map(([w]) => w);
+}
+
+export function analyzeStyle(samples: string[]): StyleProfile {
+  const n = samples.length;
+  if (n === 0) {
+    return {
+      samples_count: 0,
+      avg_char_length: 0, avg_word_count: 0,
+      avg_sentence_count: 0, avg_sentence_words: 0,
+      avg_paragraph_count: 0, avg_paragraph_words: 0,
+      short_sentence_ratio: 0, first_person_ratio: 0, question_ratio: 0,
+      top_opening_words: [], frequent_bigrams: [], frequent_content_words: [],
+    };
+  }
+
+  let totalChars = 0, totalWords = 0, totalSentences = 0, totalParagraphs = 0;
+  let shortSent = 0, firstPersonSent = 0, questionSent = 0, totalSentWords = 0, totalParaWords = 0;
+  const openings = new Map<string, number>();
+  const bigrams = new Map<string, number>();
+  const contentWords = new Map<string, number>();
+
+  for (const raw of samples) {
+    const t = raw.trim();
+    totalChars += t.length;
+    const words = tokenizeWords(t);
+    totalWords += words.length;
+
+    const sentences = splitSentences(t);
+    totalSentences += sentences.length;
+    for (const s of sentences) {
+      const sw = tokenizeWords(s);
+      totalSentWords += sw.length;
+      if (sw.length > 0 && sw.length <= 8) shortSent += 1;
+      if (sw[0] === "je" || sw[0] === "j") firstPersonSent += 1;
+      if (/\?\s*$/.test(s)) questionSent += 1;
+    }
+
+    const paragraphs = splitParagraphs(t);
+    totalParagraphs += paragraphs.length;
+    for (const p of paragraphs) totalParaWords += tokenizeWords(p).length;
+
+    // opening: premier mot significatif de la première phrase
+    const firstSentWords = sentences[0] ? tokenizeWords(sentences[0]) : [];
+    const opener = firstSentWords.find((w) => !FR_STOPWORDS.has(w) && w.length > 2);
+    if (opener) openings.set(opener, (openings.get(opener) ?? 0) + 1);
+
+    // content words + bigrams (hors stopwords)
+    const content = words.filter((w) => !FR_STOPWORDS.has(w) && w.length > 3);
+    for (const w of content) contentWords.set(w, (contentWords.get(w) ?? 0) + 1);
+    for (let i = 0; i < words.length - 1; i++) {
+      const a = words[i], b = words[i + 1];
+      if (FR_STOPWORDS.has(a) || FR_STOPWORDS.has(b)) continue;
+      if (a.length < 3 || b.length < 3) continue;
+      const bg = `${a} ${b}`;
+      bigrams.set(bg, (bigrams.get(bg) ?? 0) + 1);
+    }
+  }
+
+  const round = (x: number, p = 1) => Math.round(x * 10 ** p) / 10 ** p;
+  return {
+    samples_count: n,
+    avg_char_length: Math.round(totalChars / n),
+    avg_word_count: Math.round(totalWords / n),
+    avg_sentence_count: round(totalSentences / n),
+    avg_sentence_words: totalSentences ? round(totalSentWords / totalSentences) : 0,
+    avg_paragraph_count: round(totalParagraphs / n),
+    avg_paragraph_words: totalParagraphs ? round(totalParaWords / totalParagraphs) : 0,
+    short_sentence_ratio: totalSentences ? round((shortSent / totalSentences) * 100, 0) : 0,
+    first_person_ratio: totalSentences ? round((firstPersonSent / totalSentences) * 100, 0) : 0,
+    question_ratio: totalSentences ? round((questionSent / totalSentences) * 100, 0) : 0,
+    top_opening_words: topK(openings, 6),
+    frequent_bigrams: topK(bigrams, 8).filter((b) => (bigrams.get(b as string) ?? 0) >= 2),
+    frequent_content_words: topK(contentWords, 15).filter((w) => (contentWords.get(w as string) ?? 0) >= 2),
+  };
+}
+
+function styleProfileToPromptBlock(p: StyleProfile): string {
+  if (p.samples_count === 0) return "(aucun profil de style calculé)";
+  const targetWords = Math.max(140, Math.min(240, p.avg_word_count || 190));
+  const lines = [
+    `Longueur cible : environ ${targetWords} mots (moyenne observée sur ${p.samples_count} posts : ${p.avg_word_count} mots, ${p.avg_char_length} caractères).`,
+    `Rythme : ${p.avg_sentence_count} phrases par post, ${p.avg_sentence_words} mots par phrase en moyenne. ${p.short_sentence_ratio}% des phrases font 8 mots ou moins — garde cette proportion de phrases courtes et sèches.`,
+    `Structure : ${p.avg_paragraph_count} paragraphes en moyenne, ${p.avg_paragraph_words} mots par paragraphe. Aère avec des sauts de ligne.`,
+    `Première personne : ${p.first_person_ratio}% des phrases commencent par "je" ou "j'". Reste dans cette proportion.`,
+    p.question_ratio > 0
+      ? `Questions rhétoriques : ${p.question_ratio}% (rare, n'en abuse pas).`
+      : `Pas de questions rhétoriques dans le corpus, n'en introduis pas.`,
+    p.top_opening_words.length
+      ? `Mots d'ouverture typiques (première ligne) : ${p.top_opening_words.join(", ")}.`
+      : "",
+    p.frequent_content_words.length
+      ? `Vocabulaire signature récurrent : ${p.frequent_content_words.join(", ")}. Puise dedans quand c'est naturel, ne force pas.`
+      : "",
+    p.frequent_bigrams.length
+      ? `Bigrammes récurrents : ${p.frequent_bigrams.join(" · ")}.`
+      : "",
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+async function generatePostText(
+  topic: Topic,
+  styleSamples: string[],
+  styleProfile: StyleProfile,
+): Promise<{ text: string; source: string }> {
   const samplesBlock = styleSamples.length
     ? styleSamples
         .slice(0, 6)
@@ -317,15 +473,20 @@ async function generatePostText(topic: Topic, styleSamples: string[]): Promise<{
         .join("\n\n")
     : "(aucun exemple disponible — reste sobre et factuel)";
 
+  const profileBlock = styleProfileToPromptBlock(styleProfile);
+
   const system = `Tu rédiges un post LinkedIn pour Adrien de Volontat, dirigeant d'entreprise et fondateur d'IKtracker (iktracker.fr) — outil GRATUIT À VIE de suivi des indemnités kilométriques pour indépendants (auto-entrepreneurs, freelances, professions libérales, artisans, commerciaux, aides à domicile).
 
 TON & STYLE :
 - Imite le style d'écriture des exemples fournis plus bas : rythme des phrases, vocabulaire, ponctuation, longueur des paragraphes, façon d'aborder un sujet.
 - Français, première personne (je / mon), pragmatique, humain, factuel. Comme un dirigeant qui parle à ses pairs.
 
+PROFIL DE STYLE MESURÉ SUR LES POSTS PASSÉS (cibles à respecter) :
+${profileBlock}
+
 STRUCTURE :
 - HOOK obligatoire en toute première ligne : une phrase courte, concrète, qui accroche l'œil dans le feed (fait brut, chiffre, anecdote, tension). Pas de question rhétorique, pas de citation, pas de "Vous savez quoi ?".
-- 4 à 6 paragraphes courts, 150 à 230 mots au total.
+- Respecte la longueur cible et le rythme indiqués ci-dessus (nombre de phrases, phrases courtes, paragraphes).
 - PAS DE CHUTE : ne termine pas par une conclusion, une morale, une leçon, un appel à l'action, un CTA, un lien, une invitation à commenter, ni une phrase de synthèse. Le post s'arrête sur un fait ou un détail, sec.
 
 GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
@@ -337,7 +498,7 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
-  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation.`;
+  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation, respect strict des cibles de longueur et de rythme.`;
   const { text, source } = await callLLM(system, user, { temperature: 0.85 });
   return { text, source };
 }
@@ -900,8 +1061,12 @@ Deno.serve(async (req) => {
       console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
     }
 
+    // 1bis) Profil de style déterministe (longueurs, rythme, vocabulaire)
+    const styleProfile = analyzeStyle(styleSamples);
+    console.log(`[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`);
+
     // 2) Text
-    const t = await generatePostText(topic, styleSamples);
+    const t = await generatePostText(topic, styleSamples, styleProfile);
     postText = sanitizePostText(t.text);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
@@ -924,6 +1089,7 @@ Deno.serve(async (req) => {
           post_text: postText,
           text_source: textSource,
           style_samples_count: styleSamples.length,
+          style_profile: styleProfile,
           slide_plan: slidePlan,
           slide_source: slideSource || null,
         }, null, 2),
