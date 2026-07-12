@@ -309,20 +309,35 @@ async function callLLM(system: string, userMsg: string, opts: { json?: boolean; 
   }
 }
 
-async function generatePostText(topic: Topic): Promise<{ text: string; source: string }> {
+async function generatePostText(topic: Topic, styleSamples: string[]): Promise<{ text: string; source: string }> {
+  const samplesBlock = styleSamples.length
+    ? styleSamples
+        .slice(0, 6)
+        .map((s, i) => `--- Exemple ${i + 1} ---\n${s.trim()}`)
+        .join("\n\n")
+    : "(aucun exemple disponible — reste sobre et factuel)";
+
   const system = `Tu rédiges un post LinkedIn pour Adrien de Volontat, dirigeant d'entreprise et fondateur d'IKtracker (iktracker.fr) — outil GRATUIT À VIE de suivi des indemnités kilométriques pour indépendants (auto-entrepreneurs, freelances, professions libérales, artisans, commerciaux, aides à domicile).
 
-Règles STRICTES :
-- Français, à la première personne (je / mon), ton pragmatique entrepreneurial
-- 180 à 250 mots, 4 à 6 paragraphes courts
-- AUCUN emoji, AUCUN gimmick marketing
-- Commence par un problème concret vécu par un indépendant (accroche factuelle, pas une question rhétorique)
-- Détaille la fonctionnalité et sa pertinence pour un indépendant français
-- Termine par un appel doux vers iktracker.fr (utilise "accédez à" ou "jetez un œil à", JAMAIS "testez")
-- 2 à 3 hashtags maximum en toute fin (dont #indépendants)
-- Interdit : "🚀", "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez"
-- Reste crédible, humain, factuel. Comme un dirigeant qui parle à ses pairs.`;
-  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier.`;
+TON & STYLE :
+- Imite le style d'écriture des exemples fournis plus bas : rythme des phrases, vocabulaire, ponctuation, longueur des paragraphes, façon d'aborder un sujet.
+- Français, première personne (je / mon), pragmatique, humain, factuel. Comme un dirigeant qui parle à ses pairs.
+
+STRUCTURE :
+- HOOK obligatoire en toute première ligne : une phrase courte, concrète, qui accroche l'œil dans le feed (fait brut, chiffre, anecdote, tension). Pas de question rhétorique, pas de citation, pas de "Vous savez quoi ?".
+- 4 à 6 paragraphes courts, 150 à 230 mots au total.
+- PAS DE CHUTE : ne termine pas par une conclusion, une morale, une leçon, un appel à l'action, un CTA, un lien, une invitation à commenter, ni une phrase de synthèse. Le post s'arrête sur un fait ou un détail, sec.
+
+GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
+- INTERDIT : les tirets cadratins (—), demi-cadratins (–) et les tirets d'incise "-" utilisés comme ponctuation. Utilise des points, des virgules, des points-virgules, des deux-points, ou des retours à la ligne à la place. Les traits d'union à l'intérieur d'un mot composé (ex : "auto-entrepreneur") restent autorisés.
+- INTERDIT : emojis, hashtags, listes à puces, gras/italique markdown, guillemets français décoratifs.
+- INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
+- Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
+
+EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
+${samplesBlock}`;
+
+  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation.`;
   const { text, source } = await callLLM(system, user, { temperature: 0.85 });
   return { text, source };
 }
@@ -640,6 +655,45 @@ async function getMemberUrn(): Promise<string> {
   return `urn:li:person:${json.sub}`;
 }
 
+// Récupère les derniers posts LinkedIn de l'auteur pour servir d'échantillons de style.
+// Renvoie [] silencieusement si l'endpoint échoue (scope manquant, quota, etc.) — le
+// prompt reste fonctionnel sans échantillons.
+async function fetchRecentAuthorPosts(ownerUrn: string, count = 10): Promise<string[]> {
+  try {
+    const encoded = encodeURIComponent(ownerUrn);
+    const url = `/v2/ugcPosts?q=authors&authors=List(${encoded})&count=${count}&sortBy=LAST_MODIFIED`;
+    const res = await gatewayFetch(url, {
+      headers: { "X-Restli-Protocol-Version": "2.0.0" },
+    });
+    if (!res.ok) {
+      console.warn(`[style-samples] ugcPosts list ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      return [];
+    }
+    const json = await res.json();
+    const elements: any[] = Array.isArray(json.elements) ? json.elements : [];
+    const texts = elements
+      .map((el) => el?.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text)
+      .filter((t): t is string => typeof t === "string" && t.trim().length >= 80)
+      .map((t) => t.trim());
+    console.log(`[style-samples] fetched ${texts.length} past posts for style reference`);
+    return texts;
+  } catch (err) {
+    console.warn(`[style-samples] failed: ${err instanceof Error ? err.message : String(err)}`);
+    return [];
+  }
+}
+
+// Nettoie les tirets d'incise (— – -) laissés par le modèle malgré la consigne.
+// Conserve les traits d'union intra-mots (ex : auto-entrepreneur).
+function sanitizePostText(text: string): string {
+  let out = text.replace(/[—–]/g, ",");
+  // " - " (tiret d'incise entouré d'espaces) → ", "
+  out = out.replace(/\s-\s/g, ", ");
+  // "- " en début de ligne (puce résiduelle) → ""
+  out = out.replace(/^-\s+/gm, "");
+  return out;
+}
+
 function toGatewayUrl(linkedinUrl: string): string {
   const u = new URL(linkedinUrl);
   return `${GATEWAY_URL}${u.pathname}${u.search}`;
@@ -833,13 +887,26 @@ Deno.serve(async (req) => {
   let slideSource = "";
 
   try {
-    // 1) Text
-    const t = await generatePostText(topic);
-    postText = t.text;
-    textSource = t.source;
-    console.log(`Generated post text (${postText.length} chars) via ${textSource}`);
+    // 1) Récupération de l'URN + des posts passés (échantillons de style)
+    //    On le fait avant la génération pour que le prompt puisse imiter le ton d'Adrien,
+    //    y compris en dry-run. En cas d'échec, on continue sans échantillon.
+    let ownerUrn: string | null = null;
+    let styleSamples: string[] = [];
+    try {
+      ownerUrn = await getMemberUrn();
+      console.log(`LinkedIn owner: ${ownerUrn}`);
+      styleSamples = await fetchRecentAuthorPosts(ownerUrn, 10);
+    } catch (err) {
+      console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
+    }
 
-    // 1bis) Carousel → slide plan up front (needed for dry-run preview too)
+    // 2) Text
+    const t = await generatePostText(topic, styleSamples);
+    postText = sanitizePostText(t.text);
+    textSource = t.source;
+    console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
+
+    // 2bis) Carousel → slide plan up front (needed for dry-run preview too)
     if (format === "carousel") {
       const sp = await generateSlidePlan(topic);
       slidePlan = sp.plan;
@@ -856,6 +923,7 @@ Deno.serve(async (req) => {
           media_source: topic.mediaSource,
           post_text: postText,
           text_source: textSource,
+          style_samples_count: styleSamples.length,
           slide_plan: slidePlan,
           slide_source: slideSource || null,
         }, null, 2),
@@ -863,9 +931,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 2) LinkedIn owner URN
-    const ownerUrn = await getMemberUrn();
-    console.log(`LinkedIn owner: ${ownerUrn}`);
+    // 3) LinkedIn owner URN (fallback si non résolu plus haut)
+    if (!ownerUrn) ownerUrn = await getMemberUrn();
 
     // 3) Build media + upload
     if (format === "video") {
