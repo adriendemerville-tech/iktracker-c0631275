@@ -58,6 +58,7 @@ export function AdminWavespeed() {
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [rawResponse, setRawResponse] = useState<string>('');
   const [balance, setBalance] = useState<string | null>(null);
+  const [connectionTest, setConnectionTest] = useState<{ ok: boolean; message: string; raw: string } | null>(null);
 
   const generate = useMutation({
     mutationFn: async () => {
