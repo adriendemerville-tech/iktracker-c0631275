@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { trackSignupEvent } from '@/lib/signup-tracking';
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
 
