@@ -1195,6 +1195,10 @@ const Admin = () => {
             <AdminWavespeed />
           </TabsContent>
 
+          <TabsContent value="linkedin">
+            <AdminLinkedIn />
+          </TabsContent>
+
         </Tabs>
       </main>
 
