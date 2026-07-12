@@ -1,0 +1,1 @@
+ALTER TABLE public.linkedin_post_log ADD COLUMN IF NOT EXISTS media_type TEXT;

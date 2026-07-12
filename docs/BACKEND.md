@@ -390,9 +390,12 @@ Content-Type: application/json
 
 - **Auth** : En-tête `x-cron-secret` (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin
 - **Cron** : `0 7 * * 4` (jeudi 07:00 UTC ≈ 8h Paris hiver / 9h été)
-- **Flow** : (1) sélection sujet par n° de semaine parmi 12 rotations, (2) génération texte via Lovable AI (`google/gemini-2.5-flash`), (3) enregistrement screencast MP4 via Browserless `/function` + ffmpeg, (4) upload asset LinkedIn `/v2/assets?action=registerUpload`, (5) polling `AVAILABLE`, (6) publication `/v2/ugcPosts`
-- **Dry-run** : `?dry_run=1` renvoie texte + sujet sans publier
-- **Logs** : chaque exécution loggée dans `public.linkedin_post_log`
+- **Format alterné** : chaque sujet est étiqueté `video` ou `carousel` dans la rotation de 12 topics
+  - `video` (features UI : simulateur, mode tournée, sync calendrier, plaque, export PDF) → screencast Browserless MP4 → recipe `feedshare-video` → `shareMediaCategory: VIDEO`
+  - `carousel` (data/narratif : barème, bonus EV, IK vélo, gratuit à vie, confidentialité, comparatif, import Takeout) → plan de 5 slides généré via Lovable AI (JSON strict) → PDF 1200×1200 rendu côté serveur avec `pdf-lib` (palette ivoire chaud / indigo-violet, style éditorial sobre) → recipe `feedshare-document` → `shareMediaCategory: DOCUMENT`
+- **Flow** : (1) sélection sujet par n° de semaine, (2) génération texte via Gemini 2.5 Flash, (3) construction média selon `format`, (4) `registerUpload` LinkedIn, (5) PUT bytes, (6) polling `AVAILABLE`, (7) publication `/v2/ugcPosts`
+- **Dry-run** : `?dry_run=1` renvoie texte + sujet + slide_plan (si carousel) sans publier ; `?format=video|carousel` force le format pour tests
+- **Logs** : `public.linkedin_post_log` (colonne `media_type` = `video`|`carousel`)
 - **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `gsc-analytics` — Google Search Console
