@@ -123,19 +123,38 @@ export default function AuthorPage() {
                 <div className="flex flex-col md:flex-row gap-6 items-start">
                   {/* Avatar */}
                   <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
-                    <AvatarImage 
-                      src={founderPhoto} 
-                      alt="Adrien de Volontat" 
+                    <AvatarImage
+                      src={linkedInProfile?.picture || founderPhoto}
+                      alt="Adrien de Volontat"
                       className="object-cover"
                     />
                     <AvatarFallback className="text-2xl font-bold">AV</AvatarFallback>
                   </Avatar>
-                  
+
                   {/* Name and title */}
                   <div className="flex-1 pt-4 md:pt-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                      Adrien de Volontat
-                    </h1>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                        Adrien de Volontat
+                      </h1>
+                      {linkedInProfile?.verified && (
+                        <a
+                          href={linkedInProfile.profile_url || 'https://www.linkedin.com/in/adrien-de-volontat'}
+                          target="_blank"
+                          rel="noopener noreferrer me author"
+                          aria-label="Profil LinkedIn vérifié d'Adrien de Volontat"
+                          title="Identité vérifiée via LinkedIn"
+                        >
+                          <Badge
+                            variant="secondary"
+                            className="gap-1 bg-[#0A66C2]/10 text-[#0A66C2] hover:bg-[#0A66C2]/15 border border-[#0A66C2]/20"
+                          >
+                            <BadgeCheck className="h-3.5 w-3.5" />
+                            LinkedIn vérifié
+                          </Badge>
+                        </a>
+                      )}
+                    </div>
                     <p className="text-lg text-primary font-medium mb-3">
                       Fondateur d'IKtracker
                     </p>
