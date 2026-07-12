@@ -1061,8 +1061,12 @@ Deno.serve(async (req) => {
       console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
     }
 
+    // 1bis) Profil de style déterministe (longueurs, rythme, vocabulaire)
+    const styleProfile = analyzeStyle(styleSamples);
+    console.log(`[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`);
+
     // 2) Text
-    const t = await generatePostText(topic, styleSamples);
+    const t = await generatePostText(topic, styleSamples, styleProfile);
     postText = sanitizePostText(t.text);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
@@ -1085,6 +1089,7 @@ Deno.serve(async (req) => {
           post_text: postText,
           text_source: textSource,
           style_samples_count: styleSamples.length,
+          style_profile: styleProfile,
           slide_plan: slidePlan,
           slide_source: slideSource || null,
         }, null, 2),
