@@ -309,20 +309,35 @@ async function callLLM(system: string, userMsg: string, opts: { json?: boolean; 
   }
 }
 
-async function generatePostText(topic: Topic): Promise<{ text: string; source: string }> {
+async function generatePostText(topic: Topic, styleSamples: string[]): Promise<{ text: string; source: string }> {
+  const samplesBlock = styleSamples.length
+    ? styleSamples
+        .slice(0, 6)
+        .map((s, i) => `--- Exemple ${i + 1} ---\n${s.trim()}`)
+        .join("\n\n")
+    : "(aucun exemple disponible — reste sobre et factuel)";
+
   const system = `Tu rédiges un post LinkedIn pour Adrien de Volontat, dirigeant d'entreprise et fondateur d'IKtracker (iktracker.fr) — outil GRATUIT À VIE de suivi des indemnités kilométriques pour indépendants (auto-entrepreneurs, freelances, professions libérales, artisans, commerciaux, aides à domicile).
 
-Règles STRICTES :
-- Français, à la première personne (je / mon), ton pragmatique entrepreneurial
-- 180 à 250 mots, 4 à 6 paragraphes courts
-- AUCUN emoji, AUCUN gimmick marketing
-- Commence par un problème concret vécu par un indépendant (accroche factuelle, pas une question rhétorique)
-- Détaille la fonctionnalité et sa pertinence pour un indépendant français
-- Termine par un appel doux vers iktracker.fr (utilise "accédez à" ou "jetez un œil à", JAMAIS "testez")
-- 2 à 3 hashtags maximum en toute fin (dont #indépendants)
-- Interdit : "🚀", "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez"
-- Reste crédible, humain, factuel. Comme un dirigeant qui parle à ses pairs.`;
-  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier.`;
+TON & STYLE :
+- Imite le style d'écriture des exemples fournis plus bas : rythme des phrases, vocabulaire, ponctuation, longueur des paragraphes, façon d'aborder un sujet.
+- Français, première personne (je / mon), pragmatique, humain, factuel. Comme un dirigeant qui parle à ses pairs.
+
+STRUCTURE :
+- HOOK obligatoire en toute première ligne : une phrase courte, concrète, qui accroche l'œil dans le feed (fait brut, chiffre, anecdote, tension). Pas de question rhétorique, pas de citation, pas de "Vous savez quoi ?".
+- 4 à 6 paragraphes courts, 150 à 230 mots au total.
+- PAS DE CHUTE : ne termine pas par une conclusion, une morale, une leçon, un appel à l'action, un CTA, un lien, une invitation à commenter, ni une phrase de synthèse. Le post s'arrête sur un fait ou un détail, sec.
+
+GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
+- INTERDIT : les tirets cadratins (—), demi-cadratins (–) et les tirets d'incise "-" utilisés comme ponctuation. Utilise des points, des virgules, des points-virgules, des deux-points, ou des retours à la ligne à la place. Les traits d'union à l'intérieur d'un mot composé (ex : "auto-entrepreneur") restent autorisés.
+- INTERDIT : emojis, hashtags, listes à puces, gras/italique markdown, guillemets français décoratifs.
+- INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
+- Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
+
+EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
+${samplesBlock}`;
+
+  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation.`;
   const { text, source } = await callLLM(system, user, { temperature: 0.85 });
   return { text, source };
 }
