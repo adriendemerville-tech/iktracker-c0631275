@@ -204,6 +204,7 @@ export function AdminLinkedIn() {
                 <Label className="text-xs text-muted-foreground">Post LinkedIn</Label>
                 <pre className="mt-1 p-3 rounded-md bg-muted whitespace-pre-wrap text-sm">{result.post_text}</pre>
               </div>
+            )}
             {result.style_profile && result.style_profile.samples_count > 0 && (
               <div>
                 <Label className="text-xs text-muted-foreground">
