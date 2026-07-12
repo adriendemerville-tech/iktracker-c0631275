@@ -77,6 +77,7 @@ import { AdaptiveChart } from '@/components/admin/AdaptiveChart';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { SignupFunnelCard } from '@/components/admin/SignupFunnelCard';
+import { SearchConsoleCard } from '@/components/admin/SearchConsoleCard';
 
 interface AdminStatsData {
   total_users: number;
@@ -201,6 +202,7 @@ const DEFAULT_SECTION_ORDER = [
   'main-stats',
   'dau-chart',
   'signup-funnel',
+  'search-console',
   'recent-signups',
   'persona-distribution',
   'calendar-connection-stats',
@@ -1523,6 +1525,12 @@ export function AdminStats() {
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange} isCard={false}>
                       <SignupFunnelCard daysBack={periodConfig[period].daysBack} />
+                    </DraggableStatsSection>
+                  );
+                case 'search-console':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange} isCard={false}>
+                      <SearchConsoleCard />
                     </DraggableStatsSection>
                   );
                 case 'recent-signups':
