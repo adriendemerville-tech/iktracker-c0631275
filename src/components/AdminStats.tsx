@@ -1519,6 +1519,12 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
+                case 'signup-funnel':
+                  return (
+                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange} isCard={false}>
+                      <SignupFunnelCard daysBack={periodConfig[period].daysBack} />
+                    </DraggableStatsSection>
+                  );
                 case 'recent-signups':
                   return (
                     <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
