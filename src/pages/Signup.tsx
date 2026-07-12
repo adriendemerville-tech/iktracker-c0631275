@@ -92,6 +92,10 @@ const Signup = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Determine provider (google/apple for OAuth, else email)
+        const provider = (session.user.app_metadata?.provider as string) || 'email';
+        trackSignupEvent('signup_success', provider);
+
         // Save persona to database after signup
         if (selectedPersona) {
           const personaOption = PERSONA_OPTIONS.find(p => p.value === selectedPersona);
