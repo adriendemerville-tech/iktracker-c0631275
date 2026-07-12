@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { trackSignupEvent } from '@/lib/signup-tracking';
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
 
@@ -29,8 +30,17 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Track signup_view when the form is in signup mode
+  useEffect(() => {
+    if (mode === 'signup') {
+      trackSignupEvent('signup_view', undefined, 'auth');
+    }
+  }, [mode]);
+
   const handleOAuthLogin = async (provider: 'google' | 'azure' | 'apple') => {
     setOauthLoading(provider);
+    // Track OAuth start as a signup funnel event (OAuth on /auth can create accounts)
+    trackSignupEvent('signup_oauth_start', provider, 'auth');
     try {
       const options: any = {};
       if (provider === 'azure') {
@@ -46,6 +56,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
       });
       if (error) throw error;
     } catch (error: any) {
+      trackSignupEvent('signup_error', error?.message ?? 'oauth_error', 'auth');
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
@@ -66,6 +77,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         onSuccess?.();
         navigate('/app');
       } else if (mode === 'signup') {
+        trackSignupEvent('signup_form_submit', 'email', 'auth');
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -74,6 +86,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
           },
         });
         if (error) throw error;
+        trackSignupEvent('signup_success', 'email', 'auth');
         toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
         onSuccess?.();
         navigate('/app');
@@ -98,6 +111,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         message = 'Le mot de passe doit contenir au moins 6 caractères';
       } else if (error.message.includes('User not found')) {
         message = 'Aucun compte trouvé avec cet email';
+      }
+      if (mode === 'signup') {
+        trackSignupEvent('signup_error', message, 'auth');
       }
       toast({ title: 'Erreur', description: message, variant: 'destructive' });
     } finally {

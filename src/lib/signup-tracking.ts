@@ -37,13 +37,14 @@ const getDeviceType = (): 'mobile' | 'tablet' | 'desktop' => {
 export async function trackSignupEvent(
   eventType: SignupEventType,
   context?: string,
+  page: string = 'signup',
 ) {
   if (!isBrowser() || isBot()) return;
   try {
     const { data: { session } } = await supabase.auth.getSession();
     await supabase.from('marketing_analytics').insert({
       event_type: eventType,
-      page: 'signup',
+      page,
       device_type: getDeviceType(),
       session_id: getSessionId(),
       referrer: context ?? document?.referrer ?? null,
