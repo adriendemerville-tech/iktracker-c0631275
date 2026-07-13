@@ -513,7 +513,7 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
-  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation, respect strict des cibles de longueur et de rythme.`;
+  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes (espaces compris). Compte tes caractères avant de rendre le texte.`;
   const { text, source } = await callLLM(system, user, { temperature: 0.85 });
   return { text, source };
 }
