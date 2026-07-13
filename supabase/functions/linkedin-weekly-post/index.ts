@@ -452,10 +452,11 @@ export function analyzeStyle(samples: string[]): StyleProfile {
 }
 
 function styleProfileToPromptBlock(p: StyleProfile): string {
-  if (p.samples_count === 0) return "(aucun profil de style calculé)";
-  const targetWords = Math.max(140, Math.min(240, p.avg_word_count || 190));
+  if (p.samples_count === 0) {
+    return "Longueur cible : entre 1000 et 1500 caractères (signes espaces compris). CONTRAINTE STRICTE : ne descends jamais sous 1000 signes, ne dépasse jamais 1500 signes.";
+  }
   const lines = [
-    `Longueur cible : environ ${targetWords} mots (moyenne observée sur ${p.samples_count} posts : ${p.avg_word_count} mots, ${p.avg_char_length} caractères).`,
+    `Longueur cible : entre 1000 et 1500 caractères (signes espaces compris). CONTRAINTE STRICTE : ne descends jamais sous 1000 signes, ne dépasse jamais 1500 signes. (Moyenne observée sur ${p.samples_count} posts passés : ${p.avg_char_length} caractères, ${p.avg_word_count} mots — donnée indicative, la fourchette 1000–1500 prime.)`,
     `Rythme : ${p.avg_sentence_count} phrases par post, ${p.avg_sentence_words} mots par phrase en moyenne. ${p.short_sentence_ratio}% des phrases font 8 mots ou moins — garde cette proportion de phrases courtes et sèches.`,
     `Structure : ${p.avg_paragraph_count} paragraphes en moyenne, ${p.avg_paragraph_words} mots par paragraphe. Aère avec des sauts de ligne.`,
     `Première personne : ${p.first_person_ratio}% des phrases commencent par "je" ou "j'". Reste dans cette proportion.`,
