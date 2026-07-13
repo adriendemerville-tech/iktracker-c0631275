@@ -1117,8 +1117,8 @@ Deno.serve(async (req) => {
     // 3) LinkedIn owner URN (fallback si non résolu plus haut)
     if (!ownerUrn) ownerUrn = await getMemberUrn();
 
-    // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
-    if (textOnly) {
+    // Helper: publish a text-only ugcPost (used as fallback when media upload is denied)
+    const publishTextOnly = async (): Promise<string> => {
       const body = {
         author: ownerUrn,
         lifecycleState: "PUBLISHED",
@@ -1137,39 +1137,77 @@ Deno.serve(async (req) => {
       });
       if (!res.ok) throw new Error(`ugcPosts(text-only) ${res.status}: ${await res.text()}`);
       const json = await res.json();
-      postId = json.id || json["x-restli-id"] || "unknown";
+      return json.id || json["x-restli-id"] || "unknown";
+    };
+
+    // Detect LinkedIn media-scope errors so we can fallback to text-only.
+    const isMediaScopeError = (err: unknown): boolean => {
+      const msg = err instanceof Error ? err.message : String(err);
+      return /registerUpload\s+403|ACCESS_DENIED|Not enough permissions|uploadBytes\s+4\d\d/i.test(msg);
+    };
+
+    let mediaFallback = false;
+    let mediaFallbackReason: string | null = null;
+
+    // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
+    if (textOnly) {
+      postId = await publishTextOnly();
+      format = "text";
     } else if (format === "video") {
-      const mp4 = topic.mediaSource === "browserless"
-        ? await recordScreencast(topic)
-        : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
-      mediaBytes = mp4.length;
+      try {
+        const mp4 = topic.mediaSource === "browserless"
+          ? await recordScreencast(topic)
+          : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
+        mediaBytes = mp4.length;
 
-      const upload = await registerUpload(ownerUrn, "feedshare-video");
-      assetUrn = upload.assetUrn;
-      await uploadBytes(upload.uploadUrl, mp4, "application/octet-stream", upload.extraHeaders);
-      await waitForAssetReady(assetUrn);
-      postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "VIDEO");
-    } else {
-      // Carousel: optionally generate a Wavespeed cover background
-      let coverBg: Uint8Array | null = null;
-      if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
-        try {
-          coverBg = await generateWavespeedImage(topic.visualPrompt);
-          console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          console.warn(`Wavespeed cover image failed, falling back to plain typography: ${message}`);
-        }
+        const upload = await registerUpload(ownerUrn, "feedshare-video");
+        assetUrn = upload.assetUrn;
+        await uploadBytes(upload.uploadUrl, mp4, "application/octet-stream", upload.extraHeaders);
+        await waitForAssetReady(assetUrn);
+        postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "VIDEO");
+      } catch (err) {
+        if (!isMediaScopeError(err)) throw err;
+        mediaFallbackReason = err instanceof Error ? err.message : String(err);
+        console.warn(`[linkedin-monthly-post] media upload denied, falling back to text-only: ${mediaFallbackReason}`);
+        postId = await publishTextOnly();
+        mediaFallback = true;
+        assetUrn = null;
+        mediaBytes = 0;
+        format = "text";
       }
-      const pdf = await renderCarouselPdf(topic, slidePlan!, coverBg);
-      mediaBytes = pdf.length;
+    } else {
+      try {
+        // Carousel: optionally generate a Wavespeed cover background
+        let coverBg: Uint8Array | null = null;
+        if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
+          try {
+            coverBg = await generateWavespeedImage(topic.visualPrompt);
+            console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            console.warn(`Wavespeed cover image failed, falling back to plain typography: ${message}`);
+          }
+        }
+        const pdf = await renderCarouselPdf(topic, slidePlan!, coverBg);
+        mediaBytes = pdf.length;
 
-      const upload = await registerUpload(ownerUrn, "feedshare-document");
-      assetUrn = upload.assetUrn;
-      await uploadBytes(upload.uploadUrl, pdf, "application/pdf", upload.extraHeaders);
-      await waitForAssetReady(assetUrn);
-      postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "DOCUMENT");
+        const upload = await registerUpload(ownerUrn, "feedshare-document");
+        assetUrn = upload.assetUrn;
+        await uploadBytes(upload.uploadUrl, pdf, "application/pdf", upload.extraHeaders);
+        await waitForAssetReady(assetUrn);
+        postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "DOCUMENT");
+      } catch (err) {
+        if (!isMediaScopeError(err)) throw err;
+        mediaFallbackReason = err instanceof Error ? err.message : String(err);
+        console.warn(`[linkedin-monthly-post] media upload denied, falling back to text-only: ${mediaFallbackReason}`);
+        postId = await publishTextOnly();
+        mediaFallback = true;
+        assetUrn = null;
+        mediaBytes = 0;
+        format = "text";
+      }
     }
+
     console.log(`Published UGC post ${postId}`);
 
     await logRun(admin, {
