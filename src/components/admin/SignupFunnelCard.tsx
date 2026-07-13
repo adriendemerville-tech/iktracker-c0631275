@@ -45,15 +45,20 @@ export function SignupFunnelCard({ daysBack }: Props) {
 
   if (!data) return null;
 
-  const dropView = data.views > 0 ? Math.round(((data.views - data.form_submit - data.oauth_start) / data.views) * 100) : 0;
   const totalStart = data.oauth_start + data.form_submit;
+  // Denominator = max(vues trackées, comptes créés) — évite les % > 100% quand les vues sont sous-trackées
+  // (OAuth direct, /auth, bots/admins filtrés, requestIdleCallback qui rate les visites rapides)
+  const denom = Math.max(data.views, data.new_users, 1);
+  const undertracked = data.new_users > data.views;
 
   const steps = [
-    { label: 'Vues page /signup', value: data.views, pct: 100 },
-    { label: 'Formulaire ou OAuth démarré', value: totalStart, pct: data.views ? Math.round((totalStart / data.views) * 100) : 0 },
+    { label: 'Vues page (trackées)', value: data.views, pct: Math.round((data.views / denom) * 100) },
+    { label: 'Formulaire ou OAuth démarré', value: totalStart, pct: Math.round((totalStart / denom) * 100) },
     { label: 'Erreurs d\'inscription', value: data.errors, pct: data.form_submit ? Math.round((data.errors / data.form_submit) * 100) : 0, isError: true },
-    { label: 'Comptes créés (réels)', value: data.new_users, pct: data.views ? Math.round((data.new_users / data.views) * 100) : 0, isSuccess: true },
+    { label: 'Comptes créés (réels)', value: data.new_users, pct: Math.round((data.new_users / denom) * 100), isSuccess: true },
   ];
+  // Conversion : comptes créés sur vues trackées, capée à 100% pour rester lisible
+  const displayConversion = data.views > 0 ? Math.min(100, Math.round((data.new_users / data.views) * 100)) : 0;
 
   return (
     <Card>
