@@ -1234,7 +1234,10 @@ Deno.serve(async (req) => {
         post_id: postId,
         asset_urn: assetUrn,
         media_bytes: mediaBytes,
+        media_fallback: mediaFallback,
+        media_fallback_reason: mediaFallbackReason,
         duration_ms: Date.now() - startedAt,
+
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
