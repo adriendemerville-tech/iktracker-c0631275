@@ -191,6 +191,18 @@ const TOPICS: Topic[] = [
     durationMs: 10000,
     visualPrompt:
       "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract split composition contrasting a heavy price tag with a light feather, flat design, clean lines, no text, no logos",
+  {
+    slug: "trajets-recurrents",
+    title: "Trajets récurrents automatisés",
+    url: "https://iktracker.fr/",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "IKtracker permet de définir des trajets récurrents (visite client hebdomadaire, tournée du mardi, aller-retour bureau chez un partenaire) qui se génèrent automatiquement à la fréquence choisie. L'indépendant configure une fois, l'outil crée les entrées chaque semaine ou chaque mois. Fini les oublis en fin d'exercice et la saisie répétitive des mêmes adresses. Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract representation of a repeating calendar loop with a subtle route line arcing between two points, cyclical pattern, flat design, clean lines, generous negative space on the right, no text, no logos",
+    slideCount: 4,
   },
 ];
 
