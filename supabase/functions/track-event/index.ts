@@ -60,20 +60,21 @@ function getClientIp(req: Request): string | null {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
-  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+  const cors = corsFor(req);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405, cors);
 
   try {
     const body = await req.json().catch(() => null) as any;
-    if (!body || typeof body !== 'object') return json({ error: 'Invalid body' }, 400);
+    if (!body || typeof body !== 'object') return json({ error: 'Invalid body' }, 400, cors);
 
     const eventType = String(body.event_type ?? '');
     const page = String(body.page ?? '');
-    if (!ALLOWED_EVENTS.has(eventType)) return json({ error: 'Invalid event_type' }, 400);
-    if (!page || page.length > 128) return json({ error: 'Invalid page' }, 400);
+    if (!ALLOWED_EVENTS.has(eventType)) return json({ error: 'Invalid event_type' }, 400, cors);
+    if (!page || page.length > 128) return json({ error: 'Invalid page' }, 400, cors);
 
     const userAgent = req.headers.get('user-agent') ?? body.user_agent ?? 'unknown';
-    if (BOT_UA.test(userAgent)) return json({ ok: true, skipped: 'bot' });
+    if (BOT_UA.test(userAgent)) return json({ ok: true, skipped: 'bot' }, 200, cors);
 
     // Resolve user (optional)
     let userId: string | null = null;
@@ -91,7 +92,7 @@ Deno.serve(async (req) => {
           _user_id: userId,
           _role: 'admin',
         });
-        if (isAdmin === true) return json({ ok: true, skipped: 'admin' });
+        if (isAdmin === true) return json({ ok: true, skipped: 'admin' }, 200, cors);
       }
     }
 
@@ -111,11 +112,11 @@ Deno.serve(async (req) => {
 
     if (error) {
       console.error('track-event insert error:', error);
-      return json({ error: 'Insert failed' }, 500);
+      return json({ error: 'Insert failed' }, 500, cors);
     }
-    return json({ ok: true });
+    return json({ ok: true }, 200, cors);
   } catch (e) {
     console.error('track-event error:', e);
-    return json({ error: 'Internal error' }, 500);
+    return json({ error: 'Internal error' }, 500, cors);
   }
 });
