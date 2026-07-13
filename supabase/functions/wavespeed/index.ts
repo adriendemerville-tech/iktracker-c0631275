@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
 
   if (!WAVESPEED_API_KEY) return json({ error: 'WAVESPEED_API_KEY not configured' }, 500);
 
-  const auth = await requireAuth(req);
+  const auth = await requireAdmin(req);
   if (auth instanceof Response) return auth;
 
   try {
