@@ -642,6 +642,7 @@ type SlidePlan = {
 };
 
 async function generateSlidePlan(topic: Topic): Promise<{ plan: SlidePlan; source: string }> {
+  const count = topic.slideCount ?? 3;
   const system = `Tu structures un carrousel LinkedIn éditorial sobre pour IKtracker (iktracker.fr), outil gratuit à vie de suivi des indemnités kilométriques pour indépendants français.
 
 Contraintes ABSOLUES :
@@ -650,12 +651,12 @@ Contraintes ABSOLUES :
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
-- Exactement 3 slides intermédiaires (heading + body)`;
-  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de 3 objets {heading, body}), cta. Rien d'autre.`;
+- Exactement ${count} slides intermédiaires (heading + body)`;
+  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
   const plan = JSON.parse(text) as SlidePlan;
-  if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== 3) {
-    throw new Error(`Malformed slide plan: ${text.slice(0, 300)}`);
+  if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== count) {
+    throw new Error(`Malformed slide plan (expected ${count} slides): ${text.slice(0, 300)}`);
   }
   return { plan, source };
 }
