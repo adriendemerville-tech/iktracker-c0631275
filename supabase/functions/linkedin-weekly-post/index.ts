@@ -51,6 +51,7 @@ type Topic = {
   mediaSource: MediaSource;
   durationMs: number;     // browserless screencast length
   visualPrompt?: string;  // Wavespeed image/video prompt (mediaSource='wavespeed')
+  slideCount?: number;    // number of intermediate carousel slides (default 3 → 5 pages total)
 };
 
 // Rotation of 12 topics — with a monthly cadence this covers ~1 year.
