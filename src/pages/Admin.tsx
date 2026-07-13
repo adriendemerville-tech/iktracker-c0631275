@@ -557,7 +557,7 @@ const Admin = () => {
       <div className="min-h-screen bg-background cursor-default">
       {/* Header */}
       <header className="bg-gradient-primary text-primary-foreground px-4 pt-12 pb-6 rounded-b-[2rem]">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[1600px] mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <Button
               variant="ghost"
@@ -620,7 +620,7 @@ const Admin = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-4">
+      <main className="max-w-[1600px] mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-7' : 'grid-cols-11'}`}>
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
