@@ -1,41 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  isBrowser, 
-  isBot, 
-  safeSessionStorage, 
-  safeRandomUUID, 
-  getWindowWidth 
+import {
+  isBrowser,
+  isBot,
+  safeSessionStorage,
+  safeRandomUUID,
+  getWindowWidth
 } from '@/lib/ssr-utils';
 
-// Get IP address (cached per session)
-const getIPAddress = async (): Promise<string | null> => {
-  if (!isBrowser()) return null;
-  
-  // Check session cache first
-  const cached = safeSessionStorage.getItem('user_ip_address');
-  if (cached) {
-    return cached;
-  }
-
-  try {
-    // Use ipify API to get public IP
-    const response = await fetch('https://api.ipify.org?format=json');
-    if (!response.ok) return null;
-    
-    const data = await response.json();
-    const ip = data.ip || null;
-    
-    if (ip) {
-      // Cache for this session
-      safeSessionStorage.setItem('user_ip_address', ip);
-    }
-    
-    return ip;
-  } catch {
-    return null;
-  }
-};
+// IP is now captured server-side by the track-event edge function (CF headers),
+// so we no longer call api.ipify.org (blocked by uBlock/Brave/Pi-hole).
 
 // Generate or retrieve session ID
 const getSessionId = (): string => {
