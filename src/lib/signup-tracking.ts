@@ -41,15 +41,17 @@ export async function trackSignupEvent(
 ) {
   if (!isBrowser() || isBot()) return;
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    await supabase.from('marketing_analytics').insert({
-      event_type: eventType,
-      page,
-      device_type: getDeviceType(),
-      session_id: getSessionId(),
-      referrer: context ?? document?.referrer ?? null,
-      user_agent: navigator?.userAgent || 'unknown',
-      user_id: session?.user?.id ?? null,
+    // Delegate to the track-event edge function so IP is captured server-side
+    // (from CF headers) and the admin filter is enforced consistently.
+    await supabase.functions.invoke('track-event', {
+      body: {
+        event_type: eventType,
+        page,
+        device_type: getDeviceType(),
+        session_id: getSessionId(),
+        referrer: context ?? document?.referrer ?? null,
+        user_agent: navigator?.userAgent || 'unknown',
+      },
     });
   } catch (err) {
     // Never break signup because tracking failed
