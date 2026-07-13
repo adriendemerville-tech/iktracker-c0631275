@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { isBrowser, isBot, safeSessionStorage, safeRandomUUID } from '@/lib/ssr-utils';
+import { isBrowser, isBot, safeSessionStorage } from '@/lib/ssr-utils';
+import { getSessionId, getDeviceType } from '@/lib/tracking-shared';
 
 type SignupEventType =
   | 'signup_view'
@@ -7,27 +8,6 @@ type SignupEventType =
   | 'signup_form_submit'
   | 'signup_error'
   | 'signup_success';
-
-const getSessionId = (): string => {
-  if (!isBrowser()) return 'ssr-session';
-  let sid = safeSessionStorage.getItem('marketing_session_id');
-  if (!sid) {
-    sid = safeRandomUUID();
-    safeSessionStorage.setItem('marketing_session_id', sid);
-  }
-  return sid;
-};
-
-const getDeviceType = (): 'mobile' | 'tablet' | 'desktop' => {
-  if (!isBrowser()) return 'desktop';
-  const w = window.innerWidth;
-  const ua = (navigator?.userAgent || '').toLowerCase();
-  const isMobileUA = /android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua);
-  const isTabletUA = /ipad|tablet|playbook|silk/i.test(ua);
-  if (isTabletUA || (isMobileUA && w >= 768)) return 'tablet';
-  if (isMobileUA || w < 768) return 'mobile';
-  return 'desktop';
-};
 
 /**
  * Track a signup funnel event. Stores the "context" (provider name for

@@ -463,15 +463,24 @@
     }
     </script>
     
-    <!-- Defer service worker registration until after page load -->
+    <!-- Defer service worker registration until after page load.
+         Skip registration in Lovable preview/dev environments where sw.js is
+         not served — avoids console noise ("Failed to register a ServiceWorker
+         ... unknown error fetching the script"). -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          setTimeout(function() {
-            navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' });
+      (function () {
+        if (!('serviceWorker' in navigator)) return;
+        var host = location.hostname;
+        var isPreview = /lovableproject\.com$|lovable\.dev$|localhost$|127\.0\.0\.1$/.test(host);
+        if (isPreview) return;
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            navigator.serviceWorker
+              .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+              .catch(function () { /* silent: sw missing in some deploys */ });
           }, 3000);
         });
-      }
+      })();
     </script>
   </body>
 </html>

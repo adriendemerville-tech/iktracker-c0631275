@@ -299,8 +299,9 @@ Custom UI : `optimized-image.tsx` (chargement lazy avec blurhash).
 | `useGeolocationPermission.ts` | Permission géolocalisation |
 | `useOnlineStatus.ts` | Détection connectivité |
 | `useWakeLock.ts` | Wake Lock API (écran allumé) |
-| `useMarketingTracker.ts` | Tracking événements marketing. Délègue à l'edge function `track-event` (IP captée server-side via headers Cloudflare — plus de dépendance à `api.ipify.org`, bloqué par uBlock/Brave/Pi-hole). Filtre bots + admins (double filtre client+serveur, cache session sur `is_admin_user`). |
-| `signup-tracking.ts` (lib) | Événements funnel signup (`signup_view`, `signup_oauth_start`, `signup_form_submit`, `signup_error`, `signup_success`). Passe aussi par `track-event`. |
+| `useMarketingTracker.ts` | Tracking événements marketing. Délègue à l'edge function `track-event` (IP captée server-side via headers Cloudflare — plus de dépendance à `api.ipify.org`, bloqué par uBlock/Brave/Pi-hole). Filtre bots + admins (double filtre client+serveur, cache session sur `is_admin_user`). Session/device/admin helpers factorisés dans `src/lib/tracking-shared.ts`. |
+| `signup-tracking.ts` (lib) | Événements funnel signup (`signup_view`, `signup_oauth_start`, `signup_form_submit`, `signup_error`, `signup_success`). Passe par `track-event`. Déduplication de `signup_view` par session via `sessionStorage` (un rechargement de `/signup` ne compte plus double). |
+| `tracking-shared.ts` (lib) | Helpers communs `getSessionId()`, `getDeviceType()`, `checkIsAdmin()` (cache session) partagés entre `useMarketingTracker` et `signup-tracking`. |
 
 ### Hooks mode tournée
 
