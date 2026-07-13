@@ -213,7 +213,7 @@ Utilisateur → Cloudflare DNS (proxied)
 
 Le backend pèse ≈ 20 % du codebase total (~68 k lignes).
 
-### Vue d'ensemble (16 fonctions)
+### Vue d'ensemble (18 fonctions)
 
 | Fonction | Lignes | Auth | Méthode | Rôle |
 |---|---|---|---|---|
@@ -231,6 +231,8 @@ Le backend pèse ≈ 20 % du codebase total (~68 k lignes).
 | `outlook-calendar-auth` | 173 | Non | GET | OAuth Outlook Calendar |
 | `convert-blog-images` | 172 | JWT (admin) | POST | Conversion d'images blog |
 | `sitemap` | 138 | Non | GET | Génération sitemap XML dynamique |
+| `wavespeed` | ~150 | JWT (**admin uniquement**) | ANY | Proxy générique Wavespeed.ai (crédits projet — accès strictement réservé) |
+| `track-event` | ~100 | Public (JWT optionnel) | POST | Ingestion `marketing_analytics` avec IP capturée server-side (headers CF), filtre bots + admins |
 | `marina-analyze` | 86 | JWT | GET/POST | Analyse IA de documents (Marina) |
 | `google-maps-key` | 62 | JWT | GET | Fournit la clé Google Maps au client |
 
