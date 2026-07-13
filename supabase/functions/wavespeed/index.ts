@@ -26,7 +26,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function requireAuth(req: Request): Promise<{ userId: string } | Response> {
+async function requireAdmin(req: Request): Promise<{ userId: string } | Response> {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return json({ error: 'Missing Authorization header' }, 401);
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -34,6 +34,11 @@ async function requireAuth(req: Request): Promise<{ userId: string } | Response>
   });
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return json({ error: 'Unauthorized' }, 401);
+  const { data: isAdmin, error: roleErr } = await supabase.rpc('has_role', {
+    _user_id: data.user.id,
+    _role: 'admin',
+  });
+  if (roleErr || isAdmin !== true) return json({ error: 'Forbidden: admin role required' }, 403);
   return { userId: data.user.id };
 }
 
