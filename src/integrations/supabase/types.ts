@@ -2195,6 +2195,7 @@ export type Database = {
       }
       is_slug_blacklisted: { Args: { _slug: string }; Returns: boolean }
       purge_old_deleted_trips: { Args: never; Returns: number }
+      purge_old_marketing_analytics: { Args: never; Returns: undefined }
       search_users:
         | {
             Args: { search_term: string }
