@@ -1,78 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import {
-  isBrowser,
-  isBot,
-  safeSessionStorage,
-  safeRandomUUID,
-  getWindowWidth
-} from '@/lib/ssr-utils';
+import { isBrowser, isBot } from '@/lib/ssr-utils';
+import { getSessionId, getDeviceType, checkIsAdmin } from '@/lib/tracking-shared';
 
-// IP is now captured server-side by the track-event edge function (CF headers),
+// IP is captured server-side by the track-event edge function (CF headers),
 // so we no longer call api.ipify.org (blocked by uBlock/Brave/Pi-hole).
-
-// Generate or retrieve session ID
-const getSessionId = (): string => {
-  if (!isBrowser()) return 'ssr-session';
-  
-  let sessionId = safeSessionStorage.getItem('marketing_session_id');
-  if (!sessionId) {
-    sessionId = safeRandomUUID();
-    safeSessionStorage.setItem('marketing_session_id', sessionId);
-  }
-  return sessionId;
-};
-
-// Detect device type
-const getDeviceType = (): 'mobile' | 'tablet' | 'desktop' => {
-  if (!isBrowser()) return 'desktop';
-  
-  const width = getWindowWidth();
-  const userAgent = (navigator?.userAgent || '').toLowerCase();
-  
-  // Check for mobile/tablet user agents
-  const isMobileUA = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-  const isTabletUA = /ipad|tablet|playbook|silk/i.test(userAgent);
-  
-  if (isTabletUA || (isMobileUA && width >= 768)) return 'tablet';
-  if (isMobileUA || width < 768) return 'mobile';
-  return 'desktop';
-};
-
-// Check if current user is admin (cached per session)
-const checkIsAdmin = async (): Promise<boolean> => {
-  if (!isBrowser()) return false;
-  
-  // Check session cache first
-  const cached = safeSessionStorage.getItem('is_admin_user');
-  if (cached !== null) {
-    return cached === 'true';
-  }
-
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      return false;
-    }
-
-    const { data, error } = await supabase.rpc('has_role', { 
-      _user_id: session.user.id, 
-      _role: 'admin' 
-    });
-
-    if (error) {
-      console.debug('Error checking admin role:', error);
-      return false;
-    }
-
-    const isAdmin = data === true;
-    // Cache for this session
-    safeSessionStorage.setItem('is_admin_user', String(isAdmin));
-    return isAdmin;
-  } catch {
-    return false;
-  }
-};
+// Session/device/admin helpers factored into src/lib/tracking-shared.ts.
 
 interface TrackEventOptions {
   page: string;
