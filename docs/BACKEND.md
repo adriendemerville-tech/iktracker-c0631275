@@ -232,7 +232,7 @@ Le backend pèse ≈ 20 % du codebase total (~68 k lignes).
 | `convert-blog-images` | 172 | JWT (admin) | POST | Conversion d'images blog |
 | `sitemap` | 138 | Non | GET | Génération sitemap XML dynamique |
 | `wavespeed` | ~150 | JWT (**admin uniquement**) | ANY | Proxy générique Wavespeed.ai (crédits projet — accès strictement réservé) |
-| `track-event` | ~100 | Public (JWT optionnel) | POST | Ingestion `marketing_analytics` avec IP capturée server-side (headers CF), filtre bots + admins |
+| `track-event` | ~120 | Public (JWT optionnel) | POST | Ingestion `marketing_analytics` avec IP capturée server-side (headers CF), filtre bots + admins. CORS restreint à `iktracker.fr`, `lovable.app`, `lovableproject.com`. Cron `purge-marketing-analytics-daily` (03:15 UTC) supprime les événements > 90 j via `purge_old_marketing_analytics()`. |
 | `marina-analyze` | 86 | JWT | GET/POST | Analyse IA de documents (Marina) |
 | `google-maps-key` | 62 | JWT | GET | Fournit la clé Google Maps au client |
 
