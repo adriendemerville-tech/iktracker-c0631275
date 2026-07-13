@@ -1051,9 +1051,10 @@ Deno.serve(async (req) => {
 
   const startedAt = Date.now();
   const topic = findTopic(forcedTopicSlug) ?? pickTopicForThisMonth();
-  const format: MediaFormat = forceFormat === "video" || forceFormat === "carousel"
+  let format: MediaFormat | "text" = forceFormat === "video" || forceFormat === "carousel"
     ? forceFormat
     : topic.format;
+
   console.log(`[linkedin-monthly-post] topic=${topic.slug} format=${format} mediaSource=${topic.mediaSource} dryRun=${dryRun} triggeredBy=${triggeredBy}`);
 
   let postText = "";
