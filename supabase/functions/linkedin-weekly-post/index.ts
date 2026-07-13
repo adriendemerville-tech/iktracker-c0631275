@@ -731,7 +731,7 @@ async function renderCarouselPdf(
     page.drawRectangle({ x: 80, y: 74, width: 40, height: 2, color: primary });
   };
 
-  const totalSlides = 5;
+  const totalSlides = plan.slides.length + 2; // cover + N + CTA
 
   // Cover
   {
