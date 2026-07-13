@@ -66,11 +66,16 @@ export function SignupFunnelCard({ daysBack }: Props) {
         <CardTitle className="flex items-center justify-between">
           <span>Funnel Signup</span>
           <span className="text-sm font-normal text-muted-foreground">
-            {daysBack} derniers jours · conversion <strong className="text-foreground">{data.conversion_rate}%</strong>
+            {daysBack} derniers jours · conversion <strong className="text-foreground">{displayConversion}%</strong>
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {undertracked && (
+          <p className="text-xs text-muted-foreground bg-muted/50 border border-border rounded-md p-2">
+            ⚠ Les vues sont sous-trackées : signups OAuth directs, arrivées via <code>/auth</code>, bots et admins filtrés, ou visites &lt; 2s (tracking différé). Le % est capé à 100% pour rester lisible.
+          </p>
+        )}
         {/* Funnel steps */}
         <div className="space-y-3">
           {steps.map((s) => (
