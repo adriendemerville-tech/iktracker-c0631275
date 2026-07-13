@@ -25,6 +25,7 @@ const TOPICS = [
   { slug: 'gratuit-a-vie', label: 'Gratuit à vie', format: 'carousel', source: 'wavespeed' },
   { slug: 'confidentialite', label: 'Confidentialité', format: 'carousel', source: 'wavespeed' },
   { slug: 'comparatif', label: 'IKtracker vs payants', format: 'carousel', source: 'wavespeed' },
+  { slug: 'trajets-recurrents', label: 'Trajets récurrents (6 slides)', format: 'carousel', source: 'wavespeed' },
 ] as const;
 
 type RunResult = {

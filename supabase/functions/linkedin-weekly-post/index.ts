@@ -51,6 +51,7 @@ type Topic = {
   mediaSource: MediaSource;
   durationMs: number;     // browserless screencast length
   visualPrompt?: string;  // Wavespeed image/video prompt (mediaSource='wavespeed')
+  slideCount?: number;    // number of intermediate carousel slides (default 3 → 5 pages total)
 };
 
 // Rotation of 12 topics — with a monthly cadence this covers ~1 year.
@@ -190,6 +191,19 @@ const TOPICS: Topic[] = [
     durationMs: 10000,
     visualPrompt:
       "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract split composition contrasting a heavy price tag with a light feather, flat design, clean lines, no text, no logos",
+  },
+  {
+    slug: "trajets-recurrents",
+    title: "Trajets récurrents automatisés",
+    url: "https://iktracker.fr/",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "IKtracker permet de définir des trajets récurrents (visite client hebdomadaire, tournée du mardi, aller-retour bureau chez un partenaire) qui se génèrent automatiquement à la fréquence choisie. L'indépendant configure une fois, l'outil crée les entrées chaque semaine ou chaque mois. Fini les oublis en fin d'exercice et la saisie répétitive des mêmes adresses. Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract representation of a repeating calendar loop with a subtle route line arcing between two points, cyclical pattern, flat design, clean lines, generous negative space on the right, no text, no logos",
+    slideCount: 4,
   },
 ];
 
@@ -629,6 +643,7 @@ type SlidePlan = {
 };
 
 async function generateSlidePlan(topic: Topic): Promise<{ plan: SlidePlan; source: string }> {
+  const count = topic.slideCount ?? 3;
   const system = `Tu structures un carrousel LinkedIn éditorial sobre pour IKtracker (iktracker.fr), outil gratuit à vie de suivi des indemnités kilométriques pour indépendants français.
 
 Contraintes ABSOLUES :
@@ -637,12 +652,12 @@ Contraintes ABSOLUES :
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
-- Exactement 3 slides intermédiaires (heading + body)`;
-  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de 3 objets {heading, body}), cta. Rien d'autre.`;
+- Exactement ${count} slides intermédiaires (heading + body)`;
+  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
   const plan = JSON.parse(text) as SlidePlan;
-  if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== 3) {
-    throw new Error(`Malformed slide plan: ${text.slice(0, 300)}`);
+  if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== count) {
+    throw new Error(`Malformed slide plan (expected ${count} slides): ${text.slice(0, 300)}`);
   }
   return { plan, source };
 }
@@ -717,7 +732,7 @@ async function renderCarouselPdf(
     page.drawRectangle({ x: 80, y: 74, width: 40, height: 2, color: primary });
   };
 
-  const totalSlides = 5;
+  const totalSlides = plan.slides.length + 2; // cover + N + CTA
 
   // Cover
   {
