@@ -1000,6 +1000,7 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const dryRun = url.searchParams.get("dry_run") === "1";
+  const textOnly = url.searchParams.get("text_only") === "1";
   const forceFormat = url.searchParams.get("format") as MediaFormat | null;
   const forcedTopicSlug = url.searchParams.get("topic");
 
@@ -1115,8 +1116,28 @@ Deno.serve(async (req) => {
     // 3) LinkedIn owner URN (fallback si non résolu plus haut)
     if (!ownerUrn) ownerUrn = await getMemberUrn();
 
-    // 3) Build media + upload
-    if (format === "video") {
+    // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
+    if (textOnly) {
+      const body = {
+        author: ownerUrn,
+        lifecycleState: "PUBLISHED",
+        specificContent: {
+          "com.linkedin.ugc.ShareContent": {
+            shareCommentary: { text: postText },
+            shareMediaCategory: "NONE",
+          },
+        },
+        visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
+      };
+      const res = await gatewayFetch("/v2/ugcPosts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Restli-Protocol-Version": "2.0.0" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`ugcPosts(text-only) ${res.status}: ${await res.text()}`);
+      const json = await res.json();
+      postId = json.id || json["x-restli-id"] || "unknown";
+    } else if (format === "video") {
       const mp4 = topic.mediaSource === "browserless"
         ? await recordScreencast(topic)
         : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
