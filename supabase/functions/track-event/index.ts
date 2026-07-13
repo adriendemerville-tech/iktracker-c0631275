@@ -5,12 +5,27 @@
 // event shape and drop bot user-agents. If an Authorization header is present
 // we resolve user_id from the JWT; otherwise the event is anonymous.
 
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { corsHeaders as defaultCorsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+// Restrict CORS to our own origins. Any other origin falls back to `null`
+// (browsers refuse the response) — server-to-server callers (curl, edge tests)
+// are unaffected because they don't enforce CORS.
+const ALLOWED_ORIGIN_RE = /^https:\/\/(?:[a-z0-9-]+\.)*(?:iktracker\.fr|lovable\.app|lovableproject\.com)$/i;
+
+function corsFor(req: Request): Record<string, string> {
+  const origin = req.headers.get('origin') ?? '';
+  const allow = ALLOWED_ORIGIN_RE.test(origin) ? origin : 'null';
+  return {
+    ...defaultCorsHeaders,
+    'Access-Control-Allow-Origin': allow,
+    'Vary': 'Origin',
+  };
+}
 
 const ALLOWED_EVENTS = new Set([
   'page_view',
@@ -27,10 +42,10 @@ const ALLOWED_EVENTS = new Set([
 
 const BOT_UA = /bot|crawler|spider|crawling|facebookexternalhit|slurp|bingpreview|headlesschrome|lighthouse|pingdom|gtmetrix/i;
 
-function json(body: unknown, status = 200) {
+function json(body: unknown, status: number, cors: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
