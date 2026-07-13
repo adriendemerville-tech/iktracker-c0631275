@@ -191,6 +191,7 @@ const TOPICS: Topic[] = [
     durationMs: 10000,
     visualPrompt:
       "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract split composition contrasting a heavy price tag with a light feather, flat design, clean lines, no text, no logos",
+  },
   {
     slug: "trajets-recurrents",
     title: "Trajets récurrents automatisés",
