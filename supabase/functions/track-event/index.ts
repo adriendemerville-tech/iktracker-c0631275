@@ -1,0 +1,106 @@
+// Marketing analytics ingestion — captures client IP server-side (CF/Fly headers)
+// so we don't depend on api.ipify.org (blocked by uBlock/Brave/Pi-hole).
+//
+// Public endpoint (verify_jwt = false). No auth required, but we validate the
+// event shape and drop bot user-agents. If an Authorization header is present
+// we resolve user_id from the JWT; otherwise the event is anonymous.
+
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+const ALLOWED_EVENTS = new Set([
+  'page_view',
+  'cta_click',
+  'ik_simulation',
+  'signup_click',
+  'crawlers_click',
+  'signup_view',
+  'signup_oauth_start',
+  'signup_form_submit',
+  'signup_error',
+  'signup_success',
+]);
+
+const BOT_UA = /bot|crawler|spider|crawling|facebookexternalhit|slurp|bingpreview|headlesschrome|lighthouse|pingdom|gtmetrix/i;
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+function getClientIp(req: Request): string | null {
+  const cf = req.headers.get('cf-connecting-ip');
+  if (cf) return cf.trim();
+  const xff = req.headers.get('x-forwarded-for');
+  if (xff) return xff.split(',')[0].trim();
+  const xrl = req.headers.get('x-real-ip');
+  if (xrl) return xrl.trim();
+  return null;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  try {
+    const body = await req.json().catch(() => null) as any;
+    if (!body || typeof body !== 'object') return json({ error: 'Invalid body' }, 400);
+
+    const eventType = String(body.event_type ?? '');
+    const page = String(body.page ?? '');
+    if (!ALLOWED_EVENTS.has(eventType)) return json({ error: 'Invalid event_type' }, 400);
+    if (!page || page.length > 128) return json({ error: 'Invalid page' }, 400);
+
+    const userAgent = req.headers.get('user-agent') ?? body.user_agent ?? 'unknown';
+    if (BOT_UA.test(userAgent)) return json({ ok: true, skipped: 'bot' });
+
+    // Resolve user (optional)
+    let userId: string | null = null;
+    const authHeader = req.headers.get('Authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data } = await anon.auth.getUser();
+      userId = data.user?.id ?? null;
+
+      // Skip admin tracking
+      if (userId) {
+        const { data: isAdmin } = await anon.rpc('has_role', {
+          _user_id: userId,
+          _role: 'admin',
+        });
+        if (isAdmin === true) return json({ ok: true, skipped: 'admin' });
+      }
+    }
+
+    const ip = getClientIp(req);
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { error } = await admin.from('marketing_analytics').insert({
+      event_type: eventType,
+      page,
+      device_type: body.device_type ?? null,
+      session_id: body.session_id ?? null,
+      referrer: body.referrer ?? null,
+      user_agent: userAgent,
+      user_id: userId,
+      ip_address: ip,
+    });
+
+    if (error) {
+      console.error('track-event insert error:', error);
+      return json({ error: 'Insert failed' }, 500);
+    }
+    return json({ ok: true });
+  } catch (e) {
+    console.error('track-event error:', e);
+    return json({ error: 'Internal error' }, 500);
+  }
+});

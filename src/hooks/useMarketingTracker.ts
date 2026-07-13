@@ -1,41 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  isBrowser, 
-  isBot, 
-  safeSessionStorage, 
-  safeRandomUUID, 
-  getWindowWidth 
+import {
+  isBrowser,
+  isBot,
+  safeSessionStorage,
+  safeRandomUUID,
+  getWindowWidth
 } from '@/lib/ssr-utils';
 
-// Get IP address (cached per session)
-const getIPAddress = async (): Promise<string | null> => {
-  if (!isBrowser()) return null;
-  
-  // Check session cache first
-  const cached = safeSessionStorage.getItem('user_ip_address');
-  if (cached) {
-    return cached;
-  }
-
-  try {
-    // Use ipify API to get public IP
-    const response = await fetch('https://api.ipify.org?format=json');
-    if (!response.ok) return null;
-    
-    const data = await response.json();
-    const ip = data.ip || null;
-    
-    if (ip) {
-      // Cache for this session
-      safeSessionStorage.setItem('user_ip_address', ip);
-    }
-    
-    return ip;
-  } catch {
-    return null;
-  }
-};
+// IP is now captured server-side by the track-event edge function (CF headers),
+// so we no longer call api.ipify.org (blocked by uBlock/Brave/Pi-hole).
 
 // Generate or retrieve session ID
 const getSessionId = (): string => {
@@ -133,32 +107,27 @@ export function useMarketingTracker(page: string) {
   const trackEvent = useCallback(async (options: TrackEventOptions) => {
     // Skip tracking for bots and SSR
     if (!isBrowser() || isBot()) return;
-    
-    try {
-      // Get current user session and IP in parallel
-      const [sessionResult, ipAddress] = await Promise.all([
-        supabase.auth.getSession(),
-        getIPAddress()
-      ]);
-      
-      const userId = sessionResult.data.session?.user?.id || null;
 
-      // Skip tracking for admin users
+    try {
+      // Admin filter is also enforced server-side, but check client-side to
+      // avoid an unnecessary network round-trip when we already know.
       const isAdmin = await checkIsAdmin();
       if (isAdmin) {
         console.debug('Skipping marketing tracking for admin user');
         return;
       }
 
-      await supabase.from('marketing_analytics').insert({
-        event_type: options.eventType,
-        page: options.page,
-        device_type: getDeviceType(),
-        session_id: getSessionId(),
-        referrer: document?.referrer || null,
-        user_agent: navigator?.userAgent || 'unknown',
-        user_id: userId,
-        ip_address: ipAddress,
+      // Delegate to edge function so IP is captured from CF headers server-side
+      // (ipify was blocked by uBlock/Brave/Pi-hole for a large share of users).
+      await supabase.functions.invoke('track-event', {
+        body: {
+          event_type: options.eventType,
+          page: options.page,
+          device_type: getDeviceType(),
+          session_id: getSessionId(),
+          referrer: document?.referrer || null,
+          user_agent: navigator?.userAgent || 'unknown',
+        },
       });
     } catch (error) {
       // Silently fail - don't impact user experience
