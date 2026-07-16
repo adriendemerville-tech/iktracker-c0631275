@@ -862,12 +862,17 @@ async function fetchRecentAuthorPosts(ownerUrn: string, count = 10): Promise<str
 
 // Nettoie les tirets d'incise (— – -) laissés par le modèle malgré la consigne.
 // Conserve les traits d'union intra-mots (ex : auto-entrepreneur).
+// Retire aussi les caractères interdits : ( ) @ [ ] { } < > \ * _ ~ |
 function sanitizePostText(text: string): string {
   let out = text.replace(/[—–]/g, ",");
   // " - " (tiret d'incise entouré d'espaces) → ", "
   out = out.replace(/\s-\s/g, ", ");
   // "- " en début de ligne (puce résiduelle) → ""
   out = out.replace(/^-\s+/gm, "");
+  // Caractères interdits (markdown / mentions / brackets) → supprimés
+  out = out.replace(/[()@\[\]{}<>\\*_~|]/g, "");
+  // Nettoie les doubles espaces éventuels laissés par la suppression
+  out = out.replace(/[ \t]{2,}/g, " ");
   return out;
 }
 
