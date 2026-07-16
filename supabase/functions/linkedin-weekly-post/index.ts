@@ -507,6 +507,7 @@ STRUCTURE :
 GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - INTERDIT : les tirets cadratins (—), demi-cadratins (–) et les tirets d'incise "-" utilisés comme ponctuation. Utilise des points, des virgules, des points-virgules, des deux-points, ou des retours à la ligne à la place. Les traits d'union à l'intérieur d'un mot composé (ex : "auto-entrepreneur") restent autorisés.
 - INTERDIT : emojis, hashtags, listes à puces, gras/italique markdown, guillemets français décoratifs.
+- INTERDIT (caractères) : ( ) @ [ ] { } < > \\ * _ ~ | — n'utilise jamais ces caractères, ni pour de la mise en forme markdown, ni pour des mentions, ni pour des parenthèses. Reformule la phrase pour t'en passer.
 - INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
 - Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
 
