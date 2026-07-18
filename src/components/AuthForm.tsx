@@ -304,9 +304,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             </div>
           )}
 
-          <Button type="submit" className="w-full focus-visible-ring" variant="gradient" disabled={loading}>
+          <Button type="submit" className="w-full focus-visible-ring" variant="gradient" disabled={loading || cooldown > 0}>
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />}
-            {getButtonText()}
+            {cooldown > 0 ? `Patientez ${cooldown}s…` : getButtonText()}
           </Button>
         </form>
 
