@@ -112,13 +112,22 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
       }
     } catch (error: any) {
       let message = error.message;
-      if (error.message.includes('Invalid login credentials')) {
+      const rawMsg: string = error.message || '';
+      // Rate limit Supabase Auth : "For security purposes, you can only request this after N seconds"
+      const rateMatch = rawMsg.match(/after (\d+) seconds?/i);
+      if (rateMatch || /rate limit|too many requests|over_email_send_rate_limit/i.test(rawMsg)) {
+        const secs = rateMatch ? parseInt(rateMatch[1], 10) : 30;
+        setCooldown(secs);
+        message = `Merci de patienter ${secs}s avant une nouvelle tentative (protection anti-spam).`;
+      } else if (rawMsg.includes('Invalid login credentials')) {
         message = 'Email ou mot de passe incorrect';
-      } else if (error.message.includes('User already registered')) {
+      } else if (rawMsg.includes('User already registered')) {
         message = 'Cet email est déjà utilisé';
-      } else if (error.message.includes('Password should be at least')) {
+      } else if (rawMsg.includes('Password should be at least')) {
         message = 'Le mot de passe doit contenir au moins 6 caractères';
-      } else if (error.message.includes('User not found')) {
+      } else if (/known to be weak|pwned|compromised/i.test(rawMsg)) {
+        message = 'Ce mot de passe apparaît dans une fuite publique. Choisissez-en un autre.';
+      } else if (rawMsg.includes('User not found')) {
         message = 'Aucun compte trouvé avec cet email';
       }
       if (mode === 'signup') {
