@@ -214,7 +214,7 @@ x-api-key: ikt_live_xxx...
         <section className="border-t pt-6 space-y-3">
           <h2 className="text-2xl font-bold">Webhooks</h2>
           <p className="text-sm text-muted-foreground">
-            IKtracker peut notifier votre plateforme en temps réel lors d'événements (<code>trip.created</code>, <code>trip.updated</code>, <code>vehicle.updated</code>, <code>user.linked</code>).
+            IKtracker peut notifier votre plateforme en temps réel lors d'événements (<code>trip.created</code>, <code>trip.updated</code>, <code>vehicle.updated</code>, <code>user.linked</code>, <code>preferences.updated</code>).
             Configurez votre URL de réception et un secret HMAC depuis votre dashboard partenaire.
           </p>
           <p className="text-sm text-muted-foreground">
