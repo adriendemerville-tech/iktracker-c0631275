@@ -1116,6 +1116,11 @@ serve(async (req) => {
     } else if (req.method === 'GET' && /^\/reports\/[^/]+\/pdf$/.test(route)) {
       const reportId = route.split('/')[2];
       res = await handleGetReportPdf(reportId, ctx);
+    } else if (route === '/preferences' && req.method === 'GET') {
+      res = await handleGetPreferences(req, ctx);
+    } else if (route === '/preferences' && req.method === 'PUT') {
+      res = await handleUpdatePreferences(req, ctx);
+
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);
     }
