@@ -980,7 +980,88 @@ async function handleSsoVerify(req: Request): Promise<Response> {
   });
 }
 
+// ---------- Preferences (calendar_import_mode) ----------
+
+const VALID_CAL_MODES = ['individual', 'tour'] as const;
+type CalMode = typeof VALID_CAL_MODES[number];
+
+async function resolveLinkedUserId(ctx: PartnerContext, externalUserId: string): Promise<string | null> {
+  const { data } = await admin
+    .from('partner_users')
+    .select('iktracker_user_id')
+    .eq('partner_id', ctx.partnerId)
+    .eq('external_user_id', externalUserId)
+    .maybeSingle();
+  return data?.iktracker_user_id ?? null;
+}
+
+async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<Response> {
+  if (!requireScope(ctx, 'preferences:read') && !requireScope(ctx, 'read')) {
+    return jsonResponse({ error: 'Missing preferences:read scope' }, 403);
+  }
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  const { data } = await admin
+    .from('user_preferences')
+    .select('calendar_import_mode')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  // Check if a Maison address exists (required for tour mode fallback logic)
+  const { data: home } = await admin
+    .from('locations')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('label', 'Maison')
+    .maybeSingle();
+
+  const mode = (data?.calendar_import_mode as CalMode | undefined) ?? 'individual';
+  return jsonResponse({
+    success: true,
+    calendar_import_mode: mode,
+    has_home_address: !!home,
+    note: mode === 'tour' && !home
+      ? 'Tour mode active but no Maison address set — imports will fall back to individual trips.'
+      : undefined,
+  });
+}
+
+async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promise<Response> {
+  if (!requireScope(ctx, 'preferences:write') && !requireScope(ctx, 'write')) {
+    return jsonResponse({ error: 'Missing preferences:write scope' }, 403);
+  }
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+
+  const body = await req.json().catch(() => ({}));
+  const mode = body.calendar_import_mode;
+  if (!VALID_CAL_MODES.includes(mode)) {
+    return jsonResponse({ error: `calendar_import_mode must be one of: ${VALID_CAL_MODES.join(', ')}` }, 400);
+  }
+
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  const { error } = await admin
+    .from('user_preferences')
+    .upsert({ user_id: userId, calendar_import_mode: mode }, { onConflict: 'user_id' });
+  if (error) return jsonResponse({ error: error.message }, 500);
+
+  fireWebhook(ctx.partnerId, 'preferences.updated', {
+    external_user_id: externalUserId,
+    iktracker_user_id: userId,
+    calendar_import_mode: mode,
+  });
+
+  return jsonResponse({ success: true, calendar_import_mode: mode });
+}
+
 // ---------- Main router ----------
+
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
