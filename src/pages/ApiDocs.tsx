@@ -149,6 +149,47 @@ x-external-user-id: user-12345`}</Code>
 }`}</Code>
         </Endpoint>
 
+        <Endpoint method="GET" path="/preferences" scope="preferences:read">
+          <p className="text-sm text-muted-foreground">
+            Retourne les préférences d'import calendrier de l'utilisateur lié. <code>calendar_import_mode</code> vaut
+            <code> individual</code> (chaque événement = un aller-retour depuis la Maison) ou <code>tour</code>
+            (tous les rendez-vous d'une même journée sont regroupés en une tournée <em>Maison → étapes → Maison</em>).
+          </p>
+          <Code>{`GET ${baseUrl}/preferences
+x-api-key: ikt_live_xxx...
+x-external-user-id: user-12345`}</Code>
+          <Code>{`{
+  "calendar_import_mode": "tour",
+  "has_home_address": true,
+  "note": null
+}`}</Code>
+          <p className="text-sm text-muted-foreground">
+            <code>note: "home_address_missing"</code> signale que le mode <code>tour</code> est actif mais qu'aucune adresse
+            « Maison » n'est définie côté IKtracker : les imports retombent alors en trajets individuels tant que la Maison n'est pas renseignée.
+          </p>
+        </Endpoint>
+
+        <Endpoint method="PUT" path="/preferences" scope="preferences:write">
+          <p className="text-sm text-muted-foreground">
+            Met à jour le mode d'import calendrier de l'utilisateur lié. Renvoie <code>409 home_address_required</code>
+            si l'utilisateur active <code>tour</code> sans avoir défini d'adresse Maison.
+          </p>
+          <Code>{`PUT ${baseUrl}/preferences
+x-api-key: ikt_live_xxx...
+x-external-user-id: user-12345
+Content-Type: application/json
+
+{ "calendar_import_mode": "tour" }`}</Code>
+          <Code>{`{
+  "calendar_import_mode": "tour",
+  "has_home_address": true,
+  "updated_at": "2026-07-22T09:12:00Z"
+}`}</Code>
+          <p className="text-sm text-muted-foreground">
+            Déclenche le webhook <code>preferences.updated</code> si votre plateforme y est abonnée.
+          </p>
+        </Endpoint>
+
         <Endpoint method="POST" path="/sso/magic-link" scope="sso">
           <p className="text-sm text-muted-foreground">
             Génère une URL de connexion à usage unique (5 min) pour rediriger l'utilisateur vers son espace IKtracker, déjà authentifié.
@@ -173,7 +214,7 @@ x-api-key: ikt_live_xxx...
         <section className="border-t pt-6 space-y-3">
           <h2 className="text-2xl font-bold">Webhooks</h2>
           <p className="text-sm text-muted-foreground">
-            IKtracker peut notifier votre plateforme en temps réel lors d'événements (<code>trip.created</code>, <code>trip.updated</code>, <code>vehicle.updated</code>, <code>user.linked</code>).
+            IKtracker peut notifier votre plateforme en temps réel lors d'événements (<code>trip.created</code>, <code>trip.updated</code>, <code>vehicle.updated</code>, <code>user.linked</code>, <code>preferences.updated</code>).
             Configurez votre URL de réception et un secret HMAC depuis votre dashboard partenaire.
           </p>
           <p className="text-sm text-muted-foreground">
