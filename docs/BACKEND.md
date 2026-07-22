@@ -714,6 +714,41 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 | `GET` | `/preferences` | `preferences:read` / `read` | 🆕 Retourne `calendar_import_mode` (`individual` \| `tour`) et `has_home_address` pour l'utilisateur lié |
 | `PUT` | `/preferences` | `preferences:write` / `write` | 🆕 Met à jour `calendar_import_mode`. Body : `{ "calendar_import_mode": "tour" }`. Déclenche le webhook `preferences.updated` |
 
+### Endpoint `/preferences` — détail
+
+Exposé pour permettre aux partenaires (ex. Dictadevi) d'offrir à leurs utilisateurs le choix du mode d'import calendrier sans quitter leur plateforme.
+
+**Résolution utilisateur** : header `x-external-user-id` obligatoire → mapping `partner_users` → `iktracker_user_id`. Renvoie `404` si l'utilisateur n'est pas encore provisionné (appeler `/sso/magic-link` au préalable pour créer le mapping).
+
+**`GET /preferences`** — réponse :
+```json
+{
+  "calendar_import_mode": "individual" | "tour",
+  "has_home_address": true,
+  "note": null | "home_address_missing"
+}
+```
+`has_home_address` reflète l'existence d'une entrée `locations` avec `label = 'Maison'` (case-insensitive). `note = "home_address_missing"` est renvoyé si le mode courant est `tour` sans Maison définie : dans ce cas `sync-calendar-trips` retombe silencieusement en trajets individuels.
+
+**`PUT /preferences`** — body `{ "calendar_import_mode": "individual" | "tour" }`. Upsert sur `user_preferences (user_id, calendar_import_mode)`. Codes :
+- `200` : préférence enregistrée, renvoie l'objet complet + `updated_at`.
+- `400` : valeur invalide.
+- `409` : `{ "error": "home_address_required" }` si activation `tour` sans Maison (bloquant : la préférence n'est pas modifiée).
+- `403` : scope manquant (`preferences:write` ou fallback `write`).
+
+**Webhook** `preferences.updated` (si l'endpoint partenaire y est abonné) :
+```json
+{
+  "event": "preferences.updated",
+  "timestamp": "2026-07-22T09:12:00Z",
+  "payload": {
+    "external_user_id": "user-12345",
+    "calendar_import_mode": "tour"
+  }
+}
+```
+
+
 ### Provisioning automatique
 
 À chaque appel impliquant un utilisateur (`/trips`, `/stats`, `/sso/*`), la fonction `findOrCreateIktrackerUser(partnerId, external_user_id, external_email, metadata)` :
