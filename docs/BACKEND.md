@@ -711,6 +711,8 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 | `POST` | `/reports/send-email` | `reports` | Envoi du rapport par email (Resend) |
 | `POST` | `/sso/magic-link` | `sso` | Génère un magic link signé (JWT partenaire requis dans `Authorization`) |
 | `POST` | `/sso/dev` | `sso` | **Dev only** — génère un magic link sans JWT, à partir de `external_user_id` + `external_email` |
+| `GET` | `/preferences` | `preferences:read` / `read` | 🆕 Retourne `calendar_import_mode` (`individual` \| `tour`) et `has_home_address` pour l'utilisateur lié |
+| `PUT` | `/preferences` | `preferences:write` / `write` | 🆕 Met à jour `calendar_import_mode`. Body : `{ "calendar_import_mode": "tour" }`. Déclenche le webhook `preferences.updated` |
 
 ### Provisioning automatique
 
