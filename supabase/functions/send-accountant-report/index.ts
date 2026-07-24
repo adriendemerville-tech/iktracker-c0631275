@@ -448,8 +448,8 @@ Deno.serve(async (req) => {
         .single()
       if (sErr2 || !ytdShare) throw sErr2 ?? new Error('ytd share failed')
 
-      const periodUrl = `${supabaseUrl}/functions/v1/view-report?id=${periodShare.id}`
-      const ytdUrl = `${supabaseUrl}/functions/v1/view-report?id=${ytdShare.id}`
+      const periodUrl = `${FRONTEND_URL}/temporaryreport/${periodShare.id}`
+      const ytdUrl = `${FRONTEND_URL}/temporaryreport/${ytdShare.id}`
 
       // Render PDFs
       const [periodPdf, ytdPdf] = await Promise.all([

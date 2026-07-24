@@ -36,11 +36,12 @@ export default function TemporaryReport() {
         // Use direct fetch with GET for faster loading (no SDK overhead, cacheable)
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const response = await fetch(
-          `${supabaseUrl}/functions/v1/view-report?id=${encodeURIComponent(id)}`,
+          `${supabaseUrl}/functions/v1/view-report?id=${encodeURIComponent(id)}&raw=1`,
           {
             method: "GET",
             headers: {
               "Accept": "text/html",
+              "X-IKTracker-Fetch": "temporary-report",
             },
           }
         );
