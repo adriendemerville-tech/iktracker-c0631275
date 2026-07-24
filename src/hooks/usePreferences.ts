@@ -33,6 +33,8 @@ export interface Preferences {
   notifAnnualThreshold: boolean;
   // Automation (local-only, sent to server later)
   autoMonthlyExport: boolean;
+  // Server-side monthly report to the user (sent the 15th)
+  userMonthlyReportEnabled: boolean;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
