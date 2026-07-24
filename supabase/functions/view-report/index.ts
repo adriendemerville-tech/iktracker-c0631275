@@ -17,7 +17,7 @@ function htmlResponse(html: string, status = 200): Response {
   headers.set("access-control-allow-origin", "*");
   headers.set(
     "access-control-allow-headers",
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-iktracker-fetch",
   );
   headers.set("cache-control", "no-cache, no-store, must-revalidate");
   headers.set("x-ik-response-type", "html");

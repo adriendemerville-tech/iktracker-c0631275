@@ -41,7 +41,6 @@ export default function TemporaryReport() {
             method: "GET",
             headers: {
               "Accept": "text/html",
-              "X-IKTracker-Fetch": "temporary-report",
             },
           }
         );
