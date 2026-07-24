@@ -68,6 +68,10 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         // Include calendar scope at sign-up so tokens are stored immediately
         options.scopes = 'https://www.googleapis.com/auth/calendar.readonly';
       }
+      // Preserve OAuth consent flow (or any post-login redirect) across the OAuth round-trip.
+      if (nextPath) {
+        options.redirectTo = `${window.location.origin}${nextPath}`;
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options,
