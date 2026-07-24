@@ -280,6 +280,8 @@ function parseICS(text: string): ICSRawEvent[] {
           allDay: current.allDay || false,
           rrule: current.rrule,
           exdates: current.exdates || [],
+          transp: current.transp,
+          status: current.status,
         });
       }
       current = null;
