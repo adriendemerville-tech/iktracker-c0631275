@@ -697,7 +697,16 @@ async function createTripFromEvent(
   ikRateOverride: IKRateOverride = 'auto'
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
-  console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
+  console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id} | eventType: ${event.eventType || 'default'} | transp: ${event.transparency || 'opaque'}`);
+
+  // ===== Level 1 deterministic filter =====
+  // Skip based on Google Calendar API v3 + RFC 5545 signals — never on title semantics.
+  const skipReason = shouldSkipEvent(event, userHomeLocation);
+  if (skipReason) {
+    console.log(`⏭️ [FILTER L1] Skipping "${event.summary}" — ${skipReason}`);
+    return { created: false, reason: skipReason };
+  }
+
 
   // Check if trip already exists (including deleted/archived trips)
   const { exists, wasDeleted } = await tripExistsForEvent(userId, event.id, supabase);
