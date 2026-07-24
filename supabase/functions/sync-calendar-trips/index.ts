@@ -22,6 +22,62 @@ interface CalendarEvent {
   location?: string;
   start: { dateTime?: string; date?: string };
   end: { dateTime?: string; date?: string };
+  // Google Calendar API v3 fields — used by the deterministic Level 1 filter
+  eventType?: string;         // 'default' | 'birthday' | 'focusTime' | 'outOfOffice' | 'workingLocation' | 'fromGmail'
+  transparency?: string;      // 'opaque' (busy) | 'transparent' (free)
+  status?: string;            // 'confirmed' | 'tentative' | 'cancelled'
+  attendees?: Array<{ self?: boolean; responseStatus?: string }>;
+  organizer?: { self?: boolean; email?: string };
+  recurringEventId?: string;
+}
+
+// ============ Level 1 deterministic filter =============
+// Signals from Google Calendar API v3 + RFC 5545 (ICS), NOT from event title semantics.
+// Docs: https://developers.google.com/calendar/api/v3/reference/events#resource
+// - eventType 'birthday' | 'focusTime' | 'outOfOffice' | 'workingLocation' | 'fromGmail' are non-meeting types
+// - transparency 'transparent' = free/OOO, not a business appointment
+// - all-day event without a location = personal marker (anniversaire, jour férié, congé, prénom)
+// - status 'cancelled' = ignore
+// - location matching user's home address = 0-km trip
+function normalizeAddress(s: string | undefined | null): string {
+  return (s || '').toLowerCase().replace(/[\s,;.'"\-]+/g, ' ').trim();
+}
+
+function shouldSkipEvent(
+  event: CalendarEvent,
+  userHomeLocation: { address: string; name: string } | null
+): string | null {
+  // 1) Cancelled events
+  if (event.status === 'cancelled') return 'status_cancelled';
+
+  // 2) Google eventType is a strong deterministic signal
+  const et = event.eventType;
+  if (et && et !== 'default') {
+    // birthday (Google Contacts), focusTime, outOfOffice, workingLocation, fromGmail
+    return `event_type_${et}`;
+  }
+
+  // 3) Transparent (marked "free") events are never business appointments
+  if (event.transparency === 'transparent') return 'transparency_free';
+
+  const isAllDay = !!event.start?.date && !event.start?.dateTime;
+  const hasLocation = !!(event.location && event.location.trim().length > 0);
+
+  // 4) All-day event without a location — universal marker for
+  //    anniversaires, jours fériés, congés, jours de nom, événements perso récurrents.
+  //    Un vrai RDV client est toujours horodaté (dateTime).
+  if (isAllDay && !hasLocation) return 'all_day_no_location';
+
+  // 5) Location = home address → 0 km trip, always skipped
+  if (hasLocation && userHomeLocation?.address) {
+    const loc = normalizeAddress(event.location);
+    const home = normalizeAddress(userHomeLocation.address);
+    if (loc && home && (loc === home || loc.includes(home) || home.includes(loc))) {
+      return 'location_equals_home';
+    }
+  }
+
+  return null;
 }
 
 interface CalendarConnection {
@@ -118,6 +174,10 @@ async function fetchGoogleCalendarEvents(accessToken: string, monthsBack: number
     orderBy: 'startTime',
     maxResults: '500',
   });
+  // Ask Google to already exclude non-meeting event types (birthday, focusTime, outOfOffice, workingLocation, fromGmail).
+  // Ref: https://developers.google.com/calendar/api/v3/reference/events/list#eventTypes
+  params.append('eventTypes', 'default');
+
 
   console.log(`Fetching Google Calendar events from ${startDate.toISOString()} to ${endDate.toISOString()} (monthsBack=${monthsBack})`);
 
@@ -199,6 +259,8 @@ interface ICSRawEvent {
   allDay: boolean;
   rrule?: string;
   exdates: Date[];
+  transp?: string; // TRANSP: OPAQUE | TRANSPARENT (RFC 5545 §3.8.2.7)
+  status?: string; // STATUS: CONFIRMED | TENTATIVE | CANCELLED (RFC 5545 §3.8.1.11)
 }
 
 function parseICS(text: string): ICSRawEvent[] {
@@ -222,6 +284,8 @@ function parseICS(text: string): ICSRawEvent[] {
           allDay: current.allDay || false,
           rrule: current.rrule,
           exdates: current.exdates || [],
+          transp: current.transp,
+          status: current.status,
         });
       }
       current = null;
@@ -256,6 +320,8 @@ function parseICS(text: string): ICSRawEvent[] {
         break;
       }
       case 'RRULE': current.rrule = value.trim(); break;
+      case 'TRANSP': current.transp = value.trim().toUpperCase(); break;
+      case 'STATUS': current.status = value.trim().toUpperCase(); break;
       case 'EXDATE': {
         for (const part of value.split(',')) {
           const d = parseICSDate(part);
@@ -338,6 +404,8 @@ async function fetchICSEvents(icsUrl: string, monthsBack: number = 0): Promise<{
           location: ev.location,
           start: ev.allDay ? { date: occ.toISOString().slice(0, 10) } : { dateTime: occ.toISOString() },
           end: ev.allDay ? { date: endOcc.toISOString().slice(0, 10) } : { dateTime: endOcc.toISOString() },
+          transparency: ev.transp === 'TRANSPARENT' ? 'transparent' : (ev.transp === 'OPAQUE' ? 'opaque' : undefined),
+          status: ev.status ? ev.status.toLowerCase() : undefined,
         });
       }
     }
@@ -633,7 +701,16 @@ async function createTripFromEvent(
   ikRateOverride: IKRateOverride = 'auto'
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
-  console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id}`);
+  console.log(`Processing event: "${event.summary}" | location: "${event.location || 'NONE'}" | id: ${event.id} | eventType: ${event.eventType || 'default'} | transp: ${event.transparency || 'opaque'}`);
+
+  // ===== Level 1 deterministic filter =====
+  // Skip based on Google Calendar API v3 + RFC 5545 signals — never on title semantics.
+  const skipReason = shouldSkipEvent(event, userHomeLocation);
+  if (skipReason) {
+    console.log(`⏭️ [FILTER L1] Skipping "${event.summary}" — ${skipReason}`);
+    return { created: false, reason: skipReason };
+  }
+
 
   // Check if trip already exists (including deleted/archived trips)
   const { exists, wasDeleted } = await tripExistsForEvent(userId, event.id, supabase);
