@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.3 — 4 mai 2026
+> Version 1.4 — 24 juillet 2026
 
 ## Table des matières
 
