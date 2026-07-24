@@ -999,4 +999,4 @@ Les utilisateurs provisionnés via `partner-api` (`findOrCreateIktrackerUser`) b
     "timestamp": "2026-11-15T07:00:12Z"
   }
   ```
-  Signé HMAC-SHA256 (`X-IKtracker-Signature: sha256=<hex>`) avec `partner_webhooks.hmac_secret`. Fired uniquement pour les partenaires ayant `monthly_report.sent` dans leur array `events`. Dictadevi (et autres partenaires) doivent l'ajouter côté enregistrement du webhook pour être notifiés — c'est un pull côté partenaire vers `month_url`/`ytd_url` (liens sécurisés 7 j) plutôt qu'un push de données binaires.
+  Signé HMAC-SHA256 (`X-IKtracker-Signature: sha256=<hex>`). La clé est lue dans l'ordre suivant : `partner_webhooks.hmac_secret`, puis la variable d'environnement `IKTRACKER_WEBHOOK_SECRET` comme fallback. Fired uniquement pour les partenaires ayant `monthly_report.sent` dans leur array `events`. Dictadevi (et autres partenaires) doivent l'ajouter côté enregistrement du webhook pour être notifiés — c'est un pull côté partenaire vers `month_url`/`ytd_url` (liens sécurisés 7 j) plutôt qu'un push de données binaires.
