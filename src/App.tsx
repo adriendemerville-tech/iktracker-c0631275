@@ -48,6 +48,7 @@ const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
 const BlogEditor = lazy(() => import("./pages/BlogEditor"));
 const AuthorPage = lazy(() => import("./pages/AuthorPage"));
 const FraisReels = lazy(() => import("./pages/FraisReels"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NoteDeFraisKilometrique = lazy(() => import("./pages/NoteDeFraisKilometrique"));
 const IndemniteKilometriqueVelo = lazy(() => import("./pages/IndemniteKilometriqueVelo"));
 const Lexique = lazy(() => import("./pages/Lexique"));
@@ -215,6 +216,7 @@ const AppRoutes = () => {
         <Route path="/" element={<SmartLanding />} />
         <Route path="/auth" element={<SmartAuth />} />
         <Route path="/signup" element={<SmartSignup />} />
+        <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
         <Route
           path="/temporaryreport/:id"
           element={

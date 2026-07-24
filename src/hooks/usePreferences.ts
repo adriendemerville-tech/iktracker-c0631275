@@ -5,6 +5,7 @@ import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
 export type CalendarImportMode = 'individual' | 'tour';
 export type IKRateOverride = 'auto' | 'tier2' | 'tier3';
+export type AccountantFrequency = 'monthly' | 'quarterly' | 'yearly';
 
 export interface Preferences {
   showTripTime: boolean;
@@ -19,6 +20,10 @@ export interface Preferences {
   fiscalYearStartDay: number; // 1-31, default 1
   calendarImportMode: CalendarImportMode;
   ikRateOverride: IKRateOverride;
+  // Accountant automated sending
+  accountantAutoSend: boolean;
+  accountantFrequency: AccountantFrequency;
+  accountantSendDay: number; // 1-28
   // Trip defaults (local-only)
   defaultVehicleId: string | null;
   defaultPurpose: string;
@@ -45,6 +50,9 @@ const defaultPreferences: Preferences = {
   fiscalYearStartDay: 1,
   calendarImportMode: 'individual',
   ikRateOverride: 'auto',
+  accountantAutoSend: false,
+  accountantFrequency: 'monthly',
+  accountantSendDay: 5,
   defaultVehicleId: null,
   defaultPurpose: '',
   defaultRoundTrip: false,
@@ -52,6 +60,7 @@ const defaultPreferences: Preferences = {
   notifAnnualThreshold: true,
   autoMonthlyExport: false,
 };
+
 
 // Get the fiscal year start date for a given reference date
 export function getFiscalYearStart(refDate: Date, fiscalYearStartMonth: number = 1, fiscalYearStartDay: number = 1): Date {
@@ -87,9 +96,10 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona, calendar_import_mode, ik_rate_override')
+          .select('accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day')
           .eq('user_id', user.id)
           .maybeSingle();
+
 
         if (error) {
           console.warn('Failed to load preferences from database:', error);
@@ -125,6 +135,19 @@ export function usePreferences() {
           if (override === 'auto' || override === 'tier2' || override === 'tier3') {
             updates.ikRateOverride = override;
           }
+
+          if (typeof (data as any)?.accountant_auto_send === 'boolean') {
+            updates.accountantAutoSend = (data as any).accountant_auto_send;
+          }
+          const freq = (data as any)?.accountant_frequency as AccountantFrequency | undefined;
+          if (freq === 'monthly' || freq === 'quarterly' || freq === 'yearly') {
+            updates.accountantFrequency = freq;
+          }
+          const day = (data as any)?.accountant_send_day as number | undefined;
+          if (typeof day === 'number' && day >= 1 && day <= 28) {
+            updates.accountantSendDay = day;
+          }
+
 
           if (Object.keys(updates).length > 0) {
             setPreferences(prev => ({ ...prev, ...updates }));
@@ -220,6 +243,23 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save accountant scheduling fields to database
+  const saveAccountantScheduleToDatabase = useCallback(async (patch: {
+    accountant_auto_send?: boolean;
+    accountant_frequency?: AccountantFrequency;
+    accountant_send_day?: number;
+  }) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, ...patch } as any, { onConflict: 'user_id' });
+      if (error) console.warn('Failed to save accountant schedule:', error);
+    } catch (e) {
+      console.warn('Failed to save accountant schedule:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
@@ -230,6 +270,7 @@ export function usePreferences() {
     if (key === 'accountantEmail' && user) {
       saveAccountantEmailToDatabase(value as string);
     }
+
 
     // Sync profession → persona to database
     if (key === 'profession' && user) {
@@ -245,7 +286,19 @@ export function usePreferences() {
     if (key === 'ikRateOverride' && user) {
       saveIkRateOverrideToDatabase(value as IKRateOverride);
     }
+
+    // Sync accountant scheduling fields
+    if (key === 'accountantAutoSend' && user) {
+      saveAccountantScheduleToDatabase({ accountant_auto_send: value as boolean });
+    }
+    if (key === 'accountantFrequency' && user) {
+      saveAccountantScheduleToDatabase({ accountant_frequency: value as AccountantFrequency });
+    }
+    if (key === 'accountantSendDay' && user) {
+      saveAccountantScheduleToDatabase({ accountant_send_day: value as number });
+    }
   };
+
 
   const resetCounters = useCallback(() => {
     setPreferences(prev => ({ ...prev, counterResetDate: new Date().toISOString() }));
