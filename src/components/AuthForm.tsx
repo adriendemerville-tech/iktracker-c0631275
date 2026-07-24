@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,14 @@ import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { trackSignupEvent } from '@/lib/signup-tracking';
+
+// Validate a `next` search-param as a same-origin relative path so we can safely
+// redirect after login/signup/OAuth (used by the OAuth consent route).
+function safeNextPath(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+  return raw;
+}
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
 
@@ -36,6 +44,8 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   }, [cooldown]);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | 'apple' | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get('next'));
   const { toast } = useToast();
 
   // Track signup_view when the form is in signup mode
