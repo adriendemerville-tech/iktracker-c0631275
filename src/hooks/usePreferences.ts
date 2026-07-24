@@ -286,7 +286,19 @@ export function usePreferences() {
     if (key === 'ikRateOverride' && user) {
       saveIkRateOverrideToDatabase(value as IKRateOverride);
     }
+
+    // Sync accountant scheduling fields
+    if (key === 'accountantAutoSend' && user) {
+      saveAccountantScheduleToDatabase({ accountant_auto_send: value as boolean });
+    }
+    if (key === 'accountantFrequency' && user) {
+      saveAccountantScheduleToDatabase({ accountant_frequency: value as AccountantFrequency });
+    }
+    if (key === 'accountantSendDay' && user) {
+      saveAccountantScheduleToDatabase({ accountant_send_day: value as number });
+    }
   };
+
 
   const resetCounters = useCallback(() => {
     setPreferences(prev => ({ ...prev, counterResetDate: new Date().toISOString() }));
