@@ -240,6 +240,73 @@ function buildEmailHtml(a: {
   </div></body></html>`
 }
 
+// --------- Partner webhooks (mirrors partner-api dispatch logic) ---------
+async function importHmacKey(secret: string): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+  )
+}
+
+async function firePartnerWebhooks(
+  admin: ReturnType<typeof createClient>,
+  iktrackerUserId: string,
+  payload: Record<string, unknown> & { event: string },
+) {
+  try {
+    const { data: mappings } = await admin
+      .from('partner_users')
+      .select('partner_id, external_user_id')
+      .eq('iktracker_user_id', iktrackerUserId)
+    if (!mappings?.length) return
+
+    const partnerIds = [...new Set(mappings.map((m: any) => m.partner_id))]
+    const { data: hooks } = await admin
+      .from('partner_webhooks')
+      .select('id, partner_id, url, events, hmac_secret')
+      .in('partner_id', partnerIds)
+      .eq('is_active', true)
+    if (!hooks?.length) return
+
+    const event = payload.event
+    for (const hook of hooks as any[]) {
+      if (!hook.events?.includes(event)) continue
+      const mapping = mappings.find((m: any) => m.partner_id === hook.partner_id)
+      const body = JSON.stringify({
+        event,
+        payload: {
+          ...payload,
+          iktracker_user_id: iktrackerUserId,
+          external_user_id: mapping?.external_user_id ?? null,
+        },
+        timestamp: new Date().toISOString(),
+      })
+      const key = await importHmacKey(hook.hmac_secret)
+      const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body))
+      const sigHex = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+      fetch(hook.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-IKtracker-Event': event,
+          'X-IKtracker-Signature': `sha256=${sigHex}`,
+        },
+        body,
+      }).then(res => {
+        admin.from('partner_webhooks').update({
+          last_called_at: new Date().toISOString(),
+          failure_count: res.ok ? 0 : 1,
+        }).eq('id', hook.id)
+      }).catch(() => {
+        admin.from('partner_webhooks').update({ failure_count: 1 }).eq('id', hook.id)
+      })
+    }
+  } catch (e) {
+    console.error('firePartnerWebhooks error:', e)
+  }
+}
+
+
 // --------- main ---------
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
