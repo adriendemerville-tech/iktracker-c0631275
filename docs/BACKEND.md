@@ -1033,5 +1033,6 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- **2.81** (24 juillet 2026) — Sitemap Edge Function : suppression des `lastmod` statiques non-page-specific conformément à la politique sitemap. `robots.txt` enrichi de `Disallow` explicites pour `/app/`, `/auth`, `/unsubscribe`, `/temporaryreport/`, `/sso`, `/offline`, `/debug/`, `/.lovable/oauth/consent`.
 - **2.8** (24 juillet 2026) — Ajout Niveau 1 filtres calendrier (`shouldSkipEvent`) + section Intégrations d'agents (MCP OAuth). Documentation du fallback `IKTRACKER_WEBHOOK_SECRET` pour la signature HMAC des webhooks partenaires.
 - **2.7** (24 juillet 2026) — Relevé mensuel automatique utilisateur (15 du mois) + webhook `monthly_report.sent` + auto-provisioning des `user_preferences` pour les users partenaires.
