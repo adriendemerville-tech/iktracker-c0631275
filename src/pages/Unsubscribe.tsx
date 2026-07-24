@@ -94,6 +94,7 @@ export default function Unsubscribe() {
           </p>
         )}
       </div>
-    </main>
+      </main>
+    </>
   );
 }
