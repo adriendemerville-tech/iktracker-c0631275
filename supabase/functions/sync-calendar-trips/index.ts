@@ -22,6 +22,62 @@ interface CalendarEvent {
   location?: string;
   start: { dateTime?: string; date?: string };
   end: { dateTime?: string; date?: string };
+  // Google Calendar API v3 fields — used by the deterministic Level 1 filter
+  eventType?: string;         // 'default' | 'birthday' | 'focusTime' | 'outOfOffice' | 'workingLocation' | 'fromGmail'
+  transparency?: string;      // 'opaque' (busy) | 'transparent' (free)
+  status?: string;            // 'confirmed' | 'tentative' | 'cancelled'
+  attendees?: Array<{ self?: boolean; responseStatus?: string }>;
+  organizer?: { self?: boolean; email?: string };
+  recurringEventId?: string;
+}
+
+// ============ Level 1 deterministic filter =============
+// Signals from Google Calendar API v3 + RFC 5545 (ICS), NOT from event title semantics.
+// Docs: https://developers.google.com/calendar/api/v3/reference/events#resource
+// - eventType 'birthday' | 'focusTime' | 'outOfOffice' | 'workingLocation' | 'fromGmail' are non-meeting types
+// - transparency 'transparent' = free/OOO, not a business appointment
+// - all-day event without a location = personal marker (anniversaire, jour férié, congé, prénom)
+// - status 'cancelled' = ignore
+// - location matching user's home address = 0-km trip
+function normalizeAddress(s: string | undefined | null): string {
+  return (s || '').toLowerCase().replace(/[\s,;.'"\-]+/g, ' ').trim();
+}
+
+function shouldSkipEvent(
+  event: CalendarEvent,
+  userHomeLocation: { address: string; name: string } | null
+): string | null {
+  // 1) Cancelled events
+  if (event.status === 'cancelled') return 'status_cancelled';
+
+  // 2) Google eventType is a strong deterministic signal
+  const et = event.eventType;
+  if (et && et !== 'default') {
+    // birthday (Google Contacts), focusTime, outOfOffice, workingLocation, fromGmail
+    return `event_type_${et}`;
+  }
+
+  // 3) Transparent (marked "free") events are never business appointments
+  if (event.transparency === 'transparent') return 'transparency_free';
+
+  const isAllDay = !!event.start?.date && !event.start?.dateTime;
+  const hasLocation = !!(event.location && event.location.trim().length > 0);
+
+  // 4) All-day event without a location — universal marker for
+  //    anniversaires, jours fériés, congés, jours de nom, événements perso récurrents.
+  //    Un vrai RDV client est toujours horodaté (dateTime).
+  if (isAllDay && !hasLocation) return 'all_day_no_location';
+
+  // 5) Location = home address → 0 km trip, always skipped
+  if (hasLocation && userHomeLocation?.address) {
+    const loc = normalizeAddress(event.location);
+    const home = normalizeAddress(userHomeLocation.address);
+    if (loc && home && (loc === home || loc.includes(home) || home.includes(loc))) {
+      return 'location_equals_home';
+    }
+  }
+
+  return null;
 }
 
 interface CalendarConnection {
