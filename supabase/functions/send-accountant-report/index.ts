@@ -34,8 +34,8 @@ interface Trip {
   date: string
   distance: number | null
   ik_amount: number | null
-  from_address: string | null
-  to_address: string | null
+  start_location: string | null
+  end_location: string | null
   purpose: string | null
 }
 
@@ -121,8 +121,8 @@ function buildReportBody(
       return `
         <tr>
           <td>${dateStr}</td>
-          <td>${escapeHtml(t.from_address ?? '')}</td>
-          <td>${escapeHtml(t.to_address ?? '')}</td>
+          <td>${escapeHtml(t.start_location ?? '')}</td>
+          <td>${escapeHtml(t.end_location ?? '')}</td>
           <td>${escapeHtml(t.purpose ?? '')}</td>
           <td class="num">${fmt(t.distance ?? 0, 1)} km</td>
           <td class="num">${fmt(t.ik_amount ?? 0, 2)} €</td>
@@ -331,13 +331,15 @@ Deno.serve(async (req) => {
 
   let query = supabase
     .from('user_preferences')
-    .select('user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at, fiscal_year_start_month, fiscal_year_start_day')
-    .eq('accountant_auto_send', true)
+    .select('user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at')
 
   if (onlyUserId) {
+    // On-demand: skip the auto_send/day filters so admin/UI can force a send.
     query = query.eq('user_id', onlyUserId)
   } else {
-    query = query.eq('accountant_send_day', todayDay)
+    query = query
+      .eq('accountant_auto_send', true)
+      .eq('accountant_send_day', todayDay)
   }
 
   const { data: prefs, error: prefsErr } = await query
@@ -387,7 +389,7 @@ Deno.serve(async (req) => {
       const windowEnd = ytd.end > period.end ? ytd.end : period.end
       const { data: allTrips, error: tripsErr } = await supabase
         .from('trips')
-        .select('date, distance, ik_amount, from_address, to_address, purpose')
+        .select('date, distance, ik_amount, start_location, end_location, purpose')
         .eq('user_id', p.user_id)
         .is('deleted_at', null)
         .gte('date', windowStart.toISOString().slice(0, 10))
