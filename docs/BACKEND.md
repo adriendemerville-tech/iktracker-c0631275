@@ -767,7 +767,7 @@ Exposé pour permettre aux partenaires (ex. Dictadevi) d'offrir à leurs utilisa
 
 ### Webhooks sortants
 
-Table `partner_webhooks` : URL + secret HMAC + liste d'événements abonnés. Permet de notifier le partenaire (ex: trajet créé, palier IK franchi). Signature `X-IKTracker-Signature: sha256=…`.
+Table `partner_webhooks` : URL + secret HMAC + liste d'événements abonnés. Permet de notifier le partenaire (ex: trajet créé, palier IK franchi). Signature `X-IKTracker-Signature: sha256=…`. La clé est lue dans `partner_webhooks.hmac_secret`, avec fallback sur la variable d'environnement `IKTRACKER_WEBHOOK_SECRET`.
 
 ### Contrainte trips
 
