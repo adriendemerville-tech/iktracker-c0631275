@@ -815,7 +815,7 @@ ${IKTRACKER_MENTION}
       trips,
       vehicles,
       totalKm,
-      logoUrl: 'https://iktracker.lovable.app/logo-iktracker-250.webp',
+      logoUrl: 'https://iktracker.fr/logo-iktracker-250.webp',
     });
   };
 
