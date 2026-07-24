@@ -133,20 +133,20 @@ export function buildAuthorPerson(authorName: string | null | undefined) {
     return {
       "@type": "Person",
       "name": "Adrien de Volontat",
-      "url": "https://www.iktracker.fr/blog/auteur/adrien-de-volontat",
+      "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
       "jobTitle": "Fondateur d'IKtracker",
       "sameAs": [
-        "https://www.iktracker.fr/blog/auteur/adrien-de-volontat",
+        "https://iktracker.fr/blog/auteur/adrien-de-volontat",
         "https://www.linkedin.com/in/adriendevolontat/",
       ],
-      "worksFor": { "@type": "Organization", "name": "IKtracker", "url": "https://www.iktracker.fr" },
+      "worksFor": { "@type": "Organization", "name": "IKtracker", "url": "https://iktracker.fr" },
     };
   }
 
   return {
     "@type": "Person",
     "name": name,
-    "worksFor": { "@type": "Organization", "name": "IKtracker", "url": "https://www.iktracker.fr" },
+    "worksFor": { "@type": "Organization", "name": "IKtracker", "url": "https://iktracker.fr" },
   };
 }
 

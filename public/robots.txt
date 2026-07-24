@@ -64,24 +64,24 @@ User-agent: *
 Allow: /
 
 # === SITEMAP & GUIDE IA ===
-Sitemap: https://www.iktracker.fr/sitemap.xml
+Sitemap: https://iktracker.fr/sitemap.xml
 
 # Guide à destination des LLM / crawlers IA :
-# https://www.iktracker.fr/llms.txt
+# https://iktracker.fr/llms.txt
 
 # Pages clés indexables :
-# https://www.iktracker.fr/
-# https://www.iktracker.fr/bareme-ik-2026
-# https://www.iktracker.fr/mode-tournee
-# https://www.iktracker.fr/calendrier
-# https://www.iktracker.fr/frais-reels
-# https://www.iktracker.fr/lexique
-# https://www.iktracker.fr/comparatif-izika
-# https://www.iktracker.fr/comparatif-driversnote
-# https://www.iktracker.fr/expert-comptable
-# https://www.iktracker.fr/tarifs
-# https://www.iktracker.fr/note-de-frais-kilometrique
-# https://www.iktracker.fr/rgpd
-# https://www.iktracker.fr/installer
-# https://www.iktracker.fr/blog
-# https://www.iktracker.fr/signup
+# https://iktracker.fr/
+# https://iktracker.fr/bareme-ik-2026
+# https://iktracker.fr/mode-tournee
+# https://iktracker.fr/calendrier
+# https://iktracker.fr/frais-reels
+# https://iktracker.fr/lexique
+# https://iktracker.fr/comparatif-izika
+# https://iktracker.fr/comparatif-driversnote
+# https://iktracker.fr/expert-comptable
+# https://iktracker.fr/tarifs
+# https://iktracker.fr/note-de-frais-kilometrique
+# https://iktracker.fr/rgpd
+# https://iktracker.fr/installer
+# https://iktracker.fr/blog
+# https://iktracker.fr/signup

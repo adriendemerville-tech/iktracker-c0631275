@@ -36,7 +36,7 @@ interface BotResult {
 }
 
 export function AdminBotTest() {
-  const [url, setUrl] = useState('https://www.iktracker.fr/');
+  const [url, setUrl] = useState('https://iktracker.fr/');
   const [selected, setSelected] = useState<string[]>(ALL_BOTS);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<BotResult[] | null>(null);
@@ -90,7 +90,7 @@ export function AdminBotTest() {
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://www.iktracker.fr/blog/..."
+            placeholder="https://iktracker.fr/blog/..."
             className="flex-1"
             disabled={loading}
           />

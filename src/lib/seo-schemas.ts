@@ -4,7 +4,7 @@
  * Always reference the founder (E-E-A-T) and the complete feature list.
  */
 
-const SITE_URL = "https://www.iktracker.fr";
+const SITE_URL = "https://iktracker.fr";
 const FOUNDER_URL = `${SITE_URL}/blog/auteur/adrien-de-volontat`;
 const LOGO_URL = `${SITE_URL}/logo-iktracker-250.webp`;
 
@@ -133,7 +133,7 @@ export function buildSoftwareApplicationSchema(opts?: {
         availableLanguage: ["fr", "en"],
       },
       sameAs: [
-        "https://www.iktracker.fr",
+        "https://iktracker.fr",
         "https://www.linkedin.com/in/adrien-de-volontat",
       ],
     },

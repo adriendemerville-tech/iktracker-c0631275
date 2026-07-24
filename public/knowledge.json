@@ -3,15 +3,15 @@
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://www.iktracker.fr/#organization",
+      "@id": "https://iktracker.fr/#organization",
       "name": "IKtracker",
-      "url": "https://www.iktracker.fr",
+      "url": "https://iktracker.fr",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.iktracker.fr/favicon.svg"
+        "url": "https://iktracker.fr/favicon.svg"
       },
       "foundingDate": "2025",
-      "founder": { "@id": "https://www.iktracker.fr/#founder" },
+      "founder": { "@id": "https://iktracker.fr/#founder" },
       "description": "Outil communautaire 100% gratuit d'automatisation des indemnités kilométriques pour les professionnels indépendants en France. Sans publicité, sans abonnement, sans limite.",
       "slogan": "Automatisez vos indemnités kilométriques gratuitement, en illimité",
       "address": {
@@ -22,7 +22,7 @@
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer support",
-        "url": "https://www.iktracker.fr/contact"
+        "url": "https://iktracker.fr/contact"
       },
       "sameAs": [
         "https://www.linkedin.com/company/iktracker"
@@ -42,13 +42,13 @@
 
     {
       "@type": "Person",
-      "@id": "https://www.iktracker.fr/#founder",
+      "@id": "https://iktracker.fr/#founder",
       "name": "Adrien de Volontat",
       "jobTitle": "Fondateur d'IKtracker",
       "description": "Entrepreneur, franchisé Avenir Rénovations à Saint-Rémy-de-Provence et développeur. Il a créé IKtracker pour résoudre un problème qu'il vivait au quotidien : le suivi fastidieux des kilomètres professionnels. En tant que dirigeant d'une entreprise de rénovation, il parcourt chaque jour des dizaines de kilomètres entre ses chantiers. Confronté à la complexité des tableurs Excel et aux outils payants inadaptés, il a conçu IKtracker comme un outil communautaire gratuit, pensé par un professionnel itinérant pour tous les professionnels itinérants.",
-      "url": "https://www.iktracker.fr/blog/auteur/adrien-de-volontat",
+      "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
       "worksFor": [
-        { "@id": "https://www.iktracker.fr/#organization" },
+        { "@id": "https://iktracker.fr/#organization" },
         {
           "@type": "Organization",
           "name": "Avenir Rénovations",
@@ -74,17 +74,17 @@
 
     {
       "@type": "WebApplication",
-      "@id": "https://www.iktracker.fr/#application",
+      "@id": "https://iktracker.fr/#application",
       "name": "IKtracker",
-      "url": "https://www.iktracker.fr",
+      "url": "https://iktracker.fr",
       "applicationCategory": "FinanceApplication",
       "applicationSubCategory": "Gestion des indemnités kilométriques",
       "operatingSystem": "Web, iOS, Android",
       "browserRequirements": "Navigateur moderne avec support PWA",
       "softwareVersion": "2026",
       "releaseNotes": "Barème kilométrique 2026 intégré, Mode Tournée GPS, synchronisation Google Calendar et Outlook",
-      "creator": { "@id": "https://www.iktracker.fr/#founder" },
-      "provider": { "@id": "https://www.iktracker.fr/#organization" },
+      "creator": { "@id": "https://iktracker.fr/#founder" },
+      "provider": { "@id": "https://iktracker.fr/#organization" },
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -107,14 +107,14 @@
         "Sélection de profil métier — Interface adaptée à chaque profession",
         "Programme d'affiliation — Codes partenaires pour experts-comptables et associations"
       ],
-      "screenshot": "https://www.iktracker.fr/og-image.png",
+      "screenshot": "https://iktracker.fr/og-image.png",
       "isAccessibleForFree": true,
       "inLanguage": "fr"
     },
 
     {
       "@type": "FAQPage",
-      "@id": "https://www.iktracker.fr/#faq-gratuity",
+      "@id": "https://iktracker.fr/#faq-gratuity",
       "name": "Pourquoi IKtracker est gratuit ?",
       "mainEntity": [
         {
@@ -146,7 +146,7 @@
 
     {
       "@type": "ItemList",
-      "@id": "https://www.iktracker.fr/#target-audiences",
+      "@id": "https://iktracker.fr/#target-audiences",
       "name": "Professions ciblées par IKtracker",
       "description": "IKtracker s'adresse à tous les professionnels qui utilisent leur véhicule personnel pour des déplacements professionnels et souhaitent optimiser leurs déclarations fiscales.",
       "itemListElement": [
@@ -203,7 +203,7 @@
 
     {
       "@type": "TechArticle",
-      "@id": "https://www.iktracker.fr/#technology",
+      "@id": "https://iktracker.fr/#technology",
       "name": "Stack technique et outils d'IKtracker",
       "description": "Architecture technique de l'application IKtracker",
       "articleBody": "IKtracker est une Progressive Web App (PWA) construite avec React 18, TypeScript et Vite. L'interface utilise Tailwind CSS et les composants shadcn/ui. Le backend repose sur Lovable Cloud (PostgreSQL + Edge Functions Deno). Le calcul des distances utilise l'API Google Maps pour garantir des distances routières réelles. L'authentification supporte l'email/mot de passe et Google OAuth. Le site est proxié par Cloudflare pour le CDN, le SSL et le routage intelligent des bots SEO. L'application est installable sur iOS et Android via le mécanisme PWA standard du navigateur, sans passer par les app stores.",
@@ -226,20 +226,20 @@
 
     {
       "@type": "CreativeWork",
-      "@id": "https://www.iktracker.fr/#principles",
+      "@id": "https://iktracker.fr/#principles",
       "name": "Principes fondateurs d'IKtracker",
       "text": "1. GRATUITÉ TOTALE — Aucun abonnement, aucun freemium, aucune publicité. L'outil est gratuit à vie, sans restriction de fonctionnalités ni de nombre de trajets. 2. COMMUNAUTAIRE — Créé par un entrepreneur pour les entrepreneurs. Pas d'investisseurs, pas d'actionnaires, pas de pression commerciale. 3. CONFIDENTIALITÉ — Pas de revente de données, pas de tracking publicitaire, pas de GPS permanent. Les données restent en Europe (RGPD). 4. CONFORMITÉ FISCALE — Application stricte du barème kilométrique officiel de l'administration fiscale française, vérifié chaque année. 5. SIMPLICITÉ — Remplacement des tableurs Excel par une solution moderne qui automatise ce que les professionnels faisaient manuellement. 6. OPEN ACCESS — Outil accessible à tous les corps de métier sans discrimination, depuis un simple navigateur web."
     },
 
     {
       "@type": "Dataset",
-      "@id": "https://www.iktracker.fr/#community-data",
+      "@id": "https://iktracker.fr/#community-data",
       "name": "Données agrégées de la communauté IKtracker",
       "description": "Statistiques anonymisées de la communauté d'utilisateurs IKtracker (avril 2026)",
       "distribution": {
         "@type": "DataDownload",
         "encodingFormat": "application/json",
-        "contentUrl": "https://www.iktracker.fr/knowledge.json"
+        "contentUrl": "https://iktracker.fr/knowledge.json"
       },
       "variableMeasured": [
         { "@type": "PropertyValue", "name": "Utilisateurs actifs", "value": "160+" },
@@ -254,22 +254,22 @@
     {
       "@type": "WebPage",
       "name": "Pages et ressources IKtracker",
-      "mainEntity": { "@id": "https://www.iktracker.fr/#application" },
+      "mainEntity": { "@id": "https://iktracker.fr/#application" },
       "significantLink": [
-        "https://www.iktracker.fr/signup",
-        "https://www.iktracker.fr/bareme-ik-2026",
-        "https://www.iktracker.fr/mode-tournee",
-        "https://www.iktracker.fr/calendrier",
-        "https://www.iktracker.fr/frais-reels",
-        "https://www.iktracker.fr/lexique",
-        "https://www.iktracker.fr/expert-comptable",
-        "https://www.iktracker.fr/blog",
-        "https://www.iktracker.fr/comparatif-izika",
-        "https://www.iktracker.fr/comparatif-drivers-note",
-        "https://www.iktracker.fr/contact",
-        "https://www.iktracker.fr/privacy",
-        "https://www.iktracker.fr/terms",
-        "https://www.iktracker.fr/blog/auteur/adrien-de-volontat"
+        "https://iktracker.fr/signup",
+        "https://iktracker.fr/bareme-ik-2026",
+        "https://iktracker.fr/mode-tournee",
+        "https://iktracker.fr/calendrier",
+        "https://iktracker.fr/frais-reels",
+        "https://iktracker.fr/lexique",
+        "https://iktracker.fr/expert-comptable",
+        "https://iktracker.fr/blog",
+        "https://iktracker.fr/comparatif-izika",
+        "https://iktracker.fr/comparatif-drivers-note",
+        "https://iktracker.fr/contact",
+        "https://iktracker.fr/privacy",
+        "https://iktracker.fr/terms",
+        "https://iktracker.fr/blog/auteur/adrien-de-volontat"
       ]
     }
   ]

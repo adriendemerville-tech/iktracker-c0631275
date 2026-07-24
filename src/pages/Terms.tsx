@@ -14,14 +14,14 @@ const Terms = () => {
         <title>CGVU | IKtracker — Conditions d'utilisation</title>
         <meta name="description" content="Consultez les CGVU d'IKtracker. Conditions de vente, modalités d'utilisation, responsabilités et droits pour l'application gratuite de calcul d'indemnités kilométriques." />
         <meta name="keywords" content="CGVU, CGU, CGV, conditions générales vente utilisation, IKtracker, termes service, modalités utilisation" />
-        <link rel="canonical" href="https://www.iktracker.fr/terms" />
+        <link rel="canonical" href="https://iktracker.fr/terms" />
         <meta name="robots" content="index, follow" />
         
         {/* Open Graph */}
         <meta property="og:title" content="CGVU — Conditions Générales de Vente et d'Utilisation | IKtracker" />
         <meta property="og:description" content="Consultez les CGVU d'IKtracker. Conditions de vente et d'utilisation de l'application gratuite." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.iktracker.fr/terms" />
+        <meta property="og:url" content="https://iktracker.fr/terms" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
         
@@ -37,12 +37,12 @@ const Terms = () => {
             "@type": "WebPage",
             "name": "Conditions Générales de Vente et d'Utilisation IKtracker",
             "description": "Conditions générales de vente et d'utilisation de l'application IKtracker",
-            "url": "https://www.iktracker.fr/terms",
+            "url": "https://iktracker.fr/terms",
             "inLanguage": "fr-FR",
             "isPartOf": {
               "@type": "WebSite",
               "name": "IKtracker",
-              "url": "https://www.iktracker.fr"
+              "url": "https://iktracker.fr"
             },
             "about": {
               "@type": "Thing",
