@@ -378,7 +378,16 @@ serve(async (req) => {
     }
 
     const wantsRawHtml = url.searchParams.get("raw") === "1" || req.headers.get("x-iktracker-fetch") === "temporary-report";
-    if (req.method === "GET" && !wantsRawHtml) {
+    const accept = req.headers.get("accept") ?? "";
+    const secFetchMode = req.headers.get("sec-fetch-mode");
+    const secFetchDest = req.headers.get("sec-fetch-dest");
+    const origin = req.headers.get("origin");
+    const isBrowserNavigation =
+      secFetchMode === "navigate" ||
+      secFetchDest === "document" ||
+      (!origin && accept.includes("text/html") && !url.searchParams.has("raw"));
+
+    if (req.method === "GET" && !wantsRawHtml && isBrowserNavigation) {
       return Response.redirect(publicReportUrl(shareId), 302);
     }
 
