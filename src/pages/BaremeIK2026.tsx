@@ -135,7 +135,7 @@ const BaremeIK2026 = () => {
   return (
     <>
       <Helmet>
-        <title>Barème kilométrique 2025-2026 | Simulateur IK officiel URSSAF</title>
+        <title>Barème kilométrique 2026 | Simulateur IK URSSAF</title>
         <meta 
           name="description" 
           content="Barème kilométrique 2025 & 2026 officiel URSSAF : tableau IK par CV, simulateur frais kilométrique gratuit et calcul automatique. Majoration véhicule électrique +20%." 
