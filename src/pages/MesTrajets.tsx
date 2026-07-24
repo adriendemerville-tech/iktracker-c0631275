@@ -784,22 +784,53 @@ Document généré via IKtracker
 ${IKTRACKER_URL}`;
 
       const body = encodeURIComponent(emailBody);
-
-      // Open mailto
-      const mailto = preferences.accountantEmail 
+      const mailtoFallback = preferences.accountantEmail 
         ? `mailto:${encodeURIComponent(preferences.accountantEmail)}?subject=${subject}&body=${body}`
         : `mailto:?subject=${subject}&body=${body}`;
-      window.location.href = mailto;
 
-      // Mark that we've sent to accountant
+      // Try server-side send via Resend (with PDF attachment)
+      let sentViaResend = false;
+      if (preferences.accountantEmail) {
+        try {
+          const { data: sendData, error: sendErr } = await supabase.functions.invoke(
+            'send-accountant-report-manual',
+            {
+              body: {
+                shareId: shareData.id,
+                accountantEmail: preferences.accountantEmail,
+                periodLabel: currentMonth,
+                tripsCount: filteredTripsForReport.length,
+                totalKm: filteredTotalKm,
+                totalIk: filteredRecalculatedTotalIK,
+                ownerName,
+              },
+            }
+          );
+          if (!sendErr && (sendData as any)?.ok) {
+            sentViaResend = true;
+          } else if (sendErr) {
+            console.warn('Resend send failed, falling back to mailto:', sendErr);
+          }
+        } catch (e) {
+          console.warn('Resend invoke failed, falling back to mailto:', e);
+        }
+      }
+
+      if (sentViaResend) {
+        toast.success("Email envoyé au comptable", {
+          description: `Relevé PDF envoyé à ${preferences.accountantEmail}`,
+        });
+      } else {
+        window.location.href = mailtoFallback;
+        toast.success("Email préparé", {
+          description: "Le lien de prévisualisation a été ajouté à l'email",
+        });
+      }
+
       if (preferences.accountantEmail) {
         updatePreference('hasSentToAccountant', true);
         setIsEditingAccountantEmail(false);
       }
-
-      toast.success("Email préparé", {
-        description: "Le lien de prévisualisation a été ajouté à l'email",
-      });
     } catch (error) {
       console.error('Export error:', error);
       toast.error("Erreur lors de la préparation de l'email");
