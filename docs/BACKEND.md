@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.7 — 24 juillet 2026
+> Version 2.8 — 24 juillet 2026
 
 ## Table des matières
 
@@ -1000,3 +1000,38 @@ Les utilisateurs provisionnés via `partner-api` (`findOrCreateIktrackerUser`) b
   }
   ```
   Signé HMAC-SHA256 (`X-IKtracker-Signature: sha256=<hex>`). La clé est lue dans l'ordre suivant : `partner_webhooks.hmac_secret`, puis la variable d'environnement `IKTRACKER_WEBHOOK_SECRET` comme fallback. Fired uniquement pour les partenaires ayant `monthly_report.sent` dans leur array `events`. Dictadevi (et autres partenaires) doivent l'ajouter côté enregistrement du webhook pour être notifiés — c'est un pull côté partenaire vers `month_url`/`ytd_url` (liens sécurisés 7 j) plutôt qu'un push de données binaires.
+
+## Filtres calendrier "événements personnels" (juillet 2026 — Niveau 1)
+
+Pour éviter que des événements personnels (anniversaires, rappels, tâches, événements récurrents sans lieu) génèrent des trajets parasites, `sync-calendar-trips` applique une fonction déterministe `shouldSkipEvent(event)` avant `createTripFromEvent`. Basée sur des signaux **RFC 5545 / Google Calendar API / Microsoft Graph** explicites — aucun ML, aucun matching de mots-clés :
+
+| Signal | Source | Comportement |
+|---|---|---|
+| `transparency = TRANSPARENT` (Google/ICS) ou `showAs = free` (Outlook) | RFC 5545 `TRANSP` | Skip — l'utilisateur est marqué "disponible", ce n'est pas un déplacement pro |
+| `eventType = birthday` / `fromGmail` / `outOfOffice` / `focusTime` / `workingLocation` | Google Calendar API `eventType` | Skip — types explicitement non-professionnels |
+| `categories` contient `Birthday` / `Anniversaire` / `Holiday` | ICS `CATEGORIES` | Skip |
+| Événement all-day (`DTSTART;VALUE=DATE`) sans `LOCATION` | RFC 5545 | Skip — anniversaire, fête, jour férié |
+| Récurrent all-day (`RRULE` + all-day) | RFC 5545 | Skip — patterns anniversaires annuels |
+
+Les événements horaires **sans lieu** sont conservés (créés en `pending_location`) car ils peuvent correspondre à un vrai rendez-vous à compléter manuellement. Extension possible en Niveau 2 (opt-out par calendrier utilisateur) documentée dans la mémoire projet.
+
+## Intégrations d'agents (MCP — juillet 2026)
+
+Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Cursor via le protocole Model Context Protocol.
+
+- **Entrée** : `src/lib/mcp/index.ts` (`defineMcp` + `auth.oauth.issuer`, issuer construit depuis `VITE_SUPABASE_PROJECT_ID`, audience `authenticated`).
+- **Outils** (`src/lib/mcp/tools/`) :
+  - `list_vehicles` — véhicules de l'utilisateur (immat, marque/modèle, motorisation, CV).
+  - `list_trips` — trajets filtrables (date, statut, véhicule).
+  - `get_ytd_summary` — cumul année en cours (km, IK, nombre de trajets).
+  - `create_trip` — création d'un trajet (`needsApproval = true`).
+- **Edge Function** : `supabase/functions/mcp/index.ts` — auto-générée par `@lovable.dev/mcp-js/stacks/supabase/vite` à chaque build Vite. **Ne pas éditer à la main**. Déployée avec `verify_jwt = false` (la vérification OAuth est faite par mcp-js contre l'issuer Supabase direct).
+- **OAuth 2.1** : Supabase Auth agit comme Authorization Server (DCR activé via `supabase--configure_oauth_server`). Chaque connexion se fait au nom de l'utilisateur — RLS s'applique.
+- **Page de consentement** : `/.lovable/oauth/consent` (`src/pages/OAuthConsent.tsx`) — affiche le nom du client, boutons Approuver/Refuser, redirige vers l'auth si non connecté (préserve `next=`).
+- **URL publique du serveur MCP** : `https://<project-ref>.supabase.co/functions/v1/mcp` — à coller dans ChatGPT/Claude "Add MCP server".
+- **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
+
+## Changelog
+
+- **2.8** (24 juillet 2026) — Ajout Niveau 1 filtres calendrier (`shouldSkipEvent`) + section Intégrations d'agents (MCP OAuth). Documentation du fallback `IKTRACKER_WEBHOOK_SECRET` pour la signature HMAC des webhooks partenaires.
+- **2.7** (24 juillet 2026) — Relevé mensuel automatique utilisateur (15 du mois) + webhook `monthly_report.sent` + auto-provisioning des `user_preferences` pour les users partenaires.

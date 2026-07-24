@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.3 — 4 mai 2026
+> Version 1.4 — 24 juillet 2026
 
 ## Table des matières
 
@@ -488,3 +488,20 @@ src/
 - `src/types/trip.ts` : `TourStopData.timestamp` (Date d'arrivée à l'étape) — source de vérité pour l'audit, alimentée par les 3 origines de tournée (GPS live, import Calendar mode `tour`, regroupement manuel).
 - `src/components/TripCard.tsx` : détection tournée unifiée sur `tourStops.length >= 2` (indépendante du `purpose`). Sur desktop, boutons **édition** (crayon) et **suppression** (croix) toujours montés mais révélés au survol/focus clavier via `group-hover` + `group-focus-within` (`opacity-0 → opacity-100`), évitant le layout shift et préservant l'accessibilité clavier. Sur mobile, comportement inchangé (sélection multi).
 - `src/lib/print-utils.ts` : rapport PDF affiche pour chaque tournée le détail des étapes avec heure d'arrivée (`Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris' })`), fallback explicite `(heure non enregistrée)` si absent, suffixe `· heures Europe/Paris` dans l'en-tête pour lever toute ambiguïté d'audit. Trip parent + détail regroupés dans un `<tbody style="page-break-inside: avoid">` pour empêcher l'orphelinage lors des sauts de page.
+
+## Modale « Compléter le trajet » — centrage & pré-remplissage (juillet 2026)
+
+- `src/components/CompleteAddressSheet.tsx` : passage de `Sheet` (bottom-aimanté) à `Dialog` (centré, `max-h-[90vh]` avec `overflow-y-auto`) — meilleur ergonomie desktop et évite le masquage par le clavier mobile.
+- **Pré-remplissage** : helper `isGenericAddress()` (détecte `"Maison"`, `"Domicile"`, chaînes vides) — l'`useEffect` de pré-remplissage priorise désormais `trip.start_location` / `trip.end_location` réels et ne retombe sur la Maison courante que si l'adresse stockée est générique. Corrige le bug où une adresse Châteaurenard devenait Auriac-sur-Vendinelle après ouverture de la modale.
+
+## Intégrations d'agents (MCP) — Frontend (juillet 2026)
+
+- `src/pages/OAuthConsent.tsx` (route `/.lovable/oauth/consent`) — écran de consentement OAuth 2.1 pour les clients MCP (ChatGPT, Claude, Cursor). Utilise `supabase.auth.oauth.{getAuthorizationDetails,approveAuthorization,denyAuthorization}` (namespace beta).
+- **Redirection auth** : `src/components/AuthForm.tsx` consomme `?next=` sur sign-in, sign-up (`emailRedirectTo`) **et** OAuth social (`redirect_uri`) pour renvoyer l'utilisateur vers la page de consentement après authentification — sans quoi le connecteur "Add to Lovable" retombe silencieusement sur `/`.
+- **Serveur MCP** : défini dans `src/lib/mcp/` (voir doc backend), 4 outils exposés : `list_vehicles`, `list_trips`, `get_ytd_summary`, `create_trip`.
+- **Vite plugin** : `mcpPlugin()` dans `vite.config.ts` — régénère `supabase/functions/mcp/index.ts` à chaque build.
+
+## Changelog
+
+- **1.4** (24 juillet 2026) — Modale « Compléter le trajet » centrée + pré-remplissage adresses réelles. Ajout page OAuthConsent et intégration MCP.
+- **1.3** (4 mai 2026) — Tournées, étapes horodatées et audit PDF.
