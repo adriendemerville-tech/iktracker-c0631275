@@ -63,6 +63,7 @@ const ApiDocs = lazy(() => import("./pages/ApiDocs"));
 const AdminPartners = lazy(() => import("./pages/AdminPartners"));
 const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const MeilleureApplicationIK = lazy(() => import("./pages/MeilleureApplicationIK"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -349,6 +350,7 @@ const AppRoutes = () => {
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
         <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />
         <Route path="/comparatif-driversnote" element={<Suspense fallback={<PageLoader />}><ComparatifDriversNote /></Suspense>} />
+        <Route path="/meilleure-application-indemnites-kilometriques" element={<Suspense fallback={<PageLoader />}><MeilleureApplicationIK /></Suspense>} />
         <Route path="/marina" element={<Suspense fallback={<PageLoader />}><MarinaAnalyze /></Suspense>} />
         <Route path="/mentions-legales" element={<Suspense fallback={<PageLoader />}><MentionsLegales /></Suspense>} />
         <Route path="/tarifs" element={<Suspense fallback={<PageLoader />}><Tarifs /></Suspense>} />
