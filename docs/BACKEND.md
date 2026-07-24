@@ -975,3 +975,28 @@ Envoi automatique du relevé kilométrique **à l'utilisateur lui-même** (disti
   - Endpoint POST accepte `{ user_id, dry_run?, override_email? }` pour test on-demand (bypass des filtres date/anti-doublon).
 - **Cron** `send-user-monthly-report` : `0 7 15 * *` (**15 du mois, 07:00 UTC**), token lu depuis `vault.decrypted_secrets.email_queue_service_role_key`.
 - **UI** : toggle « Relevé mensuel automatique » dans Préférences (activé par défaut).
+
+## Extension utilisateurs API partenaire (juillet 2026)
+
+Les utilisateurs provisionnés via `partner-api` (`findOrCreateIktrackerUser`) bénéficient désormais du relevé mensuel automatique :
+
+- **Provisioning** : après création du mapping `partner_users`, `partner-api` fait un `upsert` sur `user_preferences (user_id)` — les défauts (`user_monthly_report_enabled = true`) s'appliquent. Backfill effectué pour les utilisateurs existants.
+- **Nouveau webhook `monthly_report.sent`** émis par `send-user-monthly-report` après chaque envoi réussi. Payload :
+  ```json
+  {
+    "event": "monthly_report.sent",
+    "payload": {
+      "iktracker_user_id": "...",
+      "external_user_id": "...",
+      "period_label": "octobre 2026",
+      "ytd_label": "cumul 2026",
+      "month_url": "https://iktracker.fr/temporaryreport/...",
+      "ytd_url":   "https://iktracker.fr/temporaryreport/...",
+      "month_trip_count": 12, "month_total_km": 340.5, "month_total_ik": 178.2,
+      "ytd_trip_count": 128,  "ytd_total_km": 3820.1, "ytd_total_ik": 1994.4,
+      "expires_at": "2026-11-22T07:00:00Z"
+    },
+    "timestamp": "2026-11-15T07:00:12Z"
+  }
+  ```
+  Signé HMAC-SHA256 (`X-IKtracker-Signature: sha256=<hex>`) avec `partner_webhooks.hmac_secret`. Fired uniquement pour les partenaires ayant `monthly_report.sent` dans leur array `events`. Dictadevi (et autres partenaires) doivent l'ajouter côté enregistrement du webhook pour être notifiés — c'est un pull côté partenaire vers `month_url`/`ytd_url` (liens sécurisés 7 j) plutôt qu'un push de données binaires.
