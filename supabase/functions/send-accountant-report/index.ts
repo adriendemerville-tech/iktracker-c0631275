@@ -332,12 +332,14 @@ Deno.serve(async (req) => {
   let query = supabase
     .from('user_preferences')
     .select('user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at, fiscal_year_start_month, fiscal_year_start_day')
-    .eq('accountant_auto_send', true)
 
   if (onlyUserId) {
+    // On-demand: skip the auto_send/day filters so admin/UI can force a send.
     query = query.eq('user_id', onlyUserId)
   } else {
-    query = query.eq('accountant_send_day', todayDay)
+    query = query
+      .eq('accountant_auto_send', true)
+      .eq('accountant_send_day', todayDay)
   }
 
   const { data: prefs, error: prefsErr } = await query
