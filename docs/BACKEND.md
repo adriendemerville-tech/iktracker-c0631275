@@ -365,6 +365,7 @@ Content-Type: application/json
 - **Endpoint** : `GET ?id=uuid`
 - **Logique** : Lit `report_shares` via service role, incrémente le compteur d'accès
 - **Sécurité** : Proxy via Edge Function pour éviter l'énumération directe de la table
+- **Rendu public** : un accès navigateur direct à `/functions/v1/view-report?id=...` redirige vers `https://iktracker.fr/temporaryreport/:id`, qui réutilise le conteneur de preview existant. Le HTML brut est réservé au fetch interne avec `raw=1`.
 
 #### `google-calendar-auth` / `outlook-calendar-auth` — OAuth
 
@@ -953,7 +954,7 @@ Bascule du système d'envoi d'emails de l'infra Lovable Emails vers **Resend** (
 - **Edge function** `send-accountant-report` réécrite :
   - Génère le HTML des relevés (période + cumul annuel).
   - Rend chaque relevé en **PDF** via **Browserless** (`POST https://production-sfo.browserless.io/pdf`, A4 avec `printBackground: true` et marges 18/14mm).
-  - Envoie l'email via Resend avec les **2 PDF en pièces jointes** (base64) + liens sécurisés `report_shares` (TTL 7j) en secours.
+  - Envoie l'email via Resend avec les **2 PDF en pièces jointes** (base64) + liens sécurisés `https://iktracker.fr/temporaryreport/:id` (TTL 7j) en secours.
   - Header `Idempotency-Key: accountant-<user_id>-<period_start>` pour éviter les doublons.
 - **Dépendances supprimées** : plus d'appel à `send-transactional-email`, plus de queue pgmq pour ce flux.
 - **Cron** inchangé : `send-accountant-report-daily` (7h UTC).
@@ -969,7 +970,7 @@ Envoi automatique du relevé kilométrique **à l'utilisateur lui-même** (disti
   - Récupère les users avec `user_monthly_report_enabled = true`.
   - Génère 2 relevés HTML → PDF (Browserless) : **mois précédent** + **cumul année civile en cours**.
   - Injecte un bloc **Profil véhicule** en tête de PDF (immatriculation, marque/modèle, motorisation, puissance fiscale, barème appliqué — bonus 20 % pour 100 % électrique).
-  - Envoie via Resend (`releves@iktracker.fr`) avec 2 PDF en pièces jointes + 2 liens `report_shares` (TTL 7 j).
+  - Envoie via Resend (`releves@iktracker.fr`) avec 2 PDF en pièces jointes + 2 liens publics `https://iktracker.fr/temporaryreport/:id` appuyés par `report_shares` (TTL 7 j).
   - Idempotency key : `user-monthly-<user_id>-<year>-<month>`.
   - Endpoint POST accepte `{ user_id, dry_run?, override_email? }` pour test on-demand (bypass des filtres date/anti-doublon).
 - **Cron** `send-user-monthly-report` : `0 7 15 * *` (**15 du mois, 07:00 UTC**), token lu depuis `vault.decrypted_secrets.email_queue_service_role_key`.

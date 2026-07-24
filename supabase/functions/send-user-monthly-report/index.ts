@@ -347,8 +347,8 @@ Deno.serve(async (req) => {
         .select('id').single()
       if (e2 || !yShare) throw e2 ?? new Error('ytd share failed')
 
-      const monthUrl = `${supabaseUrl}/functions/v1/view-report?id=${mShare.id}`
-      const ytdUrl = `${supabaseUrl}/functions/v1/view-report?id=${yShare.id}`
+      const monthUrl = `${FRONTEND_URL}/temporaryreport/${mShare.id}`
+      const ytdUrl = `${FRONTEND_URL}/temporaryreport/${yShare.id}`
 
       const [monthPdf, ytdPdf] = await Promise.all([
         renderPdf(wrapForPdf(monthTitle, monthBody)),

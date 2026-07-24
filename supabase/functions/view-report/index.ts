@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const FRONTEND_URL = "https://iktracker.fr";
+
+function publicReportUrl(shareId: string): string {
+  return `${FRONTEND_URL}/temporaryreport/${encodeURIComponent(shareId)}`;
+}
+
 // Helper to create HTML response with correct headers
 function htmlResponse(html: string, status = 200): Response {
   const headers = new Headers();
@@ -11,7 +17,7 @@ function htmlResponse(html: string, status = 200): Response {
   headers.set("access-control-allow-origin", "*");
   headers.set(
     "access-control-allow-headers",
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-iktracker-fetch",
   );
   headers.set("cache-control", "no-cache, no-store, must-revalidate");
   headers.set("x-ik-response-type", "html");
@@ -297,7 +303,7 @@ serve(async (req) => {
     return new Response(null, { 
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-iktracker-fetch",
       }
     });
   }
@@ -369,6 +375,20 @@ serve(async (req) => {
         .from("report_shares")
         .update({ accessed_count: (share.accessed_count || 0) + 1 })
         .eq("id", shareId);
+    }
+
+    const wantsRawHtml = url.searchParams.get("raw") === "1" || req.headers.get("x-iktracker-fetch") === "temporary-report";
+    const accept = req.headers.get("accept") ?? "";
+    const secFetchMode = req.headers.get("sec-fetch-mode");
+    const secFetchDest = req.headers.get("sec-fetch-dest");
+    const origin = req.headers.get("origin");
+    const isBrowserNavigation =
+      secFetchMode === "navigate" ||
+      secFetchDest === "document" ||
+      (!origin && accept.includes("text/html") && !url.searchParams.has("raw"));
+
+    if (req.method === "GET" && !wantsRawHtml && isBrowserNavigation) {
+      return Response.redirect(publicReportUrl(shareId), 302);
     }
 
     console.log("Generating clean share page for report");
