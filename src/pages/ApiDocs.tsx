@@ -214,8 +214,13 @@ x-api-key: ikt_live_xxx...
         <section className="border-t pt-6 space-y-3">
           <h2 className="text-2xl font-bold">Webhooks</h2>
           <p className="text-sm text-muted-foreground">
-            IKtracker peut notifier votre plateforme en temps réel lors d'événements (<code>trip.created</code>, <code>trip.updated</code>, <code>vehicle.updated</code>, <code>user.linked</code>, <code>preferences.updated</code>).
+            IKtracker peut notifier votre plateforme en temps réel lors d'événements (<code>trip.created</code>, <code>trip.updated</code>, <code>vehicle.updated</code>, <code>user.linked</code>, <code>preferences.updated</code>, <code>monthly_report.sent</code>).
             Configurez votre URL de réception et un secret HMAC depuis votre dashboard partenaire.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            <strong>Relevés mensuels automatiques :</strong> tout utilisateur provisionné via l'API reçoit par défaut le relevé mensuel + cumul annuel par email le 15 de chaque mois
+            (préférence <code>user_monthly_report_enabled = true</code>, modifiable via l'espace utilisateur). Le webhook <code>monthly_report.sent</code> est émis à chaque envoi
+            avec <code>month_url</code> et <code>ytd_url</code> (liens sécurisés valides 7 jours), <code>external_user_id</code>, mois concerné et volumes (km, IK, nb trajets).
           </p>
           <p className="text-sm text-muted-foreground">
             Chaque requête contient les en-têtes <code>X-IKtracker-Event</code> et <code>X-IKtracker-Signature: sha256=&lt;hmac&gt;</code> pour vérifier l'authenticité.
