@@ -12,14 +12,14 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
 const ALLOWED_REDIRECT_ORIGINS = [
-  'https://www.iktracker.fr',
+  'https://iktracker.fr',
   'https://iktracker.lovable.app',
   'http://localhost:5173',
   'http://localhost:8080',
 ];
 
 function validateRedirectUrl(url: string | undefined): string {
-  const fallback = 'https://www.iktracker.fr/profile';
+  const fallback = 'https://iktracker.fr/profile';
   if (!url) return fallback;
   const isAllowed = ALLOWED_REDIRECT_ORIGINS.some(origin => url.startsWith(origin));
   return isAllowed ? url : fallback;

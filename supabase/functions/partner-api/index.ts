@@ -10,7 +10,7 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://www.iktracker.fr';
+const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://iktracker.fr';
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },

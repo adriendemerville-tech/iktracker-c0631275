@@ -53,10 +53,10 @@ function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
   <title>Relevé IK Partagé - IKtracker</title>
   <meta name="description" content="Relevé de frais kilométriques partagé via IKtracker">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" href="https://www.iktracker.fr/favicon.ico" sizes="48x48">
-  <link rel="icon" type="image/svg+xml" href="https://www.iktracker.fr/favicon.svg">
-  <link rel="icon" type="image/png" sizes="48x48" href="https://www.iktracker.fr/favicon-48x48.png">
-  <link rel="apple-touch-icon" href="https://www.iktracker.fr/apple-touch-icon.png">
+  <link rel="icon" href="https://iktracker.fr/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="https://iktracker.fr/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://iktracker.fr/favicon-48x48.png">
+  <link rel="apple-touch-icon" href="https://iktracker.fr/apple-touch-icon.png">
   <style>
     @page {
       size: A4 landscape;
@@ -213,7 +213,7 @@ function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
   </div>
   
   <div class="footer-link">
-    Généré avec <a href="https://www.iktracker.fr" target="_blank" rel="noopener">IKtracker</a> - Suivi des indemnités kilométriques
+    Généré avec <a href="https://iktracker.fr" target="_blank" rel="noopener">IKtracker</a> - Suivi des indemnités kilométriques
   </div>
 </body>
 </html>`;
@@ -226,10 +226,10 @@ function generateErrorPage(title: string, message: string, subMessage?: string, 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} - IKtracker</title>
-  <link rel="icon" href="https://www.iktracker.fr/favicon.ico" sizes="48x48">
-  <link rel="icon" type="image/svg+xml" href="https://www.iktracker.fr/favicon.svg">
-  <link rel="icon" type="image/png" sizes="48x48" href="https://www.iktracker.fr/favicon-48x48.png">
-  <link rel="apple-touch-icon" href="https://www.iktracker.fr/apple-touch-icon.png">
+  <link rel="icon" href="https://iktracker.fr/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="https://iktracker.fr/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://iktracker.fr/favicon-48x48.png">
+  <link rel="apple-touch-icon" href="https://iktracker.fr/apple-touch-icon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -285,7 +285,7 @@ function generateErrorPage(title: string, message: string, subMessage?: string, 
     <h1>${title}</h1>
     <p>${message}</p>
     ${subMessage ? `<p class="sub">${subMessage}</p>` : ''}
-    <p class="link"><a href="https://www.iktracker.fr">Découvrir IKtracker →</a></p>
+    <p class="link"><a href="https://iktracker.fr">Découvrir IKtracker →</a></p>
   </div>
 </body>
 </html>`;
