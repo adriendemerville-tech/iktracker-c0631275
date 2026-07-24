@@ -5,6 +5,7 @@ import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 
 export type CalendarImportMode = 'individual' | 'tour';
 export type IKRateOverride = 'auto' | 'tier2' | 'tier3';
+export type AccountantFrequency = 'monthly' | 'quarterly' | 'yearly';
 
 export interface Preferences {
   showTripTime: boolean;
@@ -19,6 +20,10 @@ export interface Preferences {
   fiscalYearStartDay: number; // 1-31, default 1
   calendarImportMode: CalendarImportMode;
   ikRateOverride: IKRateOverride;
+  // Accountant automated sending
+  accountantAutoSend: boolean;
+  accountantFrequency: AccountantFrequency;
+  accountantSendDay: number; // 1-28
   // Trip defaults (local-only)
   defaultVehicleId: string | null;
   defaultPurpose: string;
@@ -45,6 +50,9 @@ const defaultPreferences: Preferences = {
   fiscalYearStartDay: 1,
   calendarImportMode: 'individual',
   ikRateOverride: 'auto',
+  accountantAutoSend: false,
+  accountantFrequency: 'monthly',
+  accountantSendDay: 5,
   defaultVehicleId: null,
   defaultPurpose: '',
   defaultRoundTrip: false,
@@ -52,6 +60,7 @@ const defaultPreferences: Preferences = {
   notifAnnualThreshold: true,
   autoMonthlyExport: false,
 };
+
 
 // Get the fiscal year start date for a given reference date
 export function getFiscalYearStart(refDate: Date, fiscalYearStartMonth: number = 1, fiscalYearStartDay: number = 1): Date {
