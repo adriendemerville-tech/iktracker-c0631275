@@ -316,6 +316,8 @@ function parseICS(text: string): ICSRawEvent[] {
         break;
       }
       case 'RRULE': current.rrule = value.trim(); break;
+      case 'TRANSP': current.transp = value.trim().toUpperCase(); break;
+      case 'STATUS': current.status = value.trim().toUpperCase(); break;
       case 'EXDATE': {
         for (const part of value.split(',')) {
           const d = parseICSDate(part);
