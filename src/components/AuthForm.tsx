@@ -98,24 +98,24 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         if (error) throw error;
         toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
         onSuccess?.();
-        navigate('/app');
+        navigate(nextPath ?? '/app');
       } else if (mode === 'signup') {
         trackSignupEvent('signup_form_submit', 'email', 'auth');
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/app`,
+            emailRedirectTo: `${window.location.origin}${nextPath ?? '/app'}`,
           },
         });
         if (error) throw error;
         trackSignupEvent('signup_success', 'email', 'auth');
         toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
         onSuccess?.();
-        navigate('/app');
+        navigate(nextPath ?? '/app');
       } else if (mode === 'forgot-password') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: `${window.location.origin}/auth${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''}`,
         });
         if (error) throw error;
         toast({ 
