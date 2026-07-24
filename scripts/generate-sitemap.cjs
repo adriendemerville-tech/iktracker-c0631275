@@ -28,6 +28,7 @@ const staticPages = [
   { url: '/lexique', priority: '0.8', changefreq: 'monthly' },
   { url: '/comparatif-izika', priority: '0.8', changefreq: 'monthly' },
   { url: '/comparatif-driversnote', priority: '0.8', changefreq: 'monthly' },
+  { url: '/meilleure-application-indemnites-kilometriques', priority: '0.9', changefreq: 'monthly' },
   { url: '/marina', priority: '0.6', changefreq: 'monthly' },
   { url: '/api-docs', priority: '0.5', changefreq: 'monthly' },
   { url: '/blog', priority: '0.8', changefreq: 'weekly' },
