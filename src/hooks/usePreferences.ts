@@ -96,9 +96,10 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona, calendar_import_mode, ik_rate_override')
+          .select('accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day')
           .eq('user_id', user.id)
           .maybeSingle();
+
 
         if (error) {
           console.warn('Failed to load preferences from database:', error);
@@ -134,6 +135,19 @@ export function usePreferences() {
           if (override === 'auto' || override === 'tier2' || override === 'tier3') {
             updates.ikRateOverride = override;
           }
+
+          if (typeof (data as any)?.accountant_auto_send === 'boolean') {
+            updates.accountantAutoSend = (data as any).accountant_auto_send;
+          }
+          const freq = (data as any)?.accountant_frequency as AccountantFrequency | undefined;
+          if (freq === 'monthly' || freq === 'quarterly' || freq === 'yearly') {
+            updates.accountantFrequency = freq;
+          }
+          const day = (data as any)?.accountant_send_day as number | undefined;
+          if (typeof day === 'number' && day >= 1 && day <= 28) {
+            updates.accountantSendDay = day;
+          }
+
 
           if (Object.keys(updates).length > 0) {
             setPreferences(prev => ({ ...prev, ...updates }));
@@ -229,6 +243,23 @@ export function usePreferences() {
     }
   }, [user]);
 
+  // Save accountant scheduling fields to database
+  const saveAccountantScheduleToDatabase = useCallback(async (patch: {
+    accountant_auto_send?: boolean;
+    accountant_frequency?: AccountantFrequency;
+    accountant_send_day?: number;
+  }) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, ...patch } as any, { onConflict: 'user_id' });
+      if (error) console.warn('Failed to save accountant schedule:', error);
+    } catch (e) {
+      console.warn('Failed to save accountant schedule:', e);
+    }
+  }, [user]);
+
   const updatePreference = <K extends keyof Preferences>(
     key: K,
     value: Preferences[K]
@@ -239,6 +270,7 @@ export function usePreferences() {
     if (key === 'accountantEmail' && user) {
       saveAccountantEmailToDatabase(value as string);
     }
+
 
     // Sync profession → persona to database
     if (key === 'profession' && user) {
