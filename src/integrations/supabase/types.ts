@@ -1864,7 +1864,11 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          accountant_auto_send: boolean
           accountant_email: string | null
+          accountant_frequency: string
+          accountant_last_sent_at: string | null
+          accountant_send_day: number
           calendar_import_mode: string
           created_at: string
           id: string
@@ -1876,7 +1880,11 @@ export type Database = {
           visit_count: number
         }
         Insert: {
+          accountant_auto_send?: boolean
           accountant_email?: string | null
+          accountant_frequency?: string
+          accountant_last_sent_at?: string | null
+          accountant_send_day?: number
           calendar_import_mode?: string
           created_at?: string
           id?: string
@@ -1888,7 +1896,11 @@ export type Database = {
           visit_count?: number
         }
         Update: {
+          accountant_auto_send?: boolean
           accountant_email?: string | null
+          accountant_frequency?: string
+          accountant_last_sent_at?: string | null
+          accountant_send_day?: number
           calendar_import_mode?: string
           created_at?: string
           id?: string
