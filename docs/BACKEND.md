@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.7 — 24 juillet 2026
+> Version 2.8 — 24 juillet 2026
 
 ## Table des matières
 
