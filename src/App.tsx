@@ -63,6 +63,7 @@ const ApiDocs = lazy(() => import("./pages/ApiDocs"));
 const AdminPartners = lazy(() => import("./pages/AdminPartners"));
 const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const MeilleureApplicationIK = lazy(() => import("./pages/MeilleureApplicationIK"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
