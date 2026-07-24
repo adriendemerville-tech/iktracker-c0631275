@@ -281,7 +281,12 @@ async function firePartnerWebhooks(
         },
         timestamp: new Date().toISOString(),
       })
-      const key = await importHmacKey(hook.hmac_secret)
+      const secret = hook.hmac_secret || Deno.env.get('IKTRACKER_WEBHOOK_SECRET')
+      if (!secret) {
+        console.error(`Missing HMAC secret for partner webhook ${hook.id}`)
+        continue
+      }
+      const key = await importHmacKey(secret)
       const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body))
       const sigHex = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
       fetch(hook.url, {
