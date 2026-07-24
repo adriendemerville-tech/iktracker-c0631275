@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,14 @@ import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { trackSignupEvent } from '@/lib/signup-tracking';
+
+// Validate a `next` search-param as a same-origin relative path so we can safely
+// redirect after login/signup/OAuth (used by the OAuth consent route).
+function safeNextPath(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+  return raw;
+}
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
 
@@ -36,6 +44,8 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
   }, [cooldown]);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | 'apple' | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get('next'));
   const { toast } = useToast();
 
   // Track signup_view when the form is in signup mode
@@ -57,6 +67,10 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
       if (provider === 'google') {
         // Include calendar scope at sign-up so tokens are stored immediately
         options.scopes = 'https://www.googleapis.com/auth/calendar.readonly';
+      }
+      // Preserve OAuth consent flow (or any post-login redirect) across the OAuth round-trip.
+      if (nextPath) {
+        options.redirectTo = `${window.location.origin}${nextPath}`;
       }
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -84,24 +98,24 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         if (error) throw error;
         toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
         onSuccess?.();
-        navigate('/app');
+        navigate(nextPath ?? '/app');
       } else if (mode === 'signup') {
         trackSignupEvent('signup_form_submit', 'email', 'auth');
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/app`,
+            emailRedirectTo: `${window.location.origin}${nextPath ?? '/app'}`,
           },
         });
         if (error) throw error;
         trackSignupEvent('signup_success', 'email', 'auth');
         toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
         onSuccess?.();
-        navigate('/app');
+        navigate(nextPath ?? '/app');
       } else if (mode === 'forgot-password') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: `${window.location.origin}/auth${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''}`,
         });
         if (error) throw error;
         toast({ 

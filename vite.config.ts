@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 import viteCompression from "vite-plugin-compression";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 
 // Plugin to make CSS non-render-blocking for better FCP
 function asyncCssPlugin(): Plugin {
@@ -82,6 +83,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+    mcpPlugin(),
     asyncCssPlugin(), // Add async CSS loading for better FCP
     criticalChunkPreloadPlugin(), // Add high-priority preload for critical vendors
     VitePWA({
