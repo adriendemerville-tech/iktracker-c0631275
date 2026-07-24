@@ -33,26 +33,55 @@ export function CompleteAddressSheet({
   const [loading, setLoading] = useState(false);
   
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
-  // Pre-fill with home/office location
+  // Pre-fill with original trip locations; fallback to home/office only for generic start addresses
+  const isGenericAddress = (addr?: string) => {
+    if (!addr) return true;
+    const normalized = addr.toLowerCase().trim();
+    return normalized === 'maison' || normalized === 'domicile';
+  };
+
   useEffect(() => {
     if (open) {
-      // Find home or office location
-      const homeLocation = savedLocations.find(l => l.type === 'home');
-      const officeLocation = savedLocations.find(l => l.type === 'office');
-      const defaultLocation = homeLocation || officeLocation;
-      
-      if (defaultLocation) {
-        setStartAddress(defaultLocation.address || defaultLocation.name);
-        if (defaultLocation.lat && defaultLocation.lng) {
-          setStartCoords({ lat: defaultLocation.lat, lng: defaultLocation.lng });
+      // Start: preserve the trip's original departure address
+      if (trip.startLocation?.address && !isGenericAddress(trip.startLocation.address)) {
+        setStartAddress(trip.startLocation.address);
+        if (trip.startLocation.lat && trip.startLocation.lng) {
+          setStartCoords({ lat: trip.startLocation.lat, lng: trip.startLocation.lng });
+        } else {
+          setStartCoords(null);
+        }
+      } else {
+        const homeLocation = savedLocations.find(l => l.type === 'home');
+        const officeLocation = savedLocations.find(l => l.type === 'office');
+        const defaultLocation = homeLocation || officeLocation;
+
+        if (defaultLocation) {
+          setStartAddress(defaultLocation.address || defaultLocation.name);
+          if (defaultLocation.lat && defaultLocation.lng) {
+            setStartCoords({ lat: defaultLocation.lat, lng: defaultLocation.lng });
+          } else {
+            setStartCoords(null);
+          }
+        } else {
+          setStartAddress('');
+          setStartCoords(null);
         }
       }
-      
-      // Reset end address
-      setEndAddress('');
-      setEndCoords(null);
+
+      // End: preserve the trip's original arrival address if meaningful
+      if (trip.endLocation?.address && !isGenericAddress(trip.endLocation.address)) {
+        setEndAddress(trip.endLocation.address);
+        if (trip.endLocation.lat && trip.endLocation.lng) {
+          setEndCoords({ lat: trip.endLocation.lat, lng: trip.endLocation.lng });
+        } else {
+          setEndCoords(null);
+        }
+      } else {
+        setEndAddress('');
+        setEndCoords(null);
+      }
     }
-  }, [open, savedLocations]);
+  }, [open, savedLocations, trip]);
 
   const handleAddressSelect = (suggestion: AddressSuggestion, field: 'start' | 'end') => {
     const coords = suggestion.lat && suggestion.lng ? { lat: suggestion.lat, lng: suggestion.lng } : null;
