@@ -1877,6 +1877,8 @@ export type Database = {
           tutorial_completed_at: string | null
           updated_at: string
           user_id: string
+          user_monthly_report_enabled: boolean
+          user_monthly_report_last_sent_at: string | null
           visit_count: number
         }
         Insert: {
@@ -1893,6 +1895,8 @@ export type Database = {
           tutorial_completed_at?: string | null
           updated_at?: string
           user_id: string
+          user_monthly_report_enabled?: boolean
+          user_monthly_report_last_sent_at?: string | null
           visit_count?: number
         }
         Update: {
@@ -1909,6 +1913,8 @@ export type Database = {
           tutorial_completed_at?: string | null
           updated_at?: string
           user_id?: string
+          user_monthly_report_enabled?: boolean
+          user_monthly_report_last_sent_at?: string | null
           visit_count?: number
         }
         Relationships: []
