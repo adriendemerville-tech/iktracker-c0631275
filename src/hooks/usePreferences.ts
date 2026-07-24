@@ -99,7 +99,7 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day')
+          .select('accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day, user_monthly_report_enabled')
           .eq('user_id', user.id)
           .maybeSingle();
 
