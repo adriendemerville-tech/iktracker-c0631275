@@ -62,6 +62,7 @@ const Sso = lazy(() => import("./pages/Sso"));
 const ApiDocs = lazy(() => import("./pages/ApiDocs"));
 const AdminPartners = lazy(() => import("./pages/AdminPartners"));
 const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -365,6 +366,7 @@ const AppRoutes = () => {
           }
         />
         <Route path="/debug/tour-modal" element={<Suspense fallback={<PageLoader />}><DebugTourModal /></Suspense>} />
+        <Route path="/.lovable/oauth/consent" element={<Suspense fallback={<PageLoader />}><OAuthConsent /></Suspense>} />
         <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
 
       </Routes>
