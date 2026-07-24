@@ -69,3 +69,6 @@ verify_jwt = true
 
 [functions.send-accountant-report-manual]
 verify_jwt = true
+
+[functions.mcp]
+verify_jwt = false
