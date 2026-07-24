@@ -378,6 +378,22 @@ Deno.serve(async (req) => {
         .update({ user_monthly_report_last_sent_at: today.toISOString() })
         .eq('user_id', p.user_id)
 
+      // Notify partners (e.g. dictadevi) that a monthly statement is available.
+      await firePartnerWebhooks(supabase, p.user_id, {
+        event: 'monthly_report.sent',
+        period_label: period.label,
+        ytd_label: ytd.label,
+        month_url: monthUrl,
+        ytd_url: ytdUrl,
+        month_trip_count: periodTrips.length,
+        month_total_km: totalKm(periodTrips),
+        month_total_ik: totalIk(periodTrips),
+        ytd_trip_count: ytdTrips.length,
+        ytd_total_km: totalKm(ytdTrips),
+        ytd_total_ik: totalIk(ytdTrips),
+        expires_at: expiresAt,
+      })
+
       results.push({ user_id: p.user_id, status: 'sent', detail: email })
     } catch (err) {
       console.error('user monthly report error', p.user_id, err)
