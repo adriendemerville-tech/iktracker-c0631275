@@ -255,6 +255,8 @@ interface ICSRawEvent {
   allDay: boolean;
   rrule?: string;
   exdates: Date[];
+  transp?: string; // TRANSP: OPAQUE | TRANSPARENT (RFC 5545 §3.8.2.7)
+  status?: string; // STATUS: CONFIRMED | TENTATIVE | CANCELLED (RFC 5545 §3.8.1.11)
 }
 
 function parseICS(text: string): ICSRawEvent[] {
