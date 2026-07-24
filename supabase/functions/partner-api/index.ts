@@ -168,7 +168,12 @@ async function findOrCreateIktrackerUser(partnerId: string, externalUserId: stri
     metadata,
   });
 
-  // 5. Trigger webhook user.linked
+  // 5. Ensure user_preferences row exists so auto-monthly reports run for this user.
+  //    Defaults (user_monthly_report_enabled = true) apply on insert.
+  await admin.from('user_preferences')
+    .upsert({ user_id: iktrackerUserId }, { onConflict: 'user_id', ignoreDuplicates: true });
+
+  // 6. Trigger webhook user.linked
   fireWebhook(partnerId, 'user.linked', { external_user_id: externalUserId, iktracker_user_id: iktrackerUserId, email: externalEmail });
 
   return iktrackerUserId;
