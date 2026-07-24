@@ -150,6 +150,9 @@ export function usePreferences() {
           if (typeof day === 'number' && day >= 1 && day <= 28) {
             updates.accountantSendDay = day;
           }
+          if (typeof (data as any)?.user_monthly_report_enabled === 'boolean') {
+            updates.userMonthlyReportEnabled = (data as any).user_monthly_report_enabled;
+          }
 
 
           if (Object.keys(updates).length > 0) {
