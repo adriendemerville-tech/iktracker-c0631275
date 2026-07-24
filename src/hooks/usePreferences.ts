@@ -61,6 +61,8 @@ const defaultPreferences: Preferences = {
   notifTourReminder: true,
   notifAnnualThreshold: true,
   autoMonthlyExport: false,
+  autoMonthlyExport: false,
+  userMonthlyReportEnabled: true,
 };
 
 
