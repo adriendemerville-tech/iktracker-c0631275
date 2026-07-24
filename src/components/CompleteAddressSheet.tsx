@@ -146,16 +146,16 @@ export function CompleteAddressSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl pb-safe max-h-[80vh]">
-        <SheetHeader className="text-left pb-2">
-          <SheetTitle className="text-base">Compléter le trajet</SheetTitle>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="text-left pb-2">
+          <DialogTitle className="text-base">Compléter le trajet</DialogTitle>
           {trip.purpose && (
-            <SheetDescription className="text-xs">
+            <DialogDescription className="text-xs">
               RDV: <span className="font-medium text-foreground">{trip.purpose}</span>
-            </SheetDescription>
+            </DialogDescription>
           )}
-        </SheetHeader>
+        </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {/* Départ */}
