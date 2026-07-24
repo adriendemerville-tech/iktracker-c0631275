@@ -63,6 +63,16 @@ Allow: /
 User-agent: *
 Allow: /
 
+# === ROUTES NON INDEXABLES (app, auth, utilitaires, partages temporaires) ===
+Disallow: /app/
+Disallow: /auth
+Disallow: /unsubscribe
+Disallow: /temporaryreport/
+Disallow: /sso
+Disallow: /offline
+Disallow: /debug/
+Disallow: /.lovable/oauth/consent
+
 # === SITEMAP & GUIDE IA ===
 Sitemap: https://iktracker.fr/sitemap.xml
 
