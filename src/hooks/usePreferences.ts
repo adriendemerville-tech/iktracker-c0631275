@@ -302,6 +302,7 @@ export function usePreferences() {
     }
     if (key === 'accountantSendDay' && user) {
       saveAccountantScheduleToDatabase({ accountant_send_day: value as number });
+    }
     if (key === 'userMonthlyReportEnabled' && user) {
       saveAccountantScheduleToDatabase({ user_monthly_report_enabled: value as boolean } as any);
     }
