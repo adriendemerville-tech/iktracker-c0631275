@@ -331,7 +331,7 @@ Deno.serve(async (req) => {
 
   let query = supabase
     .from('user_preferences')
-    .select('user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at, fiscal_year_start_month, fiscal_year_start_day')
+    .select('user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at')
 
   if (onlyUserId) {
     // On-demand: skip the auto_send/day filters so admin/UI can force a send.
