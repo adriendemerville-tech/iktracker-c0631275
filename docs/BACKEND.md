@@ -941,3 +941,19 @@ Système d'affiliation **sortante** (IKtracker → partenaires type Qonto, Indy)
 - **config.toml** : `[functions.partner-redirect] verify_jwt = false` (endpoint public — l'auth utilisateur est résolue best-effort via bearer optionnel).
 - **Seeds** : Qonto + Indy insérés en `is_active = false` avec URLs placeholder. Aucun affichage public tant que l'admin n'a pas activé et renseigné les vraies URLs d'affiliation.
 
+
+
+## Emails — Envoi via Resend (novembre 2026)
+
+Bascule du système d'envoi d'emails de l'infra Lovable Emails vers **Resend** (via connector gateway Lovable) pour supporter les **pièces jointes PDF**.
+
+- **Lovable Emails désactivés** : `email_domain--toggle_project_emails(enabled=false)`. Le sous-domaine `notify.iktracker.fr` reste délégué (NS `ns3/ns4.lovable.cloud`) tant que l'utilisateur n'a pas retiré les enregistrements chez son registrar.
+- **Connector Resend** lié au projet — secrets injectés : `RESEND_API_KEY` (managed), utilisé via gateway `https://connector-gateway.lovable.dev/resend` avec `Authorization: Bearer $LOVABLE_API_KEY` + `X-Connection-Api-Key: $RESEND_API_KEY`.
+- **Domaine expéditeur** : `iktracker.fr` (racine) — `FROM_EMAIL = "IKtracker <releves@iktracker.fr>"`, `reply_to = contact@iktracker.fr`. Nécessite validation SPF/DKIM/DMARC de `iktracker.fr` côté Resend (indépendant du sous-domaine `notify` délégué à Lovable).
+- **Edge function** `send-accountant-report` réécrite :
+  - Génère le HTML des relevés (période + cumul annuel).
+  - Rend chaque relevé en **PDF** via **Browserless** (`POST https://production-sfo.browserless.io/pdf`, A4 avec `printBackground: true` et marges 18/14mm).
+  - Envoie l'email via Resend avec les **2 PDF en pièces jointes** (base64) + liens sécurisés `report_shares` (TTL 7j) en secours.
+  - Header `Idempotency-Key: accountant-<user_id>-<period_start>` pour éviter les doublons.
+- **Dépendances supprimées** : plus d'appel à `send-transactional-email`, plus de queue pgmq pour ce flux.
+- **Cron** inchangé : `send-accountant-report-daily` (7h UTC).
