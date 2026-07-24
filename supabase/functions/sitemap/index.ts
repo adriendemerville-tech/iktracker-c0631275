@@ -89,10 +89,9 @@ serve(async (req) => {
     // Fetch ALL published blog posts (pagination to avoid the default 1000 rows limit)
     const blogPosts = await fetchAllPublishedBlogPosts(supabase);
 
-    // Generate static pages entries with their specific lastmod dates
+    // Generate static pages entries (lastmod only when page-specific timestamp is available)
     const staticEntries = staticPages.map(page => `  <url>
-    <loc>${BASE_URL}${page.url}</loc>
-    <lastmod>${page.lastmod}</lastmod>
+    <loc>${BASE_URL}${page.url}</loc>${page.lastmod ? `\n    <lastmod>${page.lastmod}</lastmod>` : ''}
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>`).join('\n');
