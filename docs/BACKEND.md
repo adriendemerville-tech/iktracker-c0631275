@@ -957,3 +957,20 @@ Bascule du système d'envoi d'emails de l'infra Lovable Emails vers **Resend** (
   - Header `Idempotency-Key: accountant-<user_id>-<period_start>` pour éviter les doublons.
 - **Dépendances supprimées** : plus d'appel à `send-transactional-email`, plus de queue pgmq pour ce flux.
 - **Cron** inchangé : `send-accountant-report-daily` (7h UTC).
+
+## Relevé mensuel automatique à l'utilisateur (juillet 2026)
+
+Envoi automatique du relevé kilométrique **à l'utilisateur lui-même** (distinct de l'envoi comptable).
+
+- **Nouvelles colonnes `user_preferences`** :
+  - `user_monthly_report_enabled boolean NOT NULL DEFAULT true` — opt-out par utilisateur.
+  - `user_monthly_report_last_sent_at timestamptz` — anti-doublon (25 j min entre deux envois).
+- **Edge function** `send-user-monthly-report` :
+  - Récupère les users avec `user_monthly_report_enabled = true`.
+  - Génère 2 relevés HTML → PDF (Browserless) : **mois précédent** + **cumul année civile en cours**.
+  - Injecte un bloc **Profil véhicule** en tête de PDF (immatriculation, marque/modèle, motorisation, puissance fiscale, barème appliqué — bonus 20 % pour 100 % électrique).
+  - Envoie via Resend (`releves@iktracker.fr`) avec 2 PDF en pièces jointes + 2 liens `report_shares` (TTL 7 j).
+  - Idempotency key : `user-monthly-<user_id>-<year>-<month>`.
+  - Endpoint POST accepte `{ user_id, dry_run?, override_email? }` pour test on-demand (bypass des filtres date/anti-doublon).
+- **Cron** `send-user-monthly-report` : `0 7 15 * *` (**15 du mois, 07:00 UTC**), token lu depuis `vault.decrypted_secrets.email_queue_service_role_key`.
+- **UI** : toggle « Relevé mensuel automatique » dans Préférences (activé par défaut).
