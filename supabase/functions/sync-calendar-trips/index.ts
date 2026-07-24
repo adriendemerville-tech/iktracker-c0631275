@@ -174,6 +174,10 @@ async function fetchGoogleCalendarEvents(accessToken: string, monthsBack: number
     orderBy: 'startTime',
     maxResults: '500',
   });
+  // Ask Google to already exclude non-meeting event types (birthday, focusTime, outOfOffice, workingLocation, fromGmail).
+  // Ref: https://developers.google.com/calendar/api/v3/reference/events/list#eventTypes
+  params.append('eventTypes', 'default');
+
 
   console.log(`Fetching Google Calendar events from ${startDate.toISOString()} to ${endDate.toISOString()} (monthsBack=${monthsBack})`);
 
