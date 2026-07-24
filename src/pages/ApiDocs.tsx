@@ -240,6 +240,39 @@ Content-Type: application/json
     "ik_amount": 7.95
   }
 }`}</Code>
+          <p className="text-sm text-muted-foreground pt-2">Exemple concret de payload <code>monthly_report.sent</code> (émis le 15 de chaque mois après envoi email) :</p>
+          <Code>{`POST https://your-platform.com/webhooks/iktracker
+X-IKtracker-Event: monthly_report.sent
+X-IKtracker-Signature: sha256=9f4c1a2b8e...
+Content-Type: application/json
+
+{
+  "event": "monthly_report.sent",
+  "timestamp": "2026-05-15T07:02:14Z",
+  "payload": {
+    "iktracker_user_id": "b3d1e8a4-7c92-4f0a-9e11-2a5c6f8b0d31",
+    "external_user_id": "user-12345",
+    "email": "marie@cabinet.fr",
+    "period": {
+      "month": "2026-04",
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30"
+    },
+    "totals": {
+      "trips_count": 42,
+      "distance_km": 1287.4,
+      "ik_amount_eur": 823.15
+    },
+    "ytd": {
+      "distance_km": 5124.9,
+      "ik_amount_eur": 3287.42
+    },
+    "month_url": "https://iktracker.fr/temporaryreport/8f2a...e4b1",
+    "ytd_url": "https://iktracker.fr/temporaryreport/1c9d...af07",
+    "expires_at": "2026-05-22T07:02:14Z"
+  }
+}`}</Code>
+          <p className="text-xs text-muted-foreground">Les URLs <code>month_url</code> et <code>ytd_url</code> exposent le PDF via <code>?format=pdf</code> — idéal pour un pull côté partenaire (archivage GED, transmission comptable).</p>
         </section>
 
         <section className="border-t pt-6 space-y-3">
