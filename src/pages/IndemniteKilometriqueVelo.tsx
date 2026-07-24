@@ -48,11 +48,11 @@ export default function IndemniteKilometriqueVelo() {
           name="keywords"
           content="indemnité kilométrique vélo, IK vélo, forfait mobilités durables, FMD, indemnité vélo électrique, vélotaf, indemnité vélo employeur, plafond 700 euros vélo"
         />
-        <link rel="canonical" href="https://www.iktracker.fr/indemnite-kilometrique-velo" />
+        <link rel="canonical" href="https://iktracker.fr/indemnite-kilometrique-velo" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <meta property="og:title" content="Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables" />
         <meta property="og:description" content="Tout savoir sur l'indemnité kilométrique vélo et le Forfait Mobilités Durables : 700 €/an exonérés, conditions, justificatifs et calcul." />
-        <meta property="og:url" content="https://www.iktracker.fr/indemnite-kilometrique-velo" />
+        <meta property="og:url" content="https://iktracker.fr/indemnite-kilometrique-velo" />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
@@ -64,11 +64,11 @@ export default function IndemniteKilometriqueVelo() {
             headline: "Indemnité kilométrique vélo 2025-2026 : guide complet",
             description:
               "Tout savoir sur l'indemnité kilométrique vélo et le Forfait Mobilités Durables en France : montant, conditions, exonération et justificatifs.",
-            author: { "@type": "Person", name: "Adrien de Volontat", url: "https://www.iktracker.fr/blog/auteur/adrien-de-volontat" },
-            publisher: { "@type": "Organization", name: "IKtracker", url: "https://www.iktracker.fr" },
+            author: { "@type": "Person", name: "Adrien de Volontat", url: "https://iktracker.fr/blog/auteur/adrien-de-volontat" },
+            publisher: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
             datePublished: "2026-06-29",
             dateModified: "2026-06-29",
-            mainEntityOfPage: "https://www.iktracker.fr/indemnite-kilometrique-velo",
+            mainEntityOfPage: "https://iktracker.fr/indemnite-kilometrique-velo",
           })}
         </script>
 
@@ -84,7 +84,7 @@ export default function IndemniteKilometriqueVelo() {
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://www.iktracker.fr/indemnite-kilometrique-velo", pageDescription: "Indemnité kilométrique vélo 2025-2026 et Forfait Mobilités Durables : guide pratique, plafond 700 €, conditions, justificatifs. IKtracker consigne vos trajets vélo et voiture dans un journal opposable, gratuit à vie." }))}
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/indemnite-kilometrique-velo", pageDescription: "Indemnité kilométrique vélo 2025-2026 et Forfait Mobilités Durables : guide pratique, plafond 700 €, conditions, justificatifs. IKtracker consigne vos trajets vélo et voiture dans un journal opposable, gratuit à vie." }))}
         </script>
       </Helmet>
 

@@ -14,14 +14,14 @@ const Privacy = () => {
         <title>Politique de confidentialité | IKtracker</title>
         <meta name="description" content="Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD, droits d'accès, rectification et suppression. Sécurité de vos informations garantie." />
         <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, IKtracker, données personnelles" />
-        <link rel="canonical" href="https://www.iktracker.fr/privacy" />
+        <link rel="canonical" href="https://iktracker.fr/privacy" />
         <meta name="robots" content="index, follow" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Politique de confidentialité | IKtracker" />
         <meta property="og:description" content="Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD et sécurité garantie." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.iktracker.fr/privacy" />
+        <meta property="og:url" content="https://iktracker.fr/privacy" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
         
@@ -37,12 +37,12 @@ const Privacy = () => {
             "@type": "WebPage",
             "name": "Politique de confidentialité IKtracker",
             "description": "Politique de confidentialité et protection des données personnelles de l'application IKtracker",
-            "url": "https://www.iktracker.fr/privacy",
+            "url": "https://iktracker.fr/privacy",
             "inLanguage": "fr-FR",
             "isPartOf": {
               "@type": "WebSite",
               "name": "IKtracker",
-              "url": "https://www.iktracker.fr"
+              "url": "https://iktracker.fr"
             },
             "about": {
               "@type": "Thing",

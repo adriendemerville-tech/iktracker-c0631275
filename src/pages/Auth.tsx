@@ -260,7 +260,7 @@ const Auth = () => {
           <title>Connexion | IKtracker</title>
           <meta name="description" content="Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques." />
           <meta name="robots" content="noindex, nofollow" />
-          <link rel="canonical" href="https://www.iktracker.fr/auth" />
+          <link rel="canonical" href="https://iktracker.fr/auth" />
         </Helmet>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
         <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
@@ -348,7 +348,7 @@ const Auth = () => {
           <title>Connexion | IKtracker</title>
           <meta name="description" content="Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques." />
           <meta name="robots" content="noindex, nofollow" />
-          <link rel="canonical" href="https://www.iktracker.fr/auth" />
+          <link rel="canonical" href="https://iktracker.fr/auth" />
         </Helmet>
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
         {/* Subtle gradient overlay */}

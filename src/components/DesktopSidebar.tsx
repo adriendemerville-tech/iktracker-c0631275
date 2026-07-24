@@ -414,7 +414,7 @@ export const DesktopSidebar = ({
               <div className="mt-4 pt-3 border-t border-primary/10 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Par le même fondateur</p>
                 <a
-                  href="https://www.iktracker.fr"
+                  href="https://iktracker.fr"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
@@ -479,7 +479,7 @@ export const DesktopSidebar = ({
           <div className="flex justify-center py-4">
             <div className="bg-white p-3 rounded-xl">
               <QRCodeSVG 
-                value="https://www.iktracker.fr/install" 
+                value="https://iktracker.fr/install" 
                 size={140}
                 level="M"
                 includeMargin={false}

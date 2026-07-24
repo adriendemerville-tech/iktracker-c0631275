@@ -718,9 +718,9 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
   function getUrl(log: AuditLog): string {
     const data = log.new_data || log.previous_data || {};
     const slug = (data as any).slug || (data as any).page_key || '';
-    if (log.resource_type === 'post' && slug) return `https://www.iktracker.fr/blog/${slug}`;
-    if (log.resource_type === 'page' && slug) return `https://www.iktracker.fr/${slug}`;
-    if (log.resource_type === 'seo') return `https://www.iktracker.fr/${slug || ''}`;
+    if (log.resource_type === 'post' && slug) return `https://iktracker.fr/blog/${slug}`;
+    if (log.resource_type === 'page' && slug) return `https://iktracker.fr/${slug}`;
+    if (log.resource_type === 'seo') return `https://iktracker.fr/${slug || ''}`;
     if (log.resource_type === 'redirect') return (data as any).source_path || '-';
     return '-';
   }

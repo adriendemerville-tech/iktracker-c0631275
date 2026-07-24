@@ -118,23 +118,23 @@ export default function Calendrier() {
         <title>Synchronisation Calendrier IKtracker | Google Calendar & Outlook</title>
         <meta name="description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
         <meta name="keywords" content="synchronisation calendrier, Google Calendar IK, Outlook indemnités kilométriques, import automatique trajets, RDV en trajets, calendrier frais kilométriques" />
-        <link rel="canonical" href="https://www.iktracker.fr/calendrier" />
+        <link rel="canonical" href="https://iktracker.fr/calendrier" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Synchronisation Calendrier IKtracker | Google Calendar & Outlook" />
         <meta property="og:description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.iktracker.fr/calendrier" />
+        <meta property="og:url" content="https://iktracker.fr/calendrier" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Synchronisation Calendrier IKtracker" />
         <meta name="twitter:description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
-        <meta name="twitter:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
         <meta name="geo.region" content="FR" />
@@ -150,11 +150,11 @@ export default function Calendrier() {
                 "@type": "WebPage",
                 "name": "Synchronisation Calendrier IKtracker",
                 "description": "Connectez votre calendrier Google ou Outlook pour créer automatiquement vos trajets",
-                "url": "https://www.iktracker.fr/calendrier",
+                "url": "https://iktracker.fr/calendrier",
                 "isPartOf": {
                   "@type": "WebSite",
                   "name": "IKtracker",
-                  "url": "https://www.iktracker.fr"
+                  "url": "https://iktracker.fr"
                 },
                 "about": {
                   "@type": "SoftwareApplication",
@@ -175,9 +175,9 @@ export default function Calendrier() {
                 "totalTime": "PT2M",
                 "tool": [{ "@type": "HowToTool", "name": "Compte Google ou Microsoft / Outlook" }],
                 "step": [
-                  { "@type": "HowToStep", "position": 1, "name": "Connectez votre calendrier", "text": "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé.", "url": "https://www.iktracker.fr/calendrier#etape-1" },
-                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos RDV comme d'habitude", "text": "Avec l'adresse dans le champ lieu de votre événement.", "url": "https://www.iktracker.fr/calendrier#etape-2" },
-                  { "@type": "HowToStep", "position": 3, "name": "Les trajets se créent seuls", "text": "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026.", "url": "https://www.iktracker.fr/calendrier#etape-3" }
+                  { "@type": "HowToStep", "position": 1, "name": "Connectez votre calendrier", "text": "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé.", "url": "https://iktracker.fr/calendrier#etape-1" },
+                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos RDV comme d'habitude", "text": "Avec l'adresse dans le champ lieu de votre événement.", "url": "https://iktracker.fr/calendrier#etape-2" },
+                  { "@type": "HowToStep", "position": 3, "name": "Les trajets se créent seuls", "text": "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026.", "url": "https://iktracker.fr/calendrier#etape-3" }
                 ]
               }
             ]

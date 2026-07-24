@@ -49,14 +49,14 @@ const ComparatifIzika = () => {
           content="Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l'alternative 100% gratuite qui synchronise votre agenda et génère vos rapports fiscaux conformes." 
         />
         <meta name="keywords" content="izika alternative, izika gratuit, alternative izika 2026, izika vs iktracker, application indemnités kilométriques gratuite, izika prix" />
-        <link rel="canonical" href="https://www.iktracker.fr/comparatif-izika" />
+        <link rel="canonical" href="https://iktracker.fr/comparatif-izika" />
         <meta property="og:title" content="Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)" />
         <meta property="og:description" content="Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l'alternative 100% gratuite." />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://www.iktracker.fr/comparatif-izika" />
+        <meta property="og:url" content="https://iktracker.fr/comparatif-izika" />
         <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Izika vs IKtracker : Comparatif 2026" />
         <meta name="twitter:description" content="L'alternative gratuite à Izika pour vos indemnités kilométriques." />
@@ -72,19 +72,19 @@ const ComparatifIzika = () => {
             "author": {
               "@type": "Person",
               "name": "Adrien de Volontat",
-              "url": "https://www.iktracker.fr/blog/auteur/adrien-de-volontat"
+              "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat"
             },
             "publisher": {
               "@type": "Organization",
               "name": "IKtracker",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://www.iktracker.fr/logo-iktracker-250.webp"
+                "url": "https://iktracker.fr/logo-iktracker-250.webp"
               }
             },
             "datePublished": "2026-02-03",
             "dateModified": "2026-02-03",
-            "mainEntityOfPage": "https://www.iktracker.fr/comparatif-izika",
+            "mainEntityOfPage": "https://iktracker.fr/comparatif-izika",
             "inLanguage": "fr-FR"
           })}
         </script>
@@ -199,7 +199,7 @@ const ComparatifIzika = () => {
                 <a href="https://izika.com" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
                   izika.com
                 </a>{" "}et{" "}
-                <a href="https://www.iktracker.fr" className="text-primary underline hover:text-primary/80">
+                <a href="https://iktracker.fr" className="text-primary underline hover:text-primary/80">
                   iktracker.fr
                 </a>{" "}— Février 2026
               </p>

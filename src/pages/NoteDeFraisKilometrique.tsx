@@ -44,11 +44,11 @@ export default function NoteDeFraisKilometrique() {
           name="keywords"
           content="note de frais kilométrique, modèle note de frais kilométrique, comment faire une note de frais kilométrique, calcul note de frais, justifier frais kilométrique impôt, remboursement kilométrique"
         />
-        <link rel="canonical" href="https://www.iktracker.fr/note-de-frais-kilometrique" />
+        <link rel="canonical" href="https://iktracker.fr/note-de-frais-kilometrique" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <meta property="og:title" content="Note de frais kilométrique 2025-2026 | Modèle gratuit" />
         <meta property="og:description" content="Modèle de note de frais kilométrique conforme URSSAF + calcul automatique selon barème 2025-2026. Export PDF & Excel gratuit." />
-        <meta property="og:url" content="https://www.iktracker.fr/note-de-frais-kilometrique" />
+        <meta property="og:url" content="https://iktracker.fr/note-de-frais-kilometrique" />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
@@ -83,7 +83,7 @@ export default function NoteDeFraisKilometrique() {
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://www.iktracker.fr/note-de-frais-kilometrique", pageDescription: "Note de frais kilométrique 2025-2026 : modèle conforme URSSAF, calcul automatique selon barème officiel, export PDF/Excel. Gratuit, conçu par un entrepreneur indépendant pour les salariés, libéraux et auto-entrepreneurs." }))}
+          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/note-de-frais-kilometrique", pageDescription: "Note de frais kilométrique 2025-2026 : modèle conforme URSSAF, calcul automatique selon barème officiel, export PDF/Excel. Gratuit, conçu par un entrepreneur indépendant pour les salariés, libéraux et auto-entrepreneurs." }))}
         </script>
       </Helmet>
 

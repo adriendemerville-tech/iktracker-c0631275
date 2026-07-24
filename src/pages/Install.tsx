@@ -74,23 +74,23 @@ const Install = () => {
         <title>Installer IKtracker | Application PWA gratuite iOS et Android</title>
         <meta name="description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
         <meta name="keywords" content="installer IKtracker, PWA indemnités kilométriques, application iOS IK, Android frais kilométriques, installer sans App Store, application gratuite mobile" />
-        <link rel="canonical" href="https://www.iktracker.fr/installer" />
+        <link rel="canonical" href="https://iktracker.fr/installer" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Installer IKtracker | Application PWA iOS et Android" />
         <meta property="og:description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.iktracker.fr/installer" />
+        <meta property="og:url" content="https://iktracker.fr/installer" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
+        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Installer IKtracker | PWA iOS et Android" />
         <meta name="twitter:description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
-        <meta name="twitter:image" content="https://www.iktracker.fr/logo-iktracker-250.webp" />
+        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
         <meta name="geo.region" content="FR" />
@@ -104,11 +104,11 @@ const Install = () => {
             "@type": "WebPage",
             "name": "Installer IKtracker",
             "description": "Guide d'installation de l'application PWA IKtracker sur iOS et Android",
-            "url": "https://www.iktracker.fr/install",
+            "url": "https://iktracker.fr/install",
             "isPartOf": {
               "@type": "WebSite",
               "name": "IKtracker",
-              "url": "https://www.iktracker.fr"
+              "url": "https://iktracker.fr"
             },
             "mainEntity": {
               "@type": "HowTo",
@@ -117,9 +117,9 @@ const Install = () => {
               "totalTime": "PT2M",
               "tool": [{ "@type": "HowToTool", "name": "Smartphone (iOS Safari ou Android Chrome)" }],
               "step": [
-                { "@type": "HowToStep", "position": 1, "name": "Ouvrir iktracker.fr", "text": "Accédez à iktracker.fr depuis Safari (iOS) ou Chrome (Android).", "url": "https://www.iktracker.fr/installer#etape-1" },
-                { "@type": "HowToStep", "position": 2, "name": "Ajouter à l'écran d'accueil", "text": "Sur iOS : bouton Partager puis « Sur l'écran d'accueil ». Sur Android : menu ⋮ puis « Installer l'application ».", "url": "https://www.iktracker.fr/installer#etape-2" },
-                { "@type": "HowToStep", "position": 3, "name": "Lancer l'application", "text": "L'icône IKtracker apparaît sur votre écran d'accueil et s'ouvre en plein écran comme une vraie app.", "url": "https://www.iktracker.fr/installer#etape-3" }
+                { "@type": "HowToStep", "position": 1, "name": "Ouvrir iktracker.fr", "text": "Accédez à iktracker.fr depuis Safari (iOS) ou Chrome (Android).", "url": "https://iktracker.fr/installer#etape-1" },
+                { "@type": "HowToStep", "position": 2, "name": "Ajouter à l'écran d'accueil", "text": "Sur iOS : bouton Partager puis « Sur l'écran d'accueil ». Sur Android : menu ⋮ puis « Installer l'application ».", "url": "https://iktracker.fr/installer#etape-2" },
+                { "@type": "HowToStep", "position": 3, "name": "Lancer l'application", "text": "L'icône IKtracker apparaît sur votre écran d'accueil et s'ouvre en plein écran comme une vraie app.", "url": "https://iktracker.fr/installer#etape-3" }
               ]
             }
           })}
@@ -322,7 +322,7 @@ const Install = () => {
             <div className="bg-white p-4 rounded-xl shadow-lg">
               <Suspense fallback={<div className="w-40 h-40 bg-muted animate-pulse" />}>
                 <QRCodeSVG 
-                  value="https://www.iktracker.fr/install" 
+                  value="https://iktracker.fr/install" 
                   size={160}
                   level="M"
                   includeMargin={false}

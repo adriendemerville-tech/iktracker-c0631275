@@ -373,7 +373,7 @@ export default function Lexique() {
   // Copy term link to clipboard
   const handleCopyTermLink = useCallback(async (term: string) => {
     const slug = termToSlug(term);
-    const url = `https://www.iktracker.fr/lexique#${slug}`;
+    const url = `https://iktracker.fr/lexique#${slug}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(`Lien copié : ${term}`);
@@ -800,7 +800,7 @@ export default function Lexique() {
       <div class="footer-brand">
         <div class="footer-logo">IK</div>
         <div class="footer-text">
-          Document généré via <a href="https://www.iktracker.fr">IKtracker</a><br>
+          Document généré via <a href="https://iktracker.fr">IKtracker</a><br>
           L'outil gratuit de suivi des indemnités kilométriques
         </div>
       </div>
@@ -858,13 +858,13 @@ export default function Lexique() {
     "publisher": {
       "@type": "Organization",
       "name": "IKtracker",
-      "url": "https://www.iktracker.fr"
+      "url": "https://iktracker.fr"
     },
     "hasDefinedTerm": lexiqueTerms.map(term => ({
       "@type": "DefinedTerm",
       "name": term.term,
       "description": term.definition,
-      "inDefinedTermSet": "https://www.iktracker.fr/lexique"
+      "inDefinedTermSet": "https://iktracker.fr/lexique"
     }))
   };
 
@@ -900,10 +900,10 @@ export default function Lexique() {
           content="Dictionnaire des termes IK : barème 2026, frais réels, BNC, URSSAF, professions libérales. Définitions claires pour indépendants." 
         />
         <meta name="keywords" content="lexique indemnités kilométriques, barème kilométrique 2026, frais réels définition, BNC, URSSAF, profession libérale, indépendant France" />
-        <link rel="canonical" href="https://www.iktracker.fr/lexique" />
+        <link rel="canonical" href="https://iktracker.fr/lexique" />
         <meta property="og:title" content="Lexique des indemnités kilométriques France 2026" />
         <meta property="og:description" content="Tous les termes, acronymes et concepts des IK expliqués simplement pour les indépendants et professions libérales." />
-        <meta property="og:url" content="https://www.iktracker.fr/lexique" />
+        <meta property="og:url" content="https://iktracker.fr/lexique" />
         <meta property="og:type" content="article" />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
@@ -965,7 +965,7 @@ export default function Lexique() {
                 size="sm"
                 className="gap-2"
                 onClick={() => {
-                  const url = 'https://www.iktracker.fr/lexique';
+                  const url = 'https://iktracker.fr/lexique';
                   const text = 'Lexique complet des indemnités kilométriques en France 2026 : tous les termes expliqués simplement pour les indépendants et professions libérales.';
                   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
                 }}
@@ -980,7 +980,7 @@ export default function Lexique() {
                 size="sm"
                 className="gap-2"
                 onClick={() => {
-                  const url = 'https://www.iktracker.fr/lexique';
+                  const url = 'https://iktracker.fr/lexique';
                   const title = 'Lexique des indemnités kilométriques France 2026';
                   window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
                 }}
@@ -995,7 +995,7 @@ export default function Lexique() {
                 size="sm"
                 className="gap-2"
                 onClick={async () => {
-                  const url = 'https://www.iktracker.fr/lexique';
+                  const url = 'https://iktracker.fr/lexique';
                   const text = 'Lexique complet des indemnités kilométriques en France 2026';
                   if (navigator.share) {
                     try {

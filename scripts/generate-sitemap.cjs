@@ -10,7 +10,7 @@ const path = require('path');
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const BASE_URL = 'https://www.iktracker.fr';
+const BASE_URL = 'https://iktracker.fr';
 
 const staticPages = [
   { url: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-05-25' },

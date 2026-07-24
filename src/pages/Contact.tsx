@@ -66,13 +66,13 @@ const Contact = () => {
       <Helmet>
         <title>Contact | IKtracker - Nous contacter</title>
         <meta name="description" content="Contactez l'équipe IKtracker pour toute question, suggestion ou demande d'assistance. Réponse rapide garantie." />
-        <link rel="canonical" href="https://www.iktracker.fr/contact" />
+        <link rel="canonical" href="https://iktracker.fr/contact" />
         <meta name="robots" content="index, follow" />
 
         <meta property="og:title" content="Contactez IKtracker" />
         <meta property="og:description" content="Une question sur IKtracker ? Contactez-nous facilement." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.iktracker.fr/contact" />
+        <meta property="og:url" content="https://iktracker.fr/contact" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="IKtracker" />
 
@@ -86,12 +86,12 @@ const Contact = () => {
             "@type": "ContactPage",
             "name": "Contact IKtracker",
             "description": "Page de contact d'IKtracker",
-            "url": "https://www.iktracker.fr/contact",
+            "url": "https://iktracker.fr/contact",
             "inLanguage": "fr-FR",
             "mainEntity": {
               "@type": "Organization",
               "name": "IKtracker",
-              "url": "https://www.iktracker.fr",
+              "url": "https://iktracker.fr",
               "email": "contact@iktracker.fr",
               "contactPoint": {
                 "@type": "ContactPoint",

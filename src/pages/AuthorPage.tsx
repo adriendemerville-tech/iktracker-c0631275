@@ -19,7 +19,7 @@ type LinkedInProfile = {
 };
 
 export default function AuthorPage() {
-  const canonicalUrl = 'https://www.iktracker.fr/blog/auteur/adrien-de-volontat';
+  const canonicalUrl = 'https://iktracker.fr/blog/auteur/adrien-de-volontat';
   const [linkedInProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
 
   useEffect(() => {
