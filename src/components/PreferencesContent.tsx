@@ -5,7 +5,8 @@ import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Moon, Sun, Clock, Timer, MapPin, Route, CalendarClock, Calculator } from 'lucide-react';
+import { Input } from './ui/input';
+import { Moon, Sun, Clock, Timer, MapPin, Route, CalendarClock, Calculator, Mail } from 'lucide-react';
 
 export const PreferencesContent = () => {
   const { theme, toggleTheme } = useTheme();
@@ -197,6 +198,80 @@ export const PreferencesContent = () => {
           Le changement ne recalcule pas les trajets déjà enregistrés. Les nouveaux trajets et exports utiliseront ce taux.
         </p>
       </div>
+
+      {/* Envoi automatique au comptable */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Mail className="w-5 h-5 text-muted-foreground" />
+            <div>
+              <Label htmlFor="accountant-auto">Envoi automatique au comptable</Label>
+              <p className="text-xs text-muted-foreground">
+                Envoie un relevé PDF sécurisé à votre comptable
+              </p>
+            </div>
+          </div>
+          <Switch
+            id="accountant-auto"
+            checked={preferences.accountantAutoSend}
+            onCheckedChange={(checked) => updatePreference('accountantAutoSend', checked)}
+          />
+        </div>
+
+        {preferences.accountantAutoSend && (
+          <div className="pl-8 space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="accountant-email" className="text-xs text-muted-foreground">
+                Email du comptable
+              </Label>
+              <Input
+                id="accountant-email"
+                type="email"
+                placeholder="comptable@cabinet.fr"
+                value={preferences.accountantEmail}
+                onChange={(e) => updatePreference('accountantEmail', e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Fréquence</Label>
+                <Select
+                  value={preferences.accountantFrequency}
+                  onValueChange={(v) => updatePreference('accountantFrequency', v as any)}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Chaque mois</SelectItem>
+                    <SelectItem value="quarterly">Chaque trimestre</SelectItem>
+                    <SelectItem value="yearly">Chaque année</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Jour d'envoi</Label>
+                <Select
+                  value={String(preferences.accountantSendDay)}
+                  onValueChange={(v) => updatePreference('accountantSendDay', parseInt(v, 10))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                      <SelectItem key={d} value={String(d)}>{d} du mois</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground italic">
+              L'email contient deux liens sécurisés (période écoulée + cumul annuel), valides 7 jours.
+              Aucune pièce jointe : votre comptable consulte le relevé en ligne.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
