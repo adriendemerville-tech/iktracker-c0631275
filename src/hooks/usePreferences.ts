@@ -33,6 +33,8 @@ export interface Preferences {
   notifAnnualThreshold: boolean;
   // Automation (local-only, sent to server later)
   autoMonthlyExport: boolean;
+  // Server-side monthly report to the user (sent the 15th)
+  userMonthlyReportEnabled: boolean;
 }
 
 const PREFERENCES_KEY = 'ik-tracker-preferences';
@@ -59,6 +61,7 @@ const defaultPreferences: Preferences = {
   notifTourReminder: true,
   notifAnnualThreshold: true,
   autoMonthlyExport: false,
+  userMonthlyReportEnabled: true,
 };
 
 
@@ -96,7 +99,7 @@ export function usePreferences() {
       try {
         const { data, error } = await supabase
           .from('user_preferences')
-          .select('accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day')
+          .select('accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day, user_monthly_report_enabled')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -146,6 +149,9 @@ export function usePreferences() {
           const day = (data as any)?.accountant_send_day as number | undefined;
           if (typeof day === 'number' && day >= 1 && day <= 28) {
             updates.accountantSendDay = day;
+          }
+          if (typeof (data as any)?.user_monthly_report_enabled === 'boolean') {
+            updates.userMonthlyReportEnabled = (data as any).user_monthly_report_enabled;
           }
 
 
@@ -296,6 +302,9 @@ export function usePreferences() {
     }
     if (key === 'accountantSendDay' && user) {
       saveAccountantScheduleToDatabase({ accountant_send_day: value as number });
+    }
+    if (key === 'userMonthlyReportEnabled' && user) {
+      saveAccountantScheduleToDatabase({ user_monthly_report_enabled: value as boolean } as any);
     }
   };
 

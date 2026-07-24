@@ -271,6 +271,26 @@ export const PreferencesContent = () => {
           </div>
         )}
       </div>
+
+      {/* Relevé mensuel automatique pour l'utilisateur */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Mail className="w-5 h-5 text-muted-foreground" />
+            <div>
+              <Label htmlFor="user-monthly-report">Relevé mensuel automatique</Label>
+              <p className="text-xs text-muted-foreground">
+                Chaque 15 du mois : PDF du mois précédent + cumul annuel + profil véhicule, envoyé sur votre email.
+              </p>
+            </div>
+          </div>
+          <Switch
+            id="user-monthly-report"
+            checked={preferences.userMonthlyReportEnabled}
+            onCheckedChange={(checked) => updatePreference('userMonthlyReportEnabled', checked)}
+          />
+        </div>
+      </div>
     </div>
   );
 };
