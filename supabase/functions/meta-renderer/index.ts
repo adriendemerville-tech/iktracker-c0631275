@@ -672,6 +672,17 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>
 
       <section>
+        <h2>Calculatrice frais kilométrique 2026</h2>
+        <p>IKtracker intègre une <strong>calculatrice de frais kilométriques 2026</strong> gratuite qui applique automatiquement le barème officiel de l'administration fiscale française. Saisissez vos trajets professionnels (manuellement, via Google Agenda, Outlook ou iCloud), et obtenez le montant de vos indemnités kilométriques au barème 2026, incluant le bonus +20 % pour les véhicules 100 % électriques.</p>
+        <ul>
+          <li><strong>Barème 2026 intégré</strong> : puissance fiscale, distance parcourue et taux officiels mis à jour automatiquement.</li>
+          <li><strong>Multi-véhicules</strong> : voiture, moto, cyclomoteur, vélo — chaque véhicule utilise son barème spécifique.</li>
+          <li><strong>Export comptable</strong> : PDF et Excel prêts pour votre expert-comptable ou votre déclaration de revenus.</li>
+        </ul>
+        <p><a href="${BASE_URL}/bareme-ik-2026">Voir le barème 2026</a> · <a href="${BASE_URL}/signup">Calculer mes IK gratuitement</a></p>
+      </section>
+
+      <section>
         <h2>Pour qui IKtracker est-elle la meilleure solution ?</h2>
         <ul>
           <li>Indépendants et auto-entrepreneurs déclarant aux frais réels</li>

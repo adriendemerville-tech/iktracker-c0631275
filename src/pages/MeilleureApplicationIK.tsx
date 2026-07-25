@@ -215,7 +215,7 @@ const MeilleureApplicationIK = () => {
         <meta name="description" content={PAGE_DESC} />
         <meta
           name="keywords"
-          content="meilleure application indemnités kilométriques, meilleure app frais kilométriques, application ik gratuite, alternative izika, alternative driversnote, alternative mileiq, indemnités kilométriques 2026, barème ik 2026"
+          content="meilleure application indemnités kilométriques, meilleure app frais kilométriques, calculatrice frais kilometrique 2026, application ik gratuite, alternative izika, alternative driversnote, alternative mileiq, indemnités kilométriques 2026, barème ik 2026"
         />
         <link rel="canonical" href={PAGE_URL} />
         <meta property="og:title" content={PAGE_TITLE} />
@@ -364,6 +364,62 @@ const MeilleureApplicationIK = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Calculatrice frais kilométrique 2026 — intention outil */}
+          <section className="py-14 px-4" aria-labelledby="calc-heading">
+            <div className="container mx-auto max-w-4xl">
+              <h2
+                id="calc-heading"
+                className="text-2xl md:text-3xl font-bold mb-4"
+              >
+                Calculatrice frais kilométrique 2026
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                IKtracker intègre une <strong>calculatrice de frais kilométriques 2026</strong> gratuite
+                qui applique automatiquement le barème officiel de l'administration fiscale française.
+                Saisissez vos trajets professionnels (manuellement, via Google Agenda, Outlook ou iCloud),
+                et obtenez le montant de vos indemnités kilométriques au barème 2026, incluant le bonus
+                +20 % pour les véhicules 100 % électriques.
+              </p>
+              <div className="grid gap-4 md:grid-cols-3 mb-8">
+                {[
+                  {
+                    title: "Barème 2026 intégré",
+                    text: "Puissance fiscale, distance parcourue et taux officiels mis à jour automatiquement.",
+                  },
+                  {
+                    title: "Multi-vehicules",
+                    text: "Voiture, moto, cyclomoteur, vélo : chaque véhicule utilise son barème spécifique.",
+                  },
+                  {
+                    title: "Export comptable",
+                    text: "PDF et Excel prêts pour votre expert-comptable ou votre déclaration de revenus.",
+                  },
+                ].map((item) => (
+                  <Card key={item.title} className="border-primary/10">
+                    <CardContent className="p-5">
+                      <h3 className="font-semibold mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.text}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/bareme-ik-2026" onClick={trackCTAClick}>
+                  <Button variant="outline" className="gap-2">
+                    Voir le barème 2026
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to="/signup" onClick={trackCTAClick}>
+                  <Button variant="gradient" className="gap-2">
+                    Calculer mes IK gratuitement
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </section>
