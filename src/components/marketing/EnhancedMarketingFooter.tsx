@@ -58,7 +58,7 @@ export function EnhancedMarketingFooter() {
 
   const productLinks = [
     { label: 'Accueil', href: '/' },
-    { label: 'Installation PWA', href: '/install' },
+    { label: 'Installation PWA', href: '/installer' },
     { label: 'Mode Tournée', href: '/mode-tournee' },
     { label: 'Synchronisation Calendrier', href: '/calendrier' },
     { label: 'Barème IK 2026', href: '/bareme-ik-2026' },

@@ -16,7 +16,7 @@ export function MarketingFooter() {
   const links = {
     product: [
       { label: 'Accueil', href: '/' },
-      { label: 'Installation', href: '/install' },
+      { label: 'Installation', href: '/installer' },
       { label: 'Mode Tournée', href: '/mode-tournee' },
       { label: 'Calendrier', href: '/calendrier' },
     ],
