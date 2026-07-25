@@ -369,7 +369,7 @@ const MeilleureApplicationIK = () => {
           </section>
 
           {/* Calculatrice frais kilométrique 2026 — intention outil */}
-          <section className="py-14 px-4 bg-muted/30" aria-labelledby="calc-heading">
+          <section className="py-14 px-4" aria-labelledby="calc-heading">
             <div className="container mx-auto max-w-4xl">
               <h2
                 id="calc-heading"
