@@ -893,12 +893,12 @@ const BaremeIK2026 = () => {
           <MarketingPWANotification />
         </Suspense>
 
-        {/* Sticky mobile CTA with dynamic amount */}
+        {/* Sticky mobile CTA */}
         {!user && (
           <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-sm border-t border-border p-3 safe-area-pb">
             <Link to="/signup" onClick={trackCTAClick} className="block">
               <Button variant="gradient" size="lg" className="w-full gap-2 text-sm">
-                Automatiser mes {simulation.totalWithBonus.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} € d'IK
+                Automatiser mes IK avec IKtracker
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
