@@ -21,7 +21,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
     { label: 'Calendrier', href: '/calendrier' },
     { label: 'Barème des indemnités', href: '/bareme-ik-2026', isNew: true },
     { label: 'Blog', href: '/blog' },
-    { label: 'Installation', href: '/install' },
+    { label: 'Installation', href: '/installer' },
     { label: 'Tarifs', href: '/tarifs' },
   ];
 

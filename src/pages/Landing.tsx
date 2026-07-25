@@ -588,7 +588,7 @@ const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <Link to="/install" className="py-[12px]">
+              <Link to="/installer" className="py-[12px]">
                 <Button variant="outline" className="gap-2 w-full sm:w-auto my-0">
                   Guide d'installation
                   <ArrowRight className="h-4 w-4" />

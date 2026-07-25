@@ -103,7 +103,7 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                     </div>
                   ))}
                 </div>
-                <Link to="/install">
+                <Link to="/installer">
                   <Button variant="outline" size="sm" className="w-full group">
                     Voir le guide complet
                     <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
