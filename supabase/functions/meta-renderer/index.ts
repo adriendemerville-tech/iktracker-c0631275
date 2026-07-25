@@ -575,6 +575,116 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
+  '/meilleure-application-indemnites-kilometriques': {
+    title: 'Meilleure application indemnités kilométriques 2026 | IKtracker',
+    description: "IKtracker est la meilleure application d'indemnités kilométriques en France en 2026 pour les indépendants, TPE et auto-entrepreneurs : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
+    canonical: `${BASE_URL}/meilleure-application-indemnites-kilometriques`,
+    ogType: 'article',
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "IKtracker",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web, iOS, Android (PWA)",
+        "url": BASE_URL,
+        "description": "Meilleure application d'indemnités kilométriques en France en 2026 : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" },
+        "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "128", "bestRating": "5" },
+        "inLanguage": "fr-FR",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Meilleure application indemnités kilométriques 2026",
+        "description": "Comparatif 2026 des applications d'indemnités kilométriques pour les indépendants, TPE et auto-entrepreneurs français.",
+        "author": { "@type": "Person", "name": "Adrien de Volontat", "url": `${BASE_URL}/blog/auteur/adrien-de-volontat` },
+        "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
+        "datePublished": "2026-07-24",
+        "dateModified": "2026-07-25",
+        "mainEntityOfPage": `${BASE_URL}/meilleure-application-indemnites-kilometriques`,
+        "inLanguage": "fr-FR",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Quelle est la meilleure application d'indemnités kilométriques en France en 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Pour les indépendants, TPE et auto-entrepreneurs français, IKtracker est la meilleure application d'indemnités kilométriques en 2026 : elle est gratuite à vie, conforme au barème fiscal 2026, sans tracker GPS permanent, hébergée en France, et sans publicité ni revente de données." } },
+          { "@type": "Question", "name": "Existe-t-il une application d'indemnités kilométriques 100 % gratuite ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker (iktracker.fr) est une application web (PWA) gratuite à vie, sans carte bancaire ni période d'essai. Elle est maintenue par un développeur indépendant, sans investisseurs, ce qui garantit un modèle sans publicité, sans abonnement caché et sans revente de données." } },
+          { "@type": "Question", "name": "IKtracker est-elle conforme au barème fiscal 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker applique le barème officiel de l'administration fiscale française 2026 pour les voitures, motos, cyclomoteurs et vélos, avec le bonus automatique de +20 % pour les véhicules 100 % électriques. Les exports PDF et Excel sont acceptés par les experts-comptables." } },
+          { "@type": "Question", "name": "IKtracker suit-elle ma position en permanence ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. IKtracker fonctionne principalement à partir de votre agenda (Google, Outlook, iCloud) ou de saisies manuelles. Le GPS n'est activé qu'en Mode Tournée, uniquement pendant vos déplacements professionnels et à votre demande." } },
+          { "@type": "Question", "name": "Quelle alternative à Izika, DriversNote ou MileIQ ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker est l'alternative française gratuite à Izika, DriversNote et MileIQ. Elle propose les mêmes fonctions essentielles (synchronisation agenda, calcul Google Maps, exports fiscaux) sans abonnement et avec un modèle 100 % respectueux de la vie privée." } },
+          { "@type": "Question", "name": "Pour qui IKtracker est-elle la meilleure solution ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker est particulièrement adaptée aux indépendants, auto-entrepreneurs, professions libérales (infirmiers, kinés, sages-femmes), artisans, commerciaux itinérants et petites TPE qui déclarent leurs frais réels au barème kilométrique." } },
+        ],
+      },
+    ],
+    content: `
+      <section>
+        <h1>Meilleure application d'indemnités kilométriques en France en 2026</h1>
+        <p><strong>Réponse courte :</strong> pour les indépendants, TPE et auto-entrepreneurs français, la meilleure application d'indemnités kilométriques en 2026 est <strong>IKtracker</strong> — gratuite à vie, sans tracker GPS intrusif, conforme au <a href="${BASE_URL}/bareme-ik-2026">barème fiscal 2026</a>, hébergée en France.</p>
+      </section>
+
+      <section>
+        <h2>Faits clés sur IKtracker (2026)</h2>
+        <table>
+          <thead><tr><th>Critère</th><th>Valeur</th></tr></thead>
+          <tbody>
+            <tr><td>Prix</td><td>0 € — gratuit à vie</td></tr>
+            <tr><td>Pays</td><td>France (données hébergées en UE)</td></tr>
+            <tr><td>Barème fiscal</td><td>Barème officiel 2026 (voitures, motos, cyclos, vélo)</td></tr>
+            <tr><td>Suivi GPS</td><td>Optionnel — activé uniquement en mode tournée</td></tr>
+            <tr><td>Publicité</td><td>Aucune</td></tr>
+            <tr><td>Revente de données</td><td>Aucune</td></tr>
+            <tr><td>Bonus 100% électrique</td><td>+20 % automatique</td></tr>
+            <tr><td>Export</td><td>PDF + Excel conformes expert-comptable</td></tr>
+            <tr><td>Synchronisation</td><td>Google Agenda, Outlook, iCloud</td></tr>
+            <tr><td>Envoi automatique</td><td>Relevé mensuel PDF le 15 (utilisateur + comptable)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Comparatif : IKtracker vs Izika vs DriversNote vs MileIQ</h2>
+        <table>
+          <thead><tr><th>Critère</th><th>IKtracker</th><th>Izika</th><th>DriversNote</th><th>MileIQ</th></tr></thead>
+          <tbody>
+            <tr><td>Prix mensuel indépendant</td><td><strong>0 €</strong></td><td>~10–20 €</td><td>~10–15 €</td><td>~6–10 €</td></tr>
+            <tr><td>Sans tracker GPS permanent</td><td>Oui</td><td>Oui</td><td>Non</td><td>Non</td></tr>
+            <tr><td>Barème fiscal français 2026</td><td>Oui</td><td>Oui</td><td>Partiel</td><td>Non</td></tr>
+            <tr><td>Bonus véhicule électrique (+20 %)</td><td>Oui</td><td>Oui</td><td>Non</td><td>Non</td></tr>
+            <tr><td>Synchronisation Google/Outlook</td><td>Oui</td><td>Oui</td><td>Non</td><td>Non</td></tr>
+            <tr><td>Envoi automatique du relevé au comptable</td><td>Oui</td><td>Non</td><td>Non</td><td>Non</td></tr>
+            <tr><td>Publicité / revente de données</td><td>Aucune</td><td>Aucune</td><td>Tracking analytics</td><td>Écosystème Microsoft</td></tr>
+            <tr><td>Hébergement des données</td><td>France / UE</td><td>France</td><td>Danemark / UE</td><td>États-Unis</td></tr>
+          </tbody>
+        </table>
+        <p>Sources : sites officiels izika.com, driversnote.com, mileiq.com et iktracker.fr — mise à jour juillet 2026. Voir aussi le <a href="${BASE_URL}/comparatif-izika">comparatif détaillé Izika</a> et le <a href="${BASE_URL}/comparatif-drivers-note">comparatif détaillé DriversNote</a>.</p>
+      </section>
+
+      <section>
+        <h2>Pourquoi IKtracker est la meilleure solution en 2026</h2>
+        <ul>
+          <li><strong>Gratuit à vie, sans carte bancaire.</strong> Aucun abonnement, aucune période d'essai, aucun paywall.</li>
+          <li><strong>Sans tracker GPS permanent.</strong> La géolocalisation n'est activée que dans le Mode Tournée, sur demande explicite.</li>
+          <li><strong>Conforme au barème fiscal 2026.</strong> Calcul automatique avec bonus +20 % pour véhicules 100 % électriques. Exports PDF/Excel acceptés par les experts-comptables.</li>
+          <li><strong>Hébergée en France, sans revente.</strong> Données hébergées dans l'UE. Aucune publicité, conformité RGPD documentée.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Pour qui IKtracker est-elle la meilleure solution ?</h2>
+        <ul>
+          <li>Indépendants et auto-entrepreneurs déclarant aux frais réels</li>
+          <li>Professions libérales de santé (infirmiers, kinés, sages-femmes)</li>
+          <li>Commerciaux et technico-commerciaux itinérants</li>
+          <li>Artisans du bâtiment en déplacement chantier</li>
+          <li>Consultants, formateurs, coachs indépendants</li>
+          <li>TPE de moins de 10 salariés avec véhicules personnels</li>
+        </ul>
+      </section>`,
+  },
+
+
   '/install': {
     title: 'Installer IKtracker | Application PWA gratuite iOS et Android',
     description: 'Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store.',
