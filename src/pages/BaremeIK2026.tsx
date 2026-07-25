@@ -1,17 +1,15 @@
-import { useState, useMemo, lazy, Suspense, memo, useEffect, useRef } from "react";
+import { lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
-import { IK_BAREME_2024, getIKBareme, calculateTotalAnnualIK } from "@/types/trip";
+import { IK_BAREME_2024 } from "@/types/trip";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { 
   Calculator, 
@@ -29,7 +27,6 @@ import {
   Fuel,
   Bike
 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 
 // FAQ Schema data
 const faqData = [
@@ -78,59 +75,7 @@ const FooterPlaceholder = memo(() => (
 
 const BaremeIK2026 = () => {
   const { user, loading } = useAuthLazy();
-  const { trackCTAClick, trackIKSimulation } = useMarketingTracker('bareme-ik');
-  const [fiscalPower, setFiscalPower] = useState<string>("5");
-  const [annualKm, setAnnualKm] = useState<string>("10000");
-  const [isElectric, setIsElectric] = useState<boolean>(false);
-
-  // Track simulation when user interacts with the calculator
-  const hasTrackedSimulation = useRef(false);
-  const isFirstRender = useRef(true);
-  
-  useEffect(() => {
-    // Skip tracking on first render (initial values)
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    
-    // Track only once per session after user modifies values
-    if (!hasTrackedSimulation.current) {
-      // Debounce tracking - only track after user stops typing
-      const timeoutId = setTimeout(() => {
-        trackIKSimulation();
-        hasTrackedSimulation.current = true;
-      }, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [fiscalPower, annualKm, isElectric, trackIKSimulation]);
-
-  // Simulate IK calculation with electric vehicle bonus
-  const simulation = useMemo(() => {
-    const cv = parseInt(fiscalPower) || 5;
-    const km = parseInt(annualKm) || 0;
-    const bareme = getIKBareme(cv);
-    let totalIK = calculateTotalAnnualIK(km, cv);
-    
-    // Apply 20% bonus for 100% electric vehicles
-    const electricBonus = isElectric ? totalIK * 0.20 : 0;
-    const totalWithBonus = totalIK + electricBonus;
-    
-    let bracket = "";
-    let rate = 0;
-    if (km <= 5000) {
-      bracket = "jusqu'à 5 000 km";
-      rate = bareme.upTo5000.rate;
-    } else if (km <= 20000) {
-      bracket = "de 5 001 à 20 000 km";
-      rate = bareme.from5001To20000.rate;
-    } else {
-      bracket = "plus de 20 000 km";
-      rate = bareme.over20000.rate;
-    }
-
-    return { totalIK, totalWithBonus, electricBonus, bracket, rate, bareme, isElectric };
-  }, [fiscalPower, annualKm, isElectric]);
+  const { trackCTAClick } = useMarketingTracker('bareme-ik');
 
   return (
     <>
@@ -254,127 +199,12 @@ const BaremeIK2026 = () => {
         {/* Simulator Section - Moved to top for better visibility */}
         <section className="py-12 px-4 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
-            <div className="text-center mb-8">
-              <h2 id="simulateur" className="text-2xl md:text-3xl font-bold mb-4">
-                Simulateur indemnités kilométriques 2026
-              </h2>
-              <p className="text-muted-foreground">
-                Calculez vos <strong>indemnités kilométriques 2026</strong> en quelques secondes avec notre simulateur basé sur le <strong>barème IK 2026</strong>.
-              </p>
-            </div>
-
-            <Card className="border-primary/20">
-              <CardContent className="p-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Inputs */}
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="fiscalPowerTop" className="text-sm font-medium">
-                        Puissance fiscale du véhicule
-                      </Label>
-                      <Select value={fiscalPower} onValueChange={setFiscalPower}>
-                        <SelectTrigger id="fiscalPowerTop" className="mt-1.5">
-                          <SelectValue placeholder="Choisir la puissance" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="3">3 CV</SelectItem>
-                          <SelectItem value="4">4 CV</SelectItem>
-                          <SelectItem value="5">5 CV</SelectItem>
-                          <SelectItem value="6">6 CV</SelectItem>
-                          <SelectItem value="7">7 CV et plus</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="annualKmTop" className="text-sm font-medium">
-                        Kilomètres annuels estimés
-                      </Label>
-                      <Input
-                        id="annualKmTop"
-                        type="number"
-                        value={annualKm}
-                        onChange={(e) => setAnnualKm(e.target.value)}
-                        placeholder="Ex: 15000"
-                        className="mt-1.5"
-                      />
-                    </div>
-
-                    {/* Electric Vehicle Toggle */}
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        <div>
-                          <Label htmlFor="electricTop" className="text-sm font-medium cursor-pointer">
-                            Véhicule 100% électrique
-                          </Label>
-                          <p className="text-xs text-muted-foreground">Majoration de 20%</p>
-                        </div>
-                      </div>
-                      <Switch
-                        id="electricTop"
-                        checked={isElectric}
-                        onCheckedChange={setIsElectric}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Results */}
-                  <div className={`rounded-xl p-6 flex flex-col justify-center ${isElectric ? 'bg-gradient-to-br from-emerald-500/10 to-emerald-600/20' : 'bg-gradient-to-br from-primary/5 to-primary/10'}`}>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Estimation IK 2026 {isElectric && <span className="text-emerald-600 dark:text-emerald-400 font-medium">(véhicule électrique)</span>}
-                    </p>
-                    <p className={`text-4xl font-bold mb-4 ${isElectric ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary'}`}>
-                      {simulation.totalWithBonus.toLocaleString('fr-FR', { 
-                        style: 'currency', 
-                        currency: 'EUR',
-                        maximumFractionDigits: 0 
-                      })}
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span>Barème applicable : <strong>{simulation.bracket}</strong></span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span>Taux de base : <strong>{simulation.rate.toFixed(3)} €/km</strong></span>
-                      </div>
-                      {isElectric && (
-                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <Zap className="h-4 w-4" />
-                          <span>Bonus électrique : <strong>+{simulation.electricBonus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</strong></span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-border text-center">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Automatisez le calcul de vos IK tout au long de l'année avec IKtracker
-                  </p>
-                  <Link to="/signup" onClick={trackCTAClick}>
-                    <Button variant="gradient" size="lg" className="gap-2">
-                      Automatiser mes {simulation.totalWithBonus.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} € d'IK
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Consultez le{" "}
-                    <a 
-                      href="https://www.impots.gouv.fr/simulateur-bareme-kilometrique" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="underline hover:text-primary transition-colors"
-                    >
-                      simulateur officiel sur impots.gouv.fr
-                    </a>
-                    {" "}pour vérifier vos calculs.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <IKSimulator
+              idSuffix="Bareme"
+              trackerPage="bareme-ik"
+              title="Simulateur indemnités kilométriques 2026"
+              subtitle="Calculez vos indemnités kilométriques 2026 en quelques secondes avec notre simulateur basé sur le barème IK 2026."
+            />
           </div>
         </section>
 
@@ -1063,12 +893,12 @@ const BaremeIK2026 = () => {
           <MarketingPWANotification />
         </Suspense>
 
-        {/* Sticky mobile CTA with dynamic amount */}
+        {/* Sticky mobile CTA */}
         {!user && (
           <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-sm border-t border-border p-3 safe-area-pb">
             <Link to="/signup" onClick={trackCTAClick} className="block">
               <Button variant="gradient" size="lg" className="w-full gap-2 text-sm">
-                Automatiser mes {simulation.totalWithBonus.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} € d'IK
+                Automatiser mes IK avec IKtracker
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

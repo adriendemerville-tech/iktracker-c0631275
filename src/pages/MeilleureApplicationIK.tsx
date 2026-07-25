@@ -2,6 +2,7 @@ import { lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
@@ -407,6 +408,14 @@ const MeilleureApplicationIK = () => {
                   </Card>
                 ))}
               </div>
+              <IKSimulator
+                idSuffix="Geo"
+                trackerPage="meilleure-application-ik"
+                title="Simulateur indemnités kilométriques 2026"
+                subtitle="Calculez vos indemnités kilométriques 2026 en quelques secondes avec notre simulateur basé sur le barème IK 2026."
+                className="mb-8"
+              />
+
               <div className="flex flex-wrap gap-3">
                 <Link to="/bareme-ik-2026" onClick={trackCTAClick}>
                   <Button variant="outline" className="gap-2">
