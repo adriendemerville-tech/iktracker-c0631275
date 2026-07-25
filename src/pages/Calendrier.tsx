@@ -384,7 +384,7 @@ export default function Calendrier() {
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
-                  <Link to="/install">
+                  <Link to="/installer">
                     <Button size="xl" variant="outline">
                       <Smartphone className="h-5 w-5 mr-2" />
                       Installer l'app

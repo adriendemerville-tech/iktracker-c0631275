@@ -827,7 +827,7 @@ const BaremeIK2026 = () => {
                 </Card>
               </Link>
 
-              <Link to="/install" className="group">
+              <Link to="/installer" className="group">
                 <Card className="h-full hover:border-primary/50 transition-colors">
                   <CardContent className="p-4 text-center">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">

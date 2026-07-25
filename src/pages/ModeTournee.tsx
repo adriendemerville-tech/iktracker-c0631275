@@ -242,7 +242,7 @@ export default function ModeTournee() {
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                     </Button>
                   </Link>
-                  <Link to="/install" className="focus-visible-ring rounded-lg">
+                  <Link to="/installer" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="outline">
                       Installer l'app
                     </Button>
