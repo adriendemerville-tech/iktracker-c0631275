@@ -64,6 +64,7 @@ const AdminPartners = lazy(() => import("./pages/AdminPartners"));
 const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const MeilleureApplicationIK = lazy(() => import("./pages/MeilleureApplicationIK"));
+const IndemniteGrandDeplacement2026 = lazy(() => import("./pages/IndemniteGrandDeplacement2026"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -346,6 +347,7 @@ const AppRoutes = () => {
         <Route path="/frais-reels" element={<Suspense fallback={<PageLoader />}><FraisReels /></Suspense>} />
         <Route path="/note-de-frais-kilometrique" element={<Suspense fallback={<PageLoader />}><NoteDeFraisKilometrique /></Suspense>} />
         <Route path="/indemnite-kilometrique-velo" element={<Suspense fallback={<PageLoader />}><IndemniteKilometriqueVelo /></Suspense>} />
+        <Route path="/indemnite-grand-deplacement-2026" element={<Suspense fallback={<PageLoader />}><IndemniteGrandDeplacement2026 /></Suspense>} />
         <Route path="/mes-trajets" element={<Suspense fallback={<PageLoader />}><MesTrajetsLanding /></Suspense>} />
         <Route path="/lexique" element={<Suspense fallback={<PageLoader />}><Lexique /></Suspense>} />
         <Route path="/comparatif-izika" element={<Suspense fallback={<PageLoader />}><ComparatifIzika /></Suspense>} />

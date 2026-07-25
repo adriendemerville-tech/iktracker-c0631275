@@ -58,6 +58,7 @@ const NAV_LINKS = [
   { href: '/frais-reels', label: 'Frais Réels vs Abattement' },
   { href: '/note-de-frais-kilometrique', label: 'Note de frais kilométrique' },
   { href: '/indemnite-kilometrique-velo', label: 'Indemnité kilométrique vélo' },
+  { href: '/indemnite-grand-deplacement-2026', label: 'Indemnité grand déplacement 2026' },
   { href: '/mes-trajets', label: 'Mes Trajets — journal kilométrique' },
   { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
   { href: '/install', label: 'Installer l\'application' },
@@ -482,6 +483,57 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       <section>
         <h2>Différence avec l'indemnité kilométrique voiture</h2>
         <p>L'<a href="${BASE_URL}/bareme-ik-2026">indemnité kilométrique voiture</a> concerne les <strong>déplacements professionnels</strong> effectués pour le compte de l'employeur, calculés selon le <a href="${BASE_URL}/bareme-ik-2026">barème URSSAF</a>. Le Forfait Mobilités Durables vélo concerne uniquement le <strong>trajet domicile-travail</strong>. Les deux peuvent se cumuler.</p>
+      </section>`,
+  },
+
+  '/indemnite-grand-deplacement-2026': {
+    title: 'Indemnité grand déplacement 2026 — barème URSSAF & calcul',
+    description: "Barème URSSAF 2026 de l'indemnité de grand déplacement : plafonds repas (20,70 €), nuitée + petit-déjeuner (74,30 € Paris / 55,10 € province), conditions 50 km / 1h30, abattements longue durée, cumul avec les indemnités kilométriques.",
+    canonical: `${BASE_URL}/indemnite-grand-deplacement-2026`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Qu'est-ce que l'indemnité de grand déplacement ?", "acceptedAnswer": { "@type": "Answer", "text": "Une somme versée par l'employeur au salarié empêché de rentrer chez lui chaque soir en raison d'un déplacement professionnel. Elle couvre forfaitairement les frais de repas et d'hébergement (nuitée + petit-déjeuner), exonérée URSSAF dans la limite du barème." } },
+        { "@type": "Question", "name": "Quelles conditions en 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Deux critères cumulatifs URSSAF : distance domicile / lieu de mission ≥ 50 km (aller simple) ET trajet en transports en commun ≥ 1h30 (aller simple)." } },
+        { "@type": "Question", "name": "Quels sont les montants 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Repas : 20,70 € par repas. Nuitée + petit-déjeuner : 74,30 € à Paris et petite couronne (75, 92, 93, 94), 55,10 € dans les autres départements. Abattement de 15 % à partir du 4ᵉ mois, 30 % à partir du 25ᵉ mois sur un même lieu de mission." } },
+        { "@type": "Question", "name": "Peut-on cumuler avec les indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Les indemnités kilométriques couvrent le trajet en véhicule personnel (barème IK 2026), le grand déplacement couvre les frais sur place (repas + hébergement). Les deux dispositifs se cumulent dès lors que chacun est justifié." } }
+      ]
+    },
+    content: `
+      <section>
+        <h2>Indemnité de grand déplacement : définition</h2>
+        <p>L'<strong>indemnité de grand déplacement</strong> est une somme versée par l'employeur au salarié empêché de regagner son domicile chaque soir. Elle couvre forfaitairement les <strong>frais de repas</strong> et d'<strong>hébergement</strong> (nuitée + petit-déjeuner), en exonération de cotisations URSSAF dans la limite du barème officiel 2026.</p>
+        <h3>Conditions cumulatives URSSAF 2026</h3>
+        <ul>
+          <li><strong>Distance</strong> : au moins 50 km entre le domicile et le lieu de mission (aller simple)</li>
+          <li><strong>Durée</strong> : au moins 1h30 de trajet en transports en commun (aller simple)</li>
+          <li>Les deux critères doivent être remplis simultanément</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Barème URSSAF 2026 — métropole (3 premiers mois)</h2>
+        <table>
+          <thead><tr><th>Nature de la dépense</th><th>Montant exonéré URSSAF</th></tr></thead>
+          <tbody>
+            <tr><td>Repas (par repas)</td><td><strong>20,70 €</strong></td></tr>
+            <tr><td>Nuitée + petit-déjeuner — Paris &amp; petite couronne (75, 92, 93, 94)</td><td><strong>74,30 €</strong></td></tr>
+            <tr><td>Nuitée + petit-déjeuner — Autres départements</td><td><strong>55,10 €</strong></td></tr>
+          </tbody>
+        </table>
+        <h3>Mission longue durée : abattements 15 % et 30 %</h3>
+        <table>
+          <thead><tr><th>Période</th><th>Repas</th><th>Nuitée Paris/PC</th><th>Nuitée province</th></tr></thead>
+          <tbody>
+            <tr><td>1ᵉʳ au 3ᵉ mois</td><td>20,70 €</td><td>74,30 €</td><td>55,10 €</td></tr>
+            <tr><td>4ᵉ au 24ᵉ mois (−15 %)</td><td>17,60 €</td><td>63,20 €</td><td>46,80 €</td></tr>
+            <tr><td>25ᵉ au 72ᵉ mois (−30 %)</td><td>14,50 €</td><td>52,00 €</td><td>38,60 €</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <h2>Cumul avec les indemnités kilométriques</h2>
+        <p>Les <a href="${BASE_URL}/bareme-ik-2026">indemnités kilométriques 2026</a> couvrent l'usage du véhicule personnel pour se rendre sur place. L'indemnité de grand déplacement couvre les frais engagés <strong>sur place</strong> (repas + nuitée). Les deux régimes sont indépendants et cumulables. IKtracker consigne les kilomètres, les découchers et les repas dans un journal opposable URSSAF, gratuit à vie.</p>
       </section>`,
   },
 
