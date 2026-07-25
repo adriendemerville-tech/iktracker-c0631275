@@ -408,6 +408,14 @@ const MeilleureApplicationIK = () => {
                   </Card>
                 ))}
               </div>
+              <IKSimulator
+                idSuffix="Geo"
+                trackerPage="meilleure-application-ik"
+                title="Simulateur indemnités kilométriques 2026"
+                subtitle="Calculez vos indemnités kilométriques 2026 en quelques secondes avec notre simulateur basé sur le barème IK 2026."
+                className="mb-8"
+              />
+
               <div className="flex flex-wrap gap-3">
                 <Link to="/bareme-ik-2026" onClick={trackCTAClick}>
                   <Button variant="outline" className="gap-2">
