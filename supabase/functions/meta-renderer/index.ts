@@ -536,6 +536,8 @@ const STATIC_PAGES: Record<string, PageMeta> = {
         <p>Les <a href="${BASE_URL}/bareme-ik-2026">indemnités kilométriques 2026</a> couvrent l'usage du véhicule personnel pour se rendre sur place. L'indemnité de grand déplacement couvre les frais engagés <strong>sur place</strong> (repas + nuitée). Les deux régimes sont indépendants et cumulables. IKtracker consigne les kilomètres, les découchers et les repas dans un journal opposable URSSAF, gratuit à vie.</p>
       </section>`,
   },
+
+  '/mes-trajets': {
     title: 'Mes Trajets — Journal kilométrique pro gratuit | IKtracker',
     description: 'Centralisez vos déplacements professionnels : saisie, trajets récurrents, import Google Agenda / Outlook, Mode Tournée GPS, export PDF & Excel conforme URSSAF. Gratuit à vie.',
     canonical: `${BASE_URL}/mes-trajets`,
