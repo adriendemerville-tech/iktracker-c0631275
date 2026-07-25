@@ -75,59 +75,7 @@ const FooterPlaceholder = memo(() => (
 
 const BaremeIK2026 = () => {
   const { user, loading } = useAuthLazy();
-  const { trackCTAClick, trackIKSimulation } = useMarketingTracker('bareme-ik');
-  const [fiscalPower, setFiscalPower] = useState<string>("5");
-  const [annualKm, setAnnualKm] = useState<string>("10000");
-  const [isElectric, setIsElectric] = useState<boolean>(false);
-
-  // Track simulation when user interacts with the calculator
-  const hasTrackedSimulation = useRef(false);
-  const isFirstRender = useRef(true);
-  
-  useEffect(() => {
-    // Skip tracking on first render (initial values)
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    
-    // Track only once per session after user modifies values
-    if (!hasTrackedSimulation.current) {
-      // Debounce tracking - only track after user stops typing
-      const timeoutId = setTimeout(() => {
-        trackIKSimulation();
-        hasTrackedSimulation.current = true;
-      }, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [fiscalPower, annualKm, isElectric, trackIKSimulation]);
-
-  // Simulate IK calculation with electric vehicle bonus
-  const simulation = useMemo(() => {
-    const cv = parseInt(fiscalPower) || 5;
-    const km = parseInt(annualKm) || 0;
-    const bareme = getIKBareme(cv);
-    let totalIK = calculateTotalAnnualIK(km, cv);
-    
-    // Apply 20% bonus for 100% electric vehicles
-    const electricBonus = isElectric ? totalIK * 0.20 : 0;
-    const totalWithBonus = totalIK + electricBonus;
-    
-    let bracket = "";
-    let rate = 0;
-    if (km <= 5000) {
-      bracket = "jusqu'à 5 000 km";
-      rate = bareme.upTo5000.rate;
-    } else if (km <= 20000) {
-      bracket = "de 5 001 à 20 000 km";
-      rate = bareme.from5001To20000.rate;
-    } else {
-      bracket = "plus de 20 000 km";
-      rate = bareme.over20000.rate;
-    }
-
-    return { totalIK, totalWithBonus, electricBonus, bracket, rate, bareme, isElectric };
-  }, [fiscalPower, annualKm, isElectric]);
+  const { trackCTAClick } = useMarketingTracker('bareme-ik');
 
   return (
     <>
