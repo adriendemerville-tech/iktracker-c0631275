@@ -270,6 +270,17 @@ const STATIC_PAGES: Record<string, PageMeta> = {
     ],
     content: `
       <section>
+        <h2>Simulateur indemnités kilométriques 2026</h2>
+        <p>Calculez vos <strong>indemnités kilométriques 2026</strong> en quelques secondes avec le simulateur intégré à IKtracker, basé sur le <strong>barème IK 2026</strong> officiel.</p>
+        <ul>
+          <li><strong>Puissance fiscale du véhicule</strong> : 3 CV, 4 CV, 5 CV, 6 CV ou 7 CV et plus.</li>
+          <li><strong>Kilomètres annuels estimés</strong> : distance professionnelle parcourue sur l'année.</li>
+          <li><strong>Véhicule 100 % électrique</strong> : majoration automatique de 20 %.</li>
+        </ul>
+        <p><strong>Exemple</strong> : 5 CV, 10 000 km/an = <strong>4 965 €</strong> d'indemnités kilométriques 2026. En véhicule 100 % électrique : <strong>5 958 €</strong>.</p>
+      </section>
+
+      <section>
         <h2>Barème des indemnités kilométriques 2026 — Voitures</h2>
         <p>Le barème kilométrique 2026 est le barème officiel applicable pour le calcul des indemnités kilométriques. Il est identique au barème 2024, reconduit sans modification pour 2025 et 2026.</p>
         <table>
