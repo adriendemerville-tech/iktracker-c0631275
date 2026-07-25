@@ -30,6 +30,54 @@ export default function Tarifs() {
         <script type="application/ld+json">
           {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/tarifs", pageDescription: "IKtracker est gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité. Outil communautaire financé par l'agence du fondateur, conçu par un entrepreneur indépendant pour ses confrères." }))}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "IKtracker est-il vraiment gratuit ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Oui. IKtracker est 100% gratuit à vie : 0€/mois, aucun abonnement, aucune carte bancaire requise, aucune publicité, aucune revente de données. L'outil est financé par l'agence Avenir Rénovations, qui l'utilise en interne et le met à disposition de la communauté des indépendants."
+                }
+              },
+              {
+                "@type": "Question",
+                name: "Y a-t-il un plan payant ou premium caché ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Non. Toutes les fonctionnalités sont incluses gratuitement : Mode Tournée GPS, synchronisation Google/Outlook Calendar, calcul automatique selon le barème URSSAF 2025-2026, majoration 20% véhicules électriques, export PDF/Excel, envoi automatique au comptable, API pour experts-comptables. Aucune version premium à débloquer."
+                }
+              },
+              {
+                "@type": "Question",
+                name: "Comment IKtracker gagne de l'argent alors ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "IKtracker ne gagne pas d'argent. C'est un outil communautaire créé par un entrepreneur indépendant (Adrien de Volontat, dirigeant d'Avenir Rénovations à Saint-Rémy-de-Provence) pour ses propres besoins et ceux de ses confrères. Aucun investisseur, aucune monétisation des données utilisateurs."
+                }
+              },
+              {
+                "@type": "Question",
+                name: "Faut-il fournir une carte bancaire à l'inscription ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Non. L'inscription se fait avec une simple adresse e-mail (ou compte Google). Aucune carte bancaire, aucune information de paiement n'est demandée, ni à l'inscription, ni jamais par la suite."
+                }
+              },
+              {
+                "@type": "Question",
+                name: "Mes données sont-elles revendues ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Non. IKtracker n'affiche aucune publicité et ne revend aucune donnée. Les trajets, adresses et véhicules sont stockés de façon privée (Row-Level Security côté base) et accessibles uniquement à l'utilisateur propriétaire."
+                }
+              }
+            ]
+          })}
+        </script>
       </Helmet>
 
       <MarketingNav />
