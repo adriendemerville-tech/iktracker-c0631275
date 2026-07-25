@@ -674,6 +674,14 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       <section>
         <h2>Calculatrice frais kilométrique 2026</h2>
         <p>IKtracker intègre une <strong>calculatrice de frais kilométriques 2026</strong> gratuite qui applique automatiquement le barème officiel de l'administration fiscale française. Saisissez vos trajets professionnels (manuellement, via Google Agenda, Outlook ou iCloud), et obtenez le montant de vos indemnités kilométriques au barème 2026, incluant le bonus +20 % pour les véhicules 100 % électriques.</p>
+        <h3>Simulateur indemnités kilométriques 2026</h3>
+        <p>Le simulateur intégré à IKtracker permet d'estimer rapidement vos indemnités kilométriques :</p>
+        <ul>
+          <li><strong>Puissance fiscale du véhicule</strong> : 3 CV, 4 CV, 5 CV, 6 CV ou 7 CV et plus.</li>
+          <li><strong>Kilomètres annuels estimés</strong> : saisissez la distance professionnelle parcourue sur l'année.</li>
+          <li><strong>Véhicule 100 % électrique</strong> : activez la majoration automatique de 20 %.</li>
+        </ul>
+        <p><strong>Exemple de calcul</strong> : un véhicule de <strong>5 CV</strong> parcourant <strong>10 000 km</strong> professionnels par an génère <strong>4 965 €</strong> d'indemnités kilométriques 2026. Avec un véhicule 100 % électrique, le montant passe à <strong>5 958 €</strong> (4 965 € × 1,20).</p>
         <ul>
           <li><strong>Barème 2026 intégré</strong> : puissance fiscale, distance parcourue et taux officiels mis à jour automatiquement.</li>
           <li><strong>Multi-véhicules</strong> : voiture, moto, cyclomoteur, vélo — chaque véhicule utilise son barème spécifique.</li>
