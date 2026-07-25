@@ -2,6 +2,7 @@ import { lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
