@@ -1,17 +1,15 @@
-import { useState, useMemo, lazy, Suspense, memo, useEffect, useRef } from "react";
+import { lazy, Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
-import { IK_BAREME_2024, getIKBareme, calculateTotalAnnualIK } from "@/types/trip";
+import { IK_BAREME_2024 } from "@/types/trip";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { 
   Calculator, 
@@ -29,7 +27,6 @@ import {
   Fuel,
   Bike
 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 
 // FAQ Schema data
 const faqData = [
