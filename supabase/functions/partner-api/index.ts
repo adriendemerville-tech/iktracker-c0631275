@@ -1100,6 +1100,33 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
   });
 }
 
+// Internal endpoint called by a DB trigger when a user changes preferences in the app.
+// Fans out preferences.updated to every partner that has linked this user.
+async function handleInternalPreferencesChanged(req: Request): Promise<Response> {
+  const secret = req.headers.get('x-internal-secret');
+  if (secret !== SERVICE_ROLE_KEY) return jsonResponse({ error: 'Forbidden' }, 403);
+
+  const { iktracker_user_id, calendar_import_mode, ik_rate_override, changed } = await req.json();
+  if (!iktracker_user_id) return jsonResponse({ error: 'iktracker_user_id required' }, 400);
+
+  const { data: mappings } = await admin
+    .from('partner_users')
+    .select('partner_id, external_user_id')
+    .eq('iktracker_user_id', iktracker_user_id);
+
+  for (const m of mappings ?? []) {
+    fireWebhook(m.partner_id, 'preferences.updated', {
+      external_user_id: m.external_user_id,
+      iktracker_user_id,
+      calendar_import_mode,
+      ik_rate_override,
+      changed: changed ?? [],
+      source: 'in_app',
+    });
+  }
+  return jsonResponse({ success: true, notified: mappings?.length ?? 0 });
+}
+
 // ---------- Main router ----------
 
 
