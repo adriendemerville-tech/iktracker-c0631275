@@ -126,6 +126,13 @@ async function searchGoogle(
       });
     }
 
+    const normalized = text.trim().toLowerCase();
+    results.sort((a, b) => {
+      const am = (a.city || a.fulltext).toLowerCase().startsWith(normalized) ? 0 : 1;
+      const bm = (b.city || b.fulltext).toLowerCase().startsWith(normalized) ? 0 : 1;
+      return am - bm;
+    });
+
     return results;
   } catch (e: any) {
     if (e.name === 'AbortError' && signal.aborted) throw e;
