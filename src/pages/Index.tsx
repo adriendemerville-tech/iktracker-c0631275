@@ -317,7 +317,7 @@ const Index = () => {
             vehicleId,
             startLocation: {
               id: firstStop.id,
-              name: firstStop.city || firstStop.address || 'Position',
+              name: firstStop.city || firstStop.address || '',
               address: firstStop.address || '',
               lat: firstStop.lat,
               lng: firstStop.lng,
@@ -607,7 +607,7 @@ const Index = () => {
         vehicleId,
         startLocation: {
           id: firstStop.id,
-          name: firstCity || firstAddress || 'Position',
+          name: firstCity || firstAddress || '',
           address: firstAddress || '',
           lat: firstStop.lat,
           lng: firstStop.lng,
@@ -615,7 +615,7 @@ const Index = () => {
         },
         endLocation: {
           id: crypto.randomUUID(),
-          name: endLocation.city || endLocation.address || 'Position',
+          name: endLocation.city || endLocation.address || '',
           address: endLocation.address || '',
           lat: endLocation.lat,
           lng: endLocation.lng,
