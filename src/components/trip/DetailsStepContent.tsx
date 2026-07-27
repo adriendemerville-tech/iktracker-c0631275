@@ -274,140 +274,131 @@ export function DetailsStepContent({
         </div>
       )}
 
-      <div className={cn(
-        "flex items-center justify-between p-4 rounded-md transition-colors outline-none ring-0 w-[85%] mx-auto",
-        roundTrip ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
-      )}>
-        <div className="flex items-center gap-3">
-          <RefreshCw className={cn("w-5 h-5", roundTrip ? "text-primary" : "text-muted-foreground")} />
-          <p className="font-medium">Aller-retour</p>
-        </div>
-        <Switch 
-          checked={roundTrip} 
-          onCheckedChange={(checked) => {
-            const currentDistance = parseFloat(manualDistance) || 0;
-            if (checked && !roundTrip) {
-              // Turning ON: double the distance
-              setManualDistance((currentDistance * 2).toFixed(1));
-            } else if (!checked && roundTrip) {
-              // Turning OFF: halve the distance
-              setManualDistance((currentDistance / 2).toFixed(1));
-            }
-            setRoundTrip(checked);
-          }}
-          className="focus-visible:ring-0 focus-visible:ring-offset-0"
-        />
-      </div>
-
-      {!hideDatePicker && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Date du trajet</label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left font-normal"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(tripDate, "EEEE d MMMM yyyy", { locale: fr })}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={tripDate}
-                onSelect={(date) => date && setTripDate(date)}
-                initialFocus
-                className="pointer-events-auto"
-                locale={fr}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      )}
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Distance *</label>
-        <div className="flex items-center gap-2">
-          <Input
-            ref={distanceInputRef}
-            type="text"
-            inputMode="decimal"
-            placeholder="Ex: 25.5 km"
-            className={cn("flex-1", isBlinking ? 'animate-blink-orange' : '')}
-            value={manualDistance ? `${manualDistance} km` : ''}
-            onChange={(e) => {
-              let value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-              const parts = value.split('.');
-              if (parts.length > 1) {
-                value = parts[0] + '.' + parts[1].slice(0, 1);
+      {/* Ligne compacte : Aller-retour / Date / Distance */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+        {/* Aller-retour */}
+        <div className={cn(
+          "flex items-center justify-between px-3 h-12 rounded-md transition-colors outline-none ring-0",
+          roundTrip ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
+        )}>
+          <div className="flex items-center gap-2 min-w-0">
+            <RefreshCw className={cn("w-4 h-4 shrink-0", roundTrip ? "text-primary" : "text-muted-foreground")} />
+            <p className="font-medium text-sm truncate">Aller-retour</p>
+          </div>
+          <Switch
+            checked={roundTrip}
+            onCheckedChange={(checked) => {
+              const currentDistance = parseFloat(manualDistance) || 0;
+              if (checked && !roundTrip) {
+                setManualDistance((currentDistance * 2).toFixed(1));
+              } else if (!checked && roundTrip) {
+                setManualDistance((currentDistance / 2).toFixed(1));
               }
-              setManualDistance(value);
+              setRoundTrip(checked);
             }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
-                const enteredDistance = parseFloat(manualDistance) || 0;
-                const tolerance = 0.15;
-                if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
-                  setManualDistance(expectedDistance.toFixed(1));
-                  setIsBlinking(true);
-                  setTimeout(() => setIsBlinking(false), 650);
-                } else {
-                  purposeInputRef.current?.focus();
-                }
-              }
-            }}
+            className="focus-visible:ring-0 focus-visible:ring-offset-0"
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-12 w-12 shrink-0"
-            title="Mettre à jour la distance"
-            onClick={async () => {
-              const start = draft.startLocation;
-              const end = draft.endLocation;
-              if (!start || !end) return;
-              try {
-                const resolveCoords = async (loc: Location) => {
-                  if (typeof loc.lat === 'number' && typeof loc.lng === 'number') return { lat: loc.lat, lng: loc.lng };
-                  if (loc.address) return await geocodeAddress(loc.address);
-                  return null;
-                };
-                const [sc, ec] = await Promise.all([resolveCoords(start), resolveCoords(end)]);
-                if (sc && ec) {
-                  const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
-                  setCalculatedDistance(dist);
-                  const finalDist = roundTrip ? (dist * 2) : dist;
-                  setManualDistance(finalDist.toFixed(1));
-                }
-              } catch (err) {
-                console.error('Error recalculating distance:', err);
-              }
-            }}
-          >
-            <RefreshCw className="w-4 h-4" />
-          </Button>
         </div>
-        {calculatedDistance ? (
-          <p className="text-xs text-accent">
-            ✓ Calcul automatique (modifiable)
-          </p>
-        ) : typeof draft.startLocation?.lat === 'number' &&
-        typeof draft.startLocation?.lng === 'number' &&
-        typeof draft.endLocation?.lat === 'number' &&
-        typeof draft.endLocation?.lng === 'number' ? (
-          <p className="text-xs text-muted-foreground">
-            Calcul de la distance en cours...
-          </p>
+
+        {/* Date */}
+        {!hideDatePicker ? (
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Date</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-12 justify-start text-left font-normal px-3"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate">{format(tripDate, "d MMM yyyy", { locale: fr })}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={tripDate}
+                  onSelect={(date) => date && setTripDate(date)}
+                  initialFocus
+                  className="pointer-events-auto"
+                  locale={fr}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            Calcul automatique
-          </p>
+          <div />
         )}
+
+        {/* Distance */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Distance *</label>
+          <div className="flex items-center gap-2">
+            <Input
+              ref={distanceInputRef}
+              type="text"
+              inputMode="decimal"
+              placeholder="Ex: 25.5 km"
+              className={cn("flex-1 h-12", isBlinking ? 'animate-blink-orange' : '')}
+              value={manualDistance ? `${manualDistance} km` : ''}
+              onChange={(e) => {
+                let value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                const parts = value.split('.');
+                if (parts.length > 1) {
+                  value = parts[0] + '.' + parts[1].slice(0, 1);
+                }
+                setManualDistance(value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
+                  const enteredDistance = parseFloat(manualDistance) || 0;
+                  const tolerance = 0.15;
+                  if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
+                    setManualDistance(expectedDistance.toFixed(1));
+                    setIsBlinking(true);
+                    setTimeout(() => setIsBlinking(false), 650);
+                  } else {
+                    purposeInputRef.current?.focus();
+                  }
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 shrink-0"
+              title="Mettre à jour la distance"
+              onClick={async () => {
+                const start = draft.startLocation;
+                const end = draft.endLocation;
+                if (!start || !end) return;
+                try {
+                  const resolveCoords = async (loc: Location) => {
+                    if (typeof loc.lat === 'number' && typeof loc.lng === 'number') return { lat: loc.lat, lng: loc.lng };
+                    if (loc.address) return await geocodeAddress(loc.address);
+                    return null;
+                  };
+                  const [sc, ec] = await Promise.all([resolveCoords(start), resolveCoords(end)]);
+                  if (sc && ec) {
+                    const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
+                    setCalculatedDistance(dist);
+                    const finalDist = roundTrip ? (dist * 2) : dist;
+                    setManualDistance(finalDist.toFixed(1));
+                  }
+                } catch (err) {
+                  console.error('Error recalculating distance:', err);
+                }
+              }}
+            >
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       </div>
+
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Motif *</label>
