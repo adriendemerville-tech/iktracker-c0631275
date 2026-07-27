@@ -1180,10 +1180,19 @@ ${IKTRACKER_MENTION}
                       }}
                     />
                   ))}
+                {trips.filter(t => t.status === 'pending_location').length > 4 && (
+                  <Link
+                    to="/app/mestrajets#pending"
+                    className="block text-center text-sm font-medium text-primary hover:underline pt-1"
+                  >
+                    Voir les {trips.filter(t => t.status === 'pending_location').length} trajets à compléter →
+                  </Link>
+                )}
               </div>
             )}
           </section>
         )}
+
 
         {/* Vehicles section */}
         <section>
