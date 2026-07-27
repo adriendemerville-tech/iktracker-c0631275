@@ -73,6 +73,9 @@ function shouldSkipEvent(
   // 3) Transparent (marked "free") events are never business appointments
   if (event.transparency === 'transparent') return 'transparency_free';
 
+  // 3bis) Virtual meeting (Meet / Zoom / Teams / visio) → never a physical trip
+  if (isVirtualMeeting(event)) return 'virtual_meeting';
+
   const isAllDay = !!event.start?.date && !event.start?.dateTime;
   const hasLocation = !!(event.location && event.location.trim().length > 0);
 
