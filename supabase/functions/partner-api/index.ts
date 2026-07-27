@@ -1158,7 +1158,7 @@ serve(async (req) => {
       res = await handleGetReportPdf(reportId, ctx);
     } else if (route === '/preferences' && req.method === 'GET') {
       res = await handleGetPreferences(req, ctx);
-    } else if (route === '/preferences' && req.method === 'PUT') {
+    } else if (route === '/preferences' && (req.method === 'PUT' || req.method === 'PATCH')) {
       res = await handleUpdatePreferences(req, ctx);
 
     } else {
