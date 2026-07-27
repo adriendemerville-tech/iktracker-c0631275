@@ -421,6 +421,7 @@ async function fetchICSEvents(icsUrl: string, monthsBack: number = 0): Promise<{
           id,
           summary: ev.summary,
           location: ev.location,
+          description: ev.description,
           start: ev.allDay ? { date: occ.toISOString().slice(0, 10) } : { dateTime: occ.toISOString() },
           end: ev.allDay ? { date: endOcc.toISOString().slice(0, 10) } : { dateTime: endOcc.toISOString() },
           transparency: ev.transp === 'TRANSPARENT' ? 'transparent' : (ev.transp === 'OPAQUE' ? 'opaque' : undefined),
