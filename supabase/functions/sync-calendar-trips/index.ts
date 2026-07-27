@@ -326,6 +326,7 @@ function parseICS(text: string): ICSRawEvent[] {
       case 'UID': current.uid = value.trim(); break;
       case 'SUMMARY': current.summary = unescapeICSText(value); break;
       case 'LOCATION': current.location = unescapeICSText(value); break;
+      case 'DESCRIPTION': current.description = unescapeICSText(value); break;
       case 'DTSTART': {
         const d = parseICSDate(value);
         if (d) current.start = d;
