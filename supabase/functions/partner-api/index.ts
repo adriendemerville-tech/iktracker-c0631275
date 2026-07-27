@@ -1150,6 +1150,12 @@ serve(async (req) => {
     }
   }
 
+  // Internal endpoint (service-role secret), called by a DB trigger
+  if (route === '/internal/preferences-changed' && req.method === 'POST') {
+    try { return await handleInternalPreferencesChanged(req); }
+    catch (e) { return jsonResponse({ error: (e as Error).message }, 500); }
+  }
+
   // All other routes require API key
   const auth = await authenticatePartner(req);
   if ('error' in auth) {
