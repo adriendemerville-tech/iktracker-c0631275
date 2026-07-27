@@ -990,10 +990,13 @@ async function handleSsoVerify(req: Request): Promise<Response> {
   });
 }
 
-// ---------- Preferences (calendar_import_mode) ----------
+// ---------- Preferences (calendar_import_mode + ik_rate_override) ----------
 
 const VALID_CAL_MODES = ['individual', 'tour'] as const;
 type CalMode = typeof VALID_CAL_MODES[number];
+
+const VALID_IK_OVERRIDES = ['auto', 'tier1', 'tier2', 'tier3'] as const;
+type IkOverride = typeof VALID_IK_OVERRIDES[number];
 
 async function resolveLinkedUserId(ctx: PartnerContext, externalUserId: string): Promise<string | null> {
   const { data } = await admin
@@ -1017,11 +1020,10 @@ async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<
 
   const { data } = await admin
     .from('user_preferences')
-    .select('calendar_import_mode')
+    .select('calendar_import_mode, ik_rate_override')
     .eq('user_id', userId)
     .maybeSingle();
 
-  // Check if a Maison address exists (required for tour mode fallback logic)
   const { data: home } = await admin
     .from('locations')
     .select('id')
@@ -1030,9 +1032,12 @@ async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<
     .maybeSingle();
 
   const mode = (data?.calendar_import_mode as CalMode | undefined) ?? 'individual';
+  const ikOverride = (data?.ik_rate_override as IkOverride | undefined) ?? 'auto';
   return jsonResponse({
     success: true,
     calendar_import_mode: mode,
+    ik_rate_override: ikOverride,
+    ik_rate_override_options: VALID_IK_OVERRIDES,
     has_home_address: !!home,
     note: mode === 'tour' && !home
       ? 'Tour mode active but no Maison address set — imports will fall back to individual trips.'
@@ -1048,9 +1053,22 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
   if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
 
   const body = await req.json().catch(() => ({}));
-  const mode = body.calendar_import_mode;
-  if (!VALID_CAL_MODES.includes(mode)) {
-    return jsonResponse({ error: `calendar_import_mode must be one of: ${VALID_CAL_MODES.join(', ')}` }, 400);
+
+  const patch: Record<string, unknown> = {};
+  if (body.calendar_import_mode !== undefined) {
+    if (!VALID_CAL_MODES.includes(body.calendar_import_mode)) {
+      return jsonResponse({ error: `calendar_import_mode must be one of: ${VALID_CAL_MODES.join(', ')}` }, 400);
+    }
+    patch.calendar_import_mode = body.calendar_import_mode;
+  }
+  if (body.ik_rate_override !== undefined) {
+    if (!VALID_IK_OVERRIDES.includes(body.ik_rate_override)) {
+      return jsonResponse({ error: `ik_rate_override must be one of: ${VALID_IK_OVERRIDES.join(', ')}` }, 400);
+    }
+    patch.ik_rate_override = body.ik_rate_override;
+  }
+  if (Object.keys(patch).length === 0) {
+    return jsonResponse({ error: 'Provide at least one of: calendar_import_mode, ik_rate_override' }, 400);
   }
 
   const userId = await resolveLinkedUserId(ctx, externalUserId);
@@ -1058,16 +1076,28 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
 
   const { error } = await admin
     .from('user_preferences')
-    .upsert({ user_id: userId, calendar_import_mode: mode }, { onConflict: 'user_id' });
+    .upsert({ user_id: userId, ...patch }, { onConflict: 'user_id' });
   if (error) return jsonResponse({ error: error.message }, 500);
+
+  const { data: updated } = await admin
+    .from('user_preferences')
+    .select('calendar_import_mode, ik_rate_override')
+    .eq('user_id', userId)
+    .maybeSingle();
 
   fireWebhook(ctx.partnerId, 'preferences.updated', {
     external_user_id: externalUserId,
     iktracker_user_id: userId,
-    calendar_import_mode: mode,
+    calendar_import_mode: updated?.calendar_import_mode,
+    ik_rate_override: updated?.ik_rate_override,
+    changed: Object.keys(patch),
   });
 
-  return jsonResponse({ success: true, calendar_import_mode: mode });
+  return jsonResponse({
+    success: true,
+    calendar_import_mode: updated?.calendar_import_mode,
+    ik_rate_override: updated?.ik_rate_override,
+  });
 }
 
 // ---------- Main router ----------
