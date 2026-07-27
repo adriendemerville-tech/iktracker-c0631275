@@ -74,7 +74,17 @@ async function searchGoogle(
           input: text,
           languageCode: 'fr',
           regionCode: 'FR',
-          includedPrimaryTypes: ['street_address', 'route', 'premise', 'subpremise'],
+          // Autoriser aussi villes / codes postaux : ni la voie ni le numéro ne sont obligatoires
+          includedPrimaryTypes: [
+            'locality',
+            'sublocality',
+            'postal_code',
+            'administrative_area_level_3',
+            'street_address',
+            'route',
+            'premise',
+            'subpremise',
+          ],
         }),
         signal: timedSignal.signal,
       }
