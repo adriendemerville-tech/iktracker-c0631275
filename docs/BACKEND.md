@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.9 — 27 juillet 2026
+> Version 3.1 — 27 juillet 2026
 
 ## Table des matières
 
@@ -925,6 +925,7 @@ Clé unique logique : `user_id` + `date` + destination normalisée (`end_locatio
 2. **`sync-calendar-trips`** : conserve la double garde existante :
    - `tripExistsForEvent` (match exact par `calendar_event_id`).
    - `similarTripExists` (match souple date + destination, archivés inclus).
+   - Pour les trajets `pending_location`, la garde compare aussi `date + destination normalisée + intitulé d'événement normalisé`, afin d'éviter les doublons quand un même rendez-vous arrive avec deux variantes d'adresse de départ (`Chemin` / `Chem.`, accents, ponctuation, `France`).
 
 3. **`purge-duplicate-trips`** (nouvelle edge function) :
    - Auth : utilisateur admin via JWT, ou cron interne via header `x-cron-secret` égal au service role key.
@@ -935,6 +936,13 @@ Clé unique logique : `user_id` + `date` + destination normalisée (`end_locatio
 
 **Tâche planifiée**
 Cron `purge-duplicate-trips-daily` (`pg_cron`), tous les jours à **03:15 UTC**, exécute la purge réelle sur les **90 derniers jours**. Le secret cron est lu depuis `vault.decrypted_secrets`.
+
+**Comptes liés**
+- `account_links` permet de synchroniser des trajets entre comptes autorisés.
+- `trips.trip_group_id` regroupe les copies d'un même trajet réel entre comptes liés.
+- Le trigger `sync_linked_trip_ins()` fusionne désormais les groupes existants au lieu de recréer une ligne lorsqu'il retrouve un `pending_location` avec la même date, la même destination et le même intitulé normalisés.
+- La fonction `normalize_trip_dedupe_text(text)` centralise cette normalisation côté base (accents, casse, ponctuation, `Chemin`/`Chem.`, `Route`/`Rte`, `Avenue`/`Av`, suffixe `France`).
+- Purge rétroactive appliquée : les doublons actifs de `pending_location` sont soft-deleted en conservant le plus ancien par utilisateur, date, destination et intitulé.
 
 **Test manuel admin**
 ```bash
@@ -1071,6 +1079,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- **3.1** (27 juillet 2026) — Renforcement anti-doublons des trajets à compléter : normalisation partagée en base (`normalize_trip_dedupe_text`), purge rétroactive par `date + destination + intitulé`, et trigger comptes liés (`sync_linked_trip_ins`) qui fusionne les variantes d'adresse au lieu de recréer un doublon. `sync-calendar-trips` applique la même garde avant insertion.
 - **3.0** (27 juillet 2026) — API partenaire : endpoint `/preferences` étendu en lecture + écriture pour `calendar_import_mode` **et** `ik_rate_override` (`auto`|`tier1`|`tier2`|`tier3`). `PATCH` accepté en plus de `PUT`. Webhook `preferences.updated` enrichi (`ik_rate_override` + tableau `changed[]`). Filtrage rétroactif des doublons dans les trajets à compléter (`pending_location`) pour tous les utilisateurs.
 
 - **2.9** (27 juillet 2026) — Consolidation domaine sur l'apex `iktracker.fr` (www + .com → 301 apex). Ajout du déploiement Wrangler du Worker Cloudflare (`cloudflare-worker/wrangler.toml` + README) et de la map `LEGACY_REDIRECTS` (8 slugs legacy → slugs modernes). Audit sitemap : `/marina` retiré, `/signup` dépriorisé à 0.5, `/meilleure-application-...` remonté à 1.0, `/bareme-ik-2026` passé en `monthly`. `robots.txt` : `/admin` et `/admin/` bloqués explicitement.

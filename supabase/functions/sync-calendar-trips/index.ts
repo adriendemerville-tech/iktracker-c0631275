@@ -56,6 +56,25 @@ function normalizeAddress(s: string | undefined | null): string {
   return (s || '').toLowerCase().replace(/[\s,;.'"\-]+/g, ' ').trim();
 }
 
+function normalizeDedupeText(value: string | undefined | null): string {
+  const from = "ÀÁÂÃÄÅàáâãäåÇçÈÉÊËèéêëÌÍÎÏìíîïÑñÒÓÔÕÖØòóôõöøÙÚÛÜùúûüÝýÿ'’`.-,;";
+  const to = "AAAAAAaaaaaaCcEEEEeeeeIIIIiiiiNnOOOOOOooooooUUUUuuuuYyy      ";
+  const normalized = (value || '')
+    .split('')
+    .map((char) => {
+      const index = from.indexOf(char);
+      return index >= 0 ? to[index] : char;
+    })
+    .join('')
+    .toLowerCase()
+    .replace(/chemin/g, 'chem')
+    .replace(/route/g, 'rte')
+    .replace(/avenue/g, 'av')
+    .replace(/france/g, '');
+
+  return normalized.replace(/[^a-z0-9]+/g, '');
+}
+
 function shouldSkipEvent(
   event: CalendarEvent,
   userHomeLocation: { address: string; name: string } | null
@@ -644,17 +663,20 @@ async function similarTripExists(
   userId: string, 
   eventDate: string, 
   destination: string, 
+  purpose: string | undefined,
   supabase: any
 ): Promise<{ exists: boolean; wasDeleted: boolean }> {
   if (!destination) return { exists: false, wasDeleted: false };
   
   // Normalize destination for comparison (lowercase, trim)
   const normalizedDest = destination.toLowerCase().trim();
+  const normalizedDestKey = normalizeDedupeText(destination);
+  const normalizedPurposeKey = normalizeDedupeText(purpose);
   
   // Fetch all trips for this date (including archived ones)
   const { data: existingTrips } = await supabase
     .from('trips')
-    .select('id, end_location, deleted_at')
+    .select('id, end_location, purpose, deleted_at, status')
     .eq('user_id', userId)
     .eq('date', eventDate);
 
@@ -665,9 +687,18 @@ async function similarTripExists(
   // Check for similar destinations
   for (const trip of existingTrips) {
     const tripDest = (trip.end_location || '').toLowerCase().trim();
+    const tripDestKey = normalizeDedupeText(trip.end_location);
+    const tripPurposeKey = normalizeDedupeText(trip.purpose);
+    const isSamePendingCalendarEvent =
+      trip.status === 'pending_location' &&
+      normalizedDestKey.length > 0 &&
+      normalizedPurposeKey.length > 0 &&
+      tripDestKey === normalizedDestKey &&
+      tripPurposeKey === normalizedPurposeKey;
     
     // Check if destinations are similar (contains match or significant overlap)
     const isSimilar = 
+      isSamePendingCalendarEvent ||
       tripDest === normalizedDest ||
       tripDest.includes(normalizedDest) ||
       normalizedDest.includes(tripDest) ||
@@ -776,6 +807,7 @@ async function createTripFromEvent(
       userId, 
       eventDate, 
       destinationAddress, 
+      event.summary,
       supabase
     );
     
