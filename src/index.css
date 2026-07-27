@@ -113,6 +113,10 @@
     /* Typography */
     --font-sans: 'DM Sans', system-ui, sans-serif;
     --font-mono: 'Space Mono', monospace;
+
+    /* Pending trips section gradient */
+    --pending-bg-from: 38 35% 96%;
+    --pending-bg-to: 40 30% 94%;
   }
 
   .dark {
