@@ -20,6 +20,9 @@ interface CalendarEvent {
   id: string;
   summary?: string;
   location?: string;
+  description?: string;
+  hangoutLink?: string;
+  conferenceData?: any;
   start: { dateTime?: string; date?: string };
   end: { dateTime?: string; date?: string };
   // Google Calendar API v3 fields — used by the deterministic Level 1 filter
@@ -29,6 +32,16 @@ interface CalendarEvent {
   attendees?: Array<{ self?: boolean; responseStatus?: string }>;
   organizer?: { self?: boolean; email?: string };
   recurringEventId?: string;
+}
+
+// Detect virtual meeting markers (Meet, Zoom, Teams, Webex, visio, etc.)
+const VIRTUAL_MEETING_REGEX = /\b(?:meet\.google\.com|zoom\.us|zoom\.com|teams\.microsoft\.com|teams\.live\.com|webex\.com|gotomeeting\.com|whereby\.com|bluejeans\.com|jitsi|meet\.jit\.si|discord\.gg|skype:|hangouts\.google\.com|around\.co|around\.us|slack\.com\/call|framatalk|8x8\.vc|livestorm|demio\.com|livewebinar|clickmeeting|bigbluebutton|livekit)\b|\bvisio(?:conf[eé]rence)?\b|\bvis[ié]o\b|\ben\s+visio\b|\bvisioconf/i;
+
+function isVirtualMeeting(event: CalendarEvent): boolean {
+  if (event.hangoutLink) return true;
+  if (event.conferenceData?.entryPoints?.length) return true;
+  const haystack = `${event.location || ''} ${event.description || ''} ${event.summary || ''}`;
+  return VIRTUAL_MEETING_REGEX.test(haystack);
 }
 
 // ============ Level 1 deterministic filter =============
