@@ -1138,7 +1138,11 @@ ${IKTRACKER_MENTION}
         {/* Pending trips section - "À compléter" */}
         {trips.filter(t => t.status === 'pending_location').length > 0 && (
           <section
-            className="rounded-lg p-4 border border-border/70 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(0,0,0,0.12)] bg-[linear-gradient(135deg,hsl(38_35%_96%)_0%,hsl(40_30%_94%)_100%)] dark:bg-[linear-gradient(135deg,hsl(260_35%_14%)_0%,hsl(265_30%_11%)_100%)] dark:border-[hsl(270,50%,35%)]/40 dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]"
+            className="rounded-lg p-4 border border-border/70 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(0,0,0,0.12)] bg-card dark:border-[hsl(270,50%,35%)]/40 dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]"
+            style={{
+              backgroundImage:
+                'linear-gradient(135deg, hsl(var(--pending-bg-from, 38 35% 96%)) 0%, hsl(var(--pending-bg-to, 40 30% 94%)) 100%)',
+            }}
           >
             <div className="flex items-center gap-2 mb-3">
               <Link
