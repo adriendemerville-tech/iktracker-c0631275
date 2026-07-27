@@ -185,9 +185,9 @@ const Profile = () => {
     }
   };
 
-  const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>) => {
+  const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>, options?: { updatePastTrips?: boolean }) => {
     if (editingVehicle) {
-      updateVehicle(editingVehicle.id, vehicleData);
+      updateVehicle(editingVehicle.id, vehicleData, options);
     } else {
       addVehicle(vehicleData);
     }

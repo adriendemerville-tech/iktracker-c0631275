@@ -1396,9 +1396,9 @@ ${IKTRACKER_URL}`;
           open={showVehicleForm}
           onOpenChange={setShowVehicleForm}
           editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
-          onSave={(vehicleData) => {
+          onSave={(vehicleData, options) => {
             if (editingVehicle) {
-              updateVehicle(editingVehicle, vehicleData);
+              updateVehicle(editingVehicle, vehicleData, options);
             } else {
               addVehicle(vehicleData);
             }

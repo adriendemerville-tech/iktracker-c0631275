@@ -48,7 +48,7 @@ const FAQ_ITEMS = [
 interface DesktopSidebarProps {
   vehicles?: Vehicle[];
   onAddVehicle?: (vehicleData: Omit<Vehicle, 'id'>) => void;
-  onEditVehicle?: (vehicleId: string, vehicleData: Partial<Vehicle>) => void;
+  onEditVehicle?: (vehicleId: string, vehicleData: Partial<Vehicle>, options?: { updatePastTrips?: boolean }) => void;
   onDeleteVehicle?: (vehicleId: string) => void;
   onTourClick?: () => void;
   isTourActive?: boolean;
@@ -100,9 +100,9 @@ export const DesktopSidebar = ({
     }
   };
 
-  const handleVehicleFormSubmit = (vehicleData: Omit<Vehicle, 'id'>) => {
+  const handleVehicleFormSubmit = (vehicleData: Omit<Vehicle, 'id'>, options?: { updatePastTrips?: boolean }) => {
     if (editingVehicleId && onEditVehicle) {
-      onEditVehicle(editingVehicleId, vehicleData);
+      onEditVehicle(editingVehicleId, vehicleData, options);
     } else {
       onAddVehicle(vehicleData);
     }

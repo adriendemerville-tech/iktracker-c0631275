@@ -1141,6 +1141,117 @@ async function handleInternalPreferencesChanged(req: Request): Promise<Response>
   return jsonResponse({ success: true, notified: mappings?.length ?? 0 });
 }
 
+// ---------- Vehicles ----------
+
+async function handleListVehicles(req: Request, ctx: PartnerContext): Promise<Response> {
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  const { data, error } = await admin
+    .from('vehicles')
+    .select('id, license_plate, make, model, year, fiscal_power, is_electric, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true });
+  if (error) return jsonResponse({ error: error.message }, 500);
+  return jsonResponse({ success: true, vehicles: data ?? [] });
+}
+
+async function handleUpdateVehicle(req: Request, ctx: PartnerContext, vehicleId: string): Promise<Response> {
+  if (!requireScope(ctx, 'vehicles:write') && !requireScope(ctx, 'write')) {
+    return jsonResponse({ error: 'Missing vehicles:write scope' }, 403);
+  }
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  const body = await req.json();
+  const { fiscal_power, is_electric, make, model, year, license_plate, update_past_trips } = body;
+
+  const { data: existing } = await admin
+    .from('vehicles')
+    .select('id, user_id, fiscal_power, is_electric')
+    .eq('id', vehicleId)
+    .maybeSingle();
+  if (!existing || existing.user_id !== userId) {
+    return jsonResponse({ error: 'Vehicle not found for this user' }, 404);
+  }
+
+  const patch: Record<string, unknown> = {};
+  if (typeof fiscal_power === 'number') patch.fiscal_power = fiscal_power;
+  if (typeof is_electric === 'boolean') patch.is_electric = is_electric;
+  if (typeof make === 'string') patch.make = make;
+  if (typeof model === 'string') patch.model = model;
+  if (typeof year === 'number' || year === null) patch.year = year;
+  if (typeof license_plate === 'string') patch.license_plate = license_plate;
+  if (Object.keys(patch).length === 0) {
+    return jsonResponse({ error: 'Provide at least one updatable field' }, 400);
+  }
+
+  const { error: updErr } = await admin.from('vehicles').update(patch).eq('id', vehicleId);
+  if (updErr) return jsonResponse({ error: updErr.message }, 500);
+
+  const newFiscalPower = (patch.fiscal_power as number | undefined) ?? existing.fiscal_power;
+  const newIsElectric = (patch.is_electric as boolean | undefined) ?? existing.is_electric;
+  const fiscalChanged = 'fiscal_power' in patch && patch.fiscal_power !== existing.fiscal_power;
+  const electricChanged = 'is_electric' in patch && patch.is_electric !== existing.is_electric;
+
+  let recalculatedCount = 0;
+  if ((fiscalChanged || electricChanged) && update_past_trips === true) {
+    const { data: vehTrips } = await admin
+      .from('trips')
+      .select('id, distance, date')
+      .eq('user_id', userId)
+      .eq('vehicle_id', vehicleId)
+      .is('deleted_at', null)
+      .order('date', { ascending: true });
+
+    let cumulativeKm = 0;
+    for (const trip of vehTrips ?? []) {
+      const previousKm = cumulativeKm;
+      cumulativeKm += trip.distance || 0;
+      const ik = calculateIk({
+        fiscalPower: newFiscalPower,
+        isElectric: !!newIsElectric,
+        annualKm: cumulativeKm,
+        tripKm: trip.distance || 0,
+      });
+      // Delta approach mirrors in-app recalculation.
+      const prev = calculateIk({
+        fiscalPower: newFiscalPower,
+        isElectric: !!newIsElectric,
+        annualKm: previousKm,
+        tripKm: 0,
+      });
+      const newIkAmount = Math.round(
+        ((ik.annualIkAmount - prev.annualIkAmount) * (newIsElectric ? 1.2 : 1)) * 100,
+      ) / 100;
+      await admin.from('trips').update({ ik_amount: newIkAmount }).eq('id', trip.id);
+      recalculatedCount++;
+    }
+  }
+
+  fireWebhook(ctx.partnerId, 'vehicle.updated', {
+    external_user_id: externalUserId,
+    iktracker_user_id: userId,
+    vehicle_id: vehicleId,
+    changed: Object.keys(patch),
+    update_past_trips: !!update_past_trips,
+    recalculated_trips: recalculatedCount,
+  });
+
+  return jsonResponse({
+    success: true,
+    vehicle_id: vehicleId,
+    changed: Object.keys(patch),
+    update_past_trips: !!update_past_trips,
+    recalculated_trips: recalculatedCount,
+  });
+}
+
+
 // ---------- Main router ----------
 
 
@@ -1207,6 +1318,11 @@ serve(async (req) => {
       res = await handleGetPreferences(req, ctx);
     } else if (route === '/preferences' && (req.method === 'PUT' || req.method === 'PATCH')) {
       res = await handleUpdatePreferences(req, ctx);
+    } else if (route === '/vehicles' && req.method === 'GET') {
+      res = await handleListVehicles(req, ctx);
+    } else if ((req.method === 'PATCH' || req.method === 'PUT') && /^\/vehicles\/[^/]+$/.test(route)) {
+      const vehicleId = route.split('/')[2];
+      res = await handleUpdateVehicle(req, ctx, vehicleId);
 
     } else {
       res = jsonResponse({ error: 'Route not found', route, method: req.method }, 404);

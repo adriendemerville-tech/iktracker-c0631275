@@ -192,6 +192,48 @@ Content-Type: application/json
           </p>
         </Endpoint>
 
+        <Endpoint method="GET" path="/vehicles" scope="read">
+          <p className="text-sm text-muted-foreground">
+            Liste les véhicules de l'utilisateur lié.
+          </p>
+          <Code>{`GET ${baseUrl}/vehicles
+x-api-key: ikt_live_xxx...
+x-external-user-id: user-12345`}</Code>
+        </Endpoint>
+
+        <Endpoint method="PATCH" path="/vehicles/:id" scope="vehicles:write">
+          <p className="text-sm text-muted-foreground">
+            Met à jour un véhicule. Le paramètre <code>update_past_trips</code> (booléen, défaut
+            <code> false</code>) contrôle la rétroactivité : si <code>true</code> et que
+            <code> fiscal_power</code> ou <code>is_electric</code> change, toutes les indemnités
+            des trajets passés liés à ce véhicule sont immédiatement recalculées avec le nouveau
+            barème. Si <code>false</code>, seuls les trajets créés après la modification en
+            bénéficient.
+          </p>
+          <Code>{`PATCH ${baseUrl}/vehicles/{vehicle_id}
+x-api-key: ikt_live_xxx...
+x-external-user-id: user-12345
+Content-Type: application/json
+
+{
+  "fiscal_power": 6,
+  "is_electric": true,
+  "update_past_trips": true
+}`}</Code>
+          <Code>{`{
+  "success": true,
+  "vehicle_id": "uuid",
+  "changed": ["fiscal_power", "is_electric"],
+  "update_past_trips": true,
+  "recalculated_trips": 127
+}`}</Code>
+          <p className="text-sm text-muted-foreground">
+            Déclenche le webhook <code>vehicle.updated</code> avec le champ
+            <code> recalculated_trips</code>.
+          </p>
+        </Endpoint>
+
+
         <Endpoint method="POST" path="/sso/magic-link" scope="sso">
           <p className="text-sm text-muted-foreground">
             Génère une URL de connexion à usage unique (5 min) pour rediriger l'utilisateur vers son espace IKtracker, déjà authentifié.

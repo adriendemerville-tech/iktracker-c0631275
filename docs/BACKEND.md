@@ -734,6 +734,8 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 | `POST` | `/sso/dev` | `sso` | **Dev only** — génère un magic link sans JWT, à partir de `external_user_id` + `external_email` |
 | `GET` | `/preferences` | `preferences:read` / `read` | Retourne `calendar_import_mode`, `ik_rate_override`, `ik_rate_override_options`, `has_home_address` pour l'utilisateur lié |
 | `PUT` \| `PATCH` | `/preferences` | `preferences:write` / `write` | Met à jour `calendar_import_mode` et/ou `ik_rate_override`. Déclenche le webhook `preferences.updated` |
+| `GET` | `/vehicles` | `read` | Liste les véhicules de l'utilisateur lié |
+| `PATCH` \| `PUT` | `/vehicles/:id` | `vehicles:write` / `write` | Met à jour un véhicule (`fiscal_power`, `is_electric`, `make`, `model`, `year`, `license_plate`) et, si `update_past_trips: true`, recalcule immédiatement les IK de tous les trajets passés liés. Déclenche le webhook `vehicle.updated` |
 
 ### Endpoint `/preferences` — détail
 
@@ -784,6 +786,57 @@ Upsert sur `user_preferences (user_id, calendar_import_mode, ik_rate_override)`.
 `changed[]` liste les champs modifiés dans la requête — permet au partenaire de ne rafraîchir que ce qui a bougé.
 
 > **Note synchro inverse** : les changements de préférences faits directement depuis l'app IKtracker ne déclenchent pas encore automatiquement le webhook (endpoint interne `/internal/preferences-changed` prêt mais fan-out DB non branché — limitation Cloud sur le stockage sécurisé du token interne). Tant que les writes passent par l'API partenaire, la synchro est temps réel. Sinon, prévoir un polling léger côté partenaire.
+
+### Endpoint `/vehicles/:id` — détail
+
+Permet à un partenaire (ex. Dictadevi) de mettre à jour un véhicule côté IKtracker sans double-saisie et de contrôler explicitement la rétroactivité du recalcul IK.
+
+**Body (PATCH ou PUT)** — tous les champs sont optionnels sauf au moins un :
+```json
+{
+  "fiscal_power": 6,
+  "is_electric": true,
+  "make": "Renault",
+  "model": "Zoe",
+  "year": 2024,
+  "license_plate": "AB-123-CD",
+  "update_past_trips": true
+}
+```
+
+- **`update_past_trips`** (booléen, défaut `false`) — sémantique identique à la case à cocher exposée dans l'app IKtracker (« Mettre à jour les trajets passés ») :
+  - `true` + changement de `fiscal_power` ou `is_electric` → recalcule immédiatement `ik_amount` sur tous les `trips` non supprimés liés à ce véhicule (barème officiel tiered + bonus 20 % électrique, ordre chronologique, cumul annuel reconstitué).
+  - `false` (ou aucun changement de barème) → seuls les trajets créés après la modification bénéficient du nouveau barème ; les trajets passés conservent leur `ik_amount` d'origine.
+
+**Réponse `200`** :
+```json
+{
+  "success": true,
+  "vehicle_id": "uuid",
+  "changed": ["fiscal_power", "is_electric"],
+  "update_past_trips": true,
+  "recalculated_trips": 127
+}
+```
+
+**Codes d'erreur** : `400` (aucun champ fourni), `403` (scope `vehicles:write` manquant), `404` (véhicule inexistant ou n'appartenant pas à l'utilisateur lié).
+
+**Webhook `vehicle.updated`** (si abonné) :
+```json
+{
+  "event": "vehicle.updated",
+  "payload": {
+    "external_user_id": "user-12345",
+    "iktracker_user_id": "…",
+    "vehicle_id": "…",
+    "changed": ["fiscal_power", "is_electric"],
+    "update_past_trips": true,
+    "recalculated_trips": 127
+  }
+}
+```
+
+
 
 
 
@@ -1079,6 +1132,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- **3.2** (27 juillet 2026) — Recalcul IK opt-in : la modif d'un véhicule (CV fiscaux, statut électrique) ne recalcule plus systématiquement les trajets passés. Nouvelle case « Mettre à jour les trajets passés » dans `VehicleForm` (côté app) et paramètre `update_past_trips` dans `PATCH /vehicles/:id` de l'API partenaire. Par défaut, seuls les trajets à venir utilisent le nouveau barème. Nouveau endpoint `GET /vehicles` (liste), webhook `vehicle.updated` enrichi (`changed[]`, `update_past_trips`, `recalculated_trips`).
 - **3.1** (27 juillet 2026) — Renforcement anti-doublons des trajets à compléter : normalisation partagée en base (`normalize_trip_dedupe_text`), purge rétroactive par `date + destination + intitulé`, et trigger comptes liés (`sync_linked_trip_ins`) qui fusionne les variantes d'adresse au lieu de recréer un doublon. `sync-calendar-trips` applique la même garde avant insertion.
 - **3.0** (27 juillet 2026) — API partenaire : endpoint `/preferences` étendu en lecture + écriture pour `calendar_import_mode` **et** `ik_rate_override` (`auto`|`tier1`|`tier2`|`tier3`). `PATCH` accepté en plus de `PUT`. Webhook `preferences.updated` enrichi (`ik_rate_override` + tableau `changed[]`). Filtrage rétroactif des doublons dans les trajets à compléter (`pending_location`) pour tous les utilisateurs.
 
