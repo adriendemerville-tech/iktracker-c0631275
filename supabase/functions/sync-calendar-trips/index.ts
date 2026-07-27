@@ -270,6 +270,7 @@ interface ICSRawEvent {
   uid: string;
   summary: string;
   location: string;
+  description: string;
   start: Date;
   end: Date;
   allDay: boolean;
