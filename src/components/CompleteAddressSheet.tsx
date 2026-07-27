@@ -69,9 +69,12 @@ export function CompleteAddressSheet({
       }
 
       // End: preserve the trip's original arrival address if meaningful
-      if (trip.endLocation?.address && !isGenericAddress(trip.endLocation.address)) {
-        setEndAddress(trip.endLocation.address);
-        if (trip.endLocation.lat && trip.endLocation.lng) {
+      // Fallback to .name because sync-calendar stores the event summary in end_location
+      // which is mapped to endLocation.name (not .address) by useTrips.
+      const endValue = trip.endLocation?.address || trip.endLocation?.name || '';
+      if (endValue && !isGenericAddress(endValue)) {
+        setEndAddress(endValue);
+        if (trip.endLocation?.lat && trip.endLocation?.lng) {
           setEndCoords({ lat: trip.endLocation.lat, lng: trip.endLocation.lng });
         } else {
           setEndCoords(null);
