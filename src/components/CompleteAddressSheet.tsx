@@ -42,10 +42,11 @@ export function CompleteAddressSheet({
 
   useEffect(() => {
     if (open) {
-      // Start: preserve the trip's original departure address
-      if (trip.startLocation?.address && !isGenericAddress(trip.startLocation.address)) {
-        setStartAddress(trip.startLocation.address);
-        if (trip.startLocation.lat && trip.startLocation.lng) {
+      // Start: preserve the trip's original departure address (fallback to .name)
+      const startValue = trip.startLocation?.address || trip.startLocation?.name || '';
+      if (startValue && !isGenericAddress(startValue)) {
+        setStartAddress(startValue);
+        if (trip.startLocation?.lat && trip.startLocation?.lng) {
           setStartCoords({ lat: trip.startLocation.lat, lng: trip.startLocation.lng });
         } else {
           setStartCoords(null);
@@ -69,9 +70,12 @@ export function CompleteAddressSheet({
       }
 
       // End: preserve the trip's original arrival address if meaningful
-      if (trip.endLocation?.address && !isGenericAddress(trip.endLocation.address)) {
-        setEndAddress(trip.endLocation.address);
-        if (trip.endLocation.lat && trip.endLocation.lng) {
+      // Fallback to .name because sync-calendar stores the event summary in end_location
+      // which is mapped to endLocation.name (not .address) by useTrips.
+      const endValue = trip.endLocation?.address || trip.endLocation?.name || '';
+      if (endValue && !isGenericAddress(endValue)) {
+        setEndAddress(endValue);
+        if (trip.endLocation?.lat && trip.endLocation?.lng) {
           setEndCoords({ lat: trip.endLocation.lat, lng: trip.endLocation.lng });
         } else {
           setEndCoords(null);
