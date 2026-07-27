@@ -113,11 +113,20 @@
     /* Typography */
     --font-sans: 'DM Sans', system-ui, sans-serif;
     --font-mono: 'Space Mono', monospace;
+
+    /* Pending trips section gradient */
+    --pending-bg-from: 38 35% 96%;
+    --pending-bg-to: 40 30% 94%;
   }
 
   .dark {
     --background: 220 25% 8%;
     --foreground: 210 20% 98%;
+
+    /* Pending trips section gradient - dark purple */
+    --pending-bg-from: 260 35% 14%;
+    --pending-bg-to: 265 30% 11%;
+
 
     --card: 220 25% 12%;
     --card-foreground: 210 20% 98%;
