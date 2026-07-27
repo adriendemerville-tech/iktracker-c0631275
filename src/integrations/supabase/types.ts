@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_links: {
+        Row: {
+          created_at: string
+          id: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
       affiliate_codes: {
         Row: {
           code: string
@@ -1807,6 +1828,7 @@ export type Database = {
           end_location: string
           id: string
           ik_amount: number
+          linked_trip_id: string | null
           purpose: string | null
           round_trip: boolean
           source: string | null
@@ -1825,6 +1847,7 @@ export type Database = {
           end_location: string
           id?: string
           ik_amount?: number
+          linked_trip_id?: string | null
           purpose?: string | null
           round_trip?: boolean
           source?: string | null
@@ -1843,6 +1866,7 @@ export type Database = {
           end_location?: string
           id?: string
           ik_amount?: number
+          linked_trip_id?: string | null
           purpose?: string | null
           round_trip?: boolean
           source?: string | null
@@ -1853,6 +1877,13 @@ export type Database = {
           vehicle_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "trips_linked_trip_id_fkey"
+            columns: ["linked_trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "trips_vehicle_id_fkey"
             columns: ["vehicle_id"]
@@ -2147,6 +2178,7 @@ export type Database = {
         }[]
       }
       get_download_stats: { Args: never; Returns: Json }
+      get_linked_user: { Args: { _uid: string }; Returns: string }
       get_marketing_stats: { Args: { days_back?: number }; Returns: Json }
       get_marketing_stats_by_page: {
         Args: { days_back?: number }
