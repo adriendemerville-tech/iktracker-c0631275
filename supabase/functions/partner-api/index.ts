@@ -361,7 +361,7 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
     end_location,
     distance,
     ik_amount: ikAmount,
-    vehicle_id: vehicle_id ?? null,
+    vehicle_id: effectiveVehicleId,
     purpose: purpose ?? null,
     round_trip: !!round_trip,
     calendar_event_id: calendar_event_id ?? null,
