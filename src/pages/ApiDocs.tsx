@@ -105,7 +105,9 @@ x-api-key: ikt_live_xxx...
 
         <Endpoint method="POST" path="/trips" scope="write">
           <p className="text-sm text-muted-foreground">
-            Crée un trajet pour un utilisateur. L'IK est calculée automatiquement si <code>vehicle_id</code> est fourni.
+            Crée un trajet pour un utilisateur. L'IK est calculée automatiquement à partir de <code>vehicle_id</code>.
+            Si <code>vehicle_id</code> n'est pas fourni, IKtracker assigne automatiquement le véhicule par défaut de l'utilisateur (le plus ancien) — garde-fou pour éviter les trajets orphelins.
+            <strong> Recommandation :</strong> passez toujours <code>vehicle_id</code> explicitement pour un contrôle précis du barème.
             L'utilisateur est provisionné automatiquement au premier appel.
           </p>
           <Code>{`POST ${baseUrl}/trips
