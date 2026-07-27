@@ -732,42 +732,60 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 | `POST` | `/reports/send-email` | `reports` | Envoi du rapport par email (Resend) |
 | `POST` | `/sso/magic-link` | `sso` | Génère un magic link signé (JWT partenaire requis dans `Authorization`) |
 | `POST` | `/sso/dev` | `sso` | **Dev only** — génère un magic link sans JWT, à partir de `external_user_id` + `external_email` |
-| `GET` | `/preferences` | `preferences:read` / `read` | 🆕 Retourne `calendar_import_mode` (`individual` \| `tour`) et `has_home_address` pour l'utilisateur lié |
-| `PUT` | `/preferences` | `preferences:write` / `write` | 🆕 Met à jour `calendar_import_mode`. Body : `{ "calendar_import_mode": "tour" }`. Déclenche le webhook `preferences.updated` |
+| `GET` | `/preferences` | `preferences:read` / `read` | Retourne `calendar_import_mode`, `ik_rate_override`, `ik_rate_override_options`, `has_home_address` pour l'utilisateur lié |
+| `PUT` \| `PATCH` | `/preferences` | `preferences:write` / `write` | Met à jour `calendar_import_mode` et/ou `ik_rate_override`. Déclenche le webhook `preferences.updated` |
 
 ### Endpoint `/preferences` — détail
 
-Exposé pour permettre aux partenaires (ex. Dictadevi) d'offrir à leurs utilisateurs le choix du mode d'import calendrier sans quitter leur plateforme.
+Exposé pour permettre aux partenaires (ex. Dictadevi) d'offrir à leurs utilisateurs le pilotage des deux réglages clés du calcul IK sans quitter leur plateforme :
+- **`calendar_import_mode`** : `individual` (un trajet par événement) ou `tour` (regroupe les événements d'un même jour et d'un même calendrier en tournée). `tour` exige une adresse `Maison` dans `locations`.
+- **`ik_rate_override`** : `auto` (barème officiel tiered), `tier1` (≤ 5 000 km/an), `tier2` (5 001–20 000 km/an) ou `tier3` (> 20 000 km/an). Fige le taux appliqué à chaque km — utile pour les indépendants qui se remboursent mensuellement et veulent un taux stable toute l'année.
 
 **Résolution utilisateur** : header `x-external-user-id` obligatoire → mapping `partner_users` → `iktracker_user_id`. Renvoie `404` si l'utilisateur n'est pas encore provisionné (appeler `/sso/magic-link` au préalable pour créer le mapping).
 
 **`GET /preferences`** — réponse :
 ```json
 {
-  "calendar_import_mode": "individual" | "tour",
+  "calendar_import_mode": "individual",
+  "ik_rate_override": "auto",
+  "ik_rate_override_options": ["auto", "tier1", "tier2", "tier3"],
   "has_home_address": true,
-  "note": null | "home_address_missing"
+  "note": null
 }
 ```
 `has_home_address` reflète l'existence d'une entrée `locations` avec `label = 'Maison'` (case-insensitive). `note = "home_address_missing"` est renvoyé si le mode courant est `tour` sans Maison définie : dans ce cas `sync-calendar-trips` retombe silencieusement en trajets individuels.
 
-**`PUT /preferences`** — body `{ "calendar_import_mode": "individual" | "tour" }`. Upsert sur `user_preferences (user_id, calendar_import_mode)`. Codes :
-- `200` : préférence enregistrée, renvoie l'objet complet + `updated_at`.
-- `400` : valeur invalide.
-- `409` : `{ "error": "home_address_required" }` si activation `tour` sans Maison (bloquant : la préférence n'est pas modifiée).
+**`PUT /preferences`** (ou `PATCH`) — body accepte un ou les deux champs :
+```json
+{ "calendar_import_mode": "tour", "ik_rate_override": "tier2" }
+```
+Upsert sur `user_preferences (user_id, calendar_import_mode, ik_rate_override)`. Codes :
+- `200` : préférences enregistrées, renvoie `{ success, calendar_import_mode, ik_rate_override }`.
+- `400` : valeur invalide, ou aucun champ fourni.
 - `403` : scope manquant (`preferences:write` ou fallback `write`).
+- `404` : utilisateur externe non provisionné.
+- `409` : `{ "error": "home_address_required" }` si activation `tour` sans Maison (bloquant : les préférences ne sont pas modifiées).
 
-**Webhook** `preferences.updated` (si l'endpoint partenaire y est abonné) :
+**Webhook** `preferences.updated` (si l'endpoint partenaire y est abonné) — émis à chaque update via l'API, signé `X-IKTracker-Signature: sha256=…` (HMAC-SHA256 du body avec `partner_webhooks.hmac_secret`) :
 ```json
 {
   "event": "preferences.updated",
-  "timestamp": "2026-07-22T09:12:00Z",
+  "timestamp": "2026-07-27T09:12:00Z",
   "payload": {
     "external_user_id": "user-12345",
-    "calendar_import_mode": "tour"
+    "iktracker_user_id": "…",
+    "calendar_import_mode": "tour",
+    "ik_rate_override": "tier2",
+    "changed": ["calendar_import_mode", "ik_rate_override"]
   }
 }
 ```
+
+`changed[]` liste les champs modifiés dans la requête — permet au partenaire de ne rafraîchir que ce qui a bougé.
+
+> **Note synchro inverse** : les changements de préférences faits directement depuis l'app IKtracker ne déclenchent pas encore automatiquement le webhook (endpoint interne `/internal/preferences-changed` prêt mais fan-out DB non branché — limitation Cloud sur le stockage sécurisé du token interne). Tant que les writes passent par l'API partenaire, la synchro est temps réel. Sinon, prévoir un polling léger côté partenaire.
+
+
 
 
 ### Provisioning automatique
