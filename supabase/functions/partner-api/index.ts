@@ -328,10 +328,23 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
     }, 200);
   }
 
-  // Compute IK if vehicle provided
+  // Auto-assign default vehicle if none provided (safety net)
+  let effectiveVehicleId: string | null = vehicle_id ?? null;
+  if (!effectiveVehicleId) {
+    const { data: defaultVeh } = await admin
+      .from('vehicles')
+      .select('id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (defaultVeh) effectiveVehicleId = defaultVeh.id;
+  }
+
+  // Compute IK if vehicle available
   let ikAmount = 0;
-  if (vehicle_id) {
-    const { data: veh } = await admin.from('vehicles').select('fiscal_power, is_electric').eq('id', vehicle_id).eq('user_id', userId).maybeSingle();
+  if (effectiveVehicleId) {
+    const { data: veh } = await admin.from('vehicles').select('fiscal_power, is_electric').eq('id', effectiveVehicleId).eq('user_id', userId).maybeSingle();
     if (veh) {
       const yearStart = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10);
       const { data: yearTrips } = await admin.from('trips').select('distance').eq('user_id', userId).gte('date', yearStart);
@@ -339,6 +352,7 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
       ikAmount = calculateIk({ fiscalPower: veh.fiscal_power, isElectric: veh.is_electric, annualKm, tripKm: distance }).tripIkAmount;
     }
   }
+
 
   const { data: trip, error } = await admin.from('trips').insert({
     user_id: userId,
