@@ -1071,7 +1071,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
-- **2.9** (27 juillet 2026) — Consolidation domaine sur l'apex `iktracker.fr` (www + .com → 301 apex). Ajout du déploiement Wrangler du Worker Cloudflare (`cloudflare-worker/wrangler.toml` + README) et de la map `LEGACY_REDIRECTS` (8 slugs legacy → slugs modernes). Audit sitemap : `/marina` retiré, `/signup` dépriorisé à 0.5, `/meilleure-application-...` remonté à 1.0, `/bareme-ik-2026` passé en `monthly`. `robots.txt` : `/admin` et `/admin/` bloqués explicitement.
+- **3.0** (27 juillet 2026) — API partenaire : endpoint `/preferences` étendu en lecture + écriture pour `calendar_import_mode` **et** `ik_rate_override` (`auto`|`tier1`|`tier2`|`tier3`). `PATCH` accepté en plus de `PUT`. Webhook `preferences.updated` enrichi (`ik_rate_override` + tableau `changed[]`). Filtrage rétroactif des doublons dans les trajets à compléter (`pending_location`) pour tous les utilisateurs.
 
 - **2.81** (24 juillet 2026) — Sitemap Edge Function : suppression des `lastmod` statiques non-page-specific conformément à la politique sitemap. `robots.txt` enrichi de `Disallow` explicites pour `/app/`, `/auth`, `/unsubscribe`, `/temporaryreport/`, `/sso`, `/offline`, `/debug/`, `/.lovable/oauth/consent`.
 - **2.8** (24 juillet 2026) — Ajout Niveau 1 filtres calendrier (`shouldSkipEvent`) + section Intégrations d'agents (MCP OAuth). Documentation du fallback `IKTRACKER_WEBHOOK_SECRET` pour la signature HMAC des webhooks partenaires.
