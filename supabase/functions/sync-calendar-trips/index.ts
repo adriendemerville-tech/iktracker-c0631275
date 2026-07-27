@@ -296,6 +296,7 @@ function parseICS(text: string): ICSRawEvent[] {
           uid: current.uid,
           summary: current.summary || '',
           location: current.location || '',
+          description: current.description || '',
           start: current.start,
           end: current.end,
           allDay: current.allDay || false,
