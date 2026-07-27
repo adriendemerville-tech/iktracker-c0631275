@@ -136,6 +136,26 @@ export default {
       return response;
     }
 
+    // ── 2b. Anciennes URLs (backlinks externes, brouillons sitemap) → 301 vers équivalent actuel ──
+    // Récupère le jus SEO résiduel + supprime les "noindex" hérités de NotFound.
+    const LEGACY_REDIRECTS = {
+      '/guide-complet-indemnites-kilometriques-frais-reels': '/blog/indemnites-kilometriques-2026-guide-complet',
+      '/fonctionnalites/suivi-kilometrique-automatique': '/mode-tournee',
+      '/comment-remplir-sa-declaration': '/note-de-frais-kilometrique',
+      '/synchronisation-calendrier-iktracker': '/calendrier',
+      '/nos-offres': '/tarifs',
+      '/simulateur': '/bareme-ik-2026',
+      '/deduction-frais-reels': '/frais-reels',
+      '/vehicules-electriques': '/bareme-ik-2026#vehicules-electriques',
+    };
+    if (LEGACY_REDIRECTS[path]) {
+      const redirectUrl = `https://iktracker.fr${LEGACY_REDIRECTS[path]}${url.search}`;
+      const response = Response.redirect(redirectUrl, 301);
+      ctx.waitUntil(sendLog(request, response, botDetected));
+      return response;
+    }
+
+
     // ── 2a. /sitemap.xml → proxy vers Edge Function dynamique, fallback statique ──
     if (path === '/sitemap.xml') {
       try {
