@@ -65,6 +65,8 @@ Allow: /
 
 # === ROUTES NON INDEXABLES (app, auth, utilitaires, partages temporaires) ===
 Disallow: /app/
+Disallow: /admin
+Disallow: /admin/
 Disallow: /auth
 Disallow: /unsubscribe
 Disallow: /temporaryreport/

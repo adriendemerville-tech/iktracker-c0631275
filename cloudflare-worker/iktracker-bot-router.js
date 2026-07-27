@@ -147,6 +147,9 @@ export default {
       '/simulateur': '/bareme-ik-2026',
       '/deduction-frais-reels': '/frais-reels',
       '/vehicules-electriques': '/bareme-ik-2026#vehicules-electriques',
+      '/install': '/installer',
+      '/mestrajets': '/mes-trajets',
+      '/experts-comptables': '/expert-comptable',
     };
     if (LEGACY_REDIRECTS[path]) {
       const redirectUrl = `https://iktracker.fr${LEGACY_REDIRECTS[path]}${url.search}`;
