@@ -1835,6 +1835,7 @@ export type Database = {
           start_location: string
           status: string
           tour_stops: Json | null
+          trip_group_id: string | null
           user_id: string
           vehicle_id: string | null
         }
@@ -1854,6 +1855,7 @@ export type Database = {
           start_location: string
           status?: string
           tour_stops?: Json | null
+          trip_group_id?: string | null
           user_id: string
           vehicle_id?: string | null
         }
@@ -1873,6 +1875,7 @@ export type Database = {
           start_location?: string
           status?: string
           tour_stops?: Json | null
+          trip_group_id?: string | null
           user_id?: string
           vehicle_id?: string | null
         }
@@ -2179,6 +2182,7 @@ export type Database = {
       }
       get_download_stats: { Args: never; Returns: Json }
       get_linked_user: { Args: { _uid: string }; Returns: string }
+      get_linked_users: { Args: { _uid: string }; Returns: string[] }
       get_marketing_stats: { Args: { days_back?: number }; Returns: Json }
       get_marketing_stats_by_page: {
         Args: { days_back?: number }
