@@ -42,10 +42,11 @@ export function CompleteAddressSheet({
 
   useEffect(() => {
     if (open) {
-      // Start: preserve the trip's original departure address
-      if (trip.startLocation?.address && !isGenericAddress(trip.startLocation.address)) {
-        setStartAddress(trip.startLocation.address);
-        if (trip.startLocation.lat && trip.startLocation.lng) {
+      // Start: preserve the trip's original departure address (fallback to .name)
+      const startValue = trip.startLocation?.address || trip.startLocation?.name || '';
+      if (startValue && !isGenericAddress(startValue)) {
+        setStartAddress(startValue);
+        if (trip.startLocation?.lat && trip.startLocation?.lng) {
           setStartCoords({ lat: trip.startLocation.lat, lng: trip.startLocation.lng });
         } else {
           setStartCoords(null);
