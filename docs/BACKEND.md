@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 2.8 — 24 juillet 2026
+> Version 2.9 — 27 juillet 2026
 
 ## Table des matières
 
@@ -24,17 +24,19 @@
 | Frontend | Lovable Publish | SPA React déployée automatiquement |
 | Backend | Lovable Cloud (Supabase) | PostgreSQL + Edge Functions (Deno) |
 | DNS & Edge | Cloudflare | Proxy, Workers, SSL (mode Full) |
-| Domaine canonique | www.iktracker.fr | Hôte SEO/GEO — Worker Cloudflare actif, pre-rendering bots |
-| Apex | iktracker.fr | Sert le SPA aux humains (Worker bypassé par Lovable Publish cross-account) |
-| Domaine secondaire | iktracker.com | Redirigé 301 vers www.iktracker.fr via Worker |
+| Domaine canonique | **iktracker.fr** (apex) | Hôte SEO/GEO — Worker Cloudflare actif, pre-rendering bots |
+| Sous-domaine www | www.iktracker.fr | 301 → apex via Cloudflare Redirect Rule |
+| Domaine secondaire | iktracker.com / www.iktracker.com | 301 → apex via Worker |
 
 ### Flux de requête
 
 ```
 Utilisateur → Cloudflare DNS (proxied)
-  → Cloudflare Worker (iktracker-bot-router) [www uniquement, apex bypassé]
+  → Cloudflare Worker (iktracker-bot-router)
+    ├─ www.* / .com → 301 → apex iktracker.fr
     ├─ Bot détecté → Edge Function meta-renderer → HTML pré-rendu
     ├─ /sitemap.xml → Edge Function sitemap (fallback: fichier statique)
+    ├─ Slug legacy (LEGACY_REDIRECTS) → 301 vers slug moderne
     ├─ Asset statique → Origin + cache headers
     ├─ Route privée (/app/*) → Origin passthrough
     └─ Utilisateur normal → Origin (SPA React)
@@ -42,10 +44,11 @@ Utilisateur → Cloudflare DNS (proxied)
 
 ### Domaines & Redirections
 
-- Hôte canonique : **www.iktracker.fr** (canonicals, og:url, sitemap, JSON-LD, robots).
-- `iktracker.fr` (apex) → sert le SPA directement (Worker non exécuté côté Lovable Publish) ; les canonicals pointent vers www pour consolider l'autorité SEO/GEO.
-- `iktracker.com` / `www.iktracker.com` → 301 → `https://www.iktracker.fr`.
-- Exception : `/robots.txt` et `/llms.txt` sur .com sont servis par proxy depuis www.iktracker.fr.
+- Hôte canonique : **iktracker.fr** (apex) — canonicals, og:url, sitemap, JSON-LD, robots pointent tous vers l'apex.
+- `www.iktracker.fr` → 301 → `https://iktracker.fr` (Cloudflare Redirect Rule + fallback Worker).
+- `iktracker.com` / `www.iktracker.com` → 301 → `https://iktracker.fr` via Worker.
+- Exception : `/robots.txt` et `/llms.txt` sur .com sont servis par proxy depuis iktracker.fr.
+- **Redirections legacy 301** (map `LEGACY_REDIRECTS` dans le Worker) : `/install → /installer`, `/mestrajets → /mes-trajets`, `/experts-comptables → /expert-comptable`, `/nos-offres → /tarifs`, `/simulateur → /bareme-ik-2026`, `/guide-complet-indemnites-kilometriques-frais-reels → /blog/indemnites-kilometriques-2026-guide-complet`, `/fonctionnalites/suivi-kilometrique-automatique → /mode-tournee`, etc. Ajouter une entrée = éditer la map puis `wrangler deploy`.
 
 ---
 
@@ -501,17 +504,26 @@ CREATE POLICY "Users can manage own data" ON public.table_name
 - Audit : crawlers.fr, Screaming Frog, Ahrefs, Semrush
 
 **Logique de routage** :
-1. `www.iktracker.fr` → 301 → apex
-2. `iktracker.com` → 301 → `.fr` (sauf robots.txt/llms.txt proxiés)
+1. `www.iktracker.fr` / `www.iktracker.com` / `iktracker.com` → 301 → apex `iktracker.fr` (sauf robots.txt/llms.txt proxiés depuis .com)
+2. Slug présent dans `LEGACY_REDIRECTS` → 301 vers slug moderne
 3. `/sitemap.xml` → Proxy vers Edge Function (fallback fichier statique)
 4. Assets statiques → Passthrough + cache headers
-5. Routes privées → Passthrough
+5. Routes privées (`/app/*`, `/auth`, `/sso`, etc.) → Passthrough
 6. Bot détecté → Edge Function `meta-renderer`
 7. Utilisateur normal → Origin SPA
 
 **Headers de diagnostic** :
 - `X-Rendered-By: cloudflare-worker`
 - `X-Sitemap-Source: edge-function | static-fallback | error`
+
+**Déploiement** : le Worker n'est **pas** déployé automatiquement depuis le repo. Utiliser Wrangler :
+
+```bash
+cd cloudflare-worker
+wrangler deploy   # push cloudflare-worker/iktracker-bot-router.js sur les 4 routes
+```
+
+Config : `cloudflare-worker/wrangler.toml` (routes multi-zones apex + www, .fr + .com). Voir `cloudflare-worker/README.md` pour l'authentification (`wrangler login`) et le rollback. Ne jamais éditer le Worker dans le dashboard **et** en local en parallèle — le prochain `wrangler deploy` écrase.
 
 ### Sitemap (architecture hybride v2)
 
@@ -523,7 +535,14 @@ CREATE POLICY "Users can manage own data" ON public.table_name
 | `scripts/generate-sitemap.cjs` | Génère le fallback | Chaque build (prebuild) |
 | `scripts/validate-sitemap-sync.cjs` | Validation CI | Compare les 2 sources |
 
-**Contenu** : 17 pages statiques + ~45 articles de blog ≈ 62 URLs
+**Contenu** : ~17 pages statiques + ~45 articles de blog ≈ 62 URLs — toutes en `https://iktracker.fr/*`.
+
+**Priorités & changefreq notables** (alignées entre l'Edge Function et le script statique) :
+- `/` : `priority 1.0`, `weekly`
+- `/meilleure-application-indemnites-kilometriques` : `priority 1.0`, `weekly`
+- `/bareme-ik-2026` : `priority 0.9`, `monthly`
+- `/signup` : `priority 0.5` (utilitaire, dépriorisé)
+- Utilitaires exclus : `/unsubscribe`, `/marina`, `/temporaryreport/*`, `/sso`, `/offline`, `/debug/*`, `/auth`, `/app/*`, `/admin`
 
 ### Meta-renderer
 
@@ -536,11 +555,12 @@ Sert un HTML complet avec :
 ### robots.txt
 
 ```
-Sitemap: https://www.iktracker.fr/sitemap.xml
+Sitemap: https://iktracker.fr/sitemap.xml
 User-agent: * → Allow: /
+Disallow: /app/, /auth, /admin, /admin/, /unsubscribe, /temporaryreport/, /sso, /offline, /debug/, /.lovable/oauth/consent
 ```
 
-Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `PerplexityBot`, etc.).
+Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `PerplexityBot`, etc.). `/admin` est bloqué explicitement bien que déjà gated côté app, pour éviter tout crawl accidentel.
 
 ---
 
@@ -1032,6 +1052,8 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **2.9** (27 juillet 2026) — Consolidation domaine sur l'apex `iktracker.fr` (www + .com → 301 apex). Ajout du déploiement Wrangler du Worker Cloudflare (`cloudflare-worker/wrangler.toml` + README) et de la map `LEGACY_REDIRECTS` (8 slugs legacy → slugs modernes). Audit sitemap : `/marina` retiré, `/signup` dépriorisé à 0.5, `/meilleure-application-...` remonté à 1.0, `/bareme-ik-2026` passé en `monthly`. `robots.txt` : `/admin` et `/admin/` bloqués explicitement.
 
 - **2.81** (24 juillet 2026) — Sitemap Edge Function : suppression des `lastmod` statiques non-page-specific conformément à la politique sitemap. `robots.txt` enrichi de `Disallow` explicites pour `/app/`, `/auth`, `/unsubscribe`, `/temporaryreport/`, `/sso`, `/offline`, `/debug/`, `/.lovable/oauth/consent`.
 - **2.8** (24 juillet 2026) — Ajout Niveau 1 filtres calendrier (`shouldSkipEvent`) + section Intégrations d'agents (MCP OAuth). Documentation du fallback `IKTRACKER_WEBHOOK_SECRET` pour la signature HMAC des webhooks partenaires.
