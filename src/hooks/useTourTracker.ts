@@ -732,12 +732,16 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         // Add initial GPS point
         addGpsPoint(lat, lng, accuracy);
         
-        // Add starting point as first stop immediately
+        // Add starting point as first stop immediately.
+        // Seed a raw-coords fallback address so the recovery flow never
+        // has to invent a literal like "Position".
+        const rawCoordsAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
         const startStop: TourStop = {
           id: crypto.randomUUID(),
           timestamp: startTime,
           lat,
           lng,
+          address: rawCoordsAddress,
         };
 
         try {
@@ -766,6 +770,36 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             }, true)
           )
           .catch(e => console.warn('[TourTracker] Failed to create/seed DB session:', e));
+
+        // Background retry: if the start stop still only has raw coords as
+        // address, retry geocoding a few times and patch the stop in state +
+        // DB when it succeeds. This handles the "Google Maps not loaded yet
+        // / offline" case without ever storing the literal "Position".
+        if (!startStop.city) {
+          const retryGeocode = async (attempt = 1) => {
+            if (attempt > 5) return;
+            await new Promise(r => setTimeout(r, attempt * 8000));
+            try {
+              const geo = await reverseGeocode(lat, lng);
+              if (geo?.city || geo?.fullAddress) {
+                setStops(prev => {
+                  if (prev.length === 0 || prev[0].id !== startStop.id) return prev;
+                  const patched = [...prev];
+                  patched[0] = {
+                    ...patched[0],
+                    address: geo.fullAddress || patched[0].address,
+                    city: geo.city || patched[0].city,
+                  };
+                  updateSession({ stops: patched }, true).catch(() => {});
+                  return patched;
+                });
+                return;
+              }
+            } catch {}
+            retryGeocode(attempt + 1);
+          };
+          retryGeocode();
+        }
 
         // Request wake lock to keep screen on
         const wakeLockAcquired = await wakeLock.request();
