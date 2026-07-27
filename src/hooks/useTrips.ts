@@ -684,14 +684,20 @@ export function useTrips() {
     }
   };
 
-  const updateVehicle = async (id: string, updates: Partial<Vehicle>) => {
+  const updateVehicle = async (
+    id: string,
+    updates: Partial<Vehicle>,
+    options?: { updatePastTrips?: boolean }
+  ) => {
     const existingVehicle = vehicles.find(v => v.id === id);
     if (!existingVehicle) return;
 
-    // Check if fiscal power or electric status changed - need to recalculate IK for all trips
+    // Check if fiscal power or electric status changed - may need to recalculate IK
     const fiscalPowerChanged = updates.fiscalPower !== undefined && updates.fiscalPower !== existingVehicle.fiscalPower;
     const electricStatusChanged = updates.isElectric !== undefined && updates.isElectric !== existingVehicle.isElectric;
-    const needsIKRecalculation = fiscalPowerChanged || electricStatusChanged;
+    // Only recalculate past trips when the user explicitly opts in.
+    // Future trips will pick up the new vehicle params automatically at creation time.
+    const needsIKRecalculation = (fiscalPowerChanged || electricStatusChanged) && !!options?.updatePastTrips;
 
     const newFiscalPower = updates.fiscalPower ?? existingVehicle.fiscalPower;
     const newIsElectric = updates.isElectric ?? existingVehicle.isElectric;

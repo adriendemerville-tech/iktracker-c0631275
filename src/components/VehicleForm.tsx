@@ -11,10 +11,14 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface VehicleSaveOptions {
+  updatePastTrips?: boolean;
+}
+
 interface VehicleFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (vehicle: Omit<Vehicle, 'id'>) => void;
+  onSave: (vehicle: Omit<Vehicle, 'id'>, options?: VehicleSaveOptions) => void;
   editVehicle?: Vehicle;
 }
 
@@ -32,6 +36,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   const [isElectric, setIsElectric] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
+  const [updatePastTrips, setUpdatePastTrips] = useState(false);
 
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
@@ -45,6 +50,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       setYear(editVehicle?.year?.toString() || '');
       setIsElectric(editVehicle?.isElectric || false);
       setLookupDone(!!editVehicle);
+      setUpdatePastTrips(false);
     }
   }, [open, editVehicle]);
 
@@ -147,22 +153,34 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       return;
     }
 
-    onSave({
-      ownerFirstName: firstName.trim() || undefined,
-      ownerLastName: lastName.trim() || undefined,
-      licensePlate: licensePlate.toUpperCase(),
-      make: make.trim() || 'Non renseigné',
-      model: model.trim() || 'Non renseigné',
-      fiscalPower: cv,
-      year: year ? parseInt(year) : undefined,
-      isElectric,
-    });
+    const impactsPastTrips =
+      !!editVehicle &&
+      (cv !== editVehicle.fiscalPower || isElectric !== !!editVehicle.isElectric);
+
+    onSave(
+      {
+        ownerFirstName: firstName.trim() || undefined,
+        ownerLastName: lastName.trim() || undefined,
+        licensePlate: licensePlate.toUpperCase(),
+        make: make.trim() || 'Non renseigné',
+        model: model.trim() || 'Non renseigné',
+        fiscalPower: cv,
+        year: year ? parseInt(year) : undefined,
+        isElectric,
+      },
+      { updatePastTrips: impactsPastTrips ? updatePastTrips : false }
+    );
 
     onOpenChange(false);
   };
 
   const fiscalPowerOptions = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   const isPlateEmpty = !licensePlate || licensePlate.length === 0;
+  const currentCv = parseInt(fiscalPower);
+  const showUpdatePastToggle =
+    !!editVehicle &&
+    ((Number.isFinite(currentCv) && currentCv !== editVehicle.fiscalPower) ||
+      isElectric !== !!editVehicle.isElectric);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -284,6 +302,32 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                   onCheckedChange={setIsElectric}
                 />
               </div>
+
+              {/* Retroactive recalculation toggle */}
+              {showUpdatePastToggle && (
+                <label
+                  htmlFor="updatePastTrips"
+                  className="flex items-start gap-3 p-3 rounded-xl border-2 border-primary/30 bg-primary/5 cursor-pointer"
+                >
+                  <Switch
+                    id="updatePastTrips"
+                    checked={updatePastTrips}
+                    onCheckedChange={setUpdatePastTrips}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1 space-y-1">
+                    <div className="text-sm font-semibold">
+                      Mettre à jour les trajets passés
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-snug">
+                      {updatePastTrips
+                        ? 'Les indemnités de tous vos trajets passés liés à ce véhicule seront immédiatement recalculées avec le nouveau barème.'
+                        : 'Seuls les trajets à venir utiliseront le nouveau barème. Les trajets passés conservent leurs indemnités actuelles.'}
+                    </p>
+                  </div>
+                </label>
+              )}
+
 
               {/* Actions */}
               <div className="flex gap-3 pt-2">
