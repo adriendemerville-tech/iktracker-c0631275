@@ -99,6 +99,46 @@ export function DetailsStepContent({
     setEndAddress(draft.endLocation?.address || draft.endLocation?.name || '');
   }, [draft.endLocation]);
 
+  // Auto-recalcul de la distance à l'ouverture d'un trajet existant :
+  // les coordonnées enregistrées peuvent être incorrectes (ex. import,
+  // ancienne géoloc « Position »). On regéocode depuis les adresses
+  // affichées et on met à jour si l'écart avec la valeur saisie est notable.
+  const autoRecalcDone = useRef(false);
+  useEffect(() => {
+    if (autoRecalcDone.current) return;
+    if (!isEditing) return;
+    const start = draft.startLocation;
+    const end = draft.endLocation;
+    const startAddr = start?.address || start?.name;
+    const endAddr = end?.address || end?.name;
+    if (!startAddr || !endAddr) return;
+    autoRecalcDone.current = true;
+
+    (async () => {
+      try {
+        const [sc, ec] = await Promise.all([
+          geocodeAddress(startAddr),
+          geocodeAddress(endAddr),
+        ]);
+        if (!sc || !ec) return;
+        const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
+        if (!dist || dist <= 0) return;
+        setCalculatedDistance(dist);
+        const expected = roundTrip ? dist * 2 : dist;
+        const entered = parseFloat(manualDistance) || 0;
+        // Rafraîchit uniquement si écart > 15 % ou valeur absente
+        if (!entered || Math.abs(entered - expected) > expected * 0.15) {
+          setManualDistance(expected.toFixed(1));
+          setIsBlinking(true);
+          setTimeout(() => setIsBlinking(false), 650);
+        }
+      } catch (e) {
+        console.warn('Auto-recalc distance failed:', e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, draft.startLocation, draft.endLocation]);
+
   // Handle Géoplateforme suggestion selection for start
   const handleStartSelect = async (suggestion: AddressSuggestion) => {
     const { lat, lng, city, fulltext } = suggestion;
