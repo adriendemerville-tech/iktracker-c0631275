@@ -74,7 +74,17 @@ async function searchGoogle(
           input: text,
           languageCode: 'fr',
           regionCode: 'FR',
-          includedPrimaryTypes: ['street_address', 'route', 'premise', 'subpremise'],
+          // Autoriser aussi villes / codes postaux : ni la voie ni le numéro ne sont obligatoires
+          includedPrimaryTypes: [
+            'locality',
+            'sublocality',
+            'postal_code',
+            'administrative_area_level_3',
+            'street_address',
+            'route',
+            'premise',
+            'subpremise',
+          ],
         }),
         signal: timedSignal.signal,
       }
@@ -116,6 +126,13 @@ async function searchGoogle(
       });
     }
 
+    const normalized = text.trim().toLowerCase();
+    results.sort((a, b) => {
+      const am = (a.city || a.fulltext).toLowerCase().startsWith(normalized) ? 0 : 1;
+      const bm = (b.city || b.fulltext).toLowerCase().startsWith(normalized) ? 0 : 1;
+      return am - bm;
+    });
+
     return results;
   } catch (e: any) {
     if (e.name === 'AbortError' && signal.aborted) throw e;
@@ -131,31 +148,39 @@ async function searchGeopf(
   text: string,
   signal: AbortSignal
 ): Promise<AddressSuggestion[]> {
-  const params = new URLSearchParams({
-    text,
-    type: 'StreetAddress',
-    maximumResponses: '5',
-  });
+  // Deux requêtes en parallèle : villes (PositionOfInterest) et adresses complètes.
+  // On priorise les villes lorsque le texte matche exactement pour que "Noves"
+  // propose la commune avant les voies contenant "Noves".
+  const commonParams = { text, maximumResponses: '5' };
+  const cityParams = new URLSearchParams({ ...commonParams, type: 'PositionOfInterest' });
+  const addrParams = new URLSearchParams({ ...commonParams, type: 'StreetAddress' });
 
-  const res = await fetch(`${GEOPF_URL}?${params}`, { signal });
-  if (!res.ok) {
-    console.warn('Géoplateforme autocomplete error:', res.status);
-    return [];
-  }
+  const parse = async (params: URLSearchParams): Promise<AddressSuggestion[]> => {
+    try {
+      const res = await fetch(`${GEOPF_URL}?${params}`, { signal });
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (data.status !== 'OK' || !Array.isArray(data.results)) return [];
+      return data.results.map((r: any) => ({
+        fulltext: r.fulltext,
+        street: r.street || '',
+        city: r.city || (Array.isArray(r.city) ? r.city[0] : '') || r.fulltext,
+        zipcode: r.zipcode || (Array.isArray(r.zipcodes) ? r.zipcodes[0] : ''),
+        lat: r.y,
+        lng: r.x,
+      }));
+    } catch {
+      return [];
+    }
+  };
 
-  const data = await res.json();
-
-  if (data.status === 'OK' && Array.isArray(data.results)) {
-    return data.results.map((r: any) => ({
-      fulltext: r.fulltext,
-      street: r.street || '',
-      city: r.city || '',
-      zipcode: r.zipcode || '',
-      lat: r.y,
-      lng: r.x,
-    }));
-  }
-  return [];
+  const [cities, addresses] = await Promise.all([parse(cityParams), parse(addrParams)]);
+  const normalized = text.trim().toLowerCase();
+  const cityMatchFirst = cities.filter((c) =>
+    (c.city || c.fulltext).toLowerCase().startsWith(normalized)
+  );
+  const cityRest = cities.filter((c) => !cityMatchFirst.includes(c));
+  return [...cityMatchFirst, ...addresses, ...cityRest].slice(0, 6);
 }
 
 /**
