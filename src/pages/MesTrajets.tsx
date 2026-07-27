@@ -1124,11 +1124,12 @@ ${IKTRACKER_URL}`;
 
         {/* Pending trips section - always at top */}
         {pendingTrips.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-6" id="pending">
             <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
               Trajets à compléter ({pendingTrips.length})
             </h3>
+
             <div className="space-y-3">
               {pendingTrips.map(trip => {
                 const vehicle = getVehicle(trip.vehicleId);
