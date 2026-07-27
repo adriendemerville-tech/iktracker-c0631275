@@ -233,6 +233,18 @@ export default function Report() {
 
   // Separate pending trips from validated trips - pending always shown first
   const pendingTrips = trips.filter(t => t.status === 'pending_location');
+
+  // Scroll to #pending anchor once trips are loaded
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash !== '#pending') return;
+    if (pendingTrips.length === 0) return;
+    const el = document.getElementById('pending');
+    if (el) {
+      requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+  }, [pendingTrips.length]);
+
   const validatedTrips = trips.filter(t => t.status !== 'pending_location');
 
   const groupedByMonth = validatedTrips.reduce((acc, trip) => {
@@ -1124,11 +1136,12 @@ ${IKTRACKER_URL}`;
 
         {/* Pending trips section - always at top */}
         {pendingTrips.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-6" id="pending">
             <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
               Trajets à compléter ({pendingTrips.length})
             </h3>
+
             <div className="space-y-3">
               {pendingTrips.map(trip => {
                 const vehicle = getVehicle(trip.vehicleId);

@@ -1141,12 +1141,18 @@ ${IKTRACKER_MENTION}
             className="rounded-lg p-4 border border-border/70 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(0,0,0,0.12)] bg-[linear-gradient(135deg,hsl(38_35%_96%)_0%,hsl(40_30%_94%)_100%)] dark:bg-[linear-gradient(135deg,hsl(260_35%_14%)_0%,hsl(265_30%_11%)_100%)] dark:border-[hsl(270,50%,35%)]/40 dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]"
           >
             <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 dark:text-purple-100">
-                Trajets à compléter
-                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
-                  {trips.filter(t => t.status === 'pending_location').length}
-                </span>
-              </h2>
+              <Link
+                to="/app/mestrajets#pending"
+                className="flex items-center gap-2 rounded-md hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label="Voir tous les trajets à compléter"
+              >
+                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 dark:text-purple-100">
+                  Trajets à compléter
+                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
+                    {trips.filter(t => t.status === 'pending_location').length}
+                  </span>
+                </h2>
+              </Link>
               <button
                 onClick={toggleHidePendingTrips}
                 className="ml-auto p-1.5 rounded-md bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors dark:bg-purple-400/20 dark:hover:bg-purple-400/30 dark:text-purple-200"
@@ -1155,6 +1161,7 @@ ${IKTRACKER_MENTION}
                 {hidePendingTrips ? <ChevronDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
               </button>
             </div>
+
             {!hidePendingTrips && (
               <div className="space-y-3">
                 {trips
@@ -1173,10 +1180,19 @@ ${IKTRACKER_MENTION}
                       }}
                     />
                   ))}
+                {trips.filter(t => t.status === 'pending_location').length > 4 && (
+                  <Link
+                    to="/app/mestrajets#pending"
+                    className="block text-center text-sm font-medium text-primary hover:underline pt-1"
+                  >
+                    Voir les {trips.filter(t => t.status === 'pending_location').length} trajets à compléter →
+                  </Link>
+                )}
               </div>
             )}
           </section>
         )}
+
 
         {/* Vehicles section */}
         <section>
