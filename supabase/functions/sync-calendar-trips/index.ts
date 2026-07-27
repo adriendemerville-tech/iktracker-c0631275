@@ -847,12 +847,25 @@ async function createTripFromEvent(
   // Create the trip - use actual address for start_location to enable proper distance calculation
   // Use the real address if available, fall back to name for display purposes
   const startLocationValue = userHomeLocation?.address || startLocationName;
-  
+  const endLocationValue = destinationAddress || event.summary || 'Adresse à compléter';
+
+  // Skip events where start and end addresses are the same (0 km trip, no travel)
+  const normalizeAddr = (s: string) =>
+    s.toLowerCase().replace(/[,.\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (
+    startLocationValue &&
+    endLocationValue &&
+    normalizeAddr(startLocationValue) === normalizeAddr(endLocationValue)
+  ) {
+    console.log(`⏭️ [FILTER] Same start/end address for "${event.summary}" — skipping`);
+    return { created: false, reason: 'same_start_end' };
+  }
+
   const { error } = await supabase.from('trips').insert({
     user_id: userId,
     vehicle_id: vehicle?.id || null,
     start_location: startLocationValue,
-    end_location: destinationAddress || event.summary || 'Adresse à compléter',
+    end_location: endLocationValue,
     distance: distance,
     round_trip: true,
     purpose: event.summary || 'Rendez-vous calendrier',
