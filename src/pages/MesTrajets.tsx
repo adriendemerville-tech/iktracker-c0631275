@@ -233,6 +233,18 @@ export default function Report() {
 
   // Separate pending trips from validated trips - pending always shown first
   const pendingTrips = trips.filter(t => t.status === 'pending_location');
+
+  // Scroll to #pending anchor once trips are loaded
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash !== '#pending') return;
+    if (pendingTrips.length === 0) return;
+    const el = document.getElementById('pending');
+    if (el) {
+      requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+  }, [pendingTrips.length]);
+
   const validatedTrips = trips.filter(t => t.status !== 'pending_location');
 
   const groupedByMonth = validatedTrips.reduce((acc, trip) => {
