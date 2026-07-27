@@ -123,6 +123,11 @@
     --background: 220 25% 8%;
     --foreground: 210 20% 98%;
 
+    /* Pending trips section gradient - dark purple */
+    --pending-bg-from: 260 35% 14%;
+    --pending-bg-to: 265 30% 11%;
+
+
     --card: 220 25% 12%;
     --card-foreground: 210 20% 98%;
 
