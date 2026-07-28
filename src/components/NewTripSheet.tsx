@@ -648,6 +648,8 @@ export function NewTripSheet({
     setStep('details');
     toast.success("Trajet pré-rempli", { description: "Vérifie puis valide." });
   };
+
+  return (
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
