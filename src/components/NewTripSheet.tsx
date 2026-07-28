@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { TripPromptBar, ParsedTrip } from './TripPromptBar';
 
 // Normalize address for consistent caching
 const normalizeAddress = (address: string): string => {
@@ -559,6 +560,94 @@ export function NewTripSheet({
 
   const currentStepIndex = steps.findIndex(s => s.key === step);
   const selectedVehicle = vehicles.find(v => v.id === draft.vehicleId);
+  const homeLocation = savedLocations.find(l => l.type === 'home') || savedLocations.find(l => /maison|domicile|home/i.test(l.name));
+
+  const buildLocationFromAddress = async (address: string, fallbackName?: string): Promise<Location | null> => {
+    const trimmed = address.trim();
+    if (!trimmed) return null;
+    const existing = savedLocations.find(
+      l => l.address?.toLowerCase() === trimmed.toLowerCase() || l.name?.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (existing) return existing;
+    const coords = await geocodeAddress(trimmed).catch(() => null);
+    return {
+      id: `prompt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: fallbackName || trimmed.split(',')[0].trim() || trimmed,
+      address: trimmed,
+      lat: coords?.lat,
+      lng: coords?.lng,
+      type: 'other',
+    };
+  };
+
+  const applyParsedTrip = async (parsed: ParsedTrip) => {
+    if (!draft.vehicleId && vehicles.length > 0) {
+      const vid = lastSelectedVehicleId && vehicles.find(v => v.id === lastSelectedVehicleId) ? lastSelectedVehicleId : vehicles[0].id;
+      setDraft(d => ({ ...d, vehicleId: vid }));
+    }
+
+    // Build departure: parsed or home
+    const departureAddr = parsed.departure || homeLocation?.address || homeLocation?.name;
+    const arrivalAddr = parsed.arrival || (parsed.stops.length > 0 ? null : homeLocation?.address || homeLocation?.name);
+
+    if (!departureAddr) {
+      toast.error("Départ introuvable", { description: "Précise l'adresse de départ ou enregistre ton domicile." });
+      return;
+    }
+
+    // If there are stops, use the last stop as arrival (unless explicit arrival given)
+    let finalArrival = arrivalAddr;
+    let purposeExtra = '';
+    if (parsed.stops.length > 0) {
+      if (!finalArrival) {
+        // No explicit arrival + no home → use last stop as arrival, rest as intermediate
+        finalArrival = parsed.stops[parsed.stops.length - 1];
+        if (parsed.stops.length > 1) purposeExtra = `Via : ${parsed.stops.slice(0, -1).join(' → ')}`;
+      } else {
+        purposeExtra = `Via : ${parsed.stops.join(' → ')}`;
+      }
+    }
+
+    if (!finalArrival) {
+      toast.error("Arrivée introuvable", { description: "Précise l'adresse d'arrivée." });
+      return;
+    }
+
+    const [startLoc, endLoc] = await Promise.all([
+      departureAddr === homeLocation?.address || departureAddr === homeLocation?.name
+        ? Promise.resolve(homeLocation!)
+        : buildLocationFromAddress(departureAddr),
+      finalArrival === homeLocation?.address || finalArrival === homeLocation?.name
+        ? Promise.resolve(homeLocation!)
+        : buildLocationFromAddress(finalArrival),
+    ]);
+
+    if (!startLoc || !endLoc) {
+      toast.error("Adresse non géocodable", { description: "Reformule avec plus de précision." });
+      return;
+    }
+
+    setDraft(d => ({ ...d, startLocation: startLoc, endLocation: endLoc, startTime: new Date(), endTime: new Date() }));
+    setRoundTrip(!!parsed.roundTrip);
+    const purposeParts = [parsed.purpose, purposeExtra].filter(Boolean).join(' — ');
+    if (purposeParts) setPurpose(purposeParts);
+
+    // Compute distance
+    try {
+      if (typeof startLoc.lat === 'number' && typeof startLoc.lng === 'number' &&
+          typeof endLoc.lat === 'number' && typeof endLoc.lng === 'number') {
+        const d = await calculateDrivingDistance(startLoc.lat, startLoc.lng, endLoc.lat, endLoc.lng);
+        setCalculatedDistance(d);
+        setManualDistance(d.toFixed(1));
+        const sa = startLoc.address || startLoc.name;
+        const ea = endLoc.address || endLoc.name;
+        if (sa && ea) saveCachedDistance(sa, ea, d);
+      }
+    } catch (e) { console.error(e); }
+
+    setStep('details');
+    toast.success("Trajet pré-rempli", { description: "Vérifie puis valide." });
+  };
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
@@ -721,6 +810,12 @@ export function NewTripSheet({
             />
           )}
         </div>
+        {!isEditing && step !== 'details' && (
+          <TripPromptBar
+            homeAddress={homeLocation?.address || homeLocation?.name}
+            onApply={applyParsedTrip}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );
