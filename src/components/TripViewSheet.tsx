@@ -59,9 +59,28 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
   const startCityName = useMemo(() => (displayTrip ? getDisplayName(displayTrip.startLocation) : ''), [displayTrip]);
   const endCityName = useMemo(() => (displayTrip ? getDisplayName(displayTrip.endLocation) : ''), [displayTrip]);
 
+  // Hydrate viaStops from persisted tourStops (intermediates only) when opening
+  useEffect(() => {
+    if (!open || !displayTrip) return;
+    const stops = displayTrip.tourStops;
+    if (stops && stops.length >= 3) {
+      const intermediates = stops.slice(1, -1).map((s: any) => ({
+        id: s.id || crypto.randomUUID(),
+        label: s.address || s.city || 'Étape',
+        lat: s.lat,
+        lng: s.lng,
+      }));
+      setViaStops(intermediates);
+    } else {
+      setViaStops([]);
+    }
+    setLocalDistance(null);
+    setLocalIk(null);
+  }, [open, displayTrip?.id]);
+
   if (!displayTrip) return null;
 
-  const isTour = displayTrip.purpose === 'Tournée' && displayTrip.tourStops && displayTrip.tourStops.length >= 3;
+  const isTour = (displayTrip.tourStops && displayTrip.tourStops.length >= 3) || viaStops.length > 0;
 
   const handleReset = () => {
     setViaStops([]);
