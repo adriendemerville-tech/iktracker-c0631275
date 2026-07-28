@@ -95,7 +95,10 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     onOpenChange(o);
   };
 
-  const recomputeAndSave = async (nextStops: ViaStop[]) => {
+  const recomputeAndSave = async (
+    nextStops: ViaStop[],
+    opts?: { convertLoop?: boolean }
+  ) => {
     if (!displayTrip) return;
     setIsRecalc(true);
     try {
@@ -119,10 +122,21 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
         return;
       }
 
+      // Loop conversion: end becomes start (domicile), roundTrip disabled,
+      // and the old destination is already prepended into nextStops by the caller.
+      const finalEndLat = opts?.convertLoop ? startLat! : endLat!;
+      const finalEndLng = opts?.convertLoop ? startLng! : endLng!;
+      const finalEndAddress = opts?.convertLoop
+        ? (displayTrip.startLocation.address || displayTrip.startLocation.name)
+        : (displayTrip.endLocation.address || displayTrip.endLocation.name);
+      const finalEndName = opts?.convertLoop ? displayTrip.startLocation.name : displayTrip.endLocation.name;
+      const finalEndCity = opts?.convertLoop ? startCityName : endCityName;
+      const finalRoundTrip = opts?.convertLoop ? false : displayTrip.roundTrip;
+
       const points = [
         { lat: startLat!, lng: startLng! },
         ...nextStops.map(s => ({ lat: s.lat, lng: s.lng })),
-        { lat: endLat!, lng: endLng! },
+        { lat: finalEndLat, lng: finalEndLng },
       ];
 
       const matrix = await calculateDrivingMatrix(points);
@@ -132,7 +146,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       for (let i = 0; i < sequence.length - 1; i++) {
         totalKm += matrix[sequence[i]][sequence[i + 1]].distanceKm;
       }
-      if (displayTrip.roundTrip) totalKm *= 2;
+      if (finalRoundTrip) totalKm *= 2;
       totalKm = Math.round(totalKm * 10) / 10;
 
       const optimizedIntermediates = order.map(i => nextStops[i - 1]);
@@ -147,7 +161,6 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       let tourStops: TourStopData[] | [];
 
       if (optimizedIntermediates.length === 0) {
-        // Devient un simple trajet
         tourStops = [];
         newPurpose = cleanedBase || null;
       } else {
@@ -173,24 +186,37 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
           {
             id: 'end',
             timestamp: new Date(displayTrip.startTime).toISOString(),
-            lat: endLat!,
-            lng: endLng!,
-            address: displayTrip.endLocation.address || displayTrip.endLocation.name,
-            city: endCityName,
+            lat: finalEndLat,
+            lng: finalEndLng,
+            address: finalEndAddress,
+            city: finalEndCity,
           },
         ];
       }
 
-      const updated = await updateTrip(displayTrip.id, {
+      const updates: any = {
         distance: totalKm,
         purpose: newPurpose ?? '',
         tourStops: tourStops as TourStopData[],
-      });
+      };
+      if (opts?.convertLoop) {
+        updates.endLocation = {
+          name: finalEndName,
+          address: finalEndAddress,
+          lat: finalEndLat,
+          lng: finalEndLng,
+        };
+        updates.roundTrip = false;
+      }
+
+      const updated = await updateTrip(displayTrip.id, updates);
 
       if (updated) {
         setLocalDistance(updated.distance);
         setLocalIk(updated.ikAmount);
-        if (nextStops.length === 0) {
+        if (opts?.convertLoop) {
+          toast({ title: 'Aller-retour converti en tournée', description: `Boucle domicile · ${nextStops.length} étape${nextStops.length > 1 ? 's' : ''} · ${totalKm.toFixed(1)} km` });
+        } else if (nextStops.length === 0) {
           toast({ title: 'Étape supprimée', description: `Trajet simple · ${totalKm.toFixed(1)} km` });
         } else {
           toast({ title: 'Tournée mise à jour', description: `${nextStops.length} étape${nextStops.length > 1 ? 's' : ''} · ${totalKm.toFixed(1)} km` });
@@ -205,8 +231,8 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
   };
 
   const handleAddStop = async (s: AddressSuggestion) => {
+    if (!displayTrip) return;
     if (!s.lat || !s.lng) {
-      // Try to geocode from fulltext
       const g = await geocodeAddress(s.fulltext);
       if (!g) {
         toast({ title: 'Adresse invalide', description: 'Impossible de géocoder cette étape.', variant: 'destructive' });
@@ -214,11 +240,38 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       }
       s = { ...s, lat: g.lat, lng: g.lng };
     }
-    const next = [...viaStops, { id: crypto.randomUUID(), label: s.fulltext, lat: s.lat, lng: s.lng }];
+    const newStop: ViaStop = { id: crypto.randomUUID(), label: s.fulltext, lat: s.lat!, lng: s.lng! };
+
+    // Loop conversion: 1st intermediate added to an aller-retour → old destination becomes a stop, arrival = home
+    const shouldConvertLoop = viaStops.length === 0 && !!displayTrip.roundTrip;
+
+    let next: ViaStop[];
+    if (shouldConvertLoop) {
+      let bLat = displayTrip.endLocation.lat;
+      let bLng = displayTrip.endLocation.lng;
+      if (bLat == null || bLng == null) {
+        const g = await geocodeAddress(displayTrip.endLocation.address || displayTrip.endLocation.name);
+        if (g) { bLat = g.lat; bLng = g.lng; }
+      }
+      if (bLat == null || bLng == null) {
+        toast({ title: 'Conversion impossible', description: "Ancienne destination non géocodable.", variant: 'destructive' });
+        return;
+      }
+      const oldDest: ViaStop = {
+        id: crypto.randomUUID(),
+        label: displayTrip.endLocation.address || displayTrip.endLocation.name,
+        lat: bLat,
+        lng: bLng,
+      };
+      next = [oldDest, newStop];
+    } else {
+      next = [...viaStops, newStop];
+    }
+
     setViaStops(next);
     setAdderValue('');
     setShowAdder(false);
-    await recomputeAndSave(next);
+    await recomputeAndSave(next, { convertLoop: shouldConvertLoop });
   };
 
   const handleRemoveStop = async (id: string) => {
