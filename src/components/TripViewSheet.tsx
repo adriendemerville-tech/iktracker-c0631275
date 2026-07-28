@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Trip, Vehicle } from '@/types/trip';
 import { MapPin, ArrowRight, Calendar, Clock, Truck, Car, Plus, X, Loader2 } from 'lucide-react';
@@ -59,9 +59,28 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
   const startCityName = useMemo(() => (displayTrip ? getDisplayName(displayTrip.startLocation) : ''), [displayTrip]);
   const endCityName = useMemo(() => (displayTrip ? getDisplayName(displayTrip.endLocation) : ''), [displayTrip]);
 
+  // Hydrate viaStops from persisted tourStops (intermediates only) when opening
+  useEffect(() => {
+    if (!open || !displayTrip) return;
+    const stops = displayTrip.tourStops;
+    if (stops && stops.length >= 3) {
+      const intermediates = stops.slice(1, -1).map((s: any) => ({
+        id: s.id || crypto.randomUUID(),
+        label: s.address || s.city || 'Étape',
+        lat: s.lat,
+        lng: s.lng,
+      }));
+      setViaStops(intermediates);
+    } else {
+      setViaStops([]);
+    }
+    setLocalDistance(null);
+    setLocalIk(null);
+  }, [open, displayTrip?.id]);
+
   if (!displayTrip) return null;
 
-  const isTour = displayTrip.purpose === 'Tournée' && displayTrip.tourStops && displayTrip.tourStops.length >= 3;
+  const isTour = (displayTrip.tourStops && displayTrip.tourStops.length >= 3) || viaStops.length > 0;
 
   const handleReset = () => {
     setViaStops([]);
@@ -116,49 +135,66 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       if (displayTrip.roundTrip) totalKm *= 2;
       totalKm = Math.round(totalKm * 10) / 10;
 
-      // Rebuild tourStops in optimized order (intermediates only, but include start/end for context)
       const optimizedIntermediates = order.map(i => nextStops[i - 1]);
-      const tourStops: TourStopData[] = [
-        {
-          id: 'start',
-          timestamp: new Date(displayTrip.startTime).toISOString(),
-          lat: startLat!,
-          lng: startLng!,
-          address: displayTrip.startLocation.address || displayTrip.startLocation.name,
-          city: startCityName,
-        },
-        ...optimizedIntermediates.map((s, idx) => ({
-          id: s.id,
-          timestamp: new Date(displayTrip.startTime).toISOString(),
-          lat: s.lat,
-          lng: s.lng,
-          address: s.label,
-          city: s.label,
-        })),
-        {
-          id: 'end',
-          timestamp: new Date(displayTrip.startTime).toISOString(),
-          lat: endLat!,
-          lng: endLng!,
-          address: displayTrip.endLocation.address || displayTrip.endLocation.name,
-          city: endCityName,
-        },
-      ];
 
-      const viaText = optimizedIntermediates.map(s => s.label.split(',')[0]).join(' → ');
-      const basePurpose = (displayTrip.purpose || '').replace(/\s*·?\s*Via:.*$/i, '').trim();
-      const newPurpose = viaText ? `${basePurpose ? basePurpose + ' · ' : ''}Via: ${viaText}` : basePurpose;
+      // Clean any previous "Tournée · Via: …" or trailing "Via: …" segments
+      const cleanedBase = (displayTrip.purpose || '')
+        .replace(/\s*·?\s*Via:.*$/i, '')
+        .replace(/^\s*Tournée\s*·?\s*/i, '')
+        .trim();
+
+      let newPurpose: string | null;
+      let tourStops: TourStopData[] | [];
+
+      if (optimizedIntermediates.length === 0) {
+        // Devient un simple trajet
+        tourStops = [];
+        newPurpose = cleanedBase || null;
+      } else {
+        const viaText = optimizedIntermediates.map(s => s.label.split(',')[0]).join(' → ');
+        newPurpose = `${cleanedBase ? cleanedBase + ' · ' : 'Tournée · '}Via: ${viaText}`;
+        tourStops = [
+          {
+            id: 'start',
+            timestamp: new Date(displayTrip.startTime).toISOString(),
+            lat: startLat!,
+            lng: startLng!,
+            address: displayTrip.startLocation.address || displayTrip.startLocation.name,
+            city: startCityName,
+          },
+          ...optimizedIntermediates.map(s => ({
+            id: s.id,
+            timestamp: new Date(displayTrip.startTime).toISOString(),
+            lat: s.lat,
+            lng: s.lng,
+            address: s.label,
+            city: s.label,
+          })),
+          {
+            id: 'end',
+            timestamp: new Date(displayTrip.startTime).toISOString(),
+            lat: endLat!,
+            lng: endLng!,
+            address: displayTrip.endLocation.address || displayTrip.endLocation.name,
+            city: endCityName,
+          },
+        ];
+      }
 
       const updated = await updateTrip(displayTrip.id, {
         distance: totalKm,
-        purpose: newPurpose,
-        tourStops,
+        purpose: newPurpose ?? '',
+        tourStops: tourStops as TourStopData[],
       });
 
       if (updated) {
         setLocalDistance(updated.distance);
         setLocalIk(updated.ikAmount);
-        toast({ title: 'Tournée mise à jour', description: `${nextStops.length} étape${nextStops.length > 1 ? 's' : ''} · ${totalKm.toFixed(1)} km` });
+        if (nextStops.length === 0) {
+          toast({ title: 'Étape supprimée', description: `Trajet simple · ${totalKm.toFixed(1)} km` });
+        } else {
+          toast({ title: 'Tournée mise à jour', description: `${nextStops.length} étape${nextStops.length > 1 ? 's' : ''} · ${totalKm.toFixed(1)} km` });
+        }
       }
     } catch (e) {
       console.error(e);
