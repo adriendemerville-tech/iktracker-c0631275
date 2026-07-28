@@ -446,7 +446,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                       setEditValue(startLoc?.address || startLoc?.name || '');
                     }}
                     disabled={isRecalc}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                    className="opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                     title="Modifier"
                   >
                     <Pencil className="w-3.5 h-3.5" />
@@ -478,12 +478,13 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                   onClick={() => setShowAdder((v) => !v)}
                   disabled={isRecalc}
                   title="Ajouter une étape intermédiaire"
-                  className="w-8 h-8 rounded-full bg-muted hover:bg-muted-foreground/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all hover:ring-1 hover:ring-white/80 disabled:opacity-50"
+                  aria-label="Ajouter une étape intermédiaire"
+                  className="w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-md hover:shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 hover:ring-2 hover:ring-white/60 disabled:opacity-50"
                 >
                   {isRecalc ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -502,7 +503,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                       setEditValue(endLoc?.address || endLoc?.name || '');
                     }}
                     disabled={isRecalc}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                    className="opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                     title="Modifier"
                   >
                     <Pencil className="w-3.5 h-3.5" />
