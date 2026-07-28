@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Trip, Vehicle } from '@/types/trip';
 import { MapPin, ArrowRight, Calendar, Clock, Truck, Car, Plus, X, Loader2 } from 'lucide-react';
