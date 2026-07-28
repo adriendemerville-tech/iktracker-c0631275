@@ -284,7 +284,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="!inset-auto !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 h-auto max-h-[90vh] rounded-2xl border w-[calc(100%-2rem)] max-w-lg sm:max-w-[38rem] overflow-y-auto z-50"
+        className="!inset-auto !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 h-auto max-h-[90vh] rounded-2xl w-[calc(100%-2rem)] max-w-lg sm:max-w-[38rem] overflow-y-auto z-50 border-0 ring-0 focus-visible:ring-0"
       >
         <SheetHeader className="pb-4">
           <SheetTitle className="flex items-center gap-2 text-lg">
@@ -305,7 +305,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
         <div className="space-y-6 pb-6">
           {/* Départ / + / Arrivée */}
           <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-stretch">
-            <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2 hover:ring-1 hover:ring-white/80 transition-all cursor-default">
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
                 <MapPin className="w-3.5 h-3.5 text-primary" />
                 Départ
@@ -322,13 +322,13 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                 onClick={() => setShowAdder(v => !v)}
                 disabled={isRecalc}
                 title="Ajouter une étape intermédiaire"
-                className="w-8 h-8 rounded-full bg-muted hover:bg-muted-foreground/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors disabled:opacity-50"
+                className="w-8 h-8 rounded-full bg-muted hover:bg-muted-foreground/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all hover:ring-1 hover:ring-white/80 disabled:opacity-50"
               >
                 {isRecalc ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               </button>
             </div>
 
-            <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2 hover:ring-1 hover:ring-white/80 transition-all cursor-default">
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
                 <MapPin className="w-3.5 h-3.5 text-accent" />
                 Arrivée
