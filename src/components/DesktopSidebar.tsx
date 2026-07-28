@@ -175,7 +175,7 @@ export const DesktopSidebar = ({
               alt="IKtracker" 
               width={250}
               height={250}
-              className="h-20 w-20 transition-transform duration-300 hover:scale-110" 
+              className="h-14 w-14 transition-transform duration-300 hover:scale-110" 
             />
           </Link>
           {expanded && (
