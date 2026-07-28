@@ -446,7 +446,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                       setEditValue(startLoc?.address || startLoc?.name || '');
                     }}
                     disabled={isRecalc}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                    className="opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                     title="Modifier"
                   >
                     <Pencil className="w-3.5 h-3.5" />
@@ -503,7 +503,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                       setEditValue(endLoc?.address || endLoc?.name || '');
                     }}
                     disabled={isRecalc}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                    className="opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                     title="Modifier"
                   >
                     <Pencil className="w-3.5 h-3.5" />
