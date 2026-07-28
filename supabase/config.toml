@@ -72,3 +72,9 @@ verify_jwt = true
 
 [functions.mcp]
 verify_jwt = false
+
+[functions.parse-trip-prompt]
+verify_jwt = true
+
+[functions.transcribe-audio]
+verify_jwt = true
