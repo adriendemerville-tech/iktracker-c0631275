@@ -810,6 +810,12 @@ export function NewTripSheet({
             />
           )}
         </div>
+        {!isEditing && step !== 'details' && (
+          <TripPromptBar
+            homeAddress={homeLocation?.address || homeLocation?.name}
+            onApply={applyParsedTrip}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );
