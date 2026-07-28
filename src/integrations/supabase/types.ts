@@ -2378,6 +2378,10 @@ export type Database = {
         Returns: number
       }
       normalize_trip_dedupe_text: { Args: { _value: string }; Returns: string }
+      pick_default_vehicle_for_user: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       purge_old_deleted_trips: { Args: never; Returns: number }
       purge_old_marketing_analytics: { Args: never; Returns: undefined }
       read_email_batch: {
