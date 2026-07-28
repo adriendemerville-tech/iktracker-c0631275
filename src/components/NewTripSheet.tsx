@@ -588,67 +588,104 @@ export function NewTripSheet({
       setDraft(d => ({ ...d, vehicleId: vid }));
     }
 
-    // Build departure: parsed or home
-    const departureAddr = parsed.departure || homeLocation?.address || homeLocation?.name;
-    const arrivalAddr = parsed.arrival || (parsed.stops.length > 0 ? null : homeLocation?.address || homeLocation?.name);
+    const homeAddr = homeLocation?.address || homeLocation?.name;
+
+    // Departure: parsed or home
+    const departureAddr = parsed.departure || homeAddr;
+    // Arrival: a "tournée" returns home by default when not specified
+    const arrivalAddr = parsed.arrival || homeAddr;
 
     if (!departureAddr) {
       toast.error("Départ introuvable", { description: "Précise l'adresse de départ ou enregistre ton domicile." });
       return;
     }
+    if (!arrivalAddr) {
+      toast.error("Arrivée introuvable", { description: "Précise l'adresse d'arrivée ou enregistre ton domicile." });
+      return;
+    }
 
-    // If there are stops, use the last stop as arrival (unless explicit arrival given)
-    let finalArrival = arrivalAddr;
-    let purposeExtra = '';
-    if (parsed.stops.length > 0) {
-      if (!finalArrival) {
-        // No explicit arrival + no home → use last stop as arrival, rest as intermediate
-        finalArrival = parsed.stops[parsed.stops.length - 1];
-        if (parsed.stops.length > 1) purposeExtra = `Via : ${parsed.stops.slice(0, -1).join(' → ')}`;
-      } else {
-        purposeExtra = `Via : ${parsed.stops.join(' → ')}`;
+    // Geocode start, stops, end in parallel
+    const isHome = (a: string) => a === homeAddr;
+    const geocodeOrHome = (a: string) => (isHome(a) ? Promise.resolve(homeLocation!) : buildLocationFromAddress(a));
+
+    const [startLocRaw, endLocRaw, ...stopLocsRaw] = await Promise.all([
+      geocodeOrHome(departureAddr),
+      geocodeOrHome(arrivalAddr),
+      ...parsed.stops.map((s) => buildLocationFromAddress(s)),
+    ]);
+
+    if (!startLocRaw || !endLocRaw) {
+      toast.error("Adresse non géocodable", { description: "Reformule départ ou arrivée." });
+      return;
+    }
+
+    const stopLocs = stopLocsRaw.filter((l): l is Location => !!l && typeof l.lat === 'number' && typeof l.lng === 'number');
+
+    let orderedStops: Location[] = stopLocs;
+    let totalDistance: number | null = null;
+
+    // Optimize stop order via Google Distance Matrix when we have valid coords
+    if (
+      typeof startLocRaw.lat === 'number' && typeof startLocRaw.lng === 'number' &&
+      typeof endLocRaw.lat === 'number' && typeof endLocRaw.lng === 'number' &&
+      stopLocs.length >= 1
+    ) {
+      try {
+        const { calculateDrivingMatrix, optimizeStopOrder } = await import('@/lib/distance');
+        const points = [
+          { lat: startLocRaw.lat, lng: startLocRaw.lng },
+          ...stopLocs.map((s) => ({ lat: s.lat!, lng: s.lng! })),
+          { lat: endLocRaw.lat, lng: endLocRaw.lng },
+        ];
+        const matrix = await calculateDrivingMatrix(points);
+        const order = optimizeStopOrder(matrix); // indices into points
+        orderedStops = order.map((idx) => stopLocs[idx - 1]);
+
+        // Total driving distance following the optimized order
+        const seq = [0, ...order, points.length - 1];
+        let sum = 0;
+        for (let i = 0; i < seq.length - 1; i++) sum += matrix[seq[i]][seq[i + 1]].distanceKm;
+        totalDistance = sum;
+      } catch (e) {
+        console.warn('Stop optimization failed, keeping original order:', e);
       }
     }
 
-    if (!finalArrival) {
-      toast.error("Arrivée introuvable", { description: "Précise l'adresse d'arrivée." });
-      return;
+    // Compose purpose with the ordered stops
+    let purposeExtra = '';
+    if (orderedStops.length > 0) {
+      const names = orderedStops.map((s) => s.name || s.address || '').filter(Boolean);
+      if (names.length) purposeExtra = `Via : ${names.join(' → ')}`;
     }
 
-    const [startLoc, endLoc] = await Promise.all([
-      departureAddr === homeLocation?.address || departureAddr === homeLocation?.name
-        ? Promise.resolve(homeLocation!)
-        : buildLocationFromAddress(departureAddr),
-      finalArrival === homeLocation?.address || finalArrival === homeLocation?.name
-        ? Promise.resolve(homeLocation!)
-        : buildLocationFromAddress(finalArrival),
-    ]);
-
-    if (!startLoc || !endLoc) {
-      toast.error("Adresse non géocodable", { description: "Reformule avec plus de précision." });
-      return;
-    }
-
-    setDraft(d => ({ ...d, startLocation: startLoc, endLocation: endLoc, startTime: new Date(), endTime: new Date() }));
+    setDraft(d => ({ ...d, startLocation: startLocRaw, endLocation: endLocRaw, startTime: new Date(), endTime: new Date() }));
     setRoundTrip(!!parsed.roundTrip);
     const purposeParts = [parsed.purpose, purposeExtra].filter(Boolean).join(' — ');
     if (purposeParts) setPurpose(purposeParts);
 
-    // Compute distance
+    // Distance: either from optimized matrix, or single-leg fallback
     try {
-      if (typeof startLoc.lat === 'number' && typeof startLoc.lng === 'number' &&
-          typeof endLoc.lat === 'number' && typeof endLoc.lng === 'number') {
-        const d = await calculateDrivingDistance(startLoc.lat, startLoc.lng, endLoc.lat, endLoc.lng);
+      let d = totalDistance;
+      if (d == null &&
+          typeof startLocRaw.lat === 'number' && typeof startLocRaw.lng === 'number' &&
+          typeof endLocRaw.lat === 'number' && typeof endLocRaw.lng === 'number') {
+        d = await calculateDrivingDistance(startLocRaw.lat, startLocRaw.lng, endLocRaw.lat, endLocRaw.lng);
+      }
+      if (d != null) {
         setCalculatedDistance(d);
         setManualDistance(d.toFixed(1));
-        const sa = startLoc.address || startLoc.name;
-        const ea = endLoc.address || endLoc.name;
-        if (sa && ea) saveCachedDistance(sa, ea, d);
+        const sa = startLocRaw.address || startLocRaw.name;
+        const ea = endLocRaw.address || endLocRaw.name;
+        if (sa && ea && orderedStops.length === 0) saveCachedDistance(sa, ea, d);
       }
     } catch (e) { console.error(e); }
 
     setStep('details');
-    toast.success("Trajet pré-rempli", { description: "Vérifie puis valide." });
+    toast.success("Trajet pré-rempli", {
+      description: orderedStops.length
+        ? `Ordre optimisé : ${orderedStops.length} étape${orderedStops.length > 1 ? 's' : ''}.`
+        : "Vérifie puis valide.",
+    });
   };
 
   return (

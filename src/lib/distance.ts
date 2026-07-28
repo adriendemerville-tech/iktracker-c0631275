@@ -96,3 +96,94 @@ export function calculateDrivingDistance(
     );
   });
 }
+
+export interface MatrixCell { distanceKm: number; durationSec: number }
+
+/**
+ * Full N×N driving matrix (Google Distance Matrix). Falls back to Haversine
+ * for distance and an average 60 km/h estimation for duration if API fails.
+ */
+export function calculateDrivingMatrix(
+  points: Array<{ lat: number; lng: number }>
+): Promise<MatrixCell[][]> {
+  const n = points.length;
+  const fallback = (): MatrixCell[][] =>
+    points.map((a) =>
+      points.map((b) => {
+        const km = getDistanceInKm(a.lat, a.lng, b.lat, b.lng);
+        return { distanceKm: km, durationSec: (km / 60) * 3600 };
+      })
+    );
+
+  return new Promise((resolve) => {
+    if (typeof google === 'undefined' || !google.maps) {
+      resolve(fallback());
+      return;
+    }
+    const service = new google.maps.DistanceMatrixService();
+    const latLngs = points.map((p) => new google.maps.LatLng(p.lat, p.lng));
+    service.getDistanceMatrix(
+      {
+        origins: latLngs,
+        destinations: latLngs,
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      },
+      (response, status) => {
+        if (status !== 'OK' || !response) {
+          resolve(fallback());
+          return;
+        }
+        const out: MatrixCell[][] = [];
+        for (let i = 0; i < n; i++) {
+          const row: MatrixCell[] = [];
+          for (let j = 0; j < n; j++) {
+            const el = response.rows[i]?.elements[j];
+            if (el?.status === 'OK' && el.distance && el.duration) {
+              row.push({ distanceKm: el.distance.value / 1000, durationSec: el.duration.value });
+            } else {
+              const km = getDistanceInKm(points[i].lat, points[i].lng, points[j].lat, points[j].lng);
+              row.push({ distanceKm: km, durationSec: (km / 60) * 3600 });
+            }
+          }
+          out.push(row);
+        }
+        resolve(out);
+      }
+    );
+  });
+}
+
+/**
+ * Brute-force TSP with fixed start (index 0) and end (index n-1).
+ * Optimizes the order of intermediate stops (indices 1..n-2) to minimize total duration.
+ * Returns the ordered list of intermediate indices.
+ */
+export function optimizeStopOrder(matrix: MatrixCell[][]): number[] {
+  const n = matrix.length;
+  if (n <= 2) return [];
+  const stops = Array.from({ length: n - 2 }, (_, i) => i + 1);
+  if (stops.length <= 1) return stops;
+
+  let bestOrder = stops.slice();
+  let bestCost = Infinity;
+
+  const permute = (arr: number[], start: number) => {
+    if (start === arr.length - 1) {
+      let cost = matrix[0][arr[0]].durationSec;
+      for (let i = 0; i < arr.length - 1; i++) cost += matrix[arr[i]][arr[i + 1]].durationSec;
+      cost += matrix[arr[arr.length - 1]][n - 1].durationSec;
+      if (cost < bestCost) { bestCost = cost; bestOrder = arr.slice(); }
+      return;
+    }
+    for (let i = start; i < arr.length; i++) {
+      [arr[start], arr[i]] = [arr[i], arr[start]];
+      permute(arr, start + 1);
+      [arr[start], arr[i]] = [arr[i], arr[start]];
+    }
+  };
+  // Cap at 7 intermediates (5040 permutations) to keep it snappy
+  if (stops.length > 7) return stops;
+  permute(stops, 0);
+  return bestOrder;
+}
