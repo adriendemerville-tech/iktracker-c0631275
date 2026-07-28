@@ -477,9 +477,10 @@ export function useTrips() {
           end_location: updates.endLocation?.name,
           distance: updates.distance,
           round_trip: updates.roundTrip,
-          purpose: updates.purpose || null,
+          purpose: updates.purpose !== undefined ? (updates.purpose || null) : undefined,
           ik_amount: ikAmount,
-        })
+          ...(updates.tourStops !== undefined ? { tour_stops: updates.tourStops as any } : {}),
+        } as any)
         .eq('id', id);
 
       if (!error) {
