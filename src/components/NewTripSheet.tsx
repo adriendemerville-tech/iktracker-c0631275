@@ -560,7 +560,9 @@ export function NewTripSheet({
 
   const currentStepIndex = steps.findIndex(s => s.key === step);
   const selectedVehicle = vehicles.find(v => v.id === draft.vehicleId);
-  const homeLocation = savedLocations.find(l => l.type === 'home') || savedLocations.find(l => /maison|domicile|home/i.test(l.name));
+  const homeLocation = savedLocations.find(l => l.type === 'home')
+    || savedLocations.find(l => /maison|domicile|home/i.test(l.name))
+    || (savedLocations.length === 1 ? savedLocations[0] : undefined);
 
   const buildLocationFromAddress = async (address: string, fallbackName?: string): Promise<Location | null> => {
     const trimmed = address.trim();
