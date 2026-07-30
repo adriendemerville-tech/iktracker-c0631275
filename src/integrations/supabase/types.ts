@@ -1342,6 +1342,54 @@ export type Database = {
         }
         Relationships: []
       }
+      report_archives: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          id: string
+          kind: string
+          period_end: string
+          period_label: string
+          period_start: string
+          storage_path: string
+          total_ik: number
+          total_km: number
+          trip_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          kind: string
+          period_end: string
+          period_label: string
+          period_start: string
+          storage_path: string
+          total_ik?: number
+          total_km?: number
+          trip_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          kind?: string
+          period_end?: string
+          period_label?: string
+          period_start?: string
+          storage_path?: string
+          total_ik?: number
+          total_km?: number
+          trip_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       report_shares: {
         Row: {
           accessed_count: number
