@@ -4,11 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw } from 'lucide-react';
+import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw, Plus, Trash2 } from 'lucide-react';
 
 // Miroir client de la liste de topics de l'edge function.
 // Sert uniquement à peupler le sélecteur du bouton test — la vérité reste côté serveur.
@@ -69,6 +70,46 @@ export function AdminLinkedIn() {
   const [dryRun, setDryRun] = useState(true);
   const [result, setResult] = useState<RunResult | null>(null);
   const [rawResponse, setRawResponse] = useState<string>('');
+  const [newSample, setNewSample] = useState('');
+
+  const samples = useQuery({
+    queryKey: ['linkedin_style_samples'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('linkedin_style_samples')
+        .select('id, content, created_at')
+        .eq('active', true)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const addSample = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('linkedin_style_samples')
+        .insert({ content: newSample.trim() });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setNewSample('');
+      samples.refetch();
+      toast({ title: 'Exemple ajouté au corpus de style' });
+    },
+    onError: (e: any) => toast({ title: 'Erreur', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
+  const deleteSample = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('linkedin_style_samples').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => samples.refetch(),
+    onError: (e: any) => toast({ title: 'Erreur', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
+
 
   const logs = useQuery({
     queryKey: ['linkedin_post_log'],
@@ -249,6 +290,56 @@ export function AdminLinkedIn() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Corpus de style</CardTitle>
+          <CardDescription>
+            Colle ici tes propres posts LinkedIn. Ce sont eux qui servent de référence de style au modèle,
+            l'API LinkedIn ne permettant pas de relire tes publications passées.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Textarea
+            value={newSample}
+            onChange={(e) => setNewSample(e.target.value)}
+            rows={6}
+            placeholder="Colle un post LinkedIn que tu as écrit, tel quel."
+          />
+          <Button
+            onClick={() => addSample.mutate()}
+            disabled={addSample.isPending || newSample.trim().length < 80}
+          >
+            {addSample.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+            Ajouter au corpus
+          </Button>
+
+          {samples.isLoading ? (
+            <p className="text-sm text-muted-foreground">Chargement…</p>
+          ) : (samples.data?.length ?? 0) === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucun exemple enregistré. Le modèle écrit sans référence de style.</p>
+          ) : (
+            <div className="space-y-2">
+              {samples.data!.map((s: any) => (
+                <div key={s.id} className="p-3 rounded border text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="whitespace-pre-wrap flex-1">{s.content}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteSample.mutate(s.id)}
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{s.content.length} caractères</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

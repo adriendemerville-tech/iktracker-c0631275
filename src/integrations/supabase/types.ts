@@ -786,6 +786,30 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_style_samples: {
+        Row: {
+          active: boolean
+          content: string
+          created_at: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          active?: boolean
+          content: string
+          created_at?: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          active?: boolean
+          content?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string | null

@@ -207,6 +207,97 @@ const TOPICS: Topic[] = [
   },
 ];
 
+// Faits techniques précis par module. Injectés tels quels dans le prompt pour que
+// le post décrive une fonctionnalité réelle, avec son mécanisme, et pas une
+// généralité marketing sur les indemnités kilométriques.
+const TOPIC_FACTS: Record<string, string[]> = {
+  simulateur: [
+    "Le simulateur est public, sans compte, sur iktracker.fr/simulateur.",
+    "Trois tranches officielles : 0 à 5 000 km, 5 001 à 20 000 km, au-delà de 20 000 km, avec un coefficient différent par tranche.",
+    "La puissance fiscale se choisit de 3 CV à 7 CV et plus.",
+    "Un véhicule 100 pour cent électrique applique un multiplicateur de 1,2 sur le résultat, les hybrides non.",
+    "Le calcul se met à jour à chaque frappe, sans bouton valider.",
+  ],
+  "mode-tournee": [
+    "Mode disponible sur mobile uniquement, lancé par un bouton unique en bas d'écran.",
+    "Position relevée toutes les 10 secondes, points aberrants au-delà de 50 mètres par relevé écartés, micro déplacements sous 5 mètres ignorés.",
+    "Un arrêt est validé après 2 minutes d'immobilité dans un rayon de 100 mètres.",
+    "Distance en direct par formule de Haversine, puis recalcul exact entre chaque arrêt via Distance Matrix à la clôture.",
+    "Le wake lock garde l'écran actif, une session interrompue est proposée en reprise au relancement.",
+  ],
+  "import-takeout": [
+    "Import d'un export Google Takeout au format JSON de la Timeline.",
+    "Parsing intégralement dans le navigateur, aucun fichier envoyé à un serveur.",
+    "Le wizard est réservé au desktop, à cause de la taille des fichiers Takeout.",
+    "Chaque déplacement détecté devient un trajet à valider, avec date, départ, arrivée et distance.",
+    "Sert typiquement à reconstituer une année entière avant une clôture d'exercice.",
+  ],
+  "sync-calendrier": [
+    "Connexion Google Calendar et Outlook par OAuth, plusieurs agendas par compte.",
+    "Synchronisation quatre fois par jour.",
+    "Adresse manquante sur un événement : repli sur l'adresse Maison définie dans le profil.",
+    "Filtres automatiques : événements en visio Meet, Zoom, Teams ignorés, événements marqués disponible ignorés, départ identique à l'arrivée ignoré.",
+    "Deux rendez vous du même agenda le même jour peuvent être fusionnés en une tournée.",
+    "Un rendez vous futur reste masqué tant que sa date n'est pas atteinte.",
+  ],
+  "detection-plaque": [
+    "Saisie de la plaque d'immatriculation, retour de la marque, du modèle, de la motorisation et de la puissance fiscale.",
+    "Trois sources interrogées en cascade, avec repli si la première ne répond pas.",
+    "Marge de sécurité de plus 1 CV appliquée quand la source est ambiguë, pour ne jamais surestimer l'indemnité.",
+    "La motorisation électrique déclenche automatiquement le bonus de 20 pour cent.",
+    "Plus besoin d'ouvrir la carte grise pour lire la case P.6.",
+  ],
+  "bareme-progressif": [
+    "Barème progressif, pas un taux unique : le compteur annuel change de tranche en cours d'année.",
+    "Tranches 0 à 5 000 km, 5 001 à 20 000 km, au-delà de 20 000 km.",
+    "Le compteur se remet à zéro au 1er janvier, ou à une date d'exercice personnalisée.",
+    "Un seul calcul de référence dans tout l'outil, du simulateur à l'export comptable.",
+    "Appliquer un taux moyen sur l'année fait perdre de l'argent dans la première tranche.",
+  ],
+  "bonus-electrique": [
+    "Majoration de 20 pour cent sur l'indemnité pour un véhicule 100 pour cent électrique.",
+    "Appliquée par un multiplicateur de 1,2 après calcul du barème par tranche.",
+    "Hybrides et hybrides rechargeables exclus.",
+    "Activée automatiquement quand la plaque identifie une motorisation électrique, sinon par une case dans la fiche véhicule.",
+    "Changer la motorisation d'un véhicule permet de recalculer, au choix, les trajets passés.",
+  ],
+  "export-pdf": [
+    "Export PDF généré à l'impression native du navigateur, sans dépendance lourde.",
+    "Contenu : détail trajet par trajet, totaux par tranche fiscale, récapitulatif annuel, profil du véhicule avec immatriculation, modèle, carburant et chevaux fiscaux.",
+    "Envoi automatique au comptable à date fixe, avec lien sécurisé vers le relevé.",
+    "Relevé mensuel envoyé à l'utilisateur le 15 du mois pour le mois précédent.",
+  ],
+  "ik-velo": [
+    "Barème kilométrique vélo distinct du barème voiture.",
+    "Les trajets vélo se saisissent comme les autres et remontent dans le même relevé.",
+    "Utile pour les indépendants urbains qui enchaînent les rendez vous à vélo.",
+  ],
+  "gratuit-a-vie": [
+    "Aucun abonnement, aucune version limitée, aucune carte bancaire demandée.",
+    "Outil développé pour les besoins d'une agence de rénovation, infrastructure déjà payée, donc partagée.",
+    "Pas d'investisseurs, donc pas d'obligation de monétiser les utilisateurs.",
+  ],
+  confidentialite: [
+    "Aucune revente de données, aucune publicité, aucun tracking commercial.",
+    "L'import Google Takeout est traité côté navigateur, les fichiers ne quittent pas la machine.",
+    "Les accès aux données sont cloisonnés par utilisateur au niveau de la base.",
+    "Suppression de compte et de l'ensemble des trajets à la demande.",
+  ],
+  comparatif: [
+    "Les applications concurrentes facturent un abonnement mensuel par utilisateur.",
+    "IKtracker couvre le barème français à jour, le suivi GPS, la synchronisation d'agenda et l'export comptable, à zéro euro.",
+    "Pas d'engagement, pas de palier premium qui bloque l'export.",
+  ],
+  "trajets-recurrents": [
+    "Définition d'un trajet type avec sa fréquence, hebdomadaire ou mensuelle.",
+    "Les occurrences se créent automatiquement, sans ressaisir les adresses.",
+    "Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
+    "Modifiable ou interruptible à tout moment, les occurrences passées restent intactes.",
+  ],
+};
+
+
+
 // Monthly cadence: pick topic by (year*12 + month) % TOPICS.length
 function pickTopicForThisMonth(now: Date = new Date()): Topic {
   const idx = (now.getUTCFullYear() * 12 + now.getUTCMonth()) % TOPICS.length;
@@ -511,11 +602,29 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
 - Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
 
+SUJET DU POST (RÈGLE CENTRALE) :
+- Le post porte sur UN SEUL module précis d'IKtracker, celui indiqué plus bas. Pas de discours général sur les indemnités kilométriques, pas de présentation globale de l'outil.
+- Décris ce que fait concrètement ce module : le déclencheur, le mécanisme, les seuils ou chiffres réels, ce que l'utilisateur voit, ce qu'il n'a plus à faire.
+- Utilise au moins trois des faits techniques fournis, en les reformulant dans tes mots. N'invente aucun chiffre, aucune fonctionnalité absente de la liste.
+- Ancre le module dans une situation de terrain vécue : un métier, un moment de la journée, un problème concret.
+
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
-  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes (espaces compris). Compte tes caractères avant de rendre le texte.`;
-  const { text, source } = await callLLM(system, user, { temperature: 0.85 });
+  const factsBlock = (TOPIC_FACTS[topic.slug] ?? [])
+    .map((f) => `. ${f}`)
+    .join("\n");
+
+  const user = `Module IKtracker à présenter ce mois-ci : ${topic.title}
+
+Résumé du module :
+${topic.focus}
+
+Faits techniques vérifiés à exploiter :
+${factsBlock || ". (aucun fait complémentaire, reste strictement sur le résumé ci-dessus)"}
+
+Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
+  const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
 }
 
@@ -655,7 +764,7 @@ Contraintes ABSOLUES :
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
 - Exactement ${count} slides intermédiaires (heading + body)`;
-  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
+  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nFaits techniques à répartir dans les slides :\n${(TOPIC_FACTS[topic.slug] ?? []).map((f) => `. ${f}`).join("\n")}\n\nChaque slide doit porter un fait concret du module, pas une généralité. Produis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
   const plan = JSON.parse(text) as SlidePlan;
   if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== count) {
@@ -993,6 +1102,155 @@ async function createUgcPost(
   return json.id || json["x-restli-id"] || "unknown";
 }
 
+// ─── LinkedIn media upload — modern REST API (/rest/images|videos|documents) ─
+// The legacy /v2/assets?action=registerUpload endpoint now returns 403 ACCESS_DENIED
+// for member tokens, which is why every run silently degraded to a text-only post.
+// The versioned REST API is the supported path and works with w_member_social.
+
+const LI_VERSION = "202506";
+
+function restHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  return {
+    "LinkedIn-Version": LI_VERSION,
+    "X-Restli-Protocol-Version": "2.0.0",
+    ...extra,
+  };
+}
+
+async function restInitUpload(
+  resource: "images" | "documents",
+  ownerUrn: string,
+): Promise<{ uploadUrl: string; urn: string }> {
+  const res = await gatewayFetch(`/rest/${resource}?action=initializeUpload`, {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
+  });
+  if (!res.ok) throw new Error(`init ${resource} ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  const json = await res.json();
+  const value = json?.value ?? {};
+  const urn = value.image ?? value.document;
+  if (!value.uploadUrl || !urn) {
+    throw new Error(`Unexpected ${resource} init payload: ${JSON.stringify(json).slice(0, 300)}`);
+  }
+  return { uploadUrl: value.uploadUrl, urn };
+}
+
+async function putBinary(uploadUrl: string, bytes: Uint8Array, contentType: string): Promise<Response> {
+  const res = await gatewayFetch(toGatewayUrl(uploadUrl), {
+    method: "PUT",
+    headers: { "Content-Type": contentType },
+    body: bytes,
+  });
+  if (!res.ok) throw new Error(`upload PUT ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  return res;
+}
+
+async function uploadImageRest(ownerUrn: string, bytes: Uint8Array): Promise<string> {
+  const { uploadUrl, urn } = await restInitUpload("images", ownerUrn);
+  await putBinary(uploadUrl, bytes, "application/octet-stream");
+  console.log(`[rest] image uploaded (${bytes.length} bytes) → ${urn}`);
+  return urn;
+}
+
+async function uploadDocumentRest(ownerUrn: string, bytes: Uint8Array): Promise<string> {
+  const { uploadUrl, urn } = await restInitUpload("documents", ownerUrn);
+  await putBinary(uploadUrl, bytes, "application/octet-stream");
+  console.log(`[rest] document uploaded (${bytes.length} bytes) → ${urn}`);
+  return urn;
+}
+
+async function uploadVideoRest(ownerUrn: string, bytes: Uint8Array): Promise<string> {
+  const initRes = await gatewayFetch("/rest/videos?action=initializeUpload", {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: ownerUrn,
+        fileSizeBytes: bytes.length,
+        uploadCaptions: false,
+        uploadThumbnail: false,
+      },
+    }),
+  });
+  if (!initRes.ok) throw new Error(`init videos ${initRes.status}: ${(await initRes.text()).slice(0, 400)}`);
+  const initJson = await initRes.json();
+  const value = initJson?.value ?? {};
+  const instructions: any[] = value.uploadInstructions ?? [];
+  const videoUrn = value.video;
+  const uploadToken = value.uploadToken ?? "";
+  if (!videoUrn || instructions.length === 0) {
+    throw new Error(`Unexpected videos init payload: ${JSON.stringify(initJson).slice(0, 300)}`);
+  }
+
+  const etags: string[] = [];
+  for (const [i, ins] of instructions.entries()) {
+    const first = Number(ins.firstByte ?? 0);
+    const last = Number(ins.lastByte ?? bytes.length - 1);
+    const chunk = bytes.slice(first, last + 1);
+    const res = await putBinary(ins.uploadUrl, chunk, "application/octet-stream");
+    const etag = res.headers.get("etag") ?? res.headers.get("ETag");
+    if (!etag) throw new Error(`No ETag returned for video part ${i}`);
+    etags.push(etag.replace(/"/g, ""));
+  }
+
+  const finRes = await gatewayFetch("/rest/videos?action=finalizeUpload", {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      finalizeUploadRequest: { video: videoUrn, uploadToken, uploadedPartIds: etags },
+    }),
+  });
+  if (!finRes.ok) throw new Error(`finalize video ${finRes.status}: ${(await finRes.text()).slice(0, 300)}`);
+  console.log(`[rest] video uploaded (${bytes.length} bytes) → ${videoUrn}`);
+  return videoUrn;
+}
+
+async function createRestPost(
+  ownerUrn: string,
+  text: string,
+  mediaUrn: string,
+  title: string,
+): Promise<string> {
+  const res = await gatewayFetch("/rest/posts", {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      author: ownerUrn,
+      commentary: text,
+      visibility: "PUBLIC",
+      distribution: { feedDistribution: "MAIN_FEED", targetEntities: [], thirdPartyDistributionChannels: [] },
+      content: { media: { id: mediaUrn, title: title.slice(0, 100) } },
+      lifecycleState: "PUBLISHED",
+      isReshareDisabledByAuthor: false,
+    }),
+  });
+  if (!res.ok) throw new Error(`rest/posts ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  return res.headers.get("x-restli-id") ?? res.headers.get("x-linkedin-id") ?? "unknown";
+}
+
+// ─── Browserless still image (guaranteed visual fallback) ───────────────────
+
+async function captureScreenshot(topic: Topic): Promise<Uint8Array> {
+  const token = Deno.env.get("BROWSERLESS_API_KEY");
+  if (!token) throw new Error("BROWSERLESS_API_KEY missing");
+  const res = await fetch(`${BROWSERLESS_BASE}/screenshot?token=${token}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      url: topic.url,
+      options: { type: "png", fullPage: false },
+      viewport: { width: 1200, height: 1200, deviceScaleFactor: 2 },
+      gotoOptions: { waitUntil: "networkidle2", timeout: 30000 },
+      waitForTimeout: 2500,
+    }),
+  });
+  if (!res.ok) throw new Error(`Browserless screenshot ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  console.log(`[screenshot] ${topic.url} → ${bytes.length} bytes`);
+  return bytes;
+}
+
 // ─── Logging ────────────────────────────────────────────────────────────────
 
 async function logRun(supabase: ReturnType<typeof createClient>, row: Record<string, unknown>) {
@@ -1077,10 +1335,34 @@ Deno.serve(async (req) => {
     //    y compris en dry-run. En cas d'échec, on continue sans échantillon.
     let ownerUrn: string | null = null;
     let styleSamples: string[] = [];
+
+    // 1a) Corpus manuel saisi dans l'admin — source de vérité du style d'Adrien.
+    //     L'API LinkedIn ne rend pas les posts passés sans scope de lecture, donc
+    //     sans ce corpus le modèle écrivait "à l'aveugle".
+    try {
+      const { data: manual, error: manualErr } = await admin
+        .from("linkedin_style_samples")
+        .select("content")
+        .eq("active", true)
+        .order("created_at", { ascending: false })
+        .limit(12);
+      if (manualErr) throw manualErr;
+      styleSamples = (manual ?? [])
+        .map((r: { content: string }) => (r.content ?? "").trim())
+        .filter((c: string) => c.length >= 80);
+      console.log(`[style-samples] ${styleSamples.length} échantillons manuels chargés`);
+    } catch (err) {
+      console.warn(`[style-samples] lecture DB impossible: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    // 1b) Complément éventuel via l'API LinkedIn (souvent indisponible côté scopes).
     try {
       ownerUrn = await getMemberUrn();
       console.log(`LinkedIn owner: ${ownerUrn}`);
-      styleSamples = await fetchRecentAuthorPosts(ownerUrn, 10);
+      if (styleSamples.length < 4) {
+        const remote = await fetchRecentAuthorPosts(ownerUrn, 10);
+        styleSamples = [...styleSamples, ...remote];
+      }
     } catch (err) {
       console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -1147,69 +1429,95 @@ Deno.serve(async (req) => {
       return json.id || json["x-restli-id"] || "unknown";
     };
 
-    // Detect LinkedIn media-scope errors so we can fallback to text-only.
-    const isMediaScopeError = (err: unknown): boolean => {
-      const msg = err instanceof Error ? err.message : String(err);
-      return /registerUpload\s+403|ACCESS_DENIED|Not enough permissions|uploadBytes\s+4\d\d/i.test(msg);
-    };
-
     let mediaFallback = false;
     let mediaFallbackReason: string | null = null;
+
+    // Legacy /v2/assets path, kept as a secondary attempt.
+    const legacyPublish = async (
+      bytes: Uint8Array,
+      recipe: "feedshare-video" | "feedshare-document",
+      contentType: string,
+      category: "VIDEO" | "DOCUMENT",
+    ): Promise<string> => {
+      const upload = await registerUpload(ownerUrn!, recipe);
+      assetUrn = upload.assetUrn;
+      await uploadBytes(upload.uploadUrl, bytes, contentType, upload.extraHeaders);
+      await waitForAssetReady(assetUrn);
+      return await createUgcPost(ownerUrn!, postText, assetUrn, topic, category);
+    };
+
+    // Last visual resort: a real screenshot of the feature page, posted as an image.
+    const publishScreenshot = async (): Promise<string> => {
+      const png = await captureScreenshot(topic);
+      mediaBytes = png.length;
+      assetUrn = await uploadImageRest(ownerUrn!, png);
+      return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+    };
 
     // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
     if (textOnly) {
       postId = await publishTextOnly();
       format = "text";
-    } else if (format === "video") {
-      try {
-        const mp4 = topic.mediaSource === "browserless"
+    } else {
+      // Build the media bytes first (independent from the LinkedIn transport).
+      let bytes: Uint8Array;
+      if (format === "video") {
+        bytes = topic.mediaSource === "browserless"
           ? await recordScreencast(topic)
           : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
-        mediaBytes = mp4.length;
-
-        const upload = await registerUpload(ownerUrn, "feedshare-video");
-        assetUrn = upload.assetUrn;
-        await uploadBytes(upload.uploadUrl, mp4, "application/octet-stream", upload.extraHeaders);
-        await waitForAssetReady(assetUrn);
-        postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "VIDEO");
-      } catch (err) {
-        if (!isMediaScopeError(err)) throw err;
-        mediaFallbackReason = err instanceof Error ? err.message : String(err);
-        console.warn(`[linkedin-monthly-post] media upload denied, falling back to text-only: ${mediaFallbackReason}`);
-        postId = await publishTextOnly();
-        mediaFallback = true;
-        assetUrn = null;
-        mediaBytes = 0;
-        format = "text";
-      }
-    } else {
-      try {
-        // Carousel: optionally generate a Wavespeed cover background
+      } else {
         let coverBg: Uint8Array | null = null;
         if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
           try {
             coverBg = await generateWavespeedImage(topic.visualPrompt);
             console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
           } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            console.warn(`Wavespeed cover image failed, falling back to plain typography: ${message}`);
+            console.warn(`Wavespeed cover image failed: ${err instanceof Error ? err.message : String(err)}`);
           }
         }
-        const pdf = await renderCarouselPdf(topic, slidePlan!, coverBg);
-        mediaBytes = pdf.length;
+        bytes = await renderCarouselPdf(topic, slidePlan!, coverBg);
+      }
+      mediaBytes = bytes.length;
 
-        const upload = await registerUpload(ownerUrn, "feedshare-document");
-        assetUrn = upload.assetUrn;
-        await uploadBytes(upload.uploadUrl, pdf, "application/pdf", upload.extraHeaders);
-        await waitForAssetReady(assetUrn);
-        postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "DOCUMENT");
-      } catch (err) {
-        if (!isMediaScopeError(err)) throw err;
-        mediaFallbackReason = err instanceof Error ? err.message : String(err);
-        console.warn(`[linkedin-monthly-post] media upload denied, falling back to text-only: ${mediaFallbackReason}`);
+      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "video"
+        ? [
+            { label: "rest-video", run: async () => {
+              assetUrn = await uploadVideoRest(ownerUrn!, bytes);
+              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+            } },
+            { label: "legacy-video", run: () => legacyPublish(bytes, "feedshare-video", "application/octet-stream", "VIDEO") },
+            { label: "screenshot-image", run: publishScreenshot },
+          ]
+        : [
+            { label: "rest-document", run: async () => {
+              assetUrn = await uploadDocumentRest(ownerUrn!, bytes);
+              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+            } },
+            { label: "legacy-document", run: () => legacyPublish(bytes, "feedshare-document", "application/pdf", "DOCUMENT") },
+            { label: "screenshot-image", run: publishScreenshot },
+          ];
+
+      for (const attempt of attempts) {
+        try {
+          postId = await attempt.run();
+          console.log(`[media] published via ${attempt.label}`);
+          if (attempt.label === "screenshot-image") {
+            mediaFallback = true;
+          }
+          break;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          console.warn(`[media] ${attempt.label} failed: ${message}`);
+          mediaFallbackReason = `${attempt.label}: ${message}`;
+          assetUrn = null;
+        }
+      }
+
+      // Absolute last resort: never skip the monthly post entirely.
+      if (!postId) {
+        console.warn("[media] all media paths failed, publishing text-only");
         postId = await publishTextOnly();
         mediaFallback = true;
-        assetUrn = null;
         mediaBytes = 0;
         format = "text";
       }
