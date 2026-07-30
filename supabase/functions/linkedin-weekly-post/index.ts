@@ -610,10 +610,11 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
 
 SUJET DU POST (RÈGLE CENTRALE) :
+- Le post parle DU PRODUIT, pas des utilisateurs. L'angle est toujours : voilà ce que fait IKtracker, comment c'est construit, ce que ça produit comme résultat. Pas de portrait d'utilisateur, pas de persona, pas de témoignage, pas de "les indépendants perdent du temps à...", pas de storytelling client.
 - Le post porte sur UN SEUL module précis d'IKtracker, celui indiqué plus bas. Pas de discours général sur les indemnités kilométriques, pas de présentation globale de l'outil.
-- Décris ce que fait concrètement ce module : le déclencheur, le mécanisme, les seuils ou chiffres réels, ce que l'utilisateur voit, ce qu'il n'a plus à faire.
+- Décris le module de l'intérieur : le déclencheur, le mécanisme, la règle de calcul, les seuils ou chiffres réels, ce qui est automatisé, ce que ça affiche en sortie.
 - Utilise au moins trois des faits techniques fournis, en les reformulant dans tes mots. N'invente aucun chiffre, aucune fonctionnalité absente de la liste.
-- Ancre le module dans une situation de terrain vécue : un métier, un moment de la journée, un problème concret.
+- Si tu évoques un cas concret, c'est pour illustrer le comportement du produit dans cette situation, jamais pour raconter la vie d'un client.
 
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
