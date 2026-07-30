@@ -430,6 +430,20 @@ Deno.serve(async (req) => {
       const totalKm = (arr: Trip[]) => arr.reduce((s, t) => s + (t.distance ?? 0), 0)
       const totalIk = (arr: Trip[]) => arr.reduce((s, t) => s + (t.ik_amount ?? 0), 0)
 
+      // Archive durable du relevé mensuel (page /app/archive)
+      await archiveReportPdf(supabase as never, {
+        userId: p.user_id,
+        kind: 'monthly',
+        periodLabel: period.label,
+        periodStart: isoDay(period.start),
+        periodEnd: isoDay(period.end),
+        pdf: monthPdf,
+        tripCount: periodTrips.length,
+        totalKm: totalKm(periodTrips),
+        totalIk: totalIk(periodTrips),
+      })
+
+
       await sendResend({
         to: email,
         subject: `Votre relevé IKtracker — ${period.label}`,
