@@ -631,7 +631,7 @@ ${topic.focus}
 Faits techniques vérifiés à exploiter :
 ${factsBlock || ". (aucun fait complémentaire, reste strictement sur le résumé ci-dessus)"}
 
-Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
+Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
 }
