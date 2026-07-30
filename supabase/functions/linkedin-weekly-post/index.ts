@@ -1042,6 +1042,87 @@ function sanitizePostText(text: string): string {
   return out;
 }
 
+// Aère le post : un paragraphe = 2 phrases maximum, séparés par une ligne vide.
+// LinkedIn tronque les pavés dans le feed, l'aération est indispensable.
+function airifyPostText(text: string): string {
+  const blocks = text
+    .split(/\n{2,}/)
+    .map((b) => b.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim())
+    .filter(Boolean);
+
+  const paragraphs: string[] = [];
+  for (const block of blocks) {
+    const sentences = block.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) ?? [block];
+    const cleaned = sentences.map((s) => s.trim()).filter(Boolean);
+    // Première phrase = hook isolé, puis paquets de 2 phrases.
+    let i = 0;
+    if (paragraphs.length === 0 && cleaned.length > 1) {
+      paragraphs.push(cleaned[0]);
+      i = 1;
+    }
+    for (; i < cleaned.length; i += 2) {
+      paragraphs.push(cleaned.slice(i, i + 2).join(" "));
+    }
+  }
+  return paragraphs.join("\n\n").trim();
+}
+
+// ─── Mention de la page LinkedIn IKtracker ─────────────────────────────────
+const MENTION_LABEL = "IKtracker";
+let cachedOrgUrn: string | null | undefined;
+
+async function resolveOrgUrn(): Promise<string | null> {
+  if (cachedOrgUrn !== undefined) return cachedOrgUrn;
+  const fromEnv = Deno.env.get("LINKEDIN_ORG_URN") || Deno.env.get("LINKEDIN_ORG_ID");
+  if (fromEnv) {
+    cachedOrgUrn = fromEnv.startsWith("urn:") ? fromEnv : `urn:li:organization:${fromEnv}`;
+    return cachedOrgUrn;
+  }
+  try {
+    const res = await gatewayFetch(
+      "/v2/organizationAcls?q=roleAssignee&role=ADMINISTRATOR&state=APPROVED&projection=(elements*(organization~(id,localizedName)))",
+      { headers: { "X-Restli-Protocol-Version": "2.0.0" } },
+    );
+    if (!res.ok) {
+      console.warn(`[mention] organizationAcls ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      cachedOrgUrn = null;
+      return null;
+    }
+    const json = await res.json();
+    const elements: any[] = Array.isArray(json.elements) ? json.elements : [];
+    const match = elements.find((el) =>
+      String(el?.["organization~"]?.localizedName ?? "").toLowerCase().includes("iktracker")
+    ) ?? elements[0];
+    const id = match?.["organization~"]?.id;
+    cachedOrgUrn = id ? `urn:li:organization:${id}` : null;
+    if (!cachedOrgUrn) console.warn("[mention] no administered organization found");
+    return cachedOrgUrn;
+  } catch (err) {
+    console.warn(`[mention] resolve failed: ${err instanceof Error ? err.message : String(err)}`);
+    cachedOrgUrn = null;
+    return null;
+  }
+}
+
+// Commentaire pour l'API REST versionnée : syntaxe de mention inline.
+function restCommentary(text: string, orgUrn: string | null): string {
+  return orgUrn ? `${text}\n\n@[${MENTION_LABEL}](${orgUrn})` : text;
+}
+
+// Commentaire pour /v2/ugcPosts : texte brut + annotation d'entité.
+function ugcCommentary(text: string, orgUrn: string | null): Record<string, unknown> {
+  if (!orgUrn) return { text };
+  const full = `${text}\n\n${MENTION_LABEL}`;
+  return {
+    text: full,
+    attributes: [{
+      length: MENTION_LABEL.length,
+      start: full.length - MENTION_LABEL.length,
+      value: { "com.linkedin.common.CompanyAttributedEntity": { company: orgUrn } },
+    }],
+  };
+}
+
 function toGatewayUrl(linkedinUrl: string): string {
   const u = new URL(linkedinUrl);
   return `${GATEWAY_URL}${u.pathname}${u.search}`;
