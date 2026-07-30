@@ -26,10 +26,12 @@ const WAVESPEED_BASE = "https://api.wavespeed.ai/api/v3";
 const WS_MISTRAL_MODEL = "mistral/mistral-large-latest";
 const LI_VERSION = "202506";
 
-// Seuil en dessous duquel le post est republié corrigé.
-const SCORE_THRESHOLD = 80;
-const HOOK_THRESHOLD = 7;
-const MAX_ATTEMPTS = 2;
+// Conditions d'arrêt de la boucle d'amélioration.
+const SCORE_THRESHOLD = 85;   // score composite /100
+const HOOK_THRESHOLD = 8;     // hook /10
+const MAX_ATTEMPTS = 3;       // itérations maximum par lignée de post
+const MIN_GAIN = 3;           // gain minimum de score, sinon plateau => arrêt
+
 
 // ─── LinkedIn gateway ───────────────────────────────────────────────────────
 
