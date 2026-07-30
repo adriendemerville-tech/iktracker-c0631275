@@ -1,18 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, Monitor, Sparkles } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Download, Eye, FileText, LayoutList, Loader2, Monitor, Sparkles, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { usePreferences } from '@/hooks/usePreferences';
+import { buildCsv, downloadCsv } from '@/lib/autopilot-export';
+
 
 interface ArchiveRow {
   id: string;
