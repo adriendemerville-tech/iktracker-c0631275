@@ -798,8 +798,9 @@ export function useTrips() {
           setTrips(updatedTrips.map(t => ({
             id: t.id,
             vehicleId: t.vehicle_id,
-            startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
-            endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+            startLocation: dbLocation(t.start_location, (t as any).start_address, (t as any).start_lat, (t as any).start_lng),
+            endLocation: dbLocation(t.end_location, (t as any).end_address, (t as any).end_lat, (t as any).end_lng),
+
             distance: t.distance,
             baseDistance: t.round_trip ? t.distance / 2 : t.distance,
             roundTrip: t.round_trip,
