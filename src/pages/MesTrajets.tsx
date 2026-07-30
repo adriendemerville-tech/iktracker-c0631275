@@ -198,6 +198,13 @@ export default function Report() {
     return savedLocations.some(loc => loc.type === 'home' && loc.address);
   }, [savedLocations]);
   
+  const openBlockingZeroKmTrip = () => {
+    const blocking = tripsWithZeroKm[0];
+    if (!blocking) return;
+    setEditingTrip(blocking);
+    setShowNewTrip(true);
+  };
+
   const handleRecalculateDistances = async () => {
     if (!hasHomeAddress) {
       toast.error("Adresse manquante", {
@@ -217,20 +224,31 @@ export default function Report() {
           description: "La page va se rafraîchir",
         });
         setTimeout(() => window.location.reload(), 1500);
-      } else if (data?.skipped > 0) {
-        toast.info("Aucun trajet à recalculer", {
-          description: `${data.skipped} trajet(s) ignoré(s) - vérifiez vos adresses`,
-        });
       } else {
-        toast.info("Aucun trajet à recalculer");
+        // Nothing could be recalculated: guide the user to the blocking trip
+        toast.warning("Recalcul impossible", {
+          description: "Les adresses de ce trajet sont incomplètes ou introuvables. Complétez-les manuellement.",
+          action: {
+            label: "Corriger",
+            onClick: openBlockingZeroKmTrip,
+          },
+        });
+        openBlockingZeroKmTrip();
       }
     } catch (error) {
       console.error('Recalculation error:', error);
-      toast.error("Erreur lors du recalcul");
+      toast.error("Erreur lors du recalcul", {
+        description: "Ouvrez le trajet concerné pour corriger ses adresses.",
+        action: {
+          label: "Corriger",
+          onClick: openBlockingZeroKmTrip,
+        },
+      });
     } finally {
       setIsRecalculating(false);
     }
   };
+
 
   // Separate pending trips from validated trips - pending always shown first
   const pendingTrips = trips.filter(t => t.status === 'pending_location');
