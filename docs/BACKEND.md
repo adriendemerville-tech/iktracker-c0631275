@@ -397,18 +397,20 @@ Content-Type: application/json
 > Nom historique conservé pour ne pas casser l'URL invoke ; le rythme est **mensuel** depuis juillet 2026.
 
 - **Auth** : En-tête `x-cron-secret` (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin (`has_role(user, 'admin')`)
-- **Cron** : `0 7 1-7 * 3` (1<sup>er</sup> mercredi du mois, 07:00 UTC ≈ 8h Paris hiver / 9h été)
-- **Rotation** : 12 topics étiquetés par `format` (`video` / `carousel`) et par `mediaSource` (`browserless` / `wavespeed`). Sélection : `(année × 12 + mois) mod 12`.
-- **Texte** : Mistral hébergé sur Wavespeed (`mistral/mistral-large-latest` via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash (Lovable AI Gateway) en cas d'échec. Idem pour la génération du plan de slides des carrousels (`response_format: json_object`).
+- **Cron** : job `linkedin-monthly-post`, planification `0 7 1-7 * *` + garde SQL `extract(dow) = 3` → strictement le 1<sup>er</sup> mercredi du mois, 07:00 UTC. (L'ancienne expression `0 7 1-7 * 3` déclenchait chaque mercredi, `pg_cron` faisant un OU entre jour-du-mois et jour-de-semaine.)
+- **Rotation** : 13 topics étiquetés par `format` (`video` / `carousel`) et par `mediaSource` (`browserless` / `wavespeed`). Sélection : `(année × 12 + mois) mod N`.
+- **Précision éditoriale** : chaque topic possède une entrée dans `TOPIC_FACTS` (faits techniques : seuils, logique métier, personas, scénarios). Ces faits sont injectés dans le prompt pour forcer une description concrète d'une fonctionnalité réelle plutôt qu'un discours marketing.
+- **Style d'écriture** : table `public.linkedin_style_samples` (`content`, `active`) — corpus de posts rédigés manuellement par le fondateur. Le profil de style (longueur, ratio de phrases courtes, ouvertures, bigrammes) est calculé à partir de ces exemples et injecté dans le prompt. L'API LinkedIn ne permettant pas de relire les publications passées avec les scopes disponibles, cette table est la **seule** source de style fiable. RLS : lecture/écriture réservées aux admins, lecture service_role pour l'edge function.
+- **Texte** : Mistral hébergé sur Wavespeed (via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash (Lovable AI Gateway). Idem pour le plan de slides des carrousels.
 - **Média** :
   - `mediaSource: 'browserless'` → screencast MP4 d'une UI réelle du site (simulateur, mode tournée, sync calendrier, plaque, export PDF).
   - `mediaSource: 'wavespeed'` → visuel IA :
     - `format: 'video'` → text-to-video via `wavespeed-ai/wan-2.1-t2v-720p`, MP4 téléchargé puis uploadé.
-    - `format: 'carousel'` → image de cover générée via `wavespeed-ai/flux-dev` puis embarquée en fond du slide 1 (scrim ivoire pour lisibilité) ; slides 2-5 restent en typographie pdf-lib pure. En cas d'échec Wavespeed, fallback silencieux sur le rendu typographique seul.
-- **Upload LinkedIn** : `feedshare-video` → `shareMediaCategory: VIDEO` / `feedshare-document` → `shareMediaCategory: DOCUMENT`. Polling asset jusqu'à `AVAILABLE`, puis `POST /v2/ugcPosts`.
+    - `format: 'carousel'` → image de cover générée via `wavespeed-ai/flux-dev` puis embarquée en fond du slide 1 (scrim ivoire) ; slides 2-5 en typographie pdf-lib pure. Fallback silencieux sur le rendu typographique seul.
+- **Upload LinkedIn** : chaîne de repli en cascade — (1) API REST moderne `/rest/videos` ou `/rest/documents` + `/rest/posts`, (2) API legacy `/v2/assets` + `/v2/ugcPosts` (retourne 403 avec les scopes actuels), (3) capture d'écran Browserless publiée en image, (4) post texte seul. Le mode de publication effectif est journalisé.
 - **Query params** : `?topic=<slug>` force le topic, `?format=video|carousel` force le format, `?dry_run=1` renvoie texte + slide_plan sans publier ni uploader.
 - **Logs** : `public.linkedin_post_log` (colonnes `media_type`, `triggered_by`, `duration_ms`, `error_message`).
-- **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run + historique des 15 derniers runs.
+- **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run, **gestion du corpus de style** (ajout/suppression d'exemples), et historique des 15 derniers runs.
 - **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `gsc-analytics` — Google Search Console
