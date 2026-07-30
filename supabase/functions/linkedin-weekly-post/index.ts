@@ -896,6 +896,38 @@ Réponds uniquement par le prompt, 2 à 4 phrases.`;
   return { prompt: text.trim(), source };
 }
 
+// Détermine quelles zones de l'UI filmer, en croisant le post généré et la
+// documentation technique du module (ancrage sur ce qui existe réellement).
+async function deriveCaptureFocus(topic: Topic, postText: string): Promise<string[]> {
+  const system = `Tu prépares une capture vidéo d'écran d'une page web réelle.
+On te donne un post LinkedIn et des extraits de documentation technique du module concerné.
+Réponds uniquement par un JSON strict {"labels": ["...", "..."]} listant 2 à 4 libellés courts (2 à 5 mots) susceptibles d'apparaître EN TOUTES LETTRES sur la page, correspondant aux blocs d'interface qui illustrent le mieux ce que raconte le post, du plus important au moins important.
+Pas de sélecteur CSS, pas de phrase, uniquement des libellés visibles à l'écran, en français.`;
+  const user = `Page filmée : ${topic.url}
+
+Post LinkedIn :
+${postText}
+
+Documentation technique du module :
+${captureHintsForTopic(topic)}
+
+JSON :`;
+  try {
+    const { text } = await callLLM(system, user, { json: true, temperature: 0.3 });
+    const parsed = JSON.parse(text) as { labels?: unknown };
+    const labels = Array.isArray(parsed.labels)
+      ? parsed.labels.filter((l): l is string => typeof l === "string" && l.trim().length > 2).slice(0, 4)
+      : [];
+    console.log(`[capture-focus] ${labels.length ? labels.join(" / ") : "aucun libellé, scroll global"}`);
+    return labels;
+  } catch (err) {
+    console.warn(`[capture-focus] échec, scroll global: ${err instanceof Error ? err.message : String(err)}`);
+    return [];
+  }
+}
+
+
+
 async function generateSlidePlanFromText(
   topic: Topic,
   postText: string,
