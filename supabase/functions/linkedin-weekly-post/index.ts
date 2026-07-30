@@ -207,6 +207,97 @@ const TOPICS: Topic[] = [
   },
 ];
 
+// Faits techniques précis par module. Injectés tels quels dans le prompt pour que
+// le post décrive une fonctionnalité réelle, avec son mécanisme, et pas une
+// généralité marketing sur les indemnités kilométriques.
+const TOPIC_FACTS: Record<string, string[]> = {
+  simulateur: [
+    "Le simulateur est public, sans compte, sur iktracker.fr/simulateur.",
+    "Trois tranches officielles : 0 à 5 000 km, 5 001 à 20 000 km, au-delà de 20 000 km, avec un coefficient différent par tranche.",
+    "La puissance fiscale se choisit de 3 CV à 7 CV et plus.",
+    "Un véhicule 100 pour cent électrique applique un multiplicateur de 1,2 sur le résultat, les hybrides non.",
+    "Le calcul se met à jour à chaque frappe, sans bouton valider.",
+  ],
+  "mode-tournee": [
+    "Mode disponible sur mobile uniquement, lancé par un bouton unique en bas d'écran.",
+    "Position relevée toutes les 10 secondes, points aberrants au-delà de 50 mètres par relevé écartés, micro déplacements sous 5 mètres ignorés.",
+    "Un arrêt est validé après 2 minutes d'immobilité dans un rayon de 100 mètres.",
+    "Distance en direct par formule de Haversine, puis recalcul exact entre chaque arrêt via Distance Matrix à la clôture.",
+    "Le wake lock garde l'écran actif, une session interrompue est proposée en reprise au relancement.",
+  ],
+  "import-takeout": [
+    "Import d'un export Google Takeout au format JSON de la Timeline.",
+    "Parsing intégralement dans le navigateur, aucun fichier envoyé à un serveur.",
+    "Le wizard est réservé au desktop, à cause de la taille des fichiers Takeout.",
+    "Chaque déplacement détecté devient un trajet à valider, avec date, départ, arrivée et distance.",
+    "Sert typiquement à reconstituer une année entière avant une clôture d'exercice.",
+  ],
+  "sync-calendrier": [
+    "Connexion Google Calendar et Outlook par OAuth, plusieurs agendas par compte.",
+    "Synchronisation quatre fois par jour.",
+    "Adresse manquante sur un événement : repli sur l'adresse Maison définie dans le profil.",
+    "Filtres automatiques : événements en visio Meet, Zoom, Teams ignorés, événements marqués disponible ignorés, départ identique à l'arrivée ignoré.",
+    "Deux rendez vous du même agenda le même jour peuvent être fusionnés en une tournée.",
+    "Un rendez vous futur reste masqué tant que sa date n'est pas atteinte.",
+  ],
+  "detection-plaque": [
+    "Saisie de la plaque d'immatriculation, retour de la marque, du modèle, de la motorisation et de la puissance fiscale.",
+    "Trois sources interrogées en cascade, avec repli si la première ne répond pas.",
+    "Marge de sécurité de plus 1 CV appliquée quand la source est ambiguë, pour ne jamais surestimer l'indemnité.",
+    "La motorisation électrique déclenche automatiquement le bonus de 20 pour cent.",
+    "Plus besoin d'ouvrir la carte grise pour lire la case P.6.",
+  ],
+  "bareme-progressif": [
+    "Barème progressif, pas un taux unique : le compteur annuel change de tranche en cours d'année.",
+    "Tranches 0 à 5 000 km, 5 001 à 20 000 km, au-delà de 20 000 km.",
+    "Le compteur se remet à zéro au 1er janvier, ou à une date d'exercice personnalisée.",
+    "Un seul calcul de référence dans tout l'outil, du simulateur à l'export comptable.",
+    "Appliquer un taux moyen sur l'année fait perdre de l'argent dans la première tranche.",
+  ],
+  "bonus-electrique": [
+    "Majoration de 20 pour cent sur l'indemnité pour un véhicule 100 pour cent électrique.",
+    "Appliquée par un multiplicateur de 1,2 après calcul du barème par tranche.",
+    "Hybrides et hybrides rechargeables exclus.",
+    "Activée automatiquement quand la plaque identifie une motorisation électrique, sinon par une case dans la fiche véhicule.",
+    "Changer la motorisation d'un véhicule permet de recalculer, au choix, les trajets passés.",
+  ],
+  "export-pdf": [
+    "Export PDF généré à l'impression native du navigateur, sans dépendance lourde.",
+    "Contenu : détail trajet par trajet, totaux par tranche fiscale, récapitulatif annuel, profil du véhicule avec immatriculation, modèle, carburant et chevaux fiscaux.",
+    "Envoi automatique au comptable à date fixe, avec lien sécurisé vers le relevé.",
+    "Relevé mensuel envoyé à l'utilisateur le 15 du mois pour le mois précédent.",
+  ],
+  "ik-velo": [
+    "Barème kilométrique vélo distinct du barème voiture.",
+    "Les trajets vélo se saisissent comme les autres et remontent dans le même relevé.",
+    "Utile pour les indépendants urbains qui enchaînent les rendez vous à vélo.",
+  ],
+  "gratuit-a-vie": [
+    "Aucun abonnement, aucune version limitée, aucune carte bancaire demandée.",
+    "Outil développé pour les besoins d'une agence de rénovation, infrastructure déjà payée, donc partagée.",
+    "Pas d'investisseurs, donc pas d'obligation de monétiser les utilisateurs.",
+  ],
+  confidentialite: [
+    "Aucune revente de données, aucune publicité, aucun tracking commercial.",
+    "L'import Google Takeout est traité côté navigateur, les fichiers ne quittent pas la machine.",
+    "Les accès aux données sont cloisonnés par utilisateur au niveau de la base.",
+    "Suppression de compte et de l'ensemble des trajets à la demande.",
+  ],
+  comparatif: [
+    "Les applications concurrentes facturent un abonnement mensuel par utilisateur.",
+    "IKtracker couvre le barème français à jour, le suivi GPS, la synchronisation d'agenda et l'export comptable, à zéro euro.",
+    "Pas d'engagement, pas de palier premium qui bloque l'export.",
+  ],
+  "trajets-recurrents": [
+    "Définition d'un trajet type avec sa fréquence, hebdomadaire ou mensuelle.",
+    "Les occurrences se créent automatiquement, sans ressaisir les adresses.",
+    "Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
+    "Modifiable ou interruptible à tout moment, les occurrences passées restent intactes.",
+  ],
+};
+
+
+
 // Monthly cadence: pick topic by (year*12 + month) % TOPICS.length
 function pickTopicForThisMonth(now: Date = new Date()): Topic {
   const idx = (now.getUTCFullYear() * 12 + now.getUTCMonth()) % TOPICS.length;
