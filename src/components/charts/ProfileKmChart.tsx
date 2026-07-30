@@ -111,8 +111,23 @@ const KmBarShape = (props: any) => {
   );
 };
 
+const KmTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  const item = payload[0].payload || {};
+  const ik = Number(item.ik || 0);
+  return (
+    <div className="rounded-md border border-border bg-popover px-3 py-2 text-popover-foreground shadow-md">
+      <p className="text-xs font-semibold">{item.month}</p>
+      <p className="text-xs text-muted-foreground">{Math.round(item.km || 0)} km</p>
+      <p className="text-sm font-bold">
+        {ik.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+      </p>
+    </div>
+  );
+};
+
 interface ProfileKmChartProps {
-  data: Array<{ month: string; km: number }>;
+  data: Array<{ month: string; km: number; ik?: number }>;
   maxKm: number;
   isMobile?: boolean;
 }
