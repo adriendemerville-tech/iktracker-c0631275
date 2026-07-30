@@ -396,11 +396,31 @@ export function AdminLinkedIn() {
                       <p className="text-xs text-destructive mt-1 truncate">{l.error_message}</p>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {l.posted_at ? new Date(l.posted_at).toLocaleString('fr-FR') : '—'}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {l.status === 'success' && l.linkedin_post_id && l.linkedin_asset_urn && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditing({
+                            postId: l.linkedin_post_id,
+                            assetUrn: l.linkedin_asset_urn,
+                            title: l.topic_title ?? l.topic_slug,
+                          });
+                          setEditText(l.post_text ?? '');
+                        }}
+                      >
+                        <PencilLine className="w-3.5 h-3.5 mr-1.5" />
+                        Corriger
+                      </Button>
+                    )}
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {l.posted_at ? new Date(l.posted_at).toLocaleString('fr-FR') : '—'}
+                    </div>
                   </div>
                 </div>
               ))}
+
             </div>
           )}
         </CardContent>
