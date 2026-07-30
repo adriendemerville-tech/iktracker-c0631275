@@ -14,7 +14,12 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'supabase/functions/linkedin-weekly-post/docs-context.ts');
+// Chaque edge function est déployée isolément : on écrit une copie du contexte
+// dans chaque fonction qui en a besoin (génération + audit).
+const OUTS = [
+  path.join(ROOT, 'supabase/functions/linkedin-weekly-post/docs-context.ts'),
+  path.join(ROOT, 'supabase/functions/linkedin-post-audit/docs-context.ts'),
+];
 const SOURCES = [
   { file: 'docs/BACKEND.md', origin: 'backend' },
   { file: 'docs/FRONTEND.md', origin: 'frontend' },
