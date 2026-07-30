@@ -689,6 +689,8 @@ ${samplesBlock}`;
     .map((f) => `. ${f}`)
     .join("\n");
 
+  const docBlock = docContextForTopic(topic);
+
   const user = `Module IKtracker à présenter ce mois-ci : ${topic.title}
 
 Résumé du module :
@@ -696,8 +698,14 @@ ${topic.focus}
 
 Faits techniques vérifiés à exploiter :
 ${factsBlock || ". (aucun fait complémentaire, reste strictement sur le résumé ci-dessus)"}
+${docBlock ? `
+EXTRAITS DE LA DOCUMENTATION TECHNIQUE INTERNE (source de vérité sur l'implémentation réelle, à reformuler en langage clair, jamais à recopier ni à citer comme documentation) :
+${docBlock}
 
+Sers-toi de ces extraits pour être précis sur le mécanisme réel : déclencheur, fréquence, règle de calcul, seuils, ce qui est automatisé. N'invente rien qui ne figure pas dans ces extraits ou dans les faits ci-dessus. Ne mentionne aucun nom de table, de fonction technique ni de fournisseur d'infrastructure.
+` : ""}
 Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
+
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
 }
