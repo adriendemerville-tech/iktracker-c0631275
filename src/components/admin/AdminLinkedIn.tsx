@@ -116,7 +116,7 @@ export function AdminLinkedIn() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('linkedin_post_log')
-        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms, post_text, linkedin_post_id, linkedin_asset_urn')
+        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms, post_text, linkedin_post_id, linkedin_asset_urn, audit_status, audit_score, audit_hook_score, audited_at, audit_report')
         .order('posted_at', { ascending: false })
         .limit(15);
       if (error) throw error;
