@@ -306,7 +306,7 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
   if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
 
   const body = await req.json();
-  const { external_email, date, start_location, end_location, distance, vehicle_id, purpose, round_trip, calendar_event_id } = body;
+  const { external_email, date, start_location, end_location, distance, vehicle_id, purpose, round_trip, calendar_event_id, tour_stops } = body;
 
   if (!external_email || !date || !start_location || !end_location || typeof distance !== 'number') {
     return jsonResponse({ error: 'Required: external_email, date, start_location, end_location, distance' }, 400);
