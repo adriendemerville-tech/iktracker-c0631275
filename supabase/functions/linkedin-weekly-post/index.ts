@@ -773,6 +773,54 @@ Contraintes ABSOLUES :
   return { plan, source };
 }
 
+// ─── Text-to-media coupling helpers ─────────────────────────────────────────
+// The visuals must illustrate the *generated* post, not just the topic metadata.
+
+async function deriveVisualPromptFromText(
+  topic: Topic,
+  postText: string,
+): Promise<{ prompt: string; source: string }> {
+  const system = `Tu es directeur artistique pour IKtracker.
+À partir du post LinkedIn fourni, rédige un prompt visuel en anglais pour un générateur d'images IA.
+Le prompt doit refléter le sujet central du post et son ambiance, sans inclure de texte incrusté, sans logos.
+Style éditorial minimaliste : warm ivory background, indigo-violet accents, flat design, clean lines, generous negative space, no text, no logos.
+Réponds uniquement par le prompt, 2 à 4 phrases.`;
+  const user = `Topic : ${topic.title}\n\nPost :\n${postText}\n\nPrompt visuel :`;
+  const { text, source } = await callLLM(system, user, { temperature: 0.6 });
+  return { prompt: text.trim(), source };
+}
+
+async function generateSlidePlanFromText(
+  topic: Topic,
+  postText: string,
+): Promise<{ plan: SlidePlan; source: string }> {
+  const count = topic.slideCount ?? 3;
+  const system = `Tu structures un carrousel LinkedIn éditorial sobre pour IKtracker (iktracker.fr), outil gratuit à vie de suivi des indemnités kilométriques pour indépendants français.
+
+Contraintes ABSOLUES :
+- Français, ton pragmatique entrepreneurial
+- AUCUN emoji
+- Phrases courtes, factuelles, sans marketing
+- Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
+- Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
+- Exactement ${count} slides intermédiaires (heading + body)`;
+  const user = `Sujet : ${topic.title}
+
+Post LinkedIn généré (le carrousel doit en reprendre les points forts, pas inventer d'autres arguments) :
+${postText}
+
+Faits techniques disponibles :
+${(TOPIC_FACTS[topic.slug] ?? []).map((f) => `. ${f}`).join("\n")}
+
+Produis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
+  const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
+  const plan = JSON.parse(text) as SlidePlan;
+  if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== count) {
+    throw new Error(`Malformed slide plan from text (expected ${count} slides): ${text.slice(0, 300)}`);
+  }
+  return { plan, source };
+}
+
 function toWinAnsi(s: string): string {
   return s
     .replace(/[’‘‚‛]/g, "'")
@@ -1377,12 +1425,47 @@ Deno.serve(async (req) => {
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
-    // 2bis) Carousel → slide plan up front (needed for dry-run preview too)
+    // 2bis) Derive media content from the generated text so visuals match the post.
+    let derivedVisualPrompt: string | null = null;
+    let visualPromptSource: string | null = null;
+
     if (format === "carousel") {
-      const sp = await generateSlidePlan(topic);
-      slidePlan = sp.plan;
-      slideSource = sp.source;
-      console.log(`Slide plan ready (${slidePlan.slides.length} content slides) via ${slideSource}`);
+      try {
+        const sp = await generateSlidePlanFromText(topic, postText);
+        slidePlan = sp.plan;
+        slideSource = sp.source;
+        console.log(`Slide plan derived from text (${slidePlan.slides.length} content slides) via ${slideSource}`);
+      } catch (err) {
+        console.warn(
+          `[slide-plan] text-derived plan failed, falling back to topic plan: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        const sp = await generateSlidePlan(topic);
+        slidePlan = sp.plan;
+        slideSource = sp.source;
+      }
+      if (topic.mediaSource === "wavespeed") {
+        try {
+          const vp = await deriveVisualPromptFromText(topic, postText);
+          derivedVisualPrompt = vp.prompt;
+          visualPromptSource = vp.source;
+          console.log(`Cover visual prompt derived from text via ${visualPromptSource}`);
+        } catch (err) {
+          console.warn(
+            `[visual-prompt] derivation failed, using topic.visualPrompt: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        }
+      }
+    } else if (format === "video" && topic.mediaSource === "wavespeed") {
+      try {
+        const vp = await deriveVisualPromptFromText(topic, postText);
+        derivedVisualPrompt = vp.prompt;
+        visualPromptSource = vp.source;
+        console.log(`Video visual prompt derived from text via ${visualPromptSource}`);
+      } catch (err) {
+        console.warn(
+          `[visual-prompt] derivation failed, using topic.visualPrompt: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
 
     if (dryRun) {
@@ -1394,6 +1477,8 @@ Deno.serve(async (req) => {
           media_source: topic.mediaSource,
           post_text: postText,
           text_source: textSource,
+          derived_visual_prompt: derivedVisualPrompt,
+          visual_prompt_source: visualPromptSource,
           style_samples_count: styleSamples.length,
           style_profile: styleProfile,
           slide_plan: slidePlan,
@@ -1460,16 +1545,19 @@ Deno.serve(async (req) => {
       format = "text";
     } else {
       // Build the media bytes first (independent from the LinkedIn transport).
+      // Visual prompts are derived from the generated post text whenever possible,
+      // so the image/video actually illustrates what the text says.
       let bytes: Uint8Array;
       if (format === "video") {
         bytes = topic.mediaSource === "browserless"
           ? await recordScreencast(topic)
-          : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
+          : await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
       } else {
         let coverBg: Uint8Array | null = null;
-        if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
+        const coverPrompt = derivedVisualPrompt || topic.visualPrompt;
+        if (topic.mediaSource === "wavespeed" && coverPrompt) {
           try {
-            coverBg = await generateWavespeedImage(topic.visualPrompt);
+            coverBg = await generateWavespeedImage(coverPrompt);
             console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
           } catch (err) {
             console.warn(`Wavespeed cover image failed: ${err instanceof Error ? err.message : String(err)}`);

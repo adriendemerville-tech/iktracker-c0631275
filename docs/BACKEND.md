@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.1 — 27 juillet 2026
+> Version 3.2 — 28 juillet 2026
 
 ## Table des matières
 
@@ -401,16 +401,20 @@ Content-Type: application/json
 - **Rotation** : 13 topics étiquetés par `format` (`video` / `carousel`) et par `mediaSource` (`browserless` / `wavespeed`). Sélection : `(année × 12 + mois) mod N`.
 - **Précision éditoriale** : chaque topic possède une entrée dans `TOPIC_FACTS` (faits techniques : seuils, logique métier, personas, scénarios). Ces faits sont injectés dans le prompt pour forcer une description concrète d'une fonctionnalité réelle plutôt qu'un discours marketing.
 - **Style d'écriture** : table `public.linkedin_style_samples` (`content`, `active`) — corpus de posts rédigés manuellement par le fondateur. Le profil de style (longueur, ratio de phrases courtes, ouvertures, bigrammes) est calculé à partir de ces exemples et injecté dans le prompt. L'API LinkedIn ne permettant pas de relire les publications passées avec les scopes disponibles, cette table est la **seule** source de style fiable. RLS : lecture/écriture réservées aux admins, lecture service_role pour l'edge function.
-- **Texte** : Mistral hébergé sur Wavespeed (via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash (Lovable AI Gateway). Idem pour le plan de slides des carrousels.
+- **Texte** : Mistral hébergé sur Wavespeed (via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash (Lovable AI Gateway).
+- **Cohérence texte ↔ média** : le média n'est pas produit à partir du seul `topic.visualPrompt`. Après génération du texte :
+  - le **plan de carrousel** est dérivé du post généré (`generateSlidePlanFromText`) pour que les slides reprennent les mêmes arguments, avec repli sur le plan topic.
+  - le **prompt visuel** (cover d'image ou scène vidéo) est dérivé du post généré (`deriveVisualPromptFromText`) pour que l'image/la vidéo illustre ce qui est réellement écrit, avec repli sur `topic.visualPrompt`.
+  - les screencasts `browserless` restent liés au topic (UI réelle) et illustrent donc naturellement le module décrit.
 - **Média** :
   - `mediaSource: 'browserless'` → screencast MP4 d'une UI réelle du site (simulateur, mode tournée, sync calendrier, plaque, export PDF).
   - `mediaSource: 'wavespeed'` → visuel IA :
-    - `format: 'video'` → text-to-video via `wavespeed-ai/wan-2.1-t2v-720p`, MP4 téléchargé puis uploadé.
-    - `format: 'carousel'` → image de cover générée via `wavespeed-ai/flux-dev` puis embarquée en fond du slide 1 (scrim ivoire) ; slides 2-5 en typographie pdf-lib pure. Fallback silencieux sur le rendu typographique seul.
+    - `format: 'video'` → text-to-video via `wavespeed-ai/wan-2.1-t2v-720p`, à partir du prompt visuel dérivé du texte, MP4 téléchargé puis uploadé.
+    - `format: 'carousel'` → cover générée via `wavespeed-ai/flux-dev` à partir du prompt visuel dérivé du texte, puis embarquée en fond du slide 1 (scrim ivoire) ; slides 2-5 en typographie pdf-lib pure, dont le contenu est extrait du post. Fallback silencieux sur le rendu typographique seul.
 - **Upload LinkedIn** : chaîne de repli en cascade — (1) API REST moderne `/rest/videos` ou `/rest/documents` + `/rest/posts`, (2) API legacy `/v2/assets` + `/v2/ugcPosts` (retourne 403 avec les scopes actuels), (3) capture d'écran Browserless publiée en image, (4) post texte seul. Le mode de publication effectif est journalisé.
-- **Query params** : `?topic=<slug>` force le topic, `?format=video|carousel` force le format, `?dry_run=1` renvoie texte + slide_plan sans publier ni uploader.
+- **Query params** : `?topic=<slug>` force le topic, `?format=video|carousel` force le format, `?dry_run=1` renvoie texte + slide_plan + derived_visual_prompt sans publier ni uploader.
 - **Logs** : `public.linkedin_post_log` (colonnes `media_type`, `triggered_by`, `duration_ms`, `error_message`).
-- **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run, **gestion du corpus de style** (ajout/suppression d'exemples), et historique des 15 derniers runs.
+- **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run, **gestion du corpus de style** (ajout/suppression d'exemples), aperçu du prompt visuel dérivé, et historique des 15 derniers runs.
 - **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `gsc-analytics` — Google Search Console
