@@ -2209,6 +2209,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      demote_invalid_tours: { Args: never; Returns: number }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
