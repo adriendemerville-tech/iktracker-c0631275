@@ -1453,6 +1453,135 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // ─── Mode "supprimer + republier" ─────────────────────────────────────────
+  // L'API LinkedIn ne permet pas d'éditer le texte d'un post via le gateway
+  // (POST /rest/posts en PARTIAL_UPDATE renvoie 426 NONEXISTENT_VERSION).
+  // On supprime donc le post et on le republie avec le texte corrigé, en
+  // réutilisant l'asset média déjà uploadé : le visuel est conservé à
+  // l'identique, aucun nouvel upload n'est nécessaire.
+  if (url.searchParams.get("mode") === "repost") {
+    const repostStartedAt = Date.now();
+    let payload: Record<string, unknown> = {};
+    try { payload = await req.json(); } catch { /* body optionnel */ }
+
+    const targetPostId = String(payload.post_id ?? url.searchParams.get("post_id") ?? "").trim();
+    const rawText = String(payload.text ?? "").trim();
+
+    if (!targetPostId || rawText.length < 50) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "post_id et text (>= 50 signes) requis" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    try {
+      // Récupération du run d'origine pour retrouver l'asset média et le topic.
+      const { data: original } = await admin
+        .from("linkedin_post_log")
+        .select("topic_slug, topic_title, linkedin_asset_urn, media_type")
+        .eq("linkedin_post_id", targetPostId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const reusedAssetUrn = String(
+        payload.asset_urn ?? original?.linkedin_asset_urn ?? "",
+      ).trim();
+      if (!reusedAssetUrn) {
+        throw new Error("Aucun asset média associé à ce post : republication impossible sans média.");
+      }
+
+      const newText = airifyPostText(sanitizePostText(rawText));
+      const ownerUrn = await getMemberUrn();
+
+      // 1) Suppression du post existant (REST versionné, repli sur /v2/ugcPosts).
+      const encoded = encodeURIComponent(targetPostId);
+      let delRes = await gatewayFetch(`/rest/posts/${encoded}`, {
+        method: "DELETE",
+        headers: restHeaders(),
+      });
+      if (!delRes.ok) {
+        const firstErr = (await delRes.text()).slice(0, 300);
+        console.warn(`[repost] delete rest/posts ${delRes.status}: ${firstErr}`);
+        delRes = await gatewayFetch(`/v2/ugcPosts/${encoded}`, {
+          method: "DELETE",
+          headers: { "X-Restli-Protocol-Version": "2.0.0" },
+        });
+        if (!delRes.ok) {
+          throw new Error(
+            `Suppression impossible (${delRes.status}): ${(await delRes.text()).slice(0, 300)}`,
+          );
+        }
+      }
+      console.log(`[repost] post ${targetPostId} supprimé`);
+
+      // 2) Republication avec le même asset média.
+      const legacyAsset = reusedAssetUrn.includes("digitalmediaAsset");
+      const topicTitle = String(original?.topic_title ?? "IKtracker");
+      let newPostId: string;
+      if (legacyAsset) {
+        const category = original?.media_type === "carousel" ? "DOCUMENT" : "VIDEO";
+        newPostId = await createUgcPost(
+          ownerUrn,
+          newText,
+          reusedAssetUrn,
+          { slug: String(original?.topic_slug ?? "repost"), title: topicTitle } as Topic,
+          category,
+        );
+      } else {
+        newPostId = await createRestPost(
+          ownerUrn,
+          newText,
+          reusedAssetUrn,
+          `IKtracker - ${topicTitle}`,
+        );
+      }
+
+      await logRun(admin, {
+        topic_slug: original?.topic_slug ?? "repost",
+        topic_title: topicTitle,
+        post_text: newText,
+        linkedin_post_id: newPostId,
+        linkedin_asset_urn: reusedAssetUrn,
+        media_type: original?.media_type ?? "repost",
+        status: "success",
+        duration_ms: Date.now() - repostStartedAt,
+        triggered_by: triggeredBy,
+      });
+
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          mode: "repost",
+          deleted_post_id: targetPostId,
+          post_id: newPostId,
+          asset_urn: reusedAssetUrn,
+          post_text: newText,
+          duration_ms: Date.now() - repostStartedAt,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[repost] failed:", message);
+      await logRun(admin, {
+        topic_slug: "repost",
+        topic_title: "Republication",
+        post_text: rawText,
+        status: "failed",
+        error_message: message.slice(0, 2000),
+        duration_ms: Date.now() - repostStartedAt,
+        triggered_by: triggeredBy,
+      });
+      return new Response(
+        JSON.stringify({ ok: false, error: message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+  }
+
+
+
   const startedAt = Date.now();
   const topic = findTopic(forcedTopicSlug) ?? pickTopicForThisMonth();
   let format: MediaFormat | "text" = forceFormat === "video" || forceFormat === "carousel"
