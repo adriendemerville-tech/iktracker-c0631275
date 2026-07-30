@@ -1771,9 +1771,20 @@ Deno.serve(async (req) => {
       // so the image/video actually illustrates what the text says.
       let bytes: Uint8Array;
       if (format === "video") {
-        bytes = topic.mediaSource === "browserless"
-          ? await recordScreencast(topic)
-          : await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
+        if (topic.mediaSource === "browserless") {
+          try {
+            bytes = await recordScreencast(topic);
+          } catch (err) {
+            const reason = err instanceof Error ? err.message : String(err);
+            console.warn(`[media] Browserless screencast failed, falling back to a static screenshot: ${reason}`);
+            mediaFallback = true;
+            mediaFallbackReason = reason;
+            bytes = await captureScreenshot(topic);
+            format = "image";
+          }
+        } else {
+          bytes = await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
+        }
       } else {
         let coverBg: Uint8Array | null = null;
         const coverPrompt = derivedVisualPrompt || topic.visualPrompt;
