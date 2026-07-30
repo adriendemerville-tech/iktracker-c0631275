@@ -154,6 +154,15 @@ export const DesktopSidebar = ({
       tutorialId: 'recovery',
       isRecovery: true,
     },
+    {
+      icon: FolderArchive,
+      label: 'Archive relevés',
+      onClick: () => navigate('/app/archive'),
+      active: false,
+      tutorialId: 'archive',
+      isRecovery: false,
+    },
+
     { 
       icon: MessageSquare, 
       label: 'Aide & Avis', 
