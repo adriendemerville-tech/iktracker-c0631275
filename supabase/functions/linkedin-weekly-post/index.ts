@@ -1582,14 +1582,15 @@ Deno.serve(async (req) => {
     // 3) LinkedIn owner URN (fallback si non résolu plus haut)
     if (!ownerUrn) ownerUrn = await getMemberUrn();
 
-    // Helper: publish a text-only ugcPost (used as fallback when media upload is denied)
+    // Helper: publish a text-only ugcPost (uniquement via le flag explicite textOnly)
     const publishTextOnly = async (): Promise<string> => {
+      const orgUrn = await resolveOrgUrn();
       const body = {
         author: ownerUrn,
         lifecycleState: "PUBLISHED",
         specificContent: {
           "com.linkedin.ugc.ShareContent": {
-            shareCommentary: { text: postText },
+            shareCommentary: ugcCommentary(postText, orgUrn),
             shareMediaCategory: "NONE",
           },
         },
