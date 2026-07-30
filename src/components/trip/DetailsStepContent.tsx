@@ -216,15 +216,19 @@ export function DetailsStepContent({
     setEndAddress(fulltext);
     setDraft(d => ({ ...d, endLocation: newLocation }));
 
-    if (coords && draft.startLocation?.lat && draft.startLocation?.lng) {
+    if (coords) {
       try {
-        const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, coords.lat, coords.lng);
+        const startCoords = await resolveCoords(draft.startLocation);
+        if (!startCoords) return;
+        const distance = await calculateDrivingDistance(startCoords.lat, startCoords.lng, coords.lat, coords.lng);
+        if (!distance || distance <= 0) return;
         setCalculatedDistance(distance);
         setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
       } catch (e) {
         console.error('Error calculating distance:', e);
       }
     }
+
   };
 
 
