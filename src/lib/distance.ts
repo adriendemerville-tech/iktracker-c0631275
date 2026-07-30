@@ -54,6 +54,15 @@ export function getDistanceInKm(
  * @param lng2 Longitude of point 2
  * @returns Promise with distance in kilometers
  */
+export function isUsableCoord(lat?: number | null, lng?: number | null): boolean {
+  return typeof lat === 'number' && typeof lng === 'number'
+    && Number.isFinite(lat) && Number.isFinite(lng)
+    && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+    // (0,0) is the Gulf of Guinea placeholder returned by non-geocoded
+    // Google Places predictions: never compute a distance from it.
+    && !(Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001);
+}
+
 export function calculateDrivingDistance(
   lat1: number,
   lng1: number,
@@ -61,12 +70,19 @@ export function calculateDrivingDistance(
   lng2: number
 ): Promise<number> {
   return new Promise((resolve) => {
+    if (!isUsableCoord(lat1, lng1) || !isUsableCoord(lat2, lng2)) {
+      console.warn('Invalid coordinates for distance calculation, returning 0', { lat1, lng1, lat2, lng2 });
+      resolve(0);
+      return;
+    }
+
     if (typeof google === 'undefined' || !google.maps) {
       // Fallback to Haversine if Google Maps not loaded
       console.warn('Google Maps not loaded, using straight-line distance');
       resolve(getDistanceInKm(lat1, lng1, lat2, lng2));
       return;
     }
+
 
     const service = new google.maps.DistanceMatrixService();
     
