@@ -419,7 +419,13 @@ Deno.serve(async (req) => {
     const engagement = await fetchEarlyEngagement(postId);
     const checks = runDeterministicChecks(publishedText);
 
-    // 3) Audit LLM
+    // 3) Audit LLM ancré sur la documentation technique
+    const docBlock = docContextForAudit(
+      run.topic_slug ? String(run.topic_slug) : null,
+      run.topic_title ? String(run.topic_title) : null,
+      publishedText,
+    );
+
     const userMsg = [
       `Post publié il y a ${minAgeMin} minutes environ.`,
       `Sujet du run : ${run.topic_title ?? "inconnu"} (module ${run.topic_slug ?? "n/a"}).`,
@@ -430,6 +436,10 @@ Deno.serve(async (req) => {
       "",
       "Contrôles automatiques déjà effectués :",
       JSON.stringify(checks, null, 2),
+      "",
+      docBlock
+        ? `DOCUMENTATION TECHNIQUE DE RÉFÉRENCE, source de vérité unique :\n${docBlock}`
+        : "DOCUMENTATION TECHNIQUE DE RÉFÉRENCE : aucune section pertinente trouvée, ne pénalise pas la vérifiabilité mais exige des affirmations prudentes.",
       "",
       "TEXTE PUBLIÉ :",
       "---",
@@ -445,10 +455,18 @@ Deno.serve(async (req) => {
     const hookScore = Math.max(0, Math.min(10, Number(audit.hook_score ?? 0)));
     const impressionsScore = Math.max(0, Math.min(10, Number(audit.impressions_score ?? 0)));
     const contentScore = Math.max(0, Math.min(10, Number(audit.content_score ?? audit.score ?? 0) || 0));
+    // Sans doc pertinente, on neutralise la note de vérifiabilité (10) pour ne
+    // pas pénaliser un post sur un module non documenté.
+    const factualScore = docBlock
+      ? Math.max(0, Math.min(10, Number(audit.factual_score ?? 10) || 0))
+      : 10;
+    const unverifiedClaims = Array.isArray(audit.unverified_claims)
+      ? audit.unverified_claims.map((c: unknown) => String(c).slice(0, 300)).slice(0, 10)
+      : [];
     const improvedText = String(audit.improved_text ?? "").trim();
 
     const { total: score, breakdown } = computeCompositeScore(
-      checks, hookScore, impressionsScore, contentScore,
+      checks, hookScore, impressionsScore, contentScore, factualScore,
     );
 
     const hardFail =
