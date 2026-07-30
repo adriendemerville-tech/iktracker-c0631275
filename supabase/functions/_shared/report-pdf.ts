@@ -73,9 +73,11 @@ export function buildReportBody(
 ): string {
   const totalKm = trips.reduce((s, t) => s + (t.distance ?? 0), 0)
   const totalIk = trips.reduce((s, t) => s + (t.ik_amount ?? 0), 0)
+  const omitted = Math.max(0, trips.length - MAX_PDF_TRIP_ROWS)
   const rows = trips
     .slice()
     .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, MAX_PDF_TRIP_ROWS)
     .map((t) => {
       const d = new Date(t.date)
       const dateStr = isNaN(d.getTime()) ? escapeHtml(t.date) : d.toLocaleDateString('fr-FR')
@@ -107,6 +109,7 @@ export function buildReportBody(
         </tr></thead>
         <tbody>${rows || '<tr><td colspan="6" class="empty">Aucun trajet sur la période.</td></tr>'}</tbody>
       </table>
+      ${omitted > 0 ? `<p class="empty">${fmt(omitted)} trajets supplémentaires ne sont pas détaillés dans ce document. Les totaux ci-dessus les incluent.</p>` : ''}
       <footer class="ftr">
         <p>Document généré automatiquement par IKtracker — <a href="${FRONTEND_URL}">iktracker.fr</a></p>
       </footer>
@@ -155,7 +158,41 @@ export async function renderPdf(html: string): Promise<Uint8Array> {
   if (!res.ok) throw new Error(`browserless pdf failed [${res.status}]: ${(await res.text()).slice(0, 400)}`)
   const buf = new Uint8Array(await res.arrayBuffer())
   if (buf.byteLength === 0) throw new Error('browserless returned empty pdf')
+  if (buf.byteLength > MAX_PDF_BYTES) {
+    throw new Error(`generated pdf too large (${buf.byteLength} bytes > ${MAX_PDF_BYTES})`)
+  }
   return buf
+}
+
+/**
+ * Paginated read of a user's trips over a period.
+ * Avoids the implicit PostgREST 1000-row cap on long (annual) periods.
+ */
+export async function fetchTripsForPeriod(
+  admin: { from: (t: string) => any },
+  userId: string,
+  periodStart: string,
+  periodEnd: string,
+): Promise<ReportTrip[]> {
+  const all: ReportTrip[] = []
+  for (let page = 0; ; page++) {
+    const from = page * DB_PAGE_SIZE
+    const { data, error } = await admin
+      .from('trips')
+      .select('date, distance, ik_amount, start_location, end_location, purpose')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .gte('date', periodStart)
+      .lt('date', periodEnd)
+      .order('date', { ascending: true })
+      .range(from, from + DB_PAGE_SIZE - 1)
+    if (error) throw error
+    const rows = (data ?? []) as ReportTrip[]
+    all.push(...rows)
+    if (rows.length < DB_PAGE_SIZE) break
+    if (page > 60) break // hard safety stop (~60k trips)
+  }
+  return all
 }
 
 export const ARCHIVE_BUCKET = 'report-archives'
