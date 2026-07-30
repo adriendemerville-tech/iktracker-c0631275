@@ -9,7 +9,8 @@ import {
   YAxis, 
   ResponsiveContainer, 
   Cell, 
-  LabelList 
+  LabelList,
+  Tooltip 
 } from 'recharts';
 
 // Chart animation settings
