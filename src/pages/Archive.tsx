@@ -81,6 +81,26 @@ export default function Archive() {
     return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
   }, [rows]);
 
+  const exportCsv = () => {
+    if (rows.length === 0) return;
+    const csv = buildCsv(
+      ['type', 'periode', 'debut', 'fin', 'nb_trajets', 'total_km', 'total_ik_eur', 'archive_le'],
+      rows.map((r) => [
+        r.kind === 'annual' ? 'Exercice' : 'Mensuel',
+        r.period_label,
+        r.period_start,
+        r.period_end,
+        r.trip_count,
+        Number(r.total_km ?? 0).toFixed(1),
+        Number(r.total_ik ?? 0).toFixed(2),
+        r.created_at,
+      ]),
+    );
+    downloadCsv(`releves-ik-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    toast({ title: 'Export CSV généré', description: `${rows.length} relevés exportés.` });
+  };
+
+
   const openReport = async (row: ArchiveRow, download = false) => {
     setBusyId(row.id);
     const { data, error } = await supabase.functions.invoke('report-archive', {
