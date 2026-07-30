@@ -219,7 +219,7 @@ Si `registerUpload` renvoie **403 ACCESS_DENIED** (scope média manquant sur le 
 | `?dry_run=1` | idem | Génère texte + média, **ne publie pas** |
 | `?topic=<slug>` | idem | Force le sujet |
 | `?format=video\|carousel` | idem | Force le format |
-| `?text_only=1` | idem | Skip toute génération média |
+
 
 Les appels sans auth valide retournent 401.
 

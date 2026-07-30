@@ -1566,7 +1566,7 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const dryRun = url.searchParams.get("dry_run") === "1";
-  const textOnly = url.searchParams.get("text_only") === "1";
+  // Note: le mode "texte seul" a été supprimé — un post LinkedIn embarque toujours un média.
   const forceFormat = url.searchParams.get("format") as MediaFormat | null;
   const forcedTopicSlug = url.searchParams.get("topic");
 
@@ -1873,32 +1873,10 @@ Deno.serve(async (req) => {
     // 3) LinkedIn owner URN (fallback si non résolu plus haut)
     if (!ownerUrn) ownerUrn = await getMemberUrn();
 
-    // Helper: publish a text-only ugcPost (uniquement via le flag explicite textOnly)
-    const publishTextOnly = async (): Promise<string> => {
-      const orgUrn = await resolveOrgUrn();
-      const body = {
-        author: ownerUrn,
-        lifecycleState: "PUBLISHED",
-        specificContent: {
-          "com.linkedin.ugc.ShareContent": {
-            shareCommentary: ugcCommentary(postText, orgUrn),
-            shareMediaCategory: "NONE",
-          },
-        },
-        visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
-      };
-      const res = await gatewayFetch("/v2/ugcPosts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Restli-Protocol-Version": "2.0.0" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(`ugcPosts(text-only) ${res.status}: ${await res.text()}`);
-      const json = await res.json();
-      return json.id || json["x-restli-id"] || "unknown";
-    };
-
+    // Média strictement obligatoire : aucun chemin de publication sans visuel.
     let mediaFallback = false;
     let mediaFallbackReason: string | null = null;
+
 
     // Legacy /v2/assets path, kept as a secondary attempt.
     const legacyPublish = async (
@@ -1922,11 +1900,9 @@ Deno.serve(async (req) => {
       return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
     };
 
-    // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
-    if (textOnly) {
-      postId = await publishTextOnly();
-      format = "text";
-    } else {
+    // 3) Build media + upload — média obligatoire, aucune publication texte seul.
+    {
+
       // Build the media bytes first (independent from the LinkedIn transport).
       // Visual prompts are derived from the generated post text whenever possible,
       // so the image/video actually illustrates what the text says.
