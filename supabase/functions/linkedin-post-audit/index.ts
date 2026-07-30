@@ -499,12 +499,17 @@ Deno.serve(async (req) => {
         ok: true,
         post_id: postId,
         audit_status: auditStatus,
+        iteration: attempts + 1,
         score,
+        score_breakdown: breakdown,
         hook_score: hookScore,
         impressions_score: impressionsScore,
+        content_score: contentScore,
+        gain,
         issues: report.issues,
         needs_fix: needsFix,
         repost: repostResult,
+
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
