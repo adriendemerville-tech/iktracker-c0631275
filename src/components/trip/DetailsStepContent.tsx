@@ -17,6 +17,29 @@ import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
 import wazeLogo from '@/assets/waze-logo.webp';
 import googleMapsLogo from '@/assets/google-maps-logo.webp';
 
+type Coords = { lat: number; lng: number };
+
+const hasValidCoords = (lat?: number, lng?: number): boolean =>
+  typeof lat === 'number' && typeof lng === 'number'
+  && Number.isFinite(lat) && Number.isFinite(lng)
+  && !(lat === 0 && lng === 0);
+
+// Use stored coordinates when they are trustworthy, otherwise geocode the address.
+async function resolveCoords(loc?: Location | null): Promise<Coords | null> {
+  if (loc && hasValidCoords(loc.lat, loc.lng)) return { lat: loc.lat!, lng: loc.lng! };
+  const addr = loc?.address || loc?.name;
+  if (!addr) return null;
+  return await geocodeAddress(addr);
+}
+
+// Google Places predictions carry placeholder 0,0 coordinates.
+async function resolveSuggestionCoords(s: AddressSuggestion): Promise<Coords | null> {
+  if (hasValidCoords(s.lat, s.lng)) return { lat: s.lat, lng: s.lng };
+  return await geocodeAddress(s.fulltext);
+}
+
+
+
 interface DetailsStepContentProps {
   draft: TripDraft;
   setDraft: React.Dispatch<React.SetStateAction<TripDraft>>;
