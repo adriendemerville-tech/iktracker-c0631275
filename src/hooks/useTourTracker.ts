@@ -647,7 +647,23 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [isActive, wakeLock, processPosition, resetGpsTimeout, updateGpsSignal, addGpsPoint, locationRadius, updateTotalDistance]);
 
+  // Safety net: release the GPS watch and pending timer if the hook unmounts
+  // without stopTour() being called (navigation, route change, error boundary).
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+      if (gpsTimeoutRef.current) {
+        clearTimeout(gpsTimeoutRef.current);
+        gpsTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   // Start watching position
+
   const startWatching = useCallback(() => {
     if (watchIdRef.current !== null) return;
     
