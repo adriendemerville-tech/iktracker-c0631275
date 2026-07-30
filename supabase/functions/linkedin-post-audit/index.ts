@@ -310,7 +310,7 @@ Deno.serve(async (req) => {
     // 1) Sélection du post à auditer
     let query = admin
       .from("linkedin_post_log")
-      .select("id, topic_slug, topic_title, post_text, linkedin_post_id, linkedin_asset_urn, media_type, posted_at, audit_status, audit_attempts")
+      .select("id, topic_slug, topic_title, post_text, linkedin_post_id, linkedin_asset_urn, media_type, posted_at, audit_status, audit_attempts, audit_report")
       .eq("status", "success")
       .not("linkedin_post_id", "is", null)
       .order("posted_at", { ascending: false })
