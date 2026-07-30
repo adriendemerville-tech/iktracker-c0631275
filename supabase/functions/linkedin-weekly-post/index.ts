@@ -277,7 +277,7 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
     "Modifiable ou interruptible à tout moment, les occurrences passées restent intactes.",
   ],
-// Rotation pondérée : 2 posts sur 3 portent sur une fonctionnalité produit
+};
 // IKtracker (démo d'un module réel), le 3e sur un sujet de contexte fiscal/marque.
 const PRODUCT_SLUGS = [
   "simulateur",
