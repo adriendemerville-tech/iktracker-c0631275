@@ -215,21 +215,90 @@ function computeCompositeScore(
   hookScore: number,
   impressionsScore: number,
   contentScore: number,
+  factualScore: number,
 ): { total: number; breakdown: Record<string, number> } {
   const breakdown = {
     length: checks.lengthOk ? 10 : 0,
     chars: !checks.dashes && checks.bannedChars.length === 0 ? 10 : 0,
     aeration: checks.aerationOk ? 10 : 0,
     hook_form: checks.hookIsSingleLine ? 10 : 0,
-    hook_quality: Math.round(hookScore * 3),      // /30
-    impressions: Math.round(impressionsScore * 2), // /20
-    content: Math.round(contentScore),             // /10
+    hook_quality: Math.round(hookScore * 3),        // /30
+    impressions: Math.round(impressionsScore * 2),  // /20
+    content: Math.round(contentScore / 2),          // /5
+    factual: Math.round(factualScore / 2),          // /5
   };
   const total = Math.max(0, Math.min(100, Object.values(breakdown).reduce((a, b) => a + b, 0)));
   return { total, breakdown };
 }
 
+// ─── Contexte documentaire technique ───────────────────────────────────────
+// Copie de docs/BACKEND.md + docs/FRONTEND.md générée par
+// scripts/generate-linkedin-docs-context.cjs. Sert de référentiel de vérité :
+// toute affirmation technique du post doit y être vérifiable.
+
+const DOC_KEYWORDS: Record<string, string[]> = {
+  simulateur: ["simulateur", "barème", "ik", "calcul", "indemnité", "cv fiscaux"],
+  "mode-tournee": ["tournée", "tour", "gps", "géolocalisation", "haversine", "distance matrix", "stop"],
+  "import-takeout": ["takeout", "recovery", "import", "wizard", "historique"],
+  "sync-calendrier": ["calendar", "calendrier", "sync-calendar-trips", "google calendar", "outlook", "oauth"],
+  "detection-plaque": ["plaque", "vehicle-lookup", "immatriculation", "véhicule", "carburant"],
+  "bareme-progressif": ["barème", "tranche", "5 000", "20 000", "calcul", "ik"],
+  "bonus-electrique": ["électrique", "bonus", "20%", "multiplicateur", "véhicule"],
+  "export-pdf": ["pdf", "export", "relevé", "rapport", "print", "comptable"],
+  "gratuit-a-vie": ["architecture", "coût", "edge function", "supabase", "infrastructure"],
+  confidentialite: ["rls", "policy", "sécurité", "rgpd", "données", "suppression"],
+  comparatif: ["architecture", "fonctionnalité", "gps", "confidentialité", "coût"],
+  "trajets-recurrents": ["récurrent", "recurring", "generate-recurring-trips", "cron", "trajet"],
+};
+
+function normalizeForMatch(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Sélection par score de mots-clés : slug du topic + mots longs du titre + mots
+// longs du texte audité (le post peut évoquer un module voisin).
+function docContextForAudit(
+  slug: string | null,
+  title: string | null,
+  text: string,
+  maxChars = 4500,
+): string {
+  const fromText = Array.from(new Set(
+    text.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 7),
+  )).slice(0, 40);
+  const keys = [
+    ...(slug ? DOC_KEYWORDS[slug] ?? [] : []),
+    ...((title ?? "").split(/\s+/).filter((w) => w.length > 5)),
+    ...fromText,
+  ].map(normalizeForMatch);
+  if (!keys.length) return "";
+
+  const scored = DOC_SECTIONS.map((section) => {
+    const heading = normalizeForMatch(section.heading);
+    const body = normalizeForMatch(section.body);
+    let score = 0;
+    for (const k of keys) {
+      if (heading.includes(k)) score += 3;
+      if (body.includes(k)) score += 1;
+    }
+    return { section, score };
+  })
+    .filter((s) => s.score >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  let out = "";
+  for (const { section } of scored) {
+    const block = `### ${section.heading} (doc ${section.origin})\n${section.body}\n\n`;
+    if (out.length + block.length > maxChars) break;
+    out += block;
+  }
+  return out.trim();
+}
+
 // ─── Prompt d'audit ─────────────────────────────────────────────────────────
+
+
 
 
 const AUDIT_SYSTEM = `Tu es directeur éditorial LinkedIn pour IKtracker, application française de suivi des indemnités kilométriques. Tu audites un post DÉJÀ PUBLIÉ par le fondateur, puis tu le réécris si nécessaire.
