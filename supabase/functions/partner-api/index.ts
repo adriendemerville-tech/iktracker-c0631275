@@ -354,6 +354,12 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
   }
 
 
+  const normalizedStops = Array.isArray(tour_stops)
+    ? tour_stops
+        .map((s: unknown) => (typeof s === 'string' ? { name: s, address: s } : s))
+        .filter((s: unknown) => !!s)
+    : null;
+
   const { data: trip, error } = await admin.from('trips').insert({
     user_id: userId,
     date,
@@ -365,15 +371,85 @@ async function handleCreateTrip(req: Request, ctx: PartnerContext): Promise<Resp
     purpose: purpose ?? null,
     round_trip: !!round_trip,
     calendar_event_id: calendar_event_id ?? null,
+    tour_stops: normalizedStops && normalizedStops.length > 1 ? normalizedStops : null,
     source: `partner:${ctx.partnerName}`,
     status: 'validated',
   }).select().single();
 
   if (error) return jsonResponse({ error: error.message }, 500);
 
-  fireWebhook(ctx.partnerId, 'trip.created', { trip_id: trip.id, external_user_id: externalUserId, distance, ik_amount: ikAmount });
+  fireWebhook(ctx.partnerId, 'trip.created', {
+    trip_id: trip.id,
+    external_user_id: externalUserId,
+    distance,
+    ik_amount: ikAmount,
+    purpose: trip.purpose ?? null,
+    is_tour: Array.isArray(trip.tour_stops) && trip.tour_stops.length > 1,
+  });
 
-  return jsonResponse({ success: true, trip_id: trip.id, ik_amount: ikAmount, iktracker_user_id: userId });
+  return jsonResponse({ success: true, trip_id: trip.id, ik_amount: ikAmount, purpose: trip.purpose ?? null, iktracker_user_id: userId });
+}
+
+async function handleListTrips(req: Request, ctx: PartnerContext): Promise<Response> {
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  const url = new URL(req.url);
+  const startDate = url.searchParams.get('start_date');
+  const endDate = url.searchParams.get('end_date');
+  const vehicleId = url.searchParams.get('vehicle_id');
+  const limit = Math.min(Number(url.searchParams.get('limit') ?? 200) || 200, 500);
+
+  let query = admin
+    .from('trips')
+    .select('id, date, start_location, end_location, distance, ik_amount, vehicle_id, purpose, round_trip, tour_stops, status, source, created_at')
+    .eq('user_id', userId)
+    .is('deleted_at', null);
+  if (startDate) query = query.gte('date', startDate);
+  if (endDate) query = query.lte('date', endDate);
+  if (vehicleId) query = query.eq('vehicle_id', vehicleId);
+
+  const { data, error } = await query.order('date', { ascending: false }).limit(limit);
+  if (error) return jsonResponse({ error: error.message }, 500);
+
+  const trips = (data ?? []).map((t) => ({
+    ...t,
+    is_tour: Array.isArray(t.tour_stops) && t.tour_stops.length > 1,
+    stops_count: Array.isArray(t.tour_stops) ? t.tour_stops.length : 0,
+  }));
+
+  return jsonResponse({ success: true, count: trips.length, trips });
+}
+
+async function handleUpdateTrip(req: Request, ctx: PartnerContext, tripId: string): Promise<Response> {
+  if (!requireScope(ctx, 'trips:write') && !requireScope(ctx, 'write')) {
+    return jsonResponse({ error: 'Missing trips:write scope' }, 403);
+  }
+  const externalUserId = req.headers.get('x-external-user-id');
+  if (!externalUserId) return jsonResponse({ error: 'Missing x-external-user-id header' }, 400);
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: 'User not linked' }, 404);
+
+  const body = await req.json();
+  const patch: Record<string, unknown> = {};
+  if ('purpose' in body) patch.purpose = body.purpose ?? null;
+  if (Object.keys(patch).length === 0) return jsonResponse({ error: 'Nothing to update (supported: purpose)' }, 400);
+
+  const { data, error } = await admin
+    .from('trips')
+    .update(patch)
+    .eq('id', tripId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .select('id, purpose')
+    .maybeSingle();
+  if (error) return jsonResponse({ error: error.message }, 500);
+  if (!data) return jsonResponse({ error: 'Trip not found' }, 404);
+
+  fireWebhook(ctx.partnerId, 'trip.updated', { trip_id: data.id, external_user_id: externalUserId, purpose: data.purpose ?? null });
+  return jsonResponse({ success: true, trip: data });
 }
 
 async function handleGetStats(req: Request, ctx: PartnerContext): Promise<Response> {
