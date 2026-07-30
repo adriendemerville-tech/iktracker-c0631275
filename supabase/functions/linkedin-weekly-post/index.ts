@@ -255,11 +255,6 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Envoi automatique au comptable à date fixe, avec lien sécurisé vers le relevé.",
     "Relevé mensuel envoyé à l'utilisateur le 15 du mois pour le mois précédent.",
   ],
-  "ik-velo": [
-    "Barème kilométrique vélo distinct du barème voiture.",
-    "Les trajets vélo se saisissent comme les autres et remontent dans le même relevé.",
-    "Utile pour les indépendants urbains qui enchaînent les rendez vous à vélo.",
-  ],
   "gratuit-a-vie": [
     "Aucun abonnement, aucune version limitée, aucune carte bancaire demandée.",
     "Outil développé pour les besoins d'une agence de rénovation, infrastructure déjà payée, donc partagée.",
