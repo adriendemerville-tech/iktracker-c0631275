@@ -1566,7 +1566,7 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const dryRun = url.searchParams.get("dry_run") === "1";
-  const textOnly = url.searchParams.get("text_only") === "1";
+  // Note: le mode "texte seul" a été supprimé — un post LinkedIn embarque toujours un média.
   const forceFormat = url.searchParams.get("format") as MediaFormat | null;
   const forcedTopicSlug = url.searchParams.get("topic");
 
