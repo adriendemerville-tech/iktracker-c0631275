@@ -880,7 +880,7 @@ export function NewTripSheet({
               distanceInputRef={distanceInputRef}
               purposeInputRef={purposeInputRef}
               handleConfirm={handleConfirm}
-              showRecurring={!isEditing && !recurringOnly}
+              showRecurring={false}
               hideDatePicker={recurringOnly}
               isRecurring={isRecurring}
               setIsRecurring={setIsRecurring}
