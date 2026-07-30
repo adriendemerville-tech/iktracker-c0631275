@@ -243,14 +243,15 @@ RÈGLES DE RÉDACTION À FAIRE RESPECTER
 
 SORTIE : un objet JSON strict, sans texte autour :
 {
-  "score": 0-100,
   "hook_score": 0-10,
   "impressions_score": 0-10,
+  "content_score": 0-10,
   "verdict": "conforme" | "a_corriger",
   "issues": ["problème 1", "problème 2"],
   "hook_analysis": "une phrase",
   "improved_text": "le post réécrit complet, prêt à publier, respectant TOUTES les règles"
 }
+"content_score" note l'angle 100% produit et la précision technique. Le score global est recalculé côté serveur, ne le renvoie pas.
 "improved_text" est OBLIGATOIRE même si le post est conforme : dans ce cas renvoie le texte d'origine inchangé. Le texte réécrit conserve le sujet, le module traité et les faits du post d'origine ; tu améliores le hook, l'aération et la précision, tu ne changes pas de sujet.`;
 
 // ─── Entrypoint ─────────────────────────────────────────────────────────────
