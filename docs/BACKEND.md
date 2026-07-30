@@ -1028,6 +1028,24 @@ Cron `purge-duplicate-trips-daily` (`pg_cron`), tous les jours à **03:15 UTC**,
 - Cron `demote-invalid-tours-daily` (`pg_cron`) : exécution quotidienne à **03:20 UTC**.
 - Premier passage du 30 juillet 2026 : 26 trajets requalifiés.
 
+**Garde-fou de cohérence des trajets (`trips-guard`)**
+- Edge Function `trips-guard` (`verify_jwt = false`), authentifiée par `x-cron-secret` (`CRON_SECRET` ou `SYNC_CRON_TOKEN`), par le `service_role` en Bearer, ou par un utilisateur connecté (un admin scanne tout le parc, un utilisateur non-admin uniquement ses propres trajets).
+- Body : `{ "dry_run"?: bool, "since_days"?: int (def 400) }`. Lecture paginée par blocs de 1000 lignes.
+- Anomalies détectées et corrigées automatiquement :
+  - `invalid_start_coords` / `invalid_end_coords` : coordonnées `0,0`, NaN ou hors bornes → remises à `NULL`.
+  - `zero_distance` : distance nulle alors que départ et arrivée diffèrent → recalcul Google Distance Matrix (repli sur l'adresse domicile si le départ est générique type « Maison », « Position »).
+  - `same_endpoints_nonzero` : départ et arrivée identiques avec une distance > 5 km → distance remise à 0.
+  - `absurd_distance` : plus de 1200 km sur un aller simple → recalcul.
+  - `distance_vs_coords_mismatch` : distance incohérente avec les coordonnées (> 2,5× le vol d'oiseau + 20 km, ou < 0,7×) → recalcul.
+  - `ik_mismatch` / `ik_missing` : montant IK recalculé uniquement si la distance change ou si l'IK est nul alors que la distance et le véhicule existent, avec le cumul annuel réel lu en base et le bonus électrique de 20 %.
+- Exclusions : trajets `pending_location` (trajets à compléter, normalement à 0 km) et tournées en boucle (`tour_stops` non vide).
+- Plafond de **120 appels Google Distance Matrix** par exécution (maîtrise du coût), les trajets restants sont comptés en `skipped` et repris au passage suivant.
+- Journalisation : table `public.trip_guard_runs` (`scanned`, `fixed`, `skipped`, `failed`, `details` jsonb, `triggered_by`), lecture réservée aux admins via `has_role`, écriture `service_role`.
+- Cron `trips-guard-daily` (`pg_cron`) : tous les jours à **03:45 UTC**, `since_days = 400`.
+- Premier passage du 30 juillet 2026 : 14 610 trajets scannés, 50 corrigés, 11 reportés, 0 échec.
+
+
+
 
 
 **Comptes liés**
