@@ -1296,69 +1296,96 @@ Deno.serve(async (req) => {
       return json.id || json["x-restli-id"] || "unknown";
     };
 
-    // Detect LinkedIn media-scope errors so we can fallback to text-only.
-    const isMediaScopeError = (err: unknown): boolean => {
-      const msg = err instanceof Error ? err.message : String(err);
-      return /registerUpload\s+403|ACCESS_DENIED|Not enough permissions|uploadBytes\s+4\d\d/i.test(msg);
-    };
-
     let mediaFallback = false;
     let mediaFallbackReason: string | null = null;
+
+    // Legacy /v2/assets path, kept as a secondary attempt.
+    const legacyPublish = async (
+      bytes: Uint8Array,
+      recipe: "feedshare-video" | "feedshare-document",
+      contentType: string,
+      category: "VIDEO" | "DOCUMENT",
+    ): Promise<string> => {
+      const upload = await registerUpload(ownerUrn!, recipe);
+      assetUrn = upload.assetUrn;
+      await uploadBytes(upload.uploadUrl, bytes, contentType, upload.extraHeaders);
+      await waitForAssetReady(assetUrn);
+      return await createUgcPost(ownerUrn!, postText, assetUrn, topic, category);
+    };
+
+    // Last visual resort: a real screenshot of the feature page, posted as an image.
+    const publishScreenshot = async (): Promise<string> => {
+      const png = await captureScreenshot(topic);
+      mediaBytes = png.length;
+      assetUrn = await uploadImageRest(ownerUrn!, png);
+      return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+    };
 
     // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
     if (textOnly) {
       postId = await publishTextOnly();
       format = "text";
-    } else if (format === "video") {
-      try {
-        const mp4 = topic.mediaSource === "browserless"
+    } else {
+      // Build the media bytes first (independent from the LinkedIn transport).
+      let bytes: Uint8Array;
+      if (format === "video") {
+        bytes = topic.mediaSource === "browserless"
           ? await recordScreencast(topic)
           : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
-        mediaBytes = mp4.length;
-
-        const upload = await registerUpload(ownerUrn, "feedshare-video");
-        assetUrn = upload.assetUrn;
-        await uploadBytes(upload.uploadUrl, mp4, "application/octet-stream", upload.extraHeaders);
-        await waitForAssetReady(assetUrn);
-        postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "VIDEO");
-      } catch (err) {
-        if (!isMediaScopeError(err)) throw err;
-        mediaFallbackReason = err instanceof Error ? err.message : String(err);
-        console.warn(`[linkedin-monthly-post] media upload denied, falling back to text-only: ${mediaFallbackReason}`);
-        postId = await publishTextOnly();
-        mediaFallback = true;
-        assetUrn = null;
-        mediaBytes = 0;
-        format = "text";
-      }
-    } else {
-      try {
-        // Carousel: optionally generate a Wavespeed cover background
+      } else {
         let coverBg: Uint8Array | null = null;
         if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
           try {
             coverBg = await generateWavespeedImage(topic.visualPrompt);
             console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
           } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            console.warn(`Wavespeed cover image failed, falling back to plain typography: ${message}`);
+            console.warn(`Wavespeed cover image failed: ${err instanceof Error ? err.message : String(err)}`);
           }
         }
-        const pdf = await renderCarouselPdf(topic, slidePlan!, coverBg);
-        mediaBytes = pdf.length;
+        bytes = await renderCarouselPdf(topic, slidePlan!, coverBg);
+      }
+      mediaBytes = bytes.length;
 
-        const upload = await registerUpload(ownerUrn, "feedshare-document");
-        assetUrn = upload.assetUrn;
-        await uploadBytes(upload.uploadUrl, pdf, "application/pdf", upload.extraHeaders);
-        await waitForAssetReady(assetUrn);
-        postId = await createUgcPost(ownerUrn, postText, assetUrn, topic, "DOCUMENT");
-      } catch (err) {
-        if (!isMediaScopeError(err)) throw err;
-        mediaFallbackReason = err instanceof Error ? err.message : String(err);
-        console.warn(`[linkedin-monthly-post] media upload denied, falling back to text-only: ${mediaFallbackReason}`);
+      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "video"
+        ? [
+            { label: "rest-video", run: async () => {
+              assetUrn = await uploadVideoRest(ownerUrn!, bytes);
+              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+            } },
+            { label: "legacy-video", run: () => legacyPublish(bytes, "feedshare-video", "application/octet-stream", "VIDEO") },
+            { label: "screenshot-image", run: publishScreenshot },
+          ]
+        : [
+            { label: "rest-document", run: async () => {
+              assetUrn = await uploadDocumentRest(ownerUrn!, bytes);
+              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+            } },
+            { label: "legacy-document", run: () => legacyPublish(bytes, "feedshare-document", "application/pdf", "DOCUMENT") },
+            { label: "screenshot-image", run: publishScreenshot },
+          ];
+
+      for (const attempt of attempts) {
+        try {
+          postId = await attempt.run();
+          console.log(`[media] published via ${attempt.label}`);
+          if (attempt.label === "screenshot-image") {
+            mediaFallback = true;
+            format = "video" === format ? "video" : format;
+          }
+          break;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          console.warn(`[media] ${attempt.label} failed: ${message}`);
+          mediaFallbackReason = `${attempt.label}: ${message}`;
+          assetUrn = null;
+        }
+      }
+
+      // Absolute last resort: never skip the monthly post entirely.
+      if (!postId) {
+        console.warn("[media] all media paths failed, publishing text-only");
         postId = await publishTextOnly();
         mediaFallback = true;
-        assetUrn = null;
         mediaBytes = 0;
         format = "text";
       }
