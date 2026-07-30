@@ -12,6 +12,7 @@
 //   ?min_age_min=N   âge minimum du post (défaut 5)
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { DOC_SECTIONS } from "./docs-context.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,6 +32,7 @@ const SCORE_THRESHOLD = 85;   // score composite /100
 const HOOK_THRESHOLD = 8;     // hook /10
 const MAX_ATTEMPTS = 3;       // itérations maximum par lignée de post
 const MIN_GAIN = 3;           // gain minimum de score, sinon plateau => arrêt
+const FACTUAL_THRESHOLD = 8;  // vérifiabilité doc /10, bloquante
 
 
 // ─── LinkedIn gateway ───────────────────────────────────────────────────────
@@ -214,21 +216,90 @@ function computeCompositeScore(
   hookScore: number,
   impressionsScore: number,
   contentScore: number,
+  factualScore: number,
 ): { total: number; breakdown: Record<string, number> } {
   const breakdown = {
     length: checks.lengthOk ? 10 : 0,
     chars: !checks.dashes && checks.bannedChars.length === 0 ? 10 : 0,
     aeration: checks.aerationOk ? 10 : 0,
     hook_form: checks.hookIsSingleLine ? 10 : 0,
-    hook_quality: Math.round(hookScore * 3),      // /30
-    impressions: Math.round(impressionsScore * 2), // /20
-    content: Math.round(contentScore),             // /10
+    hook_quality: Math.round(hookScore * 3),        // /30
+    impressions: Math.round(impressionsScore * 2),  // /20
+    content: Math.round(contentScore / 2),          // /5
+    factual: Math.round(factualScore / 2),          // /5
   };
   const total = Math.max(0, Math.min(100, Object.values(breakdown).reduce((a, b) => a + b, 0)));
   return { total, breakdown };
 }
 
+// ─── Contexte documentaire technique ───────────────────────────────────────
+// Copie de docs/BACKEND.md + docs/FRONTEND.md générée par
+// scripts/generate-linkedin-docs-context.cjs. Sert de référentiel de vérité :
+// toute affirmation technique du post doit y être vérifiable.
+
+const DOC_KEYWORDS: Record<string, string[]> = {
+  simulateur: ["simulateur", "barème", "ik", "calcul", "indemnité", "cv fiscaux"],
+  "mode-tournee": ["tournée", "tour", "gps", "géolocalisation", "haversine", "distance matrix", "stop"],
+  "import-takeout": ["takeout", "recovery", "import", "wizard", "historique"],
+  "sync-calendrier": ["calendar", "calendrier", "sync-calendar-trips", "google calendar", "outlook", "oauth"],
+  "detection-plaque": ["plaque", "vehicle-lookup", "immatriculation", "véhicule", "carburant"],
+  "bareme-progressif": ["barème", "tranche", "5 000", "20 000", "calcul", "ik"],
+  "bonus-electrique": ["électrique", "bonus", "20%", "multiplicateur", "véhicule"],
+  "export-pdf": ["pdf", "export", "relevé", "rapport", "print", "comptable"],
+  "gratuit-a-vie": ["architecture", "coût", "edge function", "supabase", "infrastructure"],
+  confidentialite: ["rls", "policy", "sécurité", "rgpd", "données", "suppression"],
+  comparatif: ["architecture", "fonctionnalité", "gps", "confidentialité", "coût"],
+  "trajets-recurrents": ["récurrent", "recurring", "generate-recurring-trips", "cron", "trajet"],
+};
+
+function normalizeForMatch(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Sélection par score de mots-clés : slug du topic + mots longs du titre + mots
+// longs du texte audité (le post peut évoquer un module voisin).
+function docContextForAudit(
+  slug: string | null,
+  title: string | null,
+  text: string,
+  maxChars = 4500,
+): string {
+  const fromText = Array.from(new Set(
+    text.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 7),
+  )).slice(0, 40);
+  const keys = [
+    ...(slug ? DOC_KEYWORDS[slug] ?? [] : []),
+    ...((title ?? "").split(/\s+/).filter((w) => w.length > 5)),
+    ...fromText,
+  ].map(normalizeForMatch);
+  if (!keys.length) return "";
+
+  const scored = DOC_SECTIONS.map((section) => {
+    const heading = normalizeForMatch(section.heading);
+    const body = normalizeForMatch(section.body);
+    let score = 0;
+    for (const k of keys) {
+      if (heading.includes(k)) score += 3;
+      if (body.includes(k)) score += 1;
+    }
+    return { section, score };
+  })
+    .filter((s) => s.score >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  let out = "";
+  for (const { section } of scored) {
+    const block = `### ${section.heading} (doc ${section.origin})\n${section.body}\n\n`;
+    if (out.length + block.length > maxChars) break;
+    out += block;
+  }
+  return out.trim();
+}
+
 // ─── Prompt d'audit ─────────────────────────────────────────────────────────
+
+
 
 
 const AUDIT_SYSTEM = `Tu es directeur éditorial LinkedIn pour IKtracker, application française de suivi des indemnités kilométriques. Tu audites un post DÉJÀ PUBLIÉ par le fondateur, puis tu le réécris si nécessaire.
@@ -240,19 +311,22 @@ RÈGLES DE RÉDACTION À FAIRE RESPECTER
 4. PRÉCISION TECHNIQUE : au moins trois faits techniques concrets (barème progressif 5 000 / 20 000 km, bonus 20% électrique, détection d'arrêt 2 min, synchronisation agenda, export PDF, API partenaire, etc.), sans jargon d'ingénieur.
 5. FORME : entre 1000 et 1500 signes espaces compris. Aucun tiret d'incise. Caractères strictement interdits : parenthèses, arobase, crochets, accolades, chevrons, antislash, astérisque, tiret bas, tilde, barre verticale.
 6. TON : pragmatique, factuel, entrepreneur français. Pas d'emoji, pas de superlatif marketing.
+7. VÉRIFIABILITÉ : la documentation technique fournie dans le message utilisateur est la SEULE source de vérité produit. Toute affirmation technique du post doit y être vérifiable, ou relever d'un fait fiscal public français. Sanctionne durement : chiffre inventé, fonctionnalité inexistante, promesse de performance non documentée, intégration non listée, approximation qui contredit la doc. Si la doc est vide ou hors sujet, ne pénalise pas mais exige des affirmations prudentes.
 
 SORTIE : un objet JSON strict, sans texte autour :
 {
   "hook_score": 0-10,
   "impressions_score": 0-10,
   "content_score": 0-10,
+  "factual_score": 0-10,
+  "unverified_claims": ["affirmation non vérifiable dans la doc", "..."],
   "verdict": "conforme" | "a_corriger",
   "issues": ["problème 1", "problème 2"],
   "hook_analysis": "une phrase",
   "improved_text": "le post réécrit complet, prêt à publier, respectant TOUTES les règles"
 }
-"content_score" note l'angle 100% produit et la précision technique. Le score global est recalculé côté serveur, ne le renvoie pas.
-"improved_text" est OBLIGATOIRE même si le post est conforme : dans ce cas renvoie le texte d'origine inchangé. Le texte réécrit conserve le sujet, le module traité et les faits du post d'origine ; tu améliores le hook, l'aération et la précision, tu ne changes pas de sujet.`;
+"content_score" note l'angle 100% produit et la précision technique. "factual_score" note la conformité stricte à la documentation technique fournie : 10 si chaque affirmation est vérifiable, 0 si le post invente des fonctionnalités ou des chiffres. Liste dans "unverified_claims" les phrases fautives, citées mot pour mot. Le score global est recalculé côté serveur, ne le renvoie pas.
+"improved_text" est OBLIGATOIRE même si le post est conforme : dans ce cas renvoie le texte d'origine inchangé. Le texte réécrit conserve le sujet, le module traité et les faits du post d'origine, corrige ou supprime les affirmations non vérifiables en les remplaçant par des faits présents dans la doc, et améliore le hook, l'aération et la précision. Tu ne changes pas de sujet.`;
 
 // ─── Entrypoint ─────────────────────────────────────────────────────────────
 
@@ -346,7 +420,13 @@ Deno.serve(async (req) => {
     const engagement = await fetchEarlyEngagement(postId);
     const checks = runDeterministicChecks(publishedText);
 
-    // 3) Audit LLM
+    // 3) Audit LLM ancré sur la documentation technique
+    const docBlock = docContextForAudit(
+      run.topic_slug ? String(run.topic_slug) : null,
+      run.topic_title ? String(run.topic_title) : null,
+      publishedText,
+    );
+
     const userMsg = [
       `Post publié il y a ${minAgeMin} minutes environ.`,
       `Sujet du run : ${run.topic_title ?? "inconnu"} (module ${run.topic_slug ?? "n/a"}).`,
@@ -357,6 +437,10 @@ Deno.serve(async (req) => {
       "",
       "Contrôles automatiques déjà effectués :",
       JSON.stringify(checks, null, 2),
+      "",
+      docBlock
+        ? `DOCUMENTATION TECHNIQUE DE RÉFÉRENCE, source de vérité unique :\n${docBlock}`
+        : "DOCUMENTATION TECHNIQUE DE RÉFÉRENCE : aucune section pertinente trouvée, ne pénalise pas la vérifiabilité mais exige des affirmations prudentes.",
       "",
       "TEXTE PUBLIÉ :",
       "---",
@@ -372,10 +456,18 @@ Deno.serve(async (req) => {
     const hookScore = Math.max(0, Math.min(10, Number(audit.hook_score ?? 0)));
     const impressionsScore = Math.max(0, Math.min(10, Number(audit.impressions_score ?? 0)));
     const contentScore = Math.max(0, Math.min(10, Number(audit.content_score ?? audit.score ?? 0) || 0));
+    // Sans doc pertinente, on neutralise la note de vérifiabilité (10) pour ne
+    // pas pénaliser un post sur un module non documenté.
+    const factualScore = docBlock
+      ? Math.max(0, Math.min(10, Number(audit.factual_score ?? 10) || 0))
+      : 10;
+    const unverifiedClaims = Array.isArray(audit.unverified_claims)
+      ? audit.unverified_claims.map((c: unknown) => String(c).slice(0, 300)).slice(0, 10)
+      : [];
     const improvedText = String(audit.improved_text ?? "").trim();
 
     const { total: score, breakdown } = computeCompositeScore(
-      checks, hookScore, impressionsScore, contentScore,
+      checks, hookScore, impressionsScore, contentScore, factualScore,
     );
 
     const hardFail =
@@ -385,8 +477,12 @@ Deno.serve(async (req) => {
     const previousScore = Number((run.audit_report as any)?.previous_score ?? NaN);
     const gain = Number.isFinite(previousScore) ? score - previousScore : null;
 
-    // Conditions d'arrêt de la boucle.
-    const meetsTarget = !hardFail && score >= SCORE_THRESHOLD && hookScore >= HOOK_THRESHOLD;
+    // Conditions d'arrêt de la boucle. Un post factuellement douteux ne peut
+    // pas être validé, même avec un bon score de forme.
+    const meetsTarget = !hardFail &&
+      score >= SCORE_THRESHOLD &&
+      hookScore >= HOOK_THRESHOLD &&
+      factualScore >= FACTUAL_THRESHOLD;
     const maxedOut = attempts >= MAX_ATTEMPTS;
     const plateau = gain !== null && gain < MIN_GAIN;
 
@@ -400,7 +496,9 @@ Deno.serve(async (req) => {
       improvedChecks.hookIsSingleLine &&
       improvedText !== publishedText;
 
-    const needsFix = !meetsTarget && !maxedOut && !plateau && improvedIsValid;
+    // Une affirmation non vérifiable justifie une correction même en plateau.
+    const factualFail = factualScore < FACTUAL_THRESHOLD || unverifiedClaims.length > 0;
+    const needsFix = !meetsTarget && !maxedOut && (!plateau || factualFail) && improvedIsValid;
 
     const report = {
       source: auditSource,
@@ -409,10 +507,14 @@ Deno.serve(async (req) => {
       hook_score: hookScore,
       impressions_score: impressionsScore,
       content_score: contentScore,
+      factual_score: factualScore,
+      unverified_claims: unverifiedClaims,
+      doc_context_used: !!docBlock,
+      doc_context_chars: docBlock.length,
       iteration: attempts + 1,
       previous_score: Number.isFinite(previousScore) ? previousScore : null,
       gain,
-      thresholds: { score: SCORE_THRESHOLD, hook: HOOK_THRESHOLD, max_attempts: MAX_ATTEMPTS, min_gain: MIN_GAIN },
+      thresholds: { score: SCORE_THRESHOLD, hook: HOOK_THRESHOLD, factual: FACTUAL_THRESHOLD, max_attempts: MAX_ATTEMPTS, min_gain: MIN_GAIN },
       verdict: meetsTarget ? "conforme" : "a_corriger",
       issues: Array.isArray(audit.issues) ? audit.issues.slice(0, 10) : [],
       hook_analysis: String(audit.hook_analysis ?? "").slice(0, 500),
@@ -426,17 +528,17 @@ Deno.serve(async (req) => {
     };
 
     console.log(
-      `[audit] post=${postId} iter=${attempts + 1} score=${score} hook=${hookScore} gain=${gain} needsFix=${needsFix} target=${meetsTarget} plateau=${plateau} maxed=${maxedOut}`,
+      `[audit] post=${postId} iter=${attempts + 1} score=${score} hook=${hookScore} factual=${factualScore} claims=${unverifiedClaims.length} gain=${gain} needsFix=${needsFix} target=${meetsTarget} plateau=${plateau} maxed=${maxedOut}`,
     );
 
     // 4) Correction : suppression + republication avec le même média
     let repostResult: Record<string, unknown> | null = null;
     let auditStatus: string;
     if (meetsTarget) auditStatus = "passed";
+    else if (needsFix) auditStatus = "corrected";
     else if (maxedOut) auditStatus = "max_attempts";
     else if (plateau) auditStatus = "plateau";
-    else if (!improvedIsValid) auditStatus = "fix_invalid";
-    else auditStatus = "corrected";
+    else auditStatus = "fix_invalid";
 
     if (needsFix && !dryRun) {
       const repostUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/linkedin-weekly-post?mode=repost`;
@@ -505,6 +607,9 @@ Deno.serve(async (req) => {
         hook_score: hookScore,
         impressions_score: impressionsScore,
         content_score: contentScore,
+        factual_score: factualScore,
+        unverified_claims: unverifiedClaims,
+        doc_context_used: !!docBlock,
         gain,
         issues: report.issues,
         needs_fix: needsFix,
