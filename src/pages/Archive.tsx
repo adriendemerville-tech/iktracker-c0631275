@@ -1,18 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, Monitor, Sparkles } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Download, Eye, FileText, LayoutList, Loader2, Monitor, Sparkles, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { usePreferences } from '@/hooks/usePreferences';
+import { buildCsv, downloadCsv } from '@/lib/autopilot-export';
+
 
 interface ArchiveRow {
   id: string;
@@ -41,7 +47,9 @@ export default function Archive() {
   const [previewLabel, setPreviewLabel] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [view, setView] = useState<'list' | 'table'>('list');
   const mountedRef = useRef(true);
+
 
   useEffect(() => {
     mountedRef.current = true;
@@ -72,6 +80,26 @@ export default function Archive() {
     });
     return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
   }, [rows]);
+
+  const exportCsv = () => {
+    if (rows.length === 0) return;
+    const csv = buildCsv(
+      ['type', 'periode', 'debut', 'fin', 'nb_trajets', 'total_km', 'total_ik_eur', 'archive_le'],
+      rows.map((r) => [
+        r.kind === 'annual' ? 'Exercice' : 'Mensuel',
+        r.period_label,
+        r.period_start,
+        r.period_end,
+        r.trip_count,
+        Number(r.total_km ?? 0).toFixed(1),
+        Number(r.total_ik ?? 0).toFixed(2),
+        r.created_at,
+      ]),
+    );
+    downloadCsv(`releves-ik-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    toast({ title: 'Export CSV généré', description: `${rows.length} relevés exportés.` });
+  };
+
 
   const openReport = async (row: ArchiveRow, download = false) => {
     setBusyId(row.id);
@@ -193,6 +221,29 @@ export default function Archive() {
           </Button>
         </Card>
 
+        {!loading && rows.length > 0 && (
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <ToggleGroup
+              type="single"
+              value={view}
+              onValueChange={(v) => v && setView(v as 'list' | 'table')}
+              variant="outline"
+              size="sm"
+            >
+              <ToggleGroupItem value="list" aria-label="Vue liste">
+                <LayoutList className="w-4 h-4 mr-2" /> Liste
+              </ToggleGroupItem>
+              <ToggleGroupItem value="table" aria-label="Vue tableau">
+                <TableIcon className="w-4 h-4 mr-2" /> Tableau
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <Button variant="outline" size="sm" onClick={exportCsv}>
+              <Download className="w-4 h-4 mr-2" />
+              Exporter en CSV
+            </Button>
+          </div>
+        )}
+
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">
             <Loader2 className="w-5 h-5 animate-spin mr-2" /> Chargement des relevés…
@@ -205,7 +256,67 @@ export default function Archive() {
               Votre premier relevé mensuel sera archivé ici automatiquement lors du prochain envoi du 15.
             </p>
           </Card>
+        ) : view === 'table' ? (
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Période</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Du</TableHead>
+                  <TableHead>Au</TableHead>
+                  <TableHead className="text-right">Trajets</TableHead>
+                  <TableHead className="text-right">Km</TableHead>
+                  <TableHead className="text-right">IK (€)</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="font-medium">{row.period_label}</TableCell>
+                    <TableCell>
+                      <Badge variant={row.kind === 'annual' ? 'default' : 'secondary'}>
+                        {row.kind === 'annual' ? 'Exercice' : 'Mensuel'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(row.period_start).toLocaleDateString('fr-FR')}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(row.period_end).toLocaleDateString('fr-FR')}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{fmt(row.trip_count)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{fmt(row.total_km, 1)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{fmt(row.total_ik, 2)}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      <Button variant="ghost" size="sm" onClick={() => openReport(row)} disabled={busyId === row.id} aria-label="Aperçu du PDF">
+                        {busyId === row.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openReport(row, true)} aria-label="Télécharger le PDF">
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow className="bg-muted/40 font-medium">
+                  <TableCell colSpan={4}>Total ({rows.length} relevés)</TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmt(rows.reduce((s, r) => s + (r.trip_count ?? 0), 0))}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmt(rows.reduce((s, r) => s + (r.total_km ?? 0), 0), 1)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmt(rows.reduce((s, r) => s + (r.total_ik ?? 0), 0), 2)}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Card>
         ) : (
+
           <div className="space-y-8">
             {groups.map(([year, items]) => (
               <section key={year}>
