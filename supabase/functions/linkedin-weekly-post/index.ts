@@ -602,11 +602,29 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
 - Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
 
+SUJET DU POST (RÈGLE CENTRALE) :
+- Le post porte sur UN SEUL module précis d'IKtracker, celui indiqué plus bas. Pas de discours général sur les indemnités kilométriques, pas de présentation globale de l'outil.
+- Décris ce que fait concrètement ce module : le déclencheur, le mécanisme, les seuils ou chiffres réels, ce que l'utilisateur voit, ce qu'il n'a plus à faire.
+- Utilise au moins trois des faits techniques fournis, en les reformulant dans tes mots. N'invente aucun chiffre, aucune fonctionnalité absente de la liste.
+- Ancre le module dans une situation de terrain vécue : un métier, un moment de la journée, un problème concret.
+
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
-  const user = `Sujet du mois : ${topic.title}\n\nContexte / faits sur la fonctionnalité :\n${topic.focus}\n\nRédige le post LinkedIn complet, prêt à publier. Rappel : hook en première ligne, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes (espaces compris). Compte tes caractères avant de rendre le texte.`;
-  const { text, source } = await callLLM(system, user, { temperature: 0.85 });
+  const factsBlock = (TOPIC_FACTS[topic.slug] ?? [])
+    .map((f) => `. ${f}`)
+    .join("\n");
+
+  const user = `Module IKtracker à présenter ce mois-ci : ${topic.title}
+
+Résumé du module :
+${topic.focus}
+
+Faits techniques vérifiés à exploiter :
+${factsBlock || ". (aucun fait complémentaire, reste strictement sur le résumé ci-dessus)"}
+
+Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
+  const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
 }
 
