@@ -237,15 +237,15 @@ export default function Archive() {
       </main>
 
       <Dialog open={!!previewUrl} onOpenChange={(o) => !o && setPreviewUrl(null)}>
-        <DialogContent className="max-w-4xl h-[85vh] p-0 overflow-hidden">
-          <DialogHeader className="px-6 pt-5 pb-3">
+        <DialogContent className="max-w-4xl h-[85vh] p-0 overflow-hidden flex flex-col">
+          <DialogHeader className="px-6 pt-5 pb-3 flex-shrink-0">
             <DialogTitle>{previewLabel}</DialogTitle>
           </DialogHeader>
           {previewUrl && (
             <iframe
               src={previewUrl}
               title={`Relevé ${previewLabel}`}
-              className="w-full h-full border-0"
+              className="w-full flex-1 min-h-0 border-0"
             />
           )}
         </DialogContent>
