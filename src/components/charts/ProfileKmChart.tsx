@@ -154,6 +154,7 @@ const ProfileKmChart = ({ data, maxKm, isMobile = false }: ProfileKmChartProps) 
             </filter>
           </defs>
           <XAxis type="category" dataKey="month" tick={{ fontSize: 10 }} interval={0} />
+          <Tooltip cursor={{ fill: 'hsl(var(--muted) / 0.4)' }} content={<KmTooltip />} />
           <YAxis type="number" hide domain={[0, maxKm]} />
       <Bar 
             dataKey="km"
