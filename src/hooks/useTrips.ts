@@ -355,6 +355,9 @@ export function useTrips() {
           date: new Date(trip.startTime).toISOString().split('T')[0],
           start_location: trip.startLocation.name,
           end_location: trip.endLocation.name,
+          ...locationColumns('start', trip.startLocation),
+          ...locationColumns('end', trip.endLocation),
+
           distance: trip.distance,
           purpose: trip.purpose || null,
           round_trip: trip.roundTrip,
