@@ -516,6 +516,9 @@ export function useTrips() {
           date: updates.startTime ? new Date(updates.startTime).toISOString().split('T')[0] : undefined,
           start_location: updates.startLocation?.name,
           end_location: updates.endLocation?.name,
+          ...locationColumns('start', updates.startLocation),
+          ...locationColumns('end', updates.endLocation),
+
           distance: updates.distance,
           round_trip: updates.roundTrip,
           purpose: updates.purpose !== undefined ? (updates.purpose || null) : undefined,
