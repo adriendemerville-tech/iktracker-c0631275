@@ -4,11 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw } from 'lucide-react';
+import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw, Plus, Trash2 } from 'lucide-react';
 
 // Miroir client de la liste de topics de l'edge function.
 // Sert uniquement à peupler le sélecteur du bouton test — la vérité reste côté serveur.
