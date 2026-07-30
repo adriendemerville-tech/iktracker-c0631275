@@ -31,14 +31,15 @@
 **6. Timers GPS**
 - `useTourTracker.ts` : stocker le timeout 90s dans une ref, le nettoyer au démontage et à chaque nouvelle mesure, lire l'état via refs plutôt qu'une closure figée.
 
-## Lot 3 — Robustesse backend
+## Lot 3 — Robustesse backend ✅ terminé
 
-- `report-archive` : pagination des trajets pour le relevé annuel + garde de taille sur le PDF.
-- `partner-api` : pagination réelle de la recherche d'utilisateur par e-mail (plus de `perPage: 1000`).
-- Dédupliquer le générateur PDF : les deux fonctions d'envoi consomment `_shared/report-pdf.ts`.
-- `_shared/config.ts` pour `FRONTEND_URL`, `BROWSERLESS_BASE`, `RESEND_GATEWAY`, `FROM_EMAIL`.
-- Déclarer explicitement les fonctions publiques dans `config.toml` (`track-event`, `meta-renderer`, `wavespeed`, `google-maps-key`, etc.) et vérifier que celles qui doivent rester protégées le sont.
-- `vehicle-lookup` et `test-bot-rendering` : 400 explicite sur body vide/invalide.
+- ✅ `report-archive` : pagination des trajets (`fetchTripsForPeriod`) + garde de taille sur le PDF.
+- ✅ `partner-api` : pagination réelle de la recherche d'utilisateur par e-mail.
+- ✅ Générateur PDF dédupliqué : `send-user-monthly-report` et `send-accountant-report` consomment `_shared/report-pdf.ts`.
+- ✅ `_shared/config.ts` pour `FRONTEND_URL`, `BROWSERLESS_BASE`, `RESEND_GATEWAY`, `FROM_EMAIL`.
+- ✅ `config.toml` : `verify_jwt` déclaré explicitement pour toutes les fonctions.
+- ✅ `vehicle-lookup` et `test-bot-rendering` : 400 explicite sur body vide/invalide.
+
 
 ## Lot 4 — Frontend, propreté, tests
 
