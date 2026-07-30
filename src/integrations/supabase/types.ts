@@ -1915,6 +1915,9 @@ export type Database = {
           date: string
           deleted_at: string | null
           distance: number
+          end_address: string | null
+          end_lat: number | null
+          end_lng: number | null
           end_location: string
           id: string
           ik_amount: number
@@ -1922,6 +1925,9 @@ export type Database = {
           purpose: string | null
           round_trip: boolean
           source: string | null
+          start_address: string | null
+          start_lat: number | null
+          start_lng: number | null
           start_location: string
           status: string
           tour_stops: Json | null
@@ -1935,6 +1941,9 @@ export type Database = {
           date: string
           deleted_at?: string | null
           distance: number
+          end_address?: string | null
+          end_lat?: number | null
+          end_lng?: number | null
           end_location: string
           id?: string
           ik_amount?: number
@@ -1942,6 +1951,9 @@ export type Database = {
           purpose?: string | null
           round_trip?: boolean
           source?: string | null
+          start_address?: string | null
+          start_lat?: number | null
+          start_lng?: number | null
           start_location: string
           status?: string
           tour_stops?: Json | null
@@ -1955,6 +1967,9 @@ export type Database = {
           date?: string
           deleted_at?: string | null
           distance?: number
+          end_address?: string | null
+          end_lat?: number | null
+          end_lng?: number | null
           end_location?: string
           id?: string
           ik_amount?: number
@@ -1962,6 +1977,9 @@ export type Database = {
           purpose?: string | null
           round_trip?: boolean
           source?: string | null
+          start_address?: string | null
+          start_lat?: number | null
+          start_lng?: number | null
           start_location?: string
           status?: string
           tour_stops?: Json | null
