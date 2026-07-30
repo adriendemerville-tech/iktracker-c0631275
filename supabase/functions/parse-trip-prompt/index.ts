@@ -19,7 +19,13 @@ Retourne UNIQUEMENT un objet JSON valide (pas de markdown, pas de texte autour),
   - "arrival"    : string ou null — point d'arrivée. null si non mentionné (le domicile sera utilisé).
   - "stops"      : array de strings — étapes intermédiaires dans l'ordre logique de visite (pas de doublons avec départ/arrivée).
   - "roundTrip"  : boolean — true si "aller-retour", "et retour", "puis je rentre" est mentionné.
-  - "purpose"    : string ou null — motif court (client, chantier, réunion...), sinon null.
+  - "purpose"    : string ou null — motif du déplacement, court (3 à 60 caractères), sinon null.
+
+Règles pour "purpose" :
+  • Détecte le motif dès qu'il est exprimé, même implicitement : "rendez-vous client Dupont", "chantier Noves", "livraison matériel", "réunion chantier", "visite technique", "devis", "SAV", "formation", "salon professionnel".
+  • Conserve le nom du client, du chantier ou de la société s'il est cité : "Chantier Villa Martin", "RDV client Dupont".
+  • N'invente jamais de motif : si le texte ne contient qu'un itinéraire, renvoie null.
+  • N'y mets jamais les adresses, les villes seules, ni la distance.
 
 Chaque adresse doit être exploitable par un géocodeur français (rue + ville, ou juste ville, ou nom de lieu connu).
 Ne renvoie AUCUN autre champ, AUCUN commentaire, AUCUN backtick.`;
