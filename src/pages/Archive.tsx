@@ -221,6 +221,29 @@ export default function Archive() {
           </Button>
         </Card>
 
+        {!loading && rows.length > 0 && (
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <ToggleGroup
+              type="single"
+              value={view}
+              onValueChange={(v) => v && setView(v as 'list' | 'table')}
+              variant="outline"
+              size="sm"
+            >
+              <ToggleGroupItem value="list" aria-label="Vue liste">
+                <LayoutList className="w-4 h-4 mr-2" /> Liste
+              </ToggleGroupItem>
+              <ToggleGroupItem value="table" aria-label="Vue tableau">
+                <TableIcon className="w-4 h-4 mr-2" /> Tableau
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <Button variant="outline" size="sm" onClick={exportCsv}>
+              <Download className="w-4 h-4 mr-2" />
+              Exporter en CSV
+            </Button>
+          </div>
+        )}
+
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">
             <Loader2 className="w-5 h-5 animate-spin mr-2" /> Chargement des relevés…
@@ -233,7 +256,67 @@ export default function Archive() {
               Votre premier relevé mensuel sera archivé ici automatiquement lors du prochain envoi du 15.
             </p>
           </Card>
+        ) : view === 'table' ? (
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Période</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Du</TableHead>
+                  <TableHead>Au</TableHead>
+                  <TableHead className="text-right">Trajets</TableHead>
+                  <TableHead className="text-right">Km</TableHead>
+                  <TableHead className="text-right">IK (€)</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="font-medium">{row.period_label}</TableCell>
+                    <TableCell>
+                      <Badge variant={row.kind === 'annual' ? 'default' : 'secondary'}>
+                        {row.kind === 'annual' ? 'Exercice' : 'Mensuel'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(row.period_start).toLocaleDateString('fr-FR')}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(row.period_end).toLocaleDateString('fr-FR')}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{fmt(row.trip_count)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{fmt(row.total_km, 1)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{fmt(row.total_ik, 2)}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      <Button variant="ghost" size="sm" onClick={() => openReport(row)} disabled={busyId === row.id} aria-label="Aperçu du PDF">
+                        {busyId === row.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openReport(row, true)} aria-label="Télécharger le PDF">
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow className="bg-muted/40 font-medium">
+                  <TableCell colSpan={4}>Total ({rows.length} relevés)</TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmt(rows.reduce((s, r) => s + (r.trip_count ?? 0), 0))}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmt(rows.reduce((s, r) => s + (r.total_km ?? 0), 0), 1)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmt(rows.reduce((s, r) => s + (r.total_ik ?? 0), 0), 2)}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Card>
         ) : (
+
           <div className="space-y-8">
             {groups.map(([year, items]) => (
               <section key={year}>
