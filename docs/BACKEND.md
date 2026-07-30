@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.2 — 28 juillet 2026
+> Version 3.3 — 30 juillet 2026
 
 ## Table des matières
 
@@ -1157,6 +1157,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- **3.3** (30 juillet 2026) — Boucle qualité LinkedIn : nouvelle Edge Function `linkedin-post-audit` (cron `*/5 * * * *`) qui relit chaque post publié ~5 min après, l'audite (hook, potentiel d'impressions, contrôles déterministes de forme) et déclenche automatiquement une republication corrigée via `?mode=repost` en conservant le média. Nouvelles colonnes d'audit sur `linkedin_post_log`.
 - **3.2** (27 juillet 2026) — Recalcul IK opt-in : la modif d'un véhicule (CV fiscaux, statut électrique) ne recalcule plus systématiquement les trajets passés. Nouvelle case « Mettre à jour les trajets passés » dans `VehicleForm` (côté app) et paramètre `update_past_trips` dans `PATCH /vehicles/:id` de l'API partenaire. Par défaut, seuls les trajets à venir utilisent le nouveau barème. Nouveau endpoint `GET /vehicles` (liste), webhook `vehicle.updated` enrichi (`changed[]`, `update_past_trips`, `recalculated_trips`).
 - **3.1** (27 juillet 2026) — Renforcement anti-doublons des trajets à compléter : normalisation partagée en base (`normalize_trip_dedupe_text`), purge rétroactive par `date + destination + intitulé`, et trigger comptes liés (`sync_linked_trip_ins`) qui fusionne les variantes d'adresse au lieu de recréer un doublon. `sync-calendar-trips` applique la même garde avant insertion.
 - **3.0** (27 juillet 2026) — API partenaire : endpoint `/preferences` étendu en lecture + écriture pour `calendar_import_mode` **et** `ik_rate_override` (`auto`|`tier1`|`tier2`|`tier3`). `PATCH` accepté en plus de `PUT`. Webhook `preferences.updated` enrichi (`ik_rate_override` + tableau `changed[]`). Filtrage rétroactif des doublons dans les trajets à compléter (`pending_location`) pour tous les utilisateurs.
