@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.1 — 27 juillet 2026
+> Version 3.2 — 28 juillet 2026
 
 ## Table des matières
 
