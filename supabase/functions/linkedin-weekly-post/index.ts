@@ -1900,11 +1900,9 @@ Deno.serve(async (req) => {
       return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
     };
 
-    // 3) Build media + upload (or text-only post to isolate LinkedIn scope issues)
-    if (textOnly) {
-      postId = await publishTextOnly();
-      format = "text";
-    } else {
+    // 3) Build media + upload — média obligatoire, aucune publication texte seul.
+    {
+
       // Build the media bytes first (independent from the LinkedIn transport).
       // Visual prompts are derived from the generated post text whenever possible,
       // so the image/video actually illustrates what the text says.
