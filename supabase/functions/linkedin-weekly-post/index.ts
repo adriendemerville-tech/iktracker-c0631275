@@ -1584,7 +1584,7 @@ Deno.serve(async (req) => {
 
   const startedAt = Date.now();
   const topic = findTopic(forcedTopicSlug) ?? pickTopicForThisMonth();
-  let format: MediaFormat | "text" = forceFormat === "video" || forceFormat === "carousel"
+  let format: MediaFormat | "text" | "image" = forceFormat === "video" || forceFormat === "carousel"
     ? forceFormat
     : topic.format;
 
