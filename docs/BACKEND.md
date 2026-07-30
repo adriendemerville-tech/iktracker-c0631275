@@ -755,7 +755,9 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 |---|---|---|---|
 | `POST` | `/vehicle/lookup` | `vehicle:lookup` | Lookup par plaque (`plate` ou `license_plate`) → marque, modèle, CV fiscaux |
 | `POST` | `/ik/calculate` | `ik:calculate` | Calcule l'IK pour un trajet (`fiscal_power`, `trip_km`/`annual_km`, `is_electric`) |
-| `POST` | `/trips` | `trips:write` | Crée un trajet pour un user partenaire (provisioning auto si inexistant). `source` doit commencer par `partner:` |
+| `POST` | `/trips` | `trips:write` | Crée un trajet/tournée pour un user partenaire (provisioning auto si inexistant). Champs : `date`, `start_location`, `end_location`, `distance`, `vehicle_id`, `purpose` (motif), `round_trip`, `tour_stops` (array d'étapes → tournée), `calendar_event_id`. `source` doit commencer par `partner:` |
+| `GET` | `/trips?start_date&end_date&vehicle_id&limit` | `trips:read` | **🆕 Liste les trajets de l'utilisateur avec `purpose` (motif), `tour_stops`, `is_tour`, `stops_count`, `distance`, `ik_amount` |
+| `PATCH`/`PUT` | `/trips/:id` | `trips:write` | **🆕 Met à jour le motif (`purpose`) d'un trajet ; déclenche le webhook `trip.updated` |
 | `GET` | `/stats` | `stats:read` | Stats annuelles de l'utilisateur (km, IK, palier en cours) |
 | `GET` | `/dashboard?months=12` | `stats:read` | **🆕 Compteurs annuels + breakdown mensuel (1-24 mois) — alimente directement un BarChart** |
 | `GET` | `/reports/:id/pdf` | `reports` / `trips:read` | Rendu PDF binaire (Browserless) d'un rapport partagé |
