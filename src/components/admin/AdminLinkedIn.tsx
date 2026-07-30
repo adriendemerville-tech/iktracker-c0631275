@@ -426,6 +426,38 @@ export function AdminLinkedIn() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Corriger le texte — {editing?.title}</DialogTitle>
+            <DialogDescription>
+              LinkedIn n'autorise pas l'édition d'un post publié. Le post existant sera supprimé
+              puis republié avec ce texte, en réutilisant le média déjà uploadé (identique).
+              Les likes et commentaires du post d'origine seront perdus.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={16} />
+          <p className="text-xs text-muted-foreground">
+            {editText.length} signes — cible 1000 à 1500. Caractères interdits nettoyés à la publication.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)} disabled={repost.isPending}>
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => repost.mutate()}
+              disabled={repost.isPending || editText.trim().length < 50}
+            >
+              {repost.isPending
+                ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Republication…</>
+                : <><Send className="w-4 h-4 mr-2" /> Supprimer + republier</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
