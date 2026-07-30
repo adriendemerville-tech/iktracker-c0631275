@@ -830,15 +830,20 @@ ${IKTRACKER_URL}`;
       }
 
       if (sentViaResend) {
+        setExportSent(true);
+        setTimeout(() => setExportSent(false), 4000);
         toast.success("Email envoyé au comptable", {
           description: `Relevé PDF envoyé à ${preferences.accountantEmail}`,
         });
       } else {
         window.location.href = mailtoFallback;
+        setExportSent(true);
+        setTimeout(() => setExportSent(false), 4000);
         toast.success("Email préparé", {
           description: "Le lien de prévisualisation a été ajouté à l'email",
         });
       }
+
 
       if (preferences.accountantEmail) {
         updatePreference('hasSentToAccountant', true);
