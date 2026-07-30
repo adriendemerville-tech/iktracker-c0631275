@@ -622,7 +622,7 @@ const Admin = () => {
 
       <main className="max-w-[1600px] mx-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full mb-4 ${adminRole === 'viewer' ? 'grid-cols-7' : 'grid-cols-11'}`}>
+          <TabsList className="inline-flex h-auto min-h-10 w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto mb-4 [&>*]:min-w-fit [&>*]:shrink-0">
             <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Stats</span>
