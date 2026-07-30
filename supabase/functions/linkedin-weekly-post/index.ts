@@ -712,26 +712,49 @@ Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première 
 
 // ─── Video pipeline (Browserless screencast → MP4) ─────────────────────────
 
-async function recordScreencast(topic: Topic): Promise<Uint8Array> {
+async function recordScreencast(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array> {
   const token = Deno.env.get("BROWSERLESS_API_KEY");
   if (!token) throw new Error("BROWSERLESS_API_KEY missing");
 
   const code = `
 export default async function ({ page, context }) {
-  const { url, durationMs } = context;
+  const { url, durationMs, focusLabels } = context;
   await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await new Promise(r => setTimeout(r, 2000));
 
   const recorder = await page.screencast({ path: '/tmp/rec.webm' });
 
-  const totalHeight = await page.evaluate(() => document.body.scrollHeight);
-  const steps = 24;
-  const stepDelay = Math.max(200, Math.floor(durationMs / steps));
-  for (let i = 1; i <= steps; i++) {
-    const y = Math.floor((totalHeight * i) / steps);
-    await page.evaluate((v) => window.scrollTo({ top: v, behavior: 'smooth' }), y);
-    await new Promise(r => setTimeout(r, stepDelay));
+  // Capture guidée : on cadre les zones d'UI qui portent réellement le module
+  // décrit dans le post. Si aucune n'est trouvée, on retombe sur le scroll global.
+  let visited = 0;
+  const labels = Array.isArray(focusLabels) ? focusLabels : [];
+  const perLabel = labels.length ? Math.max(1200, Math.floor(durationMs / labels.length)) : 0;
+  for (const label of labels) {
+    const found = await page.evaluate((needle) => {
+      const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
+      const target = norm(needle);
+      const nodes = Array.from(document.querySelectorAll('h1,h2,h3,section,article,button,[data-testid]'));
+      const hit = nodes.find((n) => norm(n.textContent || '').includes(target));
+      if (!hit) return false;
+      hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return true;
+    }, label).catch(() => false);
+    if (found) {
+      visited++;
+      await new Promise(r => setTimeout(r, perLabel));
+    }
+  }
+
+  if (visited === 0) {
+    const totalHeight = await page.evaluate(() => document.body.scrollHeight);
+    const steps = 24;
+    const stepDelay = Math.max(200, Math.floor(durationMs / steps));
+    for (let i = 1; i <= steps; i++) {
+      const y = Math.floor((totalHeight * i) / steps);
+      await page.evaluate((v) => window.scrollTo({ top: v, behavior: 'smooth' }), y);
+      await new Promise(r => setTimeout(r, stepDelay));
+    }
   }
   await new Promise(r => setTimeout(r, 800));
 
@@ -742,7 +765,7 @@ export default async function ({ page, context }) {
 
   const fs = require('fs');
   const buf = fs.readFileSync('/tmp/out.mp4');
-  return { mp4_base64: buf.toString('base64'), size: buf.length };
+  return { mp4_base64: buf.toString('base64'), size: buf.length, focus_hits: visited };
 }
 `;
 
@@ -753,10 +776,11 @@ export default async function ({ page, context }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code,
-        context: { url: topic.url, durationMs: topic.durationMs },
+        context: { url: topic.url, durationMs: topic.durationMs, focusLabels },
       }),
     },
   );
+
 
   if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 500)}`);
   const json = await res.json();
