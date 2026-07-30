@@ -316,6 +316,70 @@ function findTopic(slug: string | null): Topic | null {
   return TOPICS.find((t) => t.slug === slug) ?? null;
 }
 
+// ─── Contexte documentaire technique ───────────────────────────────────────
+// docs-context.ts est généré depuis docs/BACKEND.md + docs/FRONTEND.md par
+// scripts/generate-linkedin-docs-context.cjs. On sélectionne les sections
+// pertinentes pour le topic afin d'ancrer le post dans l'implémentation réelle.
+
+const DOC_KEYWORDS: Record<string, string[]> = {
+  simulateur: ["simulateur", "barème", "ik", "calcul", "indemnité", "cv fiscaux"],
+  "mode-tournee": ["tournée", "tour", "gps", "géolocalisation", "haversine", "distance matrix", "stop"],
+  "import-takeout": ["takeout", "recovery", "import", "wizard", "historique"],
+  "sync-calendrier": ["calendar", "calendrier", "sync-calendar-trips", "google calendar", "outlook", "oauth"],
+  "detection-plaque": ["plaque", "vehicle-lookup", "immatriculation", "véhicule", "carburant"],
+  "bareme-progressif": ["barème", "tranche", "5 000", "20 000", "calcul", "ik"],
+  "bonus-electrique": ["électrique", "bonus", "20%", "multiplicateur", "véhicule"],
+  "export-pdf": ["pdf", "export", "relevé", "rapport", "print", "comptable"],
+  "gratuit-a-vie": ["architecture", "coût", "edge function", "supabase", "infrastructure"],
+  confidentialite: ["rls", "policy", "sécurité", "rgpd", "données", "suppression"],
+  comparatif: ["architecture", "fonctionnalité", "gps", "confidentialité", "coût"],
+  "trajets-recurrents": ["récurrent", "recurring", "generate-recurring-trips", "cron", "trajet"],
+};
+
+function normalizeForMatch(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Sélection par score de mots-clés (titre pondéré ×3), plafonnée pour ne pas
+// noyer le prompt : la doc sert d'ancrage factuel, pas de corpus.
+function docContextForTopic(topic: Topic, maxChars = 4500): string {
+  const keys = [
+    ...(DOC_KEYWORDS[topic.slug] ?? []),
+    ...topic.title.split(/\s+/).filter((w) => w.length > 5),
+  ].map(normalizeForMatch);
+  if (!keys.length) return "";
+
+  const scored = DOC_SECTIONS.map((section) => {
+    const heading = normalizeForMatch(section.heading);
+    const body = normalizeForMatch(section.body);
+    let score = 0;
+    for (const k of keys) {
+      if (heading.includes(k)) score += 3;
+      if (body.includes(k)) score += 1;
+    }
+    return { section, score };
+  })
+    .filter((s) => s.score >= 2)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  let out = "";
+  for (const { section } of scored) {
+    const block = `### ${section.heading} (doc ${section.origin})\n${section.body}\n\n`;
+    if (out.length + block.length > maxChars) break;
+    out += block;
+  }
+  return out.trim();
+}
+
+// Sections doc utilisées pour orienter la capture vidéo/écran : on indique au
+// pipeline média quelles zones d'UI comptent réellement pour ce module.
+function captureHintsForTopic(topic: Topic): string {
+  const ctx = docContextForTopic(topic, 1200);
+  return ctx ? ctx.slice(0, 1200) : topic.focus;
+}
+
+
 // ─── Wavespeed helpers ─────────────────────────────────────────────────────
 
 async function wavespeedFetch(path: string, init: RequestInit = {}): Promise<Response> {
