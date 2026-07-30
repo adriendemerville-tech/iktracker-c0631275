@@ -1545,16 +1545,19 @@ Deno.serve(async (req) => {
       format = "text";
     } else {
       // Build the media bytes first (independent from the LinkedIn transport).
+      // Visual prompts are derived from the generated post text whenever possible,
+      // so the image/video actually illustrates what the text says.
       let bytes: Uint8Array;
       if (format === "video") {
         bytes = topic.mediaSource === "browserless"
           ? await recordScreencast(topic)
-          : await generateWavespeedVideo(topic.visualPrompt || topic.focus);
+          : await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
       } else {
         let coverBg: Uint8Array | null = null;
-        if (topic.mediaSource === "wavespeed" && topic.visualPrompt) {
+        const coverPrompt = derivedVisualPrompt || topic.visualPrompt;
+        if (topic.mediaSource === "wavespeed" && coverPrompt) {
           try {
-            coverBg = await generateWavespeedImage(topic.visualPrompt);
+            coverBg = await generateWavespeedImage(coverPrompt);
             console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
           } catch (err) {
             console.warn(`Wavespeed cover image failed: ${err instanceof Error ? err.message : String(err)}`);
