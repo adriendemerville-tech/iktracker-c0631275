@@ -119,11 +119,12 @@ serve(async (req) => {
 
   // --- Authentification : cron (service role / CRON_SECRET) ou admin connecté ---
   const cronSecret = Deno.env.get('CRON_SECRET');
+  const altCronSecret = Deno.env.get('SYNC_CRON_TOKEN');
   const providedCronSecret = req.headers.get('x-cron-secret');
   const authHeader = req.headers.get('Authorization') || '';
   const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   const isCron = (bearer && bearer === SUPABASE_SERVICE_ROLE_KEY) ||
-    (!!cronSecret && providedCronSecret === cronSecret);
+    (!!providedCronSecret && (providedCronSecret === cronSecret || providedCronSecret === altCronSecret));
 
   let triggeredBy = 'cron';
   let scopedUserId: string | null = null;
