@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw, Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw, Plus, Trash2, PencilLine } from 'lucide-react';
 
 // Miroir client de la liste de topics de l'edge function.
 // Sert uniquement à peupler le sélecteur du bouton test — la vérité reste côté serveur.
@@ -115,13 +116,42 @@ export function AdminLinkedIn() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('linkedin_post_log')
-        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms')
+        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms, post_text, linkedin_post_id, linkedin_asset_urn')
         .order('posted_at', { ascending: false })
         .limit(15);
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  // ─── Correction d'un post publié : suppression + republication ────────────
+  // L'API LinkedIn n'autorise pas l'édition du texte via le gateway ; on
+  // supprime le post et on le republie avec le même asset média.
+  const [editing, setEditing] = useState<{ postId: string; assetUrn: string; title: string } | null>(null);
+  const [editText, setEditText] = useState('');
+
+  const repost = useMutation({
+    mutationFn: async () => {
+      if (!editing) throw new Error('Aucun post sélectionné');
+      const { data, error } = await supabase.functions.invoke(
+        'linkedin-weekly-post?mode=repost',
+        { method: 'POST' as any, body: { post_id: editing.postId, text: editText, asset_urn: editing.assetUrn } },
+      );
+      if (error) throw error;
+      if ((data as RunResult)?.ok === false) throw new Error((data as RunResult).error ?? 'Échec');
+      return data as RunResult;
+    },
+    onSuccess: (data) => {
+      setEditing(null);
+      setResult(data);
+      setRawResponse(JSON.stringify(data, null, 2));
+      toast({ title: 'Post republié', description: `Nouvel identifiant : ${data?.post_id ?? '—'}` });
+      logs.refetch();
+    },
+    onError: (e: any) =>
+      toast({ title: 'Republication impossible', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
 
   const run = useMutation({
     mutationFn: async () => {
@@ -367,15 +397,67 @@ export function AdminLinkedIn() {
                       <p className="text-xs text-destructive mt-1 truncate">{l.error_message}</p>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {l.posted_at ? new Date(l.posted_at).toLocaleString('fr-FR') : '—'}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {l.status === 'success' && l.linkedin_post_id && l.linkedin_asset_urn && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditing({
+                            postId: l.linkedin_post_id,
+                            assetUrn: l.linkedin_asset_urn,
+                            title: l.topic_title ?? l.topic_slug,
+                          });
+                          setEditText(l.post_text ?? '');
+                        }}
+                      >
+                        <PencilLine className="w-3.5 h-3.5 mr-1.5" />
+                        Corriger
+                      </Button>
+                    )}
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {l.posted_at ? new Date(l.posted_at).toLocaleString('fr-FR') : '—'}
+                    </div>
                   </div>
                 </div>
               ))}
+
             </div>
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Corriger le texte — {editing?.title}</DialogTitle>
+            <DialogDescription>
+              LinkedIn n'autorise pas l'édition d'un post publié. Le post existant sera supprimé
+              puis republié avec ce texte, en réutilisant le média déjà uploadé (identique).
+              Les likes et commentaires du post d'origine seront perdus.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={16} />
+          <p className="text-xs text-muted-foreground">
+            {editText.length} signes — cible 1000 à 1500. Caractères interdits nettoyés à la publication.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)} disabled={repost.isPending}>
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => repost.mutate()}
+              disabled={repost.isPending || editText.trim().length < 50}
+            >
+              {repost.isPending
+                ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Republication…</>
+                : <><Send className="w-4 h-4 mr-2" /> Supprimer + republier</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
