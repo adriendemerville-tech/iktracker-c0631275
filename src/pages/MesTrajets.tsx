@@ -960,6 +960,15 @@ ${IKTRACKER_URL}`;
                 </p>
                 <Button
                   size="sm"
+                  variant="ghost"
+                  onClick={openBlockingZeroKmTrip}
+                  className="shrink-0 text-warning-foreground hover:bg-warning/20"
+                >
+                  Voir le trajet
+                </Button>
+                <Button
+
+                  size="sm"
                   variant={hasHomeAddress ? "default" : "outline"}
                   onClick={hasHomeAddress ? handleRecalculateDistances : () => navigate('/app/profile#mes-adresses')}
                   disabled={isRecalculating}
