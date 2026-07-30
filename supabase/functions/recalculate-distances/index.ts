@@ -172,11 +172,7 @@ serve(async (req) => {
         });
       }
       authedUserId = userData.user.id;
-      if (!tripId) {
-        return new Response(JSON.stringify({ error: 'Forbidden: batch mode requires cron secret' }), {
-          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+      // Batch mode is allowed for a logged-in user, but scoped to their own trips only.
     } else {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
