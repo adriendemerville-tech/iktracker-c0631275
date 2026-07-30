@@ -1503,7 +1503,6 @@ Deno.serve(async (req) => {
           console.log(`[media] published via ${attempt.label}`);
           if (attempt.label === "screenshot-image") {
             mediaFallback = true;
-            format = "video" === format ? "video" : format;
           }
           break;
         } catch (err) {
