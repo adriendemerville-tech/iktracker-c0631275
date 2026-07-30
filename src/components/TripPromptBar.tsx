@@ -60,10 +60,29 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
   const [transcribing, setTranscribing] = useState(false);
   const recRef = useRef<{ stream: MediaStream; ctx: AudioContext; node: ScriptProcessorNode; src: MediaStreamAudioSourceNode; chunks: Float32Array[] } | null>(null);
 
+  // Libère micro + AudioContext quoi qu'il arrive
+  const teardownRecording = () => {
+    const r = recRef.current;
+    recRef.current = null;
+    if (!r) return null;
+    try { r.stream.getTracks().forEach((t) => t.stop()); } catch { /* noop */ }
+    try { r.node.disconnect(); } catch { /* noop */ }
+    try { r.src.disconnect(); } catch { /* noop */ }
+    r.node.onaudioprocess = null;
+    return r;
+  };
+
+  useEffect(() => () => {
+    const r = teardownRecording();
+    if (r) void r.ctx.close().catch(() => {});
+  }, []);
+
   const startRecording = async () => {
+    let stream: MediaStream | null = null;
+    let ctx: AudioContext | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const ctx = new AudioContext();
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
       const node = ctx.createScriptProcessor(4096, 1, 1);
       const chunks: Float32Array[] = [];
@@ -74,6 +93,8 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
       setRecording(true);
     } catch (e) {
       console.error(e);
+      stream?.getTracks().forEach((t) => t.stop());
+      if (ctx) await ctx.close().catch(() => {});
       toast.error("Micro inaccessible", { description: "Autorise le micro pour dicter ton trajet." });
     }
   };
@@ -82,11 +103,20 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
     const r = recRef.current;
     if (!r) return;
     setRecording(false);
-    r.stream.getTracks().forEach((t) => t.stop());
-    r.node.disconnect(); r.src.disconnect();
-    const blob = encodeWav(r.chunks, r.ctx.sampleRate);
-    await r.ctx.close();
-    recRef.current = null;
+    teardownRecording();
+
+    let blob: Blob;
+    try {
+      blob = encodeWav(r.chunks, r.ctx.sampleRate);
+    } catch (e) {
+      console.error(e);
+      await r.ctx.close().catch(() => {});
+      toast.error("Enregistrement illisible", { description: "Réessaie la dictée." });
+      return;
+    } finally {
+      // l'AudioContext n'est plus nécessaire dès que le WAV est encodé
+    }
+    await r.ctx.close().catch(() => {});
 
     if (blob.size < 2048) {
       toast.error("Enregistrement vide", { description: "Réessaie en parlant plus près du micro." });
@@ -107,6 +137,7 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
       setTranscribing(false);
     }
   };
+
 
   const handleParse = async () => {
     if (!text.trim()) return;
