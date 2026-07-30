@@ -8,6 +8,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { archiveReportPdf } from '../_shared/report-pdf.ts'
+import { authorizeReportCaller } from '../_shared/auth-guard.ts'
+
 
 
 const FRONTEND_URL = 'https://iktracker.fr'
@@ -331,6 +333,35 @@ Deno.serve(async (req) => {
     dryRun = Boolean(body?.dry_run)
     overrideEmail = body?.override_email ?? null
   }
+
+  // --- Caller authorization (cron secret | self | admin) ---
+  const auth = await authorizeReportCaller(req, supabase, onlyUserId)
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: auth.error ?? 'Unauthorized' }), {
+      status: auth.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+  if (!onlyUserId && auth.kind === 'self') {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+  // `override_email` redirects a full IK statement to an arbitrary address:
+  // reserved for cron and admin callers.
+  if (overrideEmail && !auth.privileged) {
+    console.warn('[send-user-monthly-report] override_email ignored for non-privileged caller', auth.callerId)
+    overrideEmail = null
+  }
+  console.log('[send-user-monthly-report] triggered', {
+    caller_kind: auth.kind,
+    caller_id: auth.callerId,
+    target_user_id: onlyUserId,
+    dry_run: dryRun,
+    override_email: overrideEmail ? 'set' : null,
+  })
+
 
   const today = new Date()
 

@@ -17,6 +17,42 @@ const defaultLocations: Location[] = [
   { id: '2', name: 'Bureau', address: '', type: 'office' },
 ];
 
+// Rebuild a Location from the DB row, preserving the full address and the
+// geocoded coordinates so distance recalculations don't restart from scratch.
+function dbLocation(
+  name: string,
+  address: unknown,
+  lat: unknown,
+  lng: unknown,
+): Location {
+  const numLat = typeof lat === 'number' && Number.isFinite(lat) ? lat : undefined;
+  const numLng = typeof lng === 'number' && Number.isFinite(lng) ? lng : undefined;
+  const hasCoords = numLat !== undefined && numLng !== undefined && !(numLat === 0 && numLng === 0);
+  return {
+    id: '',
+    name,
+    address: typeof address === 'string' ? address : '',
+    type: 'other' as const,
+    lat: hasCoords ? numLat : undefined,
+    lng: hasCoords ? numLng : undefined,
+  };
+}
+
+// Coordinate payload for trips insert/update. Undefined values are omitted so
+// a partial update never wipes previously stored coordinates.
+function locationColumns(prefix: 'start' | 'end', loc?: Location) {
+  if (!loc) return {};
+  const valid = typeof loc.lat === 'number' && typeof loc.lng === 'number'
+    && Number.isFinite(loc.lat) && Number.isFinite(loc.lng)
+    && !(loc.lat === 0 && loc.lng === 0);
+  return {
+    [`${prefix}_address`]: loc.address || null,
+    [`${prefix}_lat`]: valid ? loc.lat : null,
+    [`${prefix}_lng`]: valid ? loc.lng : null,
+  } as Record<string, unknown>;
+}
+
+
 export function useTrips() {
   const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
@@ -82,8 +118,9 @@ export function useTrips() {
         setTrips(dbTrips.map(t => ({
           id: t.id,
           vehicleId: t.vehicle_id,
-          startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
-          endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+          startLocation: dbLocation(t.start_location, (t as any).start_address, (t as any).start_lat, (t as any).start_lng),
+          endLocation: dbLocation(t.end_location, (t as any).end_address, (t as any).end_lat, (t as any).end_lng),
+
           distance: t.distance,
           baseDistance: t.round_trip ? t.distance / 2 : t.distance,
           roundTrip: t.round_trip,
@@ -112,8 +149,9 @@ export function useTrips() {
         setArchivedTrips(dbArchivedTrips.map(t => ({
           id: t.id,
           vehicleId: t.vehicle_id,
-          startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
-          endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+          startLocation: dbLocation(t.start_location, (t as any).start_address, (t as any).start_lat, (t as any).start_lng),
+          endLocation: dbLocation(t.end_location, (t as any).end_address, (t as any).end_lat, (t as any).end_lng),
+
           distance: t.distance,
           baseDistance: t.round_trip ? t.distance / 2 : t.distance,
           roundTrip: t.round_trip,
@@ -174,14 +212,21 @@ export function useTrips() {
     // Check if there's local data to migrate
     if (!localVehicles && !localLocations && !localTrips) return;
 
+    // Each step tracks its own success. localStorage is only cleared for the
+    // parts that fully migrated, so a partial failure never loses local data.
+    let vehiclesMigrated = false;
+    let locationsMigrated = false;
+    let tripsMigrated = false;
+
     try {
       // Migrate vehicles
       if (localVehicles) {
         const vehiclesToMigrate: Vehicle[] = JSON.parse(localVehicles);
         const vehicleIdMap = new Map<string, string>();
+        let vehicleFailure = false;
 
         for (const v of vehiclesToMigrate) {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from('vehicles')
             .insert({
               user_id: user.id,
@@ -196,18 +241,23 @@ export function useTrips() {
             } as any)
             .select()
             .single();
-          
-          if (data) {
-            vehicleIdMap.set(v.id, data.id);
+
+          if (error || !data) {
+            vehicleFailure = true;
+            console.error('Migration: vehicle insert failed', error);
+            continue;
           }
+          vehicleIdMap.set(v.id, data.id);
         }
+        vehiclesMigrated = !vehicleFailure;
 
         // Migrate locations
         if (localLocations) {
+          let locationFailure = false;
           const locationsToMigrate: Location[] = JSON.parse(localLocations);
           for (const l of locationsToMigrate) {
             if (l.id === '1' || l.id === '2') continue; // Skip defaults
-            await supabase.from('locations').insert({
+            const { error } = await supabase.from('locations').insert({
               user_id: user.id,
               name: l.name,
               address: l.address || null,
@@ -215,38 +265,64 @@ export function useTrips() {
               latitude: l.lat || null,
               longitude: l.lng || null,
             });
+            if (error) {
+              locationFailure = true;
+              console.error('Migration: location insert failed', error);
+            }
           }
+          locationsMigrated = !locationFailure;
+        } else {
+          locationsMigrated = true;
         }
 
         // Migrate trips
         if (localTrips) {
+          let tripFailure = false;
           const tripsToMigrate: Trip[] = JSON.parse(localTrips);
           for (const t of tripsToMigrate) {
             const newVehicleId = vehicleIdMap.get(t.vehicleId);
-            if (newVehicleId) {
-              await supabase.from('trips').insert({
-                user_id: user.id,
-                vehicle_id: newVehicleId,
-                date: new Date(t.startTime).toISOString().split('T')[0],
-                start_location: t.startLocation.name,
-                end_location: t.endLocation.name,
-                distance: t.distance,
-                purpose: t.purpose || null,
-                round_trip: false,
-                ik_amount: t.ikAmount,
-              });
+            if (!newVehicleId) {
+              tripFailure = true;
+              continue;
+            }
+            const { error } = await supabase.from('trips').insert({
+              user_id: user.id,
+              vehicle_id: newVehicleId,
+              date: new Date(t.startTime).toISOString().split('T')[0],
+              start_location: t.startLocation.name,
+              end_location: t.endLocation.name,
+              ...locationColumns('start', t.startLocation),
+              ...locationColumns('end', t.endLocation),
+              distance: t.distance,
+              purpose: t.purpose || null,
+              round_trip: false,
+              ik_amount: t.ikAmount,
+            } as any);
+            if (error) {
+              tripFailure = true;
+              console.error('Migration: trip insert failed', error);
             }
           }
+          tripsMigrated = !tripFailure;
+        } else {
+          tripsMigrated = true;
         }
-
-        // Clear localStorage after migration
-        localStorage.removeItem(VEHICLES_KEY);
-        localStorage.removeItem(LOCATIONS_KEY);
-        localStorage.removeItem(TRIPS_KEY);
       }
     } catch (error) {
       console.error('Migration error:', error);
     }
+
+    // Clear only what migrated cleanly.
+    if (vehiclesMigrated && locationsMigrated && tripsMigrated) {
+      localStorage.removeItem(VEHICLES_KEY);
+      localStorage.removeItem(LOCATIONS_KEY);
+      localStorage.removeItem(TRIPS_KEY);
+    } else {
+      console.warn('Migration incomplete — local data kept as a safety net', {
+        vehiclesMigrated, locationsMigrated, tripsMigrated,
+      });
+    }
+
   }, [user]);
 
   useEffect(() => {
@@ -317,6 +393,9 @@ export function useTrips() {
           date: new Date(trip.startTime).toISOString().split('T')[0],
           start_location: trip.startLocation.name,
           end_location: trip.endLocation.name,
+          ...locationColumns('start', trip.startLocation),
+          ...locationColumns('end', trip.endLocation),
+
           distance: trip.distance,
           purpose: trip.purpose || null,
           round_trip: trip.roundTrip,
@@ -475,6 +554,9 @@ export function useTrips() {
           date: updates.startTime ? new Date(updates.startTime).toISOString().split('T')[0] : undefined,
           start_location: updates.startLocation?.name,
           end_location: updates.endLocation?.name,
+          ...locationColumns('start', updates.startLocation),
+          ...locationColumns('end', updates.endLocation),
+
           distance: updates.distance,
           round_trip: updates.roundTrip,
           purpose: updates.purpose !== undefined ? (updates.purpose || null) : undefined,
@@ -760,8 +842,9 @@ export function useTrips() {
           setTrips(updatedTrips.map(t => ({
             id: t.id,
             vehicleId: t.vehicle_id,
-            startLocation: { id: '', name: t.start_location, address: '', type: 'other' as const },
-            endLocation: { id: '', name: t.end_location, address: '', type: 'other' as const },
+            startLocation: dbLocation(t.start_location, (t as any).start_address, (t as any).start_lat, (t as any).start_lng),
+            endLocation: dbLocation(t.end_location, (t as any).end_address, (t as any).end_lat, (t as any).end_lng),
+
             distance: t.distance,
             baseDistance: t.round_trip ? t.distance / 2 : t.distance,
             roundTrip: t.round_trip,
