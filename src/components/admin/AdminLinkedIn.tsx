@@ -252,6 +252,56 @@ export function AdminLinkedIn() {
 
       <Card>
         <CardHeader>
+          <CardTitle className="text-base">Corpus de style</CardTitle>
+          <CardDescription>
+            Colle ici tes propres posts LinkedIn. Ce sont eux qui servent de référence de style au modèle,
+            l'API LinkedIn ne permettant pas de relire tes publications passées.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Textarea
+            value={newSample}
+            onChange={(e) => setNewSample(e.target.value)}
+            rows={6}
+            placeholder="Colle un post LinkedIn que tu as écrit, tel quel."
+          />
+          <Button
+            onClick={() => addSample.mutate()}
+            disabled={addSample.isPending || newSample.trim().length < 80}
+          >
+            {addSample.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+            Ajouter au corpus
+          </Button>
+
+          {samples.isLoading ? (
+            <p className="text-sm text-muted-foreground">Chargement…</p>
+          ) : (samples.data?.length ?? 0) === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucun exemple enregistré. Le modèle écrit sans référence de style.</p>
+          ) : (
+            <div className="space-y-2">
+              {samples.data!.map((s: any) => (
+                <div key={s.id} className="p-3 rounded border text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="whitespace-pre-wrap flex-1">{s.content}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteSample.mutate(s.id)}
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{s.content.length} caractères</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle className="text-base">Historique des runs</CardTitle>
           <CardDescription>15 derniers enregistrements de <code>linkedin_post_log</code>.</CardDescription>
         </CardHeader>
