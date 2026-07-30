@@ -116,7 +116,7 @@ export function AdminLinkedIn() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('linkedin_post_log')
-        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms, post_text, linkedin_post_id, linkedin_asset_urn')
+        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms, post_text, linkedin_post_id, linkedin_asset_urn, audit_status, audit_score, audit_hook_score, audited_at, audit_report')
         .order('posted_at', { ascending: false })
         .limit(15);
       if (error) throw error;
@@ -150,6 +150,32 @@ export function AdminLinkedIn() {
     },
     onError: (e: any) =>
       toast({ title: 'Republication impossible', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
+  // ─── Audit qualité d'un post publié (hook + potentiel d'impressions) ──────
+  const audit = useMutation({
+    mutationFn: async (opts: { postId?: string; dryRun?: boolean }) => {
+      const params = new URLSearchParams();
+      if (opts.postId) params.set('post_id', opts.postId);
+      if (opts.dryRun) params.set('dry_run', '1');
+      const path = `linkedin-post-audit${params.toString() ? `?${params.toString()}` : ''}`;
+      const { data, error } = await supabase.functions.invoke(path, { method: 'POST' as any });
+      if (error) throw error;
+      if ((data as any)?.ok === false) throw new Error((data as any).error ?? 'Échec');
+      return data as any;
+    },
+    onSuccess: (data) => {
+      setRawResponse(JSON.stringify(data, null, 2));
+      toast({
+        title: data?.skipped ? 'Aucun post à auditer' : `Audit : ${data?.audit_status ?? '—'}`,
+        description: data?.skipped
+          ? undefined
+          : `Score ${data?.score ?? '—'}/100 · hook ${data?.hook_score ?? '—'}/10${data?.needs_fix ? ' · correction déclenchée' : ''}`,
+      });
+      logs.refetch();
+    },
+    onError: (e: any) =>
+      toast({ title: 'Audit impossible', description: e?.message ?? String(e), variant: 'destructive' }),
   });
 
 
@@ -373,7 +399,19 @@ export function AdminLinkedIn() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Historique des runs</CardTitle>
-          <CardDescription>15 derniers enregistrements de <code>linkedin_post_log</code>.</CardDescription>
+          <CardDescription>
+            15 derniers enregistrements de <code>linkedin_post_log</code>. Un audit qualité automatique relit chaque post publié 5 minutes après sa mise en ligne, note le hook et le potentiel d'impressions, et republie une version corrigée avec le même média si le score est insuffisant.
+          </CardDescription>
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => audit.mutate({})}
+              disabled={audit.isPending}
+            >
+              {audit.isPending ? 'Audit en cours…' : 'Lancer l’audit maintenant'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {logs.isLoading ? (
@@ -392,12 +430,38 @@ export function AdminLinkedIn() {
                       </Badge>
                       {l.media_type && <Badge variant="outline" className="text-xs">{l.media_type}</Badge>}
                       {l.triggered_by && <Badge variant="outline" className="text-xs">{l.triggered_by}</Badge>}
+                      {l.audit_status && (
+                        <Badge
+                          variant={l.audit_status === 'passed' ? 'default' : l.audit_status === 'fix_failed' ? 'destructive' : 'secondary'}
+                          className="text-xs"
+                        >
+                          audit {l.audit_status}
+                          {typeof l.audit_score === 'number' ? ` ${l.audit_score}/100` : ''}
+                          {typeof l.audit_hook_score === 'number' ? ` · hook ${l.audit_hook_score}/10` : ''}
+                        </Badge>
+                      )}
                     </div>
                     {l.error_message && (
                       <p className="text-xs text-destructive mt-1 truncate">{l.error_message}</p>
                     )}
+                    {Array.isArray(l.audit_report?.issues) && l.audit_report.issues.length > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1 truncate">
+                        Audit : {l.audit_report.issues.slice(0, 2).join(' · ')}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    {l.status === 'success' && l.linkedin_post_id && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => audit.mutate({ postId: l.linkedin_post_id })}
+                        disabled={audit.isPending}
+                        title="Auditer ce post"
+                      >
+                        Auditer
+                      </Button>
+                    )}
                     {l.status === 'success' && l.linkedin_post_id && l.linkedin_asset_urn && (
                       <Button
                         variant="outline"
@@ -415,6 +479,7 @@ export function AdminLinkedIn() {
                         Corriger
                       </Button>
                     )}
+
                     <div className="text-xs text-muted-foreground whitespace-nowrap">
                       {l.posted_at ? new Date(l.posted_at).toLocaleString('fr-FR') : '—'}
                     </div>

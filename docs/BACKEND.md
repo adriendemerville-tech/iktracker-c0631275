@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.2 — 28 juillet 2026
+> Version 3.3 — 30 juillet 2026
 
 ## Table des matières
 
@@ -419,6 +419,22 @@ Content-Type: application/json
 - **Logs** : `public.linkedin_post_log` (colonnes `media_type`, `triggered_by`, `duration_ms`, `error_message`).
 - **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run, **gestion du corpus de style** (ajout/suppression d'exemples), aperçu du prompt visuel dérivé, et historique des 15 derniers runs.
 - **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
+
+#### `linkedin-post-audit` — Boucle qualité post-publication
+
+Seconde fonction de la boucle d'automatisation : elle relit le post **réellement publié** environ 5 minutes après sa mise en ligne et le corrige s'il ne respecte pas les règles de rédaction.
+
+- **Auth** : `x-cron-secret` (CRON_SECRET / SYNC_CRON_TOKEN) ou JWT admin.
+- **Cron** : job `linkedin-post-audit-5min`, planification `*/5 * * * *`. Chaque exécution traite au plus un post : le dernier run `success` publié il y a plus de 5 min, moins de 24 h, avec `audit_status IS NULL`.
+- **Lecture du post** : `GET /rest/posts/{urn}` (repli `GET /v2/ugcPosts/{urn}`), repli final sur `post_text` journalisé. Engagement précoce lu via `/v2/socialActions/{urn}` (réactions + commentaires — les impressions brutes ne sont exposées que pour les pages entreprise, l'engagement sert de proxy).
+- **Contrôles déterministes** (`runDeterministicChecks`) : longueur 1000–1500 signes, caractères interdits, tirets d'incise, aération (≥ 6 paragraphes, aucun > 300 signes), hook isolé ≤ 220 signes.
+- **Audit LLM** : Mistral (Wavespeed) avec fallback Gemini 2.5 Flash, sortie JSON stricte `{ score, hook_score, impressions_score, verdict, issues[], hook_analysis, improved_text }`. Le prompt met la priorité sur le **hook** (première ligne autoportante, factuelle, sans question rhétorique) et le **potentiel d'impressions** (3 premières lignes avant la coupure « voir plus », pas de lien ni de hashtag en tête, aération forte).
+- **Déclenchement d'une correction** si `hard_fail` (échec d'un contrôle déterministe) **ou** `score < 80` **ou** `hook_score < 7`, avec `audit_attempts < 2` (garde anti-boucle). La correction appelle `linkedin-weekly-post?mode=repost` avec `improved_text` et l'`asset_urn` d'origine : le média est conservé à l'identique.
+- **Journalisation** : colonnes `audit_status` (`passed` | `corrected` | `fix_failed` | `would_fix` | `post_fix`), `audit_score`, `audit_hook_score`, `audit_attempts`, `audited_at`, `audit_report` (jsonb complet) sur `public.linkedin_post_log`. Le run issu de la republication est marqué `post_fix` pour ne pas être ré-audité en boucle.
+- **Query params** : `?post_id=<urn>` force l'audit d'un post précis, `?dry_run=1` audite sans republier (statut `would_fix`), `?min_age_min=N` ajuste l'âge minimum (défaut 5).
+- **Admin UI** : bouton « Lancer l'audit maintenant » et bouton « Auditer » par run dans l'onglet LinkedIn ; le badge d'audit affiche statut, score et note du hook.
+- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
+
 
 #### `gsc-analytics` — Google Search Console
 
@@ -1141,6 +1157,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- **3.3** (30 juillet 2026) — Boucle qualité LinkedIn : nouvelle Edge Function `linkedin-post-audit` (cron `*/5 * * * *`) qui relit chaque post publié ~5 min après, l'audite (hook, potentiel d'impressions, contrôles déterministes de forme) et déclenche automatiquement une republication corrigée via `?mode=repost` en conservant le média. Nouvelles colonnes d'audit sur `linkedin_post_log`.
 - **3.2** (27 juillet 2026) — Recalcul IK opt-in : la modif d'un véhicule (CV fiscaux, statut électrique) ne recalcule plus systématiquement les trajets passés. Nouvelle case « Mettre à jour les trajets passés » dans `VehicleForm` (côté app) et paramètre `update_past_trips` dans `PATCH /vehicles/:id` de l'API partenaire. Par défaut, seuls les trajets à venir utilisent le nouveau barème. Nouveau endpoint `GET /vehicles` (liste), webhook `vehicle.updated` enrichi (`changed[]`, `update_past_trips`, `recalculated_trips`).
 - **3.1** (27 juillet 2026) — Renforcement anti-doublons des trajets à compléter : normalisation partagée en base (`normalize_trip_dedupe_text`), purge rétroactive par `date + destination + intitulé`, et trigger comptes liés (`sync_linked_trip_ins`) qui fusionne les variantes d'adresse au lieu de recréer un doublon. `sync-calendar-trips` applique la même garde avant insertion.
 - **3.0** (27 juillet 2026) — API partenaire : endpoint `/preferences` étendu en lecture + écriture pour `calendar_import_mode` **et** `ik_rate_override` (`auto`|`tier1`|`tier2`|`tier3`). `PATCH` accepté en plus de `PUT`. Webhook `preferences.updated` enrichi (`ik_rate_override` + tableau `changed[]`). Filtrage rétroactif des doublons dans les trajets à compléter (`pending_location`) pour tous les utilisateurs.

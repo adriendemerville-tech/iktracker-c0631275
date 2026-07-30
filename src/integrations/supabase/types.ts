@@ -740,6 +740,12 @@ export type Database = {
       }
       linkedin_post_log: {
         Row: {
+          audit_attempts: number
+          audit_hook_score: number | null
+          audit_report: Json | null
+          audit_score: number | null
+          audit_status: string | null
+          audited_at: string | null
           duration_ms: number | null
           error_message: string | null
           id: string
@@ -755,6 +761,12 @@ export type Database = {
           video_bytes: number | null
         }
         Insert: {
+          audit_attempts?: number
+          audit_hook_score?: number | null
+          audit_report?: Json | null
+          audit_score?: number | null
+          audit_status?: string | null
+          audited_at?: string | null
           duration_ms?: number | null
           error_message?: string | null
           id?: string
@@ -770,6 +782,12 @@ export type Database = {
           video_bytes?: number | null
         }
         Update: {
+          audit_attempts?: number
+          audit_hook_score?: number | null
+          audit_report?: Json | null
+          audit_score?: number | null
+          audit_status?: string | null
+          audited_at?: string | null
           duration_ms?: number | null
           error_message?: string | null
           id?: string
