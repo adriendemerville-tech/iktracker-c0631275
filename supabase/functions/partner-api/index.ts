@@ -1375,6 +1375,10 @@ serve(async (req) => {
       res = await handleCalculateIk(req, ctx);
     } else if (route === '/trips' && req.method === 'POST') {
       res = await handleCreateTrip(req, ctx);
+    } else if (route === '/trips' && req.method === 'GET') {
+      res = await handleListTrips(req, ctx);
+    } else if ((req.method === 'PATCH' || req.method === 'PUT') && /^\/trips\/[^/]+$/.test(route)) {
+      res = await handleUpdateTrip(req, ctx, route.split('/')[2]);
     } else if (route === '/stats' && req.method === 'GET') {
       res = await handleGetStats(req, ctx);
     } else if (route === '/dashboard' && req.method === 'GET') {
