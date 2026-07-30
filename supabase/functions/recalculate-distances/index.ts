@@ -284,13 +284,16 @@ serve(async (req) => {
     }
 
     // Batch mode: recalculate all trips with distance = 0
-    console.log('Starting batch distance recalculation...');
+    console.log(`Starting batch distance recalculation${authedUserId ? ` for user ${authedUserId}` : ' (cron)'}...`);
     
-    // Get all trips with distance = 0
-    const { data: tripsToUpdate, error: tripsError } = await supabase
+    // Get all trips with distance = 0 (scoped to the caller when user-authenticated)
+    let batchQuery = supabase
       .from('trips')
       .select('id, user_id, vehicle_id, start_location, end_location, round_trip, date')
       .eq('distance', 0)
+      .is('deleted_at', null);
+    if (authedUserId) batchQuery = batchQuery.eq('user_id', authedUserId);
+    const { data: tripsToUpdate, error: tripsError } = await batchQuery
       .order('date', { ascending: true });
 
     if (tripsError) {
