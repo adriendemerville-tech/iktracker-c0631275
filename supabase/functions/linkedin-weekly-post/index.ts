@@ -1246,7 +1246,16 @@ async function createUgcPost(
 // for member tokens, which is why every run silently degraded to a text-only post.
 // The versioned REST API is the supported path and works with w_member_social.
 
-const LI_VERSION = "202506";
+// LinkedIn ne garde actives que ~12 mois de versions : on calcule la version
+// glissante (mois courant - 2) plutôt qu'une constante qui expire silencieusement.
+function currentLiVersion(): string {
+  const override = Deno.env.get("LINKEDIN_API_VERSION");
+  if (override) return override;
+  const d = new Date();
+  d.setUTCMonth(d.getUTCMonth() - 2);
+  return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+const LI_VERSION = currentLiVersion();
 
 function restHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
@@ -1276,12 +1285,30 @@ async function restInitUpload(
 }
 
 async function putBinary(uploadUrl: string, bytes: Uint8Array, contentType: string): Promise<Response> {
+  // L'URL d'upload renvoyée par LinkedIn est pré-signée : on tente d'abord un PUT
+  // direct (le proxy gateway renvoie 405 sur ces hôtes média), puis le gateway.
+  const errors: string[] = [];
+  try {
+    const direct = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": contentType },
+      body: bytes,
+    });
+    if (direct.ok) return direct;
+    errors.push(`direct ${direct.status}: ${(await direct.text()).slice(0, 200)}`);
+  } catch (err) {
+    errors.push(`direct threw: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   const res = await gatewayFetch(toGatewayUrl(uploadUrl), {
     method: "PUT",
     headers: { "Content-Type": contentType },
     body: bytes,
   });
-  if (!res.ok) throw new Error(`upload PUT ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) {
+    errors.push(`gateway ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    throw new Error(`upload PUT failed — ${errors.join(" | ")}`);
+  }
   return res;
 }
 
@@ -1584,7 +1611,7 @@ Deno.serve(async (req) => {
 
   const startedAt = Date.now();
   const topic = findTopic(forcedTopicSlug) ?? pickTopicForThisMonth();
-  let format: MediaFormat | "text" = forceFormat === "video" || forceFormat === "carousel"
+  let format: MediaFormat | "text" | "image" = forceFormat === "video" || forceFormat === "carousel"
     ? forceFormat
     : topic.format;
 
@@ -1771,9 +1798,20 @@ Deno.serve(async (req) => {
       // so the image/video actually illustrates what the text says.
       let bytes: Uint8Array;
       if (format === "video") {
-        bytes = topic.mediaSource === "browserless"
-          ? await recordScreencast(topic)
-          : await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
+        if (topic.mediaSource === "browserless") {
+          try {
+            bytes = await recordScreencast(topic);
+          } catch (err) {
+            const reason = err instanceof Error ? err.message : String(err);
+            console.warn(`[media] Browserless screencast failed, falling back to a static screenshot: ${reason}`);
+            mediaFallback = true;
+            mediaFallbackReason = reason;
+            bytes = await captureScreenshot(topic);
+            format = "image";
+          }
+        } else {
+          bytes = await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
+        }
       } else {
         let coverBg: Uint8Array | null = null;
         const coverPrompt = derivedVisualPrompt || topic.visualPrompt;
@@ -1789,7 +1827,14 @@ Deno.serve(async (req) => {
       }
       mediaBytes = bytes.length;
 
-      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "video"
+      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "image"
+        ? [
+            { label: "rest-image", run: async () => {
+              assetUrn = await uploadImageRest(ownerUrn!, bytes);
+              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+            } },
+          ]
+        : format === "video"
         ? [
             { label: "rest-video", run: async () => {
               assetUrn = await uploadVideoRest(ownerUrn!, bytes);
