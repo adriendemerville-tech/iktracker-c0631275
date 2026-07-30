@@ -82,3 +82,47 @@ verify_jwt = true
 [functions.trips-guard]
 verify_jwt = false
 
+
+# --- Explicit declarations (Lot 3) : plus de valeur implicite ---
+
+[functions.meta-renderer]
+verify_jwt = false
+
+[functions.track-event]
+verify_jwt = false
+
+[functions.test-bot-rendering]
+verify_jwt = true
+
+[functions.google-maps-key]
+verify_jwt = true
+
+[functions.wavespeed]
+verify_jwt = true
+
+[functions.report-archive]
+verify_jwt = true
+
+[functions.send-user-monthly-report]
+verify_jwt = true
+
+[functions.gsc-analytics]
+verify_jwt = true
+
+[functions.marina-analyze]
+verify_jwt = true
+
+[functions.calendar-debug]
+verify_jwt = true
+
+[functions.generate-recurring-trips]
+verify_jwt = true
+
+[functions.purge-duplicate-trips]
+verify_jwt = true
+
+[functions.linkedin-weekly-post]
+verify_jwt = true
+
+[functions.linkedin-post-audit]
+verify_jwt = true
