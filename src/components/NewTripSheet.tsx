@@ -209,6 +209,7 @@ export function NewTripSheet({
         if (typeof start?.lat === 'number' && typeof start?.lng === 'number' &&
             typeof end?.lat === 'number' && typeof end?.lng === 'number') {
           const distance = await calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng);
+          if (!distance || distance <= 0) return;
           setCalculatedDistance(distance);
           
           // Save to cache
@@ -390,6 +391,10 @@ export function NewTripSheet({
               endCoords.lat,
               endCoords.lng
             );
+            if (!distance || distance <= 0) {
+              setStep('details');
+              return;
+            }
             setCalculatedDistance(distance);
             setManualDistance(distance.toFixed(1));
             
@@ -671,7 +676,7 @@ export function NewTripSheet({
           typeof endLocRaw.lat === 'number' && typeof endLocRaw.lng === 'number') {
         d = await calculateDrivingDistance(startLocRaw.lat, startLocRaw.lng, endLocRaw.lat, endLocRaw.lng);
       }
-      if (d != null) {
+      if (d != null && d > 0) {
         setCalculatedDistance(d);
         setManualDistance(d.toFixed(1));
         const sa = startLocRaw.address || startLocRaw.name;
