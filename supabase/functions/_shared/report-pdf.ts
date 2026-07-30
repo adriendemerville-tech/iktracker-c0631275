@@ -1,8 +1,12 @@
 // Shared IK statement HTML/PDF builders.
 // Used by send-user-monthly-report (monthly archive) and report-archive (annual, on-demand).
 
-export const FRONTEND_URL = 'https://iktracker.fr'
-const BROWSERLESS_BASE = 'https://production-sfo.browserless.io'
+import {
+  BROWSERLESS_BASE, DB_PAGE_SIZE, FRONTEND_URL, MAX_PDF_BYTES, MAX_PDF_TRIP_ROWS,
+} from './config.ts'
+
+export { FRONTEND_URL }
+
 
 export interface ReportTrip {
   date: string
