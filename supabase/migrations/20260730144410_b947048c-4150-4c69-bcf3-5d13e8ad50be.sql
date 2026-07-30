@@ -1,0 +1,1 @@
+UPDATE public.trips SET distance = 0, ik_amount = 0 WHERE id = '4f36e8ad-65ee-4050-90ea-c183a1b6cfc4';
