@@ -113,8 +113,6 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
       await r.ctx.close().catch(() => {});
       toast.error("Enregistrement illisible", { description: "Réessaie la dictée." });
       return;
-    } finally {
-      // l'AudioContext n'est plus nécessaire dès que le WAV est encodé
     }
     await r.ctx.close().catch(() => {});
 
