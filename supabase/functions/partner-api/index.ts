@@ -128,6 +128,21 @@ function requireScope(ctx: PartnerContext, scope: string): boolean {
 
 // ---------- User provisioning ----------
 
+// Paginated lookup of an auth user by e-mail (listUsers has no server-side filter).
+async function findAuthUserByEmail(email: string) {
+  const needle = email.toLowerCase();
+  const perPage = 200;
+  for (let page = 1; page <= 100; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) throw new Error(`listUsers failed: ${error.message}`);
+    const users = data?.users ?? [];
+    const hit = users.find((u) => u.email?.toLowerCase() === needle);
+    if (hit) return hit;
+    if (users.length < perPage) break;
+  }
+  return null;
+}
+
 async function findOrCreateIktrackerUser(partnerId: string, externalUserId: string, externalEmail: string, metadata: Record<string, unknown> = {}): Promise<string> {
   // 1. Check existing mapping
   const { data: existing } = await admin
@@ -140,8 +155,7 @@ async function findOrCreateIktrackerUser(partnerId: string, externalUserId: stri
   if (existing?.iktracker_user_id) return existing.iktracker_user_id;
 
   // 2. Check if a Supabase user already exists with this email
-  const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  const existingUser = usersList?.users?.find(u => u.email?.toLowerCase() === externalEmail.toLowerCase());
+  const existingUser = await findAuthUserByEmail(externalEmail);
 
   let iktrackerUserId: string;
   if (existingUser) {

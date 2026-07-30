@@ -336,9 +336,16 @@ serve(async (req) => {
   }
 
   try {
-    const { licensePlate } = await req.json();
+    const payload = await req.json().catch(() => null) as { licensePlate?: unknown } | null;
+    if (!payload || typeof payload !== 'object') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const licensePlate = payload.licensePlate;
 
-    if (!licensePlate) {
+    if (!licensePlate || typeof licensePlate !== 'string') {
       return new Response(
         JSON.stringify({ error: 'License plate is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

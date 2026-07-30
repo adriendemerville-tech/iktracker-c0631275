@@ -7,17 +7,17 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
-import { archiveReportPdf } from '../_shared/report-pdf.ts'
+import {
+  archiveReportPdf, buildReportBody, escapeHtml, fetchTripsForPeriod, fmt, frenchMonth,
+  renderPdf, wrapForPdf,
+} from '../_shared/report-pdf.ts'
+import {
+  FRONTEND_URL, FROM_EMAIL, REPLY_TO, RESEND_GATEWAY, SHARE_TTL_DAYS,
+} from '../_shared/config.ts'
 import { authorizeReportCaller } from '../_shared/auth-guard.ts'
 
 
 
-const FRONTEND_URL = 'https://iktracker.fr'
-const SHARE_TTL_DAYS = 7
-const RESEND_GATEWAY = 'https://connector-gateway.lovable.dev/resend'
-const FROM_EMAIL = 'IKtracker <releves@iktracker.fr>'
-const REPLY_TO = 'contact@iktracker.fr'
-const BROWSERLESS_BASE = 'https://production-sfo.browserless.io'
 
 interface Trip {
   date: string
@@ -41,15 +41,6 @@ interface Vehicle {
 }
 
 // --------- helpers ---------
-const escapeHtml = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c] as string))
-
-const fmt = (n: number, d = 0) =>
-  n.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d })
-
-const frenchMonth = (m: number) =>
-  ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'][m]
-
 function isoDay(d: Date) { return d.toISOString().slice(0, 10) }
 
 function previousMonthRange(today: Date) {
@@ -66,124 +57,6 @@ function ytdRange(today: Date) {
     end: new Date(Date.UTC(y, today.getUTCMonth(), today.getUTCDate() + 1)),
     label: `Cumul année ${y}`,
   }
-}
-
-// --------- HTML/PDF layout ---------
-function vehiclesBlock(vehicles: Vehicle[]): string {
-  if (vehicles.length === 0) return ''
-  const rows = vehicles.map((v) => {
-    const bareme = v.is_electric
-      ? `Barème officiel + bonus 20% (100% électrique)`
-      : `Barème officiel`
-    const cv = v.fiscal_power ? `${v.fiscal_power} CV` : '—'
-    const label = [v.make, v.model].filter(Boolean).join(' ') || v.name || 'Véhicule'
-    return `
-      <tr>
-        <td>${escapeHtml(label)}</td>
-        <td>${escapeHtml(v.license_plate ?? '—')}</td>
-        <td>${escapeHtml(v.is_electric ? '100% électrique' : 'Thermique / hybride')}</td>
-        <td class="num">${escapeHtml(cv)}</td>
-        <td>${escapeHtml(bareme)}</td>
-      </tr>`
-  }).join('')
-  return `
-    <section class="vehicles">
-      <h2>Profil véhicule${vehicles.length > 1 ? 's' : ''}</h2>
-      <table class="trips">
-        <thead><tr>
-          <th>Modèle</th><th>Immatriculation</th><th>Motorisation</th>
-          <th class="num">Puiss. fiscale</th><th>Barème appliqué</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </section>`
-}
-
-function buildReportBody(title: string, userLabel: string, trips: Trip[], vehicles: Vehicle[]): string {
-  const totalKm = trips.reduce((s, t) => s + (t.distance ?? 0), 0)
-  const totalIk = trips.reduce((s, t) => s + (t.ik_amount ?? 0), 0)
-  const rows = trips
-    .slice()
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .map((t) => {
-      const d = new Date(t.date)
-      const dateStr = isNaN(d.getTime()) ? escapeHtml(t.date) : d.toLocaleDateString('fr-FR')
-      return `<tr>
-        <td>${dateStr}</td>
-        <td>${escapeHtml(t.start_location ?? '')}</td>
-        <td>${escapeHtml(t.end_location ?? '')}</td>
-        <td>${escapeHtml(t.purpose ?? '')}</td>
-        <td class="num">${fmt(t.distance ?? 0, 1)} km</td>
-        <td class="num">${fmt(t.ik_amount ?? 0, 2)} €</td>
-      </tr>`
-    }).join('')
-  return `
-    <div class="content-wrapper"><div class="page">
-      <header class="hdr">
-        <h1>${escapeHtml(title)}</h1>
-        <p class="sub">${escapeHtml(userLabel)} — généré par IKtracker</p>
-      </header>
-      <section class="summary">
-        <div><span>Trajets</span><strong>${fmt(trips.length)}</strong></div>
-        <div><span>Distance totale</span><strong>${fmt(totalKm, 1)} km</strong></div>
-        <div><span>IK totale</span><strong>${fmt(totalIk, 2)} €</strong></div>
-      </section>
-      ${vehiclesBlock(vehicles)}
-      <table class="trips">
-        <thead><tr>
-          <th>Date</th><th>Départ</th><th>Arrivée</th><th>Motif</th>
-          <th class="num">Distance</th><th class="num">IK</th>
-        </tr></thead>
-        <tbody>${rows || '<tr><td colspan="6" class="empty">Aucun trajet sur la période.</td></tr>'}</tbody>
-      </table>
-      <footer class="ftr">
-        <p>Document généré automatiquement par IKtracker — <a href="${FRONTEND_URL}">iktracker.fr</a></p>
-      </footer>
-    </div></div>`
-}
-
-function wrapForPdf(title: string, body: string): string {
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
-<style>
-  @page { size: A4; margin: 18mm 14mm; }
-  *{box-sizing:border-box}
-  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1a1a2e;margin:0}
-  .hdr h1{font-size:20px;margin:0 0 4px;color:#4f46e5}
-  .hdr .sub{color:#64748b;font-size:12px;margin:0 0 18px}
-  .summary{display:flex;gap:12px;margin-bottom:18px}
-  .summary>div{flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;background:#f8fafc}
-  .summary span{display:block;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
-  .summary strong{display:block;font-size:16px;margin-top:2px}
-  .vehicles{margin:8px 0 18px}
-  .vehicles h2{font-size:13px;color:#334155;margin:0 0 8px}
-  table.trips{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
-  table.trips th,table.trips td{border-bottom:1px solid #e2e8f0;padding:6px 8px;text-align:left;vertical-align:top}
-  table.trips th{background:#f1f5f9;font-weight:600;color:#334155}
-  table.trips td.num,table.trips th.num{text-align:right;white-space:nowrap}
-  .empty{text-align:center;color:#64748b;padding:20px 0}
-  .ftr{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center}
-  .ftr a{color:#4f46e5;text-decoration:none}
-</style></head><body>${body}</body></html>`
-}
-
-// --------- Browserless ---------
-async function renderPdf(html: string): Promise<Uint8Array> {
-  const token = Deno.env.get('BROWSERLESS_API_KEY')
-  if (!token) throw new Error('BROWSERLESS_API_KEY missing')
-  const res = await fetch(`${BROWSERLESS_BASE}/pdf?token=${token}&timeout=60000`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      html,
-      options: { format: 'A4', printBackground: true,
-        margin: { top: '18mm', right: '14mm', bottom: '18mm', left: '14mm' } },
-      waitForTimeout: 200,
-    }),
-  })
-  if (!res.ok) throw new Error(`browserless pdf failed [${res.status}]: ${(await res.text()).slice(0, 400)}`)
-  const buf = new Uint8Array(await res.arrayBuffer())
-  if (buf.byteLength === 0) throw new Error('browserless returned empty pdf')
-  return buf
 }
 
 function toBase64(bytes: Uint8Array): string {
@@ -411,16 +284,9 @@ Deno.serve(async (req) => {
       // trips window covering both period + YTD
       const windowStart = ytd.start < period.start ? ytd.start : period.start
       const windowEnd = ytd.end > period.end ? ytd.end : period.end
-      const { data: allTrips, error: tErr } = await supabase
-        .from('trips')
-        .select('date, distance, ik_amount, start_location, end_location, purpose')
-        .eq('user_id', p.user_id)
-        .is('deleted_at', null)
-        .gte('date', isoDay(windowStart))
-        .lt('date', isoDay(windowEnd))
-      if (tErr) throw tErr
-
-      const trips = (allTrips ?? []) as Trip[]
+      const trips = await fetchTripsForPeriod(
+        supabase as never, p.user_id, isoDay(windowStart), isoDay(windowEnd),
+      ) as Trip[]
       const periodTrips = trips.filter(t => t.date >= isoDay(period.start) && t.date < isoDay(period.end))
       const ytdTrips = trips.filter(t => t.date >= isoDay(ytd.start) && t.date < isoDay(ytd.end))
 

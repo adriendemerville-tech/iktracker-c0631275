@@ -10,8 +10,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import {
-  ARCHIVE_BUCKET, archiveReportPdf, buildReportBody, renderPdf, wrapForPdf,
-  type ReportTrip, type ReportVehicle,
+  ARCHIVE_BUCKET, archiveReportPdf, buildReportBody, fetchTripsForPeriod, renderPdf, wrapForPdf,
+  type ReportVehicle,
 } from '../_shared/report-pdf.ts'
 
 const json = (body: unknown, status = 200) =>
@@ -72,20 +72,13 @@ Deno.serve(async (req) => {
 
       const label = body.label?.slice(0, 80) || `Exercice ${periodStart.slice(0, 4)}`
 
-      const [{ data: vehicles }, { data: trips, error: tErr }] = await Promise.all([
+      const [{ data: vehicles }, tripList] = await Promise.all([
         admin.from('vehicles')
           .select('id,name,make,model,year,license_plate,fiscal_power,is_electric')
           .eq('user_id', user.id),
-        admin.from('trips')
-          .select('date, distance, ik_amount, start_location, end_location, purpose')
-          .eq('user_id', user.id)
-          .is('deleted_at', null)
-          .gte('date', periodStart)
-          .lt('date', periodEnd),
+        fetchTripsForPeriod(admin as never, user.id, periodStart, periodEnd),
       ])
-      if (tErr) throw tErr
 
-      const tripList = (trips ?? []) as ReportTrip[]
       if (tripList.length === 0) return json({ error: 'Aucun trajet sur cet exercice' }, 400)
 
       const meta = (user.user_metadata ?? {}) as Record<string, string>

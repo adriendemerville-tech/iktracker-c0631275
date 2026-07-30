@@ -1141,7 +1141,16 @@ Envoi automatique du relevé kilométrique **à l'utilisateur lui-même** (disti
 - **Edge function** `report-archive` (JWT requis, tout scopé sur `auth.uid()`) :
   - `POST { action: 'signed_url', id }` → URL signée 5 min du PDF archivé.
   - `POST { action: 'generate_annual', period_start, period_end, label? }` → génère le relevé d'exercice (Browserless) et l'archive. Erreur 400 si aucun trajet sur la période.
-- **Module partagé** `supabase/functions/_shared/report-pdf.ts` : `buildReportBody`, `wrapForPdf`, `renderPdf`, `archiveReportPdf` (mutualisé avec `send-user-monthly-report`).
+- **Module partagé** `supabase/functions/_shared/report-pdf.ts` : `buildReportBody`, `wrapForPdf`, `renderPdf`, `archiveReportPdf` (mutualisé avec `send-user-monthly-report`), `send-accountant-report` et `report-archive`).
+
+### Robustesse des relevés (Lot 3)
+
+- **`supabase/functions/_shared/config.ts`** : source unique pour `FRONTEND_URL`, `BROWSERLESS_BASE`, `RESEND_GATEWAY`, `FROM_EMAIL`, `REPLY_TO`, `SHARE_TTL_DAYS`, `MAX_PDF_BYTES` (8 Mo), `MAX_PDF_TRIP_ROWS` (3000), `DB_PAGE_SIZE` (1000).
+- **`fetchTripsForPeriod(admin, userId, start, end)`** (dans `report-pdf.ts`) : lecture paginée des trajets par pages de 1000 (`range`), utilisée par `report-archive`, `send-user-monthly-report` et `send-accountant-report`. Supprime la troncature silencieuse à 1000 lignes sur les relevés annuels.
+- **Garde de taille PDF** : `renderPdf` échoue explicitement au-delà de `MAX_PDF_BYTES` ; au-delà de `MAX_PDF_TRIP_ROWS` le tableau est tronqué et une mention indique le nombre de trajets non détaillés (les totaux restent complets).
+- **`partner-api`** : la résolution d'un utilisateur par e-mail utilise désormais une pagination réelle (`listUsers` par pages de 200, arrêt anticipé) au lieu d'un unique `perPage: 1000`.
+- **Validation d'entrée** : `vehicle-lookup` et `test-bot-rendering` renvoient `400 {"error":"Invalid JSON body"}` sur corps vide ou JSON invalide (au lieu d'une 500).
+- **`supabase/config.toml`** : `verify_jwt` déclaré explicitement pour toutes les fonctions (publiques : `meta-renderer`, `track-event`, en plus des existantes ; protégées : `report-archive`, `send-user-monthly-report`, `wavespeed`, `google-maps-key`, `gsc-analytics`, `marina-analyze`, `calendar-debug`, `generate-recurring-trips`, `purge-duplicate-trips`, `linkedin-weekly-post`, `linkedin-post-audit`, `test-bot-rendering`).
 - **Frontend** : page desktop-only `/app/archive` (`src/pages/Archive.tsx`), entrée « Archive relevés » dans `DesktopSidebar`. Liste groupée par année, aperçu PDF en modale iframe, téléchargement, bouton « Générer le relevé annuel » sur le dernier exercice clos (dates dérivées de `fiscalYearStartMonth`/`fiscalYearStartDay`).
 - **Rétroactif** : non — l'archive se remplit à partir des envois du 15 suivants.
 
