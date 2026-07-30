@@ -88,13 +88,12 @@ Matrice actuelle :
 | import-takeout | carousel | wavespeed |
 | bareme-progressif | carousel | wavespeed |
 | bonus-electrique | carousel | wavespeed |
-| ik-velo | carousel | wavespeed |
 | gratuit-a-vie | carousel | wavespeed |
 | confidentialite | carousel | wavespeed |
 | comparatif | carousel | wavespeed |
 | trajets-recurrents | carousel (6 slides) | wavespeed |
 
-La rotation mensuelle est déterministe : `TOPICS[monthIndex % TOPICS.length]`.
+Rotation mensuelle déterministe et pondérée : **2 posts sur 3** portent sur une fonctionnalité produit (`PRODUCT_SLUGS`), le 3e sur un sujet de contexte fiscal ou de marque (`CONTEXT_SLUGS`). Le topic IK vélo a été retiré de la rotation.
 
 ---
 
