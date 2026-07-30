@@ -115,13 +115,42 @@ export function AdminLinkedIn() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('linkedin_post_log')
-        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms')
+        .select('id, topic_slug, topic_title, media_type, status, error_message, posted_at, triggered_by, duration_ms, post_text, linkedin_post_id, linkedin_asset_urn')
         .order('posted_at', { ascending: false })
         .limit(15);
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  // ─── Correction d'un post publié : suppression + republication ────────────
+  // L'API LinkedIn n'autorise pas l'édition du texte via le gateway ; on
+  // supprime le post et on le republie avec le même asset média.
+  const [editing, setEditing] = useState<{ postId: string; assetUrn: string; title: string } | null>(null);
+  const [editText, setEditText] = useState('');
+
+  const repost = useMutation({
+    mutationFn: async () => {
+      if (!editing) throw new Error('Aucun post sélectionné');
+      const { data, error } = await supabase.functions.invoke(
+        'linkedin-weekly-post?mode=repost',
+        { method: 'POST' as any, body: { post_id: editing.postId, text: editText, asset_urn: editing.assetUrn } },
+      );
+      if (error) throw error;
+      if ((data as RunResult)?.ok === false) throw new Error((data as RunResult).error ?? 'Échec');
+      return data as RunResult;
+    },
+    onSuccess: (data) => {
+      setEditing(null);
+      setResult(data);
+      setRawResponse(JSON.stringify(data, null, 2));
+      toast({ title: 'Post republié', description: `Nouvel identifiant : ${data?.post_id ?? '—'}` });
+      logs.refetch();
+    },
+    onError: (e: any) =>
+      toast({ title: 'Republication impossible', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
 
   const run = useMutation({
     mutationFn: async () => {
