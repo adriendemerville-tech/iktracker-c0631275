@@ -103,8 +103,15 @@ export function DetailsStepContent({
   // les coordonnées enregistrées peuvent être incorrectes (ex. import,
   // ancienne géoloc « Position »). On regéocode depuis les adresses
   // affichées et on met à jour si l'écart avec la valeur saisie est notable.
+  // Reset the guard when another trip is opened in the same mounted sheet.
+  const autoRecalcKey = useRef<string | null>(null);
   const autoRecalcDone = useRef(false);
   useEffect(() => {
+    const key = `${(draft as any).id ?? ''}|${draft.startLocation?.address || draft.startLocation?.name || ''}|${draft.endLocation?.address || draft.endLocation?.name || ''}`;
+    if (autoRecalcKey.current !== key) {
+      autoRecalcKey.current = key;
+      autoRecalcDone.current = false;
+    }
     if (autoRecalcDone.current) return;
     if (!isEditing) return;
     const start = draft.startLocation;
@@ -117,8 +124,8 @@ export function DetailsStepContent({
     (async () => {
       try {
         const [sc, ec] = await Promise.all([
-          geocodeAddress(startAddr),
-          geocodeAddress(endAddr),
+          resolveCoords(start),
+          resolveCoords(end),
         ]);
         if (!sc || !ec) return;
         const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
@@ -141,21 +148,24 @@ export function DetailsStepContent({
 
   // Handle Géoplateforme suggestion selection for start
   const handleStartSelect = async (suggestion: AddressSuggestion) => {
-    const { lat, lng, city, fulltext } = suggestion;
+    const { city, fulltext } = suggestion;
+    // Google Places predictions come back without coordinates (0,0):
+    // geocode the address instead of persisting a meaningless origin.
+    const coords = await resolveSuggestionCoords(suggestion);
     const newLocation: Location = {
       id: draft.startLocation?.id || `temp-${crypto.randomUUID()}`,
       name: city || 'Lieu',
       address: fulltext,
-      lat,
-      lng,
+      lat: coords?.lat,
+      lng: coords?.lng,
       type: draft.startLocation?.type || 'other',
     };
     setStartAddress(fulltext);
     setDraft(d => ({ ...d, startLocation: newLocation }));
 
-    if (draft.endLocation?.lat && draft.endLocation?.lng) {
+    if (coords && draft.endLocation?.lat && draft.endLocation?.lng) {
       try {
-        const distance = await calculateDrivingDistance(lat, lng, draft.endLocation.lat, draft.endLocation.lng);
+        const distance = await calculateDrivingDistance(coords.lat, coords.lng, draft.endLocation.lat, draft.endLocation.lng);
         setCalculatedDistance(distance);
         setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
       } catch (e) {
@@ -166,21 +176,22 @@ export function DetailsStepContent({
 
   // Handle Géoplateforme suggestion selection for end
   const handleEndSelect = async (suggestion: AddressSuggestion) => {
-    const { lat, lng, city, fulltext } = suggestion;
+    const { city, fulltext } = suggestion;
+    const coords = await resolveSuggestionCoords(suggestion);
     const newLocation: Location = {
       id: draft.endLocation?.id || `temp-${crypto.randomUUID()}`,
       name: city || 'Lieu',
       address: fulltext,
-      lat,
-      lng,
+      lat: coords?.lat,
+      lng: coords?.lng,
       type: draft.endLocation?.type || 'other',
     };
     setEndAddress(fulltext);
     setDraft(d => ({ ...d, endLocation: newLocation }));
 
-    if (draft.startLocation?.lat && draft.startLocation?.lng) {
+    if (coords && draft.startLocation?.lat && draft.startLocation?.lng) {
       try {
-        const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, lat, lng);
+        const distance = await calculateDrivingDistance(draft.startLocation.lat, draft.startLocation.lng, coords.lat, coords.lng);
         setCalculatedDistance(distance);
         setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
       } catch (e) {
@@ -188,6 +199,7 @@ export function DetailsStepContent({
       }
     }
   };
+
 
   return (
     <div className="animate-fade-in space-y-6">
