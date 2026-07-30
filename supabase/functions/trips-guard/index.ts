@@ -155,24 +155,31 @@ serve(async (req) => {
   const sinceDays = Number(body?.since_days) > 0 ? Number(body.since_days) : 400;
   const sinceDate = new Date(Date.now() - sinceDays * 86400000).toISOString().slice(0, 10);
 
-  let query = supabase
-    .from('trips')
-    .select('id, user_id, vehicle_id, date, start_location, end_location, start_address, end_address, start_lat, start_lng, end_lat, end_lng, distance, ik_amount, round_trip, tour_stops')
-    .is('deleted_at', null)
-    .gte('date', sinceDate)
-    .order('date', { ascending: true })
-    .limit(5000);
-  if (scopedUserId) query = query.eq('user_id', scopedUserId);
+  // Pagination : PostgREST plafonne à 1000 lignes par requête
+  const rows: TripRow[] = [];
+  const PAGE = 1000;
+  for (let offset = 0; offset < 20000; offset += PAGE) {
+    let query = supabase
+      .from('trips')
+      .select('id, user_id, vehicle_id, date, start_location, end_location, start_address, end_address, start_lat, start_lng, end_lat, end_lng, distance, ik_amount, round_trip, tour_stops')
+      .is('deleted_at', null)
+      .gte('date', sinceDate)
+      .order('date', { ascending: true })
+      .order('id', { ascending: true })
+      .range(offset, offset + PAGE - 1);
+    if (scopedUserId) query = query.eq('user_id', scopedUserId);
 
-  const { data: trips, error: tripsError } = await query;
-  if (tripsError) {
-    console.error('trips-guard: fetch error', tripsError);
-    return new Response(JSON.stringify({ error: 'Failed to load trips' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    const { data, error: tripsError } = await query;
+    if (tripsError) {
+      console.error('trips-guard: fetch error', tripsError);
+      return new Response(JSON.stringify({ error: 'Failed to load trips' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    rows.push(...((data || []) as TripRow[]));
+    if (!data || data.length < PAGE) break;
   }
 
-  const rows = (trips || []) as TripRow[];
 
   // Caches
   const vehicleCache = new Map<string, { fiscal_power: number; is_electric: boolean } | null>();
