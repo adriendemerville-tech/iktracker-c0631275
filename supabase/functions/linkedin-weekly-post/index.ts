@@ -21,6 +21,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
+import { DOC_SECTIONS } from "./docs-context.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -315,6 +316,70 @@ function findTopic(slug: string | null): Topic | null {
   if (!slug) return null;
   return TOPICS.find((t) => t.slug === slug) ?? null;
 }
+
+// ─── Contexte documentaire technique ───────────────────────────────────────
+// docs-context.ts est généré depuis docs/BACKEND.md + docs/FRONTEND.md par
+// scripts/generate-linkedin-docs-context.cjs. On sélectionne les sections
+// pertinentes pour le topic afin d'ancrer le post dans l'implémentation réelle.
+
+const DOC_KEYWORDS: Record<string, string[]> = {
+  simulateur: ["simulateur", "barème", "ik", "calcul", "indemnité", "cv fiscaux"],
+  "mode-tournee": ["tournée", "tour", "gps", "géolocalisation", "haversine", "distance matrix", "stop"],
+  "import-takeout": ["takeout", "recovery", "import", "wizard", "historique"],
+  "sync-calendrier": ["calendar", "calendrier", "sync-calendar-trips", "google calendar", "outlook", "oauth"],
+  "detection-plaque": ["plaque", "vehicle-lookup", "immatriculation", "véhicule", "carburant"],
+  "bareme-progressif": ["barème", "tranche", "5 000", "20 000", "calcul", "ik"],
+  "bonus-electrique": ["électrique", "bonus", "20%", "multiplicateur", "véhicule"],
+  "export-pdf": ["pdf", "export", "relevé", "rapport", "print", "comptable"],
+  "gratuit-a-vie": ["architecture", "coût", "edge function", "supabase", "infrastructure"],
+  confidentialite: ["rls", "policy", "sécurité", "rgpd", "données", "suppression"],
+  comparatif: ["architecture", "fonctionnalité", "gps", "confidentialité", "coût"],
+  "trajets-recurrents": ["récurrent", "recurring", "generate-recurring-trips", "cron", "trajet"],
+};
+
+function normalizeForMatch(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Sélection par score de mots-clés (titre pondéré ×3), plafonnée pour ne pas
+// noyer le prompt : la doc sert d'ancrage factuel, pas de corpus.
+function docContextForTopic(topic: Topic, maxChars = 4500): string {
+  const keys = [
+    ...(DOC_KEYWORDS[topic.slug] ?? []),
+    ...topic.title.split(/\s+/).filter((w) => w.length > 5),
+  ].map(normalizeForMatch);
+  if (!keys.length) return "";
+
+  const scored = DOC_SECTIONS.map((section) => {
+    const heading = normalizeForMatch(section.heading);
+    const body = normalizeForMatch(section.body);
+    let score = 0;
+    for (const k of keys) {
+      if (heading.includes(k)) score += 3;
+      if (body.includes(k)) score += 1;
+    }
+    return { section, score };
+  })
+    .filter((s) => s.score >= 2)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  let out = "";
+  for (const { section } of scored) {
+    const block = `### ${section.heading} (doc ${section.origin})\n${section.body}\n\n`;
+    if (out.length + block.length > maxChars) break;
+    out += block;
+  }
+  return out.trim();
+}
+
+// Sections doc utilisées pour orienter la capture vidéo/écran : on indique au
+// pipeline média quelles zones d'UI comptent réellement pour ce module.
+function captureHintsForTopic(topic: Topic): string {
+  const ctx = docContextForTopic(topic, 1200);
+  return ctx ? ctx.slice(0, 1200) : topic.focus;
+}
+
 
 // ─── Wavespeed helpers ─────────────────────────────────────────────────────
 
@@ -624,6 +689,8 @@ ${samplesBlock}`;
     .map((f) => `. ${f}`)
     .join("\n");
 
+  const docBlock = docContextForTopic(topic);
+
   const user = `Module IKtracker à présenter ce mois-ci : ${topic.title}
 
 Résumé du module :
@@ -631,34 +698,63 @@ ${topic.focus}
 
 Faits techniques vérifiés à exploiter :
 ${factsBlock || ". (aucun fait complémentaire, reste strictement sur le résumé ci-dessus)"}
+${docBlock ? `
+EXTRAITS DE LA DOCUMENTATION TECHNIQUE INTERNE (source de vérité sur l'implémentation réelle, à reformuler en langage clair, jamais à recopier ni à citer comme documentation) :
+${docBlock}
 
+Sers-toi de ces extraits pour être précis sur le mécanisme réel : déclencheur, fréquence, règle de calcul, seuils, ce qui est automatisé. N'invente rien qui ne figure pas dans ces extraits ou dans les faits ci-dessus. Ne mentionne aucun nom de table, de fonction technique ni de fournisseur d'infrastructure.
+` : ""}
 Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
+
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
 }
 
 // ─── Video pipeline (Browserless screencast → MP4) ─────────────────────────
 
-async function recordScreencast(topic: Topic): Promise<Uint8Array> {
+async function recordScreencast(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array> {
   const token = Deno.env.get("BROWSERLESS_API_KEY");
   if (!token) throw new Error("BROWSERLESS_API_KEY missing");
 
   const code = `
 export default async function ({ page, context }) {
-  const { url, durationMs } = context;
+  const { url, durationMs, focusLabels } = context;
   await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await new Promise(r => setTimeout(r, 2000));
 
   const recorder = await page.screencast({ path: '/tmp/rec.webm' });
 
-  const totalHeight = await page.evaluate(() => document.body.scrollHeight);
-  const steps = 24;
-  const stepDelay = Math.max(200, Math.floor(durationMs / steps));
-  for (let i = 1; i <= steps; i++) {
-    const y = Math.floor((totalHeight * i) / steps);
-    await page.evaluate((v) => window.scrollTo({ top: v, behavior: 'smooth' }), y);
-    await new Promise(r => setTimeout(r, stepDelay));
+  // Capture guidée : on cadre les zones d'UI qui portent réellement le module
+  // décrit dans le post. Si aucune n'est trouvée, on retombe sur le scroll global.
+  let visited = 0;
+  const labels = Array.isArray(focusLabels) ? focusLabels : [];
+  const perLabel = labels.length ? Math.max(1200, Math.floor(durationMs / labels.length)) : 0;
+  for (const label of labels) {
+    const found = await page.evaluate((needle) => {
+      const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
+      const target = norm(needle);
+      const nodes = Array.from(document.querySelectorAll('h1,h2,h3,section,article,button,[data-testid]'));
+      const hit = nodes.find((n) => norm(n.textContent || '').includes(target));
+      if (!hit) return false;
+      hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return true;
+    }, label).catch(() => false);
+    if (found) {
+      visited++;
+      await new Promise(r => setTimeout(r, perLabel));
+    }
+  }
+
+  if (visited === 0) {
+    const totalHeight = await page.evaluate(() => document.body.scrollHeight);
+    const steps = 24;
+    const stepDelay = Math.max(200, Math.floor(durationMs / steps));
+    for (let i = 1; i <= steps; i++) {
+      const y = Math.floor((totalHeight * i) / steps);
+      await page.evaluate((v) => window.scrollTo({ top: v, behavior: 'smooth' }), y);
+      await new Promise(r => setTimeout(r, stepDelay));
+    }
   }
   await new Promise(r => setTimeout(r, 800));
 
@@ -669,7 +765,7 @@ export default async function ({ page, context }) {
 
   const fs = require('fs');
   const buf = fs.readFileSync('/tmp/out.mp4');
-  return { mp4_base64: buf.toString('base64'), size: buf.length };
+  return { mp4_base64: buf.toString('base64'), size: buf.length, focus_hits: visited };
 }
 `;
 
@@ -680,10 +776,11 @@ export default async function ({ page, context }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code,
-        context: { url: topic.url, durationMs: topic.durationMs },
+        context: { url: topic.url, durationMs: topic.durationMs, focusLabels },
       }),
     },
   );
+
 
   if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 500)}`);
   const json = await res.json();
@@ -799,6 +896,38 @@ Réponds uniquement par le prompt, 2 à 4 phrases.`;
   return { prompt: text.trim(), source };
 }
 
+// Détermine quelles zones de l'UI filmer, en croisant le post généré et la
+// documentation technique du module (ancrage sur ce qui existe réellement).
+async function deriveCaptureFocus(topic: Topic, postText: string): Promise<string[]> {
+  const system = `Tu prépares une capture vidéo d'écran d'une page web réelle.
+On te donne un post LinkedIn et des extraits de documentation technique du module concerné.
+Réponds uniquement par un JSON strict {"labels": ["...", "..."]} listant 2 à 4 libellés courts (2 à 5 mots) susceptibles d'apparaître EN TOUTES LETTRES sur la page, correspondant aux blocs d'interface qui illustrent le mieux ce que raconte le post, du plus important au moins important.
+Pas de sélecteur CSS, pas de phrase, uniquement des libellés visibles à l'écran, en français.`;
+  const user = `Page filmée : ${topic.url}
+
+Post LinkedIn :
+${postText}
+
+Documentation technique du module :
+${captureHintsForTopic(topic)}
+
+JSON :`;
+  try {
+    const { text } = await callLLM(system, user, { json: true, temperature: 0.3 });
+    const parsed = JSON.parse(text) as { labels?: unknown };
+    const labels = Array.isArray(parsed.labels)
+      ? parsed.labels.filter((l): l is string => typeof l === "string" && l.trim().length > 2).slice(0, 4)
+      : [];
+    console.log(`[capture-focus] ${labels.length ? labels.join(" / ") : "aucun libellé, scroll global"}`);
+    return labels;
+  } catch (err) {
+    console.warn(`[capture-focus] échec, scroll global: ${err instanceof Error ? err.message : String(err)}`);
+    return [];
+  }
+}
+
+
+
 async function generateSlidePlanFromText(
   topic: Topic,
   postText: string,
@@ -820,6 +949,11 @@ ${postText}
 
 Faits techniques disponibles :
 ${(TOPIC_FACTS[topic.slug] ?? []).map((f) => `. ${f}`).join("\n")}
+
+Extraits de documentation technique interne (source de vérité, à reformuler simplement, sans nom de table ni de fonction) :
+${docContextForTopic(topic, 2500)}
+
+
 
 Produis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
@@ -1800,7 +1934,8 @@ Deno.serve(async (req) => {
       if (format === "video") {
         if (topic.mediaSource === "browserless") {
           try {
-            bytes = await recordScreencast(topic);
+            const focusLabels = await deriveCaptureFocus(topic, postText);
+            bytes = await recordScreencast(topic, focusLabels);
           } catch (err) {
             const reason = err instanceof Error ? err.message : String(err);
             console.warn(`[media] Browserless screencast failed, falling back to a static screenshot: ${reason}`);
