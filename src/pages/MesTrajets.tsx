@@ -1027,13 +1027,21 @@ ${IKTRACKER_URL}`;
             <Button 
               variant="outline" 
               size="default" 
-              className="bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
+              className={`bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md transition-colors ${exportSent ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
               onClick={sendToAccountant} 
               disabled={trips.length === 0 || isExporting}
+              aria-live="polite"
             >
-              <Send className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
-              Envoyer le relevé
+              {exportSent ? (
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              ) : isExporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              {exportSent ? 'Relevé envoyé' : 'Envoyer le relevé'}
             </Button>
+
           </div>
         </div>
 
