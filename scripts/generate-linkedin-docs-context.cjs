@@ -82,6 +82,8 @@ export type DocSection = {
 export const DOC_SECTIONS: DocSection[] = ${JSON.stringify(all, null, 2)};
 `;
 
-fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(OUT, header, 'utf8');
-console.log(`✓ ${all.length} sections écrites dans ${path.relative(ROOT, OUT)} (${(header.length / 1024).toFixed(1)} kB)`);
+for (const out of OUTS) {
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, header, 'utf8');
+  console.log(`✓ ${all.length} sections écrites dans ${path.relative(ROOT, out)} (${(header.length / 1024).toFixed(1)} kB)`);
+}
