@@ -326,6 +326,29 @@ Deno.serve(async (req) => {
     }
   } catch { /* ignore */ }
 
+  // --- Caller authorization (cron secret | self | admin) ---
+  const auth = await authorizeReportCaller(req, supabase, onlyUserId)
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: auth.error ?? 'Unauthorized' }), {
+      status: auth.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+  // Batch mode (no user_id) is reserved for cron/admin callers.
+  if (!onlyUserId && auth.kind === 'self') {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+  console.log('[send-accountant-report] triggered', {
+    caller_kind: auth.kind,
+    caller_id: auth.callerId,
+    target_user_id: onlyUserId,
+    dry_run: dryRun,
+  })
+
+
   const today = new Date()
   const todayDay = today.getUTCDate()
 
