@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck, Settings } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck, Settings, Check, Loader2 } from 'lucide-react';
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,6 +45,7 @@ export default function Report() {
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportSent, setExportSent] = useState(false);
   const [isEditingAccountantEmail, setIsEditingAccountantEmail] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [showToursDropdown, setShowToursDropdown] = useState(false);
@@ -829,15 +830,20 @@ ${IKTRACKER_URL}`;
       }
 
       if (sentViaResend) {
+        setExportSent(true);
+        setTimeout(() => setExportSent(false), 4000);
         toast.success("Email envoyé au comptable", {
           description: `Relevé PDF envoyé à ${preferences.accountantEmail}`,
         });
       } else {
         window.location.href = mailtoFallback;
+        setExportSent(true);
+        setTimeout(() => setExportSent(false), 4000);
         toast.success("Email préparé", {
           description: "Le lien de prévisualisation a été ajouté à l'email",
         });
       }
+
 
       if (preferences.accountantEmail) {
         updatePreference('hasSentToAccountant', true);
@@ -1026,13 +1032,21 @@ ${IKTRACKER_URL}`;
             <Button 
               variant="outline" 
               size="default" 
-              className="bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md"
+              className={`bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md transition-colors ${exportSent ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
               onClick={sendToAccountant} 
               disabled={trips.length === 0 || isExporting}
+              aria-live="polite"
             >
-              <Send className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
-              Envoyer le relevé
+              {exportSent ? (
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              ) : isExporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              {exportSent ? 'Relevé envoyé' : 'Envoyer le relevé'}
             </Button>
+
           </div>
         </div>
 
