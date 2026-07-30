@@ -556,9 +556,9 @@ const Admin = () => {
       </Helmet>
       <div className="min-h-screen bg-background cursor-default">
       {/* Header */}
-      <header className="bg-gradient-primary text-primary-foreground px-4 pt-12 pb-6 rounded-b-[2rem]">
+      <header className="bg-gradient-primary text-primary-foreground px-4 pt-6 pb-4 rounded-b-[2rem]">
         <div className="max-w-[1600px] mx-auto">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-3">
             <Button
               variant="ghost"
               size="icon"
@@ -567,11 +567,20 @@ const Admin = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold">Administration</h1>
               <p className="text-sm opacity-80">Gestion des avis et utilisateurs</p>
             </div>
-            <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate('/app/admin/blog')}
+              className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0 shrink-0"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Gérer le blog
+            </Button>
+            <div className="flex items-center gap-2 shrink-0">
               {unresolvedErrors > 0 && (
                 <button
                   onClick={() => setActiveTab('monitoring')}
@@ -586,36 +595,23 @@ const Admin = () => {
           </div>
           
           {/* Stats */}
-          <div className="flex gap-3 mt-4 flex-wrap">
-            <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
-              <p className="text-2xl font-bold">{pendingCount}</p>
+          <div className="flex gap-2 flex-wrap">
+            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
+              <p className="text-xl font-bold">{pendingCount}</p>
               <p className="text-xs opacity-80">En attente</p>
             </div>
-            <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
-              <p className="text-2xl font-bold">{respondedCount}</p>
+            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
+              <p className="text-xl font-bold">{respondedCount}</p>
               <p className="text-xs opacity-80">Répondus</p>
             </div>
-            <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
-              <p className="text-2xl font-bold">{users.length}</p>
+            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
+              <p className="text-xl font-bold">{users.length}</p>
               <p className="text-xs opacity-80">Utilisateurs</p>
             </div>
-            <div className="bg-primary-foreground/10 rounded-xl px-4 py-2">
-              <p className="text-2xl font-bold">{adminCount}</p>
+            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
+              <p className="text-xl font-bold">{adminCount}</p>
               <p className="text-xs opacity-80">{adminRole === 'admin' ? 'Créateur' : 'Viewer'}</p>
             </div>
-          </div>
-          
-          {/* Quick actions */}
-          <div className="mt-4">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => navigate('/app/admin/blog')}
-              className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Gérer le blog
-            </Button>
           </div>
         </div>
       </header>
