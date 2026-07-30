@@ -1226,10 +1226,34 @@ Deno.serve(async (req) => {
     //    y compris en dry-run. En cas d'échec, on continue sans échantillon.
     let ownerUrn: string | null = null;
     let styleSamples: string[] = [];
+
+    // 1a) Corpus manuel saisi dans l'admin — source de vérité du style d'Adrien.
+    //     L'API LinkedIn ne rend pas les posts passés sans scope de lecture, donc
+    //     sans ce corpus le modèle écrivait "à l'aveugle".
+    try {
+      const { data: manual, error: manualErr } = await admin
+        .from("linkedin_style_samples")
+        .select("content")
+        .eq("active", true)
+        .order("created_at", { ascending: false })
+        .limit(12);
+      if (manualErr) throw manualErr;
+      styleSamples = (manual ?? [])
+        .map((r: { content: string }) => (r.content ?? "").trim())
+        .filter((c: string) => c.length >= 80);
+      console.log(`[style-samples] ${styleSamples.length} échantillons manuels chargés`);
+    } catch (err) {
+      console.warn(`[style-samples] lecture DB impossible: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    // 1b) Complément éventuel via l'API LinkedIn (souvent indisponible côté scopes).
     try {
       ownerUrn = await getMemberUrn();
       console.log(`LinkedIn owner: ${ownerUrn}`);
-      styleSamples = await fetchRecentAuthorPosts(ownerUrn, 10);
+      if (styleSamples.length < 4) {
+        const remote = await fetchRecentAuthorPosts(ownerUrn, 10);
+        styleSamples = [...styleSamples, ...remote];
+      }
     } catch (err) {
       console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
     }
