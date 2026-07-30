@@ -1800,7 +1800,14 @@ Deno.serve(async (req) => {
       }
       mediaBytes = bytes.length;
 
-      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "video"
+      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "image"
+        ? [
+            { label: "rest-image", run: async () => {
+              assetUrn = await uploadImageRest(ownerUrn!, bytes);
+              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
+            } },
+          ]
+        : format === "video"
         ? [
             { label: "rest-video", run: async () => {
               assetUrn = await uploadVideoRest(ownerUrn!, bytes);
