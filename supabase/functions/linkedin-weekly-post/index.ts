@@ -993,6 +993,155 @@ async function createUgcPost(
   return json.id || json["x-restli-id"] || "unknown";
 }
 
+// ─── LinkedIn media upload — modern REST API (/rest/images|videos|documents) ─
+// The legacy /v2/assets?action=registerUpload endpoint now returns 403 ACCESS_DENIED
+// for member tokens, which is why every run silently degraded to a text-only post.
+// The versioned REST API is the supported path and works with w_member_social.
+
+const LI_VERSION = "202506";
+
+function restHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  return {
+    "LinkedIn-Version": LI_VERSION,
+    "X-Restli-Protocol-Version": "2.0.0",
+    ...extra,
+  };
+}
+
+async function restInitUpload(
+  resource: "images" | "documents",
+  ownerUrn: string,
+): Promise<{ uploadUrl: string; urn: string }> {
+  const res = await gatewayFetch(`/rest/${resource}?action=initializeUpload`, {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
+  });
+  if (!res.ok) throw new Error(`init ${resource} ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  const json = await res.json();
+  const value = json?.value ?? {};
+  const urn = value.image ?? value.document;
+  if (!value.uploadUrl || !urn) {
+    throw new Error(`Unexpected ${resource} init payload: ${JSON.stringify(json).slice(0, 300)}`);
+  }
+  return { uploadUrl: value.uploadUrl, urn };
+}
+
+async function putBinary(uploadUrl: string, bytes: Uint8Array, contentType: string): Promise<Response> {
+  const res = await gatewayFetch(toGatewayUrl(uploadUrl), {
+    method: "PUT",
+    headers: { "Content-Type": contentType },
+    body: bytes,
+  });
+  if (!res.ok) throw new Error(`upload PUT ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  return res;
+}
+
+async function uploadImageRest(ownerUrn: string, bytes: Uint8Array): Promise<string> {
+  const { uploadUrl, urn } = await restInitUpload("images", ownerUrn);
+  await putBinary(uploadUrl, bytes, "application/octet-stream");
+  console.log(`[rest] image uploaded (${bytes.length} bytes) → ${urn}`);
+  return urn;
+}
+
+async function uploadDocumentRest(ownerUrn: string, bytes: Uint8Array): Promise<string> {
+  const { uploadUrl, urn } = await restInitUpload("documents", ownerUrn);
+  await putBinary(uploadUrl, bytes, "application/octet-stream");
+  console.log(`[rest] document uploaded (${bytes.length} bytes) → ${urn}`);
+  return urn;
+}
+
+async function uploadVideoRest(ownerUrn: string, bytes: Uint8Array): Promise<string> {
+  const initRes = await gatewayFetch("/rest/videos?action=initializeUpload", {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: ownerUrn,
+        fileSizeBytes: bytes.length,
+        uploadCaptions: false,
+        uploadThumbnail: false,
+      },
+    }),
+  });
+  if (!initRes.ok) throw new Error(`init videos ${initRes.status}: ${(await initRes.text()).slice(0, 400)}`);
+  const initJson = await initRes.json();
+  const value = initJson?.value ?? {};
+  const instructions: any[] = value.uploadInstructions ?? [];
+  const videoUrn = value.video;
+  const uploadToken = value.uploadToken ?? "";
+  if (!videoUrn || instructions.length === 0) {
+    throw new Error(`Unexpected videos init payload: ${JSON.stringify(initJson).slice(0, 300)}`);
+  }
+
+  const etags: string[] = [];
+  for (const [i, ins] of instructions.entries()) {
+    const first = Number(ins.firstByte ?? 0);
+    const last = Number(ins.lastByte ?? bytes.length - 1);
+    const chunk = bytes.slice(first, last + 1);
+    const res = await putBinary(ins.uploadUrl, chunk, "application/octet-stream");
+    const etag = res.headers.get("etag") ?? res.headers.get("ETag");
+    if (!etag) throw new Error(`No ETag returned for video part ${i}`);
+    etags.push(etag.replace(/"/g, ""));
+  }
+
+  const finRes = await gatewayFetch("/rest/videos?action=finalizeUpload", {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      finalizeUploadRequest: { video: videoUrn, uploadToken, uploadedPartIds: etags },
+    }),
+  });
+  if (!finRes.ok) throw new Error(`finalize video ${finRes.status}: ${(await finRes.text()).slice(0, 300)}`);
+  console.log(`[rest] video uploaded (${bytes.length} bytes) → ${videoUrn}`);
+  return videoUrn;
+}
+
+async function createRestPost(
+  ownerUrn: string,
+  text: string,
+  mediaUrn: string,
+  title: string,
+): Promise<string> {
+  const res = await gatewayFetch("/rest/posts", {
+    method: "POST",
+    headers: restHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      author: ownerUrn,
+      commentary: text,
+      visibility: "PUBLIC",
+      distribution: { feedDistribution: "MAIN_FEED", targetEntities: [], thirdPartyDistributionChannels: [] },
+      content: { media: { id: mediaUrn, title: title.slice(0, 100) } },
+      lifecycleState: "PUBLISHED",
+      isReshareDisabledByAuthor: false,
+    }),
+  });
+  if (!res.ok) throw new Error(`rest/posts ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  return res.headers.get("x-restli-id") ?? res.headers.get("x-linkedin-id") ?? "unknown";
+}
+
+// ─── Browserless still image (guaranteed visual fallback) ───────────────────
+
+async function captureScreenshot(topic: Topic): Promise<Uint8Array> {
+  const token = Deno.env.get("BROWSERLESS_API_KEY");
+  if (!token) throw new Error("BROWSERLESS_API_KEY missing");
+  const res = await fetch(`${BROWSERLESS_BASE}/screenshot?token=${token}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      url: topic.url,
+      options: { type: "png", fullPage: false },
+      viewport: { width: 1200, height: 1200, deviceScaleFactor: 2 },
+      gotoOptions: { waitUntil: "networkidle2", timeout: 30000 },
+      waitForTimeout: 2500,
+    }),
+  });
+  if (!res.ok) throw new Error(`Browserless screenshot ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  console.log(`[screenshot] ${topic.url} → ${bytes.length} bytes`);
+  return bytes;
+}
+
 // ─── Logging ────────────────────────────────────────────────────────────────
 
 async function logRun(supabase: ReturnType<typeof createClient>, row: Record<string, unknown>) {
