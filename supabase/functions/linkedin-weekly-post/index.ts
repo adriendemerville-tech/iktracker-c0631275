@@ -277,15 +277,37 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
     "Modifiable ou interruptible à tout moment, les occurrences passées restent intactes.",
   ],
-};
+// Rotation pondérée : 2 posts sur 3 portent sur une fonctionnalité produit
+// IKtracker (démo d'un module réel), le 3e sur un sujet de contexte fiscal/marque.
+const PRODUCT_SLUGS = [
+  "simulateur",
+  "mode-tournee",
+  "sync-calendrier",
+  "detection-plaque",
+  "export-pdf",
+  "import-takeout",
+  "trajets-recurrents",
+];
+const CONTEXT_SLUGS = [
+  "bareme-progressif",
+  "bonus-electrique",
+  "gratuit-a-vie",
+  "confidentialite",
+  "comparatif",
+];
 
-
-
-// Monthly cadence: pick topic by (year*12 + month) % TOPICS.length
+// Monthly cadence: 2/3 produit, 1/3 contexte, rotation déterministe.
 function pickTopicForThisMonth(now: Date = new Date()): Topic {
-  const idx = (now.getUTCFullYear() * 12 + now.getUTCMonth()) % TOPICS.length;
-  return TOPICS[idx];
+  const n = now.getUTCFullYear() * 12 + now.getUTCMonth();
+  const isContext = n % 3 === 2;
+  const pool = isContext ? CONTEXT_SLUGS : PRODUCT_SLUGS;
+  const cycle = Math.floor(n / 3);
+  const slug = isContext
+    ? pool[cycle % pool.length]
+    : pool[(cycle * 2 + (n % 3)) % pool.length];
+  return TOPICS.find((t) => t.slug === slug) ?? TOPICS[0];
 }
+
 
 function findTopic(slug: string | null): Topic | null {
   if (!slug) return null;
