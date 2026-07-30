@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Mic, MicOff, Sparkles, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Car, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
