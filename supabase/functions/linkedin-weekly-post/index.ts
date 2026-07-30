@@ -145,18 +145,6 @@ const TOPICS: Topic[] = [
     durationMs: 10000,
   },
   {
-    slug: "ik-velo",
-    title: "Indemnité kilométrique vélo",
-    url: "https://iktracker.fr/indemnite-kilometrique-velo",
-    format: "carousel",
-    mediaSource: "wavespeed",
-    focus:
-      "L'IK vélo existe pour les indépendants qui pédalent en ville pour leurs rendez-vous pros. Fiscalement encadrée, souvent ignorée. IKtracker la calcule et la trace comme n'importe quel autre trajet.",
-    durationMs: 8000,
-    visualPrompt:
-      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, elegant urban bicycle silhouette from side view, flat design, clean lines, ample negative space on the right, no text, no logos",
-  },
-  {
     slug: "gratuit-a-vie",
     title: "Gratuit à vie — modèle communautaire",
     url: "https://iktracker.fr/",
