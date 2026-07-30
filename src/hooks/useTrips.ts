@@ -17,6 +17,42 @@ const defaultLocations: Location[] = [
   { id: '2', name: 'Bureau', address: '', type: 'office' },
 ];
 
+// Rebuild a Location from the DB row, preserving the full address and the
+// geocoded coordinates so distance recalculations don't restart from scratch.
+function dbLocation(
+  name: string,
+  address: unknown,
+  lat: unknown,
+  lng: unknown,
+): Location {
+  const numLat = typeof lat === 'number' && Number.isFinite(lat) ? lat : undefined;
+  const numLng = typeof lng === 'number' && Number.isFinite(lng) ? lng : undefined;
+  const hasCoords = numLat !== undefined && numLng !== undefined && !(numLat === 0 && numLng === 0);
+  return {
+    id: '',
+    name,
+    address: typeof address === 'string' ? address : '',
+    type: 'other' as const,
+    lat: hasCoords ? numLat : undefined,
+    lng: hasCoords ? numLng : undefined,
+  };
+}
+
+// Coordinate payload for trips insert/update. Undefined values are omitted so
+// a partial update never wipes previously stored coordinates.
+function locationColumns(prefix: 'start' | 'end', loc?: Location) {
+  if (!loc) return {};
+  const valid = typeof loc.lat === 'number' && typeof loc.lng === 'number'
+    && Number.isFinite(loc.lat) && Number.isFinite(loc.lng)
+    && !(loc.lat === 0 && loc.lng === 0);
+  return {
+    [`${prefix}_address`]: loc.address || null,
+    [`${prefix}_lat`]: valid ? loc.lat : null,
+    [`${prefix}_lng`]: valid ? loc.lng : null,
+  } as Record<string, unknown>;
+}
+
+
 export function useTrips() {
   const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
