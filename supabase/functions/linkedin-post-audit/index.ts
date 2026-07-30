@@ -476,8 +476,12 @@ Deno.serve(async (req) => {
     const previousScore = Number((run.audit_report as any)?.previous_score ?? NaN);
     const gain = Number.isFinite(previousScore) ? score - previousScore : null;
 
-    // Conditions d'arrêt de la boucle.
-    const meetsTarget = !hardFail && score >= SCORE_THRESHOLD && hookScore >= HOOK_THRESHOLD;
+    // Conditions d'arrêt de la boucle. Un post factuellement douteux ne peut
+    // pas être validé, même avec un bon score de forme.
+    const meetsTarget = !hardFail &&
+      score >= SCORE_THRESHOLD &&
+      hookScore >= HOOK_THRESHOLD &&
+      factualScore >= FACTUAL_THRESHOLD;
     const maxedOut = attempts >= MAX_ATTEMPTS;
     const plateau = gain !== null && gain < MIN_GAIN;
 
@@ -491,7 +495,9 @@ Deno.serve(async (req) => {
       improvedChecks.hookIsSingleLine &&
       improvedText !== publishedText;
 
-    const needsFix = !meetsTarget && !maxedOut && !plateau && improvedIsValid;
+    // Une affirmation non vérifiable justifie une correction même en plateau.
+    const factualFail = factualScore < FACTUAL_THRESHOLD || unverifiedClaims.length > 0;
+    const needsFix = !meetsTarget && !maxedOut && (!plateau || factualFail) && improvedIsValid;
 
     const report = {
       source: auditSource,
@@ -500,10 +506,14 @@ Deno.serve(async (req) => {
       hook_score: hookScore,
       impressions_score: impressionsScore,
       content_score: contentScore,
+      factual_score: factualScore,
+      unverified_claims: unverifiedClaims,
+      doc_context_used: !!docBlock,
+      doc_context_chars: docBlock.length,
       iteration: attempts + 1,
       previous_score: Number.isFinite(previousScore) ? previousScore : null,
       gain,
-      thresholds: { score: SCORE_THRESHOLD, hook: HOOK_THRESHOLD, max_attempts: MAX_ATTEMPTS, min_gain: MIN_GAIN },
+      thresholds: { score: SCORE_THRESHOLD, hook: HOOK_THRESHOLD, factual: FACTUAL_THRESHOLD, max_attempts: MAX_ATTEMPTS, min_gain: MIN_GAIN },
       verdict: meetsTarget ? "conforme" : "a_corriger",
       issues: Array.isArray(audit.issues) ? audit.issues.slice(0, 10) : [],
       hook_analysis: String(audit.hook_analysis ?? "").slice(0, 500),
