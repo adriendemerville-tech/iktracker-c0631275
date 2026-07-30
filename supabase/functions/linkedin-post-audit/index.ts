@@ -32,6 +32,7 @@ const SCORE_THRESHOLD = 85;   // score composite /100
 const HOOK_THRESHOLD = 8;     // hook /10
 const MAX_ATTEMPTS = 3;       // itérations maximum par lignée de post
 const MIN_GAIN = 3;           // gain minimum de score, sinon plateau => arrêt
+const FACTUAL_THRESHOLD = 8;  // vérifiabilité doc /10, bloquante
 
 
 // ─── LinkedIn gateway ───────────────────────────────────────────────────────
