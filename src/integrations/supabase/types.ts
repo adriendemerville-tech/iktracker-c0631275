@@ -1908,6 +1908,39 @@ export type Database = {
         }
         Relationships: []
       }
+      trip_guard_runs: {
+        Row: {
+          created_at: string
+          details: Json
+          failed: number
+          fixed: number
+          id: string
+          scanned: number
+          skipped: number
+          triggered_by: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          failed?: number
+          fixed?: number
+          id?: string
+          scanned?: number
+          skipped?: number
+          triggered_by?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          failed?: number
+          fixed?: number
+          id?: string
+          scanned?: number
+          skipped?: number
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           calendar_event_id: string | null
