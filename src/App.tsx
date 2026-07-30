@@ -42,6 +42,8 @@ const BaremeIK2026 = lazy(() => import("./pages/BaremeIK2026"));
 const Offline = lazy(() => import("./pages/Offline"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
+const ArchivePage = lazy(() => import("./pages/Archive"));
+
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
