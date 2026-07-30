@@ -1,89 +1,62 @@
-# Automatisation LinkedIn — intégration Wavespeed (texte Mistral + média IA)
+## Lot 1 — Sécurité critique (impact immédiat)
 
-## Objectif
+**1. Fermer les IDOR sur les envois de relevés**
+- `send-accountant-report` et `send-user-monthly-report` : ajouter un contrôle d'appelant unique et partagé.
+- Règle : autoriser si (a) header `x-cron-secret` valide (appels planifiés), OU (b) JWT valide dont `user.id === user_id`, OU (c) JWT d'un utilisateur `admin` via `has_role`.
+- `override_email` : restreint aux admins et au secret cron uniquement ; sinon on ignore le champ et on envoie à l'adresse enregistrée.
+- Journaliser qui a déclenché l'envoi (user_id appelant, cible, canal) pour traçabilité.
+- Extraire ce garde-fou dans `_shared/auth-guard.ts` pour éviter la divergence.
 
-Faire évoluer `linkedin-weekly-post` pour :
-- Générer le **texte** du post via **Mistral hébergé sur Wavespeed**.
-- Générer les **médias non-screencast** (images de carousel + vidéos courtes) via **Wavespeed**.
-- Conserver **Browserless** uniquement pour les topics dont le média est une **capture d'écran vidéo** d'une feature réelle du site (Simulateur, Mode Tournée, Sync Calendrier, Détection plaque…).
-- **Nouveau rythme** : passer d'un cron hebdo à un cron **mensuel, le 1er mercredi du mois à 07h UTC** (~08h Paris) + bouton "Tester maintenant" dans l'admin.
+**2. Verrouiller la base**
+- `report_shares` : restreindre le SELECT public — lecture uniquement via token de partage (fonction SECURITY DEFINER prenant le token), plus d'énumération, `html_content` non exposé en direct.
+- `vehicle_cache` : remplacer `USING (true)` par une lecture authentifiée en lecture seule, écriture réservée au service role.
+- Réactiver la protection des mots de passe compromis.
+- Passe sur les warns linter : `search_path` fixé sur les fonctions, retrait de l'exécution `anon` sur les SECURITY DEFINER qui ne la nécessitent pas.
 
-## Classification des topics
+## Lot 2 — Justesse des kilomètres et des IK
 
-Chaque topic gagne un champ `mediaSource: 'browserless' | 'wavespeed'` :
+**3. Conserver les coordonnées**
+- `useTrips.ts` : persister et remapper `address`, `lat`, `lng` pour départ/arrivée (et étapes) au lieu de les reconstruire vides.
+- Vérifier la colonne de stockage côté base ; migration si les coordonnées ne sont pas toutes stockées.
 
-| Slug                    | Format   | mediaSource |
-| ----------------------- | -------- | ----------- |
-| simulateur              | video    | browserless |
-| mode-tournee            | video    | browserless |
-| sync-calendrier         | video    | browserless |
-| detection-plaque        | video    | browserless |
-| import-takeout          | carousel | wavespeed   |
-| bareme-progressif       | carousel | wavespeed   |
-| bonus-electrique        | carousel | wavespeed   |
-| *(autres non-UI)*       | *        | wavespeed   |
+**4. Interdire les distances calculées depuis (0,0)**
+- `useAddressAutocomplete.ts` : ne plus renvoyer `lat:0,lng:0` — marquer la suggestion comme « à géocoder ».
+- `DetailsStepContent.tsx` : géocoder avant tout calcul si coordonnées absentes, comme le fait déjà `TripViewSheet`.
+- Refuser silencieusement toute distance issue d'une coordonnée nulle et afficher une erreur claire.
+- Corriger `autoRecalcDone.current` (réinitialisation à l'ouverture d'un autre trajet).
 
-Règle : `browserless` uniquement pour un carousel/vidéo d'une **UI existante** du produit. Sinon Wavespeed.
+**5. Regroupement en tournée sans perte**
+- `MesTrajets.tsx` : créer la tournée d'abord, ne supprimer les trajets sources qu'après succès confirmé ; rollback et message d'erreur sinon.
 
-## Flux global (par run)
+**6. Timers GPS**
+- `useTourTracker.ts` : stocker le timeout 90s dans une ref, le nettoyer au démontage et à chaque nouvelle mesure, lire l'état via refs plutôt qu'une closure figée.
 
-```text
-1. Sélection topic (rotation mensuelle — 12 topics = ~1 an sans répétition)
-2. TEXTE   → Wavespeed → Mistral
-3. MEDIA   → selon mediaSource :
-     a) browserless → screencast MP4 (flux actuel inchangé)
-     b) wavespeed   → video : modèle vidéo Wavespeed → MP4
-                      carousel : N images Wavespeed → PDF pdf-lib
-4. Upload LinkedIn (VIDEO / DOCUMENT ugcPost)
-5. Log dans linkedin_post_log
-```
+## Lot 3 — Robustesse backend
 
-## Changements techniques
+- `report-archive` : pagination des trajets pour le relevé annuel + garde de taille sur le PDF.
+- `partner-api` : pagination réelle de la recherche d'utilisateur par e-mail (plus de `perPage: 1000`).
+- Dédupliquer le générateur PDF : les deux fonctions d'envoi consomment `_shared/report-pdf.ts`.
+- `_shared/config.ts` pour `FRONTEND_URL`, `BROWSERLESS_BASE`, `RESEND_GATEWAY`, `FROM_EMAIL`.
+- Déclarer explicitement les fonctions publiques dans `config.toml` (`track-event`, `meta-renderer`, `wavespeed`, `google-maps-key`, etc.) et vérifier que celles qui doivent rester protégées le sont.
+- `vehicle-lookup` et `test-bot-rendering` : 400 explicite sur body vide/invalide.
 
-### 1. Cron — passage hebdo → mensuel
-- Mettre à jour le job `pg_cron` existant : expression `0 7 1-7 * 3` → 07h UTC le mercredi de la première semaine du mois (= 1er mercredi).
-- Renommer le job en `linkedin-monthly-post` pour la lisibilité (l'edge function garde son nom `linkedin-weekly-post` pour éviter les cassures d'URL / signature ; on documente le décalage).
-- Suppression de l'ancienne planification hebdo dans la même migration.
+## Lot 4 — Frontend, propreté, tests
 
-### 2. Accès Mistral via Wavespeed
-- Nouveau helper `callMistral(system, prompt)` dans `linkedin-weekly-post/index.ts` qui POST `https://api.wavespeed.ai/api/v3/<mistral-model-path>` avec `WAVESPEED_API_KEY` (déjà configuré).
-- Modèle par défaut : `mistral/mistral-large-latest` (ajusté selon catalogue Wavespeed après premier test).
-- Fallback silencieux sur Gemini (Lovable AI) si l'appel échoue → cron résilient.
+- `src/test/setup.ts` : mock `ResizeObserver` (débloque les 9 tests `AuthForm`).
+- Couleurs hardcodées → tokens du design system (`Index.tsx`, `VehicleForm.tsx`, `MesTrajets.tsx`, `TripViewSheet.tsx` incluant les `ring-white/80` invisibles en clair).
+- `Index.tsx` : dépendances correctes sur l'effet de récupération de tournée, via refs.
+- `useTrips.ts` : migration localStorage→DB transactionnelle, suppression locale seulement après succès complet.
+- `TripPromptBar.tsx` : passer à `AudioWorklet` ou au minimum fermer l'`AudioContext` sur tous les chemins d'échec.
+- `Archive.tsx` : garde de démontage sur les appels async.
+- `mcp/index.ts` : régénéré, pas édité manuellement.
 
-### 3. Génération média Wavespeed
-- **Image (carousel)** : `wavespeed-ai/flux-dev` (ou `bytedance/seedream-v4`) avec `?wait=1`, télécharge chaque image, embed dans PDF pdf-lib 1080×1080 avec overlay texte via helper existant.
-- **Vidéo** : modèle text-to-video Wavespeed (ex: `wavespeed-ai/wan-2.1-t2v-720p`), `?wait=1` avec timeout élargi si nécessaire.
-- Helper `generateWavespeedMedia(format, prompt, count)` → `{ buffer: Uint8Array, mimeType: string }`.
+## Détails techniques
 
-### 4. Prompts média
-- Nouveau champ `visualPrompt: string` sur chaque topic `mediaSource: 'wavespeed'` — description visuelle (style, ambiance) sans texte incrusté (géré par pdf-lib pour les slides).
+- Chaque lot se termine par : `tsgo --noEmit`, `vitest run`, `supabase--linter`, `security--run_security_scan`, et test réseau des fonctions touchées.
+- Toute modification backend entraîne la mise à jour de `docs/BACKEND.md`, et la régénération du PDF si structurelle (nouvelle table, nouveau secret, nouvelle fonction).
+- Le secret cron : réutiliser celui déjà en place pour `linkedin-post-audit` plutôt que d'en créer un nouveau.
+- Les changements RLS passent par migration, avec `GRANT` explicites.
 
-### 5. Bouton "Tester maintenant" dans l'admin
-- Nouveau composant `AdminLinkedIn.tsx` avec :
-  - Sélecteur de topic (dropdown 12 topics)
-  - Toggle **Dry-run** (génère texte + média, ne poste PAS sur LinkedIn)
-  - Bouton **Lancer** → invoke `linkedin-weekly-post?topic=<slug>&dry_run=1`
-  - Affichage : texte généré, aperçu média, request_id Wavespeed, logs
-- Onglet "LinkedIn" ajouté dans `src/pages/Admin.tsx` (admin uniquement).
+## Ordre recommandé
 
-### 6. Edge Function — évolutions
-- Nouveaux query params : `?topic=<slug>` (force topic), `?dry_run=1` (skip upload LinkedIn).
-- Auth du bouton test : check `has_role(auth.uid(), 'admin')` via JWT côté fonction (plus propre que partager `x-cron-secret` côté client).
-- Le cron continue avec `x-cron-secret` (inchangé).
-
-### 7. Documentation
-- Mise à jour `docs/BACKEND.md` :
-  - Section `linkedin-weekly-post` : nouveau rythme mensuel, source texte Mistral/Wavespeed, source média Wavespeed, matrice topic→source.
-  - Régénération du PDF `IKTracker_Backend_Documentation.pdf`.
-
-## Hors scope
-
-- Pas de nouveau secret (WAVESPEED_API_KEY déjà en place, pas de clé Mistral séparée).
-- Pas de refonte des topics (juste enrichissement métadonnées).
-- Pas de génération audio / voice-over.
-- Pas de renommage de l'edge function (reste `linkedin-weekly-post` malgré le rythme mensuel — trace documentée).
-
-## Points à valider pendant l'implémentation
-
-- Modèle Mistral exact disponible sur Wavespeed → test rapide via balance/catalog avant de câbler.
-- Latence text-to-video Wavespeed : si > 90s, élargir le timeout de `pollUntilDone` ou basculer en async (submit + poll séparé).
+Lot 1 d'abord (faille exploitable en un appel), puis Lot 2 (fausses distances = mauvais IK déclarés), puis 3 et 4.
