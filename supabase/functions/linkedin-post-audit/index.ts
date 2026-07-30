@@ -527,17 +527,17 @@ Deno.serve(async (req) => {
     };
 
     console.log(
-      `[audit] post=${postId} iter=${attempts + 1} score=${score} hook=${hookScore} gain=${gain} needsFix=${needsFix} target=${meetsTarget} plateau=${plateau} maxed=${maxedOut}`,
+      `[audit] post=${postId} iter=${attempts + 1} score=${score} hook=${hookScore} factual=${factualScore} claims=${unverifiedClaims.length} gain=${gain} needsFix=${needsFix} target=${meetsTarget} plateau=${plateau} maxed=${maxedOut}`,
     );
 
     // 4) Correction : suppression + republication avec le même média
     let repostResult: Record<string, unknown> | null = null;
     let auditStatus: string;
     if (meetsTarget) auditStatus = "passed";
+    else if (needsFix) auditStatus = "corrected";
     else if (maxedOut) auditStatus = "max_attempts";
     else if (plateau) auditStatus = "plateau";
-    else if (!improvedIsValid) auditStatus = "fix_invalid";
-    else auditStatus = "corrected";
+    else auditStatus = "fix_invalid";
 
     if (needsFix && !dryRun) {
       const repostUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/linkedin-weekly-post?mode=repost`;
