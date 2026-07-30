@@ -610,6 +610,7 @@ Deno.serve(async (req) => {
         factual_score: factualScore,
         unverified_claims: unverifiedClaims,
         doc_context_used: !!docBlock,
+        gain,
         issues: report.issues,
         needs_fix: needsFix,
         repost: repostResult,
