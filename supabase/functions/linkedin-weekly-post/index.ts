@@ -1209,12 +1209,13 @@ async function createUgcPost(
   topic: Topic,
   mediaCategory: "VIDEO" | "DOCUMENT",
 ): Promise<string> {
+  const orgUrn = await resolveOrgUrn();
   const body = {
     author: ownerUrn,
     lifecycleState: "PUBLISHED",
     specificContent: {
       "com.linkedin.ugc.ShareContent": {
-        shareCommentary: { text },
+        shareCommentary: ugcCommentary(text, orgUrn),
         shareMediaCategory: mediaCategory,
         media: [{
           status: "READY",
