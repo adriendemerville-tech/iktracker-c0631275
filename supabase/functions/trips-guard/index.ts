@@ -105,6 +105,7 @@ interface TripRow {
   ik_amount: number | null;
   round_trip: boolean | null;
   tour_stops: unknown;
+  status: string | null;
 }
 
 const MAX_GEO_CALLS = 120; // garde-fou coût API par exécution
@@ -161,7 +162,7 @@ serve(async (req) => {
   for (let offset = 0; offset < 20000; offset += PAGE) {
     let query = supabase
       .from('trips')
-      .select('id, user_id, vehicle_id, date, start_location, end_location, start_address, end_address, start_lat, start_lng, end_lat, end_lng, distance, ik_amount, round_trip, tour_stops')
+      .select('id, user_id, vehicle_id, date, start_location, end_location, start_address, end_address, start_lat, start_lng, end_lat, end_lng, distance, ik_amount, round_trip, tour_stops, status')
       .is('deleted_at', null)
       .gte('date', sinceDate)
       .order('date', { ascending: true })
@@ -252,17 +253,20 @@ serve(async (req) => {
       // 2. Détection d'incohérence de distance
       let needsGeoRecalc = false;
 
-      if (distance <= 0 && !sameEndpoints && !isLoopTour && startText && endText) {
+      // Les trajets "à compléter" (pending_location) sont normalement à 0 km : on ne les touche pas
+      const isPending = trip.status === 'pending_location';
+
+      if (distance <= 0 && !isPending && !sameEndpoints && !isLoopTour && startText && endText) {
         issues.push('zero_distance');
         needsGeoRecalc = true;
-      } else if (sameEndpoints && distance > 5) {
+      } else if (!isPending && sameEndpoints && distance > 5) {
         issues.push('same_endpoints_nonzero');
         needsGeoRecalc = true;
-      } else if (!isLoopTour && oneWay > ABSURD_ONE_WAY_KM) {
+      } else if (!isPending && !isLoopTour && oneWay > ABSURD_ONE_WAY_KM) {
         issues.push('absurd_distance');
         needsGeoRecalc = true;
       } else if (
-        !isLoopTour &&
+        !isPending && !isLoopTour &&
         isUsableCoord(trip.start_lat, trip.start_lng) &&
         isUsableCoord(trip.end_lat, trip.end_lng) &&
         distance > 0
@@ -301,7 +305,7 @@ serve(async (req) => {
       //    ou si l'IK est manquant/nul alors que le trajet a une distance et un véhicule.
       const currentIk = Number(trip.ik_amount) || 0;
       const distanceChanged = update.distance !== undefined;
-      const ikMissing = currentIk <= 0 && newDistance > 0 && !!trip.vehicle_id;
+      const ikMissing = !isPending && currentIk <= 0 && newDistance > 0 && !!trip.vehicle_id;
 
       if (distanceChanged || ikMissing) {
         let expectedIk = 0;
