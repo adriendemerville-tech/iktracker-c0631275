@@ -1049,7 +1049,7 @@ curl -X POST https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/purge-duplica
 Correctifs appliqués suite au scan sécurité :
 
 - **Auth gates sur edge functions sensibles** : `convert-blog-images` exige un JWT admin (vérifie `has_role(_, 'admin')`). `generate-recurring-trips`, `sync-calendar-trips`, `recalculate-distances` n'acceptent plus que le service role key (Bearer), un token cron dédié (`RECURRING_TRIPS_CRON_TOKEN`) ou un `x-cron-secret` valide.
-- **Ownership check** sur `recalculate-distances` : un utilisateur authentifié ne peut déclencher le recalcul que pour ses propres trajets.
+- **Ownership check** sur `recalculate-distances` : un utilisateur authentifié ne peut déclencher le recalcul que pour ses propres trajets. Le mode batch (sans `tripId`) est autorisé pour un utilisateur connecté mais filtré sur `user_id = auth.uid()` et `deleted_at is null` ; seul le cron/service role traite l'ensemble des utilisateurs.
 - **HMAC-signed OAuth state** : `google-calendar-auth` et `outlook-calendar-auth` signent maintenant `state` (HMAC-SHA256 sur `user_id|nonce|exp` avec `SUPABASE_SERVICE_ROLE_KEY` comme clé) et vérifient signature + expiration au callback. Empêche la forgery de `user_id` dans le flux OAuth.
 - **XSS reports** : helper `esc()` dans `src/lib/print-utils.ts`. Toutes les données utilisateur interpolées dans le HTML/JS du rapport sont échappées (titres, adresses, motifs, plaques).
 - **Storage `feedback-images`** : policy INSERT scopée au préfixe `<auth.uid()>/...` — un user ne peut uploader que dans son propre dossier.
