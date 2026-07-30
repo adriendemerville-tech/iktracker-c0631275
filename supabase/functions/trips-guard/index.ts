@@ -252,16 +252,17 @@ serve(async (req) => {
       // 2. Détection d'incohérence de distance
       let needsGeoRecalc = false;
 
-      if (distance <= 0 && !sameEndpoints && startText && endText) {
+      if (distance <= 0 && !sameEndpoints && !isLoopTour && startText && endText) {
         issues.push('zero_distance');
         needsGeoRecalc = true;
       } else if (sameEndpoints && distance > 5) {
         issues.push('same_endpoints_nonzero');
         needsGeoRecalc = true;
-      } else if (oneWay > ABSURD_ONE_WAY_KM) {
+      } else if (!isLoopTour && oneWay > ABSURD_ONE_WAY_KM) {
         issues.push('absurd_distance');
         needsGeoRecalc = true;
       } else if (
+        !isLoopTour &&
         isUsableCoord(trip.start_lat, trip.start_lng) &&
         isUsableCoord(trip.end_lat, trip.end_lng) &&
         distance > 0
