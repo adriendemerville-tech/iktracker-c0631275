@@ -41,15 +41,14 @@
 - ✅ `vehicle-lookup` et `test-bot-rendering` : 400 explicite sur body vide/invalide.
 
 
-## Lot 4 — Frontend, propreté, tests
+## Lot 4 — Frontend, propreté, tests ✅ terminé
 
-- `src/test/setup.ts` : mock `ResizeObserver` (débloque les 9 tests `AuthForm`).
-- Couleurs hardcodées → tokens du design system (`Index.tsx`, `VehicleForm.tsx`, `MesTrajets.tsx`, `TripViewSheet.tsx` incluant les `ring-white/80` invisibles en clair).
-- `Index.tsx` : dépendances correctes sur l'effet de récupération de tournée, via refs.
-- `useTrips.ts` : migration localStorage→DB transactionnelle, suppression locale seulement après succès complet.
-- `TripPromptBar.tsx` : passer à `AudioWorklet` ou au minimum fermer l'`AudioContext` sur tous les chemins d'échec.
-- `Archive.tsx` : garde de démontage sur les appels async.
-- `mcp/index.ts` : régénéré, pas édité manuellement.
+- ✅ `src/test/setup.ts` : mocks `ResizeObserver`, `scrollIntoView`, pointer capture — 59/59 tests passent.
+- ✅ Couleurs hardcodées → tokens (`ring-white/*` → `ring-ring/*` dans `TripViewSheet.tsx`, `#5666D8` → `text-primary` et `bg-white` → `bg-card` dans `Index.tsx`).
+- ✅ `TripPromptBar.tsx` : `teardownRecording()` partagé, `AudioContext` fermé sur tous les chemins (échec micro, encodage, démontage).
+- ✅ `Archive.tsx` : `mountedRef` sur les trois appels async.
+- ✅ `useTrips.ts` : migration localStorage→DB déjà non destructive (Lot 2).
+- ✅ `mcp/index.ts` : laissé généré.
 
 ## Détails techniques
 
