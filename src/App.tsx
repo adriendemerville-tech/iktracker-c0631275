@@ -42,6 +42,8 @@ const BaremeIK2026 = lazy(() => import("./pages/BaremeIK2026"));
 const Offline = lazy(() => import("./pages/Offline"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const RecoveryWizard = lazy(() => import("./pages/RecoveryWizard"));
+const ArchivePage = lazy(() => import("./pages/Archive"));
+
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
@@ -318,6 +320,17 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/app/archive"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><ArchivePage /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Redirections anciennes URLs */}
         <Route path="/mestrajets" element={<Navigate to="/app/mestrajets" replace />} />
         <Route path="/report" element={<Navigate to="/app/mestrajets" replace />} />

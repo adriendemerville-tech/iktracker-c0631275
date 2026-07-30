@@ -1105,6 +1105,20 @@ Envoi automatique du relevé kilométrique **à l'utilisateur lui-même** (disti
   - Endpoint POST accepte `{ user_id, dry_run?, override_email? }` pour test on-demand (bypass des filtres date/anti-doublon).
 - **Cron** `send-user-monthly-report` : `0 7 15 * *` (**15 du mois, 07:00 UTC**), token lu depuis `vault.decrypted_secrets.email_queue_service_role_key`.
 - **UI** : toggle « Relevé mensuel automatique » dans Préférences (activé par défaut).
+- **Archivage durable** : après génération, le PDF mensuel est uploadé dans le bucket privé `report-archives` et indexé dans `report_archives` (helper partagé `supabase/functions/_shared/report-pdf.ts` → `archiveReportPdf`).
+
+## Archive des relevés (`/app/archive`, juillet 2026)
+
+- **Bucket privé** `report-archives` — chemin `{user_id}/{kind}/{period_start}-{slug}.pdf`. Aucune policy `storage.objects` : l'accès passe exclusivement par des URL signées (5 min) générées côté serveur avec la clé service role.
+- **Table** `public.report_archives` : `user_id`, `kind` (`monthly` | `annual`), `period_label`, `period_start`, `period_end`, `storage_path`, `trip_count`, `total_km`, `total_ik`, `file_size`, unique sur `(user_id, kind, period_start, period_end)`. RLS : lecture et suppression réservées au propriétaire ; écriture réservée au service role.
+- **Edge function** `report-archive` (JWT requis, tout scopé sur `auth.uid()`) :
+  - `POST { action: 'signed_url', id }` → URL signée 5 min du PDF archivé.
+  - `POST { action: 'generate_annual', period_start, period_end, label? }` → génère le relevé d'exercice (Browserless) et l'archive. Erreur 400 si aucun trajet sur la période.
+- **Module partagé** `supabase/functions/_shared/report-pdf.ts` : `buildReportBody`, `wrapForPdf`, `renderPdf`, `archiveReportPdf` (mutualisé avec `send-user-monthly-report`).
+- **Frontend** : page desktop-only `/app/archive` (`src/pages/Archive.tsx`), entrée « Archive relevés » dans `DesktopSidebar`. Liste groupée par année, aperçu PDF en modale iframe, téléchargement, bouton « Générer le relevé annuel » sur le dernier exercice clos (dates dérivées de `fiscalYearStartMonth`/`fiscalYearStartDay`).
+- **Rétroactif** : non — l'archive se remplit à partir des envois du 15 suivants.
+
+
 
 ## Extension utilisateurs API partenaire (juillet 2026)
 

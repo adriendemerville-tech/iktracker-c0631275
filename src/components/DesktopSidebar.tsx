@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus, Smartphone, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus, Smartphone, ChevronRight, ChevronLeft, FolderArchive } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import founderImage from '@/assets/founder-adrien-optimized.webp';
 import { Vehicle } from '@/types/trip';
@@ -154,6 +154,15 @@ export const DesktopSidebar = ({
       tutorialId: 'recovery',
       isRecovery: true,
     },
+    {
+      icon: FolderArchive,
+      label: 'Archive relevés',
+      onClick: () => navigate('/app/archive'),
+      active: false,
+      tutorialId: 'archive',
+      isRecovery: false,
+    },
+
     { 
       icon: MessageSquare, 
       label: 'Aide & Avis', 
