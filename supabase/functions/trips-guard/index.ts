@@ -184,8 +184,21 @@ serve(async (req) => {
   // Caches
   const vehicleCache = new Map<string, { fiscal_power: number; is_electric: boolean } | null>();
   const homeCache = new Map<string, string | null>();
-  // Cumul annuel par (user, vehicle, year) reconstitué au fil de l'eau
-  const annualKm = new Map<string, number>();
+
+  // Cumul annuel réel (lu en base) avant la date du trajet, comme dans recalculate-distances
+  async function annualKmBefore(userId: string, vehicleId: string, tripDate: string): Promise<number> {
+    const startOfYear = `${tripDate.slice(0, 4)}-01-01`;
+    const { data } = await supabase
+      .from('trips')
+      .select('distance')
+      .eq('user_id', userId)
+      .eq('vehicle_id', vehicleId)
+      .is('deleted_at', null)
+      .gte('date', startOfYear)
+      .lt('date', tripDate);
+    return (data || []).reduce((sum: number, t: { distance: number | null }) => sum + (Number(t.distance) || 0), 0);
+  }
+
 
   async function getVehicle(id: string) {
     if (!vehicleCache.has(id)) {
