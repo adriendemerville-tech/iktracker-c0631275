@@ -45,6 +45,7 @@ export default function Report() {
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportSent, setExportSent] = useState(false);
   const [isEditingAccountantEmail, setIsEditingAccountantEmail] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [showToursDropdown, setShowToursDropdown] = useState(false);
