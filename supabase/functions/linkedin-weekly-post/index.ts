@@ -1246,7 +1246,16 @@ async function createUgcPost(
 // for member tokens, which is why every run silently degraded to a text-only post.
 // The versioned REST API is the supported path and works with w_member_social.
 
-const LI_VERSION = "202506";
+// LinkedIn ne garde actives que ~12 mois de versions : on calcule la version
+// glissante (mois courant - 2) plutôt qu'une constante qui expire silencieusement.
+function currentLiVersion(): string {
+  const override = Deno.env.get("LINKEDIN_API_VERSION");
+  if (override) return override;
+  const d = new Date();
+  d.setUTCMonth(d.getUTCMonth() - 2);
+  return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+const LI_VERSION = currentLiVersion();
 
 function restHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
