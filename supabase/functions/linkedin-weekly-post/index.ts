@@ -1692,13 +1692,12 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Absolute last resort: never skip the monthly post entirely.
+      // Média obligatoire : aucun post texte seul. Si toutes les voies média
+      // échouent, on remonte l'erreur au lieu de publier un post nu.
       if (!postId) {
-        console.warn("[media] all media paths failed, publishing text-only");
-        postId = await publishTextOnly();
-        mediaFallback = true;
-        mediaBytes = 0;
-        format = "text";
+        throw new Error(
+          `Média obligatoire indisponible, publication annulée. Dernier échec: ${mediaFallbackReason ?? "inconnu"}`,
+        );
       }
     }
 
