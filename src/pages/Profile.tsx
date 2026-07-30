@@ -128,7 +128,8 @@ const Profile = () => {
         month: monthName.charAt(0).toUpperCase() + monthName.slice(1, 3),
         year: date.getFullYear(),
         monthIndex: date.getMonth(),
-        km: 0
+        km: 0,
+        ik: 0
       });
     }
 
@@ -140,10 +141,11 @@ const Profile = () => {
       const monthData = months.find(m => m.monthIndex === tripMonth && m.year === tripYear);
       if (monthData) {
         monthData.km += trip.distance;
+        monthData.ik += trip.ikAmount ?? 0;
       }
     });
 
-    return months.map(m => ({ month: m.month, km: Math.round(m.km) }));
+    return months.map(m => ({ month: m.month, km: Math.round(m.km), ik: m.ik }));
   }, [trips]);
 
   // Calculate dynamic Y-axis max with minimum threshold for visual balance
