@@ -208,7 +208,28 @@ function runDeterministicChecks(text: string): Deterministic {
   };
 }
 
+// Score composite /100 : 40 pts déterministes + 60 pts éditoriaux (LLM).
+function computeCompositeScore(
+  checks: Deterministic,
+  hookScore: number,
+  impressionsScore: number,
+  contentScore: number,
+): { total: number; breakdown: Record<string, number> } {
+  const breakdown = {
+    length: checks.lengthOk ? 10 : 0,
+    chars: !checks.dashes && checks.bannedChars.length === 0 ? 10 : 0,
+    aeration: checks.aerationOk ? 10 : 0,
+    hook_form: checks.hookIsSingleLine ? 10 : 0,
+    hook_quality: Math.round(hookScore * 3),      // /30
+    impressions: Math.round(impressionsScore * 2), // /20
+    content: Math.round(contentScore),             // /10
+  };
+  const total = Math.max(0, Math.min(100, Object.values(breakdown).reduce((a, b) => a + b, 0)));
+  return { total, breakdown };
+}
+
 // ─── Prompt d'audit ─────────────────────────────────────────────────────────
+
 
 const AUDIT_SYSTEM = `Tu es directeur éditorial LinkedIn pour IKtracker, application française de suivi des indemnités kilométriques. Tu audites un post DÉJÀ PUBLIÉ par le fondateur, puis tu le réécris si nécessaire.
 
