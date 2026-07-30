@@ -293,27 +293,30 @@ serve(async (req) => {
         if (newDistance !== distance) update.distance = newDistance;
       }
 
-      // 3. Cohérence du montant IK par rapport à la distance et au véhicule
-      let expectedIk = 0;
-      if (trip.vehicle_id) {
-        const vehicle = await getVehicle(trip.vehicle_id);
-        if (vehicle) {
-          const year = trip.date.slice(0, 4);
-          const key = `${trip.user_id}|${trip.vehicle_id}|${year}`;
-          const before = annualKm.get(key) || 0;
-          const after = before + newDistance;
-          annualKm.set(key, after);
-          expectedIk = annualIK(after, vehicle.fiscal_power) - annualIK(before, vehicle.fiscal_power);
-          if (vehicle.is_electric) expectedIk *= 1.2;
-          expectedIk = Math.round(expectedIk * 100) / 100;
+      // 3. Montant IK : recalculé uniquement si la distance a changé,
+      //    ou si l'IK est manquant/nul alors que le trajet a une distance et un véhicule.
+      const currentIk = Number(trip.ik_amount) || 0;
+      const distanceChanged = update.distance !== undefined;
+      const ikMissing = currentIk <= 0 && newDistance > 0 && !!trip.vehicle_id;
+
+      if (distanceChanged || ikMissing) {
+        let expectedIk = 0;
+        if (trip.vehicle_id && newDistance > 0) {
+          const vehicle = await getVehicle(trip.vehicle_id);
+          if (vehicle) {
+            const before = await annualKmBefore(trip.user_id, trip.vehicle_id, trip.date);
+            const after = before + newDistance;
+            expectedIk = annualIK(after, vehicle.fiscal_power) - annualIK(before, vehicle.fiscal_power);
+            if (vehicle.is_electric) expectedIk *= 1.2;
+            expectedIk = Math.round(expectedIk * 100) / 100;
+          }
+        }
+        if (Math.abs(currentIk - expectedIk) > Math.max(0.5, expectedIk * 0.02)) {
+          issues.push(ikMissing && !distanceChanged ? 'ik_missing' : 'ik_mismatch');
+          update.ik_amount = expectedIk;
         }
       }
 
-      const currentIk = Number(trip.ik_amount) || 0;
-      if (Math.abs(currentIk - expectedIk) > Math.max(0.5, expectedIk * 0.02)) {
-        issues.push('ik_mismatch');
-        update.ik_amount = expectedIk;
-      }
 
       if (issues.length === 0 || Object.keys(update).length === 0) continue;
 
