@@ -1512,7 +1512,7 @@ Deno.serve(async (req) => {
 
     // 2) Text
     const t = await generatePostText(topic, styleSamples, styleProfile);
-    postText = sanitizePostText(t.text);
+    postText = airifyPostText(sanitizePostText(t.text));
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
