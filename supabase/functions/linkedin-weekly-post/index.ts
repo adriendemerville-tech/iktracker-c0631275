@@ -1873,32 +1873,10 @@ Deno.serve(async (req) => {
     // 3) LinkedIn owner URN (fallback si non résolu plus haut)
     if (!ownerUrn) ownerUrn = await getMemberUrn();
 
-    // Helper: publish a text-only ugcPost (uniquement via le flag explicite textOnly)
-    const publishTextOnly = async (): Promise<string> => {
-      const orgUrn = await resolveOrgUrn();
-      const body = {
-        author: ownerUrn,
-        lifecycleState: "PUBLISHED",
-        specificContent: {
-          "com.linkedin.ugc.ShareContent": {
-            shareCommentary: ugcCommentary(postText, orgUrn),
-            shareMediaCategory: "NONE",
-          },
-        },
-        visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
-      };
-      const res = await gatewayFetch("/v2/ugcPosts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Restli-Protocol-Version": "2.0.0" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(`ugcPosts(text-only) ${res.status}: ${await res.text()}`);
-      const json = await res.json();
-      return json.id || json["x-restli-id"] || "unknown";
-    };
-
+    // Média strictement obligatoire : aucun chemin de publication sans visuel.
     let mediaFallback = false;
     let mediaFallbackReason: string | null = null;
+
 
     // Legacy /v2/assets path, kept as a secondary attempt.
     const legacyPublish = async (
