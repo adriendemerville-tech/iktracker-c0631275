@@ -599,6 +599,7 @@ ${profileBlock}
 
 STRUCTURE :
 - HOOK obligatoire en toute première ligne : une phrase courte, concrète, qui accroche l'œil dans le feed (fait brut, chiffre, anecdote, tension). Pas de question rhétorique, pas de citation, pas de "Vous savez quoi ?".
+- AÉRATION OBLIGATOIRE : le hook est seul sur sa ligne, puis chaque paragraphe fait une à deux phrases maximum, séparé du suivant par une ligne vide. Aucun pavé de plus de deux phrases. Vise au moins six paragraphes.
 - Respecte la longueur cible et le rythme indiqués ci-dessus (nombre de phrases, phrases courtes, paragraphes).
 - PAS DE CHUTE : ne termine pas par une conclusion, une morale, une leçon, un appel à l'action, un CTA, un lien, une invitation à commenter, ni une phrase de synthèse. Le post s'arrête sur un fait ou un détail, sec.
 
