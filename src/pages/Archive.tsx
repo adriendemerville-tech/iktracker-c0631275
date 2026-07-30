@@ -47,7 +47,9 @@ export default function Archive() {
   const [previewLabel, setPreviewLabel] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [view, setView] = useState<'list' | 'table'>('list');
   const mountedRef = useRef(true);
+
 
   useEffect(() => {
     mountedRef.current = true;
