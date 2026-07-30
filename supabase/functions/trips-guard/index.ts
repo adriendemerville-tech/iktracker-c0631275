@@ -230,7 +230,10 @@ serve(async (req) => {
 
       const startText = trip.start_address || trip.start_location || '';
       const endText = trip.end_address || trip.end_location || '';
-      const sameEndpoints = !!normalize(startText) && normalize(startText) === normalize(endText);
+      // Une tournée en boucle part et revient au même point : ce n'est pas une anomalie
+      const stopsCount = Array.isArray(trip.tour_stops) ? trip.tour_stops.length : 0;
+      const isLoopTour = stopsCount > 0;
+      const sameEndpoints = !isLoopTour && !!normalize(startText) && normalize(startText) === normalize(endText);
 
       // 1. Coordonnées invalides (0,0 ou hors bornes) -> on les purge
       if ((trip.start_lat !== null || trip.start_lng !== null) && !isUsableCoord(trip.start_lat, trip.start_lng)) {
