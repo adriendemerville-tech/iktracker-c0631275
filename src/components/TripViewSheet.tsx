@@ -433,7 +433,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
             {/* Départ / + / Arrivée */}
             <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-stretch">
               {/* Départ */}
-              <div className="group relative bg-muted/50 rounded-xl p-4 space-y-2 hover:ring-1 hover:ring-white/80 transition-all">
+              <div className="group relative bg-muted/50 rounded-xl p-4 space-y-2 hover:ring-1 hover:ring-ring/60 transition-all">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
                     <MapPin className="w-3.5 h-3.5 text-primary" />
@@ -479,7 +479,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                   disabled={isRecalc}
                   title="Ajouter une étape intermédiaire"
                   aria-label="Ajouter une étape intermédiaire"
-                  className="w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-md hover:shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 hover:ring-2 hover:ring-white/60 disabled:opacity-50"
+                  className="w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-md hover:shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 hover:ring-2 hover:ring-ring/50 disabled:opacity-50"
                 >
                   {isRecalc ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -490,7 +490,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
               </div>
 
               {/* Arrivée */}
-              <div className="group relative bg-muted/50 rounded-xl p-4 space-y-2 hover:ring-1 hover:ring-white/80 transition-all">
+              <div className="group relative bg-muted/50 rounded-xl p-4 space-y-2 hover:ring-1 hover:ring-ring/60 transition-all">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
                     <MapPin className="w-3.5 h-3.5 text-accent" />
@@ -564,7 +564,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                     return (
                       <div
                         key={s.id}
-                        className="group flex items-center gap-2 bg-muted/40 rounded-lg px-3 py-2 hover:ring-1 hover:ring-white/20 transition-all"
+                        className="group flex items-center gap-2 bg-muted/40 rounded-lg px-3 py-2 hover:ring-1 hover:ring-ring/30 transition-all"
                       >
                         <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center font-medium shrink-0">
                           {i + 1}

@@ -920,7 +920,7 @@ ${IKTRACKER_MENTION}
             <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-2">
               <Smartphone className="w-7 h-7 text-accent" />
             </div>
-            <p className="text-lg font-semibold mb-1 text-center" style={{ color: '#5666D8' }}>Mode tournée : automatisez la détection GPS des trajets</p>
+            <p className="text-lg font-semibold mb-1 text-center text-primary">Mode tournée : automatisez la détection GPS des trajets</p>
             <AlertDialogTitle className="text-accent text-base font-medium text-center">Réservé à l'usage mobile</AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
@@ -929,7 +929,7 @@ ${IKTRACKER_MENTION}
           
           {/* QR Code */}
           <div className="flex justify-center py-4">
-            <div className="bg-white p-3 rounded-xl">
+            <div className="bg-card p-3 rounded-xl">
               <Suspense fallback={<QRPlaceholder />}>
                 <QRCodeSVG 
                   value="https://iktracker.fr/install" 
