@@ -152,6 +152,32 @@ export function AdminLinkedIn() {
       toast({ title: 'Republication impossible', description: e?.message ?? String(e), variant: 'destructive' }),
   });
 
+  // ─── Audit qualité d'un post publié (hook + potentiel d'impressions) ──────
+  const audit = useMutation({
+    mutationFn: async (opts: { postId?: string; dryRun?: boolean }) => {
+      const params = new URLSearchParams();
+      if (opts.postId) params.set('post_id', opts.postId);
+      if (opts.dryRun) params.set('dry_run', '1');
+      const path = `linkedin-post-audit${params.toString() ? `?${params.toString()}` : ''}`;
+      const { data, error } = await supabase.functions.invoke(path, { method: 'POST' as any });
+      if (error) throw error;
+      if ((data as any)?.ok === false) throw new Error((data as any).error ?? 'Échec');
+      return data as any;
+    },
+    onSuccess: (data) => {
+      setRawResponse(JSON.stringify(data, null, 2));
+      toast({
+        title: data?.skipped ? 'Aucun post à auditer' : `Audit : ${data?.audit_status ?? '—'}`,
+        description: data?.skipped
+          ? undefined
+          : `Score ${data?.score ?? '—'}/100 · hook ${data?.hook_score ?? '—'}/10${data?.needs_fix ? ' · correction déclenchée' : ''}`,
+      });
+      logs.refetch();
+    },
+    onError: (e: any) =>
+      toast({ title: 'Audit impossible', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
 
   const run = useMutation({
     mutationFn: async () => {
