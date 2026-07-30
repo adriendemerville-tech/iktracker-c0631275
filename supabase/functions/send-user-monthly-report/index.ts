@@ -7,6 +7,8 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { archiveReportPdf } from '../_shared/report-pdf.ts'
+
 
 const FRONTEND_URL = 'https://iktracker.fr'
 const SHARE_TTL_DAYS = 7
