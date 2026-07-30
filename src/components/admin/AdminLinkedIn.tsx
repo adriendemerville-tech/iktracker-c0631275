@@ -22,7 +22,6 @@ const TOPICS = [
   { slug: 'bareme-progressif', label: 'Barème progressif 2026', format: 'carousel', source: 'wavespeed' },
   { slug: 'bonus-electrique', label: 'Bonus 20% électrique', format: 'carousel', source: 'wavespeed' },
   { slug: 'export-pdf', label: 'Export PDF comptable', format: 'video', source: 'browserless' },
-  { slug: 'ik-velo', label: 'IK vélo', format: 'carousel', source: 'wavespeed' },
   { slug: 'gratuit-a-vie', label: 'Gratuit à vie', format: 'carousel', source: 'wavespeed' },
   { slug: 'confidentialite', label: 'Confidentialité', format: 'carousel', source: 'wavespeed' },
   { slug: 'comparatif', label: 'IKtracker vs payants', format: 'carousel', source: 'wavespeed' },

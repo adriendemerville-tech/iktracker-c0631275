@@ -145,18 +145,6 @@ const TOPICS: Topic[] = [
     durationMs: 10000,
   },
   {
-    slug: "ik-velo",
-    title: "Indemnité kilométrique vélo",
-    url: "https://iktracker.fr/indemnite-kilometrique-velo",
-    format: "carousel",
-    mediaSource: "wavespeed",
-    focus:
-      "L'IK vélo existe pour les indépendants qui pédalent en ville pour leurs rendez-vous pros. Fiscalement encadrée, souvent ignorée. IKtracker la calcule et la trace comme n'importe quel autre trajet.",
-    durationMs: 8000,
-    visualPrompt:
-      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, elegant urban bicycle silhouette from side view, flat design, clean lines, ample negative space on the right, no text, no logos",
-  },
-  {
     slug: "gratuit-a-vie",
     title: "Gratuit à vie — modèle communautaire",
     url: "https://iktracker.fr/",
@@ -267,11 +255,6 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Envoi automatique au comptable à date fixe, avec lien sécurisé vers le relevé.",
     "Relevé mensuel envoyé à l'utilisateur le 15 du mois pour le mois précédent.",
   ],
-  "ik-velo": [
-    "Barème kilométrique vélo distinct du barème voiture.",
-    "Les trajets vélo se saisissent comme les autres et remontent dans le même relevé.",
-    "Utile pour les indépendants urbains qui enchaînent les rendez vous à vélo.",
-  ],
   "gratuit-a-vie": [
     "Aucun abonnement, aucune version limitée, aucune carte bancaire demandée.",
     "Outil développé pour les besoins d'une agence de rénovation, infrastructure déjà payée, donc partagée.",
@@ -296,13 +279,37 @@ const TOPIC_FACTS: Record<string, string[]> = {
   ],
 };
 
+// Rotation pondérée : 2 posts sur 3 portent sur une fonctionnalité produit
+// IKtracker (démo d'un module réel), le 3e sur un sujet de contexte fiscal/marque.
+const PRODUCT_SLUGS = [
+  "simulateur",
+  "mode-tournee",
+  "sync-calendrier",
+  "detection-plaque",
+  "export-pdf",
+  "import-takeout",
+  "trajets-recurrents",
+];
+const CONTEXT_SLUGS = [
+  "bareme-progressif",
+  "bonus-electrique",
+  "gratuit-a-vie",
+  "confidentialite",
+  "comparatif",
+];
 
-
-// Monthly cadence: pick topic by (year*12 + month) % TOPICS.length
+// Monthly cadence: 2/3 produit, 1/3 contexte, rotation déterministe.
 function pickTopicForThisMonth(now: Date = new Date()): Topic {
-  const idx = (now.getUTCFullYear() * 12 + now.getUTCMonth()) % TOPICS.length;
-  return TOPICS[idx];
+  const n = now.getUTCFullYear() * 12 + now.getUTCMonth();
+  const isContext = n % 3 === 2;
+  const pool = isContext ? CONTEXT_SLUGS : PRODUCT_SLUGS;
+  const cycle = Math.floor(n / 3);
+  const slug = isContext
+    ? pool[cycle % pool.length]
+    : pool[(cycle * 2 + (n % 3)) % pool.length];
+  return TOPICS.find((t) => t.slug === slug) ?? TOPICS[0];
 }
+
 
 function findTopic(slug: string | null): Topic | null {
   if (!slug) return null;
