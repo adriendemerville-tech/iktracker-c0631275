@@ -950,6 +950,11 @@ ${postText}
 Faits techniques disponibles :
 ${(TOPIC_FACTS[topic.slug] ?? []).map((f) => `. ${f}`).join("\n")}
 
+Extraits de documentation technique interne (source de vérité, à reformuler simplement, sans nom de table ni de fonction) :
+${docContextForTopic(topic, 2500)}
+
+
+
 Produis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
   const plan = JSON.parse(text) as SlidePlan;
