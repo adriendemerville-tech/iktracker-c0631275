@@ -1929,7 +1929,8 @@ Deno.serve(async (req) => {
       if (format === "video") {
         if (topic.mediaSource === "browserless") {
           try {
-            bytes = await recordScreencast(topic);
+            const focusLabels = await deriveCaptureFocus(topic, postText);
+            bytes = await recordScreencast(topic, focusLabels);
           } catch (err) {
             const reason = err instanceof Error ? err.message : String(err);
             console.warn(`[media] Browserless screencast failed, falling back to a static screenshot: ${reason}`);
