@@ -1023,6 +1023,13 @@ Clé unique logique : `user_id` + `date` + destination normalisée (`end_locatio
 **Tâche planifiée**
 Cron `purge-duplicate-trips-daily` (`pg_cron`), tous les jours à **03:15 UTC**, exécute la purge réelle sur les **90 derniers jours**. Le secret cron est lu depuis `vault.decrypted_secrets`.
 
+**Requalification des fausses tournées**
+- Fonction SQL `public.demote_invalid_tours()` (SECURITY DEFINER, `search_path = public`, EXECUTE réservé au `service_role`) : tout trajet actif dont `tour_stops` contient **moins de 3 points** n'est pas une vraie tournée. La fonction récupère au besoin les adresses / coordonnées de départ et d'arrivée depuis le premier et le dernier point, puis met `tour_stops = NULL` (retour en trajet simple). Retourne le nombre de trajets requalifiés.
+- Cron `demote-invalid-tours-daily` (`pg_cron`) : exécution quotidienne à **03:20 UTC**.
+- Premier passage du 30 juillet 2026 : 26 trajets requalifiés.
+
+
+
 **Comptes liés**
 - `account_links` permet de synchroniser des trajets entre comptes autorisés.
 - `trips.trip_group_id` regroupe les copies d'un même trajet réel entre comptes liés.
