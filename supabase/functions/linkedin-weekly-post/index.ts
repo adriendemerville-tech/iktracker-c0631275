@@ -1285,12 +1285,30 @@ async function restInitUpload(
 }
 
 async function putBinary(uploadUrl: string, bytes: Uint8Array, contentType: string): Promise<Response> {
+  // L'URL d'upload renvoyée par LinkedIn est pré-signée : on tente d'abord un PUT
+  // direct (le proxy gateway renvoie 405 sur ces hôtes média), puis le gateway.
+  const errors: string[] = [];
+  try {
+    const direct = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": contentType },
+      body: bytes,
+    });
+    if (direct.ok) return direct;
+    errors.push(`direct ${direct.status}: ${(await direct.text()).slice(0, 200)}`);
+  } catch (err) {
+    errors.push(`direct threw: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   const res = await gatewayFetch(toGatewayUrl(uploadUrl), {
     method: "PUT",
     headers: { "Content-Type": contentType },
     body: bytes,
   });
-  if (!res.ok) throw new Error(`upload PUT ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) {
+    errors.push(`gateway ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    throw new Error(`upload PUT failed — ${errors.join(" | ")}`);
+  }
   return res;
 }
 
