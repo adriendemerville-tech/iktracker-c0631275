@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, Monitor, Sparkles } from 'lucide-react';
@@ -41,12 +41,19 @@ export default function Archive() {
   const [previewLabel, setPreviewLabel] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const loadArchives = async () => {
     const { data, error } = await supabase
       .from('report_archives')
       .select('id, kind, period_label, period_start, period_end, trip_count, total_km, total_ik, created_at')
       .order('period_start', { ascending: false });
+    if (!mountedRef.current) return;
     if (error) {
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
     } else {
@@ -71,6 +78,7 @@ export default function Archive() {
     const { data, error } = await supabase.functions.invoke('report-archive', {
       body: { action: 'signed_url', id: row.id },
     });
+    if (!mountedRef.current) return;
     setBusyId(null);
     if (error || !data?.url) {
       toast({ title: 'Relevé indisponible', description: error?.message ?? 'Lien impossible à générer', variant: 'destructive' });
@@ -117,6 +125,7 @@ export default function Archive() {
         label: lastClosedFiscalYear.label,
       },
     });
+    if (!mountedRef.current) return;
     setGenerating(false);
     if (error || data?.error) {
       toast({
