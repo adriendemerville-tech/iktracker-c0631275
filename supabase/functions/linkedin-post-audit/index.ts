@@ -310,19 +310,22 @@ RÈGLES DE RÉDACTION À FAIRE RESPECTER
 4. PRÉCISION TECHNIQUE : au moins trois faits techniques concrets (barème progressif 5 000 / 20 000 km, bonus 20% électrique, détection d'arrêt 2 min, synchronisation agenda, export PDF, API partenaire, etc.), sans jargon d'ingénieur.
 5. FORME : entre 1000 et 1500 signes espaces compris. Aucun tiret d'incise. Caractères strictement interdits : parenthèses, arobase, crochets, accolades, chevrons, antislash, astérisque, tiret bas, tilde, barre verticale.
 6. TON : pragmatique, factuel, entrepreneur français. Pas d'emoji, pas de superlatif marketing.
+7. VÉRIFIABILITÉ : la documentation technique fournie dans le message utilisateur est la SEULE source de vérité produit. Toute affirmation technique du post doit y être vérifiable, ou relever d'un fait fiscal public français. Sanctionne durement : chiffre inventé, fonctionnalité inexistante, promesse de performance non documentée, intégration non listée, approximation qui contredit la doc. Si la doc est vide ou hors sujet, ne pénalise pas mais exige des affirmations prudentes.
 
 SORTIE : un objet JSON strict, sans texte autour :
 {
   "hook_score": 0-10,
   "impressions_score": 0-10,
   "content_score": 0-10,
+  "factual_score": 0-10,
+  "unverified_claims": ["affirmation non vérifiable dans la doc", "..."],
   "verdict": "conforme" | "a_corriger",
   "issues": ["problème 1", "problème 2"],
   "hook_analysis": "une phrase",
   "improved_text": "le post réécrit complet, prêt à publier, respectant TOUTES les règles"
 }
-"content_score" note l'angle 100% produit et la précision technique. Le score global est recalculé côté serveur, ne le renvoie pas.
-"improved_text" est OBLIGATOIRE même si le post est conforme : dans ce cas renvoie le texte d'origine inchangé. Le texte réécrit conserve le sujet, le module traité et les faits du post d'origine ; tu améliores le hook, l'aération et la précision, tu ne changes pas de sujet.`;
+"content_score" note l'angle 100% produit et la précision technique. "factual_score" note la conformité stricte à la documentation technique fournie : 10 si chaque affirmation est vérifiable, 0 si le post invente des fonctionnalités ou des chiffres. Liste dans "unverified_claims" les phrases fautives, citées mot pour mot. Le score global est recalculé côté serveur, ne le renvoie pas.
+"improved_text" est OBLIGATOIRE même si le post est conforme : dans ce cas renvoie le texte d'origine inchangé. Le texte réécrit conserve le sujet, le module traité et les faits du post d'origine, corrige ou supprime les affirmations non vérifiables en les remplaçant par des faits présents dans la doc, et améliore le hook, l'aération et la précision. Tu ne changes pas de sujet.`;
 
 // ─── Entrypoint ─────────────────────────────────────────────────────────────
 
