@@ -94,7 +94,14 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const { url, bots } = await req.json();
+    const payload = await req.json().catch(() => null) as { url?: unknown; bots?: unknown } | null;
+    if (!payload || typeof payload !== 'object') {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const { url, bots } = payload as { url?: string; bots?: string[] };
     if (!url || typeof url !== 'string') {
       return new Response(JSON.stringify({ error: 'url required' }), {
         status: 400,

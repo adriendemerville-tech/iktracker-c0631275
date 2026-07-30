@@ -8,7 +8,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import {
-  archiveReportPdf, buildReportBody, escapeHtml, fmt, frenchMonth, renderPdf, wrapForPdf,
+  archiveReportPdf, buildReportBody, escapeHtml, fetchTripsForPeriod, fmt, frenchMonth,
+  renderPdf, wrapForPdf,
 } from '../_shared/report-pdf.ts'
 import {
   FRONTEND_URL, FROM_EMAIL, REPLY_TO, RESEND_GATEWAY, SHARE_TTL_DAYS,
@@ -283,16 +284,9 @@ Deno.serve(async (req) => {
       // trips window covering both period + YTD
       const windowStart = ytd.start < period.start ? ytd.start : period.start
       const windowEnd = ytd.end > period.end ? ytd.end : period.end
-      const { data: allTrips, error: tErr } = await supabase
-        .from('trips')
-        .select('date, distance, ik_amount, start_location, end_location, purpose')
-        .eq('user_id', p.user_id)
-        .is('deleted_at', null)
-        .gte('date', isoDay(windowStart))
-        .lt('date', isoDay(windowEnd))
-      if (tErr) throw tErr
-
-      const trips = (allTrips ?? []) as Trip[]
+      const trips = await fetchTripsForPeriod(
+        supabase as never, p.user_id, isoDay(windowStart), isoDay(windowEnd),
+      ) as Trip[]
       const periodTrips = trips.filter(t => t.date >= isoDay(period.start) && t.date < isoDay(period.end))
       const ytdTrips = trips.filter(t => t.date >= isoDay(ytd.start) && t.date < isoDay(ytd.end))
 
