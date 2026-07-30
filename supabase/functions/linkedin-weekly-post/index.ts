@@ -764,7 +764,7 @@ Contraintes ABSOLUES :
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
 - Exactement ${count} slides intermédiaires (heading + body)`;
-  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nProduis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
+  const user = `Sujet : ${topic.title}\n\nContexte :\n${topic.focus}\n\nFaits techniques à répartir dans les slides :\n${(TOPIC_FACTS[topic.slug] ?? []).map((f) => `. ${f}`).join("\n")}\n\nChaque slide doit porter un fait concret du module, pas une généralité. Produis le plan du carrousel au format JSON strict avec les clés cover_title, cover_subtitle, slides (array de ${count} objets {heading, body}), cta. Rien d'autre.`;
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
   const plan = JSON.parse(text) as SlidePlan;
   if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== count) {
