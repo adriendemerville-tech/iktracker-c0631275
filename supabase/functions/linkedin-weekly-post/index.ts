@@ -599,6 +599,7 @@ ${profileBlock}
 
 STRUCTURE :
 - HOOK obligatoire en toute première ligne : une phrase courte, concrète, qui accroche l'œil dans le feed (fait brut, chiffre, anecdote, tension). Pas de question rhétorique, pas de citation, pas de "Vous savez quoi ?".
+- AÉRATION OBLIGATOIRE : le hook est seul sur sa ligne, puis chaque paragraphe fait une à deux phrases maximum, séparé du suivant par une ligne vide. Aucun pavé de plus de deux phrases. Vise au moins six paragraphes.
 - Respecte la longueur cible et le rythme indiqués ci-dessus (nombre de phrases, phrases courtes, paragraphes).
 - PAS DE CHUTE : ne termine pas par une conclusion, une morale, une leçon, un appel à l'action, un CTA, un lien, une invitation à commenter, ni une phrase de synthèse. Le post s'arrête sur un fait ou un détail, sec.
 
@@ -1042,6 +1043,87 @@ function sanitizePostText(text: string): string {
   return out;
 }
 
+// Aère le post : un paragraphe = 2 phrases maximum, séparés par une ligne vide.
+// LinkedIn tronque les pavés dans le feed, l'aération est indispensable.
+function airifyPostText(text: string): string {
+  const blocks = text
+    .split(/\n{2,}/)
+    .map((b) => b.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim())
+    .filter(Boolean);
+
+  const paragraphs: string[] = [];
+  for (const block of blocks) {
+    const sentences = block.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) ?? [block];
+    const cleaned = sentences.map((s) => s.trim()).filter(Boolean);
+    // Première phrase = hook isolé, puis paquets de 2 phrases.
+    let i = 0;
+    if (paragraphs.length === 0 && cleaned.length > 1) {
+      paragraphs.push(cleaned[0]);
+      i = 1;
+    }
+    for (; i < cleaned.length; i += 2) {
+      paragraphs.push(cleaned.slice(i, i + 2).join(" "));
+    }
+  }
+  return paragraphs.join("\n\n").trim();
+}
+
+// ─── Mention de la page LinkedIn IKtracker ─────────────────────────────────
+const MENTION_LABEL = "IKtracker";
+let cachedOrgUrn: string | null | undefined;
+
+async function resolveOrgUrn(): Promise<string | null> {
+  if (cachedOrgUrn !== undefined) return cachedOrgUrn;
+  const fromEnv = Deno.env.get("LINKEDIN_ORG_URN") || Deno.env.get("LINKEDIN_ORG_ID");
+  if (fromEnv) {
+    cachedOrgUrn = fromEnv.startsWith("urn:") ? fromEnv : `urn:li:organization:${fromEnv}`;
+    return cachedOrgUrn;
+  }
+  try {
+    const res = await gatewayFetch(
+      "/v2/organizationAcls?q=roleAssignee&role=ADMINISTRATOR&state=APPROVED&projection=(elements*(organization~(id,localizedName)))",
+      { headers: { "X-Restli-Protocol-Version": "2.0.0" } },
+    );
+    if (!res.ok) {
+      console.warn(`[mention] organizationAcls ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      cachedOrgUrn = null;
+      return null;
+    }
+    const json = await res.json();
+    const elements: any[] = Array.isArray(json.elements) ? json.elements : [];
+    const match = elements.find((el) =>
+      String(el?.["organization~"]?.localizedName ?? "").toLowerCase().includes("iktracker")
+    ) ?? elements[0];
+    const id = match?.["organization~"]?.id;
+    cachedOrgUrn = id ? `urn:li:organization:${id}` : null;
+    if (!cachedOrgUrn) console.warn("[mention] no administered organization found");
+    return cachedOrgUrn;
+  } catch (err) {
+    console.warn(`[mention] resolve failed: ${err instanceof Error ? err.message : String(err)}`);
+    cachedOrgUrn = null;
+    return null;
+  }
+}
+
+// Commentaire pour l'API REST versionnée : syntaxe de mention inline.
+function restCommentary(text: string, orgUrn: string | null): string {
+  return orgUrn ? `${text}\n\n@[${MENTION_LABEL}](${orgUrn})` : text;
+}
+
+// Commentaire pour /v2/ugcPosts : texte brut + annotation d'entité.
+function ugcCommentary(text: string, orgUrn: string | null): Record<string, unknown> {
+  if (!orgUrn) return { text };
+  const full = `${text}\n\n${MENTION_LABEL}`;
+  return {
+    text: full,
+    attributes: [{
+      length: MENTION_LABEL.length,
+      start: full.length - MENTION_LABEL.length,
+      value: { "com.linkedin.common.CompanyAttributedEntity": { company: orgUrn } },
+    }],
+  };
+}
+
 function toGatewayUrl(linkedinUrl: string): string {
   const u = new URL(linkedinUrl);
   return `${GATEWAY_URL}${u.pathname}${u.search}`;
@@ -1128,12 +1210,13 @@ async function createUgcPost(
   topic: Topic,
   mediaCategory: "VIDEO" | "DOCUMENT",
 ): Promise<string> {
+  const orgUrn = await resolveOrgUrn();
   const body = {
     author: ownerUrn,
     lifecycleState: "PUBLISHED",
     specificContent: {
       "com.linkedin.ugc.ShareContent": {
-        shareCommentary: { text },
+        shareCommentary: ugcCommentary(text, orgUrn),
         shareMediaCategory: mediaCategory,
         media: [{
           status: "READY",
@@ -1268,12 +1351,13 @@ async function createRestPost(
   mediaUrn: string,
   title: string,
 ): Promise<string> {
+  const orgUrn = await resolveOrgUrn();
   const res = await gatewayFetch("/rest/posts", {
     method: "POST",
     headers: restHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       author: ownerUrn,
-      commentary: text,
+      commentary: restCommentary(text, orgUrn),
       visibility: "PUBLIC",
       distribution: { feedDistribution: "MAIN_FEED", targetEntities: [], thirdPartyDistributionChannels: [] },
       content: { media: { id: mediaUrn, title: title.slice(0, 100) } },
@@ -1429,7 +1513,7 @@ Deno.serve(async (req) => {
 
     // 2) Text
     const t = await generatePostText(topic, styleSamples, styleProfile);
-    postText = sanitizePostText(t.text);
+    postText = airifyPostText(sanitizePostText(t.text));
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
@@ -1499,14 +1583,15 @@ Deno.serve(async (req) => {
     // 3) LinkedIn owner URN (fallback si non résolu plus haut)
     if (!ownerUrn) ownerUrn = await getMemberUrn();
 
-    // Helper: publish a text-only ugcPost (used as fallback when media upload is denied)
+    // Helper: publish a text-only ugcPost (uniquement via le flag explicite textOnly)
     const publishTextOnly = async (): Promise<string> => {
+      const orgUrn = await resolveOrgUrn();
       const body = {
         author: ownerUrn,
         lifecycleState: "PUBLISHED",
         specificContent: {
           "com.linkedin.ugc.ShareContent": {
-            shareCommentary: { text: postText },
+            shareCommentary: ugcCommentary(postText, orgUrn),
             shareMediaCategory: "NONE",
           },
         },
@@ -1609,13 +1694,12 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Absolute last resort: never skip the monthly post entirely.
+      // Média obligatoire : aucun post texte seul. Si toutes les voies média
+      // échouent, on remonte l'erreur au lieu de publier un post nu.
       if (!postId) {
-        console.warn("[media] all media paths failed, publishing text-only");
-        postId = await publishTextOnly();
-        mediaFallback = true;
-        mediaBytes = 0;
-        format = "text";
+        throw new Error(
+          `Média obligatoire indisponible, publication annulée. Dernier échec: ${mediaFallbackReason ?? "inconnu"}`,
+        );
       }
     }
 
