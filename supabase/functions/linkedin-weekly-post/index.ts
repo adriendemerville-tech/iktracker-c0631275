@@ -1349,12 +1349,13 @@ async function createRestPost(
   mediaUrn: string,
   title: string,
 ): Promise<string> {
+  const orgUrn = await resolveOrgUrn();
   const res = await gatewayFetch("/rest/posts", {
     method: "POST",
     headers: restHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       author: ownerUrn,
-      commentary: text,
+      commentary: restCommentary(text, orgUrn),
       visibility: "PUBLIC",
       distribution: { feedDistribution: "MAIN_FEED", targetEntities: [], thirdPartyDistributionChannels: [] },
       content: { media: { id: mediaUrn, title: title.slice(0, 100) } },
