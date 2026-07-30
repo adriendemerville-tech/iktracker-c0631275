@@ -320,6 +320,17 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/app/archive"
+          element={
+            <ProtectedRoute>
+              <QueryErrorBoundary>
+                <Suspense fallback={<PageLoader />}><ArchivePage /></Suspense>
+              </QueryErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Redirections anciennes URLs */}
         <Route path="/mestrajets" element={<Navigate to="/app/mestrajets" replace />} />
         <Route path="/report" element={<Navigate to="/app/mestrajets" replace />} />
