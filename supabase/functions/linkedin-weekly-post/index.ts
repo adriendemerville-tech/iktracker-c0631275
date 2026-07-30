@@ -1425,12 +1425,47 @@ Deno.serve(async (req) => {
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
-    // 2bis) Carousel → slide plan up front (needed for dry-run preview too)
+    // 2bis) Derive media content from the generated text so visuals match the post.
+    let derivedVisualPrompt: string | null = null;
+    let visualPromptSource: string | null = null;
+
     if (format === "carousel") {
-      const sp = await generateSlidePlan(topic);
-      slidePlan = sp.plan;
-      slideSource = sp.source;
-      console.log(`Slide plan ready (${slidePlan.slides.length} content slides) via ${slideSource}`);
+      try {
+        const sp = await generateSlidePlanFromText(topic, postText);
+        slidePlan = sp.plan;
+        slideSource = sp.source;
+        console.log(`Slide plan derived from text (${slidePlan.slides.length} content slides) via ${slideSource}`);
+      } catch (err) {
+        console.warn(
+          `[slide-plan] text-derived plan failed, falling back to topic plan: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        const sp = await generateSlidePlan(topic);
+        slidePlan = sp.plan;
+        slideSource = sp.source;
+      }
+      if (topic.mediaSource === "wavespeed") {
+        try {
+          const vp = await deriveVisualPromptFromText(topic, postText);
+          derivedVisualPrompt = vp.prompt;
+          visualPromptSource = vp.source;
+          console.log(`Cover visual prompt derived from text via ${visualPromptSource}`);
+        } catch (err) {
+          console.warn(
+            `[visual-prompt] derivation failed, using topic.visualPrompt: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        }
+      }
+    } else if (format === "video" && topic.mediaSource === "wavespeed") {
+      try {
+        const vp = await deriveVisualPromptFromText(topic, postText);
+        derivedVisualPrompt = vp.prompt;
+        visualPromptSource = vp.source;
+        console.log(`Video visual prompt derived from text via ${visualPromptSource}`);
+      } catch (err) {
+        console.warn(
+          `[visual-prompt] derivation failed, using topic.visualPrompt: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
 
     if (dryRun) {
@@ -1442,6 +1477,8 @@ Deno.serve(async (req) => {
           media_source: topic.mediaSource,
           post_text: postText,
           text_source: textSource,
+          derived_visual_prompt: derivedVisualPrompt,
+          visual_prompt_source: visualPromptSource,
           style_samples_count: styleSamples.length,
           style_profile: styleProfile,
           slide_plan: slidePlan,
