@@ -698,34 +698,37 @@ export function NewTripSheet({
         onFocusOutside={preventCloseOnGoogleAutocomplete}
       >
         <SheetHeader className="pb-4 px-2">
-          <SheetTitle className="text-xl">{isEditing ? 'Modifier le trajet' : 'Nouveau trajet'}</SheetTitle>
-          
-          {/* Stepper - responsive sizing */}
-          <div className="flex items-center justify-center gap-1 sm:gap-2 pt-2 overflow-hidden">
-            {steps.map((s, i) => (
-              <div key={s.key} className="flex items-center">
-                <div
-                  className={cn(
-                    "flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all duration-300 shrink-0",
-                    i < currentStepIndex && "bg-accent text-accent-foreground",
-                    i === currentStepIndex && "bg-primary text-primary-foreground",
-                    i > currentStepIndex && "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {i < currentStepIndex ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : s.icon}
-                </div>
-                {i < steps.length - 1 && (
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <SheetTitle className="text-xl">{isEditing ? 'Modifier le trajet' : 'Nouveau trajet'}</SheetTitle>
+
+            {/* Stepper - aligné sur le titre */}
+            <div className="flex items-center gap-1 sm:gap-2 overflow-hidden">
+              {steps.map((s, i) => (
+                <div key={s.key} className="flex items-center">
                   <div
                     className={cn(
-                      "w-4 sm:w-6 h-0.5 mx-0.5 sm:mx-1 transition-colors shrink-0",
-                      i < currentStepIndex ? "bg-accent" : "bg-muted"
+                      "flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all duration-300 shrink-0",
+                      i < currentStepIndex && "bg-accent text-accent-foreground",
+                      i === currentStepIndex && "bg-primary text-primary-foreground",
+                      i > currentStepIndex && "bg-muted text-muted-foreground"
                     )}
-                  />
-                )}
-              </div>
-            ))}
+                  >
+                    {i < currentStepIndex ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : s.icon}
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div
+                      className={cn(
+                        "w-4 sm:w-6 h-0.5 mx-0.5 sm:mx-1 transition-colors shrink-0",
+                        i < currentStepIndex ? "bg-accent" : "bg-muted"
+                      )}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </SheetHeader>
+
 
         <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 pb-24 px-3 sm:px-4">
           {!isEditing && !recurringOnly && (
