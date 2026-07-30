@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw, Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Linkedin, PlayCircle, Send, RefreshCcw, Plus, Trash2, PencilLine } from 'lucide-react';
 
 // Miroir client de la liste de topics de l'edge function.
 // Sert uniquement à peupler le sélecteur du bouton test — la vérité reste côté serveur.
