@@ -70,6 +70,46 @@ export function AdminLinkedIn() {
   const [dryRun, setDryRun] = useState(true);
   const [result, setResult] = useState<RunResult | null>(null);
   const [rawResponse, setRawResponse] = useState<string>('');
+  const [newSample, setNewSample] = useState('');
+
+  const samples = useQuery({
+    queryKey: ['linkedin_style_samples'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('linkedin_style_samples')
+        .select('id, content, created_at')
+        .eq('active', true)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const addSample = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('linkedin_style_samples')
+        .insert({ content: newSample.trim() });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setNewSample('');
+      samples.refetch();
+      toast({ title: 'Exemple ajouté au corpus de style' });
+    },
+    onError: (e: any) => toast({ title: 'Erreur', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
+  const deleteSample = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('linkedin_style_samples').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => samples.refetch(),
+    onError: (e: any) => toast({ title: 'Erreur', description: e?.message ?? String(e), variant: 'destructive' }),
+  });
+
+
 
   const logs = useQuery({
     queryKey: ['linkedin_post_log'],
