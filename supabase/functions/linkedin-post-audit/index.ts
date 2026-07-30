@@ -369,29 +369,55 @@ Deno.serve(async (req) => {
     const { text: rawAudit, source: auditSource } = await callLLM(AUDIT_SYSTEM, userMsg);
     const audit = parseJson(rawAudit);
 
-    const score = Math.max(0, Math.min(100, Number(audit.score ?? 0)));
     const hookScore = Math.max(0, Math.min(10, Number(audit.hook_score ?? 0)));
     const impressionsScore = Math.max(0, Math.min(10, Number(audit.impressions_score ?? 0)));
+    const contentScore = Math.max(0, Math.min(10, Number(audit.content_score ?? audit.score ?? 0) || 0));
     const improvedText = String(audit.improved_text ?? "").trim();
+
+    const { total: score, breakdown } = computeCompositeScore(
+      checks, hookScore, impressionsScore, contentScore,
+    );
 
     const hardFail =
       !checks.lengthOk || checks.bannedChars.length > 0 || checks.dashes || !checks.aerationOk || !checks.hookIsSingleLine;
 
-    const needsFix =
-      (hardFail || score < SCORE_THRESHOLD || hookScore < HOOK_THRESHOLD) &&
-      improvedText.length >= 500 &&
-      improvedText !== publishedText &&
-      attempts < MAX_ATTEMPTS;
+    // Score de l'itération précédente dans la même lignée de post.
+    const previousScore = Number((run.audit_report as any)?.previous_score ?? NaN);
+    const gain = Number.isFinite(previousScore) ? score - previousScore : null;
+
+    // Conditions d'arrêt de la boucle.
+    const meetsTarget = !hardFail && score >= SCORE_THRESHOLD && hookScore >= HOOK_THRESHOLD;
+    const maxedOut = attempts >= MAX_ATTEMPTS;
+    const plateau = gain !== null && gain < MIN_GAIN;
+
+    // Le texte réécrit doit lui même passer les contrôles déterministes.
+    const improvedChecks = improvedText ? runDeterministicChecks(improvedText) : null;
+    const improvedIsValid = !!improvedChecks &&
+      improvedChecks.lengthOk &&
+      improvedChecks.bannedChars.length === 0 &&
+      !improvedChecks.dashes &&
+      improvedChecks.aerationOk &&
+      improvedChecks.hookIsSingleLine &&
+      improvedText !== publishedText;
+
+    const needsFix = !meetsTarget && !maxedOut && !plateau && improvedIsValid;
 
     const report = {
       source: auditSource,
       score,
+      score_breakdown: breakdown,
       hook_score: hookScore,
       impressions_score: impressionsScore,
-      verdict: audit.verdict ?? (needsFix ? "a_corriger" : "conforme"),
+      content_score: contentScore,
+      iteration: attempts + 1,
+      previous_score: Number.isFinite(previousScore) ? previousScore : null,
+      gain,
+      thresholds: { score: SCORE_THRESHOLD, hook: HOOK_THRESHOLD, max_attempts: MAX_ATTEMPTS, min_gain: MIN_GAIN },
+      verdict: meetsTarget ? "conforme" : "a_corriger",
       issues: Array.isArray(audit.issues) ? audit.issues.slice(0, 10) : [],
       hook_analysis: String(audit.hook_analysis ?? "").slice(0, 500),
       deterministic: checks,
+      improved_deterministic: improvedChecks,
       engagement,
       audited_text: publishedText,
       improved_text: improvedText.slice(0, 4000),
@@ -399,11 +425,18 @@ Deno.serve(async (req) => {
       dry_run: dryRun,
     };
 
-    console.log(`[audit] post=${postId} score=${score} hook=${hookScore} needsFix=${needsFix} hardFail=${hardFail}`);
+    console.log(
+      `[audit] post=${postId} iter=${attempts + 1} score=${score} hook=${hookScore} gain=${gain} needsFix=${needsFix} target=${meetsTarget} plateau=${plateau} maxed=${maxedOut}`,
+    );
 
     // 4) Correction : suppression + republication avec le même média
     let repostResult: Record<string, unknown> | null = null;
-    let auditStatus: string = needsFix ? "corrected" : "passed";
+    let auditStatus: string;
+    if (meetsTarget) auditStatus = "passed";
+    else if (maxedOut) auditStatus = "max_attempts";
+    else if (plateau) auditStatus = "plateau";
+    else if (!improvedIsValid) auditStatus = "fix_invalid";
+    else auditStatus = "corrected";
 
     if (needsFix && !dryRun) {
       const repostUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/linkedin-weekly-post?mode=repost`;
@@ -424,21 +457,25 @@ Deno.serve(async (req) => {
       if (!res.ok || body?.ok === false) {
         auditStatus = "fix_failed";
         console.error(`[audit] repost échoué ${res.status}:`, JSON.stringify(body).slice(0, 400));
-      } else {
-        // Le nouveau run est journalisé par linkedin-weekly-post ; on marque
-        // le post corrigé comme déjà audité pour éviter une boucle infinie.
-        if (body?.post_id) {
-          await admin
-            .from("linkedin_post_log")
-            .update({
-              audit_status: "post_fix",
-              audit_score: score,
-              audited_at: new Date().toISOString(),
-              audit_attempts: attempts + 1,
-              audit_report: { ...report, replaces_post_id: postId },
-            })
-            .eq("linkedin_post_id", body.post_id);
-        }
+      } else if (body?.post_id) {
+        // Le nouveau run est journalisé par linkedin-weekly-post. On le laisse
+        // éligible à un nouvel audit (audit_status null) en propageant le
+        // compteur d'itérations et le score précédent : la boucle continue
+        // jusqu'au seuil, au plateau ou au maximum d'itérations.
+        await admin
+          .from("linkedin_post_log")
+          .update({
+            audit_status: null,
+            audit_attempts: attempts + 1,
+            audit_report: {
+              pending_reaudit: true,
+              previous_score: score,
+              previous_hook_score: hookScore,
+              replaces_post_id: postId,
+              iteration: attempts + 1,
+            },
+          })
+          .eq("linkedin_post_id", body.post_id);
       }
     } else if (needsFix && dryRun) {
       auditStatus = "would_fix";
@@ -455,6 +492,7 @@ Deno.serve(async (req) => {
         audit_report: report,
       })
       .eq("id", run.id);
+
 
     return new Response(
       JSON.stringify({
