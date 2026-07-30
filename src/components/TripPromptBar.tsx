@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Mic, MicOff, Sparkles, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Car, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
@@ -129,35 +129,39 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
   return (
     <div className={cn("border-t bg-background/95 backdrop-blur px-3 sm:px-4 py-3 space-y-2", className)}>
       <div className="flex items-start gap-2">
-        <Textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Ex : « Je pars du bureau, je passe chez Dupont à Cavaillon puis chez Martin à Noves et je rentre à la maison »"
-          className="flex-1 min-h-[64px] max-h-32 text-sm resize-none"
-          disabled={busy || recording || transcribing}
-        />
-        <div className="flex flex-col gap-2">
-          <Button
+        <div className="relative flex-1">
+          <Textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Ex : « Je pars du bureau, je passe chez Dupont à Cavaillon puis chez Martin à Noves et je rentre à la maison »"
+            className="min-h-[64px] max-h-32 text-sm resize-none pr-12"
+            disabled={busy || recording || transcribing}
+          />
+          <button
             type="button"
-            size="icon"
-            variant={recording ? "destructive" : "outline"}
             onClick={recording ? stopRecording : startRecording}
             disabled={busy || transcribing}
             title={recording ? "Arrêter" : "Dicter"}
+            className={cn(
+              "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+              "bg-muted text-muted-foreground hover:bg-muted/70 disabled:opacity-50",
+              recording && "bg-destructive/15 text-destructive",
+            )}
           >
             {transcribing ? <Loader2 className="w-4 h-4 animate-spin" /> : recording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-          </Button>
-          <Button
-            type="button"
-            size="icon"
-            onClick={handleParse}
-            disabled={!text.trim() || busy || recording || transcribing}
-            title="Extraire le trajet"
-          >
-            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          </Button>
+          </button>
         </div>
+        <Button
+          type="button"
+          size="icon"
+          onClick={handleParse}
+          disabled={!text.trim() || busy || recording || transcribing}
+          title="Extraire le trajet"
+        >
+          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4 fill-transparent" strokeWidth={1.5} />}
+        </Button>
       </div>
+
       <p className="text-[11px] text-muted-foreground">
         Décris ton trajet en langage naturel — l'IA extrait les adresses et déduit l'ordre logique. Le domicile est utilisé par défaut si le départ ou l'arrivée n'est pas précisé.
       </p>
