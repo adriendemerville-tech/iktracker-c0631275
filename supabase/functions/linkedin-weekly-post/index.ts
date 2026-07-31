@@ -756,15 +756,18 @@ function scriptedVideoSteps(topic: Topic): PageboltStep[] {
   }
 
   if (topic.slug === "simulateur") {
-    // Saisie visible d'un cas concret : 12 000 km, puis calcul.
-    steps.push({ action: "fill", selector: "#simulateur input[type='number']", value: "12000" });
-    steps.push({ action: "wait", ms: 1800, live: true });
+    // Le simulateur recalcule en direct : on saisit un cas concret (12 000 km)
+    // puis on active la majoration 100% électrique pour montrer l'effet.
+    // Les ids sont suffixés selon l'instance du composant, d'où le sélecteur ^=.
+    steps.push({ action: "fill", selector: "input[id^='annualKm']", value: "12000" });
+    steps.push({ action: "wait", ms: 2500, live: true });
     steps.push({
       action: "evaluate",
-      script: `(() => { const b = Array.from(document.querySelectorAll('#simulateur button')).find(x => /calcul/i.test(x.textContent || '')); if (b) b.click(); })()`,
+      script: `(() => { const s = document.querySelector("[id^='electric']"); if (s) s.click(); })()`,
     });
     steps.push({ action: "wait", ms: 3000, live: true });
   }
+
 
   // Parcours final du module pour montrer le résultat et le contenu associé.
   steps.push({ action: "scroll", x: 0, y: 400, relative: true });
