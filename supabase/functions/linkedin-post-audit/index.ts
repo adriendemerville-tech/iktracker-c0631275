@@ -493,7 +493,7 @@ Deno.serve(async (req) => {
     );
 
     const hardFail =
-      !checks.lengthOk || checks.bannedChars.length > 0 || checks.dashes || !checks.aerationOk || !checks.hookIsSingleLine;
+      !checks.lengthOk || checks.bannedChars.length > 0 || checks.dashes || !checks.aerationOk || !checks.hookIsSingleLine || !checks.geoBlockOk;
 
     // Score de l'itération précédente dans la même lignée de post.
     const previousScore = Number((run.audit_report as any)?.previous_score ?? NaN);
