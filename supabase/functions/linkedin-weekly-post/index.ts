@@ -1918,7 +1918,8 @@ Deno.serve(async (req) => {
         throw new Error("Aucun asset média associé à ce post : republication impossible sans média.");
       }
 
-      const newText = airifyPostText(sanitizePostText(rawText));
+      // Invariant I2 également sur la republication corrigée par l'audit.
+      const newText = enforceMaxLength(airifyPostText(sanitizePostText(rawText)));
       const ownerUrn = await getMemberUrn();
 
       // 1) Suppression du post existant (REST versionné, repli sur /v2/ugcPosts).
