@@ -292,7 +292,23 @@ Paramètres : `?post_id=<urn>` (forcer un post), `?dry_run=1` (auditer sans repu
 
 ### `public.linkedin_post_log`
 
-Colonnes écrites par `logRun()` : `topic_slug`, `topic_title`, `post_text`, `linkedin_post_id`, `linkedin_asset_urn`, `video_bytes`, `media_type`, `status` (`success` | `failed`), `error_message`, `duration_ms`, `triggered_by` (`cron` | `admin`), `created_at`.
+Table unique du système : elle sert à la fois de journal de publication **et** de file d'audit (il n'existe pas de table d'audit séparée).
+
+Colonnes écrites par `logRun()` (publication) :
+
+`topic_slug`, `topic_title`, `post_text`, `linkedin_post_id`, `linkedin_asset_urn`, `video_bytes`, `media_type`, `status` (`success` | `failed`), `error_message`, `duration_ms`, `triggered_by` (`cron` | `admin`), `posted_at`.
+
+Colonnes écrites par `linkedin-post-audit` (boucle qualité) :
+
+| Colonne | Sens |
+|---|---|
+| `audit_status` | `null` = **non encore audité** (critère de sélection du cron), sinon `approved` / `reposted` / `plateau` / `failed` |
+| `audit_score` | score composite /100 du dernier passage |
+| `audit_hook_score` | note du hook /10 |
+| `audit_attempts` | nombre d'itérations déjà consommées (max `MAX_ATTEMPTS` = 3) |
+| `audit_report` | JSON complet du verdict LLM, dont `previous_score` pour la détection de plateau |
+
+Après une republication, la ligne du nouveau post est remise à `audit_status = null` avec `audit_attempts` incrémenté : c'est ce qui la rend à nouveau éligible tout en bornant la boucle.
 
 ### `public.linkedin_style_samples`
 
