@@ -44,6 +44,13 @@ export const EmailVerificationGate = () => {
     return () => window.clearTimeout(timer);
   }, [user, verified]);
 
+  // Re-open the gate on demand (blocked feature)
+  useEffect(() => {
+    const handler = () => setBlocked(true);
+    window.addEventListener(EMAIL_GATE_EVENT, handler);
+    return () => window.removeEventListener(EMAIL_GATE_EVENT, handler);
+  }, []);
+
   // Open Gmail in a new tab as soon as the gate appears (Gmail addresses only)
   useEffect(() => {
     if (!blocked || verified) return;
