@@ -67,17 +67,17 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
           <Move className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
       )}
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-2">
+      <CardContent className="p-3">
+        <div className="flex items-center gap-1.5 mb-1.5">
           {card.icon}
-          <span className="text-xs text-muted-foreground">{card.label}</span>
+          <span className="text-[11px] leading-tight text-muted-foreground truncate">{card.label}</span>
         </div>
         {card.isLoading ? (
-          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-6 w-14" />
         ) : (
           <>
-            <p className="text-2xl font-bold">{card.value}</p>
-            {card.subValue && <p className="text-xs text-muted-foreground">{card.subValue}</p>}
+            <p className="text-xl font-bold">{card.value}</p>
+            {card.subValue && <p className="text-[11px] leading-tight text-muted-foreground truncate">{card.subValue}</p>}
           </>
         )}
       </CardContent>
