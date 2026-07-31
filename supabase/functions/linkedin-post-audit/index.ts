@@ -209,6 +209,8 @@ type Deterministic = {
   hookLength: number;
   hookIsSingleLine: boolean;
   aerationOk: boolean;
+  geoBlockOk: boolean;
+  geoCount: number;
 };
 
 function runDeterministicChecks(text: string): Deterministic {
