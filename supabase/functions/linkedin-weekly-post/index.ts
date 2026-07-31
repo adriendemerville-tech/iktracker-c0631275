@@ -1926,10 +1926,12 @@ Deno.serve(async (req) => {
         if (topic.mediaSource === "browserless") {
           try {
             const focusLabels = await deriveCaptureFocus(topic, postText);
-            bytes = await recordScreencast(topic, focusLabels);
+            const frames = await captureUiFrames(topic, focusLabels);
+            bytes = await renderScreenshotCarouselPdf(frames);
+            format = "carousel";
           } catch (err) {
             const reason = err instanceof Error ? err.message : String(err);
-            console.warn(`[media] Browserless screencast failed, falling back to a static screenshot: ${reason}`);
+            console.warn(`[media] Capture UI échouée, repli sur une capture unique: ${reason}`);
             mediaFallback = true;
             mediaFallbackReason = reason;
             bytes = await captureScreenshot(topic);
