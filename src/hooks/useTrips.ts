@@ -3,6 +3,7 @@ import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { usePreferences, getFiscalYearStart } from './usePreferences';
+import { useEmailGate, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from './useEmailGate';
 import { toast } from 'sonner';
 
 // Archived trips are kept for 30 days
@@ -56,6 +57,7 @@ function locationColumns(prefix: 'start' | 'end', loc?: Location) {
 export function useTrips() {
   const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
+  const { emailVerified, blockFeature } = useEmailGate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [archivedTrips, setArchivedTrips] = useState<Trip[]>([]);
   // Start with empty array - don't show defaults until we know if user is logged in
@@ -365,6 +367,21 @@ export function useTrips() {
     trip: Omit<Trip, 'id' | 'ikAmount'>,
     options?: { ikAmountOverride?: number },
   ) => {
+    // Unverified accounts: 3 trips + 1 tour max
+    if (!emailVerified) {
+      const isTour = !!trip.tourStops?.length;
+      const tourCount = trips.filter(t => t.tourStops?.length).length;
+      const simpleCount = trips.length - tourCount;
+      if (isTour && tourCount >= UNVERIFIED_TOUR_LIMIT) {
+        blockFeature('tour');
+        return null;
+      }
+      if (!isTour && simpleCount >= UNVERIFIED_TRIP_LIMIT) {
+        blockFeature('trip');
+        return null;
+      }
+    }
+
     const vehicle = vehicles.find(v => v.id === trip.vehicleId);
     if (!vehicle) return null;
 
