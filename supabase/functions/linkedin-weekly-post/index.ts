@@ -2144,7 +2144,7 @@ Deno.serve(async (req) => {
         if (topic.mediaSource === "browserless") {
           try {
             // 1er choix : vraie vidéo MP4 de l'UI via PageBolt.
-            bytes = await capturePageboltVideo(topic);
+            bytes = await capturePageboltVideo(topic, postText);
           } catch (videoErr) {
             const videoReason = videoErr instanceof Error ? videoErr.message : String(videoErr);
             console.warn(`[media] PageBolt vidéo échouée, repli carrousel de captures: ${videoReason}`);
