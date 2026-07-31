@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from '@/hooks/useEmailGate';
 import { useTrips } from '@/hooks/useTrips';
 import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour, TOUR_STORAGE_KEYS, loadTourData, saveTourData } from '@/hooks/useTourTracker';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -89,6 +90,7 @@ const Index = () => {
     },
     enabled: isAdmin,
   });
+  const { emailVerified, blockFeature } = useEmailGate();
   const { 
     trips, 
     archivedTrips,
