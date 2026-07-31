@@ -69,7 +69,7 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
       )}
       <CardContent className="p-3">
         <div className="flex items-center gap-1.5 mb-1.5">
-          {card.icon}
+          <span className="[&_svg]:w-4 [&_svg]:h-4 shrink-0">{card.icon}</span>
           <span className="text-[11px] leading-tight text-muted-foreground truncate">{card.label}</span>
         </div>
         {card.isLoading ? (
