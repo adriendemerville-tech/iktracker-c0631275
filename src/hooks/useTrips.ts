@@ -56,6 +56,7 @@ function locationColumns(prefix: 'start' | 'end', loc?: Location) {
 export function useTrips() {
   const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
+  const { emailVerified, blockFeature } = useEmailGate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [archivedTrips, setArchivedTrips] = useState<Trip[]>([]);
   // Start with empty array - don't show defaults until we know if user is logged in
