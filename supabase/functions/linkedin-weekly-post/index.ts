@@ -726,6 +726,10 @@ export default async function ({ page, context }) {
   const { url, focusLabels } = context;
   await page.setViewport({ width: 1200, height: 1200, deviceScaleFactor: 1 });
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
+  // Certaines instances Browserless conservent le viewport 800x600 du launch :
+  // on le réapplique puis on recharge pour forcer un relayout complet.
+  await page.setViewport({ width: 1200, height: 1200, deviceScaleFactor: 1 });
+  await page.reload({ waitUntil: 'networkidle2', timeout: 45000 });
   await new Promise(r => setTimeout(r, 2500));
 
   const labels = Array.isArray(focusLabels) ? focusLabels : [];
