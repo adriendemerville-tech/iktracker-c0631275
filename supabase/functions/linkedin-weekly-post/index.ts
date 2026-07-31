@@ -1977,19 +1977,29 @@ Deno.serve(async (req) => {
       if (format === "video") {
         if (topic.mediaSource === "browserless") {
           try {
-            const focusLabels = await deriveCaptureFocus(topic, postText);
-            const frames = await captureUiFrames(topic, focusLabels);
-            bytes = await renderScreenshotCarouselPdf(frames);
-            format = "carousel";
-          } catch (err) {
-            const reason = err instanceof Error ? err.message : String(err);
-            console.warn(`[media] Capture UI échouée, repli sur une capture unique: ${reason}`);
-            mediaFallback = true;
-            mediaFallbackReason = reason;
-            bytes = await captureScreenshot(topic);
-            format = "image";
+            // 1er choix : vraie vidéo MP4 de l'UI via PageBolt.
+            bytes = await capturePageboltVideo(topic);
+          } catch (videoErr) {
+            const videoReason = videoErr instanceof Error ? videoErr.message : String(videoErr);
+            console.warn(`[media] PageBolt vidéo échouée, repli carrousel de captures: ${videoReason}`);
+            try {
+              const focusLabels = await deriveCaptureFocus(topic, postText);
+              const frames = await captureUiFrames(topic, focusLabels);
+              bytes = await renderScreenshotCarouselPdf(frames);
+              format = "carousel";
+              mediaFallback = true;
+              mediaFallbackReason = videoReason;
+            } catch (err) {
+              const reason = err instanceof Error ? err.message : String(err);
+              console.warn(`[media] Capture UI échouée, repli sur une capture unique: ${reason}`);
+              mediaFallback = true;
+              mediaFallbackReason = `${videoReason} | ${reason}`;
+              bytes = await captureScreenshot(topic);
+              format = "image";
+            }
           }
         } else {
+
           bytes = await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
         }
       } else {
