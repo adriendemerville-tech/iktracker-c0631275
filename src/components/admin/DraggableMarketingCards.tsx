@@ -56,7 +56,7 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`relative group/card ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      className={`relative group/card overflow-hidden ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       {isDesktop && (
         <div
@@ -67,17 +67,17 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
           <Move className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
       )}
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          {card.icon}
-          <span className="text-xs text-muted-foreground">{card.label}</span>
+      <CardContent className="p-3">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <span className="[&_svg]:w-4 [&_svg]:h-4 shrink-0">{card.icon}</span>
+          <span className="text-[11px] leading-tight text-muted-foreground truncate">{card.label}</span>
         </div>
         {card.isLoading ? (
-          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-6 w-14" />
         ) : (
           <>
-            <p className="text-2xl font-bold">{card.value}</p>
-            {card.subValue && <p className="text-xs text-muted-foreground">{card.subValue}</p>}
+            <p className="text-xl font-bold">{card.value}</p>
+            {card.subValue && <p className="text-[11px] leading-tight text-muted-foreground truncate">{card.subValue}</p>}
           </>
         )}
       </CardContent>
@@ -161,7 +161,7 @@ export function DraggableMarketingCards({ cards, storageKey = 'marketing-cards-o
 
   if (!isDesktop) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 auto-rows-fr [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(3n+1)]:col-span-3 md:[&>*:last-child:nth-child(3n+2)]:col-span-2 lg:[&>*:last-child]:col-span-1 lg:[&>*:last-child:nth-child(6n+1)]:col-span-6 lg:[&>*:last-child:nth-child(6n+2)]:col-span-5 lg:[&>*:last-child:nth-child(6n+3)]:col-span-4 lg:[&>*:last-child:nth-child(6n+4)]:col-span-3 lg:[&>*:last-child:nth-child(6n+5)]:col-span-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 auto-rows-fr">
         {orderedCards.map((card) => (
           <SortableCard key={card.id} card={card} isDesktop={false} />
         ))}
@@ -176,7 +176,7 @@ export function DraggableMarketingCards({ cards, storageKey = 'marketing-cards-o
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={orderedCards.map(c => c.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 auto-rows-fr [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(3n+1)]:col-span-3 md:[&>*:last-child:nth-child(3n+2)]:col-span-2 lg:[&>*:last-child]:col-span-1 lg:[&>*:last-child:nth-child(6n+1)]:col-span-6 lg:[&>*:last-child:nth-child(6n+2)]:col-span-5 lg:[&>*:last-child:nth-child(6n+3)]:col-span-4 lg:[&>*:last-child:nth-child(6n+4)]:col-span-3 lg:[&>*:last-child:nth-child(6n+5)]:col-span-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6 auto-rows-fr">
           {orderedCards.map((card) => (
             <SortableCard key={card.id} card={card} isDesktop={true} />
           ))}
