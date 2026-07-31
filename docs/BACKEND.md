@@ -420,7 +420,7 @@ Content-Type: application/json
 - **Mode correction `?mode=repost`** (POST, admin uniquement) : `body = { post_id, text, asset_urn? }`. L'API LinkedIn ne permet pas d'éditer le texte d'un post publié via le connector (`/rest/posts` en PARTIAL_UPDATE renvoie 426 `NONEXISTENT_VERSION`, `/v2/ugcPosts` en lecture renvoie 403 faute de scope `r_member_social`). La fonction supprime donc le post (`DELETE /rest/posts/{urn}`, repli `DELETE /v2/ugcPosts/{urn}`) puis le republie avec le texte corrigé — assaini et aéré par `sanitizePostText` + `airifyPostText` — **en réutilisant l'asset média existant** (`linkedin_asset_urn` du run d'origine), donc sans nouvel upload ni changement de visuel. Le run est journalisé dans `linkedin_post_log`. Exposé dans l'admin (onglet LinkedIn) par le bouton « Corriger » de chaque run réussi. Les réactions et commentaires du post d'origine sont perdus.
 - **Logs** : `public.linkedin_post_log` (colonnes `media_type`, `triggered_by`, `duration_ms`, `error_message`).
 - **Admin UI** : onglet "LinkedIn" dans `/admin` (composant `AdminLinkedIn.tsx`) — sélecteur topic + format + toggle dry-run, **gestion du corpus de style** (ajout/suppression d'exemples), aperçu du prompt visuel dérivé, et historique des 15 derniers runs.
-- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `BROWSERLESS_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
+- **Secrets** : `LOVABLE_API_KEY`, `LINKEDIN_API_KEY`, `WAVESPEED_API_KEY`, `BROWSERLESS_API_KEY`, `PAGEBOLT_API_KEY`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
 
 #### `linkedin-post-audit` — Boucle qualité post-publication
 
