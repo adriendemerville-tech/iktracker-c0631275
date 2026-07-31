@@ -119,7 +119,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <EmailVerificationGate />
+    </>
+  );
 };
 
 // Smart landing: redirect authenticated users to /app
