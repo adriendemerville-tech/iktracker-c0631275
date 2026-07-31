@@ -721,10 +721,11 @@ async function recordScreencast(topic: Topic, focusLabels: string[] = []): Promi
   // disponible sur toutes les instances Browserless. On prend N screenshots
   // pendant le scroll, puis ffmpeg les assemble en MP4.
   const code = `
+import fs from 'fs';
+import { execSync } from 'child_process';
+
 export default async function ({ page, context }) {
   const { url, durationMs, focusLabels } = context;
-  const fs = require('fs');
-  const { execSync } = require('child_process');
   fs.rmSync('/tmp/frames', { recursive: true, force: true });
   fs.mkdirSync('/tmp/frames', { recursive: true });
 
