@@ -407,9 +407,9 @@ Content-Type: application/json
 - **Cohérence texte ↔ média** : le média n'est pas produit à partir du seul `topic.visualPrompt`. Après génération du texte :
   - le **plan de carrousel** est dérivé du post généré (`generateSlidePlanFromText`) pour que les slides reprennent les mêmes arguments, avec repli sur le plan topic.
   - le **prompt visuel** (cover d'image ou scène vidéo) est dérivé du post généré (`deriveVisualPromptFromText`) pour que l'image/la vidéo illustre ce qui est réellement écrit, avec repli sur `topic.visualPrompt`.
-  - les screencasts `browserless` restent liés au topic (UI réelle) et illustrent donc naturellement le module décrit.
+  - les captures `browserless` restent liées au topic (UI réelle) et illustrent donc naturellement le module décrit.
 - **Média** :
-  - `mediaSource: 'browserless'` → screencast MP4 d'une UI réelle du site (simulateur, mode tournée, sync calendrier, plaque, export PDF).
+  - `mediaSource: 'browserless'` → **carrousel PDF de vraies captures d'écran** (`captureUiFrames` + `renderScreenshotCarouselPdf`). Le runtime Browserless `/function` s'exécute côté navigateur : ni `fs`, ni `child_process`, ni `ffmpeg`, et `page.screencast` (ScreenRecorder) est indisponible sur l'offre utilisée — la piste MP4 screencast est donc abandonnée. La fonction navigue, réapplique le viewport 1200×1200 puis recharge (relayout), repère les ancres de focus dérivées du texte et renvoie 5 captures PNG base64, assemblées en PDF 1200×1200 (1 capture par page) publié en post DOCUMENT. Repli : capture unique publiée en image.
   - `mediaSource: 'wavespeed'` → visuel IA :
     - `format: 'video'` → text-to-video via `wavespeed-ai/wan-2.1-t2v-720p`, à partir du prompt visuel dérivé du texte, MP4 téléchargé puis uploadé.
     - `format: 'carousel'` → cover générée via `wavespeed-ai/flux-dev` à partir du prompt visuel dérivé du texte, puis embarquée en fond du slide 1 (scrim ivoire) ; slides 2-5 en typographie pdf-lib pure, dont le contenu est extrait du post. Fallback silencieux sur le rendu typographique seul.
