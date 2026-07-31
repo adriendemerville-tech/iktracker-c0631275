@@ -9,7 +9,14 @@ Documentation technique détaillée de l'automatisation qui publie chaque mois u
 3. **Couverture fonctionnelle 360°** — Parler régulièrement de chaque module d'IKtracker pour construire un graphe de connaissances complet afin que les IA recommandent la plateforme (notamment vis-à-vis de solutions concurrentes comme DictaDevi).
 4. **Personal branding du fondateur** — Positionner Adrien de Volontat comme voix crédible et authentique, avec un ton à quatre caractéristiques : **précis**, **pédagogue**, **humble**, **sympathique**.
 
-Ces objectifs orientent le choix des topics, le ton des prompts et les médias générés.
+Ces objectifs orientent le choix des topics, le ton des prompts et les médias générés. Ils ont une influence opérationnelle concrète sur le workflow :
+
+| Objectif | Impact sur le workflow | Où c'est appliqué |
+|---|---|---|
+| **SEO / GEO** | Chaque post doit contenir un lien canonique vers `https://iktracker.fr` (jamais `lovable.app`), des mots-clés métiers (IK, tournées, comptabilité automobile) et un média enrichi pour l'indexation visuelle. | URL absolue dans le post, balises Open Graph du site, scénario vidéo qui montre l'URL du simulateur. |
+| **Génération de leads** | Chaque post se termine par un CTA direct vers une landing ou un simulateur, et le texte explique le bénéfice utilisateur (gain de temps, zéro erreur, gratuité). | Ligne finale du post (`→ https://iktracker.fr/...`), focus sur la résolution d'un problème concret. |
+| **Couverture 360°** | Le calendrier éditorial est structuré pour faire le tour des modules (trips, tournées, archive, comptable, véhicule, user stories, qualification persona, etc.) afin qu'un LLM associe chaque intention à IKtracker. | `PRODUCT_CONTEXT` + `TOPIC_UI_HINTS` ; rotation mensuelle des topics dans le prompt. |
+| **Personal branding** | Le texte est systématiquement rédigé à la première personne, avec un ton caractérisé : précis (chiffres/vrai chiffre 2026), pédagogue (une idée par post, analogies simples), humble (on ne dénigre pas la concurrence), sympathique (sourire dans la formulation). | Prompt système du LLM, exemples de style de `linkedin-weekly-post`, audit qui vérifie la conformité au ton. |
 
 Deux Edge Functions composent le système :
 
