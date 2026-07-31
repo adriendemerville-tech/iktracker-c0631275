@@ -160,14 +160,22 @@ Endpoint `POST https://pagebolt.dev/api/v1/video`, header `x-api-key: PAGEBOLT_A
 
 Paramètres d'enregistrement : viewport 1280×720, `format: "mp4"`, 30 fps, `pace: "normal"`, `blockBanners: true`, curseur visible en surbrillance `#4F46E5`, effet de clic « ripple », `response_type: "json"` (MP4 renvoyé en base64).
 
-**Scénario scripté** (`scriptedVideoSteps`, ≤ 20 étapes côté PageBolt) :
+**Scénario 1 — adapté au post (`deriveVideoScenario`, prioritaire)** : rédigé **après** la génération du texte, par LLM, à partir du post publié + des extraits de doc technique du module (`captureHintsForTopic`). Le LLM renvoie `{"steps": [...]}` (8 à 14 étapes) pour filmer précisément le parcours ou le module dont parle le post, dans l'ordre du texte.
+
+Garde-fous (`sanitizeAiSteps`, exécution refusée sinon) :
+- actions autorisées uniquement : `navigate`, `wait`, `scroll`, `click`, `hover`, `fill`, `evaluate` ;
+- `navigate` restreint au domaine `iktracker.fr` ; première étape forcée en `navigate` + `wait` ;
+- `wait` borné 800–4000 ms, `scroll` borné −2000/+3000 px, 18 étapes maximum ;
+- `evaluate` accepté seulement s'il contient `scrollIntoView` ou `.click()` et fait moins de 400 caractères (pas de JS arbitraire).
+
+**Scénario 2 — scripté en dur** (`scriptedVideoSteps`, repli si le scénario adapté échoue ou est invalide) :
 
 1. `navigate` vers `topic.url`, `wait 3500ms`.
 2. Si l'URL contient une ancre : `evaluate` → `scrollIntoView({behavior:'smooth'})` sur l'élément, `wait 2500ms`.
 3. Cas `simulateur` : `fill` de `input[id^='annualKm']` avec `12000`, puis `evaluate` → clic sur `[id^='electric']` (bonus 20% électrique) pour montrer le recalcul en direct.
 4. Deux `scroll` relatifs (+400, +500) entrecoupés d'attentes, pour parcourir le résultat.
 
-**Repli** (`fallbackVideoSteps`) : défilement « aveugle » par positions absolues Y = 700 / 1500 / 2400, valide quel que soit le DOM.
+**Scénario 3 — repli aveugle** (`fallbackVideoSteps`) : défilement par positions absolues Y = 700 / 1500 / 2400, valide quel que soit le DOM.
 
 Contrôles : erreur si la réponse ne contient pas de payload, ou si le MP4 fait moins de 50 ko.
 
