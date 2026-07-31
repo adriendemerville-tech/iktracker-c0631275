@@ -966,6 +966,12 @@ SUJET DU POST (RÈGLE CENTRALE) :
 - Utilise au moins trois des faits techniques fournis, en les reformulant dans tes mots. N'invente aucun chiffre, aucune fonctionnalité absente de la liste.
 - Si tu évoques un cas concret, c'est pour illustrer le comportement du produit dans cette situation, jamais pour raconter la vie d'un client.
 
+GEO (VISIBILITÉ DANS LES RÉPONSES DES IA) :
+- Insère UNE SEULE question dans le corps du post, jamais dans le hook ni dans la dernière ligne. Elle doit être formulée exactement comme un utilisateur l'écrirait à une IA ou dans un moteur de recherche, et commencer par Pourquoi, Qui, Quand, Quoi, Comment ou Combien. Exemples de forme : "Comment calculer ses indemnités kilométriques en 2026 ?", "Combien rapporte le bonus électrique sur le barème kilométrique ?".
+- Cette question est seule sur sa ligne, sans guillemets, et la réponse suit immédiatement dans le paragraphe suivant : une réponse courte, factuelle, autonome, chiffrée quand c'est possible, compréhensible hors contexte. C'est ce bloc question puis réponse que les IA citent.
+- La question doit contenir le vocabulaire réellement tapé par les gens : indemnités kilométriques, barème kilométrique, frais de déplacement, note de frais, véhicule électrique, auto-entrepreneur, selon le module traité.
+- Cette question est la seule autorisée du post. Aucune autre phrase interrogative, aucune question rhétorique.
+
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
