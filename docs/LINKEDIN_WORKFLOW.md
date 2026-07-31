@@ -55,7 +55,11 @@ Deux Edge Functions composent le système :
      └── browserless → deriveCaptureFocus() (labels UI à cadrer)
    [si dry_run → retour JSON ici, rien n'est publié]
 5. Génération du MÉDIA
-     ├── mediaSource = browserless → PageBolt /v1/video (MP4 scripté)
+     ├── mediaSource = browserless → PageBolt /v1/video (MP4)
+     │        ├── scénario 1 : deriveVideoScenario() — steps écrits par LLM
+     │        │                APRÈS le texte, d'après le post + la doc du module
+     │        ├── scénario 2 : scriptedVideoSteps() (scénario en dur du module)
+     │        ├── scénario 3 : fallbackVideoSteps() (défilement aveugle)
      │        ├── repli 1 : carrousel PDF de captures Browserless
      │        └── repli 2 : capture PNG unique
      └── mediaSource = wavespeed
@@ -184,7 +188,7 @@ Contrôles : erreur si la réponse ne contient pas de payload, ou si le MP4 fait
 ### 5.2 Replis média (chaîne complète)
 
 ```text
-PageBolt MP4
+PageBolt MP4 (scénario adapté au post → scénario scripté → défilement aveugle)
   └─ échec → captureUiFrames() (Browserless, 5 captures cadrées sur les
               focusLabels dérivés du texte) → renderScreenshotCarouselPdf()
               → format devient "carousel"
@@ -193,6 +197,9 @@ PageBolt MP4
 ```
 
 Chaque bascule positionne `media_fallback = true` et `media_fallback_reason` dans la réponse et le log.
+
+**Run de référence (31/07/2026, topic `simulateur`)** : scénario adapté généré en 10 étapes (`[video-scenario] 10 étapes générées depuis le post`), MP4 de 2,64 Mo publié en post VIDEO (`urn:li:ugcPost:7488847876358438912`), durée totale du run ~77 s.
+
 
 ### 5.3 Visuels IA — Wavespeed (`mediaSource: "wavespeed"`)
 
@@ -296,9 +303,11 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 ## 11. Diagnostiquer un run
 
 1. **Dry-run** : `?dry_run=1` renvoie `post_text`, `text_source`, `style_profile`, `style_samples_count`, `slide_plan`, `derived_visual_prompt` — sans rien publier.
-2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
+2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[video-scenario]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
 3. **Réponse JSON de succès** : `format` (peut différer du format demandé en cas de repli), `media_fallback`, `media_fallback_reason`, `media_bytes`, `post_id`, `asset_urn`, `duration_ms`.
-4. **Base** : `select * from linkedin_post_log order by created_at desc limit 10;`
+4. **Base** : `select posted_at, topic_slug, status, media_type, video_bytes, linkedin_post_id, duration_ms, error_message from linkedin_post_log order by posted_at desc limit 10;` (la colonne de date est `posted_at`, pas `created_at`).
+5. **Durée d'un run vidéo** : ~60 à 90 s. L'appel HTTP côté outillage peut expirer avant la fin ; la fonction continue et écrit son log — vérifier `linkedin_post_log` plutôt que de relancer.
+
 
 ### Symptômes fréquents
 
@@ -308,4 +317,5 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | Texte hors gabarit (< 1 000 signes) | Corpus de style vide → `StyleProfile` par défaut ; ajouter des échantillons |
 | Pas de mention IKtracker | URN organisation non résolu (`[mention]` dans les logs) ; définir `LINKEDIN_ORG_URN` |
 | `Média obligatoire indisponible` | Toutes les voies média ET d'upload ont échoué ; le post n'est volontairement pas publié |
+| Vidéo générique alors que le post parle d'un module précis | Le scénario adapté a été rejeté (`[video-scenario] échec...`) → JSON invalide ou étapes filtrées par `sanitizeAiSteps` ; le run est retombé sur `scriptedVideoSteps()` |
 | Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`) |
