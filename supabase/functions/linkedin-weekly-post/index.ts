@@ -1814,7 +1814,7 @@ Deno.serve(async (req) => {
 
     // 2) Text
     const t = await generatePostText(topic, styleSamples, styleProfile);
-    postText = airifyPostText(sanitizePostText(t.text));
+    postText = appendTopicLink(airifyPostText(sanitizePostText(t.text)), topic);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
