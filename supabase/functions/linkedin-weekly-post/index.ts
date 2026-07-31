@@ -1435,6 +1435,32 @@ function sanitizePostText(text: string): string {
   return out;
 }
 
+// Invariant I11 : le post doit nommer IKtracker. Le prompt le demande, mais on
+// ne fait jamais confiance au modèle : on normalise la casse et on réécrit les
+// tournures anonymes ("mon simulateur", "mon outil") en les rattachant à la
+// marque. Retourne le texte corrigé.
+function enforceBrandMention(text: string): string {
+  // Casse : Iktracker / IKTracker / ik tracker → IKtracker
+  let out = text.replace(/\bik[\s-]?tracker\b/gi, "IKtracker");
+
+  if (/\bIKtracker\b/.test(out)) return out;
+
+  // Aucune mention : on rattache la première tournure possessive anonyme.
+  const anonymous = /\b(?:mon|Mon|notre|Notre)\s+(simulateur|outil|module|application|appli|site|tableau de bord)\b/;
+  const m = out.match(anonymous);
+  if (m) {
+    const isSentenceStart = m.index === 0 || /[.\n]\s*$/.test(out.slice(0, m.index));
+    const replacement = `${isSentenceStart ? "Le" : "le"} ${m[1]} d'IKtracker`;
+    out = out.replace(anonymous, replacement);
+  }
+  return out;
+}
+
+function brandMentionCount(text: string): number {
+  return (text.match(/\bIKtracker\b/g) ?? []).length;
+}
+
+
 // Ajoute le lien de la page concernée en fin de post : LinkedIn transforme
 // automatiquement une URL https en clair en lien cliquable.
 function appendTopicLink(text: string, topic: Topic): string {
