@@ -152,7 +152,8 @@ Consigne stricte : au moins 3 faits exploités, **aucune invention**, aucun nom 
 1. `sanitizePostText()` — remplace `—`/`–` par des virgules, supprime les puces et les caractères interdits, convertit « 20 pour cent » en « 20% », nettoie les doubles espaces.
 2. `airifyPostText()` — recompose les paragraphes : hook isolé, puis paquets de 2 phrases séparés par une ligne vide.
 3. `appendTopicLink()` — ajoute l'URL de la page concernée (sans ancre) en fin de post ; LinkedIn la rend cliquable automatiquement.
-4. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
+4. `enforceBrandMention()` — invariant I11 : normalise la casse (`Iktracker`, `ik tracker` → `IKtracker`) et, si la marque est absente, rattache la première tournure possessive anonyme (« mon simulateur » → « le simulateur d'IKtracker »). En amont, `brandMentionCount()` déclenche une régénération unique si le texte compte moins de 2 occurrences.
+5. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
 
 ---
 
@@ -167,10 +168,15 @@ Paramètres d'enregistrement : viewport 1280×720, `format: "mp4"`, 30 fps, `pac
 **Scénario 1 — adapté au post (`deriveVideoScenario`, prioritaire)** : rédigé **après** la génération du texte, par LLM, à partir du post publié + des extraits de doc technique du module (`captureHintsForTopic`). Le LLM renvoie `{"steps": [...]}` (8 à 14 étapes) pour filmer précisément le parcours ou le module dont parle le post, dans l'ordre du texte.
 
 Garde-fous (`sanitizeAiSteps`, exécution refusée sinon) :
+Garde-fous (`sanitizeAiSteps`, exécution refusée sinon) :
 - actions autorisées uniquement : `navigate`, `wait`, `scroll`, `click`, `hover`, `fill`, `evaluate` ;
 - `navigate` restreint au domaine `iktracker.fr` ; première étape forcée en `navigate` + `wait` ;
 - `wait` borné 800–4000 ms, `scroll` borné −2000/+3000 px, 18 étapes maximum ;
-- `evaluate` accepté seulement s'il contient `scrollIntoView` ou `.click()` et fait moins de 400 caractères (pas de JS arbitraire).
+- `evaluate` accepté seulement s'il contient `scrollIntoView` ou `.click()` et fait moins de 400 caractères (pas de JS arbitraire) ;
+- `isKnownSelector()` : une action `click`, `hover` ou `fill` n'est conservée que si son sélecteur figure dans `TOPIC_UI_HINTS`, registre des sélecteurs réels du module (`input[id^='annualKm']`, `[id^='electric']`, `[id^='fiscalPower']`…). Les sélecteurs inventés par le LLM sont écartés et loggés.
+
+`uiHintBlock(topic)` injecte cette liste de sélecteurs vérifiés dans le prompt du scénariste. `ensureModuleInteractions()` vérifie ensuite qu'il reste au moins une interaction réelle sur le module ; sinon `moduleInteractionSteps()` réinjecte la séquence scriptée, pour ne jamais publier une vidéo de simple défilement.
+
 
 **Scénario 2 — scripté en dur** (`scriptedVideoSteps`, repli si le scénario adapté échoue ou est invalide) :
 
@@ -198,7 +204,13 @@ PageBolt MP4 (scénario adapté au post → scénario scripté → défilement a
 
 Chaque bascule positionne `media_fallback = true` et `media_fallback_reason` dans la réponse et le log.
 
-**Run de référence (31/07/2026, topic `simulateur`)** : scénario adapté généré en 10 étapes (`[video-scenario] 10 étapes générées depuis le post`), MP4 de 2,64 Mo publié en post VIDEO (`urn:li:ugcPost:7488847876358438912`), durée totale du run ~77 s.
+**Runs de référence (topic `simulateur`)**
+
+| Date | Scénario | Média | Post | Remarque |
+|---|---|---|---|---|
+| 31/07/2026 | adapté, 10 étapes | MP4 2,64 Mo | `urn:li:ugcPost:7488847876358438912` | run ~77 s, vidéo sans interaction visible sur le simulateur |
+| 31/07/2026 | adapté + sélecteurs vérifiés | MP4 3,29 Mo | `urn:li:ugcPost:7488858014503038977` | aucun repli, IKtracker nommé 3 fois dont dès la 2ᵉ ligne, texte 1 383 signes |
+
 
 
 ### 5.3 Visuels IA — Wavespeed (`mediaSource: "wavespeed"`)
