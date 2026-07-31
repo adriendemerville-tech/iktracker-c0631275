@@ -204,7 +204,13 @@ PageBolt MP4 (scénario adapté au post → scénario scripté → défilement a
 
 Chaque bascule positionne `media_fallback = true` et `media_fallback_reason` dans la réponse et le log.
 
-**Run de référence (31/07/2026, topic `simulateur`)** : scénario adapté généré en 10 étapes (`[video-scenario] 10 étapes générées depuis le post`), MP4 de 2,64 Mo publié en post VIDEO (`urn:li:ugcPost:7488847876358438912`), durée totale du run ~77 s.
+**Runs de référence (topic `simulateur`)**
+
+| Date | Scénario | Média | Post | Remarque |
+|---|---|---|---|---|
+| 31/07/2026 | adapté, 10 étapes | MP4 2,64 Mo | `urn:li:ugcPost:7488847876358438912` | run ~77 s, vidéo sans interaction visible sur le simulateur |
+| 31/07/2026 | adapté + sélecteurs vérifiés | MP4 3,29 Mo | `urn:li:ugcPost:7488858014503038977` | aucun repli, IKtracker nommé 3 fois dont dès la 2ᵉ ligne, texte 1 383 signes |
+
 
 
 ### 5.3 Visuels IA — Wavespeed (`mediaSource: "wavespeed"`)
