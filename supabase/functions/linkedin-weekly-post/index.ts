@@ -851,9 +851,23 @@ async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise
 // actions connues, sur le domaine iktracker.fr, avec des durées bornées.
 const ALLOWED_STEP_ACTIONS = new Set(["navigate", "wait", "scroll", "click", "fill", "hover", "evaluate"]);
 
+// Un sélecteur proposé par le LLM n'est accepté que s'il figure dans les
+// sélecteurs vérifiés du module. Sinon l'étape est retirée : mieux vaut une
+// vidéo plus courte qu'une vidéo où rien ne se passe.
+function isKnownSelector(topic: Topic, selector: string): boolean {
+  const hint = TOPIC_UI_HINTS[topic.slug];
+  if (!hint) return false;
+  const norm = selector.replace(/["']/g, "'").replace(/\s+/g, "").toLowerCase();
+  return hint.selectors.some((s) => {
+    const known = s.css.replace(/["']/g, "'").replace(/\s+/g, "").toLowerCase();
+    return norm === known || norm.includes(known) || known.includes(norm);
+  });
+}
+
 function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
   if (!Array.isArray(raw)) throw new Error("scenario: not an array");
   const out: PageboltStep[] = [];
+  let dropped = 0;
   for (const item of raw) {
     if (!item || typeof item !== "object") continue;
     const s = item as Record<string, unknown>;
@@ -872,9 +886,11 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
       out.push({ action, x: 0, y, relative: s.relative !== false });
     } else if (action === "click" || action === "hover") {
       if (typeof s.selector !== "string" || !s.selector.trim()) continue;
+      if (!isKnownSelector(topic, s.selector)) { dropped++; continue; }
       out.push({ action, selector: s.selector.trim() });
     } else if (action === "fill") {
       if (typeof s.selector !== "string" || typeof s.value !== "string") continue;
+      if (!isKnownSelector(topic, s.selector)) { dropped++; continue; }
       out.push({ action, selector: s.selector.trim(), value: s.value });
     } else if (action === "evaluate") {
       const script = typeof s.script === "string" ? s.script : "";
@@ -884,6 +900,7 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
     }
     if (out.length >= 18) break;
   }
+  if (dropped) console.warn(`[video-scenario] ${dropped} étape(s) écartée(s) : sélecteur non vérifié`);
   if (!out.length) throw new Error("scenario: no valid step");
   // Toujours démarrer par la navigation sur la page du module.
   if ((out[0] as Record<string, unknown>).action !== "navigate") {
@@ -892,7 +909,46 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
   if ((out[1] as Record<string, unknown>)?.action !== "wait") {
     out.splice(1, 0, { action: "wait", ms: 3500, live: true });
   }
-  return out;
+  return ensureModuleInteractions(topic, out);
+}
+
+// Garantit qu'on voit réellement le module manipulé : si le scénario du LLM ne
+// contient aucune interaction sur les contrôles vérifiés du module, on injecte
+// la séquence scriptée connue juste après la navigation.
+function ensureModuleInteractions(topic: Topic, steps: PageboltStep[]): PageboltStep[] {
+  if (!TOPIC_UI_HINTS[topic.slug]) return steps;
+  const hasInteraction = steps.some((s) => {
+    const a = s.action;
+    return (a === "fill" || a === "click" || a === "hover") ||
+      (a === "evaluate" && /\.click\(\)/.test(String(s.script ?? "")));
+  });
+  if (hasInteraction) return steps;
+
+  const injected = moduleInteractionSteps(topic);
+  if (!injected.length) return steps;
+  console.warn(`[video-scenario] aucune interaction proposée, injection de la séquence scriptée du module`);
+  const head = steps.slice(0, 2);
+  const tail = steps.slice(2);
+  return [...head, ...injected, ...tail].slice(0, 18);
+}
+
+// Séquence d'interactions vérifiée, par module.
+function moduleInteractionSteps(topic: Topic): PageboltStep[] {
+  if (topic.slug !== "simulateur") return [];
+  return [
+    {
+      action: "evaluate",
+      script: `(() => { const el = document.querySelector("[id^='simulateur']"); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); })()`,
+    },
+    { action: "wait", ms: 2000, live: true },
+    { action: "fill", selector: "input[id^='annualKm']", value: "12000" },
+    { action: "wait", ms: 2500, live: true },
+    {
+      action: "evaluate",
+      script: `(() => { const s = document.querySelector("[id^='electric']"); if (s) s.click(); })()`,
+    },
+    { action: "wait", ms: 3000, live: true },
+  ];
 }
 
 // Rédige le scénario vidéo APRÈS le post, à partir du texte publié et de la
