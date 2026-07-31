@@ -55,7 +55,11 @@ Deux Edge Functions composent le système :
      └── browserless → deriveCaptureFocus() (labels UI à cadrer)
    [si dry_run → retour JSON ici, rien n'est publié]
 5. Génération du MÉDIA
-     ├── mediaSource = browserless → PageBolt /v1/video (MP4 scripté)
+     ├── mediaSource = browserless → PageBolt /v1/video (MP4)
+     │        ├── scénario 1 : deriveVideoScenario() — steps écrits par LLM
+     │        │                APRÈS le texte, d'après le post + la doc du module
+     │        ├── scénario 2 : scriptedVideoSteps() (scénario en dur du module)
+     │        ├── scénario 3 : fallbackVideoSteps() (défilement aveugle)
      │        ├── repli 1 : carrousel PDF de captures Browserless
      │        └── repli 2 : capture PNG unique
      └── mediaSource = wavespeed
