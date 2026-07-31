@@ -6,7 +6,7 @@ Deux Edge Functions composent le système :
 
 | Function | Rôle | Fichier |
 |---|---|---|
-| `linkedin-weekly-post` | Génère le texte + le média et publie le post (nom historique, cadence désormais mensuelle) | `supabase/functions/linkedin-weekly-post/index.ts` (~2 180 l.) |
+| `linkedin-weekly-post` | Génère le texte + le média et publie le post | `supabase/functions/linkedin-weekly-post/index.ts` (~2 180 l. — **dette**, cf. §13) |
 | `linkedin-post-audit` | Relit le post publié, le note, et le republie corrigé si nécessaire | `supabase/functions/linkedin-post-audit/index.ts` (~630 l.) |
 
 ---
@@ -28,7 +28,7 @@ Deux Edge Functions composent le système :
 | Manuel admin | JWT + `has_role(uid,'admin')` | Admin → onglet **LinkedIn** |
 | Dry-run | idem | `?dry_run=1` — génère texte + plan de slides, ne publie rien |
 | Forçage sujet | idem | `?topic=<slug>` |
-| Forçage format | idem | `?format=video\|carousel` |
+| Forçage format | idem | `?format=video` ou `?format=carousel` ou `?format=image` |
 | Republication | idem | `?mode=repost` + body `{ post_id, text, asset_urn? }` |
 
 ---
@@ -100,8 +100,8 @@ Deux pools :
 
 ### 4.1 Corpus de style
 
-1. **Source primaire** : table `public.linkedin_style_samples` (`content`, `active`), alimentée manuellement depuis l'admin. C'est la source de vérité, car l'API LinkedIn ne rend pas les posts passés sans scope de lecture.
-2. **Complément** : `fetchRecentAuthorPosts()` via le gateway, seulement si moins de 4 échantillons manuels.
+1. Source primaire : table `public.linkedin_style_samples` (`content`, `active`), alimentée manuellement depuis l'admin. C'est la source de vérité, car l'API LinkedIn ne rend pas les posts passés sans scope de lecture.
+2. Complément : `fetchRecentAuthorPosts()` via le gateway, seulement si moins de 4 échantillons manuels.
 3. Échantillons < 80 caractères ignorés ; 6 exemples max injectés dans le prompt.
 
 ### 4.2 StyleProfile déterministe
@@ -121,7 +121,7 @@ Trois couches de faits sont fournies au modèle :
 
 1. `topic.focus` — résumé du module.
 2. `TOPIC_FACTS[slug]` — faits techniques vérifiés (chiffres, seuils, règles).
-3. **Extraits de la documentation interne** : `docs-context.ts` est généré depuis `docs/BACKEND.md` + `docs/FRONTEND.md` par `scripts/generate-linkedin-docs-context.cjs`. `docContextForTopic()` sélectionne jusqu'à 4 sections par score de mots-clés (titre pondéré ×3, seuil ≥ 2), plafonné à 4 500 caractères.
+3. Extraits de la documentation interne : `docs-context.ts` est généré depuis `docs/BACKEND.md` + `docs/FRONTEND.md` par `scripts/generate-linkedin-docs-context.cjs`. `docContextForTopic()` sélectionne jusqu'à 4 sections par score de mots-clés (titre pondéré ×3, seuil ≥ 2), plafonné à 4 500 caractères.
 
 Consigne stricte : au moins 3 faits exploités, **aucune invention**, aucun nom de table / fonction / fournisseur d'infra.
 
@@ -226,7 +226,7 @@ Version d'API REST : `LINKEDIN_API_VERSION` sinon valeur par défaut interne (`2
 
 | Format | Tentative 1 | Tentative 2 | Tentative 3 |
 |---|---|---|---|
-| `video` | `rest-video` (`/rest/videos?action=initializeUpload` → PUT → `/rest/posts`) | `legacy-video` (`registerUpload` `feedshare-video` → `/v2/ugcPosts`) | `screenshot-image` |
+| `video` | `rest-video` : POST `/rest/videos` avec le paramètre `action` = `initializeUpload`, puis PUT du binaire, puis `/rest/posts` | `legacy-video` (`registerUpload` `feedshare-video` → `/v2/ugcPosts`) | `screenshot-image` |
 | `carousel` | `rest-document` (`/rest/documents` → PUT → `/rest/posts`) | `legacy-document` (`feedshare-document`, PDF) | `screenshot-image` |
 | `image` | `rest-image` (`/rest/images` → PUT → `/rest/posts`) | — | — |
 
@@ -241,7 +241,7 @@ L'API LinkedIn ne permet pas d'éditer le texte d'un post via le gateway (`PARTI
 1. Retrouve le run d'origine dans `linkedin_post_log` via `linkedin_post_id`.
 2. Récupère l'`asset_urn` média déjà uploadé (fourni en body ou lu en base).
 3. Supprime le post existant.
-4. Republie le texte corrigé **avec le même asset** — aucun nouvel upload, visuel identique.
+4. Republie le texte corrigé avec le même asset — aucun nouvel upload, visuel identique.
 5. Journalise le run (`topic_slug: "repost"`).
 
 Body requis : `{ post_id, text }` avec `text` ≥ 50 signes.
@@ -252,7 +252,7 @@ Body requis : `{ post_id, text }` avec `text` ≥ 50 signes.
 
 Cron toutes les 5 minutes. Traite **un seul post** : le dernier run `success` publié depuis plus de 5 min et moins de 24 h, non encore audité.
 
-1. `fetchPublishedText()` relit le **texte réellement en ligne** (REST `/rest/posts/{urn}`, repli `/v2/ugcPosts`) — source de vérité.
+1. `fetchPublishedText()` relit le texte réellement en ligne (REST `/rest/posts/{urn}`, repli `/v2/ugcPosts`) — source de vérité.
 2. Un LLM (Mistral via Wavespeed, mêmes replis) note le post face aux règles de rédaction et à la documentation technique (`docs-context.ts`).
 3. Seuils d'arrêt :
 
@@ -292,7 +292,23 @@ Paramètres : `?post_id=<urn>` (forcer un post), `?dry_run=1` (auditer sans repu
 
 ### `public.linkedin_post_log`
 
-Colonnes écrites par `logRun()` : `topic_slug`, `topic_title`, `post_text`, `linkedin_post_id`, `linkedin_asset_urn`, `video_bytes`, `media_type`, `status` (`success` | `failed`), `error_message`, `duration_ms`, `triggered_by` (`cron` | `admin`), `created_at`.
+Table unique du système : elle sert à la fois de journal de publication et de file d'audit (il n'existe pas de table d'audit séparée).
+
+Colonnes écrites par `logRun()` (publication) :
+
+`topic_slug`, `topic_title`, `post_text`, `linkedin_post_id`, `linkedin_asset_urn`, `video_bytes`, `media_type`, `status` (`success` | `failed`), `error_message`, `duration_ms`, `triggered_by` (`cron` | `admin`), `posted_at`.
+
+Colonnes écrites par `linkedin-post-audit` (boucle qualité) :
+
+| Colonne | Sens |
+|---|---|
+| `audit_status` | `null` = non encore audité (critère de sélection du cron), sinon `approved` / `reposted` / `plateau` / `failed` |
+| `audit_score` | score composite /100 du dernier passage |
+| `audit_hook_score` | note du hook /10 |
+| `audit_attempts` | nombre d'itérations déjà consommées (max `MAX_ATTEMPTS` = 3) |
+| `audit_report` | JSON complet du verdict LLM, dont `previous_score` pour la détection de plateau |
+
+Après une republication, la ligne du nouveau post est remise à `audit_status = null` avec `audit_attempts` incrémenté : c'est ce qui la rend à nouveau éligible tout en bornant la boucle.
 
 ### `public.linkedin_style_samples`
 
@@ -302,11 +318,11 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 
 ## 11. Diagnostiquer un run
 
-1. **Dry-run** : `?dry_run=1` renvoie `post_text`, `text_source`, `style_profile`, `style_samples_count`, `slide_plan`, `derived_visual_prompt` — sans rien publier.
-2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[video-scenario]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
-3. **Réponse JSON de succès** : `format` (peut différer du format demandé en cas de repli), `media_fallback`, `media_fallback_reason`, `media_bytes`, `post_id`, `asset_urn`, `duration_ms`.
-4. **Base** : `select posted_at, topic_slug, status, media_type, video_bytes, linkedin_post_id, duration_ms, error_message from linkedin_post_log order by posted_at desc limit 10;` (la colonne de date est `posted_at`, pas `created_at`).
-5. **Durée d'un run vidéo** : ~60 à 90 s. L'appel HTTP côté outillage peut expirer avant la fin ; la fonction continue et écrit son log — vérifier `linkedin_post_log` plutôt que de relancer.
+1. Dry-run : `?dry_run=1` renvoie `post_text`, `text_source`, `style_profile`, `style_samples_count`, `slide_plan`, `derived_visual_prompt` — sans rien publier.
+2. Logs de la function : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[video-scenario]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
+3. Réponse JSON de succès : `format` (peut différer du format demandé en cas de repli), `media_fallback`, `media_fallback_reason`, `media_bytes`, `post_id`, `asset_urn`, `duration_ms`.
+4. Base : `select posted_at, topic_slug, status, media_type, video_bytes, linkedin_post_id, duration_ms, error_message from linkedin_post_log order by posted_at desc limit 10;` (la colonne de date est `posted_at`, pas `created_at`).
+5. Durée d'un run vidéo : ~60 à 90 s. L'appel HTTP côté outillage peut expirer avant la fin ; la fonction continue et écrit son log — vérifier `linkedin_post_log` plutôt que de relancer.
 
 
 ### Symptômes fréquents
@@ -319,3 +335,43 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | `Média obligatoire indisponible` | Toutes les voies média ET d'upload ont échoué ; le post n'est volontairement pas publié |
 | Vidéo générique alors que le post parle d'un module précis | Le scénario adapté a été rejeté (`[video-scenario] échec...`) → JSON invalide ou étapes filtrées par `sanitizeAiSteps` ; le run est retombé sur `scriptedVideoSteps()` |
 | Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`) |
+
+---
+
+## 12. Invariants (règles dures, vérifiables)
+
+| # | Invariant | Appliqué par |
+|---|---|---|
+| I1 | Jamais de post texte seul. Si aucune voie média n'aboutit, la publication est annulée et loggée en `failed` | garde média avant publication |
+| I2 | Texte compris entre 1 000 et 1 500 signes | `sanitizePostText()` |
+| I3 | Caractères interdits absents du texte final : parenthèses, crochets, accolades, chevrons, arobase, antislash, astérisque, tiret bas, tilde, barre verticale | `sanitizePostText()` |
+| I4 | Pourcentages écrits sous la forme `100%`, jamais « 100 pour cent » | prompt + normalisation |
+| I5 | Scénario vidéo : 18 étapes maximum, actions limitées à une liste blanche, navigation restreinte au domaine `iktracker.fr` | `sanitizeAiSteps()` |
+| I6 | Un MP4 de moins de 50 ko est considéré comme invalide → repli carrousel | garde taille média |
+| I7 | Une republication réutilise l'`asset_urn` existant, sans nouvel upload | mode `repost` |
+| I8 | L'audit ne traite qu'un post à la fois, `audit_status is null`, âge entre 5 min et 24 h | requête de sélection du cron |
+| I9 | Au plus 3 itérations d'audit par lignée de post, arrêt anticipé si le gain de score est inférieur à 3 | `MAX_ATTEMPTS`, `MIN_GAIN` |
+| I10 | Toute exécution, succès ou échec, écrit une ligne dans `linkedin_post_log` | `logRun()` |
+
+---
+
+## 13. Coûts, quotas et dette
+
+### Consommation par run (ordre de grandeur)
+
+| Poste | Appels par run | Volume typique | Remarque |
+|---|---|---|---|
+| Wavespeed — Mistral (texte) | 2 à 4 | ~4 à 8 k tokens entrée, ~1 k sortie | rédaction, scénario vidéo, réécriture d'audit |
+| Lovable AI — Gemini (repli texte) | 0 à 2 | idem | seulement si Wavespeed échoue |
+| PageBolt (vidéo) | 1 | MP4 de 1 à 4 Mo, 40 à 70 s de capture | poste le plus coûteux en temps |
+| Browserless (captures / carrousel) | 0 ou 3 à 6 | PNG 1080 px, PDF carrousel | uniquement en repli |
+| LinkedIn API | 3 à 5 | upload + post | quota profil : quelques dizaines de posts par jour, sans risque ici |
+| Audit | 1 lecture + 1 notation, jusqu'à 3 fois | — | cron toutes les 5 min mais no-op la plupart du temps |
+
+Cadence mensuelle : environ 1 run de publication + 1 à 3 cycles d'audit par mois. Le coût réel du système est donc dominé par PageBolt, pas par le LLM.
+
+### Dette identifiée
+
+1. Nom trompeur : `linkedin-weekly-post` publie en réalité une fois par mois. Renommage à prévoir avec migration du cron et de `config.toml`.
+2. Fichier monolithique : ~2 180 lignes dans une seule Edge Function. Découpage cible : `text/`, `media/`, `linkedin-api/`, `scenario/`.
+3. Pas de plafond de dépense explicite côté PageBolt et Browserless : à surveiller si la cadence augmente.
