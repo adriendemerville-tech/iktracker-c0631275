@@ -834,8 +834,16 @@ async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  const completed = Number(json?.steps_completed ?? NaN);
+  const total = Number(json?.total_steps ?? NaN);
   console.log(`[pagebolt] MP4 ${out.length} bytes, ${json?.frames ?? "?"} frames, ${json?.steps_completed ?? "?"}/${json?.total_steps ?? "?"} étapes`);
   if (out.length < 50_000) throw new Error(`PageBolt video too small (${out.length} bytes)`);
+  // Une étape non exécutée = un sélecteur qui ne matche rien : la vidéo tourne
+  // mais le module n'est pas montré en action. On préfère basculer sur le
+  // scénario scripté aux sélecteurs vérifiés.
+  if (Number.isFinite(completed) && Number.isFinite(total) && completed < total) {
+    throw new Error(`PageBolt: seulement ${completed}/${total} étapes exécutées (sélecteur introuvable ?)`);
+  }
   return out;
 }
 
