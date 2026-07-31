@@ -406,6 +406,7 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | I12 | Une action `click`, `hover` ou `fill` du scénario vidéo n'est jouée que si son sélecteur figure dans `TOPIC_UI_HINTS` | `isKnownSelector()` dans `sanitizeAiSteps()` |
 | I13 | Le scénario vidéo contient au moins une interaction réelle sur le module ; sinon la séquence scriptée est injectée | `ensureModuleInteractions()` / `moduleInteractionSteps()` |
 | I14 | Un run PageBolt dont `steps_completed < total_steps` est rejeté et bascule sur le scénario suivant | contrôle dans `requestPageboltVideo()` |
+| I15 | Bloc GEO obligatoire : **exactement 1** question/réponse dans le corps du post, seule sur sa ligne, commençant par Pourquoi/Qui/Quand/Quoi/Comment/Combien, suivie immédiatement de sa réponse factuelle. Zéro ou plusieurs questions = non conforme | `countGeoBlocks()` / `geoBlockOk()` ; régénération unique en génération, hard-fail en audit |
 
 ---
 
