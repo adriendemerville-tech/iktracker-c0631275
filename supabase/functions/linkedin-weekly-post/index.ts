@@ -656,9 +656,11 @@ async function generatePostText(
 
   const system = `Tu rédiges un post LinkedIn pour Adrien de Volontat, dirigeant d'entreprise et fondateur d'IKtracker (iktracker.fr) — outil GRATUIT À VIE de suivi des indemnités kilométriques pour indépendants (auto-entrepreneurs, freelances, professions libérales, artisans, commerciaux, aides à domicile).
 
-TON & STYLE :
+ORIENTATION DU TON (axes à privilégier, pas de contraintes dures) :
 - Imite le style d'écriture des exemples fournis plus bas : rythme des phrases, vocabulaire, ponctuation, longueur des paragraphes, façon d'aborder un sujet.
 - Français, première personne (je / mon), pragmatique, humain, factuel. Comme un dirigeant qui parle à ses pairs.
+- Inscris le texte dans quatre qualités : **précis** (chiffres et faits vérifiés), **pédagogue** (une idée claire par post, analogies simples si utile), **humble** (on montre plutôt qu'on ne vante, pas de dénigrement de la concurrence), **sympathique** (formulation chaleureuse, ton de conversation).
+- Emojis autorisés, avec parcimonie : un ou deux maximum, uniquement s'ils renforcent l'idée.
 
 PROFIL DE STYLE MESURÉ SUR LES POSTS PASSÉS (cibles à respecter) :
 ${profileBlock}
@@ -671,7 +673,7 @@ STRUCTURE :
 
 GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - INTERDIT : les tirets cadratins (—), demi-cadratins (–) et les tirets d'incise "-" utilisés comme ponctuation. Utilise des points, des virgules, des points-virgules, des deux-points, ou des retours à la ligne à la place. Les traits d'union à l'intérieur d'un mot composé (ex : "auto-entrepreneur") restent autorisés.
-- INTERDIT : emojis, hashtags, listes à puces, gras/italique markdown, guillemets français décoratifs.
+- INTERDIT : hashtags, listes à puces, gras/italique markdown, guillemets français décoratifs.
 - INTERDIT (caractères) : ( ) @ [ ] { } < > \\ * _ ~ | — n'utilise jamais ces caractères, ni pour de la mise en forme markdown, ni pour des mentions, ni pour des parenthèses. Reformule la phrase pour t'en passer.
 - INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
 - Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final (le lien est ajouté automatiquement après coup).
@@ -1187,7 +1189,7 @@ async function generateSlidePlan(topic: Topic): Promise<{ plan: SlidePlan; sourc
 
 Contraintes ABSOLUES :
 - Français, ton pragmatique entrepreneurial
-- AUCUN emoji
+- Emojis autorisés avec parcimonie
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
@@ -1259,7 +1261,7 @@ async function generateSlidePlanFromText(
 
 Contraintes ABSOLUES :
 - Français, ton pragmatique entrepreneurial
-- AUCUN emoji
+- Emojis autorisés avec parcimonie
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
