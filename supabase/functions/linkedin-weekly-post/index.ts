@@ -2191,7 +2191,12 @@ Deno.serve(async (req) => {
 
 
   const startedAt = Date.now();
-  const topic = findTopic(forcedTopicSlug) ?? pickTopicForThisMonth();
+  const postHistory = await fetchPostHistory(admin, 12);
+  if (postHistory.length) {
+    console.log(`[history] ${postHistory.length} posts passés · derniers sujets: ${postHistory.slice(0, 5).map((p) => p.slug).join(", ")}`);
+  }
+  const topic = findTopic(forcedTopicSlug)
+    ?? pickTopicForThisMonth(new Date(), postHistory.map((p) => p.slug));
   let format: MediaFormat | "text" | "image" = forceFormat === "video" || forceFormat === "carousel"
     ? forceFormat
     : topic.format;
