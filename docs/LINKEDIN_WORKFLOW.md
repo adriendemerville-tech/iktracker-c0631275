@@ -303,7 +303,8 @@ Cron toutes les 5 minutes. Traite **un seul post** : le dernier run `success` pu
 
 1. `fetchPublishedText()` relit le texte réellement en ligne (REST `/rest/posts/{urn}`, repli `/v2/ugcPosts`) — source de vérité.
 2. Un LLM (Mistral via Wavespeed, mêmes replis) note le post face aux règles de rédaction et à la documentation technique (`docs-context.ts`).
-3. Seuils d'arrêt :
+3. **Contrôles déterministes** côté audit (hard-fail, indépendamment du LLM) : longueur 1 000–1 500 signes, caractères/tirets interdits, aération, hook ≤ 220 signes, **GEO exactement 1 bloc question/réponse**. Un post qui échoue sur l'un de ces points est republié corrigé.
+4. Seuils d'arrêt :
 
 | Constante | Valeur | Sens |
 |---|---|---|
