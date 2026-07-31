@@ -322,7 +322,7 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[video-scenario]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
 3. **Réponse JSON de succès** : `format` (peut différer du format demandé en cas de repli), `media_fallback`, `media_fallback_reason`, `media_bytes`, `post_id`, `asset_urn`, `duration_ms`.
 4. **Base** : `select posted_at, topic_slug, status, media_type, video_bytes, linkedin_post_id, duration_ms, error_message from linkedin_post_log order by posted_at desc limit 10;` (la colonne de date est `posted_at`, pas `created_at`).
-5. **Durée d'un run vidéo** : ~60 à 90 s. L'appel HTTP côté outillage peut expirer avant la fin ; la fonction continue et écrit son log — vérifier `linkedin_post_log` plutôt que de relancer.
+5. Durée d'un run vidéo : ~60 à 90 s. L'appel HTTP côté outillage peut expirer avant la fin ; la fonction continue et écrit son log — vérifier `linkedin_post_log` plutôt que de relancer.
 
 
 ### Symptômes fréquents
@@ -372,6 +372,6 @@ Cadence mensuelle : environ 1 run de publication + 1 à 3 cycles d'audit par moi
 
 ### Dette identifiée
 
-1. **Nom trompeur** : `linkedin-weekly-post` publie en réalité une fois par mois. Renommage à prévoir avec migration du cron et de `config.toml`.
-2. **Fichier monolithique** : ~2 180 lignes dans une seule Edge Function. Découpage cible : `text/`, `media/`, `linkedin-api/`, `scenario/`.
-3. **Pas de plafond de dépense** explicite côté PageBolt et Browserless : à surveiller si la cadence augmente.
+1. Nom trompeur : `linkedin-weekly-post` publie en réalité une fois par mois. Renommage à prévoir avec migration du cron et de `config.toml`.
+2. Fichier monolithique : ~2 180 lignes dans une seule Edge Function. Découpage cible : `text/`, `media/`, `linkedin-api/`, `scenario/`.
+3. Pas de plafond de dépense explicite côté PageBolt et Browserless : à surveiller si la cadence augmente.
