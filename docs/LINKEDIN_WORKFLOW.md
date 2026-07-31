@@ -11,7 +11,6 @@ Documentation technique détaillée de l'automatisation qui publie chaque mois u
 
 Ces objectifs orientent le choix des topics, le ton des prompts et les médias générés.
 
-
 Deux Edge Functions composent le système :
 
 | Function | Rôle | Fichier |
