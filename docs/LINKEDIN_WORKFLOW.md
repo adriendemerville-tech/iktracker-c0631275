@@ -6,7 +6,7 @@ Deux Edge Functions composent le système :
 
 | Function | Rôle | Fichier |
 |---|---|---|
-| `linkedin-weekly-post` | Génère le texte + le média et publie le post (nom historique, cadence désormais mensuelle) | `supabase/functions/linkedin-weekly-post/index.ts` (~2 180 l.) |
+| `linkedin-weekly-post` | Génère le texte + le média et publie le post | `supabase/functions/linkedin-weekly-post/index.ts` (~2 180 l. — **dette**, cf. §13) |
 | `linkedin-post-audit` | Relit le post publié, le note, et le republie corrigé si nécessaire | `supabase/functions/linkedin-post-audit/index.ts` (~630 l.) |
 
 ---
