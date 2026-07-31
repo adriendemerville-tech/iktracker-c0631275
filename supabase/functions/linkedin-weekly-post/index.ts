@@ -713,36 +713,21 @@ Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première 
 
 // ─── Video pipeline (Browserless screencast → MP4) ─────────────────────────
 
-async function recordScreencast(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array> {
+// Le runtime Browserless /function s'exécute côté navigateur : ni `fs`, ni
+// `child_process`, ni ffmpeg, et `page.screencast` (ScreenRecorder) n'est pas
+// disponible sur l'offre utilisée. On capture donc une série de vraies captures
+// d'écran cadrées sur le module, publiées ensuite en carrousel PDF.
+async function captureUiFrames(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array[]> {
   const token = Deno.env.get("BROWSERLESS_API_KEY");
   if (!token) throw new Error("BROWSERLESS_API_KEY missing");
 
-  // Capture image par image : `page.screencast` (ScreenRecorder) n'est pas
-  // disponible sur toutes les instances Browserless. On prend N screenshots
-  // pendant le scroll, puis ffmpeg les assemble en MP4.
   const code = `
-import fs from 'fs';
-import { execSync } from 'child_process';
-
 export default async function ({ page, context }) {
-  const { url, durationMs, focusLabels } = context;
-  fs.rmSync('/tmp/frames', { recursive: true, force: true });
-  fs.mkdirSync('/tmp/frames', { recursive: true });
+  const { url, focusLabels } = context;
+  await page.setViewport({ width: 1200, height: 1200, deviceScaleFactor: 1 });
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
+  await new Promise(r => setTimeout(r, 2500));
 
-  await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(r => setTimeout(r, 2000));
-
-  const FPS = 8;
-  const totalFrames = Math.max(48, Math.min(240, Math.round((durationMs / 1000) * FPS)));
-  let frame = 0;
-  const shoot = async () => {
-    const name = '/tmp/frames/f' + String(frame).padStart(4, '0') + '.png';
-    await page.screenshot({ path: name });
-    frame++;
-  };
-
-  // Cibles d'UI réellement liées au module décrit dans le post.
   const labels = Array.isArray(focusLabels) ? focusLabels : [];
   const anchors = [];
   for (const label of labels) {
@@ -753,34 +738,25 @@ export default async function ({ page, context }) {
       const hit = nodes.find((n) => norm(n.textContent || '').includes(target));
       if (!hit) return null;
       const rect = hit.getBoundingClientRect();
-      return Math.max(0, window.scrollY + rect.top - 120);
+      return Math.max(0, window.scrollY + rect.top - 100);
     }, label).catch(() => null);
-    if (typeof y === 'number') anchors.push(y);
+    if (typeof y === 'number' && !anchors.some((a) => Math.abs(a - y) < 200)) anchors.push(y);
   }
 
   const totalHeight = await page.evaluate(() => document.body.scrollHeight);
-  const stops = anchors.length
-    ? anchors
-    : Array.from({ length: 8 }, (_, i) => Math.floor(((totalHeight - 720) * i) / 7));
+  const stops = (anchors.length ? anchors : [])
+    .concat(anchors.length >= 4 ? [] : Array.from({ length: 4 }, (_, i) => Math.floor(((totalHeight - 1200) * i) / 3)))
+    .slice(0, 5)
+    .map((y) => Math.max(0, Math.round(y)));
 
-  const framesPerStop = Math.max(4, Math.floor(totalFrames / stops.length));
-  let currentY = 0;
-  for (const target of stops) {
-    for (let i = 1; i <= framesPerStop; i++) {
-      const eased = currentY + ((target - currentY) * i) / framesPerStop;
-      await page.evaluate((v) => window.scrollTo(0, v), Math.round(eased));
-      await new Promise(r => setTimeout(r, 60));
-      await shoot();
-    }
-    currentY = target;
-    // Petite pause cadrée sur la zone
-    for (let i = 0; i < 4; i++) await shoot();
+  const shots = [];
+  for (const y of stops) {
+    await page.evaluate((v) => window.scrollTo(0, v), y);
+    await new Promise(r => setTimeout(r, 900));
+    const b64 = await page.screenshot({ type: 'png', encoding: 'base64' });
+    shots.push(b64);
   }
-
-  execSync('ffmpeg -y -framerate ' + FPS + ' -i /tmp/frames/f%04d.png -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,format=yuv420p" -c:v libx264 -preset veryfast -movflags +faststart -r 24 -b:v 1500k -an /tmp/out.mp4', { stdio: 'pipe' });
-
-  const buf = fs.readFileSync('/tmp/out.mp4');
-  return { mp4_base64: buf.toString('base64'), size: buf.length, focus_hits: anchors.length, frames: frame };
+  return { shots, anchor_hits: anchors.length };
 }
 `;
 
@@ -789,26 +765,39 @@ export default async function ({ page, context }) {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        context: { url: topic.url, durationMs: topic.durationMs, focusLabels },
-      }),
+      body: JSON.stringify({ code, context: { url: topic.url, focusLabels } }),
     },
   );
-
-
-  if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 500)}`);
+  if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const json = await res.json();
-  const payload = typeof json === "object" && "data" in json && typeof json.data === "string"
-    ? JSON.parse(json.data)
+  const payload = typeof json === "object" && json && "data" in json && typeof (json as any).data === "string"
+    ? JSON.parse((json as any).data)
     : json;
-  const base64 = payload.mp4_base64;
-  if (!base64) throw new Error(`No mp4_base64: ${JSON.stringify(json).slice(0, 400)}`);
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  console.log(`Recorded MP4: ${bytes.length} bytes`);
-  return bytes;
+  const shots: string[] = Array.isArray(payload?.shots) ? payload.shots : [];
+  if (shots.length === 0) throw new Error(`No screenshots returned: ${JSON.stringify(json).slice(0, 300)}`);
+  const frames = shots.map((b64) => {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  });
+  console.log(`[frames] ${frames.length} captures (${payload?.anchor_hits ?? 0} ancres) sur ${topic.url}`);
+  return frames;
+}
+
+// Carrousel PDF composé uniquement de vraies captures d'écran de la page.
+async function renderScreenshotCarouselPdf(frames: Uint8Array[]): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  for (const frame of frames) {
+    const png = await pdf.embedPng(frame);
+    const page = pdf.addPage([1200, 1200]);
+    const scale = Math.min(1200 / png.width, 1200 / png.height);
+    const w = png.width * scale;
+    const h = png.height * scale;
+    page.drawRectangle({ x: 0, y: 0, width: 1200, height: 1200, color: rgb(1, 1, 1) });
+    page.drawImage(png, { x: (1200 - w) / 2, y: (1200 - h) / 2, width: w, height: h });
+  }
+  return await pdf.save();
 }
 
 // ─── Wavespeed media generation ────────────────────────────────────────────
