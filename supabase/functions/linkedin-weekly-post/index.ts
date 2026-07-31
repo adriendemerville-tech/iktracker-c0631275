@@ -723,6 +723,36 @@ const PAGEBOLT_BASE = "https://pagebolt.dev/api/v1";
 
 type PageboltStep = Record<string, unknown>;
 
+// Sélecteurs RÉELS du DOM par module, vérifiés dans le code du front.
+// Ils servent à deux choses : les donner au LLM pour qu'il n'invente pas de
+// sélecteur, et refuser à l'exécution tout sélecteur hors de cette liste.
+// Sans ce garde-fou, PageBolt exécute des étapes qui ne matchent rien : la
+// vidéo se déroule mais on ne voit jamais le module fonctionner.
+type UiHint = { selectors: { css: string; label: string }[]; note: string };
+
+const TOPIC_UI_HINTS: Record<string, UiHint> = {
+  simulateur: {
+    selectors: [
+      { css: "input[id^='annualKm']", label: "champ des kilomètres annuels, type number, recalcul en direct à la frappe" },
+      { css: "[id^='fiscalPower']", label: "menu déroulant de la puissance fiscale, 3 CV à 7 CV et plus, s'ouvre au clic" },
+      { css: "[id^='electric']", label: "interrupteur véhicule 100% électrique qui applique la majoration de 20%" },
+      { css: "[id^='simulateur']", label: "titre et ancre du bloc simulateur" },
+    ],
+    note: "Le montant estimé, la tranche appliquée et le taux au km s'affichent à droite du formulaire et changent instantanément, sans bouton de validation.",
+  },
+};
+
+function uiHintBlock(topic: Topic): string {
+  const hint = TOPIC_UI_HINTS[topic.slug];
+  if (!hint) return "Aucun sélecteur vérifié pour ce module : n'utilise ni click, ni fill, ni hover. Limite toi à navigate, wait, scroll et scrollIntoView sur une ancre.";
+  return [
+    "Sélecteurs CSS vérifiés, les SEULS autorisés pour click, hover et fill :",
+    ...hint.selectors.map((s) => `- ${s.css} : ${s.label}`),
+    `Comportement observable : ${hint.note}`,
+  ].join("\n");
+}
+
+
 // Scénario "aveugle" : simple défilement par positions absolues, toujours
 // valide quel que soit le DOM. Sert de repli si le scénario scripté échoue.
 function fallbackVideoSteps(topic: Topic): PageboltStep[] {
