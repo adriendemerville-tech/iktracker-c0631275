@@ -314,7 +314,7 @@ Cron toutes les 5 minutes. Traite **un seul post** : le dernier run `success` pu
 | `MAX_ATTEMPTS` | 3 | itérations max par lignée de post |
 | `MIN_GAIN` | 3 | gain de score minimum, sinon plateau → arrêt |
 
-4. Si les seuils ne sont pas atteints, le texte est réécrit et envoyé au mode `repost` de `linkedin-weekly-post`.
+5. Si les seuils ne sont pas atteints, le texte est réécrit et envoyé au mode `repost` de `linkedin-weekly-post`.
 
 Paramètres : `?post_id=<urn>` (forcer un post), `?dry_run=1` (auditer sans republier), `?min_age_min=N`.
 
