@@ -2257,7 +2257,7 @@ Deno.serve(async (req) => {
     // Invariants I2 (longueur) et I11 (marque nommée) : on régénère une fois si
     // le modèle rend un texte hors gabarit ou sans mention d'IKtracker, puis on
     // applique les corrections déterministes.
-    let t = await generatePostText(topic, styleSamples, styleProfile);
+    let t = await generatePostText(topic, styleSamples, styleProfile, undefined, postHistory);
     let body = enforceBrandMention(airifyPostText(sanitizePostText(t.text)));
     const outOfRange = (n: number) => n < POST_MIN_CHARS || n > POST_MAX_CHARS;
     if (outOfRange(body.length) || brandMentionCount(body) < 2) {
@@ -2273,7 +2273,7 @@ Deno.serve(async (req) => {
       const correction = parts.join("\n");
       console.warn(`[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque), régénération`);
       try {
-        const retry = await generatePostText(topic, styleSamples, styleProfile, correction);
+        const retry = await generatePostText(topic, styleSamples, styleProfile, correction, postHistory);
         const retryBody = enforceBrandMention(airifyPostText(sanitizePostText(retry.text)));
         // On garde la version la plus proche du gabarit, marque prioritaire.
         const distance = (n: number) => (n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0);
