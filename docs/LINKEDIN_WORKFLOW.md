@@ -226,7 +226,7 @@ Version d'API REST : `LINKEDIN_API_VERSION` sinon valeur par défaut interne (`2
 
 | Format | Tentative 1 | Tentative 2 | Tentative 3 |
 |---|---|---|---|
-| `video` | `rest-video` (`/rest/videos?action=initializeUpload` → PUT → `/rest/posts`) | `legacy-video` (`registerUpload` `feedshare-video` → `/v2/ugcPosts`) | `screenshot-image` |
+| `video` | `rest-video` : POST `/rest/videos` avec le paramètre `action` = `initializeUpload`, puis PUT du binaire, puis `/rest/posts` | `legacy-video` (`registerUpload` `feedshare-video` → `/v2/ugcPosts`) | `screenshot-image` |
 | `carousel` | `rest-document` (`/rest/documents` → PUT → `/rest/posts`) | `legacy-document` (`feedshare-document`, PDF) | `screenshot-image` |
 | `image` | `rest-image` (`/rest/images` → PUT → `/rest/posts`) | — | — |
 
