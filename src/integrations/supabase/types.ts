@@ -2398,6 +2398,13 @@ export type Database = {
           total_count: number
         }[]
       }
+      get_referral_sources_stats: {
+        Args: { days_back?: number }
+        Returns: {
+          count: number
+          source: string
+        }[]
+      }
       get_registrations_by_day: {
         Args: { days_back?: number }
         Returns: {
