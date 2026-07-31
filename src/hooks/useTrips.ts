@@ -367,6 +367,21 @@ export function useTrips() {
     trip: Omit<Trip, 'id' | 'ikAmount'>,
     options?: { ikAmountOverride?: number },
   ) => {
+    // Unverified accounts: 3 trips + 1 tour max
+    if (!emailVerified) {
+      const isTour = !!trip.tourStops?.length;
+      const tourCount = trips.filter(t => t.tourStops?.length).length;
+      const simpleCount = trips.length - tourCount;
+      if (isTour && tourCount >= UNVERIFIED_TOUR_LIMIT) {
+        blockFeature('tour');
+        return null;
+      }
+      if (!isTour && simpleCount >= UNVERIFIED_TRIP_LIMIT) {
+        blockFeature('trip');
+        return null;
+      }
+    }
+
     const vehicle = vehicles.find(v => v.id === trip.vehicleId);
     if (!vehicle) return null;
 
