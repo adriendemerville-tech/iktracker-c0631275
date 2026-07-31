@@ -99,7 +99,7 @@ Deux Edge Functions composent le système :
 
 ## 3. Sélection du sujet
 
-`TOPICS` contient **12 sujets**, chacun décrit par :
+`TOPICS` contient **21 sujets**, chacun décrit par :
 
 ```ts
 { slug, title, url, focus, format, mediaSource, durationMs, visualPrompt?, slideCount? }
@@ -110,11 +110,22 @@ Deux Edge Functions composent le système :
   - `"browserless"` → on **montre l'UI réelle** (simulateur, mode tournée, sync calendrier, détection plaque…) ;
   - `"wavespeed"` → visuel **généré par IA** (concepts : barème, bonus électrique, gratuité, confidentialité, comparatif).
 
-Deux pools :
-- `PRODUCT_SLUGS` (7 sujets produit),
-- `CONTEXT_SLUGS` (5 sujets contexte/valeurs).
+### Scope éditorial — 6 familles
 
-`pickTopicForThisMonth()` calcule `n = année*12 + mois` : **2 mois produit pour 1 mois contexte** (`n % 3 === 2` → contexte), avec un index cyclique déterministe. Même mois = même sujet, ce qui rend les runs reproductibles.
+| Famille | Pool | Sujets |
+|---|---|---|
+| Fonctionnalités | `PRODUCT_SLUGS` | simulateur, mode-tournee, sync-calendrier, detection-plaque, export-pdf, import-takeout, trajets-recurrents |
+| Workflows transversaux | `WORKFLOW_SLUGS` | workflow-agenda-comptable, workflow-cloture-exercice |
+| Problèmes visés | `PROBLEM_SLUGS` | probleme-oubli-trajets, probleme-justificatif-controle |
+| Articles de blog | `BLOG_SLUGS` | article-blog (résolu dynamiquement sur un article publié) |
+| Tarifs | `PRICING_SLUGS` | tarifs (`/tarifs`) |
+| Lead magnets | `LEAD_MAGNET_SLUGS` | lead-magnet-note-de-frais, lead-magnet-lexique, lead-magnet-api-comptable |
+| Contexte / valeurs | `CONTEXT_SLUGS` | bareme-progressif, bonus-electrique, gratuit-a-vie, confidentialite, comparatif |
+
+`FAMILY_CYCLE` fixe l'ordre sur **10 mois** : produit, problème, produit, blog, workflow, produit, lead magnet, contexte, produit, tarifs. `pickTopicForThisMonth()` calcule `n = année*12 + mois`, choisit la famille `FAMILY_CYCLE[n % 10]` puis un sujet cyclique dans son pool, en sautant ceux déjà publiés récemment. Même mois = même sujet, les runs restent reproductibles.
+
+`resolveBlogTopic()` remplace le sujet générique `article-blog` par un article réellement publié (`blog_posts`, statut `published`, le plus récent non encore relayé), et réécrit `title`, `url` et `focus` en conséquence.
+
 
 ---
 
