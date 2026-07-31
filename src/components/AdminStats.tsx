@@ -1082,8 +1082,8 @@ export function AdminStats() {
         </div>
 
         <div className={`flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between ${filtersCollapsed ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="flex flex-col gap-2">
-            <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-foreground">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-foreground shrink-0 whitespace-nowrap">
               <Calendar className="w-4 h-4 text-primary" />
               <span>Filtre de période</span>
             </div>
@@ -1105,8 +1105,8 @@ export function AdminStats() {
             </ToggleGroup>
           </div>
           
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground shrink-0 whitespace-nowrap">
               <BarChart3 className="w-4 h-4 text-primary" />
               <span>Intervalle</span>
             </div>
