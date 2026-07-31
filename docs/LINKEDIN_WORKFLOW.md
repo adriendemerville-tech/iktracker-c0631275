@@ -28,7 +28,7 @@ Deux Edge Functions composent le système :
 | Manuel admin | JWT + `has_role(uid,'admin')` | Admin → onglet **LinkedIn** |
 | Dry-run | idem | `?dry_run=1` — génère texte + plan de slides, ne publie rien |
 | Forçage sujet | idem | `?topic=<slug>` |
-| Forçage format | idem | `?format=video\|carousel` |
+| Forçage format | idem | `?format=video` ou `?format=carousel` ou `?format=image` |
 | Republication | idem | `?mode=repost` + body `{ post_id, text, asset_urn? }` |
 
 ---
