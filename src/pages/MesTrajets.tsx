@@ -14,6 +14,7 @@ import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Ca
 import { useRecurringTrips } from '@/hooks/useRecurringTrips';
 import { removeCountryFromAddress } from '@/lib/geocoding';
 import { useAuth } from '@/hooks/useAuth';
+import { useEmailGate } from '@/hooks/useEmailGate';
 import { useAdmin } from '@/hooks/useAdmin';
 import { usePreferences } from '@/hooks/usePreferences';
 import { toast } from '@/components/ui/sonner';
@@ -37,6 +38,7 @@ export default function Report() {
   const isMobile = useIsMobile();
   const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm, deleteAllTrips, getWipeBackupInfo, restoreWipedTrips } = useTrips();
   const { user } = useAuth();
+  const { guard } = useEmailGate();
   const { isAdmin } = useAdmin();
   const { preferences, updatePreference } = usePreferences();
   
@@ -574,6 +576,7 @@ ${IKTRACKER_MENTION}
 
   // Download PDF directly using htmlToPdfBlob
   const handleDownloadPdf = async () => {
+    if (!guard('export')) return;
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
@@ -659,6 +662,7 @@ ${IKTRACKER_MENTION}
   };
 
   const exportZip = async () => {
+    if (!guard('export')) return;
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
@@ -741,6 +745,7 @@ ${IKTRACKER_MENTION}
   };
 
   const sendToAccountant = async () => {
+    if (!guard('export')) return;
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
