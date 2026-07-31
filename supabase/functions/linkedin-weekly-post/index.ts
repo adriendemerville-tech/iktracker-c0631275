@@ -643,6 +643,7 @@ async function generatePostText(
   topic: Topic,
   styleSamples: string[],
   styleProfile: StyleProfile,
+  lengthCorrection?: string,
 ): Promise<{ text: string; source: string }> {
   const samplesBlock = styleSamples.length
     ? styleSamples
@@ -705,7 +706,7 @@ ${docBlock}
 
 Sers-toi de ces extraits pour être précis sur le mécanisme réel : déclencheur, fréquence, règle de calcul, seuils, ce qui est automatisé. N'invente rien qui ne figure pas dans ces extraits ou dans les faits ci-dessus. Ne mentionne aucun nom de table, de fonction technique ni de fournisseur d'infrastructure.
 ` : ""}
-Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre 1000 et 1500 signes espaces compris. Compte tes caractères avant de rendre le texte.`;
+Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre ${POST_MIN_CHARS} et ${POST_MAX_CHARS} signes espaces compris. Compte tes caractères avant de rendre le texte.${lengthCorrection ? `\n\n${lengthCorrection}` : ""}`;
 
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
@@ -1386,6 +1387,38 @@ async function fetchRecentAuthorPosts(ownerUrn: string, count = 10): Promise<str
 // Nettoie les tirets d'incise (— – -) laissés par le modèle malgré la consigne.
 // Conserve les traits d'union intra-mots (ex : auto-entrepreneur).
 // Retire aussi les caractères interdits : ( ) @ [ ] { } < > \ * _ ~ |
+// Invariant I2 : le texte publié doit tenir entre POST_MIN_CHARS et
+// POST_MAX_CHARS signes. Le prompt le demande, mais on ne fait jamais
+// confiance au modèle : la borne haute est appliquée en dur ci-dessous, la
+// borne basse déclenche une régénération au niveau de l'appelant.
+const POST_MIN_CHARS = 1000;
+const POST_MAX_CHARS = 1500;
+
+// Tronque proprement un texte trop long : on retire d'abord des paragraphes
+// entiers par la fin, puis des phrases, pour ne jamais couper au milieu d'un
+// mot. Le lien du module est ajouté après, il n'est donc pas compté ici.
+function enforceMaxLength(text: string, max = POST_MAX_CHARS): string {
+  if (text.length <= max) return text;
+
+  const paragraphs = text.split(/\n{2,}/);
+  while (paragraphs.length > 1 && paragraphs.join("\n\n").length > max) {
+    paragraphs.pop();
+  }
+  let out = paragraphs.join("\n\n");
+  if (out.length <= max) return out.trim();
+
+  const sentences = out.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) ?? [out];
+  const kept: string[] = [];
+  for (const sentence of sentences) {
+    if ((kept.join("") + sentence).length > max) break;
+    kept.push(sentence);
+  }
+  out = kept.join("").trim();
+  // Sécurité ultime : coupe au dernier espace avant la limite.
+  if (!out || out.length > max) out = text.slice(0, max).replace(/\s+\S*$/, "").trim();
+  return out;
+}
+
 function sanitizePostText(text: string): string {
   let out = text.replace(/[—–]/g, ",");
   // " - " (tiret d'incise entouré d'espaces) → ", "
@@ -2035,8 +2068,31 @@ Deno.serve(async (req) => {
     console.log(`[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`);
 
     // 2) Text
-    const t = await generatePostText(topic, styleSamples, styleProfile);
-    postText = appendTopicLink(airifyPostText(sanitizePostText(t.text)), topic);
+    // Invariant I2 : on régénère une fois si le modèle rend un texte hors
+    // gabarit, puis on applique la borne haute en dur.
+    let t = await generatePostText(topic, styleSamples, styleProfile);
+    let body = airifyPostText(sanitizePostText(t.text));
+    if (body.length < POST_MIN_CHARS || body.length > POST_MAX_CHARS) {
+      const correction = body.length < POST_MIN_CHARS
+        ? `Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`
+        : `Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`;
+      console.warn(`[llm] texte hors gabarit (${body.length} signes), régénération`);
+      try {
+        const retry = await generatePostText(topic, styleSamples, styleProfile, correction);
+        const retryBody = airifyPostText(sanitizePostText(retry.text));
+        // On garde la version la plus proche du gabarit.
+        const distance = (n: number) => (n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0);
+        if (distance(retryBody.length) < distance(body.length)) {
+          body = retryBody;
+          t = retry;
+        }
+      } catch (err) {
+        console.warn(`[llm] régénération échouée: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+    body = enforceMaxLength(body);
+    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS})`);
+    postText = appendTopicLink(body, topic);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
