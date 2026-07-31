@@ -62,7 +62,7 @@ const TOPICS: Topic[] = [
   {
     slug: "simulateur",
     title: "Simulateur d'indemnités kilométriques 2026",
-    url: "https://iktracker.fr/simulateur",
+    url: "https://iktracker.fr/bareme-ik-2026#simulateur",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -82,7 +82,7 @@ const TOPICS: Topic[] = [
   {
     slug: "import-takeout",
     title: "Récupération des trajets passés (Google Takeout)",
-    url: "https://iktracker.fr/import-google-timeline",
+    url: "https://iktracker.fr/mes-trajets",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -94,7 +94,7 @@ const TOPICS: Topic[] = [
   {
     slug: "sync-calendrier",
     title: "Synchronisation Google Calendar & Outlook",
-    url: "https://iktracker.fr/synchronisation-calendrier",
+    url: "https://iktracker.fr/calendrier",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -104,7 +104,7 @@ const TOPICS: Topic[] = [
   {
     slug: "detection-plaque",
     title: "Détection véhicule par plaque d'immatriculation",
-    url: "https://iktracker.fr/detection-vehicule",
+    url: "https://iktracker.fr/",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -114,7 +114,7 @@ const TOPICS: Topic[] = [
   {
     slug: "bareme-progressif",
     title: "Barème progressif fiscal 2026",
-    url: "https://iktracker.fr/bareme-kilometrique-2026",
+    url: "https://iktracker.fr/bareme-ik-2026",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -126,7 +126,7 @@ const TOPICS: Topic[] = [
   {
     slug: "bonus-electrique",
     title: "Bonus 20% véhicule électrique",
-    url: "https://iktracker.fr/bonus-vehicule-electrique",
+    url: "https://iktracker.fr/bareme-ik-2026",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -138,7 +138,7 @@ const TOPICS: Topic[] = [
   {
     slug: "export-pdf",
     title: "Export PDF pour l'expert-comptable",
-    url: "https://iktracker.fr/experts-comptables",
+    url: "https://iktracker.fr/expert-comptable",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -160,7 +160,7 @@ const TOPICS: Topic[] = [
   {
     slug: "confidentialite",
     title: "Aucune exploitation commerciale des données",
-    url: "https://iktracker.fr/confidentialite",
+    url: "https://iktracker.fr/privacy",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -172,7 +172,7 @@ const TOPICS: Topic[] = [
   {
     slug: "comparatif",
     title: "IKtracker vs applications payantes",
-    url: "https://iktracker.fr/comparatif-drivers-note",
+    url: "https://iktracker.fr/comparatif-driversnote",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -184,7 +184,7 @@ const TOPICS: Topic[] = [
   {
     slug: "trajets-recurrents",
     title: "Trajets récurrents automatisés",
-    url: "https://iktracker.fr/",
+    url: "https://iktracker.fr/mes-trajets",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -201,10 +201,10 @@ const TOPICS: Topic[] = [
 // généralité marketing sur les indemnités kilométriques.
 const TOPIC_FACTS: Record<string, string[]> = {
   simulateur: [
-    "Le simulateur est public, sans compte, sur iktracker.fr/simulateur.",
+    "Le simulateur est public, sans compte, sur la page barème IK 2026.",
     "Trois tranches officielles : 0 à 5 000 km, 5 001 à 20 000 km, au-delà de 20 000 km, avec un coefficient différent par tranche.",
     "La puissance fiscale se choisit de 3 CV à 7 CV et plus.",
-    "Un véhicule 100 pour cent électrique applique un multiplicateur de 1,2 sur le résultat, les hybrides non.",
+    "Un véhicule 100% électrique applique un multiplicateur de 1,2 sur le résultat, les hybrides non.",
     "Le calcul se met à jour à chaque frappe, sans bouton valider.",
   ],
   "mode-tournee": [
@@ -233,7 +233,7 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Saisie de la plaque d'immatriculation, retour de la marque, du modèle, de la motorisation et de la puissance fiscale.",
     "Trois sources interrogées en cascade, avec repli si la première ne répond pas.",
     "Marge de sécurité de plus 1 CV appliquée quand la source est ambiguë, pour ne jamais surestimer l'indemnité.",
-    "La motorisation électrique déclenche automatiquement le bonus de 20 pour cent.",
+    "La motorisation électrique déclenche automatiquement le bonus de 20%.",
     "Plus besoin d'ouvrir la carte grise pour lire la case P.6.",
   ],
   "bareme-progressif": [
@@ -244,7 +244,7 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Appliquer un taux moyen sur l'année fait perdre de l'argent dans la première tranche.",
   ],
   "bonus-electrique": [
-    "Majoration de 20 pour cent sur l'indemnité pour un véhicule 100 pour cent électrique.",
+    "Majoration de 20% sur l'indemnité pour un véhicule 100% électrique.",
     "Appliquée par un multiplicateur de 1,2 après calcul du barème par tranche.",
     "Hybrides et hybrides rechargeables exclus.",
     "Activée automatiquement quand la plaque identifie une motorisation électrique, sinon par une case dans la fiche véhicule.",
