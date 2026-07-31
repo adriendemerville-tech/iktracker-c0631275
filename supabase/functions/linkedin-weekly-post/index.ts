@@ -902,8 +902,8 @@ function styleProfileToPromptBlock(p: StyleProfile): string {
     `Structure : ${p.avg_paragraph_count} paragraphes en moyenne, ${p.avg_paragraph_words} mots par paragraphe. Aère avec des sauts de ligne.`,
     `Première personne : ${p.first_person_ratio}% des phrases commencent par "je" ou "j'". Reste dans cette proportion.`,
     p.question_ratio > 0
-      ? `Questions rhétoriques : ${p.question_ratio}% (rare, n'en abuse pas).`
-      : `Pas de questions rhétoriques dans le corpus, n'en introduis pas.`,
+      ? `Questions : ${p.question_ratio}% (hors question GEO obligatoire, n'en ajoute pas d'autre).`
+      : `Pas de questions rhétoriques dans le corpus : la seule question autorisée est la question GEO obligatoire.`,
     p.top_opening_words.length
       ? `Mots d'ouverture typiques (première ligne) : ${p.top_opening_words.join(", ")}.`
       : "",
