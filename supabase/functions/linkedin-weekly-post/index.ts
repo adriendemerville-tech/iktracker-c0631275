@@ -807,9 +807,118 @@ async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise
   return out;
 }
 
-async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
+// Validation stricte des étapes proposées par le LLM : on n'exécute que des
+// actions connues, sur le domaine iktracker.fr, avec des durées bornées.
+const ALLOWED_STEP_ACTIONS = new Set(["navigate", "wait", "scroll", "click", "fill", "hover", "evaluate"]);
+
+function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
+  if (!Array.isArray(raw)) throw new Error("scenario: not an array");
+  const out: PageboltStep[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const s = item as Record<string, unknown>;
+    const action = typeof s.action === "string" ? s.action : "";
+    if (!ALLOWED_STEP_ACTIONS.has(action)) continue;
+
+    if (action === "navigate") {
+      const url = typeof s.url === "string" ? s.url : topic.url;
+      if (!/^https:\/\/(www\.)?iktracker\.fr\//.test(url)) continue;
+      out.push({ action, url });
+    } else if (action === "wait") {
+      const ms = Math.min(4000, Math.max(800, Number(s.ms) || 2000));
+      out.push({ action, ms, live: true });
+    } else if (action === "scroll") {
+      const y = Math.max(-2000, Math.min(3000, Number(s.y) || 0));
+      out.push({ action, x: 0, y, relative: s.relative !== false });
+    } else if (action === "click" || action === "hover") {
+      if (typeof s.selector !== "string" || !s.selector.trim()) continue;
+      out.push({ action, selector: s.selector.trim() });
+    } else if (action === "fill") {
+      if (typeof s.selector !== "string" || typeof s.value !== "string") continue;
+      out.push({ action, selector: s.selector.trim(), value: s.value });
+    } else if (action === "evaluate") {
+      const script = typeof s.script === "string" ? s.script : "";
+      // On n'autorise qu'un recadrage/scrollIntoView, jamais du JS arbitraire.
+      if (!/scrollIntoView|\.click\(\)/.test(script) || script.length > 400) continue;
+      out.push({ action, script });
+    }
+    if (out.length >= 18) break;
+  }
+  if (!out.length) throw new Error("scenario: no valid step");
+  // Toujours démarrer par la navigation sur la page du module.
+  if ((out[0] as Record<string, unknown>).action !== "navigate") {
+    out.unshift({ action: "navigate", url: topic.url });
+  }
+  if ((out[1] as Record<string, unknown>)?.action !== "wait") {
+    out.splice(1, 0, { action: "wait", ms: 3500, live: true });
+  }
+  return out;
+}
+
+// Rédige le scénario vidéo APRÈS le post, à partir du texte publié et de la
+// documentation technique du module : la vidéo montre précisément le parcours
+// dont parle le post.
+async function deriveVideoScenario(topic: Topic, postText: string): Promise<PageboltStep[] | null> {
+  const system = `Tu écris un scénario de capture vidéo d'une page web réelle (moteur type Puppeteer).
+On te donne un post LinkedIn déjà rédigé et la documentation technique du module concerné.
+Objectif : filmer EXACTEMENT le parcours ou le module dont parle le post, dans l'ordre où le post en parle.
+
+Réponds uniquement par un JSON strict : {"steps": [ ... ]}
+Actions autorisées, rien d'autre :
+- {"action":"navigate","url":"https://iktracker.fr/..."} (première étape, page du module)
+- {"action":"wait","ms":2500}
+- {"action":"scroll","y":600,"relative":true}
+- {"action":"click","selector":"CSS"}
+- {"action":"hover","selector":"CSS"}
+- {"action":"fill","selector":"CSS","value":"12000"}
+- {"action":"evaluate","script":"(() => { const el = document.getElementById('simulateur'); if (el) el.scrollIntoView({behavior:'smooth',block:'start'}); })()"}
+
+Règles :
+- 8 à 14 étapes, toujours une attente "wait" après chaque action visible pour laisser le temps de voir.
+- Uniquement des URLs du domaine iktracker.fr.
+- Sélecteurs prudents et tolérants (préfixes ^=, attributs, id d'ancre). Si tu n'es pas sûr d'un sélecteur, préfère un scroll ou un scrollIntoView sur une ancre.
+- Aucun JS arbitraire dans evaluate : seulement scrollIntoView ou un click sur un élément.
+- Le scénario doit illustrer les faits cités dans le post, pas une visite générique.`;
+
+  const user = `Page à filmer : ${topic.url}
+Module : ${topic.title}
+
+Post LinkedIn publié :
+${postText}
+
+Documentation technique du module :
+${captureHintsForTopic(topic)}
+
+JSON :`;
+
+  try {
+    const { text } = await callLLM(system, user, { json: true, temperature: 0.3 });
+    const parsed = JSON.parse(text) as { steps?: unknown };
+    const steps = sanitizeAiSteps(parsed.steps, topic);
+    console.log(`[video-scenario] ${steps.length} étapes générées depuis le post`);
+    return steps;
+  } catch (err) {
+    console.warn(`[video-scenario] échec, scénario scripté par défaut: ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+async function capturePageboltVideo(topic: Topic, postText?: string): Promise<Uint8Array> {
   const key = Deno.env.get("PAGEBOLT_API_KEY");
   if (!key) throw new Error("PAGEBOLT_API_KEY missing");
+
+  // 1) Scénario adapté au post (rédigé après le texte), 2) scénario scripté en
+  // dur pour le module, 3) défilement aveugle.
+  if (postText) {
+    const aiSteps = await deriveVideoScenario(topic, postText);
+    if (aiSteps) {
+      try {
+        return await requestPageboltVideo(key, aiSteps);
+      } catch (e) {
+        console.warn(`[pagebolt] scénario adapté au post échoué: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+  }
 
   try {
     return await requestPageboltVideo(key, scriptedVideoSteps(topic));
@@ -818,6 +927,7 @@ async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
     return await requestPageboltVideo(key, fallbackVideoSteps(topic));
   }
 }
+
 
 
 
@@ -2034,7 +2144,7 @@ Deno.serve(async (req) => {
         if (topic.mediaSource === "browserless") {
           try {
             // 1er choix : vraie vidéo MP4 de l'UI via PageBolt.
-            bytes = await capturePageboltVideo(topic);
+            bytes = await capturePageboltVideo(topic, postText);
           } catch (videoErr) {
             const videoReason = videoErr instanceof Error ? videoErr.message : String(videoErr);
             console.warn(`[media] PageBolt vidéo échouée, repli carrousel de captures: ${videoReason}`);
