@@ -12,6 +12,7 @@ import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { GlobalTourRecovery } from "@/components/GlobalTourRecovery";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
+import { EmailVerificationGate } from "@/components/EmailVerificationGate";
 
 const SurveyWidget = lazy(() => import("@/components/SurveyWidget").then(m => ({ default: m.SurveyWidget })));
 
