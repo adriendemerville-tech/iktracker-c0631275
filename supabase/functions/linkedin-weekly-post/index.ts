@@ -399,10 +399,63 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Compatible avec le barème progressif, le bonus électrique et l'export comptable.",
     "Modifiable ou interruptible à tout moment, les occurrences passées restent intactes.",
   ],
+  "workflow-agenda-comptable": [
+    "Chaîne : agenda connecté en OAuth, synchronisation quatre fois par jour, création du trajet, calcul par tranche, relevé mensuel envoyé au comptable.",
+    "Les événements en visio et les journées sans déplacement sont filtrés avant création.",
+    "Le relevé part par e-mail avec un lien sécurisé à durée limitée vers le PDF.",
+    "Aucune ressaisie entre l'agenda et le document comptable.",
+  ],
+  "workflow-cloture-exercice": [
+    "Import Google Takeout côté navigateur pour reconstituer les déplacements passés.",
+    "Détection des doublons avant validation, recalcul des distances réelles.",
+    "Application du barème par tranche sur l'ensemble de l'année, avec reset au 1er janvier ou à une date d'exercice personnalisée.",
+    "Export PDF annuel et archivage des relevés mensuels consultables ensuite.",
+  ],
+  "probleme-oubli-trajets": [
+    "Les déplacements courts non notés sont ceux qui disparaissent le plus souvent.",
+    "Sur la première tranche du barème, chaque kilomètre oublié coûte le taux le plus élevé.",
+    "La capture automatique par agenda ou par GPS supprime la dépendance à la mémoire.",
+    "Le relevé mensuel du 15 sert de point de contrôle mensuel.",
+  ],
+  "probleme-justificatif-controle": [
+    "Un relevé kilométrique doit porter date, motif, départ, arrivée, distance et véhicule.",
+    "Les données sont enregistrées au fil de l'eau, pas reconstituées après coup.",
+    "Le profil véhicule embarque immatriculation, motorisation et chevaux fiscaux dans l'export.",
+    "Les totaux par tranche fiscale figurent sur le document remis au comptable.",
+  ],
+  tarifs: [
+    "0 euro par an, aucune formule payante, aucun palier premium.",
+    "Aucune carte bancaire demandée à l'inscription ni ensuite.",
+    "Toutes les fonctions sont incluses : mode tournée, synchronisation agenda, export PDF et Excel, envoi au comptable, API.",
+    "Pas de publicité et pas de revente de données, les trajets restent cloisonnés par utilisateur.",
+  ],
+  "lead-magnet-note-de-frais": [
+    "Page publique consultable sans compte.",
+    "Détaille les mentions obligatoires d'une note de frais kilométrique.",
+    "Explique le passage de la distance au montant via le barème par tranche.",
+    "Sert de base réutilisable pour un salarié comme pour un indépendant.",
+  ],
+  "lead-magnet-lexique": [
+    "Page publique consultable sans compte.",
+    "Définit puissance fiscale, barème progressif, frais réels, grand déplacement, abattement forfaitaire.",
+    "Rédigé pour être compris sans formation comptable.",
+    "Complète le simulateur public de la page barème 2026.",
+  ],
+  "lead-magnet-api-comptable": [
+    "API gratuite destinée aux cabinets d'expertise comptable.",
+    "Récupération des relevés kilométriques des clients qui ont donné leur accord.",
+    "Aucune facturation par utilisateur, aucun abonnement cabinet.",
+    "Documentation publique accessible en ligne.",
+  ],
+  "article-blog": [
+    "Le blog IKtracker publie des contenus sur le barème, les frais réels et l'organisation des déplacements professionnels.",
+    "Chaque article est en accès libre, sans compte ni inscription.",
+  ],
 };
 
-// Rotation pondérée : 2 posts sur 3 portent sur une fonctionnalité produit
-// IKtracker (démo d'un module réel), le 3e sur un sujet de contexte fiscal/marque.
+// Rotation par familles de sujets. Le scope couvre les fonctionnalités, les
+// workflows transversaux, les problèmes visés, les articles de blog, les tarifs
+// et les lead magnets. Une famille par mois, dans un ordre déterministe.
 const PRODUCT_SLUGS = [
   "simulateur",
   "mode-tournee",
@@ -419,18 +472,40 @@ const CONTEXT_SLUGS = [
   "confidentialite",
   "comparatif",
 ];
+const WORKFLOW_SLUGS = ["workflow-agenda-comptable", "workflow-cloture-exercice"];
+const PROBLEM_SLUGS = ["probleme-oubli-trajets", "probleme-justificatif-controle"];
+const PRICING_SLUGS = ["tarifs"];
+const LEAD_MAGNET_SLUGS = [
+  "lead-magnet-note-de-frais",
+  "lead-magnet-lexique",
+  "lead-magnet-api-comptable",
+];
+const BLOG_SLUGS = ["article-blog"];
 
-// Monthly cadence: 2/3 produit, 1/3 contexte, rotation déterministe.
+// Cadence mensuelle : le produit reste majoritaire, les autres familles
+// s'intercalent pour couvrir tout le scope éditorial sur un cycle de 10 mois.
+const FAMILY_CYCLE: string[][] = [
+  PRODUCT_SLUGS,
+  PROBLEM_SLUGS,
+  PRODUCT_SLUGS,
+  BLOG_SLUGS,
+  WORKFLOW_SLUGS,
+  PRODUCT_SLUGS,
+  LEAD_MAGNET_SLUGS,
+  CONTEXT_SLUGS,
+  PRODUCT_SLUGS,
+  PRICING_SLUGS,
+];
+
 function pickTopicForThisMonth(now: Date = new Date(), recentSlugs: string[] = []): Topic {
   const n = now.getUTCFullYear() * 12 + now.getUTCMonth();
-  const isContext = n % 3 === 2;
-  const pool = isContext ? CONTEXT_SLUGS : PRODUCT_SLUGS;
-  const cycle = Math.floor(n / 3);
-  const start = isContext ? cycle % pool.length : (cycle * 2 + (n % 3)) % pool.length;
+  const pool = FAMILY_CYCLE[n % FAMILY_CYCLE.length];
+  const cycle = Math.floor(n / FAMILY_CYCLE.length);
+  const start = cycle % pool.length;
 
   // Anti-redondance : on avance dans le pool tant que le sujet a déjà été
   // publié récemment (fenêtre = taille du pool moins un), pour ne jamais
-  // répéter un module tant que les autres n'ont pas été couverts.
+  // répéter un sujet tant que les autres de sa famille n'ont pas été couverts.
   const blocked = new Set(recentSlugs.slice(0, Math.max(pool.length - 1, 0)));
   let slug = pool[start];
   for (let i = 0; i < pool.length; i++) {
@@ -439,6 +514,37 @@ function pickTopicForThisMonth(now: Date = new Date(), recentSlugs: string[] = [
   }
   return TOPICS.find((t) => t.slug === slug) ?? TOPICS[0];
 }
+
+// Le sujet "article-blog" est générique : on le résout sur un article réellement
+// publié, en évitant ceux déjà relayés dans l'historique LinkedIn.
+async function resolveBlogTopic(
+  supabase: ReturnType<typeof createClient>,
+  topic: Topic,
+  recentTexts: string[],
+): Promise<Topic> {
+  if (topic.slug !== "article-blog") return topic;
+  try {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("slug, title, subtitle, meta_description, published_at")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(12);
+    if (error || !data?.length) return topic;
+    const rows = data as Array<Record<string, string | null>>;
+    const pick = rows.find((r) => !recentTexts.some((t) => t.includes(String(r.slug)))) ?? rows[0];
+    const summary = pick.subtitle || pick.meta_description || "";
+    return {
+      ...topic,
+      title: String(pick.title ?? topic.title),
+      url: `https://iktracker.fr/blog/${pick.slug}`,
+      focus: `Article publié sur le blog IKtracker : "${pick.title}". ${summary} Le post doit donner la valeur principale de l'article et renvoyer vers sa lecture complète, sans le paraphraser intégralement.`,
+    };
+  } catch (_e) {
+    return topic;
+  }
+}
+
 
 // Historique des posts publiés : sert à la rotation des sujets ET à interdire
 // au modèle de reprendre les mêmes angles, hooks ou chiffres.
