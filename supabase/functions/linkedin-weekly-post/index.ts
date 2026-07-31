@@ -1946,7 +1946,7 @@ Deno.serve(async (req) => {
       }
 
       // Invariant I2 également sur la republication corrigée par l'audit.
-      const newText = enforceMaxLength(airifyPostText(sanitizePostText(rawText)));
+      const newText = enforceBrandMention(enforceMaxLength(airifyPostText(sanitizePostText(rawText))));
       const ownerUrn = await getMemberUrn();
 
       // 1) Suppression du post existant (REST versionné, repli sur /v2/ugcPosts).
