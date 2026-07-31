@@ -303,9 +303,11 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 ## 11. Diagnostiquer un run
 
 1. **Dry-run** : `?dry_run=1` renvoie `post_text`, `text_source`, `style_profile`, `style_samples_count`, `slide_plan`, `derived_visual_prompt` — sans rien publier.
-2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
+2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[video-scenario]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
 3. **Réponse JSON de succès** : `format` (peut différer du format demandé en cas de repli), `media_fallback`, `media_fallback_reason`, `media_bytes`, `post_id`, `asset_urn`, `duration_ms`.
-4. **Base** : `select * from linkedin_post_log order by created_at desc limit 10;`
+4. **Base** : `select posted_at, topic_slug, status, media_type, video_bytes, linkedin_post_id, duration_ms, error_message from linkedin_post_log order by posted_at desc limit 10;` (la colonne de date est `posted_at`, pas `created_at`).
+5. **Durée d'un run vidéo** : ~60 à 90 s. L'appel HTTP côté outillage peut expirer avant la fin ; la fonction continue et écrit son log — vérifier `linkedin_post_log` plutôt que de relancer.
+
 
 ### Symptômes fréquents
 
