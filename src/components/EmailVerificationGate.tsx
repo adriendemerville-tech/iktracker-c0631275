@@ -5,6 +5,7 @@ import { MailCheck, RefreshCw, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { EMAIL_GATE_EVENT, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
 
 const GRACE_MS = 5 * 60 * 1000; // 5 minutes
 const firstSeenKey = (uid: string) => `ik_first_session_at_${uid}`;
