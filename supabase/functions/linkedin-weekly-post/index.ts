@@ -972,7 +972,8 @@ Actions autorisées, rien d'autre :
 Règles :
 - 8 à 14 étapes, toujours une attente "wait" après chaque action visible pour laisser le temps de voir.
 - Uniquement des URLs du domaine iktracker.fr.
-- Sélecteurs prudents et tolérants (préfixes ^=, attributs, id d'ancre). Si tu n'es pas sûr d'un sélecteur, préfère un scroll ou un scrollIntoView sur une ancre.
+- SÉLECTEURS : n'utilise QUE les sélecteurs CSS listés dans la section "Sélecteurs vérifiés" plus bas, copiés à l'identique. Tout autre sélecteur sera supprimé du scénario et l'action ne sera pas jouée.
+- Le cœur du scénario doit MONTRER LE MODULE EN TRAIN DE FONCTIONNER : on remplit un champ, on bascule une option, et on laisse le temps de voir le résultat se recalculer. Un simple défilement ne suffit pas.
 - Aucun JS arbitraire dans evaluate : seulement scrollIntoView ou un click sur un élément.
 - Le scénario doit illustrer les faits cités dans le post, pas une visite générique.`;
 
@@ -981,6 +982,9 @@ Module : ${topic.title}
 
 Post LinkedIn publié :
 ${postText}
+
+Sélecteurs vérifiés :
+${uiHintBlock(topic)}
 
 Documentation technique du module :
 ${captureHintsForTopic(topic)}
