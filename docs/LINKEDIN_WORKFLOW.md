@@ -334,7 +334,8 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | Pas de mention IKtracker | URN organisation non résolu (`[mention]` dans les logs) ; définir `LINKEDIN_ORG_URN` |
 | `Média obligatoire indisponible` | Toutes les voies média ET d'upload ont échoué ; le post n'est volontairement pas publié |
 | Vidéo générique alors que le post parle d'un module précis | Le scénario adapté a été rejeté (`[video-scenario] échec...`) → JSON invalide ou étapes filtrées par `sanitizeAiSteps` ; le run est retombé sur `scriptedVideoSteps()` |
-| Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`) |
+| Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `TOPIC_UI_HINTS` ET `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`, `[id^='fiscalPower']`) |
+| Vidéo où l'on ne voit pas le module fonctionner | Le LLM a proposé des sélecteurs inventés, filtrés par `isKnownSelector` → log `[video-scenario] N étape(s) écartée(s)` ; la séquence scriptée est désormais injectée automatiquement |
 
 ---
 
@@ -352,6 +353,10 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | I8 | L'audit ne traite qu'un post à la fois, `audit_status is null`, âge entre 5 min et 24 h | requête de sélection du cron |
 | I9 | Au plus 3 itérations d'audit par lignée de post, arrêt anticipé si le gain de score est inférieur à 3 | `MAX_ATTEMPTS`, `MIN_GAIN` |
 | I10 | Toute exécution, succès ou échec, écrit une ligne dans `linkedin_post_log` | `logRun()` |
+| I11 | Le post nomme IKtracker au moins deux fois, dont une dans les trois premières lignes ; aucune tournure anonyme du type "mon simulateur" | prompt, régénération unique, puis `enforceBrandMention()` qui normalise la casse et rattache la tournure anonyme à la marque |
+| I12 | Une action `click`, `hover` ou `fill` du scénario vidéo n'est jouée que si son sélecteur figure dans `TOPIC_UI_HINTS` | `isKnownSelector()` dans `sanitizeAiSteps()` |
+| I13 | Le scénario vidéo contient au moins une interaction réelle sur le module ; sinon la séquence scriptée est injectée | `ensureModuleInteractions()` / `moduleInteractionSteps()` |
+| I14 | Un run PageBolt dont `steps_completed < total_steps` est rejeté et bascule sur le scénario suivant | contrôle dans `requestPageboltVideo()` |
 
 ---
 

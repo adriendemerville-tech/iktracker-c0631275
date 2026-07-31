@@ -678,6 +678,7 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - Les pourcentages s'écrivent toujours avec le signe %, jamais "pour cent" en toutes lettres. Exemples : 100% électrique, bonus de 20%.
 
 SUJET DU POST (RÈGLE CENTRALE) :
+- MARQUE OBLIGATOIRE : le module appartient à IKtracker et tu dois le dire. Écris le nom "IKtracker" au moins deux fois, dont une dans les trois premières lignes. Interdit de parler du module comme d'un outil anonyme : jamais "mon simulateur", "mon outil", "mon site" tout seul. On écrit "le simulateur d'IKtracker", "IKtracker calcule", "dans IKtracker". Le nom s'écrit toujours IKtracker, avec I et K majuscules.
 - Le post parle DU PRODUIT, pas des utilisateurs. L'angle est toujours : voilà ce que fait IKtracker, comment c'est construit, ce que ça produit comme résultat. Pas de portrait d'utilisateur, pas de persona, pas de témoignage, pas de "les indépendants perdent du temps à...", pas de storytelling client.
 - Le post porte sur UN SEUL module précis d'IKtracker, celui indiqué plus bas. Pas de discours général sur les indemnités kilométriques, pas de présentation globale de l'outil.
 - Décris le module de l'intérieur : le déclencheur, le mécanisme, la règle de calcul, les seuils ou chiffres réels, ce qui est automatisé, ce que ça affiche en sortie.
@@ -721,6 +722,36 @@ Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première 
 const PAGEBOLT_BASE = "https://pagebolt.dev/api/v1";
 
 type PageboltStep = Record<string, unknown>;
+
+// Sélecteurs RÉELS du DOM par module, vérifiés dans le code du front.
+// Ils servent à deux choses : les donner au LLM pour qu'il n'invente pas de
+// sélecteur, et refuser à l'exécution tout sélecteur hors de cette liste.
+// Sans ce garde-fou, PageBolt exécute des étapes qui ne matchent rien : la
+// vidéo se déroule mais on ne voit jamais le module fonctionner.
+type UiHint = { selectors: { css: string; label: string }[]; note: string };
+
+const TOPIC_UI_HINTS: Record<string, UiHint> = {
+  simulateur: {
+    selectors: [
+      { css: "input[id^='annualKm']", label: "champ des kilomètres annuels, type number, recalcul en direct à la frappe" },
+      { css: "[id^='fiscalPower']", label: "menu déroulant de la puissance fiscale, 3 CV à 7 CV et plus, s'ouvre au clic" },
+      { css: "[id^='electric']", label: "interrupteur véhicule 100% électrique qui applique la majoration de 20%" },
+      { css: "[id^='simulateur']", label: "titre et ancre du bloc simulateur" },
+    ],
+    note: "Le montant estimé, la tranche appliquée et le taux au km s'affichent à droite du formulaire et changent instantanément, sans bouton de validation.",
+  },
+};
+
+function uiHintBlock(topic: Topic): string {
+  const hint = TOPIC_UI_HINTS[topic.slug];
+  if (!hint) return "Aucun sélecteur vérifié pour ce module : n'utilise ni click, ni fill, ni hover. Limite toi à navigate, wait, scroll et scrollIntoView sur une ancre.";
+  return [
+    "Sélecteurs CSS vérifiés, les SEULS autorisés pour click, hover et fill :",
+    ...hint.selectors.map((s) => `- ${s.css} : ${s.label}`),
+    `Comportement observable : ${hint.note}`,
+  ].join("\n");
+}
+
 
 // Scénario "aveugle" : simple défilement par positions absolues, toujours
 // valide quel que soit le DOM. Sert de repli si le scénario scripté échoue.
@@ -803,8 +834,16 @@ async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  const completed = Number(json?.steps_completed ?? NaN);
+  const total = Number(json?.total_steps ?? NaN);
   console.log(`[pagebolt] MP4 ${out.length} bytes, ${json?.frames ?? "?"} frames, ${json?.steps_completed ?? "?"}/${json?.total_steps ?? "?"} étapes`);
   if (out.length < 50_000) throw new Error(`PageBolt video too small (${out.length} bytes)`);
+  // Une étape non exécutée = un sélecteur qui ne matche rien : la vidéo tourne
+  // mais le module n'est pas montré en action. On préfère basculer sur le
+  // scénario scripté aux sélecteurs vérifiés.
+  if (Number.isFinite(completed) && Number.isFinite(total) && completed < total) {
+    throw new Error(`PageBolt: seulement ${completed}/${total} étapes exécutées (sélecteur introuvable ?)`);
+  }
   return out;
 }
 
@@ -812,9 +851,23 @@ async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise
 // actions connues, sur le domaine iktracker.fr, avec des durées bornées.
 const ALLOWED_STEP_ACTIONS = new Set(["navigate", "wait", "scroll", "click", "fill", "hover", "evaluate"]);
 
+// Un sélecteur proposé par le LLM n'est accepté que s'il figure dans les
+// sélecteurs vérifiés du module. Sinon l'étape est retirée : mieux vaut une
+// vidéo plus courte qu'une vidéo où rien ne se passe.
+function isKnownSelector(topic: Topic, selector: string): boolean {
+  const hint = TOPIC_UI_HINTS[topic.slug];
+  if (!hint) return false;
+  const norm = selector.replace(/["']/g, "'").replace(/\s+/g, "").toLowerCase();
+  return hint.selectors.some((s) => {
+    const known = s.css.replace(/["']/g, "'").replace(/\s+/g, "").toLowerCase();
+    return norm === known || norm.includes(known) || known.includes(norm);
+  });
+}
+
 function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
   if (!Array.isArray(raw)) throw new Error("scenario: not an array");
   const out: PageboltStep[] = [];
+  let dropped = 0;
   for (const item of raw) {
     if (!item || typeof item !== "object") continue;
     const s = item as Record<string, unknown>;
@@ -833,9 +886,11 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
       out.push({ action, x: 0, y, relative: s.relative !== false });
     } else if (action === "click" || action === "hover") {
       if (typeof s.selector !== "string" || !s.selector.trim()) continue;
+      if (!isKnownSelector(topic, s.selector)) { dropped++; continue; }
       out.push({ action, selector: s.selector.trim() });
     } else if (action === "fill") {
       if (typeof s.selector !== "string" || typeof s.value !== "string") continue;
+      if (!isKnownSelector(topic, s.selector)) { dropped++; continue; }
       out.push({ action, selector: s.selector.trim(), value: s.value });
     } else if (action === "evaluate") {
       const script = typeof s.script === "string" ? s.script : "";
@@ -845,6 +900,7 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
     }
     if (out.length >= 18) break;
   }
+  if (dropped) console.warn(`[video-scenario] ${dropped} étape(s) écartée(s) : sélecteur non vérifié`);
   if (!out.length) throw new Error("scenario: no valid step");
   // Toujours démarrer par la navigation sur la page du module.
   if ((out[0] as Record<string, unknown>).action !== "navigate") {
@@ -853,7 +909,46 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
   if ((out[1] as Record<string, unknown>)?.action !== "wait") {
     out.splice(1, 0, { action: "wait", ms: 3500, live: true });
   }
-  return out;
+  return ensureModuleInteractions(topic, out);
+}
+
+// Garantit qu'on voit réellement le module manipulé : si le scénario du LLM ne
+// contient aucune interaction sur les contrôles vérifiés du module, on injecte
+// la séquence scriptée connue juste après la navigation.
+function ensureModuleInteractions(topic: Topic, steps: PageboltStep[]): PageboltStep[] {
+  if (!TOPIC_UI_HINTS[topic.slug]) return steps;
+  const hasInteraction = steps.some((s) => {
+    const a = s.action;
+    return (a === "fill" || a === "click" || a === "hover") ||
+      (a === "evaluate" && /\.click\(\)/.test(String(s.script ?? "")));
+  });
+  if (hasInteraction) return steps;
+
+  const injected = moduleInteractionSteps(topic);
+  if (!injected.length) return steps;
+  console.warn(`[video-scenario] aucune interaction proposée, injection de la séquence scriptée du module`);
+  const head = steps.slice(0, 2);
+  const tail = steps.slice(2);
+  return [...head, ...injected, ...tail].slice(0, 18);
+}
+
+// Séquence d'interactions vérifiée, par module.
+function moduleInteractionSteps(topic: Topic): PageboltStep[] {
+  if (topic.slug !== "simulateur") return [];
+  return [
+    {
+      action: "evaluate",
+      script: `(() => { const el = document.querySelector("[id^='simulateur']"); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); })()`,
+    },
+    { action: "wait", ms: 2000, live: true },
+    { action: "fill", selector: "input[id^='annualKm']", value: "12000" },
+    { action: "wait", ms: 2500, live: true },
+    {
+      action: "evaluate",
+      script: `(() => { const s = document.querySelector("[id^='electric']"); if (s) s.click(); })()`,
+    },
+    { action: "wait", ms: 3000, live: true },
+  ];
 }
 
 // Rédige le scénario vidéo APRÈS le post, à partir du texte publié et de la
@@ -877,7 +972,8 @@ Actions autorisées, rien d'autre :
 Règles :
 - 8 à 14 étapes, toujours une attente "wait" après chaque action visible pour laisser le temps de voir.
 - Uniquement des URLs du domaine iktracker.fr.
-- Sélecteurs prudents et tolérants (préfixes ^=, attributs, id d'ancre). Si tu n'es pas sûr d'un sélecteur, préfère un scroll ou un scrollIntoView sur une ancre.
+- SÉLECTEURS : n'utilise QUE les sélecteurs CSS listés dans la section "Sélecteurs vérifiés" plus bas, copiés à l'identique. Tout autre sélecteur sera supprimé du scénario et l'action ne sera pas jouée.
+- Le cœur du scénario doit MONTRER LE MODULE EN TRAIN DE FONCTIONNER : on remplit un champ, on bascule une option, et on laisse le temps de voir le résultat se recalculer. Un simple défilement ne suffit pas.
 - Aucun JS arbitraire dans evaluate : seulement scrollIntoView ou un click sur un élément.
 - Le scénario doit illustrer les faits cités dans le post, pas une visite générique.`;
 
@@ -886,6 +982,9 @@ Module : ${topic.title}
 
 Post LinkedIn publié :
 ${postText}
+
+Sélecteurs vérifiés :
+${uiHintBlock(topic)}
 
 Documentation technique du module :
 ${captureHintsForTopic(topic)}
@@ -1434,6 +1533,32 @@ function sanitizePostText(text: string): string {
   return out;
 }
 
+// Invariant I11 : le post doit nommer IKtracker. Le prompt le demande, mais on
+// ne fait jamais confiance au modèle : on normalise la casse et on réécrit les
+// tournures anonymes ("mon simulateur", "mon outil") en les rattachant à la
+// marque. Retourne le texte corrigé.
+function enforceBrandMention(text: string): string {
+  // Casse : Iktracker / IKTracker / ik tracker → IKtracker
+  let out = text.replace(/\bik[\s-]?tracker\b/gi, "IKtracker");
+
+  if (/\bIKtracker\b/.test(out)) return out;
+
+  // Aucune mention : on rattache la première tournure possessive anonyme.
+  const anonymous = /\b(?:mon|Mon|notre|Notre)\s+(simulateur|outil|module|application|appli|site|tableau de bord)\b/;
+  const m = out.match(anonymous);
+  if (m) {
+    const isSentenceStart = m.index === 0 || /[.\n]\s*$/.test(out.slice(0, m.index));
+    const replacement = `${isSentenceStart ? "Le" : "le"} ${m[1]} d'IKtracker`;
+    out = out.replace(anonymous, replacement);
+  }
+  return out;
+}
+
+function brandMentionCount(text: string): number {
+  return (text.match(/\bIKtracker\b/g) ?? []).length;
+}
+
+
 // Ajoute le lien de la page concernée en fin de post : LinkedIn transforme
 // automatiquement une URL https en clair en lien cliquable.
 function appendTopicLink(text: string, topic: Topic): string {
@@ -1919,7 +2044,7 @@ Deno.serve(async (req) => {
       }
 
       // Invariant I2 également sur la republication corrigée par l'audit.
-      const newText = enforceMaxLength(airifyPostText(sanitizePostText(rawText)));
+      const newText = enforceBrandMention(enforceMaxLength(airifyPostText(sanitizePostText(rawText))));
       const ownerUrn = await getMemberUrn();
 
       // 1) Suppression du post existant (REST versionné, repli sur /v2/ugcPosts).
@@ -2069,21 +2194,31 @@ Deno.serve(async (req) => {
     console.log(`[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`);
 
     // 2) Text
-    // Invariant I2 : on régénère une fois si le modèle rend un texte hors
-    // gabarit, puis on applique la borne haute en dur.
+    // Invariants I2 (longueur) et I11 (marque nommée) : on régénère une fois si
+    // le modèle rend un texte hors gabarit ou sans mention d'IKtracker, puis on
+    // applique les corrections déterministes.
     let t = await generatePostText(topic, styleSamples, styleProfile);
-    let body = airifyPostText(sanitizePostText(t.text));
-    if (body.length < POST_MIN_CHARS || body.length > POST_MAX_CHARS) {
-      const correction = body.length < POST_MIN_CHARS
-        ? `Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`
-        : `Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`;
-      console.warn(`[llm] texte hors gabarit (${body.length} signes), régénération`);
+    let body = enforceBrandMention(airifyPostText(sanitizePostText(t.text)));
+    const outOfRange = (n: number) => n < POST_MIN_CHARS || n > POST_MAX_CHARS;
+    if (outOfRange(body.length) || brandMentionCount(body) < 2) {
+      const parts: string[] = [];
+      if (body.length < POST_MIN_CHARS) {
+        parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`);
+      } else if (body.length > POST_MAX_CHARS) {
+        parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`);
+      }
+      if (brandMentionCount(body) < 2) {
+        parts.push(`Ta version précédente ne nommait pas assez IKtracker (${brandMentionCount(body)} occurrence(s)). Écris "IKtracker" au moins deux fois, dont une dans les trois premières lignes, et ne parle jamais du module comme d'un outil anonyme.`);
+      }
+      const correction = parts.join("\n");
+      console.warn(`[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque), régénération`);
       try {
         const retry = await generatePostText(topic, styleSamples, styleProfile, correction);
-        const retryBody = airifyPostText(sanitizePostText(retry.text));
-        // On garde la version la plus proche du gabarit.
+        const retryBody = enforceBrandMention(airifyPostText(sanitizePostText(retry.text)));
+        // On garde la version la plus proche du gabarit, marque prioritaire.
         const distance = (n: number) => (n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0);
-        if (distance(retryBody.length) < distance(body.length)) {
+        const score = (txt: string) => distance(txt.length) + (brandMentionCount(txt) === 0 ? 5000 : brandMentionCount(txt) < 2 ? 1000 : 0);
+        if (score(retryBody) < score(body)) {
           body = retryBody;
           t = retry;
         }
@@ -2091,8 +2226,8 @@ Deno.serve(async (req) => {
         console.warn(`[llm] régénération échouée: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
-    body = enforceMaxLength(body);
-    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS})`);
+    body = enforceBrandMention(enforceMaxLength(body));
+    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS}), marque citée ${brandMentionCount(body)}x`);
     postText = appendTopicLink(body, topic);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
