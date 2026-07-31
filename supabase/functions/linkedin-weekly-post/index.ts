@@ -2096,21 +2096,31 @@ Deno.serve(async (req) => {
     console.log(`[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`);
 
     // 2) Text
-    // Invariant I2 : on régénère une fois si le modèle rend un texte hors
-    // gabarit, puis on applique la borne haute en dur.
+    // Invariants I2 (longueur) et I11 (marque nommée) : on régénère une fois si
+    // le modèle rend un texte hors gabarit ou sans mention d'IKtracker, puis on
+    // applique les corrections déterministes.
     let t = await generatePostText(topic, styleSamples, styleProfile);
-    let body = airifyPostText(sanitizePostText(t.text));
-    if (body.length < POST_MIN_CHARS || body.length > POST_MAX_CHARS) {
-      const correction = body.length < POST_MIN_CHARS
-        ? `Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`
-        : `Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`;
-      console.warn(`[llm] texte hors gabarit (${body.length} signes), régénération`);
+    let body = enforceBrandMention(airifyPostText(sanitizePostText(t.text)));
+    const outOfRange = (n: number) => n < POST_MIN_CHARS || n > POST_MAX_CHARS;
+    if (outOfRange(body.length) || brandMentionCount(body) < 2) {
+      const parts: string[] = [];
+      if (body.length < POST_MIN_CHARS) {
+        parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`);
+      } else if (body.length > POST_MAX_CHARS) {
+        parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`);
+      }
+      if (brandMentionCount(body) < 2) {
+        parts.push(`Ta version précédente ne nommait pas assez IKtracker (${brandMentionCount(body)} occurrence(s)). Écris "IKtracker" au moins deux fois, dont une dans les trois premières lignes, et ne parle jamais du module comme d'un outil anonyme.`);
+      }
+      const correction = parts.join("\n");
+      console.warn(`[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque), régénération`);
       try {
         const retry = await generatePostText(topic, styleSamples, styleProfile, correction);
-        const retryBody = airifyPostText(sanitizePostText(retry.text));
-        // On garde la version la plus proche du gabarit.
+        const retryBody = enforceBrandMention(airifyPostText(sanitizePostText(retry.text)));
+        // On garde la version la plus proche du gabarit, marque prioritaire.
         const distance = (n: number) => (n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0);
-        if (distance(retryBody.length) < distance(body.length)) {
+        const score = (txt: string) => distance(txt.length) + (brandMentionCount(txt) === 0 ? 5000 : brandMentionCount(txt) < 2 ? 1000 : 0);
+        if (score(retryBody) < score(body)) {
           body = retryBody;
           t = retry;
         }
@@ -2118,8 +2128,8 @@ Deno.serve(async (req) => {
         console.warn(`[llm] régénération échouée: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
-    body = enforceMaxLength(body);
-    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS})`);
+    body = enforceBrandMention(enforceMaxLength(body));
+    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS}), marque citée ${brandMentionCount(body)}x`);
     postText = appendTopicLink(body, topic);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
