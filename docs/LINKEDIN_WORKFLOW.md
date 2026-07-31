@@ -168,10 +168,15 @@ Paramètres d'enregistrement : viewport 1280×720, `format: "mp4"`, 30 fps, `pac
 **Scénario 1 — adapté au post (`deriveVideoScenario`, prioritaire)** : rédigé **après** la génération du texte, par LLM, à partir du post publié + des extraits de doc technique du module (`captureHintsForTopic`). Le LLM renvoie `{"steps": [...]}` (8 à 14 étapes) pour filmer précisément le parcours ou le module dont parle le post, dans l'ordre du texte.
 
 Garde-fous (`sanitizeAiSteps`, exécution refusée sinon) :
+Garde-fous (`sanitizeAiSteps`, exécution refusée sinon) :
 - actions autorisées uniquement : `navigate`, `wait`, `scroll`, `click`, `hover`, `fill`, `evaluate` ;
 - `navigate` restreint au domaine `iktracker.fr` ; première étape forcée en `navigate` + `wait` ;
 - `wait` borné 800–4000 ms, `scroll` borné −2000/+3000 px, 18 étapes maximum ;
-- `evaluate` accepté seulement s'il contient `scrollIntoView` ou `.click()` et fait moins de 400 caractères (pas de JS arbitraire).
+- `evaluate` accepté seulement s'il contient `scrollIntoView` ou `.click()` et fait moins de 400 caractères (pas de JS arbitraire) ;
+- `isKnownSelector()` : une action `click`, `hover` ou `fill` n'est conservée que si son sélecteur figure dans `TOPIC_UI_HINTS`, registre des sélecteurs réels du module (`input[id^='annualKm']`, `[id^='electric']`, `[id^='fiscalPower']`…). Les sélecteurs inventés par le LLM sont écartés et loggés.
+
+`uiHintBlock(topic)` injecte cette liste de sélecteurs vérifiés dans le prompt du scénariste. `ensureModuleInteractions()` vérifie ensuite qu'il reste au moins une interaction réelle sur le module ; sinon `moduleInteractionSteps()` réinjecte la séquence scriptée, pour ne jamais publier une vidéo de simple défilement.
+
 
 **Scénario 2 — scripté en dur** (`scriptedVideoSteps`, repli si le scénario adapté échoue ou est invalide) :
 
