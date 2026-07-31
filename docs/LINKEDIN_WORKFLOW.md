@@ -343,7 +343,7 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | # | Invariant | Appliqué par |
 |---|---|---|
 | I1 | Jamais de post texte seul. Si aucune voie média n'aboutit, la publication est annulée et loggée en `failed` | garde média avant publication |
-| I2 | Texte compris entre 1 000 et 1 500 signes | `sanitizePostText()` |
+| I2 | Texte compris entre 1 000 et 1 500 signes | prompt, puis **régénération unique** si hors gabarit, puis `enforceMaxLength()` qui tronque en dur par paragraphe/phrase (appliqué aussi aux republications de l'audit) |
 | I3 | Caractères interdits absents du texte final : parenthèses, crochets, accolades, chevrons, arobase, antislash, astérisque, tiret bas, tilde, barre verticale | `sanitizePostText()` |
 | I4 | Pourcentages écrits sous la forme `100%`, jamais « 100 pour cent » | prompt + normalisation |
 | I5 | Scénario vidéo : 18 étapes maximum, actions limitées à une liste blanche, navigation restreinte au domaine `iktracker.fr` | `sanitizeAiSteps()` |
