@@ -152,7 +152,8 @@ Consigne stricte : au moins 3 faits exploités, **aucune invention**, aucun nom 
 1. `sanitizePostText()` — remplace `—`/`–` par des virgules, supprime les puces et les caractères interdits, convertit « 20 pour cent » en « 20% », nettoie les doubles espaces.
 2. `airifyPostText()` — recompose les paragraphes : hook isolé, puis paquets de 2 phrases séparés par une ligne vide.
 3. `appendTopicLink()` — ajoute l'URL de la page concernée (sans ancre) en fin de post ; LinkedIn la rend cliquable automatiquement.
-4. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
+4. `enforceBrandMention()` — invariant I11 : normalise la casse (`Iktracker`, `ik tracker` → `IKtracker`) et, si la marque est absente, rattache la première tournure possessive anonyme (« mon simulateur » → « le simulateur d'IKtracker »). En amont, `brandMentionCount()` déclenche une régénération unique si le texte compte moins de 2 occurrences.
+5. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
 
 ---
 
