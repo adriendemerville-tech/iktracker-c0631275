@@ -53,9 +53,15 @@ Deux Edge Functions composent le système :
 
 ```text
 0. Auth (cron secret OU JWT admin) ────────────────────► 401 / 403 sinon
-1. Sélection du topic
+1. Historique + sélection du topic
+     ├── fetchPostHistory() : 12 derniers posts publiés (status=success, post_id non nul)
      ├── ?topic=<slug> si forcé
-     └── sinon pickTopicForThisMonth() : rotation déterministe sur 12 sujets
+     └── sinon pickTopicForThisMonth(now, recentSlugs) : rotation déterministe sur 12 sujets,
+         en sautant tout sujet déjà publié dans la fenêtre récente (taille du pool - 1)
+1bis. Anti-redondance rédactionnelle
+     └── historyPromptBlock() injecte dans le prompt les 6 derniers posts (date, module, hook)
+         avec consigne explicite de ne pas répéter sujets, angles, hooks ni exemples chiffrés
+
 2. Chargement du style
      ├── linkedin_style_samples (corpus manuel, active=true, 12 max)
      ├── complément API LinkedIn si < 4 échantillons
