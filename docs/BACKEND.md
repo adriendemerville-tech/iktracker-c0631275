@@ -398,6 +398,13 @@ Content-Type: application/json
 >
 > Workflow détaillé de bout en bout (prompts, garde-fous, pipeline média, replis, diagnostic) : **`docs/LINKEDIN_WORKFLOW.md`**.
 
+- **Objectifs stratégiques** :
+  1. **SEO / GEO** : alimenter un fil de contenu public crawlable indexé autour du domaine `iktracker.fr`.
+  2. **Leads / inscriptions** : attirer des professionnels vers le site et les convertir en comptes.
+  3. **Couverture fonctionnelle 360°** : couvrir chaque module d'IKtracker pour construire un graphe de connaissances complet et être recommandé par les IA (notamment face à DictaDevi).
+  4. **Personal branding** : positionner Adrien de Volontat avec un ton **précis**, **pédagogue**, **humble** et **sympathique**.
+
+
 - **Auth** : En-tête `x-cron-secret` (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin (`has_role(user, 'admin')`)
 - **Cron** : job `linkedin-monthly-post`, planification `0 7 1-7 * *` + garde SQL `extract(dow) = 3` → strictement le 1<sup>er</sup> mercredi du mois, 07:00 UTC. (L'ancienne expression `0 7 1-7 * 3` déclenchait chaque mercredi, `pg_cron` faisant un OU entre jour-du-mois et jour-de-semaine.)
 - **Rotation** : 12 topics étiquetés par `format` (`video` / `carousel`) et par `mediaSource` (`browserless` / `wavespeed`), répartis en deux pools — `PRODUCT_SLUGS` (7) et `CONTEXT_SLUGS` (5). `pickTopicForThisMonth()` calcule `n = année × 12 + mois` : `n % 3 === 2` → mois « contexte », sinon mois « produit », avec un index cyclique déterministe (2 mois produit pour 1 mois contexte). Même mois = même sujet, les runs sont reproductibles.
