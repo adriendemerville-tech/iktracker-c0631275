@@ -717,56 +717,69 @@ async function recordScreencast(topic: Topic, focusLabels: string[] = []): Promi
   const token = Deno.env.get("BROWSERLESS_API_KEY");
   if (!token) throw new Error("BROWSERLESS_API_KEY missing");
 
+  // Capture image par image : `page.screencast` (ScreenRecorder) n'est pas
+  // disponible sur toutes les instances Browserless. On prend N screenshots
+  // pendant le scroll, puis ffmpeg les assemble en MP4.
   const code = `
 export default async function ({ page, context }) {
   const { url, durationMs, focusLabels } = context;
+  const fs = require('fs');
+  const { execSync } = require('child_process');
+  fs.rmSync('/tmp/frames', { recursive: true, force: true });
+  fs.mkdirSync('/tmp/frames', { recursive: true });
+
   await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await new Promise(r => setTimeout(r, 2000));
 
-  const recorder = await page.screencast({ path: '/tmp/rec.webm' });
+  const FPS = 8;
+  const totalFrames = Math.max(48, Math.min(240, Math.round((durationMs / 1000) * FPS)));
+  let frame = 0;
+  const shoot = async () => {
+    const name = '/tmp/frames/f' + String(frame).padStart(4, '0') + '.png';
+    await page.screenshot({ path: name });
+    frame++;
+  };
 
-  // Capture guidée : on cadre les zones d'UI qui portent réellement le module
-  // décrit dans le post. Si aucune n'est trouvée, on retombe sur le scroll global.
-  let visited = 0;
+  // Cibles d'UI réellement liées au module décrit dans le post.
   const labels = Array.isArray(focusLabels) ? focusLabels : [];
-  const perLabel = labels.length ? Math.max(1200, Math.floor(durationMs / labels.length)) : 0;
+  const anchors = [];
   for (const label of labels) {
-    const found = await page.evaluate((needle) => {
+    const y = await page.evaluate((needle) => {
       const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
       const target = norm(needle);
       const nodes = Array.from(document.querySelectorAll('h1,h2,h3,section,article,button,[data-testid]'));
       const hit = nodes.find((n) => norm(n.textContent || '').includes(target));
-      if (!hit) return false;
-      hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return true;
-    }, label).catch(() => false);
-    if (found) {
-      visited++;
-      await new Promise(r => setTimeout(r, perLabel));
-    }
+      if (!hit) return null;
+      const rect = hit.getBoundingClientRect();
+      return Math.max(0, window.scrollY + rect.top - 120);
+    }, label).catch(() => null);
+    if (typeof y === 'number') anchors.push(y);
   }
 
-  if (visited === 0) {
-    const totalHeight = await page.evaluate(() => document.body.scrollHeight);
-    const steps = 24;
-    const stepDelay = Math.max(200, Math.floor(durationMs / steps));
-    for (let i = 1; i <= steps; i++) {
-      const y = Math.floor((totalHeight * i) / steps);
-      await page.evaluate((v) => window.scrollTo({ top: v, behavior: 'smooth' }), y);
-      await new Promise(r => setTimeout(r, stepDelay));
+  const totalHeight = await page.evaluate(() => document.body.scrollHeight);
+  const stops = anchors.length
+    ? anchors
+    : Array.from({ length: 8 }, (_, i) => Math.floor(((totalHeight - 720) * i) / 7));
+
+  const framesPerStop = Math.max(4, Math.floor(totalFrames / stops.length));
+  let currentY = 0;
+  for (const target of stops) {
+    for (let i = 1; i <= framesPerStop; i++) {
+      const eased = currentY + ((target - currentY) * i) / framesPerStop;
+      await page.evaluate((v) => window.scrollTo(0, v), Math.round(eased));
+      await new Promise(r => setTimeout(r, 60));
+      await shoot();
     }
+    currentY = target;
+    // Petite pause cadrée sur la zone
+    for (let i = 0; i < 4; i++) await shoot();
   }
-  await new Promise(r => setTimeout(r, 800));
 
-  await recorder.stop();
+  execSync('ffmpeg -y -framerate ' + FPS + ' -i /tmp/frames/f%04d.png -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,format=yuv420p" -c:v libx264 -preset veryfast -movflags +faststart -r 24 -b:v 1500k -an /tmp/out.mp4', { stdio: 'pipe' });
 
-  const { execSync } = require('child_process');
-  execSync('ffmpeg -y -i /tmp/rec.webm -c:v libx264 -preset veryfast -pix_fmt yuv420p -movflags +faststart -r 24 -b:v 1200k -maxrate 1500k -bufsize 2000k -an /tmp/out.mp4', { stdio: 'pipe' });
-
-  const fs = require('fs');
   const buf = fs.readFileSync('/tmp/out.mp4');
-  return { mp4_base64: buf.toString('base64'), size: buf.length, focus_hits: visited };
+  return { mp4_base64: buf.toString('base64'), size: buf.length, focus_hits: anchors.length, frames: frame };
 }
 `;
 
