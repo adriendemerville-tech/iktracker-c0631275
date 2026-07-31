@@ -1189,7 +1189,7 @@ async function generateSlidePlan(topic: Topic): Promise<{ plan: SlidePlan; sourc
 
 Contraintes ABSOLUES :
 - Français, ton pragmatique entrepreneurial
-- AUCUN emoji
+- Emojis autorisés avec parcimonie
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
@@ -1261,7 +1261,7 @@ async function generateSlidePlanFromText(
 
 Contraintes ABSOLUES :
 - Français, ton pragmatique entrepreneurial
-- AUCUN emoji
+- Emojis autorisés avec parcimonie
 - Phrases courtes, factuelles, sans marketing
 - Interdit : "Découvrez", "révolutionnaire", "boostez", "unlock", "testez"
 - Respecte STRICTEMENT les limites de caractères (cover_title ≤ 60, cover_subtitle ≤ 90, heading ≤ 40, body ≤ 180, cta ≤ 60)
