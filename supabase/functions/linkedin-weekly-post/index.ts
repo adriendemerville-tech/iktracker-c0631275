@@ -719,13 +719,12 @@ Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première 
 // de captures Browserless en repli si PageBolt échoue.
 const PAGEBOLT_BASE = "https://pagebolt.dev/api/v1";
 
-async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
-  const key = Deno.env.get("PAGEBOLT_API_KEY");
-  if (!key) throw new Error("PAGEBOLT_API_KEY missing");
+type PageboltStep = Record<string, unknown>;
 
-  // Le défilement par sélecteur échoue quand l'ancre n'existe pas dans le DOM ;
-  // on défile par positions absolues, toujours valides.
-  const steps = [
+// Scénario "aveugle" : simple défilement par positions absolues, toujours
+// valide quel que soit le DOM. Sert de repli si le scénario scripté échoue.
+function fallbackVideoSteps(topic: Topic): PageboltStep[] {
+  return [
     { action: "navigate", url: topic.url },
     { action: "wait", ms: 3000, live: true },
     { action: "scroll", x: 0, y: 700 },
@@ -735,7 +734,48 @@ async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
     { action: "scroll", x: 0, y: 2400 },
     { action: "wait", ms: 2500, live: true },
   ];
+}
 
+// Scénario contrôlé : on cadre réellement le module concerné (ancre #...) puis,
+// pour le simulateur, on joue une saisie visible (km + puissance) et le calcul.
+// Max 20 étapes côté PageBolt : on reste largement en dessous.
+function scriptedVideoSteps(topic: Topic): PageboltStep[] {
+  const anchor = topic.url.includes("#") ? topic.url.split("#")[1] : "";
+  const steps: PageboltStep[] = [
+    { action: "navigate", url: topic.url },
+    { action: "wait", ms: 3500, live: true },
+  ];
+
+  if (anchor) {
+    // Recadrage doux sur l'ancre (scrollIntoView) plutôt qu'un saut brut.
+    steps.push({
+      action: "evaluate",
+      script: `(() => { const el = document.getElementById(${JSON.stringify(anchor)}); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); })()`,
+    });
+    steps.push({ action: "wait", ms: 2500, live: true });
+  }
+
+  if (topic.slug === "simulateur") {
+    // Saisie visible d'un cas concret : 12 000 km, puis calcul.
+    steps.push({ action: "fill", selector: "#simulateur input[type='number']", value: "12000" });
+    steps.push({ action: "wait", ms: 1800, live: true });
+    steps.push({
+      action: "evaluate",
+      script: `(() => { const b = Array.from(document.querySelectorAll('#simulateur button')).find(x => /calcul/i.test(x.textContent || '')); if (b) b.click(); })()`,
+    });
+    steps.push({ action: "wait", ms: 3000, live: true });
+  }
+
+  // Parcours final du module pour montrer le résultat et le contenu associé.
+  steps.push({ action: "scroll", x: 0, y: 400, relative: true });
+  steps.push({ action: "wait", ms: 2500, live: true });
+  steps.push({ action: "scroll", x: 0, y: 500, relative: true });
+  steps.push({ action: "wait", ms: 2500, live: true });
+
+  return steps;
+}
+
+async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise<Uint8Array> {
   const res = await fetch(`${PAGEBOLT_BASE}/video`, {
     method: "POST",
     headers: { "x-api-key": key, "Content-Type": "application/json" },
@@ -763,6 +803,19 @@ async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
   if (out.length < 50_000) throw new Error(`PageBolt video too small (${out.length} bytes)`);
   return out;
 }
+
+async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
+  const key = Deno.env.get("PAGEBOLT_API_KEY");
+  if (!key) throw new Error("PAGEBOLT_API_KEY missing");
+
+  try {
+    return await requestPageboltVideo(key, scriptedVideoSteps(topic));
+  } catch (e) {
+    console.warn(`[pagebolt] scénario scripté échoué, repli défilement simple: ${e instanceof Error ? e.message : String(e)}`);
+    return await requestPageboltVideo(key, fallbackVideoSteps(topic));
+  }
+}
+
 
 
 async function captureUiFrames(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array[]> {
