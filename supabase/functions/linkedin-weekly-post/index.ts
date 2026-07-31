@@ -695,6 +695,7 @@ async function generatePostText(
   styleSamples: string[],
   styleProfile: StyleProfile,
   lengthCorrection?: string,
+  history: PastPost[] = [],
 ): Promise<{ text: string; source: string }> {
   const samplesBlock = styleSamples.length
     ? styleSamples
