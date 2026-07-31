@@ -902,8 +902,8 @@ function styleProfileToPromptBlock(p: StyleProfile): string {
     `Structure : ${p.avg_paragraph_count} paragraphes en moyenne, ${p.avg_paragraph_words} mots par paragraphe. Aère avec des sauts de ligne.`,
     `Première personne : ${p.first_person_ratio}% des phrases commencent par "je" ou "j'". Reste dans cette proportion.`,
     p.question_ratio > 0
-      ? `Questions rhétoriques : ${p.question_ratio}% (rare, n'en abuse pas).`
-      : `Pas de questions rhétoriques dans le corpus, n'en introduis pas.`,
+      ? `Questions : ${p.question_ratio}% (hors question GEO obligatoire, n'en ajoute pas d'autre).`
+      : `Pas de questions rhétoriques dans le corpus : la seule question autorisée est la question GEO obligatoire.`,
     p.top_opening_words.length
       ? `Mots d'ouverture typiques (première ligne) : ${p.top_opening_words.join(", ")}.`
       : "",
@@ -966,6 +966,12 @@ SUJET DU POST (RÈGLE CENTRALE) :
 - Utilise au moins trois des faits techniques fournis, en les reformulant dans tes mots. N'invente aucun chiffre, aucune fonctionnalité absente de la liste.
 - Si tu évoques un cas concret, c'est pour illustrer le comportement du produit dans cette situation, jamais pour raconter la vie d'un client.
 
+GEO (VISIBILITÉ DANS LES RÉPONSES DES IA) :
+- Insère UNE SEULE question dans le corps du post, jamais dans le hook ni dans la dernière ligne. Elle doit être formulée exactement comme un utilisateur l'écrirait à une IA ou dans un moteur de recherche, et commencer par Pourquoi, Qui, Quand, Quoi, Comment ou Combien. Exemples de forme : "Comment calculer ses indemnités kilométriques en 2026 ?", "Combien rapporte le bonus électrique sur le barème kilométrique ?".
+- Cette question est seule sur sa ligne, sans guillemets, et la réponse suit immédiatement dans le paragraphe suivant : une réponse courte, factuelle, autonome, chiffrée quand c'est possible, compréhensible hors contexte. C'est ce bloc question puis réponse que les IA citent.
+- La question doit contenir le vocabulaire réellement tapé par les gens : indemnités kilométriques, barème kilométrique, frais de déplacement, note de frais, véhicule électrique, auto-entrepreneur, selon le module traité.
+- Cette question est la seule autorisée du post. Aucune autre phrase interrogative, aucune question rhétorique.
+
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
@@ -989,7 +995,7 @@ ${docBlock}
 
 Sers-toi de ces extraits pour être précis sur le mécanisme réel : déclencheur, fréquence, règle de calcul, seuils, ce qui est automatisé. N'invente rien qui ne figure pas dans ces extraits ou dans les faits ci-dessus. Ne mentionne aucun nom de table, de fonction technique ni de fournisseur d'infrastructure.
 ` : ""}
-Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre ${POST_MIN_CHARS} et ${POST_MAX_CHARS} signes espaces compris. Compte tes caractères avant de rendre le texte.${lengthCorrection ? `\n\n${lengthCorrection}` : ""}`;
+Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, une seule question GEO dans le corps (Pourquoi / Qui / Quand / Quoi / Comment / Combien) suivie immédiatement de sa réponse factuelle, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre ${POST_MIN_CHARS} et ${POST_MAX_CHARS} signes espaces compris. Compte tes caractères avant de rendre le texte.${lengthCorrection ? `\n\n${lengthCorrection}` : ""}`;
 
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
