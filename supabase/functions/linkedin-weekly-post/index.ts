@@ -300,16 +300,67 @@ const CONTEXT_SLUGS = [
 ];
 
 // Monthly cadence: 2/3 produit, 1/3 contexte, rotation déterministe.
-function pickTopicForThisMonth(now: Date = new Date()): Topic {
+function pickTopicForThisMonth(now: Date = new Date(), recentSlugs: string[] = []): Topic {
   const n = now.getUTCFullYear() * 12 + now.getUTCMonth();
   const isContext = n % 3 === 2;
   const pool = isContext ? CONTEXT_SLUGS : PRODUCT_SLUGS;
   const cycle = Math.floor(n / 3);
-  const slug = isContext
-    ? pool[cycle % pool.length]
-    : pool[(cycle * 2 + (n % 3)) % pool.length];
+  const start = isContext ? cycle % pool.length : (cycle * 2 + (n % 3)) % pool.length;
+
+  // Anti-redondance : on avance dans le pool tant que le sujet a déjà été
+  // publié récemment (fenêtre = taille du pool moins un), pour ne jamais
+  // répéter un module tant que les autres n'ont pas été couverts.
+  const blocked = new Set(recentSlugs.slice(0, Math.max(pool.length - 1, 0)));
+  let slug = pool[start];
+  for (let i = 0; i < pool.length; i++) {
+    const candidate = pool[(start + i) % pool.length];
+    if (!blocked.has(candidate)) { slug = candidate; break; }
+  }
   return TOPICS.find((t) => t.slug === slug) ?? TOPICS[0];
 }
+
+// Historique des posts publiés : sert à la rotation des sujets ET à interdire
+// au modèle de reprendre les mêmes angles, hooks ou chiffres.
+type PastPost = { slug: string; title: string; posted_at: string; text: string };
+
+async function fetchPostHistory(
+  supabase: ReturnType<typeof createClient>,
+  limit = 12,
+): Promise<PastPost[]> {
+  try {
+    const { data, error } = await supabase
+      .from("linkedin_post_log")
+      .select("topic_slug, topic_title, posted_at, post_text")
+      .eq("status", "success")
+      .not("linkedin_post_id", "is", null)
+      .order("posted_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map((r: Record<string, unknown>) => ({
+      slug: String(r.topic_slug ?? ""),
+      title: String(r.topic_title ?? ""),
+      posted_at: String(r.posted_at ?? ""),
+      text: String(r.post_text ?? ""),
+    })).filter((p) => p.slug);
+  } catch (err) {
+    console.warn(`[history] lecture impossible: ${err instanceof Error ? err.message : String(err)}`);
+    return [];
+  }
+}
+
+function historyPromptBlock(history: PastPost[]): string {
+  if (!history.length) return "";
+  const lines = history.slice(0, 6).map((p) => {
+    const date = p.posted_at ? p.posted_at.slice(0, 10) : "date inconnue";
+    const hook = (p.text.split("\n").find((l) => l.trim().length > 0) ?? "").trim().slice(0, 160);
+    return `. ${date} — ${p.title || p.slug}${hook ? ` — hook : "${hook}"` : ""}`;
+  });
+  return `POSTS DÉJÀ PUBLIÉS (à ne pas répéter) :
+${lines.join("\n")}
+
+ANTI-REDONDANCE : ne reprends ni ces sujets, ni ces angles, ni ces hooks, ni les mêmes exemples chiffrés déjà utilisés. Si un point a déjà été expliqué, traite un autre aspect du module ou une autre étape du parcours.`;
+}
+
 
 
 function findTopic(slug: string | null): Topic | null {
