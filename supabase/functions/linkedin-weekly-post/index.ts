@@ -1172,10 +1172,21 @@ function sanitizePostText(text: string): string {
   out = out.replace(/^-\s+/gm, "");
   // Caractères interdits (markdown / mentions / brackets) → supprimés
   out = out.replace(/[()@\[\]{}<>\\*_~|]/g, "");
+  // "100 pour cent" / "20 pour cent" → "100%" / "20%"
+  out = out.replace(/(\d+(?:[.,]\d+)?)\s*pour\s*cents?/gi, "$1%");
   // Nettoie les doubles espaces éventuels laissés par la suppression
   out = out.replace(/[ \t]{2,}/g, " ");
   return out;
 }
+
+// Ajoute le lien de la page concernée en fin de post : LinkedIn transforme
+// automatiquement une URL https en clair en lien cliquable.
+function appendTopicLink(text: string, topic: Topic): string {
+  const url = topic.url.replace(/#.*$/, "");
+  if (text.includes(url)) return text;
+  return `${text}\n\n${url}`;
+}
+
 
 // Aère le post : un paragraphe = 2 phrases maximum, séparés par une ligne vide.
 // LinkedIn tronque les pavés dans le feed, l'aération est indispensable.
