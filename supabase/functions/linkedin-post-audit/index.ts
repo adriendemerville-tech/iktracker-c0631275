@@ -227,6 +227,8 @@ function runDeterministicChecks(text: string): Deterministic {
     hookLength: firstLine.length,
     hookIsSingleLine: firstLine.length > 0 && firstLine.length <= 220,
     aerationOk: paragraphs.length >= 6 && longParagraphs === 0,
+    geoBlockOk: geoBlockOk(text),
+    geoCount: countGeoBlocks(text).count,
   };
 }
 
