@@ -678,6 +678,7 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - Les pourcentages s'écrivent toujours avec le signe %, jamais "pour cent" en toutes lettres. Exemples : 100% électrique, bonus de 20%.
 
 SUJET DU POST (RÈGLE CENTRALE) :
+- MARQUE OBLIGATOIRE : le module appartient à IKtracker et tu dois le dire. Écris le nom "IKtracker" au moins deux fois, dont une dans les trois premières lignes. Interdit de parler du module comme d'un outil anonyme : jamais "mon simulateur", "mon outil", "mon site" tout seul. On écrit "le simulateur d'IKtracker", "IKtracker calcule", "dans IKtracker". Le nom s'écrit toujours IKtracker, avec I et K majuscules.
 - Le post parle DU PRODUIT, pas des utilisateurs. L'angle est toujours : voilà ce que fait IKtracker, comment c'est construit, ce que ça produit comme résultat. Pas de portrait d'utilisateur, pas de persona, pas de témoignage, pas de "les indépendants perdent du temps à...", pas de storytelling client.
 - Le post porte sur UN SEUL module précis d'IKtracker, celui indiqué plus bas. Pas de discours général sur les indemnités kilométriques, pas de présentation globale de l'outil.
 - Décris le module de l'intérieur : le déclencheur, le mécanisme, la règle de calcul, les seuils ou chiffres réels, ce qui est automatisé, ce que ça affiche en sortie.
