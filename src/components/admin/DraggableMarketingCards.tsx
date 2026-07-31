@@ -56,7 +56,7 @@ function SortableCard({ card, isDesktop }: SortableCardProps) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`relative group/card ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      className={`relative group/card overflow-hidden ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''} ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       {isDesktop && (
         <div
