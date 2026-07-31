@@ -62,7 +62,7 @@ const TOPICS: Topic[] = [
   {
     slug: "simulateur",
     title: "Simulateur d'indemnités kilométriques 2026",
-    url: "https://iktracker.fr/simulateur",
+    url: "https://iktracker.fr/bareme-ik-2026#simulateur",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -82,7 +82,7 @@ const TOPICS: Topic[] = [
   {
     slug: "import-takeout",
     title: "Récupération des trajets passés (Google Takeout)",
-    url: "https://iktracker.fr/import-google-timeline",
+    url: "https://iktracker.fr/mes-trajets",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -94,7 +94,7 @@ const TOPICS: Topic[] = [
   {
     slug: "sync-calendrier",
     title: "Synchronisation Google Calendar & Outlook",
-    url: "https://iktracker.fr/synchronisation-calendrier",
+    url: "https://iktracker.fr/calendrier",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -104,7 +104,7 @@ const TOPICS: Topic[] = [
   {
     slug: "detection-plaque",
     title: "Détection véhicule par plaque d'immatriculation",
-    url: "https://iktracker.fr/detection-vehicule",
+    url: "https://iktracker.fr/",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -114,7 +114,7 @@ const TOPICS: Topic[] = [
   {
     slug: "bareme-progressif",
     title: "Barème progressif fiscal 2026",
-    url: "https://iktracker.fr/bareme-kilometrique-2026",
+    url: "https://iktracker.fr/bareme-ik-2026",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -126,7 +126,7 @@ const TOPICS: Topic[] = [
   {
     slug: "bonus-electrique",
     title: "Bonus 20% véhicule électrique",
-    url: "https://iktracker.fr/bonus-vehicule-electrique",
+    url: "https://iktracker.fr/bareme-ik-2026",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -138,7 +138,7 @@ const TOPICS: Topic[] = [
   {
     slug: "export-pdf",
     title: "Export PDF pour l'expert-comptable",
-    url: "https://iktracker.fr/experts-comptables",
+    url: "https://iktracker.fr/expert-comptable",
     format: "video",
     mediaSource: "browserless",
     focus:
@@ -160,7 +160,7 @@ const TOPICS: Topic[] = [
   {
     slug: "confidentialite",
     title: "Aucune exploitation commerciale des données",
-    url: "https://iktracker.fr/confidentialite",
+    url: "https://iktracker.fr/privacy",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -172,7 +172,7 @@ const TOPICS: Topic[] = [
   {
     slug: "comparatif",
     title: "IKtracker vs applications payantes",
-    url: "https://iktracker.fr/comparatif-drivers-note",
+    url: "https://iktracker.fr/comparatif-driversnote",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -184,7 +184,7 @@ const TOPICS: Topic[] = [
   {
     slug: "trajets-recurrents",
     title: "Trajets récurrents automatisés",
-    url: "https://iktracker.fr/",
+    url: "https://iktracker.fr/mes-trajets",
     format: "carousel",
     mediaSource: "wavespeed",
     focus:
@@ -201,10 +201,10 @@ const TOPICS: Topic[] = [
 // généralité marketing sur les indemnités kilométriques.
 const TOPIC_FACTS: Record<string, string[]> = {
   simulateur: [
-    "Le simulateur est public, sans compte, sur iktracker.fr/simulateur.",
+    "Le simulateur est public, sans compte, sur la page barème IK 2026.",
     "Trois tranches officielles : 0 à 5 000 km, 5 001 à 20 000 km, au-delà de 20 000 km, avec un coefficient différent par tranche.",
     "La puissance fiscale se choisit de 3 CV à 7 CV et plus.",
-    "Un véhicule 100 pour cent électrique applique un multiplicateur de 1,2 sur le résultat, les hybrides non.",
+    "Un véhicule 100% électrique applique un multiplicateur de 1,2 sur le résultat, les hybrides non.",
     "Le calcul se met à jour à chaque frappe, sans bouton valider.",
   ],
   "mode-tournee": [
@@ -233,7 +233,7 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Saisie de la plaque d'immatriculation, retour de la marque, du modèle, de la motorisation et de la puissance fiscale.",
     "Trois sources interrogées en cascade, avec repli si la première ne répond pas.",
     "Marge de sécurité de plus 1 CV appliquée quand la source est ambiguë, pour ne jamais surestimer l'indemnité.",
-    "La motorisation électrique déclenche automatiquement le bonus de 20 pour cent.",
+    "La motorisation électrique déclenche automatiquement le bonus de 20%.",
     "Plus besoin d'ouvrir la carte grise pour lire la case P.6.",
   ],
   "bareme-progressif": [
@@ -244,7 +244,7 @@ const TOPIC_FACTS: Record<string, string[]> = {
     "Appliquer un taux moyen sur l'année fait perdre de l'argent dans la première tranche.",
   ],
   "bonus-electrique": [
-    "Majoration de 20 pour cent sur l'indemnité pour un véhicule 100 pour cent électrique.",
+    "Majoration de 20% sur l'indemnité pour un véhicule 100% électrique.",
     "Appliquée par un multiplicateur de 1,2 après calcul du barème par tranche.",
     "Hybrides et hybrides rechargeables exclus.",
     "Activée automatiquement quand la plaque identifie une motorisation électrique, sinon par une case dans la fiche véhicule.",
@@ -673,7 +673,8 @@ GARDE-FOUS ANTI-IA (RESPECT ABSOLU) :
 - INTERDIT : emojis, hashtags, listes à puces, gras/italique markdown, guillemets français décoratifs.
 - INTERDIT (caractères) : ( ) @ [ ] { } < > \\ * _ ~ | — n'utilise jamais ces caractères, ni pour de la mise en forme markdown, ni pour des mentions, ni pour des parenthèses. Reformule la phrase pour t'en passer.
 - INTERDIT (formulations IA typiques) : "Découvrez", "révolutionnaire", "game-changer", "unlock", "boostez", "solution ultime", "en un clin d'œil", "à l'ère de", "dans un monde où", "il est essentiel de", "n'hésitez pas à", "je suis ravi/fier de", "spoiler", "TL;DR".
-- Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final.
+- Pas d'appel vers iktracker.fr, pas de lien, pas de hashtag final (le lien est ajouté automatiquement après coup).
+- Les pourcentages s'écrivent toujours avec le signe %, jamais "pour cent" en toutes lettres. Exemples : 100% électrique, bonus de 20%.
 
 SUJET DU POST (RÈGLE CENTRALE) :
 - Le post parle DU PRODUIT, pas des utilisateurs. L'angle est toujours : voilà ce que fait IKtracker, comment c'est construit, ce que ça produit comme résultat. Pas de portrait d'utilisateur, pas de persona, pas de témoignage, pas de "les indépendants perdent du temps à...", pas de storytelling client.
@@ -712,60 +713,54 @@ Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première 
 
 // ─── Video pipeline (Browserless screencast → MP4) ─────────────────────────
 
-async function recordScreencast(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array> {
+// Le runtime Browserless /function s'exécute côté navigateur : ni `fs`, ni
+// `child_process`, ni ffmpeg, et `page.screencast` (ScreenRecorder) n'est pas
+// disponible sur l'offre utilisée. On capture donc une série de vraies captures
+// d'écran cadrées sur le module, publiées ensuite en carrousel PDF.
+async function captureUiFrames(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array[]> {
   const token = Deno.env.get("BROWSERLESS_API_KEY");
   if (!token) throw new Error("BROWSERLESS_API_KEY missing");
 
   const code = `
 export default async function ({ page, context }) {
-  const { url, durationMs, focusLabels } = context;
-  await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(r => setTimeout(r, 2000));
+  const { url, focusLabels } = context;
+  await page.setViewport({ width: 1200, height: 1200, deviceScaleFactor: 1 });
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
+  // Certaines instances Browserless conservent le viewport 800x600 du launch :
+  // on le réapplique puis on recharge pour forcer un relayout complet.
+  await page.setViewport({ width: 1200, height: 1200, deviceScaleFactor: 1 });
+  await page.reload({ waitUntil: 'networkidle2', timeout: 45000 });
+  await new Promise(r => setTimeout(r, 2500));
 
-  const recorder = await page.screencast({ path: '/tmp/rec.webm' });
-
-  // Capture guidée : on cadre les zones d'UI qui portent réellement le module
-  // décrit dans le post. Si aucune n'est trouvée, on retombe sur le scroll global.
-  let visited = 0;
   const labels = Array.isArray(focusLabels) ? focusLabels : [];
-  const perLabel = labels.length ? Math.max(1200, Math.floor(durationMs / labels.length)) : 0;
+  const anchors = [];
   for (const label of labels) {
-    const found = await page.evaluate((needle) => {
+    const y = await page.evaluate((needle) => {
       const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
       const target = norm(needle);
       const nodes = Array.from(document.querySelectorAll('h1,h2,h3,section,article,button,[data-testid]'));
       const hit = nodes.find((n) => norm(n.textContent || '').includes(target));
-      if (!hit) return false;
-      hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return true;
-    }, label).catch(() => false);
-    if (found) {
-      visited++;
-      await new Promise(r => setTimeout(r, perLabel));
-    }
+      if (!hit) return null;
+      const rect = hit.getBoundingClientRect();
+      return Math.max(0, window.scrollY + rect.top - 100);
+    }, label).catch(() => null);
+    if (typeof y === 'number' && !anchors.some((a) => Math.abs(a - y) < 200)) anchors.push(y);
   }
 
-  if (visited === 0) {
-    const totalHeight = await page.evaluate(() => document.body.scrollHeight);
-    const steps = 24;
-    const stepDelay = Math.max(200, Math.floor(durationMs / steps));
-    for (let i = 1; i <= steps; i++) {
-      const y = Math.floor((totalHeight * i) / steps);
-      await page.evaluate((v) => window.scrollTo({ top: v, behavior: 'smooth' }), y);
-      await new Promise(r => setTimeout(r, stepDelay));
-    }
+  const totalHeight = await page.evaluate(() => document.body.scrollHeight);
+  const stops = (anchors.length ? anchors : [])
+    .concat(anchors.length >= 4 ? [] : Array.from({ length: 4 }, (_, i) => Math.floor(((totalHeight - 1200) * i) / 3)))
+    .slice(0, 5)
+    .map((y) => Math.max(0, Math.round(y)));
+
+  const shots = [];
+  for (const y of stops) {
+    await page.evaluate((v) => window.scrollTo(0, v), y);
+    await new Promise(r => setTimeout(r, 900));
+    const b64 = await page.screenshot({ type: 'png', encoding: 'base64' });
+    shots.push(b64);
   }
-  await new Promise(r => setTimeout(r, 800));
-
-  await recorder.stop();
-
-  const { execSync } = require('child_process');
-  execSync('ffmpeg -y -i /tmp/rec.webm -c:v libx264 -preset veryfast -pix_fmt yuv420p -movflags +faststart -r 24 -b:v 1200k -maxrate 1500k -bufsize 2000k -an /tmp/out.mp4', { stdio: 'pipe' });
-
-  const fs = require('fs');
-  const buf = fs.readFileSync('/tmp/out.mp4');
-  return { mp4_base64: buf.toString('base64'), size: buf.length, focus_hits: visited };
+  return { shots, anchor_hits: anchors.length };
 }
 `;
 
@@ -774,26 +769,39 @@ export default async function ({ page, context }) {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        context: { url: topic.url, durationMs: topic.durationMs, focusLabels },
-      }),
+      body: JSON.stringify({ code, context: { url: topic.url, focusLabels } }),
     },
   );
-
-
-  if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 500)}`);
+  if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const json = await res.json();
-  const payload = typeof json === "object" && "data" in json && typeof json.data === "string"
-    ? JSON.parse(json.data)
+  const payload = typeof json === "object" && json && "data" in json && typeof (json as any).data === "string"
+    ? JSON.parse((json as any).data)
     : json;
-  const base64 = payload.mp4_base64;
-  if (!base64) throw new Error(`No mp4_base64: ${JSON.stringify(json).slice(0, 400)}`);
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  console.log(`Recorded MP4: ${bytes.length} bytes`);
-  return bytes;
+  const shots: string[] = Array.isArray(payload?.shots) ? payload.shots : [];
+  if (shots.length === 0) throw new Error(`No screenshots returned: ${JSON.stringify(json).slice(0, 300)}`);
+  const frames = shots.map((b64) => {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  });
+  console.log(`[frames] ${frames.length} captures (${payload?.anchor_hits ?? 0} ancres) sur ${topic.url}`);
+  return frames;
+}
+
+// Carrousel PDF composé uniquement de vraies captures d'écran de la page.
+async function renderScreenshotCarouselPdf(frames: Uint8Array[]): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  for (const frame of frames) {
+    const png = await pdf.embedPng(frame);
+    const page = pdf.addPage([1200, 1200]);
+    const scale = Math.min(1200 / png.width, 1200 / png.height);
+    const w = png.width * scale;
+    const h = png.height * scale;
+    page.drawRectangle({ x: 0, y: 0, width: 1200, height: 1200, color: rgb(1, 1, 1) });
+    page.drawImage(png, { x: (1200 - w) / 2, y: (1200 - h) / 2, width: w, height: h });
+  }
+  return await pdf.save();
 }
 
 // ─── Wavespeed media generation ────────────────────────────────────────────
@@ -1172,10 +1180,21 @@ function sanitizePostText(text: string): string {
   out = out.replace(/^-\s+/gm, "");
   // Caractères interdits (markdown / mentions / brackets) → supprimés
   out = out.replace(/[()@\[\]{}<>\\*_~|]/g, "");
+  // "100 pour cent" / "20 pour cent" → "100%" / "20%"
+  out = out.replace(/(\d+(?:[.,]\d+)?)\s*pour\s*cents?/gi, "$1%");
   // Nettoie les doubles espaces éventuels laissés par la suppression
   out = out.replace(/[ \t]{2,}/g, " ");
   return out;
 }
+
+// Ajoute le lien de la page concernée en fin de post : LinkedIn transforme
+// automatiquement une URL https en clair en lien cliquable.
+function appendTopicLink(text: string, topic: Topic): string {
+  const url = topic.url.replace(/#.*$/, "");
+  if (text.includes(url)) return text;
+  return `${text}\n\n${url}`;
+}
+
 
 // Aère le post : un paragraphe = 2 phrases maximum, séparés par une ligne vide.
 // LinkedIn tronque les pavés dans le feed, l'aération est indispensable.
@@ -1803,7 +1822,7 @@ Deno.serve(async (req) => {
 
     // 2) Text
     const t = await generatePostText(topic, styleSamples, styleProfile);
-    postText = airifyPostText(sanitizePostText(t.text));
+    postText = appendTopicLink(airifyPostText(sanitizePostText(t.text)), topic);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
 
@@ -1911,10 +1930,12 @@ Deno.serve(async (req) => {
         if (topic.mediaSource === "browserless") {
           try {
             const focusLabels = await deriveCaptureFocus(topic, postText);
-            bytes = await recordScreencast(topic, focusLabels);
+            const frames = await captureUiFrames(topic, focusLabels);
+            bytes = await renderScreenshotCarouselPdf(frames);
+            format = "carousel";
           } catch (err) {
             const reason = err instanceof Error ? err.message : String(err);
-            console.warn(`[media] Browserless screencast failed, falling back to a static screenshot: ${reason}`);
+            console.warn(`[media] Capture UI échouée, repli sur une capture unique: ${reason}`);
             mediaFallback = true;
             mediaFallbackReason = reason;
             bytes = await captureScreenshot(topic);
