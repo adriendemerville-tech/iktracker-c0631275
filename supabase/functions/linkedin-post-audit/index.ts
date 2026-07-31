@@ -516,6 +516,7 @@ Deno.serve(async (req) => {
       !improvedChecks.dashes &&
       improvedChecks.aerationOk &&
       improvedChecks.hookIsSingleLine &&
+      improvedChecks.geoBlockOk &&
       improvedText !== publishedText;
 
     // Une affirmation non vérifiable justifie une correction même en plateau.
