@@ -747,8 +747,9 @@ ${samplesBlock}`;
     .join("\n");
 
   const docBlock = docContextForTopic(topic);
+  const historyBlock = historyPromptBlock(history);
 
-  const user = `Module IKtracker à présenter ce mois-ci : ${topic.title}
+  const user = `${historyBlock ? `${historyBlock}\n\n` : ""}Module IKtracker à présenter ce mois-ci : ${topic.title}
 
 Résumé du module :
 ${topic.focus}
