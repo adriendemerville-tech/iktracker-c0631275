@@ -556,31 +556,52 @@ const Admin = () => {
       </Helmet>
       <div className="min-h-screen bg-background cursor-default">
       {/* Header */}
-      <header className="bg-gradient-primary text-primary-foreground px-4 pt-6 pb-4 rounded-b-[2rem]">
+      <header className="bg-gradient-primary text-primary-foreground px-4 pt-4 pb-3 rounded-b-[2rem]">
         <div className="max-w-[1600px] mx-auto">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate('/app')}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold">Administration</h1>
+            <div className="shrink-0">
+              <h1 className="text-2xl font-bold leading-tight">Administration</h1>
               <p className="text-sm opacity-80">Gestion des avis et utilisateurs</p>
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => navigate('/app/admin/blog')}
-              className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0 shrink-0"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Gérer le blog
-            </Button>
-            <div className="flex items-center gap-2 shrink-0">
+
+            {/* Stats */}
+            <div className="flex gap-2 flex-wrap">
+              <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                <p className="text-xl font-bold leading-none">{pendingCount}</p>
+                <p className="text-xs opacity-80">En attente</p>
+              </div>
+              <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                <p className="text-xl font-bold leading-none">{respondedCount}</p>
+                <p className="text-xs opacity-80">Répondus</p>
+              </div>
+              <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                <p className="text-xl font-bold leading-none">{users.length}</p>
+                <p className="text-xs opacity-80">Utilisateurs</p>
+              </div>
+              <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                <p className="text-xl font-bold leading-none">{adminCount}</p>
+                <p className="text-xs opacity-80">{adminRole === 'admin' ? 'Créateur' : 'Viewer'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/app/admin/blog')}
+                className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-0 shrink-0"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Gérer le blog
+              </Button>
               {unresolvedErrors > 0 && (
                 <button
                   onClick={() => setActiveTab('monitoring')}
@@ -591,26 +612,6 @@ const Admin = () => {
                 </button>
               )}
               <Shield className="w-8 h-8 opacity-80" />
-            </div>
-          </div>
-          
-          {/* Stats */}
-          <div className="flex gap-2 flex-wrap">
-            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
-              <p className="text-xl font-bold">{pendingCount}</p>
-              <p className="text-xs opacity-80">En attente</p>
-            </div>
-            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
-              <p className="text-xl font-bold">{respondedCount}</p>
-              <p className="text-xs opacity-80">Répondus</p>
-            </div>
-            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
-              <p className="text-xl font-bold">{users.length}</p>
-              <p className="text-xs opacity-80">Utilisateurs</p>
-            </div>
-            <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5">
-              <p className="text-xl font-bold">{adminCount}</p>
-              <p className="text-xs opacity-80">{adminRole === 'admin' ? 'Créateur' : 'Viewer'}</p>
             </div>
           </div>
         </div>
