@@ -188,7 +188,7 @@ Contrôles : erreur si la réponse ne contient pas de payload, ou si le MP4 fait
 ### 5.2 Replis média (chaîne complète)
 
 ```text
-PageBolt MP4
+PageBolt MP4 (scénario adapté au post → scénario scripté → défilement aveugle)
   └─ échec → captureUiFrames() (Browserless, 5 captures cadrées sur les
               focusLabels dérivés du texte) → renderScreenshotCarouselPdf()
               → format devient "carousel"
@@ -197,6 +197,9 @@ PageBolt MP4
 ```
 
 Chaque bascule positionne `media_fallback = true` et `media_fallback_reason` dans la réponse et le log.
+
+**Run de référence (31/07/2026, topic `simulateur`)** : scénario adapté généré en 10 étapes (`[video-scenario] 10 étapes générées depuis le post`), MP4 de 2,64 Mo publié en post VIDEO (`urn:li:ugcPost:7488847876358438912`), durée totale du run ~77 s.
+
 
 ### 5.3 Visuels IA — Wavespeed (`mediaSource: "wavespeed"`)
 
