@@ -104,23 +104,21 @@ export const EmailVerificationGate = () => {
   if (!user || verified || !blocked) return null;
 
   return (
-    <Dialog open>
-      <DialogContent
-        className="sm:max-w-md [&>button]:hidden"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
+    <Dialog open onOpenChange={(o) => !o && setBlocked(false)}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <MailCheck className="h-6 w-6 text-primary" />
           </div>
           <DialogTitle className="text-center">Vérifiez votre adresse email</DialogTitle>
           <DialogDescription className="text-center">
-            Pour continuer à utiliser IKtracker, confirmez l'adresse{" "}
-            <span className="font-medium text-foreground">{user.email}</span> en cliquant sur le lien
-            que nous vous avons envoyé.
+            Confirmez l'adresse{" "}
+            <span className="font-medium text-foreground">{user.email}</span> pour débloquer
+            IKtracker. Sans vérification : {UNVERIFIED_TRIP_LIMIT} trajets et{" "}
+            {UNVERIFIED_TOUR_LIMIT} tournée maximum, et aucun export de relevé.
           </DialogDescription>
         </DialogHeader>
+
 
         <div className="space-y-2">
           <Button className="w-full" onClick={handleResend} disabled={sending}>
