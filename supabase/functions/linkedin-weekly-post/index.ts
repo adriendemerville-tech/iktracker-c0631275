@@ -711,12 +711,60 @@ Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première 
   return { text, source };
 }
 
-// ─── Video pipeline (Browserless screencast → MP4) ─────────────────────────
+// ─── Video pipeline (PageBolt /v1/video → MP4) ─────────────────────────────
+//
+// PageBolt enregistre un vrai MP4 côté serveur (Puppeteer + ffmpeg managés),
+// ce que le runtime Browserless /function ne permet pas (pas de fs/ffmpeg,
+// `page.screencast` indisponible sur l'offre utilisée). On garde le carrousel
+// de captures Browserless en repli si PageBolt échoue.
+const PAGEBOLT_BASE = "https://pagebolt.dev/api/v1";
 
-// Le runtime Browserless /function s'exécute côté navigateur : ni `fs`, ni
-// `child_process`, ni ffmpeg, et `page.screencast` (ScreenRecorder) n'est pas
-// disponible sur l'offre utilisée. On capture donc une série de vraies captures
-// d'écran cadrées sur le module, publiées ensuite en carrousel PDF.
+async function capturePageboltVideo(topic: Topic): Promise<Uint8Array> {
+  const key = Deno.env.get("PAGEBOLT_API_KEY");
+  if (!key) throw new Error("PAGEBOLT_API_KEY missing");
+
+  // Le défilement par sélecteur échoue quand l'ancre n'existe pas dans le DOM ;
+  // on défile par positions absolues, toujours valides.
+  const steps = [
+    { action: "navigate", url: topic.url },
+    { action: "wait", ms: 3000, live: true },
+    { action: "scroll", x: 0, y: 700 },
+    { action: "wait", ms: 2500, live: true },
+    { action: "scroll", x: 0, y: 1500 },
+    { action: "wait", ms: 2500, live: true },
+    { action: "scroll", x: 0, y: 2400 },
+    { action: "wait", ms: 2500, live: true },
+  ];
+
+  const res = await fetch(`${PAGEBOLT_BASE}/video`, {
+    method: "POST",
+    headers: { "x-api-key": key, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      steps,
+      viewport: { width: 1280, height: 720 },
+      format: "mp4",
+      framerate: 30,
+      pace: "normal",
+      blockBanners: true,
+      cursor: { visible: true, style: "highlight", color: "#4F46E5", persist: true },
+      clickEffect: { enabled: true, style: "ripple" },
+      response_type: "json",
+    }),
+  });
+  if (!res.ok) throw new Error(`PageBolt ${res.status}: ${(await res.text()).slice(0, 400)}`);
+
+  const json = await res.json();
+  const b64 = typeof json?.data === "string" ? json.data : null;
+  if (!b64) throw new Error(`PageBolt: no video payload (${JSON.stringify(json).slice(0, 300)})`);
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  console.log(`[pagebolt] MP4 ${out.length} bytes, ${json?.frames ?? "?"} frames, ${json?.steps_completed ?? "?"}/${json?.total_steps ?? "?"} étapes`);
+  if (out.length < 50_000) throw new Error(`PageBolt video too small (${out.length} bytes)`);
+  return out;
+}
+
+
 async function captureUiFrames(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array[]> {
   const token = Deno.env.get("BROWSERLESS_API_KEY");
   if (!token) throw new Error("BROWSERLESS_API_KEY missing");
@@ -1929,19 +1977,29 @@ Deno.serve(async (req) => {
       if (format === "video") {
         if (topic.mediaSource === "browserless") {
           try {
-            const focusLabels = await deriveCaptureFocus(topic, postText);
-            const frames = await captureUiFrames(topic, focusLabels);
-            bytes = await renderScreenshotCarouselPdf(frames);
-            format = "carousel";
-          } catch (err) {
-            const reason = err instanceof Error ? err.message : String(err);
-            console.warn(`[media] Capture UI échouée, repli sur une capture unique: ${reason}`);
-            mediaFallback = true;
-            mediaFallbackReason = reason;
-            bytes = await captureScreenshot(topic);
-            format = "image";
+            // 1er choix : vraie vidéo MP4 de l'UI via PageBolt.
+            bytes = await capturePageboltVideo(topic);
+          } catch (videoErr) {
+            const videoReason = videoErr instanceof Error ? videoErr.message : String(videoErr);
+            console.warn(`[media] PageBolt vidéo échouée, repli carrousel de captures: ${videoReason}`);
+            try {
+              const focusLabels = await deriveCaptureFocus(topic, postText);
+              const frames = await captureUiFrames(topic, focusLabels);
+              bytes = await renderScreenshotCarouselPdf(frames);
+              format = "carousel";
+              mediaFallback = true;
+              mediaFallbackReason = videoReason;
+            } catch (err) {
+              const reason = err instanceof Error ? err.message : String(err);
+              console.warn(`[media] Capture UI échouée, repli sur une capture unique: ${reason}`);
+              mediaFallback = true;
+              mediaFallbackReason = `${videoReason} | ${reason}`;
+              bytes = await captureScreenshot(topic);
+              format = "image";
+            }
           }
         } else {
+
           bytes = await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
         }
       } else {
