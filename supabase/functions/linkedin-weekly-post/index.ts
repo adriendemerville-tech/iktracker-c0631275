@@ -194,7 +194,128 @@ const TOPICS: Topic[] = [
       "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract representation of a repeating calendar loop with a subtle route line arcing between two points, cyclical pattern, flat design, clean lines, generous negative space on the right, no text, no logos",
     slideCount: 4,
   },
+
+  // ---- Workflows transversaux (chaînes de bout en bout, pas un module isolé) ----
+  {
+    slug: "workflow-agenda-comptable",
+    title: "De l'agenda au comptable, sans ressaisie",
+    url: "https://iktracker.fr/expert-comptable",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Chaîne complète : un rendez vous dans Google Calendar ou Outlook devient un trajet, le barème progressif et le bonus électrique s'appliquent, le relevé mensuel part automatiquement au comptable avec un lien sécurisé. Aucune saisie manuelle sur toute la chaîne.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract pipeline of three connected nodes flowing left to right, calendar dot, route line, document sheet, flat design, generous negative space, no text, no logos",
+    slideCount: 4,
+  },
+  {
+    slug: "workflow-cloture-exercice",
+    title: "Clôture d'exercice : reconstituer une année en une soirée",
+    url: "https://iktracker.fr/mes-trajets",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Workflow de rattrapage complet en fin d'exercice : import Google Takeout, contrôle des doublons, recalcul des distances, application du barème par tranche, export PDF annuel et archivage des relevés. Pensé pour l'indépendant qui n'a rien suivi de l'année.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract stack of documents converging into a single clean sheet, twelve small month markers, flat design, generous negative space, no text",
+    slideCount: 4,
+  },
+
+  // ---- Problèmes visés (angle douleur, pas fonctionnalité) ----
+  {
+    slug: "probleme-oubli-trajets",
+    title: "Les trajets oubliés coûtent cher",
+    url: "https://iktracker.fr/",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Le vrai problème n'est pas le calcul, c'est l'oubli : les petits déplacements non notés disparaissent et représentent des centaines d'euros d'indemnités perdues sur un exercice. La capture automatique par agenda ou GPS supprime la charge mentale.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract dotted route with several missing segments fading out, flat design, generous negative space, no text",
+  },
+  {
+    slug: "probleme-justificatif-controle",
+    title: "Justifier ses kilomètres en cas de contrôle",
+    url: "https://iktracker.fr/note-de-frais-kilometrique",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Un tableur reconstitué après coup ne tient pas face à un contrôle : il faut la date, le motif, le départ, l'arrivée, la distance et le véhicule pour chaque déplacement. IKtracker horodate au fil de l'eau et produit un relevé traçable.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract document with a magnifying glass over aligned rows, flat design, clean lines, generous negative space, no text",
+  },
+
+  // ---- Tarifs ----
+  {
+    slug: "tarifs",
+    title: "Tarifs IKtracker : 0 euro, pas de palier caché",
+    url: "https://iktracker.fr/tarifs",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "La page tarifs tient en un chiffre : 0 euro par an. Pas d'abonnement, pas de carte bancaire à l'inscription, pas de fonctionnalité bloquée derrière un premium, pas de publicité, pas de revente de données. Toutes les fonctions sont incluses, y compris export et API.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, a single large abstract zero shape as the focal element, flat design, generous negative space on the right, no text, no logos",
+  },
+
+  // ---- Lead magnets (ressources gratuites sans compte) ----
+  {
+    slug: "lead-magnet-note-de-frais",
+    title: "Modèle de note de frais kilométrique",
+    url: "https://iktracker.fr/note-de-frais-kilometrique",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Ressource gratuite accessible sans compte : la structure exacte d'une note de frais kilométrique conforme, les mentions obligatoires et la façon de la remplir. Point d'entrée pour ceux qui cherchent un modèle avant de chercher un outil.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract expense form with aligned rows and a subtle car glyph, flat design, generous negative space, no text",
+  },
+  {
+    slug: "lead-magnet-lexique",
+    title: "Lexique des indemnités kilométriques",
+    url: "https://iktracker.fr/lexique",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Ressource gratuite : le vocabulaire fiscal des IK expliqué simplement, puissance fiscale, barème progressif, frais réels, grand déplacement, abattement. Utile avant une déclaration ou un échange avec un comptable.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract open reference book with subtle index tabs, flat design, generous negative space, no text",
+  },
+  {
+    slug: "lead-magnet-api-comptable",
+    title: "API gratuite pour les experts-comptables",
+    url: "https://iktracker.fr/api-docs",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Ressource destinée aux cabinets : une API gratuite pour récupérer les relevés kilométriques de leurs clients, sans double saisie et sans abonnement par utilisateur. Point d'entrée prescripteur, un cabinet amène plusieurs indépendants.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract connected endpoints exchanging structured data blocks, flat design, generous negative space, no text",
+  },
+
+  // ---- Contenu éditorial (article de blog, résolu dynamiquement) ----
+  {
+    slug: "article-blog",
+    title: "Article du blog IKtracker",
+    url: "https://iktracker.fr/blog",
+    format: "carousel",
+    mediaSource: "wavespeed",
+    focus:
+      "Mise en avant d'un article publié sur le blog IKtracker, avec son angle propre et un renvoi vers la page pour la lecture complète.",
+    durationMs: 10000,
+    visualPrompt:
+      "Editorial minimalist illustration, warm ivory background, indigo-violet accents, abstract article layout with a headline bar and text lines, flat design, generous negative space, no text",
+  },
 ];
+
 
 // Faits techniques précis par module. Injectés tels quels dans le prompt pour que
 // le post décrive une fonctionnalité réelle, avec son mécanisme, et pas une
