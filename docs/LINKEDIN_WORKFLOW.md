@@ -335,3 +335,43 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | `Média obligatoire indisponible` | Toutes les voies média ET d'upload ont échoué ; le post n'est volontairement pas publié |
 | Vidéo générique alors que le post parle d'un module précis | Le scénario adapté a été rejeté (`[video-scenario] échec...`) → JSON invalide ou étapes filtrées par `sanitizeAiSteps` ; le run est retombé sur `scriptedVideoSteps()` |
 | Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`) |
+
+---
+
+## 12. Invariants (règles dures, vérifiables)
+
+| # | Invariant | Appliqué par |
+|---|---|---|
+| I1 | Jamais de post texte seul. Si aucune voie média n'aboutit, la publication est annulée et loggée en `failed` | garde média avant publication |
+| I2 | Texte compris entre 1 000 et 1 500 signes | `sanitizePostText()` |
+| I3 | Caractères interdits absents du texte final : parenthèses, crochets, accolades, chevrons, arobase, antislash, astérisque, tiret bas, tilde, barre verticale | `sanitizePostText()` |
+| I4 | Pourcentages écrits sous la forme `100%`, jamais « 100 pour cent » | prompt + normalisation |
+| I5 | Scénario vidéo : 18 étapes maximum, actions limitées à une liste blanche, navigation restreinte au domaine `iktracker.fr` | `sanitizeAiSteps()` |
+| I6 | Un MP4 de moins de 50 ko est considéré comme invalide → repli carrousel | garde taille média |
+| I7 | Une republication réutilise l'`asset_urn` existant, sans nouvel upload | mode `repost` |
+| I8 | L'audit ne traite qu'un post à la fois, `audit_status is null`, âge entre 5 min et 24 h | requête de sélection du cron |
+| I9 | Au plus 3 itérations d'audit par lignée de post, arrêt anticipé si le gain de score est inférieur à 3 | `MAX_ATTEMPTS`, `MIN_GAIN` |
+| I10 | Toute exécution, succès ou échec, écrit une ligne dans `linkedin_post_log` | `logRun()` |
+
+---
+
+## 13. Coûts, quotas et dette
+
+### Consommation par run (ordre de grandeur)
+
+| Poste | Appels par run | Volume typique | Remarque |
+|---|---|---|---|
+| Wavespeed — Mistral (texte) | 2 à 4 | ~4 à 8 k tokens entrée, ~1 k sortie | rédaction, scénario vidéo, réécriture d'audit |
+| Lovable AI — Gemini (repli texte) | 0 à 2 | idem | seulement si Wavespeed échoue |
+| PageBolt (vidéo) | 1 | MP4 de 1 à 4 Mo, 40 à 70 s de capture | poste le plus coûteux en temps |
+| Browserless (captures / carrousel) | 0 ou 3 à 6 | PNG 1080 px, PDF carrousel | uniquement en repli |
+| LinkedIn API | 3 à 5 | upload + post | quota profil : quelques dizaines de posts par jour, sans risque ici |
+| Audit | 1 lecture + 1 notation, jusqu'à 3 fois | — | cron toutes les 5 min mais no-op la plupart du temps |
+
+Cadence mensuelle : environ 1 run de publication + 1 à 3 cycles d'audit par mois. Le coût réel du système est donc dominé par PageBolt, pas par le LLM.
+
+### Dette identifiée
+
+1. **Nom trompeur** : `linkedin-weekly-post` publie en réalité une fois par mois. Renommage à prévoir avec migration du cron et de `config.toml`.
+2. **Fichier monolithique** : ~2 180 lignes dans une seule Edge Function. Découpage cible : `text/`, `media/`, `linkedin-api/`, `scenario/`.
+3. **Pas de plafond de dépense** explicite côté PageBolt et Browserless : à surveiller si la cadence augmente.
