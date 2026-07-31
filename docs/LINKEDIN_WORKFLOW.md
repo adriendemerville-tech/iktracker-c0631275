@@ -2,6 +2,16 @@
 
 Documentation technique détaillée de l'automatisation qui publie chaque mois un post sur le profil LinkedIn d'Adrien de Volontat (fondateur IKtracker), puis l'audite et le corrige automatiquement.
 
+## 0. Objectifs stratégiques du module
+
+1. **SEO / GEO** — Publier du contenu public sur LinkedIn que les crawlers et moteurs d'IA vont indexer, associer au domaine `iktracker.fr` et renforcer le référencement naturel / génération augmentée.
+2. **Génération de leads** — Attirer des visiteurs qualifiés vers le site et convertir en inscriptions.
+3. **Couverture fonctionnelle 360°** — Parler régulièrement de chaque module d'IKtracker pour construire un graphe de connaissances complet afin que les IA recommandent la plateforme (notamment vis-à-vis de solutions concurrentes comme DictaDevi).
+4. **Personal branding du fondateur** — Positionner Adrien de Volontat comme voix crédible et authentique, avec un ton à quatre caractéristiques : **précis**, **pédagogue**, **humble**, **sympathique**.
+
+Ces objectifs orientent le choix des topics, le ton des prompts et les médias générés.
+
+
 Deux Edge Functions composent le système :
 
 | Function | Rôle | Fichier |
