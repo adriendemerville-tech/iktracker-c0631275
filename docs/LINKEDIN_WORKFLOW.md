@@ -1,292 +1,303 @@
-# Workflow de publication LinkedIn — IKtracker
+# Workflow de génération et publication des posts LinkedIn — IKtracker
 
-Documentation détaillée de l'automatisation qui publie chaque mois un post sur le profil LinkedIn d'Adrien de Volontat (fondateur IKtracker).
+Documentation technique détaillée de l'automatisation qui publie chaque mois un post sur le profil LinkedIn d'Adrien de Volontat (fondateur IKtracker), puis l'audite et le corrige automatiquement.
+
+Deux Edge Functions composent le système :
+
+| Function | Rôle | Fichier |
+|---|---|---|
+| `linkedin-weekly-post` | Génère le texte + le média et publie le post (nom historique, cadence désormais mensuelle) | `supabase/functions/linkedin-weekly-post/index.ts` (~2 180 l.) |
+| `linkedin-post-audit` | Relit le post publié, le note, et le republie corrigé si nécessaire | `supabase/functions/linkedin-post-audit/index.ts` (~630 l.) |
 
 ---
 
 ## 1. Vue d'ensemble
 
-- **Cadence** : 1ᵉʳ mercredi de chaque mois, 07:00 UTC (~08:00 Paris).
-- **Cible** : profil personnel Adrien de Volontat (compte connecté via le connector LinkedIn Lovable).
-- **Cron** : `pg_cron` — expression `0 7 1-7 * 3` (mercredi de la première semaine du mois).
-- **Edge function** : `supabase/functions/linkedin-weekly-post/index.ts` (nom historique, rythme désormais mensuel).
-- **Déclencheurs** :
-  - Automatique via cron (header `x-cron-secret`).
-  - Manuel via l'admin (`/admin` → onglet **LinkedIn**), auth JWT admin.
-  - Diagnostic via `?dry_run=1` (génère mais ne publie pas).
-- **Traçabilité** : chaque exécution insère une ligne dans `public.linkedin_post_log`.
+- **Cadence de publication** : 1ᵉʳ mercredi de chaque mois, 07:00 UTC (~08:00 Paris) — `pg_cron`, expression `0 7 1-7 * 3`.
+- **Cadence d'audit** : toutes les 5 minutes (`pg_cron`), ne traite qu'un post à la fois.
+- **Cible** : profil personnel Adrien de Volontat, via le **connector LinkedIn Lovable** (gateway `https://connector-gateway.lovable.dev/linkedin`).
+- **Mention** : la page entreprise IKtracker est mentionnée en fin de post quand l'URN organisation est résolvable.
+- **Traçabilité** : chaque exécution (succès ou échec) insère une ligne dans `public.linkedin_post_log`.
+- **Média obligatoire** : aucun post texte seul n'est jamais publié ; si toutes les voies média échouent, la publication est annulée et loggée en `failed`.
+
+### Déclencheurs
+
+| Mode | Auth | Appel |
+|---|---|---|
+| Cron mensuel | header `x-cron-secret` (= `CRON_SECRET` ou `SYNC_CRON_TOKEN`) | `POST /functions/v1/linkedin-weekly-post` |
+| Manuel admin | JWT + `has_role(uid,'admin')` | Admin → onglet **LinkedIn** |
+| Dry-run | idem | `?dry_run=1` — génère texte + plan de slides, ne publie rien |
+| Forçage sujet | idem | `?topic=<slug>` |
+| Forçage format | idem | `?format=video\|carousel` |
+| Republication | idem | `?mode=repost` + body `{ post_id, text, asset_urn? }` |
 
 ---
 
-## 2. Flux général d'un run
+## 2. Flux complet d'un run de publication
 
 ```text
-1. Auth de la requête (cron secret OU admin JWT)
-2. Sélection du topic
+0. Auth (cron secret OU JWT admin) ────────────────────► 401 / 403 sinon
+1. Sélection du topic
      ├── ?topic=<slug> si forcé
-     └── sinon rotation mensuelle sur la liste TOPICS (12 sujets)
+     └── sinon pickTopicForThisMonth() : rotation déterministe sur 12 sujets
+2. Chargement du style
+     ├── linkedin_style_samples (corpus manuel, active=true, 12 max)
+     ├── complément API LinkedIn si < 4 échantillons
+     └── analyzeStyle() → StyleProfile chiffré
 3. Génération du TEXTE
-     ├── Lecture des N derniers posts LinkedIn (style samples)
-     ├── Extraction d'un StyleProfile déterministe
-     ├── Prompt système + user → Mistral (Wavespeed)
-     │     └── fallback Gemini (Lovable AI) si erreur
-     └── Sanitisation (suppression tirets, caractères interdits, longueur 1000-1500)
-4. Génération du MÉDIA selon mediaSource
-     ├── browserless → screencast MP4 d'une UI réelle
-     └── wavespeed
-           ├── video    → text-to-video Wavespeed → MP4
-           └── carousel → N images Wavespeed → PDF (pdf-lib, 1200×1200)
-5. Publication LinkedIn
-     ├── registerUpload (assets/registerUpload)
-     ├── PUT du binaire vers l'URL retournée
-     ├── ugcPost (VIDEO ou DOCUMENT)
-     └── fallback text-only si registerUpload retourne 403
-6. Log dans linkedin_post_log (statut, durée, erreurs, urn)
+     ├── Prompt système (ton, garde-fous anti-IA, structure) + StyleProfile
+     ├── Prompt user (focus du topic + TOPIC_FACTS + extraits docs BACKEND/FRONTEND)
+     ├── Mistral via Wavespeed ── fallback ──► Gemini via Lovable AI Gateway
+     └── sanitizePostText() → airifyPostText() → appendTopicLink()
+4. Dérivation des visuels À PARTIR DU TEXTE généré
+     ├── carousel  → generateSlidePlanFromText()
+     ├── wavespeed → deriveVisualPromptFromText()
+     └── browserless → deriveCaptureFocus() (labels UI à cadrer)
+   [si dry_run → retour JSON ici, rien n'est publié]
+5. Génération du MÉDIA
+     ├── mediaSource = browserless → PageBolt /v1/video (MP4 scripté)
+     │        ├── repli 1 : carrousel PDF de captures Browserless
+     │        └── repli 2 : capture PNG unique
+     └── mediaSource = wavespeed
+              ├── video    → text-to-video Wavespeed → MP4
+              └── carousel → image de couverture Wavespeed + pdf-lib → PDF
+6. Upload + publication LinkedIn (chaîne de tentatives)
+     ├── REST versionnée (/rest/images|documents|videos + /rest/posts)
+     ├── legacy /v2/assets registerUpload + /v2/ugcPosts
+     └── dernier recours : screenshot en post image
+7. Log dans linkedin_post_log (status, post_id, asset_urn, durée, fallback)
+8. ~5 min plus tard : linkedin-post-audit relit, note, et republie si besoin
 ```
 
 ---
 
-## 3. Sources & secrets
+## 3. Sélection du sujet
 
-| Rôle | Secret / env | Fournisseur |
+`TOPICS` contient **12 sujets**, chacun décrit par :
+
+```ts
+{ slug, title, url, focus, format, mediaSource, durationMs, visualPrompt?, slideCount? }
+```
+
+- `format` : `"video"` | `"carousel"` → détermine le type d'upload LinkedIn (VIDEO ou DOCUMENT).
+- `mediaSource` :
+  - `"browserless"` → on **montre l'UI réelle** (simulateur, mode tournée, sync calendrier, détection plaque…) ;
+  - `"wavespeed"` → visuel **généré par IA** (concepts : barème, bonus électrique, gratuité, confidentialité, comparatif).
+
+Deux pools :
+- `PRODUCT_SLUGS` (7 sujets produit),
+- `CONTEXT_SLUGS` (5 sujets contexte/valeurs).
+
+`pickTopicForThisMonth()` calcule `n = année*12 + mois` : **2 mois produit pour 1 mois contexte** (`n % 3 === 2` → contexte), avec un index cyclique déterministe. Même mois = même sujet, ce qui rend les runs reproductibles.
+
+---
+
+## 4. Génération du texte
+
+### 4.1 Corpus de style
+
+1. **Source primaire** : table `public.linkedin_style_samples` (`content`, `active`), alimentée manuellement depuis l'admin. C'est la source de vérité, car l'API LinkedIn ne rend pas les posts passés sans scope de lecture.
+2. **Complément** : `fetchRecentAuthorPosts()` via le gateway, seulement si moins de 4 échantillons manuels.
+3. Échantillons < 80 caractères ignorés ; 6 exemples max injectés dans le prompt.
+
+### 4.2 StyleProfile déterministe
+
+`analyzeStyle()` produit des cibles chiffrées, injectées dans le prompt via `styleProfileToPromptBlock()` :
+
+- longueurs moyennes (caractères, mots, phrases, paragraphes) ;
+- `short_sentence_ratio` (% de phrases ≤ 8 mots) ;
+- `first_person_ratio`, `question_ratio` ;
+- `top_opening_words`, `frequent_bigrams`, `frequent_content_words` (signature lexicale, stopwords FR filtrés).
+
+But : donner au modèle des **cibles mesurables** plutôt que des consignes vagues.
+
+### 4.3 Ancrage factuel
+
+Trois couches de faits sont fournies au modèle :
+
+1. `topic.focus` — résumé du module.
+2. `TOPIC_FACTS[slug]` — faits techniques vérifiés (chiffres, seuils, règles).
+3. **Extraits de la documentation interne** : `docs-context.ts` est généré depuis `docs/BACKEND.md` + `docs/FRONTEND.md` par `scripts/generate-linkedin-docs-context.cjs`. `docContextForTopic()` sélectionne jusqu'à 4 sections par score de mots-clés (titre pondéré ×3, seuil ≥ 2), plafonné à 4 500 caractères.
+
+Consigne stricte : au moins 3 faits exploités, **aucune invention**, aucun nom de table / fonction / fournisseur d'infra.
+
+### 4.4 Règles de rédaction imposées
+
+- **Longueur : 1 000 à 1 500 signes** (contrainte dure).
+- **Hook obligatoire** en première ligne, seul, factuel (pas de question rhétorique).
+- **Aération** : ≥ 6 paragraphes, 1 à 2 phrases chacun, séparés par une ligne vide.
+- **Pas de chute** : ni morale, ni CTA, ni synthèse. Le post s'arrête sec.
+- **Angle produit uniquement** : un seul module, décrit de l'intérieur (déclencheur, mécanisme, seuils, sortie). Pas de persona, pas de témoignage.
+- **Garde-fous anti-IA** :
+  - interdits : `—`, `–`, tiret d'incise, emojis, hashtags, puces, markdown ;
+  - caractères interdits : `( ) @ [ ] { } < > \ * _ ~ |` ;
+  - formulations bannies : « Découvrez », « révolutionnaire », « game-changer », « je suis ravi de », « dans un monde où », etc. ;
+  - pourcentages toujours en `%` (jamais « pour cent »).
+
+### 4.5 Modèles
+
+| Rang | Modèle | Accès |
 |---|---|---|
-| Auth LinkedIn (post + upload) | `LINKEDIN_API_KEY` (injecté par le connector Lovable) | Connector Lovable (workspace) |
-| Passerelle connector | `LOVABLE_API_KEY` | Lovable |
-| Texte primaire (Mistral) | `WAVESPEED_API_KEY` | Wavespeed |
-| Texte fallback (Gemini) | `LOVABLE_API_KEY` | Lovable AI Gateway |
-| Vidéo écrans réels | `BROWSERLESS_TOKEN` | Browserless |
-| Images/vidéos IA | `WAVESPEED_API_KEY` | Wavespeed |
-| Trigger cron | `CRON_SECRET` | interne |
+| 1 | `mistral/mistral-large-latest` | Wavespeed (`WAVESPEED_API_KEY`), soumission + polling `predictions/{id}/result`, timeout 180 s |
+| 2 | Gemini | Lovable AI Gateway (`LOVABLE_API_KEY`) |
 
-Scopes LinkedIn actifs sur le connector : `openid`, `profile`, `email`, `w_member_social`.
-→ Suffisants pour publier texte + média sur le **profil personnel**. Ne permettent pas la publication sur les **pages entreprise** (nécessiterait un app LinkedIn dédié + Community Management API).
+`callLLM()` bascule automatiquement sur Gemini si Mistral échoue, et remonte la source utilisée (`text_source`).
+
+### 4.6 Post-traitement (déterministe, non négociable)
+
+1. `sanitizePostText()` — remplace `—`/`–` par des virgules, supprime les puces et les caractères interdits, convertit « 20 pour cent » en « 20% », nettoie les doubles espaces.
+2. `airifyPostText()` — recompose les paragraphes : hook isolé, puis paquets de 2 phrases séparés par une ligne vide.
+3. `appendTopicLink()` — ajoute l'URL de la page concernée (sans ancre) en fin de post ; LinkedIn la rend cliquable automatiquement.
+4. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
 
 ---
 
-## 4. Classification des topics
+## 5. Génération du média
 
-Chaque entrée de `TOPICS` (dans `linkedin-weekly-post/index.ts`) porte :
+### 5.1 Vidéo d'UI réelle — PageBolt (`mediaSource: "browserless"`)
 
-- `slug`, `title`, `url`, `focus` — métadonnées éditoriales
-- `format`: `video` | `carousel` — type de post LinkedIn
-- `mediaSource`: `browserless` | `wavespeed` — comment produire le média
-- `durationMs` — durée du screencast Browserless
-- `visualPrompt` — prompt visuel Wavespeed (si `mediaSource=wavespeed`)
-- `slideCount` — nombre de slides intermédiaires (carousel)
+Endpoint `POST https://pagebolt.dev/api/v1/video`, header `x-api-key: PAGEBOLT_API_KEY`.
 
-Règle : **`browserless` uniquement pour un carousel/vidéo d'une UI existante du produit**. Sinon Wavespeed.
+Paramètres d'enregistrement : viewport 1280×720, `format: "mp4"`, 30 fps, `pace: "normal"`, `blockBanners: true`, curseur visible en surbrillance `#4F46E5`, effet de clic « ripple », `response_type: "json"` (MP4 renvoyé en base64).
 
-Matrice actuelle :
+**Scénario scripté** (`scriptedVideoSteps`, ≤ 20 étapes côté PageBolt) :
 
-| Slug | Format | mediaSource |
+1. `navigate` vers `topic.url`, `wait 3500ms`.
+2. Si l'URL contient une ancre : `evaluate` → `scrollIntoView({behavior:'smooth'})` sur l'élément, `wait 2500ms`.
+3. Cas `simulateur` : `fill` de `input[id^='annualKm']` avec `12000`, puis `evaluate` → clic sur `[id^='electric']` (bonus 20% électrique) pour montrer le recalcul en direct.
+4. Deux `scroll` relatifs (+400, +500) entrecoupés d'attentes, pour parcourir le résultat.
+
+**Repli** (`fallbackVideoSteps`) : défilement « aveugle » par positions absolues Y = 700 / 1500 / 2400, valide quel que soit le DOM.
+
+Contrôles : erreur si la réponse ne contient pas de payload, ou si le MP4 fait moins de 50 ko.
+
+> Historique : `page.screencast` de Browserless `/function` n'est pas disponible sur l'offre utilisée (runtime navigateur, sans `fs` ni `ffmpeg`) — d'où le passage à PageBolt pour la vidéo.
+
+### 5.2 Replis média (chaîne complète)
+
+```text
+PageBolt MP4
+  └─ échec → captureUiFrames() (Browserless, 5 captures cadrées sur les
+              focusLabels dérivés du texte) → renderScreenshotCarouselPdf()
+              → format devient "carousel"
+       └─ échec → captureScreenshot() (PNG unique de la page)
+                  → format devient "image"
+```
+
+Chaque bascule positionne `media_fallback = true` et `media_fallback_reason` dans la réponse et le log.
+
+### 5.3 Visuels IA — Wavespeed (`mediaSource: "wavespeed"`)
+
+- **Vidéo** : `wavespeed-ai/wan-2.1-t2v-720p`, prompt dérivé du texte publié (`deriveVisualPromptFromText`) sinon `topic.visualPrompt`.
+- **Carrousel** : image de couverture `wavespeed-ai/flux-dev`, puis `renderCarouselPdf()` (pdf-lib, pages carrées) assemble couverture + slides.
+- `generateSlidePlanFromText()` construit le plan de slides **à partir du texte réellement généré** (repli : `generateSlidePlan(topic)`), pour que le visuel raconte la même chose que le post.
+- Texte des PDF passé par `toWinAnsi()` + `wrapText()` (polices standard pdf-lib, pas d'Unicode étendu).
+
+---
+
+## 6. Upload et publication LinkedIn
+
+Toutes les requêtes passent par le gateway Lovable :
+
+```
+Authorization: Bearer ${LOVABLE_API_KEY}
+X-Connection-Api-Key: ${LINKEDIN_API_KEY}
+→ https://connector-gateway.lovable.dev/linkedin/<path>
+```
+
+Version d'API REST : `LINKEDIN_API_VERSION` sinon valeur par défaut interne (`202506` côté audit).
+
+### Chaîne de tentatives selon le format final
+
+| Format | Tentative 1 | Tentative 2 | Tentative 3 |
+|---|---|---|---|
+| `video` | `rest-video` (`/rest/videos?action=initializeUpload` → PUT → `/rest/posts`) | `legacy-video` (`registerUpload` `feedshare-video` → `/v2/ugcPosts`) | `screenshot-image` |
+| `carousel` | `rest-document` (`/rest/documents` → PUT → `/rest/posts`) | `legacy-document` (`feedshare-document`, PDF) | `screenshot-image` |
+| `image` | `rest-image` (`/rest/images` → PUT → `/rest/posts`) | — | — |
+
+La voie legacy attend la disponibilité de l'asset via `waitForAssetReady()` (polling jusqu'à 5 min). Si **aucune** tentative n'aboutit, une erreur est levée : pas de post sans média.
+
+---
+
+## 7. Mode « repost » (correction d'un post publié)
+
+L'API LinkedIn ne permet pas d'éditer le texte d'un post via le gateway (`PARTIAL_UPDATE` → 426 `NONEXISTENT_VERSION`). Le mode `?mode=repost` :
+
+1. Retrouve le run d'origine dans `linkedin_post_log` via `linkedin_post_id`.
+2. Récupère l'`asset_urn` média déjà uploadé (fourni en body ou lu en base).
+3. Supprime le post existant.
+4. Republie le texte corrigé **avec le même asset** — aucun nouvel upload, visuel identique.
+5. Journalise le run (`topic_slug: "repost"`).
+
+Body requis : `{ post_id, text }` avec `text` ≥ 50 signes.
+
+---
+
+## 8. Boucle qualité — `linkedin-post-audit`
+
+Cron toutes les 5 minutes. Traite **un seul post** : le dernier run `success` publié depuis plus de 5 min et moins de 24 h, non encore audité.
+
+1. `fetchPublishedText()` relit le **texte réellement en ligne** (REST `/rest/posts/{urn}`, repli `/v2/ugcPosts`) — source de vérité.
+2. Un LLM (Mistral via Wavespeed, mêmes replis) note le post face aux règles de rédaction et à la documentation technique (`docs-context.ts`).
+3. Seuils d'arrêt :
+
+| Constante | Valeur | Sens |
 |---|---|---|
-| simulateur | video | browserless |
-| mode-tournee | video | browserless |
-| sync-calendrier | video | browserless |
-| detection-plaque | video | browserless |
-| export-pdf | video | browserless |
-| import-takeout | carousel | wavespeed |
-| bareme-progressif | carousel | wavespeed |
-| bonus-electrique | carousel | wavespeed |
-| gratuit-a-vie | carousel | wavespeed |
-| confidentialite | carousel | wavespeed |
-| comparatif | carousel | wavespeed |
-| trajets-recurrents | carousel (6 slides) | wavespeed |
+| `SCORE_THRESHOLD` | 85 | score composite /100 à atteindre |
+| `HOOK_THRESHOLD` | 8 | qualité du hook /10 |
+| `FACTUAL_THRESHOLD` | 8 | vérifiabilité face à la doc /10 — **bloquant** |
+| `MAX_ATTEMPTS` | 3 | itérations max par lignée de post |
+| `MIN_GAIN` | 3 | gain de score minimum, sinon plateau → arrêt |
 
-Rotation mensuelle déterministe et pondérée : **2 posts sur 3** portent sur une fonctionnalité produit (`PRODUCT_SLUGS`), le 3e sur un sujet de contexte fiscal ou de marque (`CONTEXT_SLUGS`). Le topic IK vélo a été retiré de la rotation.
+4. Si les seuils ne sont pas atteints, le texte est réécrit et envoyé au mode `repost` de `linkedin-weekly-post`.
+
+Paramètres : `?post_id=<urn>` (forcer un post), `?dry_run=1` (auditer sans republier), `?min_age_min=N`.
 
 ---
 
-## 5. Génération de texte
+## 9. Secrets et configuration
 
-### 5.1 Apprentissage du style (`fetchRecentAuthorPosts` + `analyzeStyle`)
+| Secret | Usage |
+|---|---|
+| `LOVABLE_API_KEY` | Gateway connector LinkedIn + Lovable AI (Gemini) |
+| `LINKEDIN_API_KEY` | Clé de connexion du connector LinkedIn |
+| `LINKEDIN_ORG_URN` / `LINKEDIN_ORG_ID` | (optionnel) URN de la page entreprise pour la mention |
+| `LINKEDIN_API_VERSION` | (optionnel) surcharge de la version REST LinkedIn |
+| `WAVESPEED_API_KEY` | Mistral, images et vidéos IA |
+| `PAGEBOLT_API_KEY` | Capture vidéo MP4 de l'UI |
+| `BROWSERLESS_API_KEY` | Captures d'écran et carrousel de repli |
+| `CRON_SECRET` / `SYNC_CRON_TOKEN` | Authentification des appels cron |
+| `SUPABASE_SERVICE_ROLE_KEY` | Écriture des logs (client admin) |
 
-Avant chaque génération :
-
-1. Récupère les derniers posts du profil connecté via `/v2/ugcPosts` (connector LinkedIn).
-2. Extrait un `StyleProfile` déterministe :
-   - Longueur moyenne (caractères, mots)
-   - Nombre de phrases / mots par phrase
-   - Nombre de paragraphes / mots par paragraphe
-   - Ratio de phrases courtes (< 8 mots)
-   - Ratio de phrases commençant par "je"
-   - Ratio de questions
-   - Top ouvertures (premiers mots), bigrammes, vocabulaire signature
-
-Ce profil est injecté dans le prompt comme **cibles chiffrées** ("vise ~180 mots, 12 phrases, 30% de phrases courtes…").
-
-### 5.2 Prompt & garde-fous
-
-Le prompt système impose :
-
-- **Longueur** : 1000 à 1500 signes (espaces inclus).
-- **Hook** obligatoire dès la 1ʳᵉ ligne, **aucune chute / CTA / question finale**.
-- **Interdits typographiques** : tirets cadratins/demis (`—`, `–`), `( ) @ [ ] { } < > \ * _ ~ |`.
-- **Interdits lexicaux** : formules IA typiques ("En tant que", "Dans un monde…", emojis démonstratifs, hashtags à outrance).
-- Ton et rythme calqués sur le `StyleProfile`.
-
-### 5.3 Appel Mistral (Wavespeed)
-
-`callMistral(system, prompt)` POST vers `https://api.wavespeed.ai/api/v3/mistral/mistral-large-latest` avec `WAVESPEED_API_KEY`. Réponse texte pure.
-
-### 5.4 Fallback Gemini
-
-Si Mistral échoue (timeout, 5xx, quota), bascule silencieuse vers Gemini 2.5 Flash via `LOVABLE_AI_GATEWAY`. Le champ `text_source` du log précise laquelle a produit le texte.
-
-### 5.5 Post-traitement (`sanitizePostText`)
-
-- Strip des caractères interdits.
-- Normalisation des espaces / retours ligne.
-- Truncate à 1500 si dépassement.
-- Vérification de longueur minimale (1000) — sinon nouvelle tentative avec prompt plus explicite.
+`supabase/config.toml` : `verify_jwt = true` pour `linkedin-weekly-post` et `linkedin-post-audit` (l'auth cron passe par `x-cron-secret` + la vérification interne).
 
 ---
 
-## 6. Génération du média
+## 10. Tables
 
-### 6.1 Screencast Browserless (`mediaSource: 'browserless'`)
+### `public.linkedin_post_log`
 
-- POST vers `https://production-sfo.browserless.io/screencast` avec un script Playwright qui :
-  - Navigue vers `topic.url`
-  - Effectue une interaction scriptée (scroll, hover, focus) sur la feature
-  - Enregistre pendant `topic.durationMs` (10-15s)
-- Retour MP4 → uploadé tel quel comme LinkedIn VIDEO.
+Colonnes écrites par `logRun()` : `topic_slug`, `topic_title`, `post_text`, `linkedin_post_id`, `linkedin_asset_urn`, `video_bytes`, `media_type`, `status` (`success` | `failed`), `error_message`, `duration_ms`, `triggered_by` (`cron` | `admin`), `created_at`.
 
-### 6.2 Wavespeed vidéo (`mediaSource: 'wavespeed'`, `format: 'video'`)
+### `public.linkedin_style_samples`
 
-- Modèle : `wavespeed-ai/wan-2.1-t2v-720p`
-- POST `?wait=1` avec `topic.visualPrompt`
-- Timeout élargi (~120s), retour MP4.
-
-### 6.3 Wavespeed carousel (`mediaSource: 'wavespeed'`, `format: 'carousel'`)
-
-Pipeline PDF :
-
-1. **Plan de slides** — Mistral/Gemini génère un JSON `{ cover, slides[], cta }` (nombre variable, `topic.slideCount` intermédiaires).
-2. **Cover** — 1 image Wavespeed via `wavespeed-ai/flux-dev` avec `topic.visualPrompt` (style éditorial ivoire).
-3. **Slides intermédiaires** — chaque slide est rendue en pdf-lib :
-   - Fond ivoire (cf. mémoire *Light Theme Warm Ivory*)
-   - Titre + texte via `StandardFonts` + fallback wrap
-   - Petits éléments graphiques (numéro slide, footer iktracker.fr)
-4. **PDF final** — 1200×1200 (format LinkedIn document), embed image cover + slides texte, uploadé comme LinkedIn DOCUMENT.
+Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_at`. Alimente le prompt et le `StyleProfile`.
 
 ---
 
-## 7. Upload & publication LinkedIn
+## 11. Diagnostiquer un run
 
-### 7.1 `registerUpload`
+1. **Dry-run** : `?dry_run=1` renvoie `post_text`, `text_source`, `style_profile`, `style_samples_count`, `slide_plan`, `derived_visual_prompt` — sans rien publier.
+2. **Logs de la function** : préfixes `[llm]`, `[style-samples]`, `[style-profile]`, `[pagebolt]`, `[media]`, `[mention]`, `[slide-plan]`, `[visual-prompt]`.
+3. **Réponse JSON de succès** : `format` (peut différer du format demandé en cas de repli), `media_fallback`, `media_fallback_reason`, `media_bytes`, `post_id`, `asset_urn`, `duration_ms`.
+4. **Base** : `select * from linkedin_post_log order by created_at desc limit 10;`
 
-POST `/v2/assets?action=registerUpload` avec :
+### Symptômes fréquents
 
-- `recipes` : `urn:li:digitalmediaRecipe:feedshare-video` ou `feedshare-document`
-- `owner` : URN du membre (récupéré via `/v2/userinfo` → `sub`)
-- `serviceRelationships` : `urn:li:userGeneratedContent`
-
-Retour : `uploadUrl` + `asset` URN.
-
-### 7.2 Upload binaire
-
-PUT du buffer (MP4 ou PDF) sur `uploadUrl`, headers Bearer. Attendre 201.
-
-### 7.3 `ugcPosts`
-
-POST `/v2/ugcPosts` avec :
-
-- `author` = URN du membre
-- `lifecycleState` = `PUBLISHED`
-- `specificContent."com.linkedin.ugc.ShareContent"` :
-  - `shareCommentary.text` = texte généré
-  - `shareMediaCategory` = `VIDEO` ou `DOCUMENT`
-  - `media[0]` = `{ status: READY, media: <asset URN> }`
-
-Retour : `x-restli-id` = URN du post → sauvegardé en log.
-
-### 7.4 Fallback text-only
-
-Si `registerUpload` renvoie **403 ACCESS_DENIED** (scope média manquant sur le connector) :
-
-- Nouveau ugcPost sans média (`shareMediaCategory: 'NONE'`).
-- Log `media_fallback: true` + `error_message` d'origine conservé.
-
----
-
-## 8. Auth et modes de déclenchement
-
-| Mode | Auth | Résultat |
-|---|---|---|
-| Cron (`pg_cron`) | Header `x-cron-secret` == `CRON_SECRET` | Publication réelle |
-| Admin UI (bouton) | JWT Supabase + check `has_role(auth.uid(), 'admin')` | Publication ou dry-run |
-| `?dry_run=1` | idem | Génère texte + média, **ne publie pas** |
-| `?topic=<slug>` | idem | Force le sujet |
-| `?format=video\|carousel` | idem | Force le format |
-
-
-Les appels sans auth valide retournent 401.
-
----
-
-## 9. Journalisation (`linkedin_post_log`)
-
-Colonnes clés :
-
-- `topic_slug`, `topic_title`
-- `media_type` (`video` / `carousel` / `text`)
-- `status` (`success` / `error`)
-- `error_message`
-- `triggered_by` (`cron` / `admin:<user_id>`)
-- `duration_ms`
-- `post_id` (URN LinkedIn)
-- `posted_at`
-
-Affiché dans l'admin (`AdminLinkedIn.tsx` → historique 15 derniers runs).
-
----
-
-## 10. Admin UI
-
-`src/components/admin/AdminLinkedIn.tsx` (onglet **LinkedIn** de `/admin`) :
-
-- Sélecteur topic (miroir client de `TOPICS`)
-- Sélecteur format (auto / video / carousel)
-- Toggle **Dry-run** (par défaut ON)
-- Bouton **Tester maintenant** / **Publier maintenant**
-- Aperçu résultat : texte, `StyleProfile` calculé, plan carousel, réponse brute
-- Historique des runs (15 dernières lignes de `linkedin_post_log`)
-
-⚠️ Le bouton en mode "Publier" pousse **réellement** sur LinkedIn — un warning rouge est affiché.
-
----
-
-## 11. Coûts par run (ordre de grandeur)
-
-| Étape | Modèle / service | Coût approx. |
-|---|---|---|
-| Texte Mistral | Wavespeed `mistral-large-latest` | < 0,01 $ |
-| Style samples | LinkedIn API | gratuit |
-| Video Wavespeed | `wan-2.1-t2v-720p` | ~0,15-0,30 $ |
-| Image Wavespeed (cover carousel) | `flux-dev` | ~0,02 $ |
-| Screencast Browserless | Browserless usage | ~0,01 $ |
-| Upload + post LinkedIn | connector Lovable | gratuit |
-
-Sur 12 mois : ~1-3 $ de coût média total.
-
----
-
-## 12. Points de vigilance & limitations connues
-
-- **Pas de publication sur pages entreprise** (iktracker, dictadevi) via ce connector — nécessiterait un App LinkedIn dédié + Community Management API.
-- **Scopes média** parfois refusés (403 registerUpload) → fallback text-only actif.
-- **Latence text-to-video Wavespeed** parfois > 90s → si récurrent, basculer en submit + poll séparé.
-- **Rotation figée** : forcer un topic via cron nécessite un update SQL, sinon utiliser l'admin.
-- L'edge function garde son nom historique `linkedin-weekly-post` malgré le rythme mensuel (URL / signature préservées).
-
----
-
-## 13. Fichiers concernés
-
-- `supabase/functions/linkedin-weekly-post/index.ts` — pipeline complet
-- `supabase/functions/linkedin-profile/index.ts` — endpoint public profil (auteur)
-- `src/components/admin/AdminLinkedIn.tsx` — UI admin
-- `src/pages/Admin.tsx` — onglet LinkedIn
-- Table `public.linkedin_post_log` — historique
-- `pg_cron` job `linkedin-monthly-post` — planificateur
+| Symptôme | Cause probable |
+|---|---|
+| Post publié en image au lieu d'une vidéo | PageBolt puis Browserless en échec → voir `media_fallback_reason` |
+| Texte hors gabarit (< 1 000 signes) | Corpus de style vide → `StyleProfile` par défaut ; ajouter des échantillons |
+| Pas de mention IKtracker | URN organisation non résolu (`[mention]` dans les logs) ; définir `LINKEDIN_ORG_URN` |
+| `Média obligatoire indisponible` | Toutes les voies média ET d'upload ont échoué ; le post n'est volontairement pas publié |
+| Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`) |
