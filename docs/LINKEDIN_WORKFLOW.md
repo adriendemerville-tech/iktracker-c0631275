@@ -189,7 +189,8 @@ Consigne stricte : au moins 3 faits exploités, **aucune invention**, aucun nom 
 2. `airifyPostText()` — recompose les paragraphes : hook isolé, puis paquets de 2 phrases séparés par une ligne vide.
 3. `appendTopicLink()` — ajoute l'URL de la page concernée (sans ancre) en fin de post ; LinkedIn la rend cliquable automatiquement.
 4. `enforceBrandMention()` — invariant I11 : normalise la casse (`Iktracker`, `ik tracker` → `IKtracker`) et, si la marque est absente, rattache la première tournure possessive anonyme (« mon simulateur » → « le simulateur d'IKtracker »). En amont, `brandMentionCount()` déclenche une régénération unique si le texte compte moins de 2 occurrences.
-5. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
+5. Validation GEO (`geoBlockOk()`) — invariant I15 : après nettoyage/aération, le corps du post doit contenir **exactement 1** bloc question/réponse. En cas d'absence, de surplus ou de question hors corps, une **régénération unique avec consigne correctrice** est tentée avant publication.
+6. Mention entreprise : `restCommentary()` (syntaxe inline `@[IKtracker](urn)`) pour l'API REST, ou `ugcCommentary()` (texte + `attributes` avec `CompanyAttributedEntity`) pour `/v2/ugcPosts`. L'URN vient de `LINKEDIN_ORG_URN`/`LINKEDIN_ORG_ID`, sinon de `/v2/organizationAcls` (mis en cache par instance).
 
 ---
 
@@ -302,7 +303,8 @@ Cron toutes les 5 minutes. Traite **un seul post** : le dernier run `success` pu
 
 1. `fetchPublishedText()` relit le texte réellement en ligne (REST `/rest/posts/{urn}`, repli `/v2/ugcPosts`) — source de vérité.
 2. Un LLM (Mistral via Wavespeed, mêmes replis) note le post face aux règles de rédaction et à la documentation technique (`docs-context.ts`).
-3. Seuils d'arrêt :
+3. **Contrôles déterministes** côté audit (hard-fail, indépendamment du LLM) : longueur 1 000–1 500 signes, caractères/tirets interdits, aération, hook ≤ 220 signes, **GEO exactement 1 bloc question/réponse**. Un post qui échoue sur l'un de ces points est republié corrigé.
+4. Seuils d'arrêt :
 
 | Constante | Valeur | Sens |
 |---|---|---|
@@ -312,7 +314,7 @@ Cron toutes les 5 minutes. Traite **un seul post** : le dernier run `success` pu
 | `MAX_ATTEMPTS` | 3 | itérations max par lignée de post |
 | `MIN_GAIN` | 3 | gain de score minimum, sinon plateau → arrêt |
 
-4. Si les seuils ne sont pas atteints, le texte est réécrit et envoyé au mode `repost` de `linkedin-weekly-post`.
+5. Si les seuils ne sont pas atteints, le texte est réécrit et envoyé au mode `repost` de `linkedin-weekly-post`.
 
 Paramètres : `?post_id=<urn>` (forcer un post), `?dry_run=1` (auditer sans republier), `?min_age_min=N`.
 
@@ -405,6 +407,7 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | I12 | Une action `click`, `hover` ou `fill` du scénario vidéo n'est jouée que si son sélecteur figure dans `TOPIC_UI_HINTS` | `isKnownSelector()` dans `sanitizeAiSteps()` |
 | I13 | Le scénario vidéo contient au moins une interaction réelle sur le module ; sinon la séquence scriptée est injectée | `ensureModuleInteractions()` / `moduleInteractionSteps()` |
 | I14 | Un run PageBolt dont `steps_completed < total_steps` est rejeté et bascule sur le scénario suivant | contrôle dans `requestPageboltVideo()` |
+| I15 | Bloc GEO obligatoire : **exactement 1** question/réponse dans le corps du post, seule sur sa ligne, commençant par Pourquoi/Qui/Quand/Quoi/Comment/Combien, suivie immédiatement de sa réponse factuelle. Zéro ou plusieurs questions = non conforme | `countGeoBlocks()` / `geoBlockOk()` ; régénération unique en génération, hard-fail en audit |
 
 ---
 
