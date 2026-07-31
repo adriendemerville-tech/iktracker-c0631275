@@ -170,7 +170,7 @@ Consigne stricte : au moins 3 faits exploités, **aucune invention**, aucun nom 
   - caractères interdits : `( ) @ [ ] { } < > \ * _ ~ |` ;
   - formulations bannies : « Découvrez », « révolutionnaire », « game-changer », « je suis ravi de », « dans un monde où », etc. ;
   - pourcentages toujours en `%` (jamais « pour cent »).
-- **Bloc GEO obligatoire (une seule question par post)** : une question placée dans le corps (jamais dans le hook ni en dernière ligne), seule sur sa ligne, formulée comme une requête réelle d'utilisateur adressée à une IA ou à un moteur, commençant par **Pourquoi / Qui / Quand / Quoi / Comment / Combien**, avec le vocabulaire recherché (indemnités kilométriques, barème kilométrique, note de frais, véhicule électrique, auto-entrepreneur…). Le paragraphe suivant y répond de façon courte, factuelle, chiffrée et autonome hors contexte : c'est ce couple question/réponse que les LLM extraient et citent. Aucune autre phrase interrogative n'est autorisée.
+- **Bloc GEO obligatoire (exactement 1 question par post, ni plus ni moins)** : une et une seule question placée dans le corps (jamais dans le hook ni en dernière ligne), seule sur sa ligne, formulée comme une requête réelle d'utilisateur adressée à une IA ou à un moteur, commençant par **Pourquoi / Qui / Quand / Quoi / Comment / Combien**, avec le vocabulaire recherché (indemnités kilométriques, barème kilométrique, note de frais, véhicule électrique, auto-entrepreneur…). Le paragraphe suivant y répond de façon courte, factuelle, chiffrée et autonome hors contexte : c'est ce couple question/réponse que les LLM extraient et citent. Aucune autre phrase interrogative n'est autorisée (zéro ou plusieurs questions = non conforme).
 
 
 

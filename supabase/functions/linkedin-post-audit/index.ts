@@ -182,6 +182,24 @@ function parseJson(text: string): any {
 
 const BANNED_CHARS = /[()@\[\]{}<>\\*_~|]/g;
 
+// Invariant GEO : exactement 1 bloc question/réponse dans le corps du post.
+// Le hook (première ligne) et la dernière ligne (lien/CTA) sont ignorés.
+const GEO_QUESTION_RE = /^(?:Pourquoi|Qui|Quand|Quoi|Comment|Combien)\b.*\?$/i;
+
+function countGeoBlocks(text: string): { count: number } {
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length < 3) return { count: 0 };
+  let count = 0;
+  for (let i = 1; i < lines.length - 1; i++) {
+    if (GEO_QUESTION_RE.test(lines[i])) count++;
+  }
+  return { count };
+}
+
+function geoBlockOk(text: string): boolean {
+  return countGeoBlocks(text).count === 1;
+}
+
 type Deterministic = {
   length: number;
   lengthOk: boolean;

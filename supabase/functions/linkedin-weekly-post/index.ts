@@ -902,8 +902,8 @@ function styleProfileToPromptBlock(p: StyleProfile): string {
     `Structure : ${p.avg_paragraph_count} paragraphes en moyenne, ${p.avg_paragraph_words} mots par paragraphe. Aère avec des sauts de ligne.`,
     `Première personne : ${p.first_person_ratio}% des phrases commencent par "je" ou "j'". Reste dans cette proportion.`,
     p.question_ratio > 0
-      ? `Questions : ${p.question_ratio}% (hors question GEO obligatoire, n'en ajoute pas d'autre).`
-      : `Pas de questions rhétoriques dans le corpus : la seule question autorisée est la question GEO obligatoire.`,
+      ? `Questions : ${p.question_ratio}% (hors la question GEO obligatoire — UNE SEULE GEO est autorisée par post, zéro autre question).`
+      : `Pas de questions rhétoriques dans le corpus : la seule question autorisée est la question GEO obligatoire, et elle doit être exactement une.`,
     p.top_opening_words.length
       ? `Mots d'ouverture typiques (première ligne) : ${p.top_opening_words.join(", ")}.`
       : "",
@@ -966,11 +966,12 @@ SUJET DU POST (RÈGLE CENTRALE) :
 - Utilise au moins trois des faits techniques fournis, en les reformulant dans tes mots. N'invente aucun chiffre, aucune fonctionnalité absente de la liste.
 - Si tu évoques un cas concret, c'est pour illustrer le comportement du produit dans cette situation, jamais pour raconter la vie d'un client.
 
-GEO (VISIBILITÉ DANS LES RÉPONSES DES IA) :
-- Insère UNE SEULE question dans le corps du post, jamais dans le hook ni dans la dernière ligne. Elle doit être formulée exactement comme un utilisateur l'écrirait à une IA ou dans un moteur de recherche, et commencer par Pourquoi, Qui, Quand, Quoi, Comment ou Combien. Exemples de forme : "Comment calculer ses indemnités kilométriques en 2026 ?", "Combien rapporte le bonus électrique sur le barème kilométrique ?".
-- Cette question est seule sur sa ligne, sans guillemets, et la réponse suit immédiatement dans le paragraphe suivant : une réponse courte, factuelle, autonome, chiffrée quand c'est possible, compréhensible hors contexte. C'est ce bloc question puis réponse que les IA citent.
+GEO (VISIBILITÉ DANS LES RÉPONSES DES IA) — EXACTEMENT 1 PAR POST (obligatoire ET maximum) :
+- Tu DOIS insérer exactement UNE question dans le corps du post, ni plus, ni moins. Elle ne doit jamais apparaître dans le hook ni dans la dernière ligne.
+- Cette question unique doit être formulée exactement comme un utilisateur l'écrirait à une IA ou dans un moteur de recherche, et commencer par Pourquoi, Qui, Quand, Quoi, Comment ou Combien. Exemples de forme : "Comment calculer ses indemnités kilométriques en 2026 ?", "Combien rapporte le bonus électrique sur le barème kilométrique ?".
+- Cette unique question est seule sur sa ligne, sans guillemets, et la réponse suit immédiatement dans le paragraphe suivant : une réponse courte, factuelle, autonome, chiffrée quand c'est possible, compréhensible hors contexte. C'est ce bloc question puis réponse que les IA citent.
 - La question doit contenir le vocabulaire réellement tapé par les gens : indemnités kilométriques, barème kilométrique, frais de déplacement, note de frais, véhicule électrique, auto-entrepreneur, selon le module traité.
-- Cette question est la seule autorisée du post. Aucune autre phrase interrogative, aucune question rhétorique.
+- Cette question est la SEULE autorisée du post. Interdiction totale de toute autre phrase interrogative, question rhétorique ou point d'interrogation ailleurs (y compris dans le hook ou la dernière ligne). Zéro question = non conforme. Plus d'une question = non conforme.
 
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
@@ -995,7 +996,7 @@ ${docBlock}
 
 Sers-toi de ces extraits pour être précis sur le mécanisme réel : déclencheur, fréquence, règle de calcul, seuils, ce qui est automatisé. N'invente rien qui ne figure pas dans ces extraits ou dans les faits ci-dessus. Ne mentionne aucun nom de table, de fonction technique ni de fournisseur d'infrastructure.
 ` : ""}
-Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, une seule question GEO dans le corps (Pourquoi / Qui / Quand / Quoi / Comment / Combien) suivie immédiatement de sa réponse factuelle, angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre ${POST_MIN_CHARS} et ${POST_MAX_CHARS} signes espaces compris. Compte tes caractères avant de rendre le texte.${lengthCorrection ? `\n\n${lengthCorrection}` : ""}`;
+Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, exactement UNE question GEO dans le corps (obligatoire ET maximum, jamais 0 ni 2+) ; la question commence par Pourquoi / Qui / Quand / Quoi / Comment / Combien, elle est seule sur sa ligne et suivie immédiatement de sa réponse factuelle ; aucune autre phrase interrogative n'est autorisée ; angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre ${POST_MIN_CHARS} et ${POST_MAX_CHARS} signes espaces compris. Compte tes caractères avant de rendre le texte.${lengthCorrection ? `\n\n${lengthCorrection}` : ""}`;
 
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
   return { text, source };
@@ -1821,7 +1822,25 @@ function sanitizePostText(text: string): string {
   return out;
 }
 
-// Invariant I11 : le post doit nommer IKtracker. Le prompt le demande, mais on
+// Invariant GEO : exactement 1 bloc question/réponse dans le corps du post.
+// Un bloc GEO est une ligne seule qui commence par un mot-interrogatif autorisé
+// et se termine par un point d'interrogation. On exclut le hook (première ligne
+// non vide) et la dernière ligne (CTA/lien).
+function countGeoBlocks(text: string): { count: number } {
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length < 3) return { count: 0 };
+  const geoRegex = /^(?:Pourquoi|Qui|Quand|Quoi|Comment|Combien)\b.*\?$/i;
+  let count = 0;
+  // Ne pas compter la première ligne (hook) ni la dernière ligne (lien/CTA).
+  for (let i = 1; i < lines.length - 1; i++) {
+    if (geoRegex.test(lines[i])) count++;
+  }
+  return { count };
+}
+
+function geoBlockOk(text: string): boolean {
+  return countGeoBlocks(text).count === 1;
+}
 // ne fait jamais confiance au modèle : on normalise la casse et on réécrit les
 // tournures anonymes ("mon simulateur", "mon outil") en les rattachant à la
 // marque. Retourne le texte corrigé.
@@ -2495,7 +2514,8 @@ Deno.serve(async (req) => {
     let t = await generatePostText(topic, styleSamples, styleProfile, undefined, postHistory);
     let body = enforceBrandMention(airifyPostText(sanitizePostText(t.text)));
     const outOfRange = (n: number) => n < POST_MIN_CHARS || n > POST_MAX_CHARS;
-    if (outOfRange(body.length) || brandMentionCount(body) < 2) {
+    const geoCount = countGeoBlocks(body).count;
+    if (outOfRange(body.length) || brandMentionCount(body) < 2 || geoCount !== 1) {
       const parts: string[] = [];
       if (body.length < POST_MIN_CHARS) {
         parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`);
@@ -2505,14 +2525,22 @@ Deno.serve(async (req) => {
       if (brandMentionCount(body) < 2) {
         parts.push(`Ta version précédente ne nommait pas assez IKtracker (${brandMentionCount(body)} occurrence(s)). Écris "IKtracker" au moins deux fois, dont une dans les trois premières lignes, et ne parle jamais du module comme d'un outil anonyme.`);
       }
+      if (geoCount !== 1) {
+        parts.push(`Le bloc GEO n'est pas conforme : tu as ${geoCount === 0 ? "zéro" : geoCount} question(s). Tu DOIS insérer exactement UNE question (ni plus, ni moins) dans le corps, seule sur sa ligne, commençant par Pourquoi / Qui / Quand / Quoi / Comment / Combien, suivie immédiatement de sa réponse factuelle. Aucune autre phrase interrogative n'est autorisée.`);
+      }
       const correction = parts.join("\n");
-      console.warn(`[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque), régénération`);
+      console.warn(`[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque, ${geoCount} bloc(s) GEO), régénération`);
       try {
         const retry = await generatePostText(topic, styleSamples, styleProfile, correction, postHistory);
         const retryBody = enforceBrandMention(airifyPostText(sanitizePostText(retry.text)));
-        // On garde la version la plus proche du gabarit, marque prioritaire.
+        // On garde la version la plus proche du gabarit, marque et GEO prioritaires.
         const distance = (n: number) => (n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0);
-        const score = (txt: string) => distance(txt.length) + (brandMentionCount(txt) === 0 ? 5000 : brandMentionCount(txt) < 2 ? 1000 : 0);
+        const score = (txt: string) => {
+          const geo = countGeoBlocks(txt).count;
+          return distance(txt.length)
+            + (brandMentionCount(txt) === 0 ? 5000 : brandMentionCount(txt) < 2 ? 1000 : 0)
+            + (geo !== 1 ? 3000 : 0);
+        };
         if (score(retryBody) < score(body)) {
           body = retryBody;
           t = retry;
@@ -2522,7 +2550,7 @@ Deno.serve(async (req) => {
       }
     }
     body = enforceBrandMention(enforceMaxLength(body));
-    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS}), marque citée ${brandMentionCount(body)}x`);
+    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS}), marque citée ${brandMentionCount(body)}x, GEO conforme: ${geoBlockOk(body)}`);
     postText = appendTopicLink(body, topic);
     textSource = t.source;
     console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
