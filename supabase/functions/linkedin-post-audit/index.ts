@@ -182,6 +182,24 @@ function parseJson(text: string): any {
 
 const BANNED_CHARS = /[()@\[\]{}<>\\*_~|]/g;
 
+// Invariant GEO : exactement 1 bloc question/réponse dans le corps du post.
+// Le hook (première ligne) et la dernière ligne (lien/CTA) sont ignorés.
+const GEO_QUESTION_RE = /^(?:Pourquoi|Qui|Quand|Quoi|Comment|Combien)\b.*\?$/i;
+
+function countGeoBlocks(text: string): { count: number } {
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length < 3) return { count: 0 };
+  let count = 0;
+  for (let i = 1; i < lines.length - 1; i++) {
+    if (GEO_QUESTION_RE.test(lines[i])) count++;
+  }
+  return { count };
+}
+
+function geoBlockOk(text: string): boolean {
+  return countGeoBlocks(text).count === 1;
+}
+
 type Deterministic = {
   length: number;
   lengthOk: boolean;
@@ -191,6 +209,8 @@ type Deterministic = {
   hookLength: number;
   hookIsSingleLine: boolean;
   aerationOk: boolean;
+  geoBlockOk: boolean;
+  geoCount: number;
 };
 
 function runDeterministicChecks(text: string): Deterministic {
@@ -207,6 +227,8 @@ function runDeterministicChecks(text: string): Deterministic {
     hookLength: firstLine.length,
     hookIsSingleLine: firstLine.length > 0 && firstLine.length <= 220,
     aerationOk: paragraphs.length >= 6 && longParagraphs === 0,
+    geoBlockOk: geoBlockOk(text),
+    geoCount: countGeoBlocks(text).count,
   };
 }
 
@@ -471,7 +493,7 @@ Deno.serve(async (req) => {
     );
 
     const hardFail =
-      !checks.lengthOk || checks.bannedChars.length > 0 || checks.dashes || !checks.aerationOk || !checks.hookIsSingleLine;
+      !checks.lengthOk || checks.bannedChars.length > 0 || checks.dashes || !checks.aerationOk || !checks.hookIsSingleLine || !checks.geoBlockOk;
 
     // Score de l'itération précédente dans la même lignée de post.
     const previousScore = Number((run.audit_report as any)?.previous_score ?? NaN);
@@ -494,6 +516,7 @@ Deno.serve(async (req) => {
       !improvedChecks.dashes &&
       improvedChecks.aerationOk &&
       improvedChecks.hookIsSingleLine &&
+      improvedChecks.geoBlockOk &&
       improvedText !== publishedText;
 
     // Une affirmation non vérifiable justifie une correction même en plateau.
