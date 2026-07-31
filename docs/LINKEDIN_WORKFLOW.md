@@ -317,4 +317,5 @@ Corpus de style saisi manuellement dans l'admin : `content`, `active`, `created_
 | Texte hors gabarit (< 1 000 signes) | Corpus de style vide → `StyleProfile` par défaut ; ajouter des échantillons |
 | Pas de mention IKtracker | URN organisation non résolu (`[mention]` dans les logs) ; définir `LINKEDIN_ORG_URN` |
 | `Média obligatoire indisponible` | Toutes les voies média ET d'upload ont échoué ; le post n'est volontairement pas publié |
+| Vidéo générique alors que le post parle d'un module précis | Le scénario adapté a été rejeté (`[video-scenario] échec...`) → JSON invalide ou étapes filtrées par `sanitizeAiSteps` ; le run est retombé sur `scriptedVideoSteps()` |
 | Sélecteurs du scénario vidéo cassés | L'UI a changé → mettre à jour `scriptedVideoSteps()` (`input[id^='annualKm']`, `[id^='electric']`) |
