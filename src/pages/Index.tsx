@@ -416,6 +416,12 @@ const Index = () => {
       return;
     }
 
+    // Unverified accounts: only 1 tour allowed
+    if (!emailVerified && trips.filter(t => t.tourStops?.length).length >= UNVERIFIED_TOUR_LIMIT) {
+      blockFeature('tour');
+      return;
+    }
+
     // Mobile: start the tour
     setTourStartRequested(true);
     startTour();

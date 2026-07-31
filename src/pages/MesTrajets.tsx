@@ -558,6 +558,7 @@ ${IKTRACKER_MENTION}
 
   // Debug: open the HTML report in a new tab to verify it's not empty
   const previewHTMLReport = async () => {
+    if (!guard('export')) return;
     try {
       const htmlContent = await generateHTMLContent();
       const w = window.open('', '_blank');
