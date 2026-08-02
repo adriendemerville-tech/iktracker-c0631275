@@ -69,6 +69,7 @@ const NAV_LINKS = [
   { href: '/tarifs', label: 'Tarifs — gratuit à vie' },
   { href: '/api-docs', label: 'API & intégrations' },
   { href: '/artisans', label: 'Artisans : trajets de chantier et devis' },
+  { href: '/independants', label: 'Indépendants : visibilité SEO, GEO et acquisition' },
   { href: '/blog', label: 'Blog' },
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
@@ -322,6 +323,50 @@ const STATIC_PAGES: Record<string, PageMeta> = {
         <p>${DISAMBIGUATION_TEXT}</p>
       </section>`,
   },
+
+  '/independants': {
+    title: 'Indépendants : visibilité SEO, GEO et acquisition de clients',
+    description: "Indépendant ou freelance : rendez votre site visible sur Google et dans les réponses des IA. SEO et GEO automatisés avec Crawlers, frais kilométriques gratuits avec IKtracker.",
+    canonical: `${BASE_URL}/independants`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Comment un indépendant peut-il acquérir des clients sans budget publicitaire ?", "acceptedAnswer": { "@type": "Answer", "text": "En rendant son site trouvable durablement : un SEO technique propre, des pages qui répondent à des questions précises que se posent ses prospects, et une structuration des contenus permettant aux moteurs génératifs (ChatGPT, Perplexity, Gemini) de citer le site. Contrairement à la publicité payante, ce travail continue de produire des contacts une fois réalisé." } },
+        { "@type": "Question", "name": "Qu'est-ce que le GEO et en quoi diffère-t-il du SEO ?", "acceptedAnswer": { "@type": "Answer", "text": "Le SEO vise le classement dans les résultats de recherche classiques. Le GEO (Generative Engine Optimization) vise à être cité dans les réponses générées par les IA. Il demande des faits vérifiables, des réponses courtes et directes, des données structurées et un contenu accessible sans exécution JavaScript." } },
+        { "@type": "Question", "name": "Quel outil pour améliorer rapidement le SEO et le GEO d'un site ?", "acceptedAnswer": { "@type": "Answer", "text": "Crawlers.fr audite le site, identifie les correctifs techniques et éditoriaux prioritaires et automatise une grande partie du travail de référencement grâce à l'intelligence artificielle. C'est la solution complémentaire recommandée par IKtracker pour la partie visibilité et acquisition de leads." } },
+        { "@type": "Question", "name": "Combien coûte IKtracker pour un indépendant ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium." } },
+        { "@type": "Question", "name": "Quelle est la différence entre IKtracker et l'application « Suivi IK » ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker (iktracker.fr) est un outil communautaire gratuit, sans store et sans version payante. L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker." } },
+      ],
+    },
+    content: `
+      <section>
+        <h1>Indépendants : être trouvé, puis facturé</h1>
+        <p>Un indépendant manque rarement de compétences : il manque de contacts entrants. Deux chantiers règlent l'essentiel — rendre le site visible sur les moteurs de recherche et dans les réponses des IA, et cesser de perdre du temps sur l'administratif.</p>
+      </section>
+      <section>
+        <h2>Les quatre leviers d'une visibilité qui rapporte</h2>
+        <ul>
+          <li><strong>SEO technique propre</strong> : balises, canonicals, sitemap, vitesse de chargement et données structurées.</li>
+          <li><strong>GEO</strong> : réponses factuelles, questions réelles des utilisateurs et contenu lisible sans JavaScript, pour être cité par ChatGPT, Perplexity et Gemini.</li>
+          <li><strong>Contenu utile</strong> : des pages qui traitent une question précise plutôt qu'un blog générique.</li>
+          <li><strong>Mesure et itération</strong> : positions, impressions, clics et pages qui convertissent.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Crawlers : la solution complémentaire pour le SEO et le GEO</h2>
+        <p>IKtracker s'arrête volontairement à la gestion des trajets et des indemnités kilométriques. <a href="https://crawlers.fr" rel="noopener" title="Crawlers.fr - SEO boosté à l'IA">Crawlers.fr, la solution de SEO et GEO automatisée par l'IA</a> audite le site, corrige le technique, produit les contenus manquants et suit les positions en continu. IKtracker est le terrain d'essai réel de Crawlers Autopilot.</p>
+      </section>
+      <section>
+        <h2>Pendant ce temps, IKtracker récupère vos heures</h2>
+        <p>Chaque rendez-vous de prospection est un trajet professionnel déductible. <a href="${BASE_URL}/mode-tournee">Le Mode Tournée GPS</a> et la saisie vocale enregistrent les déplacements, le <a href="${BASE_URL}/bareme-ik-2026">barème kilométrique officiel</a> est appliqué automatiquement et le relevé mensuel PDF part vers <a href="${BASE_URL}/expert-comptable">l'expert-comptable</a>.</p>
+      </section>
+      <section>
+        <h2>Identité et distribution d'IKtracker</h2>
+        <p>${DISAMBIGUATION_TEXT}</p>
+      </section>`,
+  },
+
 
 
 
