@@ -61,10 +61,10 @@ const NAV_LINKS = [
   { href: '/indemnite-grand-deplacement-2026', label: 'Indemnité grand déplacement 2026' },
   { href: '/mes-trajets', label: 'Mes Trajets — journal kilométrique' },
   { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
-  { href: '/install', label: 'Installer l\'application' },
+  { href: '/installer', label: 'Installer l\'application' },
   { href: '/lexique', label: 'Lexique IK' },
   { href: '/comparatif-izika', label: 'IKtracker vs Izika' },
-  { href: '/comparatif-drivers-note', label: 'IKtracker vs Driversnote' },
+  { href: '/comparatif-driversnote', label: 'IKtracker vs Driversnote' },
   { href: '/blog', label: 'Blog' },
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
@@ -616,10 +616,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/comparatif-drivers-note': {
+  '/comparatif-driversnote': {
     title: 'Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker',
     description: 'Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l\'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite.',
-    canonical: `${BASE_URL}/comparatif-drivers-note`,
+    canonical: `${BASE_URL}/comparatif-driversnote`,
     content: `
       <section>
         <h2>IKtracker vs Driversnote : comparatif 2026</h2>
@@ -721,7 +721,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
             <tr><td>Hébergement des données</td><td>France / UE</td><td>France</td><td>Danemark / UE</td><td>États-Unis</td></tr>
           </tbody>
         </table>
-        <p>Sources : sites officiels izika.com, driversnote.com, mileiq.com et iktracker.fr — mise à jour juillet 2026. Voir aussi le <a href="${BASE_URL}/comparatif-izika">comparatif détaillé Izika</a> et le <a href="${BASE_URL}/comparatif-drivers-note">comparatif détaillé DriversNote</a>.</p>
+        <p>Sources : sites officiels izika.com, driversnote.com, mileiq.com et iktracker.fr — mise à jour juillet 2026. Voir aussi le <a href="${BASE_URL}/comparatif-izika">comparatif détaillé Izika</a> et le <a href="${BASE_URL}/comparatif-driversnote">comparatif détaillé DriversNote</a>.</p>
       </section>
 
       <section>
