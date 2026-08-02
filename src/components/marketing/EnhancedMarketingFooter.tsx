@@ -71,6 +71,7 @@ export function EnhancedMarketingFooter() {
     { label: 'Expert-Comptable', href: '/expert-comptable' },
     { label: 'Lexique IK', href: '/lexique' },
     { label: 'Artisans & devis de chantier', href: '/artisans' },
+    { label: 'Indépendants & acquisition de clients', href: '/independants' },
     { label: 'Blog', href: '/blog' },
     { label: 'Créer un compte', href: '/signup' },
     { label: 'Se connecter', href: '/auth' },
