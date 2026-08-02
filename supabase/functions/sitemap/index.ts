@@ -30,6 +30,7 @@ const staticPages = [
   { url: '/comparatif-driversnote', priority: '0.8', changefreq: 'monthly' },
   { url: '/api-docs', priority: '0.5', changefreq: 'monthly' },
   { url: '/fonctionnalites', priority: '0.9', changefreq: 'monthly' },
+  { url: '/artisans', priority: '0.8', changefreq: 'monthly' },
   { url: '/blog', priority: '0.8', changefreq: 'weekly' },
   { url: '/blog/auteur/adrien-de-volontat', priority: '0.6', changefreq: 'monthly' },
   { url: '/mentions-legales', priority: '0.5', changefreq: 'yearly' },

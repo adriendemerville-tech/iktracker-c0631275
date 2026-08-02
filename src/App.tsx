@@ -69,6 +69,7 @@ const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const MeilleureApplicationIK = lazy(() => import("./pages/MeilleureApplicationIK"));
 const IndemniteGrandDeplacement2026 = lazy(() => import("./pages/IndemniteGrandDeplacement2026"));
+const Artisans = lazy(() => import("./pages/Artisans"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
@@ -380,6 +381,8 @@ const AppRoutes = () => {
         <Route path="/sso" element={<Suspense fallback={<PageLoader />}><Sso /></Suspense>} />
         <Route path="/api-docs" element={<Suspense fallback={<PageLoader />}><ApiDocs /></Suspense>} />
         <Route path="/fonctionnalites" element={<Suspense fallback={<PageLoader />}><Fonctionnalites /></Suspense>} />
+        <Route path="/artisans" element={<Suspense fallback={<PageLoader />}><Artisans /></Suspense>} />
+        <Route path="/devis-chantier" element={<Navigate to="/artisans" replace />} />
         <Route
           path="/app/admin/partners"
           element={
