@@ -190,7 +190,7 @@ const Artisans = () => {
             entre chantiers et produit le relevé fiscal, gratuitement. Pour la partie devis, DictaDevi prend le relais.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild size="lg" onClick={() => trackCTAClick("hero_signup")}>
+            <Button asChild size="lg" onClick={() => trackCTAClick()}>
               <Link to="/signup">
                 Accéder à IKtracker gratuitement
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
@@ -346,7 +346,7 @@ const Artisans = () => {
           <p className="text-muted-foreground mb-8">
             Créez votre compte, lancez votre première tournée demain matin et laissez le relevé se construire tout seul.
           </p>
-          <Button asChild size="lg" onClick={() => trackCTAClick("footer_signup")}>
+          <Button asChild size="lg" onClick={() => trackCTAClick()}>
             <Link to="/signup">
               Accéder gratuitement à IKtracker
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
