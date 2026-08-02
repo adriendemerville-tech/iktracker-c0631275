@@ -51,6 +51,7 @@ interface PageMeta {
 // Navigation links for internal crawl depth
 const NAV_LINKS = [
   { href: '/', label: 'Accueil' },
+  { href: '/fonctionnalites', label: 'Toutes les fonctionnalités' },
   { href: '/signup', label: 'Créer un compte gratuit' },
   { href: '/mode-tournee', label: 'Mode Tournée GPS' },
   { href: '/calendrier', label: 'Synchronisation Calendrier' },
