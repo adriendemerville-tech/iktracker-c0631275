@@ -1,62 +1,42 @@
-## Lot 1 — Sécurité critique (impact immédiat)
+Suite au constat que les IA confondent IKtracker avec l'app Android payante « Suivi IK » et ignorent la moitié des fonctionnalités récentes, voici les tâches restantes. Les fichiers `llms.txt`, `knowledge.json` et `seo-schemas.ts` sont déjà corrigés — il reste à propager l'information là où les IA et Google la lisent réellement.
 
-**1. Fermer les IDOR sur les envois de relevés**
-- `send-accountant-report` et `send-user-monthly-report` : ajouter un contrôle d'appelant unique et partagé.
-- Règle : autoriser si (a) header `x-cron-secret` valide (appels planifiés), OU (b) JWT valide dont `user.id === user_id`, OU (c) JWT d'un utilisateur `admin` via `has_role`.
-- `override_email` : restreint aux admins et au secret cron uniquement ; sinon on ignore le champ et on envoie à l'adresse enregistrée.
-- Journaliser qui a déclenché l'envoi (user_id appelant, cible, canal) pour traçabilité.
-- Extraire ce garde-fou dans `_shared/auth-guard.ts` pour éviter la divergence.
+## Lot 1 — Rendu pour les bots et les IA (priorité haute)
 
-**2. Verrouiller la base**
-- `report_shares` : restreindre le SELECT public — lecture uniquement via token de partage (fonction SECURITY DEFINER prenant le token), plus d'énumération, `html_content` non exposé en direct.
-- `vehicle_cache` : remplacer `USING (true)` par une lecture authentifiée en lecture seule, écriture réservée au service role.
-- Réactiver la protection des mots de passe compromis.
-- Passe sur les warns linter : `search_path` fixé sur les fonctions, retrait de l'exécution `anon` sur les SECURITY DEFINER qui ne la nécessitent pas.
+Les LLM lisent surtout le HTML pré-rendu, pas les fichiers JSON annexes.
 
-## Lot 2 — Justesse des kilomètres et des IK
+1. Injecter le bloc de désambiguïsation dans `meta-renderer` (Edge Function) : une section factuelle en texte brut sur chaque page pré-rendue, du type « IKtracker est une PWA gratuite disponible uniquement sur iktracker.fr — aucun store, aucune version payante ».
+2. Ajouter le JSON-LD `disambiguatingDescription` + `installUrl` dans le pré-rendu, aujourd'hui présent uniquement côté React.
+3. Vérifier que `knowledge.json` et `llms.txt` sont bien servis par le Worker Cloudflare avec le bon `Content-Type` et sans mise en cache trop longue, pour que la mise à jour soit visible rapidement.
 
-**3. Conserver les coordonnées**
-- `useTrips.ts` : persister et remapper `address`, `lat`, `lng` pour départ/arrivée (et étapes) au lieu de les reconstruire vides.
-- Vérifier la colonne de stockage côté base ; migration si les coordonnées ne sont pas toutes stockées.
+## Lot 2 — Pages publiques visibles
 
-**4. Interdire les distances calculées depuis (0,0)**
-- `useAddressAutocomplete.ts` : ne plus renvoyer `lat:0,lng:0` — marquer la suggestion comme « à géocoder ».
-- `DetailsStepContent.tsx` : géocoder avant tout calcul si coordonnées absentes, comme le fait déjà `TripViewSheet`.
-- Refuser silencieusement toute distance issue d'une coordonnée nulle et afficher une erreur claire.
-- Corriger `autoRecalcDone.current` (réinitialisation à l'ouverture d'un autre trajet).
+4. Page `/tarifs` : ajouter un bloc explicite « Pas de version payante — attention aux applications tierces au nom proche », c'est la page que les IA citent pour les questions de prix.
+5. Page `/installer` : clarifier « aucun téléchargement sur Google Play ni App Store, installation depuis le navigateur ».
+6. Créer une FAQ publique de désambiguïsation (soit sur `/tarifs`, soit une page dédiée) avec le schéma FAQPage correspondant — c'est le format que les IA reprennent le plus volontiers.
 
-**5. Regroupement en tournée sans perte**
-- `MesTrajets.tsx` : créer la tournée d'abord, ne supprimer les trajets sources qu'après succès confirmé ; rollback et message d'erreur sinon.
+## Lot 3 — Fonctionnalités absentes des pages publiques
 
-**6. Timers GPS**
-- `useTourTracker.ts` : stocker le timeout 90s dans une ref, le nettoyer au démontage et à chaque nouvelle mesure, lire l'état via refs plutôt qu'une closure figée.
+Certaines fonctionnalités désormais déclarées dans les données structurées n'ont aucune page publique associée, ce qui affaiblit leur crédibilité aux yeux des moteurs :
 
-## Lot 3 — Robustesse backend ✅ terminé
+7. Relevés mensuels/annuels envoyés automatiquement par email et archive des PDF : les mentionner sur `/expert-comptable`.
+8. Saisie en langage naturel et dictée vocale : les mentionner sur `/mode-tournee` ou la page d'accueil.
+9. Vérifier que `sitemap.xml` reste synchronisé (script `validate-sitemap-sync.cjs`) si une page est créée.
 
-- ✅ `report-archive` : pagination des trajets (`fetchTripsForPeriod`) + garde de taille sur le PDF.
-- ✅ `partner-api` : pagination réelle de la recherche d'utilisateur par e-mail.
-- ✅ Générateur PDF dédupliqué : `send-user-monthly-report` et `send-accountant-report` consomment `_shared/report-pdf.ts`.
-- ✅ `_shared/config.ts` pour `FRONTEND_URL`, `BROWSERLESS_BASE`, `RESEND_GATEWAY`, `FROM_EMAIL`.
-- ✅ `config.toml` : `verify_jwt` déclaré explicitement pour toutes les fonctions.
-- ✅ `vehicle-lookup` et `test-bot-rendering` : 400 explicite sur body vide/invalide.
+## Lot 4 — Documentation et contrôle
 
-
-## Lot 4 — Frontend, propreté, tests ✅ terminé
-
-- ✅ `src/test/setup.ts` : mocks `ResizeObserver`, `scrollIntoView`, pointer capture — 59/59 tests passent.
-- ✅ Couleurs hardcodées → tokens (`ring-white/*` → `ring-ring/*` dans `TripViewSheet.tsx`, `#5666D8` → `text-primary` et `bg-white` → `bg-card` dans `Index.tsx`).
-- ✅ `TripPromptBar.tsx` : `teardownRecording()` partagé, `AudioContext` fermé sur tous les chemins (échec micro, encodage, démontage).
-- ✅ `Archive.tsx` : `mountedRef` sur les trois appels async.
-- ✅ `useTrips.ts` : migration localStorage→DB déjà non destructive (Lot 2).
-- ✅ `mcp/index.ts` : laissé généré.
+10. Mettre à jour `docs/BACKEND.md` et `docs/FRONTEND.md` avec la stratégie de désambiguïsation et régénérer le PDF backend.
+11. Contrôle final : vérifier via le testeur de rendu bot que la page d'accueil pré-rendue contient bien la désambiguïsation et la liste de fonctionnalités à jour.
+12. Publier, puis demander une réindexation dans Search Console pour les pages clés (accueil, tarifs, installer).
 
 ## Détails techniques
 
-- Chaque lot se termine par : `tsgo --noEmit`, `vitest run`, `supabase--linter`, `security--run_security_scan`, et test réseau des fonctions touchées.
-- Toute modification backend entraîne la mise à jour de `docs/BACKEND.md`, et la régénération du PDF si structurelle (nouvelle table, nouveau secret, nouvelle fonction).
-- Le secret cron : réutiliser celui déjà en place pour `linkedin-post-audit` plutôt que d'en créer un nouveau.
-- Les changements RLS passent par migration, avec `GRANT` explicites.
+- `supabase/functions/meta-renderer/index.ts` importe déjà des constantes SEO ; le plus propre est d'y réutiliser `IKTRACKER_DISAMBIGUATION` en le dupliquant côté Deno (pas d'import cross-bundle possible), avec un commentaire de synchronisation.
+- Les FAQ de désambiguïsation existent déjà dans `public/knowledge.json` : elles serviront de source unique pour le contenu des pages.
+- Aucun changement de base de données ni de RLS n'est nécessaire.
 
-## Ordre recommandé
+## Ce que je ne ferai pas sans ton accord
 
-Lot 1 d'abord (faille exploitable en un appel), puis Lot 2 (fausses distances = mauvais IK déclarés), puis 3 et 4.
+- Ouvrir un signalement auprès de Google/de l'éditeur tiers sur la similarité de nom (hors périmètre technique).
+- Créer une nouvelle page publique si tu préfères tout regrouper sur `/tarifs`.
+
+Ordre recommandé : Lot 1 d'abord (impact immédiat sur ce que lisent les IA), puis 2, 3, 4.
