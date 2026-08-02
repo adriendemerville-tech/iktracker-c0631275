@@ -70,6 +70,7 @@ const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const MeilleureApplicationIK = lazy(() => import("./pages/MeilleureApplicationIK"));
 const IndemniteGrandDeplacement2026 = lazy(() => import("./pages/IndemniteGrandDeplacement2026"));
 const Artisans = lazy(() => import("./pages/Artisans"));
+const Independants = lazy(() => import("./pages/Independants"));
 
 // Minimal loading fallback - uses static HTML shell from index.html
 const PageLoader = () => null;
