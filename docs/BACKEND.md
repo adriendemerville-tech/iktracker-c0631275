@@ -600,6 +600,8 @@ Sert un HTML complet avec :
 - Open Graph + Twitter Cards
 - Liens internes pour la profondeur de crawl
 
+**Page `/fonctionnalites`** : page statique dédiée listant l'ensemble des fonctionnalités d'IKtracker, avec bloc de désambiguïsation et FAQPage injectés dans le pré-rendu pour les bots/IA.
+
 ### robots.txt
 
 ```
