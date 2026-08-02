@@ -74,8 +74,25 @@ export default function Tarifs() {
                   "@type": "Answer",
                   text: "Non. IKtracker n'affiche aucune publicité et ne revend aucune donnée. Les trajets, adresses et véhicules sont stockés de façon privée (Row-Level Security côté base) et accessibles uniquement à l'utilisateur propriétaire."
                 }
+              },
+              {
+                "@type": "Question",
+                name: "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Non. IKtracker est une application web progressive (PWA) accessible uniquement sur https://iktracker.fr et installable sur iPhone et Android depuis le navigateur, via https://iktracker.fr/installer. IKtracker n'est publié sur aucun store d'applications."
+                }
+              },
+              {
+                "@type": "Question",
+                name: "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. « Suivi IK » est freemium avec un essai limité en kilomètres puis un abonnement. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres."
+                }
               }
             ]
+
           })}
         </script>
       </Helmet>
