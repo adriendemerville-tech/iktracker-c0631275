@@ -69,6 +69,7 @@ const NAV_LINKS = [
   { href: '/tarifs', label: 'Tarifs — gratuit à vie' },
   { href: '/api-docs', label: 'API & intégrations' },
   { href: '/artisans', label: 'Artisans : trajets de chantier et devis' },
+  { href: '/independants', label: 'Indépendants : visibilité SEO, GEO et acquisition' },
   { href: '/blog', label: 'Blog' },
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
