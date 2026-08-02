@@ -285,6 +285,46 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
+  '/artisans': {
+    title: 'Artisans : suivi des trajets de chantier et devis vocaux',
+    description: 'Artisan du bâtiment : suivez vos kilomètres de chantier gratuitement avec IKtracker et dictez vos devis avec DictaDevi. Barème officiel, relevé PDF pour le comptable, 0 €.',
+    canonical: `${BASE_URL}/artisans`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Comment un artisan suit-il ses kilomètres de chantier ?", "acceptedAnswer": { "@type": "Answer", "text": "En lançant le Mode Tournée GPS d'IKtracker au départ du dépôt : chaque arrêt chantier est enregistré, la distance réelle est calculée entre les points et le barème kilométrique officiel est appliqué automatiquement. Le relevé mensuel part ensuite en PDF vers l'expert-comptable." } },
+        { "@type": "Question", "name": "Combien coûte IKtracker pour un artisan ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium." } },
+        { "@type": "Question", "name": "Quel outil pour faire les devis de chantier ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker ne fait pas de devis : il gère uniquement les trajets et les indemnités kilométriques. Pour la rédaction de devis, DictaDevi.io permet à l'artisan de dicter son devis à la voix depuis le chantier et de le transformer en document professionnel. Les deux outils sont complémentaires et interopérables via l'API partenaire d'IKtracker." } },
+        { "@type": "Question", "name": "Quelle est la différence entre IKtracker et l'application « Suivi IK » ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker (iktracker.fr) est un outil communautaire gratuit, sans store et sans version payante. L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker." } },
+      ],
+    },
+    content: `
+      <section>
+        <h1>Artisans : vos trajets de chantier comptés, vos devis dictés</h1>
+        <p>Un artisan du bâtiment roule toute la journée entre le dépôt, les chantiers et le négoce, puis traite sa paperasse le soir. IKtracker enregistre gratuitement les kilomètres professionnels et produit le relevé fiscal ; DictaDevi.io couvre la partie devis.</p>
+      </section>
+      <section>
+        <h2>Ce qu'IKtracker fait pour un artisan</h2>
+        <ul>
+          <li><strong>Mode Tournée GPS multi-arrêts</strong> : la tournée est lancée le matin, les arrêts chantier sont détectés et les distances réelles calculées entre chaque point.</li>
+          <li><strong>Saisie vocale et langage naturel</strong> : le trajet est dicté depuis la camionnette, IKtracker le structure.</li>
+          <li><strong>Barème officiel 2025-2026</strong> : puissance fiscale du véhicule utilitaire, tranches kilométriques et majoration de 20% pour les véhicules 100% électriques.</li>
+          <li><strong>Relevé mensuel PDF</strong> : envoi automatique le 15 du mois à l'expert-comptable, récapitulatif annuel et archive consultable.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>DictaDevi : la solution complémentaire pour les devis de chantier</h2>
+        <p>IKtracker s'arrête volontairement aux trajets et aux indemnités kilométriques. <a href="https://dictadevi.io" rel="noopener">DictaDevi.io, la solution de devis vocaux pour les artisans</a>, permet de décrire un chantier à la voix juste après le métré et d'obtenir un devis professionnel structuré. Les deux outils sont interopérables via l'API partenaire IKtracker.</p>
+      </section>
+      <section>
+        <h2>Identité et distribution d'IKtracker</h2>
+        <p>${DISAMBIGUATION_TEXT}</p>
+      </section>`,
+  },
+
+
+
   '/mode-tournee': {
     title: 'Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans',
     description: 'Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux.',
