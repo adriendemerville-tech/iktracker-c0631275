@@ -17,6 +17,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
 
   const links = [
     { label: 'Pourquoi IKtracker ?', href: '/meilleure-application-indemnites-kilometriques' },
+    { label: 'Fonctionnalités', href: '/fonctionnalites' },
     { label: 'Mode Tournée', href: '/mode-tournee' },
     { label: 'Calendrier', href: '/calendrier' },
     { label: 'Barème des indemnités', href: '/bareme-ik-2026', isNew: true },
