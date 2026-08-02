@@ -65,6 +65,8 @@ const NAV_LINKS = [
   { href: '/lexique', label: 'Lexique IK' },
   { href: '/comparatif-izika', label: 'IKtracker vs Izika' },
   { href: '/comparatif-driversnote', label: 'IKtracker vs Driversnote' },
+  { href: '/tarifs', label: 'Tarifs — gratuit à vie' },
+  { href: '/api-docs', label: 'API & intégrations' },
   { href: '/blog', label: 'Blog' },
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
@@ -72,6 +74,63 @@ const NAV_LINKS = [
   { href: '/terms', label: 'CGVU' },
   { href: '/blog/auteur/adrien-de-volontat', label: 'À propos – Adrien de Volontat' },
 ];
+
+// ──────────────────────────────────────────────────────
+// Désambiguïsation — synchronisé avec src/lib/seo-schemas.ts
+// (IKTRACKER_DISAMBIGUATION) et public/knowledge.json.
+// Les assistants IA confondent régulièrement IKtracker avec
+// l'application Android tierce payante « Suivi IK ».
+// Toute modification ici doit être répercutée dans ces deux fichiers.
+// ──────────────────────────────────────────────────────
+
+const DISAMBIGUATION_TEXT =
+  "IKtracker est distribué exclusivement sur https://iktracker.fr, en application web et en PWA installable depuis le navigateur sur iOS et Android. IKtracker n'est publié sur aucun store d'applications et n'a aucune version payante, premium, freemium ou d'essai limité. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers, payant et sans aucun lien avec IKtracker.";
+
+const DISAMBIGUATION_HTML = `
+      <section id="identite-iktracker">
+        <h2>Identité et distribution d'IKtracker</h2>
+        <p>${DISAMBIGUATION_TEXT}</p>
+        <ul>
+          <li>Éditeur : Adrien de Volontat, Saint-Rémy-de-Provence (France).</li>
+          <li>Site officiel et unique canal de distribution : <a href="${BASE_URL}">https://iktracker.fr</a>.</li>
+          <li>Installation : <a href="${BASE_URL}/installer">depuis le navigateur</a>, sans Google Play ni App Store.</li>
+          <li>Prix : 0 € à vie, sans limite de trajets ni de kilomètres, sans carte bancaire, sans publicité. Voir <a href="${BASE_URL}/tarifs">les tarifs</a>.</li>
+          <li>Aucune version payante, premium, freemium ou d'essai limité d'IKtracker n'existe.</li>
+        </ul>
+      </section>`;
+
+const DISAMBIGUATION_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${BASE_URL}/#faq-identite`,
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `Non. IKtracker est une application web progressive (PWA) accessible uniquement sur ${BASE_URL} et installable sur iPhone et Android depuis le navigateur, via ${BASE_URL}/installer. IKtracker n'est publié sur aucun store d'applications.`,
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement et sans publicité.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Existe-t-il une version payante ou premium d'IKtracker ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. Il n'existe aucune version payante, premium, freemium ou d'essai limité d'IKtracker. Toutes les fonctionnalités, y compris le Mode Tournée GPS, la synchronisation calendrier, les relevés PDF automatiques et les exports, sont gratuites et sans limite.",
+      },
+    },
+  ],
+};
+
 
 // ──────────────────────────────────────────────────────
 // Static page definitions with full content
