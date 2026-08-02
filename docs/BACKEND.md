@@ -582,12 +582,13 @@ Config : `cloudflare-worker/wrangler.toml` (routes multi-zones apex + www, .fr +
 | `scripts/generate-sitemap.cjs` | Génère le fallback | Chaque build (prebuild) |
 | `scripts/validate-sitemap-sync.cjs` | Validation CI | Compare les 2 sources |
 
-**Contenu** : ~18 pages statiques + ~45 articles de blog ≈ 63 URLs — toutes en `https://iktracker.fr/*`.
+**Contenu** : 27 pages statiques + ~45 articles de blog ≈ 72 URLs — toutes en `https://iktracker.fr/*`.
 
 **Priorités & changefreq notables** (alignées entre l'Edge Function et le script statique) :
 - `/` : `priority 1.0`, `weekly`
 - `/meilleure-application-indemnites-kilometriques` : `priority 1.0`, `weekly`
 - `/fonctionnalites` : `priority 0.9`, `weekly`
+- `/artisans` : `priority 0.8`, `monthly`
 - `/bareme-ik-2026` : `priority 0.9`, `monthly`
 - `/signup` : `priority 0.5` (utilitaire, dépriorisé)
 - Utilitaires exclus : `/unsubscribe`, `/marina`, `/temporaryreport/*`, `/sso`, `/offline`, `/debug/*`, `/auth`, `/app/*`, `/admin`
@@ -601,6 +602,8 @@ Sert un HTML complet avec :
 - Liens internes pour la profondeur de crawl
 
 **Page `/fonctionnalites`** : page statique dédiée listant l'ensemble des fonctionnalités d'IKtracker, avec bloc de désambiguïsation et FAQPage injectés dans le pré-rendu pour les bots/IA.
+
+**Page `/artisans`** : landing thématique BTP (trajets de chantier + indemnités kilométriques) avec FAQPage, bloc de désambiguïsation et lien dofollow contextuel vers `https://dictadevi.io` présenté comme solution complémentaire pour les devis vocaux. Alias client `/devis-chantier → /artisans` (redirection React Router).
 
 ### robots.txt
 
