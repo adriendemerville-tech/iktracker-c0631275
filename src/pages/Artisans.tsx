@@ -173,7 +173,7 @@ const Artisans = () => {
         <MarketingNav user={user} loading={loading} />
 
         <div className="container mx-auto px-4 pt-24">
-          <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Artisans", href: "/artisans" }]} />
+          <Breadcrumb items={[{ label: "Artisans", href: "/artisans" }]} />
         </div>
 
         {/* Hero */}
