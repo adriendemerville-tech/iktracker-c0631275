@@ -153,9 +153,34 @@
             "@type": "Answer",
             "text": "Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé (TICPE ~60 centimes/litre), assurance obligatoire, entretien, dépréciation (15-20% la première année). Sans le dispositif des IK, un infirmier libéral parcourant 30 000 km/an perdrait plusieurs milliers d'euros de revenu net. Le barème kilométrique compense forfaitairement l'ensemble de ces coûts. Or, le suivi rigoureux de chaque trajet (date, motif, distance) est obligatoire en cas de contrôle fiscal ou URSSAF. C'est exactement ce qu'IKtracker automatise."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Non. IKtracker est une application web progressive (PWA) accessible uniquement sur https://iktracker.fr et installable sur iPhone et Android depuis le navigateur, via la page https://iktracker.fr/installer. IKtracker n'est publié sur aucun store d'applications."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, basé à Cholet, support contact@4inte.fr) est un produit tiers qui n'a aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. « Suivi IK » est freemium et payante (essai limité en kilomètres GPS et en trajets manuels, puis abonnement mensuel). IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement, sans publicité et sans carte bancaire. IKtracker est édité par Adrien de Volontat, à Saint-Rémy-de-Provence."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Existe-t-il une version payante ou premium d'IKtracker ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Non. Il n'existe aucune version payante, premium, freemium ou d'essai limité d'IKtracker. Toutes les fonctionnalités, y compris le Mode Tournée GPS, la synchronisation calendrier, les relevés PDF automatiques et les exports, sont accessibles gratuitement et sans limite. Toute offre payante présentée sous un nom proche provient d'un éditeur tiers."
+          }
         }
       ]
     },
+
 
     {
       "@type": "ItemList",
@@ -276,12 +301,16 @@
         "https://iktracker.fr/frais-reels",
         "https://iktracker.fr/lexique",
         "https://iktracker.fr/expert-comptable",
+        "https://iktracker.fr/tarifs",
+        "https://iktracker.fr/installer",
+        "https://iktracker.fr/api-docs",
         "https://iktracker.fr/blog",
         "https://iktracker.fr/comparatif-izika",
-        "https://iktracker.fr/comparatif-drivers-note",
+        "https://iktracker.fr/comparatif-driversnote",
         "https://iktracker.fr/contact",
         "https://iktracker.fr/privacy",
         "https://iktracker.fr/terms",
+        "https://iktracker.fr/mentions-legales",
         "https://iktracker.fr/blog/auteur/adrien-de-volontat"
       ]
     }
