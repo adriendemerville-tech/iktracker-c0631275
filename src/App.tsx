@@ -384,6 +384,9 @@ const AppRoutes = () => {
         <Route path="/fonctionnalites" element={<Suspense fallback={<PageLoader />}><Fonctionnalites /></Suspense>} />
         <Route path="/artisans" element={<Suspense fallback={<PageLoader />}><Artisans /></Suspense>} />
         <Route path="/devis-chantier" element={<Navigate to="/artisans" replace />} />
+        <Route path="/independants" element={<Suspense fallback={<PageLoader />}><Independants /></Suspense>} />
+        <Route path="/indépendants" element={<Navigate to="/independants" replace />} />
+        <Route path="/acquisition-de-clients" element={<Navigate to="/independants" replace />} />
         <Route
           path="/app/admin/partners"
           element={
