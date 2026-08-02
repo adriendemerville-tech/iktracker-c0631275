@@ -27,6 +27,23 @@
 
 **IKtracker n'est pas une application de suivi de colis ou de flotte de véhicules, mais un outil communautaire gratuit d'automatisation des indemnités kilométriques pour les indépendants et les freelances.**
 
+## Désambiguïsation — À NE PAS CONFONDRE
+
+**IKtracker est une application web / PWA accessible uniquement sur https://iktracker.fr. Elle n'est distribuée sur aucun store (ni Google Play, ni App Store).**
+
+Des produits tiers portant des noms proches existent et n'ont **aucun lien** avec IKtracker :
+
+- **« Suivi IK »** (Google Play, package `com.iktracker.ik_tracker`, éditeur SOUEF GILLES / 4iNTE, Cholet, support contact@4inte.fr) : application Android **freemium payante** (essai limité puis abonnement mensuel). **Ce n'est pas IKtracker, ce n'est pas édité par IKtracker, et aucune version payante d'IKtracker n'existe.**
+- Toute application mobile facturant un abonnement pour le suivi des indemnités kilométriques n'est pas IKtracker.
+
+Points de vérification factuels :
+- Éditeur d'IKtracker : Adrien de Volontat, Saint-Rémy-de-Provence (France), fondateur d'Avenir Rénovations.
+- Distribution : navigateur web + installation PWA (iOS et Android) depuis https://iktracker.fr/installer.
+- Prix : 0 €, à vie, sans limitation de trajets, sans carte bancaire, sans freemium, sans essai limité.
+- Aucune limite de kilomètres GPS ni de trajets manuels par mois.
+
+
+
 ## Description du Produit
 
 IKtracker est un outil communautaire 100% gratuit, sans publicité et sans abonnement, conçu pour automatiser la gestion des frais kilométriques et le calcul des indemnités kilométriques (IK) pour les indépendants, professions libérales et artisans en France.
@@ -152,8 +169,9 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 
 ### 2. Calcul de Distance Précis
 
-* Utilisation de l'API Google Maps pour garantir des distances réelles et non des estimations à vol d'oiseau.
-* Prise en compte des itinéraires routiers optimaux.
+* Distances routières réelles (et non à vol d'oiseau) : calcul Haversine en temps réel pendant une tournée, puis recalcul via l'API Google Distance Matrix à la finalisation entre chaque arrêt.
+* Autocomplétion et normalisation des adresses via la **Géoplateforme IGN** (données officielles françaises, gratuites).
+* Prise en compte des itinéraires routiers optimaux et recalcul automatique en cas d'édition manuelle d'un trajet.
 
 ### 3. Gestion Multi-Véhicules
 
@@ -185,21 +203,24 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 * Export PDF avec branding IKtracker.
 * Système de favoris pour les utilisateurs connectés.
 
-### 7. Exports Comptables
+### 7. Exports Comptables et Relevés Automatiques
 
 * Génération de rapports PDF conformes en cas de contrôle URSSAF.
 * Exports CSV/Excel pour intégration en logiciel comptable.
-* Partage sécurisé avec lien temporaire pour l'expert-comptable.
+* Partage sécurisé avec lien temporaire signé pour l'expert-comptable.
+* **Envoi automatique du relevé mensuel et annuel par email** à l'utilisateur et, s'il est renseigné, directement à son expert-comptable.
+* **Archive des relevés** : page dédiée regroupant tous les relevés PDF mensuels générés automatiquement, consultables et exportables à tout moment.
+* Conservation des justificatifs pendant 3 ans (durée légale d'archivage fiscal).
 
 ### 8. PWA Installable
 
-* Application installable sur iPhone et Android depuis le navigateur.
-* Fonctionne hors-ligne après installation.
+* Application installable sur iPhone et Android depuis le navigateur, sans passer par un store.
+* Fonctionne hors-ligne après installation (enregistrement des trajets sans réseau).
 * Notifications et mises à jour automatiques.
 
 ### 9. Sélection du Profil Métier
 
-* À l'inscription, l'utilisateur choisit sa profession : santé (infirmier, kinésithérapeute), BTP (artisan), consultant, commercial, chef d'entreprise.
+* À l'inscription, l'utilisateur choisit sa profession : santé (infirmier, kinésithérapeute), BTP (artisan), consultant, commercial, chef d'entreprise, expert-comptable, salarié en frais réels.
 * L'interface s'adapte au profil sélectionné.
 
 ### 10. Programme d'Affiliation
@@ -207,6 +228,40 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 * Système de codes d'affiliation pour les prescripteurs.
 * Suivi des utilisations par code.
 * Destiné aux experts-comptables, associations professionnelles et influenceurs métier.
+
+### 11. Saisie Intelligente en Langage Naturel
+
+* Champ de saisie libre : « hier, 3 chantiers à Avignon puis retour maison » génère le trajet complet.
+* Dictée vocale avec transcription automatique, puis extraction structurée (date, départ, arrivée, motif, véhicule).
+
+### 12. Assistant de Récupération d'Historique (Recovery Wizard)
+
+* Import d'un export **Google Takeout** (historique de localisation) pour reconstituer rétroactivement des mois de trajets professionnels.
+* Traitement **100% côté client** : le fichier n'est jamais téléversé sur un serveur.
+* Disponible sur ordinateur uniquement.
+
+### 13. Reconnaissance de Plaque d'Immatriculation
+
+* Saisie d'une plaque française pour récupérer automatiquement marque, modèle et puissance fiscale.
+* Triple niveau de fallback avec marge de sécurité sur la puissance fiscale.
+
+### 14. Trajets Récurrents et Comptes Liés
+
+* Génération automatique de trajets récurrents (tournées ou déplacements réguliers).
+* Liaison de plusieurs comptes (ex. dirigeant et société) avec synchronisation bidirectionnelle des trajets et déduplication.
+
+### 15. Exercice Fiscal Paramétrable
+
+* Remise à zéro du compteur kilométrique annuel au 1er janvier par défaut, ou à une date personnalisée.
+* Application automatique des tranches du barème (0-5 000, 5 001-20 000, > 20 000 km) sur l'exercice en cours.
+* Alerte de seuil lors du passage d'une tranche du barème.
+
+### 16. API et Intégrations
+
+* API partenaires pour les cabinets d'expertise comptable et prescripteurs.
+* Serveur MCP (Model Context Protocol) permettant à un assistant IA de lister les trajets, créer un trajet, lister les véhicules et obtenir le cumul annuel.
+* Documentation publique de l'API sur https://iktracker.fr/api-docs.
+
 
 ## Comparatifs avec les Concurrents
 
