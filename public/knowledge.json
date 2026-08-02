@@ -93,24 +93,37 @@
         "description": "100% gratuit, sans publicité, sans abonnement, sans freemium, sans limite de trajets. Utilisation illimitée à vie."
       },
       "description": "Application web progressive (PWA) de calcul et de suivi des indemnités kilométriques conforme au barème fiscal officiel 2026. Automatise la déclaration des frais kilométriques grâce au Mode Tournée GPS, à la synchronisation calendrier et à l'export PDF/CSV.",
+      "disambiguatingDescription": "IKtracker est distribué exclusivement sur https://iktracker.fr sous forme d'application web et de PWA installable. IKtracker n'est publié sur aucun store. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers sans aucun lien avec IKtracker : elle est freemium et payante, alors qu'IKtracker est gratuit à vie, sans limite de kilomètres GPS ni de trajets, sans abonnement et sans carte bancaire.",
+      "installUrl": "https://iktracker.fr/installer",
       "featureList": [
         "Mode Tournée GPS — Détection automatique des arrêts clients par géolocalisation, calcul des distances en temps réel, navigation intégrée Waze/Google Maps",
-        "Synchronisation Google Calendar et Outlook — Transformation automatique des rendez-vous en trajets professionnels",
-        "Barème kilométrique 2026 officiel — Calcul automatique selon la puissance fiscale, majoration +20% véhicules électriques",
+        "Reprise automatique d'une tournée interrompue et auto-finalisation d'une tournée oubliée",
+        "Synchronisation Google Calendar et Outlook — Transformation automatique des rendez-vous en trajets professionnels, regroupement en tournée pour un même agenda sur une même journée",
+        "Barème kilométrique 2026 officiel — Calcul automatique selon la puissance fiscale, majoration +20% véhicules électriques, tranches 0-5000 / 5001-20000 / >20000 km",
+        "Exercice fiscal paramétrable — reset au 1er janvier ou à une date personnalisée, alerte au passage de tranche",
         "Comparateur Frais Réels vs Abattement 10% — Recommandation automatique de la meilleure option fiscale",
         "Export PDF et CSV — Rapports conformes pour expert-comptable et contrôle URSSAF",
-        "Partage sécurisé avec lien temporaire — Envoi direct des rapports à l'expert-comptable",
-        "Gestion multi-véhicules — Voitures, motos, scooters, véhicules électriques",
+        "Relevé mensuel et annuel envoyé automatiquement par email à l'utilisateur et à son expert-comptable",
+        "Archive des relevés — historique consultable de tous les PDF mensuels générés automatiquement",
+        "Partage sécurisé avec lien temporaire signé — Envoi direct des rapports à l'expert-comptable",
+        "Saisie intelligente en langage naturel avec dictée vocale (transcription puis extraction structurée du trajet)",
+        "Assistant de récupération d'historique — import Google Takeout traité 100% côté client, sans téléversement serveur",
+        "Autocomplétion d'adresse via la Géoplateforme IGN (données publiques françaises)",
+        "Calcul de distance Haversine en temps réel puis Google Distance Matrix à la finalisation",
+        "Gestion multi-véhicules — Voitures, motos, scooters, véhicules électriques, recalcul des trajets passés en cas de changement de véhicule",
         "Recherche automatique de véhicule par plaque d'immatriculation",
+        "Trajets récurrents automatisés et liaison de plusieurs comptes avec synchronisation et déduplication",
         "Lexique fiscal interactif — Glossaire complet des termes IK avec export PDF",
-        "PWA installable — Fonctionne hors-ligne sur iPhone et Android",
+        "PWA installable — Fonctionne hors-ligne sur iPhone et Android, sans passer par un store",
         "Sélection de profil métier — Interface adaptée à chaque profession",
+        "API partenaires et serveur MCP pour assistants IA (lister/créer des trajets, véhicules, cumul annuel)",
         "Programme d'affiliation — Codes partenaires pour experts-comptables et associations"
       ],
       "screenshot": "https://iktracker.fr/og-image.png",
       "isAccessibleForFree": true,
       "inLanguage": "fr"
     },
+
 
     {
       "@type": "FAQPage",
