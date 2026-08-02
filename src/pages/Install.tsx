@@ -103,13 +103,14 @@ const Install = () => {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "name": "Installer IKtracker",
-            "description": "Guide d'installation de l'application PWA IKtracker sur iOS et Android",
-            "url": "https://iktracker.fr/install",
+            "description": "Guide d'installation de l'application PWA IKtracker sur iOS et Android, sans passer par Google Play ni l'App Store",
+            "url": "https://iktracker.fr/installer",
             "isPartOf": {
               "@type": "WebSite",
               "name": "IKtracker",
               "url": "https://iktracker.fr"
             },
+
             "mainEntity": {
               "@type": "HowTo",
               "name": "Comment installer IKtracker en tant qu'application (PWA)",
