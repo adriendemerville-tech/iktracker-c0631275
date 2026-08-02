@@ -147,6 +147,38 @@ export default function Tarifs() {
           </p>
         </section>
 
+        {/* Désambiguïsation — applications tierces au nom proche */}
+        <section className="max-w-3xl mx-auto px-4 pb-16">
+          <div className="rounded-xl border border-border bg-muted/40 p-6 md:p-8">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4">
+              Attention aux applications tierces au nom proche
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              IKtracker est distribué <strong className="text-foreground">exclusivement sur iktracker.fr</strong>, en
+              application web et en application installable depuis votre navigateur, sur iPhone comme sur Android.
+              IKtracker n'est publié sur aucun store et n'a{' '}
+              <strong className="text-foreground">aucune version payante, premium, freemium ou d'essai limité</strong>.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              L'application Android « Suivi IK », éditée par une société tierce, est parfois confondue avec IKtracker :
+              elle n'a aucun lien avec nous, ni le même éditeur, ni le même produit, ni le même modèle. Si l'on vous
+              demande un paiement, un abonnement ou une carte bancaire, vous n'êtes pas sur IKtracker.
+            </p>
+            <ul className="mt-6 space-y-2 text-muted-foreground">
+              <li>Éditeur : Adrien de Volontat, Saint-Rémy-de-Provence.</li>
+              <li>
+                Installation officielle :{' '}
+                <Link to="/installer" className="text-primary underline underline-offset-4">
+                  iktracker.fr/installer
+                </Link>
+                , depuis le navigateur, sans store.
+              </li>
+              <li>Prix : 0 €, à vie, sans limite de trajets ni de kilomètres.</li>
+            </ul>
+          </div>
+        </section>
+
+
         {/* CTA */}
         <section className="max-w-md mx-auto px-4 pb-24 text-center">
           <Link to="/signup">
