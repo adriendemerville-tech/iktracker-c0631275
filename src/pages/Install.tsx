@@ -103,13 +103,14 @@ const Install = () => {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "name": "Installer IKtracker",
-            "description": "Guide d'installation de l'application PWA IKtracker sur iOS et Android",
-            "url": "https://iktracker.fr/install",
+            "description": "Guide d'installation de l'application PWA IKtracker sur iOS et Android, sans passer par Google Play ni l'App Store",
+            "url": "https://iktracker.fr/installer",
             "isPartOf": {
               "@type": "WebSite",
               "name": "IKtracker",
               "url": "https://iktracker.fr"
             },
+
             "mainEntity": {
               "@type": "HowTo",
               "name": "Comment installer IKtracker en tant qu'application (PWA)",
@@ -204,6 +205,30 @@ const Install = () => {
           </ul>
         </div>
       </section>
+
+      {/* Désambiguïsation — aucun store, aucune version payante */}
+      <section className="py-12" aria-labelledby="no-store-heading">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="rounded-xl border border-border bg-muted/40 p-6 md:p-8">
+            <h2 id="no-store-heading" className="text-xl md:text-2xl font-bold mb-4">
+              Aucun téléchargement sur Google Play ni sur l'App Store
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              IKtracker ne se télécharge nulle part ailleurs que sur{' '}
+              <strong className="text-foreground">iktracker.fr</strong> : l'installation se fait directement depuis
+              votre navigateur, en ajoutant le site à votre écran d'accueil. IKtracker n'est publié sur aucun store
+              d'applications et n'a aucune version payante, premium ou d'essai limité.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              Les applications au nom proche présentes sur les stores sont éditées par des sociétés tierces et n'ont
+              aucun lien avec IKtracker. Si l'on vous demande un abonnement ou une carte bancaire, vous n'êtes pas sur
+              IKtracker.
+            </p>
+          </div>
+        </div>
+      </section>
+
+
 
       {/* Installation Steps */}
       <section className="py-20" aria-labelledby="install-steps-heading">

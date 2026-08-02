@@ -414,6 +414,34 @@ export default function ModeTournee() {
           </div>
         </section>
 
+        {/* Saisie en langage naturel */}
+        <section className="py-20 px-4" aria-labelledby="smart-add-heading">
+          <div className="container mx-auto max-w-3xl">
+            <AnimatedSection className="text-center mb-8">
+              <h2 id="smart-add-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Ajoutez un trajet en le dictant
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Quand la tournée n'est pas lancée, il reste la voix. Dictez ou écrivez votre trajet en une phrase :
+                IKtracker en extrait la date, le départ, l'arrivée et le motif, puis calcule la distance.
+              </p>
+            </AnimatedSection>
+            <AnimatedSection>
+              <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
+                <p className="text-muted-foreground italic">
+                  « Hier, chantier à Avignon depuis le dépôt, retour en fin de journée. »
+                </p>
+                <ul className="mt-6 space-y-2 text-muted-foreground">
+                  <li>Dictée vocale depuis le téléphone, transcription automatique.</li>
+                  <li>Extraction des adresses, de la date et du motif professionnel.</li>
+                  <li>Distance calculée puis trajet proposé à la validation avant enregistrement.</li>
+                </ul>
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+
+
         {/* For who */}
         <section className="py-20 px-4">
           <div className="container mx-auto">

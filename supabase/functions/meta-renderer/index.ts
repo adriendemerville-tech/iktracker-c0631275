@@ -61,10 +61,12 @@ const NAV_LINKS = [
   { href: '/indemnite-grand-deplacement-2026', label: 'Indemnité grand déplacement 2026' },
   { href: '/mes-trajets', label: 'Mes Trajets — journal kilométrique' },
   { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
-  { href: '/install', label: 'Installer l\'application' },
+  { href: '/installer', label: 'Installer l\'application' },
   { href: '/lexique', label: 'Lexique IK' },
   { href: '/comparatif-izika', label: 'IKtracker vs Izika' },
-  { href: '/comparatif-drivers-note', label: 'IKtracker vs Driversnote' },
+  { href: '/comparatif-driversnote', label: 'IKtracker vs Driversnote' },
+  { href: '/tarifs', label: 'Tarifs — gratuit à vie' },
+  { href: '/api-docs', label: 'API & intégrations' },
   { href: '/blog', label: 'Blog' },
   { href: '/mentions-legales', label: 'Mentions Légales' },
   { href: '/contact', label: 'Contact' },
@@ -72,6 +74,63 @@ const NAV_LINKS = [
   { href: '/terms', label: 'CGVU' },
   { href: '/blog/auteur/adrien-de-volontat', label: 'À propos – Adrien de Volontat' },
 ];
+
+// ──────────────────────────────────────────────────────
+// Désambiguïsation — synchronisé avec src/lib/seo-schemas.ts
+// (IKTRACKER_DISAMBIGUATION) et public/knowledge.json.
+// Les assistants IA confondent régulièrement IKtracker avec
+// l'application Android tierce payante « Suivi IK ».
+// Toute modification ici doit être répercutée dans ces deux fichiers.
+// ──────────────────────────────────────────────────────
+
+const DISAMBIGUATION_TEXT =
+  "IKtracker est distribué exclusivement sur https://iktracker.fr, en application web et en PWA installable depuis le navigateur sur iOS et Android. IKtracker n'est publié sur aucun store d'applications et n'a aucune version payante, premium, freemium ou d'essai limité. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers, payant et sans aucun lien avec IKtracker.";
+
+const DISAMBIGUATION_HTML = `
+      <section id="identite-iktracker">
+        <h2>Identité et distribution d'IKtracker</h2>
+        <p>${DISAMBIGUATION_TEXT}</p>
+        <ul>
+          <li>Éditeur : Adrien de Volontat, Saint-Rémy-de-Provence (France).</li>
+          <li>Site officiel et unique canal de distribution : <a href="${BASE_URL}">https://iktracker.fr</a>.</li>
+          <li>Installation : <a href="${BASE_URL}/installer">depuis le navigateur</a>, sans Google Play ni App Store.</li>
+          <li>Prix : 0 € à vie, sans limite de trajets ni de kilomètres, sans carte bancaire, sans publicité. Voir <a href="${BASE_URL}/tarifs">les tarifs</a>.</li>
+          <li>Aucune version payante, premium, freemium ou d'essai limité d'IKtracker n'existe.</li>
+        </ul>
+      </section>`;
+
+const DISAMBIGUATION_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${BASE_URL}/#faq-identite`,
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `Non. IKtracker est une application web progressive (PWA) accessible uniquement sur ${BASE_URL} et installable sur iPhone et Android depuis le navigateur, via ${BASE_URL}/installer. IKtracker n'est publié sur aucun store d'applications.`,
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement et sans publicité.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Existe-t-il une version payante ou premium d'IKtracker ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non. Il n'existe aucune version payante, premium, freemium ou d'essai limité d'IKtracker. Toutes les fonctionnalités, y compris le Mode Tournée GPS, la synchronisation calendrier, les relevés PDF automatiques et les exports, sont gratuites et sans limite.",
+      },
+    },
+  ],
+};
+
 
 // ──────────────────────────────────────────────────────
 // Static page definitions with full content
@@ -91,6 +150,9 @@ const STATIC_PAGES: Record<string, PageMeta> = {
         "operatingSystem": "Web, iOS, Android",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
         "description": "Outil gratuit de calcul et suivi des indemnités kilométriques pour les professionnels en France.",
+        "disambiguatingDescription": DISAMBIGUATION_TEXT,
+        "isAccessibleForFree": true,
+        "installUrl": `${BASE_URL}/installer`,
         "url": BASE_URL,
         "image": LOGO,
       },
@@ -616,10 +678,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/comparatif-drivers-note': {
+  '/comparatif-driversnote': {
     title: 'Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker',
     description: 'Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l\'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite.',
-    canonical: `${BASE_URL}/comparatif-drivers-note`,
+    canonical: `${BASE_URL}/comparatif-driversnote`,
     content: `
       <section>
         <h2>IKtracker vs Driversnote : comparatif 2026</h2>
@@ -652,6 +714,9 @@ const STATIC_PAGES: Record<string, PageMeta> = {
         "operatingSystem": "Web, iOS, Android (PWA)",
         "url": BASE_URL,
         "description": "Meilleure application d'indemnités kilométriques en France en 2026 : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
+        "disambiguatingDescription": DISAMBIGUATION_TEXT,
+        "isAccessibleForFree": true,
+        "installUrl": `${BASE_URL}/installer`,
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" },
         "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "128", "bestRating": "5" },
         "inLanguage": "fr-FR",
@@ -721,7 +786,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
             <tr><td>Hébergement des données</td><td>France / UE</td><td>France</td><td>Danemark / UE</td><td>États-Unis</td></tr>
           </tbody>
         </table>
-        <p>Sources : sites officiels izika.com, driversnote.com, mileiq.com et iktracker.fr — mise à jour juillet 2026. Voir aussi le <a href="${BASE_URL}/comparatif-izika">comparatif détaillé Izika</a> et le <a href="${BASE_URL}/comparatif-drivers-note">comparatif détaillé DriversNote</a>.</p>
+        <p>Sources : sites officiels izika.com, driversnote.com, mileiq.com et iktracker.fr — mise à jour juillet 2026. Voir aussi le <a href="${BASE_URL}/comparatif-izika">comparatif détaillé Izika</a> et le <a href="${BASE_URL}/comparatif-driversnote">comparatif détaillé DriversNote</a>.</p>
       </section>
 
       <section>
@@ -905,17 +970,21 @@ function buildFullHtml(meta: PageMeta): string {
   const ogType = meta.ogType || 'website';
   const ogImage = meta.ogImage || LOGO;
 
-  const jsonLdBlock = meta.jsonLd
-    ? (Array.isArray(meta.jsonLd)
-        ? meta.jsonLd.map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('\n  ')
-        : `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`)
-    : '';
+  const pageJsonLd = meta.jsonLd
+    ? (Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd])
+    : [];
+  // La désambiguïsation est injectée sur chaque page pré-rendue :
+  // c'est le HTML servi aux crawlers et aux LLM.
+  const jsonLdBlock = [...pageJsonLd, DISAMBIGUATION_JSONLD]
+    .map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`)
+    .join('\n  ');
 
   const navHtml = NAV_LINKS
     .map(l => `<li><a href="${BASE_URL}${l.href}">${escapeHtml(l.label)}</a></li>`)
     .join('\n        ');
 
-  const bodyContent = meta.content || '';
+  const bodyContent = (meta.content || '') + DISAMBIGUATION_HTML;
+
 
   return `<!DOCTYPE html>
 <html lang="fr">

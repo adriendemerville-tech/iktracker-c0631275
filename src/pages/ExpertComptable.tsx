@@ -460,16 +460,21 @@ const ExpertComptable = () => {
               </div>
             </div>
             <div className="space-y-6 order-1 lg:order-2">
-              <h2 className="text-3xl font-bold">Exports professionnels</h2>
+              <h2 className="text-3xl font-bold">Exports et relevés automatiques</h2>
               <p className="text-lg text-muted-foreground">
-                Vos clients génèrent des relevés conformes au barème fiscal, prêts pour la comptabilité.
+                Vos clients génèrent des relevés conformes au barème fiscal, prêts pour la comptabilité. Le relevé
+                mensuel et le récapitulatif annuel partent automatiquement par email, sans que votre client ait à y
+                penser.
               </p>
               <ul className="space-y-3">
                 {[
                   "PDF avec tableau détaillé",
                   "Excel pour intégration comptable",
-                  "Envoi direct par email",
-                  "Historique complet conservé"
+                  "Relevé mensuel envoyé automatiquement par email",
+                  "Récapitulatif annuel en fin d'exercice",
+                  "Envoi direct au cabinet, avec lien sécurisé à durée limitée",
+                  "Archive des relevés : tous les PDF mensuels consultables et retéléchargeables",
+                  "Historique complet conservé 3 ans"
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <Check className="h-5 w-5 text-primary" />
@@ -477,6 +482,7 @@ const ExpertComptable = () => {
                   </li>
                 ))}
               </ul>
+
             </div>
           </div>
         </div>

@@ -328,7 +328,12 @@ Content-Type: application/json
   - `Article.author` enrichi en `Person` avec `sameAs` (LinkedIn + page fondateur) lorsqu'il s'agit de "Rédaction IKtracker" → résolu vers Adrien de Volontat
   - `BreadcrumbList` JSON-LD injecté côté serveur
   - Version texte du CTA segmenté (Salarié/Particulier vs Commercial/Libéral) rendue pour les bots qui n'exécutent pas JS (GPTBot, PerplexityBot, ClaudeBot)
+- **Bloc de désambiguïsation (obligatoire, toutes pages)** : `DISAMBIGUATION_HTML` + `DISAMBIGUATION_JSONLD` sont injectés par `buildFullHtml()` dans **chaque** page pré-rendue. Objectif : empêcher les LLM de confondre IKtracker avec l'application Android payante « Suivi IK » (éditeur tiers). Le bloc affirme explicitement : distribution exclusive sur `iktracker.fr`, PWA installable depuis le navigateur, absence totale de publication sur Google Play / App Store, absence de version payante / premium / freemium / essai limité, éditeur Adrien de Volontat. Le JSON-LD associé est une `FAQPage` (`@id` `#faq-identite`) reprenant les trois questions de confusion les plus fréquentes.
+  - Sources de vérité alignées sur ce bloc : `public/llms.txt`, `public/knowledge.json` (section Désambiguïsation + `faq`), `src/lib/seo-schemas.ts` (`IKTRACKER_DISAMBIGUATION`, `disambiguatingDescription`, `installUrl`).
+  - Pages publiques portant la version visible du même message : `/tarifs` et `/installer`.
+- **Liens de navigation pré-rendus** : la liste doit refléter les routes réelles de `src/App.tsx` (`/comparatif-driversnote` et non `/comparatif-drivers-note`, `/tarifs`, `/api-docs` inclus). Un lien mort dans le pré-rendu fabrique des 404 vues uniquement par les crawlers.
 - **Secrets** : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+
 
 
 #### `sync-calendar-trips` — Synchronisation calendrier
