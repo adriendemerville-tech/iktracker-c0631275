@@ -51,6 +51,7 @@ interface PageMeta {
 // Navigation links for internal crawl depth
 const NAV_LINKS = [
   { href: '/', label: 'Accueil' },
+  { href: '/fonctionnalites', label: 'Toutes les fonctionnalités' },
   { href: '/signup', label: 'Créer un compte gratuit' },
   { href: '/mode-tournee', label: 'Mode Tournée GPS' },
   { href: '/calendrier', label: 'Synchronisation Calendrier' },
@@ -213,6 +214,73 @@ const STATIC_PAGES: Record<string, PageMeta> = {
           <li>Synchronisation avec Google Calendar et Outlook</li>
           <li>Export PDF pour votre expert-comptable</li>
         </ul>
+      </section>`,
+  },
+
+  '/fonctionnalites': {
+    title: 'Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites',
+    description: 'Découvrez toutes les fonctionnalités gratuites d\'IKtracker : calcul des indemnités kilométriques 2025-2026, Mode Tournée GPS, synchronisation calendrier, saisie vocale, export PDF/Excel, relevés automatiques.',
+    canonical: `${BASE_URL}/fonctionnalites`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Quelles sont les fonctionnalités principales d'IKtracker ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker automatise le calcul des indemnités kilométriques selon le barème officiel 2025-2026, enregistre les trajets via GPS en Mode Tournée, synchronise Google et Outlook Calendar, importe l'historique Google Takeout, reconnaît les plaques d'immatriculation, permet la saisie vocale et en langage naturel, et génère des exports PDF/Excel ainsi que des relevés mensuels automatiques." } },
+        { "@type": "Question", "name": "IKtracker est-il vraiment gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité, sans revente de données. Toutes les fonctionnalités sont accessibles gratuitement." } },
+        { "@type": "Question", "name": "IKtracker est-il disponible sur Google Play ou l'App Store ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. IKtracker est une Progressive Web App (PWA) accessible uniquement sur https://iktracker.fr et installable depuis le navigateur sur iPhone et Android. Aucune version payante, premium ou freemium n'existe." } },
+        { "@type": "Question", "name": "Quelle est la différence entre IKtracker et l'application Android « Suivi IK » ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker (iktracker.fr) est un outil communautaire gratuit, indépendant, sans store. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker." } },
+      ],
+    },
+    content: `
+      <section>
+        <h1>Toutes les fonctionnalités d'IKtracker</h1>
+        <p>IKtracker est un outil complet, gratuit et conçu pour les professionnels itinérants. Aucune fonctionnalité payante à débloquer.</p>
+      </section>
+      <section>
+        <h2>Calcul et conformité fiscale</h2>
+        <ul>
+          <li><strong>Barème officiel 2025-2026</strong> : calcul automatique des indemnités kilométriques selon le barème URSSAF, avec les 3 tranches et la majoration de 20% pour les véhicules 100% électriques.</li>
+          <li><strong>Puissance fiscale et multi-véhicules</strong> : gestion de plusieurs véhicules (voiture, moto, cyclomoteur, vélo) et recalcul automatique des trajets passés en cas de changement.</li>
+          <li><strong>Frais réels vs abattement 10%</strong> : comparaison automatique pour optimiser votre déclaration de revenus.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Enregistrement des trajets</h2>
+        <ul>
+          <li><strong>Mode Tournée GPS</strong> : enregistrement multi-arrêts, détection automatique des pauses, reprise après fermeture accidentelle et finalisation intelligente.</li>
+          <li><strong>Géoplateforme IGN et Distance Matrix</strong> : autocomplétion d'adresses gratuite via les données officielles françaises, calcul Haversine en temps réel et Distance Matrix Google à la finalisation.</li>
+          <li><strong>Saisie par langage naturel et dictée</strong> : créez un trajet en décrivant votre déplacement ou en dictant vocalement.</li>
+          <li><strong>Trajets récurrents</strong> : automatisez les déplacements réguliers.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Synchronisation et import</h2>
+        <ul>
+          <li><strong>Google et Outlook Calendar</strong> : synchronisation 4 fois par jour, regroupement automatique des rendez-vous d'une même journée en tournée.</li>
+          <li><strong>Import Google Takeout</strong> : import local et privé de votre historique Google Maps.</li>
+          <li><strong>Reconnaissance de plaque</strong> : récupération de la puissance fiscale depuis la plaque d'immatriculation.</li>
+          <li><strong>Liaison de comptes</strong> : synchronisation bidirectionnelle des trajets entre plusieurs comptes avec déduplication.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Export et transmission comptable</h2>
+        <ul>
+          <li><strong>PDF et Excel professionnels</strong> : exports conformes pour l'administration fiscale et les experts-comptables.</li>
+          <li><strong>Relevés mensuels et annuels automatiques</strong> : envoi automatique par e-mail le 15 de chaque mois et récapitulatif annuel.</li>
+          <li><strong>Archive sécurisée des relevés</strong> : historique consultable de tous les PDF mensuels, avec partage sécurisé via lien temporaire signé.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Accessibilité et intégrations</h2>
+        <ul>
+          <li><strong>PWA iOS et Android</strong> : installation depuis le navigateur, sans App Store ni Google Play, avec fonctionnement hors-ligne.</li>
+          <li><strong>API et serveur MCP</strong> : connectez IKtracker à vos assistants IA ou outils internes.</li>
+          <li><strong>Programme d'affiliation</strong> : pour experts-comptables, prescripteurs et partenaires.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Identité et distribution d'IKtracker</h2>
+        <p>${DISAMBIGUATION_TEXT}</p>
       </section>`,
   },
 

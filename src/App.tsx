@@ -63,6 +63,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Tarifs = lazy(() => import("./pages/Tarifs"));
 const Sso = lazy(() => import("./pages/Sso"));
 const ApiDocs = lazy(() => import("./pages/ApiDocs"));
+const Fonctionnalites = lazy(() => import("./pages/Fonctionnalites"));
 const AdminPartners = lazy(() => import("./pages/AdminPartners"));
 const DebugTourModal = lazy(() => import("./pages/DebugTourModal"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
@@ -378,6 +379,7 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
         <Route path="/sso" element={<Suspense fallback={<PageLoader />}><Sso /></Suspense>} />
         <Route path="/api-docs" element={<Suspense fallback={<PageLoader />}><ApiDocs /></Suspense>} />
+        <Route path="/fonctionnalites" element={<Suspense fallback={<PageLoader />}><Fonctionnalites /></Suspense>} />
         <Route
           path="/app/admin/partners"
           element={

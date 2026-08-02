@@ -582,11 +582,12 @@ Config : `cloudflare-worker/wrangler.toml` (routes multi-zones apex + www, .fr +
 | `scripts/generate-sitemap.cjs` | Génère le fallback | Chaque build (prebuild) |
 | `scripts/validate-sitemap-sync.cjs` | Validation CI | Compare les 2 sources |
 
-**Contenu** : ~17 pages statiques + ~45 articles de blog ≈ 62 URLs — toutes en `https://iktracker.fr/*`.
+**Contenu** : ~18 pages statiques + ~45 articles de blog ≈ 63 URLs — toutes en `https://iktracker.fr/*`.
 
 **Priorités & changefreq notables** (alignées entre l'Edge Function et le script statique) :
 - `/` : `priority 1.0`, `weekly`
 - `/meilleure-application-indemnites-kilometriques` : `priority 1.0`, `weekly`
+- `/fonctionnalites` : `priority 0.9`, `weekly`
 - `/bareme-ik-2026` : `priority 0.9`, `monthly`
 - `/signup` : `priority 0.5` (utilitaire, dépriorisé)
 - Utilitaires exclus : `/unsubscribe`, `/marina`, `/temporaryreport/*`, `/sso`, `/offline`, `/debug/*`, `/auth`, `/app/*`, `/admin`
@@ -598,6 +599,8 @@ Sert un HTML complet avec :
 - JSON-LD (Organization, WebApplication, Article, BreadcrumbList, FAQPage)
 - Open Graph + Twitter Cards
 - Liens internes pour la profondeur de crawl
+
+**Page `/fonctionnalites`** : page statique dédiée listant l'ensemble des fonctionnalités d'IKtracker, avec bloc de désambiguïsation et FAQPage injectés dans le pré-rendu pour les bots/IA.
 
 ### robots.txt
 
