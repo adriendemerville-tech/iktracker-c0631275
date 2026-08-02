@@ -964,17 +964,21 @@ function buildFullHtml(meta: PageMeta): string {
   const ogType = meta.ogType || 'website';
   const ogImage = meta.ogImage || LOGO;
 
-  const jsonLdBlock = meta.jsonLd
-    ? (Array.isArray(meta.jsonLd)
-        ? meta.jsonLd.map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('\n  ')
-        : `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`)
-    : '';
+  const pageJsonLd = meta.jsonLd
+    ? (Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd])
+    : [];
+  // La désambiguïsation est injectée sur chaque page pré-rendue :
+  // c'est le HTML servi aux crawlers et aux LLM.
+  const jsonLdBlock = [...pageJsonLd, DISAMBIGUATION_JSONLD]
+    .map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`)
+    .join('\n  ');
 
   const navHtml = NAV_LINKS
     .map(l => `<li><a href="${BASE_URL}${l.href}">${escapeHtml(l.label)}</a></li>`)
     .join('\n        ');
 
-  const bodyContent = meta.content || '';
+  const bodyContent = (meta.content || '') + DISAMBIGUATION_HTML;
+
 
   return `<!DOCTYPE html>
 <html lang="fr">
