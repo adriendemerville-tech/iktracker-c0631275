@@ -141,6 +141,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://iktracker.fr/blog/comment-optimiser-ses-frais-pro-auto-en-s-alignant-sur-le-bareme-urssaf</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://iktracker.fr/blog/carnet-papier-pour-indemnites-kilometriques-pourquoi-c-est-une-fausse-economie-q</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
@@ -219,13 +225,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://iktracker.fr/blog/frais-reels-ou-forfait-guide-independants-2026</loc>
+    <loc>https://iktracker.fr/blog/reforme-facturation-electronique-2026-independants</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://iktracker.fr/blog/reforme-facturation-electronique-2026-independants</loc>
+    <loc>https://iktracker.fr/blog/frais-reels-ou-forfait-guide-independants-2026</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

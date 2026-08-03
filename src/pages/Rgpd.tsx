@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { ArrowLeft, Mail, Shield, FileText, User, Clock, Server, Cookie, Lock } from 'lucide-react';
 import { useNavigate, Link } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';

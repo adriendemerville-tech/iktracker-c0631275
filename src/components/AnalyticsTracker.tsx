@@ -1,6 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from '@/lib/router-compat';
-import ReactGA from 'react-ga4';
+import ReactGAModule from 'react-ga4';
+
+// react-ga4 is CJS; depending on the bundler interop the default export can be
+// nested under `.default`. Resolve whichever shape is present.
+const ReactGA = ((ReactGAModule as unknown as { default?: typeof ReactGAModule }).default ??
+  ReactGAModule) as typeof ReactGAModule;
 
 // Extend window to track initialization state
 declare global {

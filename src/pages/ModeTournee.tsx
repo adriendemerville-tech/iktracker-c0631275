@@ -1,6 +1,6 @@
 import { useEffect, lazy, Suspense, memo } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from '@/lib/helmet-compat';
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";

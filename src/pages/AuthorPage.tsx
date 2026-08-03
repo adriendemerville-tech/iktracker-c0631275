@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { Link } from '@/lib/router-compat';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink, BadgeCheck } from 'lucide-react';

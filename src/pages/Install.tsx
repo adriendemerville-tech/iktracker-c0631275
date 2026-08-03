@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense, memo } from 'react';
 import { useMarketingTracker } from '@/hooks/useMarketingTracker';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { Link } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

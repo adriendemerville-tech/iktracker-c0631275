@@ -1,6 +1,6 @@
 import { useLocation, Link } from "@/lib/router-compat";
 import { useEffect } from "react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from '@/lib/helmet-compat';
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

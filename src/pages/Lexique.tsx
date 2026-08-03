@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { Link } from '@/lib/router-compat';
 import { ArrowLeft, BookOpen, Search, Share2, Download, FileText, Link2, Star } from 'lucide-react';
 import { useState, useMemo, useCallback, useEffect } from 'react';

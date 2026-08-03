@@ -1,5 +1,5 @@
 import { WifiOff, RefreshCw, Home } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from '@/lib/helmet-compat';
 import { Button } from "@/components/ui/button";
 
 const Offline = () => {
