@@ -515,6 +515,12 @@ const ExpertComptable = () => {
         <div className="container mx-auto px-4 text-center space-y-6">
           <h2 className="text-3xl font-bold">Recommandez IKtracker à vos clients</h2>
           <p className="text-lg opacity-90">Gratuit, français, et fiable.</p>
+          <p className="text-sm opacity-90">
+            Clients artisans du bâtiment ?{" "}
+            <Link to="/artisans" className="underline underline-offset-4">
+              Voir le guide des frais kilométriques de chantier
+            </Link>
+          </p>
           <Link to="/signup" onClick={trackSignupClick}>
             <Button size="lg" variant="secondary" className="gap-2">
               Outil 100% gratuit

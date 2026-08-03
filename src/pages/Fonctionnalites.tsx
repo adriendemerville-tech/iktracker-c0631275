@@ -246,6 +246,16 @@ export default function Fonctionnalites() {
             Un outil complet, gratuit et conçu pour les professionnels itinérants.
             <strong className="text-foreground"> Aucune fonctionnalité payante à débloquer.</strong>
           </p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Guides par métier :{" "}
+            <Link to="/artisans" className="text-primary hover:underline">
+              frais kilométriques d'un artisan du bâtiment
+            </Link>{" "}
+            ·{" "}
+            <Link to="/independants" className="text-primary hover:underline">
+              acquisition de clients pour les indépendants
+            </Link>
+          </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/signup">
               <Button size="lg" className="gap-2">
