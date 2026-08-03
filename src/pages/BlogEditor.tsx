@@ -242,7 +242,7 @@ export default function BlogEditor() {
     if (!existingPost) return;
     
     const newStatus: BlogPostStatus = existingPost.status === 'published' ? 'draft' : 'published';
-    const updateData: { status: string; published_at?: string } = { status: newStatus };
+    const updateData: { status: BlogPostStatus; published_at?: string } = { status: newStatus };
     
     if (newStatus === 'published' && !existingPost.published_at) {
       updateData.published_at = new Date().toISOString();
