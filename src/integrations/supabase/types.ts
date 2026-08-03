@@ -861,6 +861,24 @@ export type Database = {
         }
         Relationships: []
       }
+      maintenance_flags: {
+        Row: {
+          enabled: boolean
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       marketing_analytics: {
         Row: {
           created_at: string

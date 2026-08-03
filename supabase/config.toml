@@ -100,6 +100,11 @@ verify_jwt = true
 [functions.wavespeed]
 verify_jwt = true
 
+[functions.backfill-blog-covers]
+verify_jwt = false
+
+
+
 [functions.report-archive]
 verify_jwt = true
 
