@@ -58,6 +58,17 @@ function isPrivateRoute(path) {
   return PRIVATE_PREFIXES.some(prefix => path.startsWith(prefix));
 }
 
+// Requête vers l'origine Lovable (évite la boucle en Worker Custom Domain)
+function fetchOrigin(request) {
+  const url = new URL(request.url);
+  url.hostname = ORIGIN_HOST;
+  url.protocol = 'https:';
+  url.port = '';
+  const req = new Request(url.toString(), request);
+  req.headers.set('X-Forwarded-Host', new URL(request.url).hostname);
+  return fetch(req);
+}
+
 // ─── Logpush ─────────────────────────────────────────────────────────────────
 
 async function sendLog(request, response, botDetected) {
@@ -188,7 +199,7 @@ export default {
         // Fallback vers le fichier statique
       }
       // Fallback : servir le fichier statique depuis l'origin
-      const fallbackRes = await fetch(request);
+      const fallbackRes = await fetchOrigin(request);
       if (fallbackRes.ok) {
         const response = new Response(fallbackRes.body, {
           status: fallbackRes.status,
@@ -217,7 +228,7 @@ export default {
 
     // ── 2b. iktracker.fr — assets statiques → passthrough + cache headers ──
     if (isStaticAsset(path)) {
-      const originResponse = await fetch(request);
+      const originResponse = await fetchOrigin(request);
       const isHashedAsset = path.startsWith('/assets/');
       // Long-lived immutable cache for static media/fonts (rarely change, names are stable)
       // Hashed bundle assets stay immutable 1y. Everything else (sw.js handled elsewhere) 1y too,
@@ -240,7 +251,7 @@ export default {
 
     // ── 3. Routes privées → passthrough ──
     if (isPrivateRoute(path)) {
-      const response = await fetch(request);
+      const response = await fetchOrigin(request);
       ctx.waitUntil(sendLog(request, response, botDetected));
       return response;
     }
@@ -273,7 +284,7 @@ export default {
     }
 
     // ── 5. Utilisateur normal → passthrough vers l'origine ──
-    const response = await fetch(request);
+    const response = await fetchOrigin(request);
     ctx.waitUntil(sendLog(request, response, botDetected));
     return response;
   },
