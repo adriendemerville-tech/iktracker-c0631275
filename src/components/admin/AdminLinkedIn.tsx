@@ -335,7 +335,7 @@ export function AdminLinkedIn() {
                   {JSON.stringify(result.slide_plan, null, 2)}
                 </pre>
               </div>
-            )}
+            ) : null}
             <details className="text-xs">
               <summary className="cursor-pointer text-muted-foreground hover:text-foreground">Réponse brute</summary>
               <pre className="mt-2 p-3 rounded-md bg-muted overflow-auto max-h-80 whitespace-pre-wrap break-all">

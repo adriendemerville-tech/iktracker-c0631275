@@ -159,8 +159,8 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
     onSave(
       {
-        ownerFirstName: firstName.trim() || undefined,
-        ownerLastName: lastName.trim() || undefined,
+        ownerFirstName: firstName.trim(),
+        ownerLastName: lastName.trim(),
         licensePlate: licensePlate.toUpperCase(),
         make: make.trim() || 'Non renseigné',
         model: model.trim() || 'Non renseigné',

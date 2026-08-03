@@ -71,7 +71,7 @@ export function AdminWavespeed() {
       const cleanModel = model.trim().replace(/^\/+|\/+$/g, '');
       const path = wait ? `wavespeed/${cleanModel}?wait=1` : `wavespeed/${cleanModel}`;
       const { data, error } = await supabase.functions.invoke(path, {
-        body: parsedInput,
+        body: parsedInput as Record<string, unknown>,
       });
       if (error) throw error;
       return data as PredictionResult;
