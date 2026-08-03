@@ -104,7 +104,7 @@ export const DesktopSidebar = ({
     if (editingVehicleId && onEditVehicle) {
       onEditVehicle(editingVehicleId, vehicleData, options);
     } else {
-      onAddVehicle(vehicleData);
+      onAddVehicle?.(vehicleData);
     }
     setShowVehicleForm(false);
     setEditingVehicleId(null);

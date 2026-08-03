@@ -10,14 +10,15 @@ interface QueryErrorBoundaryProps {
 }
 
 interface ErrorFallbackProps {
-  error: Error;
+  error: unknown;
   resetErrorBoundary: () => void;
 }
 
 function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
-  const isNetworkError = error.message.includes('fetch') || 
-                         error.message.includes('network') ||
-                         error.message.includes('Failed to fetch');
+  const message = error instanceof Error ? error.message : String(error);
+  const isNetworkError = message.includes('fetch') ||
+                         message.includes('network') ||
+                         message.includes('Failed to fetch');
 
   return (
     <div className="min-h-[300px] flex items-center justify-center p-4">

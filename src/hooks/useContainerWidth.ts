@@ -6,7 +6,7 @@ interface ContainerWidthResult {
   getDataPoints: (baseCount?: number) => number;
 }
 
-export function useContainerWidth(ref: RefObject<HTMLElement>): ContainerWidthResult {
+export function useContainerWidth(ref: RefObject<HTMLElement | null>): ContainerWidthResult {
   const [width, setWidth] = useState(0);
   
   useEffect(() => {

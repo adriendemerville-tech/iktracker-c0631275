@@ -22,7 +22,7 @@ const KM_BAR_ANIMATION_STAGGER_MS = 60;
 const AnimatedLabel = (props: any) => {
   const { x, y, width, height, value, isMobile } = props;
   const [displayValue, setDisplayValue] = useState<number | null>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number | null>(null);
   const fontSize = isMobile ? Math.round(16 * 0.85) : 16; // ~14 on mobile
 
