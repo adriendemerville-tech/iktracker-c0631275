@@ -179,7 +179,6 @@ export default {
       '/install': '/installer',
       '/mestrajets': '/mes-trajets',
       '/experts-comptables': '/expert-comptable',
-      '/experts-comptables': '/expert-comptable',
 
       // ── Consolidation éditoriale du blog (août 2026) ──
       // Cluster « frais réels vs forfait » → pilier unique
