@@ -572,6 +572,23 @@ wrangler deploy   # push cloudflare-worker/iktracker-bot-router.js sur les 4 rou
 
 Config : `cloudflare-worker/wrangler.toml` (routes multi-zones apex + www, .fr + .com). Voir `cloudflare-worker/README.md` pour l'authentification (`wrangler login`) et le rollback. Ne jamais éditer le Worker dans le dashboard **et** en local en parallèle — le prochain `wrangler deploy` écrase.
 
+#### Orange-to-Orange (O2O) — Worker court-circuité (diagnostic 3 août 2026)
+
+L'origine de `iktracker.fr` (`185.158.133.1`, hébergement Lovable) est elle-même derrière Cloudflare. En configuration **Orange-to-Orange**, Cloudflare remet la requête à la zone du fournisseur SaaS et **ignore les Workers de la zone cliente** : `iktracker-bot-router` n'est jamais invoqué en production (0 invocation en analytics, aucun header `X-Rendered-By`), alors que l'appel direct sur `…workers.dev` pré-rend correctement. Les Redirect Rules de zone continuent, elles, de s'appliquer (d'où le www → apex encore fonctionnel).
+
+**Résolution retenue : Worker Custom Domain.** Le Worker devient l'origine publique de `iktracker.fr` et va chercher le contenu sur l'origine Lovable.
+
+- `ORIGIN_HOST = 'iktracker.lovable.app'` et helper `fetchOrigin(request)` : tout passthrough réécrit l'hôte vers l'origine (sinon `fetch(request)` boucle sur le Worker lui-même).
+- Garde-fou anti-boucle : si l'origine renvoie une 3xx vers `iktracker.fr`, le Worker répond `503` explicite au lieu de boucler.
+
+**Séquence de bascule (ordre impératif)** :
+1. Retirer `iktracker.fr` des domaines personnalisés côté hébergeur Lovable (sinon `iktracker.lovable.app` répond `302 → iktracker.fr`).
+2. Supprimer l'enregistrement `A iktracker.fr → 185.158.133.1` et la route Worker `iktracker.fr/*`.
+3. Attacher `iktracker.fr` en **Custom Domain** du Worker (CNAME interne créé automatiquement par Cloudflare, SSL universel).
+4. Vérifier `X-Rendered-By: cloudflare-worker` et le pré-rendu bots sur `/artisans`.
+
+
+
 ### Sitemap (architecture hybride v2)
 
 | Source | Rôle | Quand |
@@ -1237,6 +1254,8 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **3.8** (3 août 2026) — Diagnostic **Orange-to-Orange** : l'origine Lovable étant elle-même derrière Cloudflare, les Workers de la zone cliente sont court-circuités et `iktracker-bot-router` n'est jamais invoqué sur `iktracker.fr` (pré-rendu bots mort en production, 0 invocation). Worker préparé pour la bascule en **Custom Domain** : constante `ORIGIN_HOST = iktracker.lovable.app`, helper `fetchOrigin()` sur les 4 passthroughs (assets, routes privées, fallback sitemap, utilisateurs) et garde-fou anti-boucle renvoyant une 503 explicite si l'origine redirige vers l'apex. Worker redéployé et validé sur `…workers.dev` (titre `/artisans` correct pour GPTBot). Bascule DNS en attente du retrait de `iktracker.fr` des domaines personnalisés côté hébergeur.
 
 - **3.7** (3 août 2026) — Audit SEO/GEO Semrush sur `/artisans` (0 mot-clé positionné en base FR) et correction : ciblage repositionné sur le champ « frais kilométriques » (1 900 rech./mois, KD 30) côté React **et** côté `meta-renderer` (titre, H1, description, tableau barème brut, 2 questions FAQ à volume réel, JSON-LD `HowTo` + dates). Maillage interne ajouté vers `/artisans` depuis `/bareme-ik-2026`, `/frais-reels`, `/fonctionnalites` et `/expert-comptable`. Fonction `meta-renderer` redéployée. **Point ouvert** : le pré-rendu bots n'est plus servi en production (toutes les pages renvoient le HTML SPA par défaut pour Googlebot/GPTBot/PerplexityBot) — la fonction `meta-renderer` répond pourtant correctement en appel direct, la régression se situe donc au niveau du Worker Cloudflare `iktracker-bot-router`.
 

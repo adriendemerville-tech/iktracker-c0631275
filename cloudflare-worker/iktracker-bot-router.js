@@ -9,6 +9,11 @@
 
 const LOGPUSH_ENDPOINT = 'https://crawlers.fr/api/logs';
 
+// Origine réelle (hébergement Lovable). En configuration "Worker Custom Domain",
+// le Worker EST l'origine de iktracker.fr : tout fetch(request) tel quel boucherait
+// sur lui-même. On réécrit donc systématiquement l'hôte vers l'origine Lovable.
+const ORIGIN_HOST = 'iktracker.lovable.app';
+
 const SUPABASE_META_RENDERER = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/meta-renderer';
 const SUPABASE_SITEMAP = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap';
 
@@ -51,6 +56,30 @@ function isStaticAsset(path) {
 
 function isPrivateRoute(path) {
   return PRIVATE_PREFIXES.some(prefix => path.startsWith(prefix));
+}
+
+// Requête vers l'origine Lovable (évite la boucle en Worker Custom Domain)
+async function fetchOrigin(request) {
+  const incoming = new URL(request.url);
+  const url = new URL(request.url);
+  url.hostname = ORIGIN_HOST;
+  url.protocol = 'https:';
+  url.port = '';
+  const req = new Request(url.toString(), request);
+  req.headers.set('X-Forwarded-Host', incoming.hostname);
+  const res = await fetch(req, { redirect: 'manual' });
+
+  // Garde-fou anti-boucle : si l'origine renvoie une redirection vers notre propre
+  // domaine (cas où iktracker.fr est encore déclaré comme domaine principal côté
+  // hébergeur), on ne la suit pas — sinon la requête revient dans ce Worker.
+  const loc = res.headers.get('location') || '';
+  if (res.status >= 300 && res.status < 400 && loc.includes(incoming.hostname)) {
+    return new Response(
+      'Origin redirect loop detected. Remove iktracker.fr from the hosting provider custom domains.',
+      { status: 503, headers: { 'Content-Type': 'text/plain', 'Retry-After': '60' } }
+    );
+  }
+  return res;
 }
 
 // ─── Logpush ─────────────────────────────────────────────────────────────────
@@ -183,7 +212,7 @@ export default {
         // Fallback vers le fichier statique
       }
       // Fallback : servir le fichier statique depuis l'origin
-      const fallbackRes = await fetch(request);
+      const fallbackRes = await fetchOrigin(request);
       if (fallbackRes.ok) {
         const response = new Response(fallbackRes.body, {
           status: fallbackRes.status,
@@ -212,7 +241,7 @@ export default {
 
     // ── 2b. iktracker.fr — assets statiques → passthrough + cache headers ──
     if (isStaticAsset(path)) {
-      const originResponse = await fetch(request);
+      const originResponse = await fetchOrigin(request);
       const isHashedAsset = path.startsWith('/assets/');
       // Long-lived immutable cache for static media/fonts (rarely change, names are stable)
       // Hashed bundle assets stay immutable 1y. Everything else (sw.js handled elsewhere) 1y too,
@@ -235,7 +264,7 @@ export default {
 
     // ── 3. Routes privées → passthrough ──
     if (isPrivateRoute(path)) {
-      const response = await fetch(request);
+      const response = await fetchOrigin(request);
       ctx.waitUntil(sendLog(request, response, botDetected));
       return response;
     }
@@ -268,7 +297,7 @@ export default {
     }
 
     // ── 5. Utilisateur normal → passthrough vers l'origine ──
-    const response = await fetch(request);
+    const response = await fetchOrigin(request);
     ctx.waitUntil(sendLog(request, response, botDetected));
     return response;
   },
