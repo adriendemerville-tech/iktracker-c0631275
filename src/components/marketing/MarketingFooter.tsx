@@ -160,7 +160,7 @@ export function MarketingFooter() {
               href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="underline hover:text-slate-700 transition-colors focus-visible-ring rounded-sm"
+              className="underline hover:text-slate-700 transition-colors focus-visible-ring rounded-xs"
             >
               Avenir Rénovations
             </a>

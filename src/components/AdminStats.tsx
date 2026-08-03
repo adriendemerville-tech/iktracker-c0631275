@@ -1063,7 +1063,7 @@ export function AdminStats() {
   return (
     <div className="space-y-4">
       {/* Period filter and export buttons */}
-      <div className="sticky top-2 z-20 rounded-2xl border border-border bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/85">
+      <div className="sticky top-2 z-20 rounded-2xl border border-border bg-card/95 p-3 shadow-xs backdrop-blur supports-[backdrop-filter]:bg-card/85">
         {/* Mobile collapse toggle */}
         <div className="flex items-center justify-between lg:hidden mb-2">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -1097,7 +1097,7 @@ export function AdminStats() {
                 <ToggleGroupItem 
                   key={key} 
                   value={key}
-                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-xs"
                 >
                   {config.label}
                 </ToggleGroupItem>
@@ -1120,7 +1120,7 @@ export function AdminStats() {
                 <ToggleGroupItem 
                   key={key} 
                   value={key}
-                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                  className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-xs"
                 >
                   {config.label}
                 </ToggleGroupItem>
@@ -2138,13 +2138,13 @@ export function AdminStats() {
                             onValueChange={(value) => value && setTopUserSort(value as TopUserSort)}
                             className="bg-muted/50 p-1 rounded-lg"
                           >
-                            <ToggleGroupItem value="trips" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                            <ToggleGroupItem value="trips" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs">
                               Trajets
                             </ToggleGroupItem>
-                            <ToggleGroupItem value="km" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                            <ToggleGroupItem value="km" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs">
                               Km
                             </ToggleGroupItem>
-                            <ToggleGroupItem value="ik" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                            <ToggleGroupItem value="ik" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs">
                               IK
                             </ToggleGroupItem>
                           </ToggleGroup>

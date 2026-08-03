@@ -99,7 +99,7 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
       <Button
         variant="ghost"
         size="icon"
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background"
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-xs hover:bg-background"
         onClick={goToPrevious}
         aria-label="Image précédente"
       >
@@ -108,7 +108,7 @@ function AppCarouselComponent({ slides = defaultSlides, autoPlay = true, interva
       <Button
         variant="ghost"
         size="icon"
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background"
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-xs hover:bg-background"
         onClick={goToNext}
         aria-label="Image suivante"
       >

@@ -40,7 +40,7 @@ const Offline = () => {
         </div>
 
         {/* Conseils */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 text-left space-y-3">
+        <div className="bg-card/50 backdrop-blur-xs border border-border/50 rounded-xl p-6 text-left space-y-3">
           <h2 className="font-semibold text-foreground flex items-center gap-2">
             💡 Quelques conseils :
           </h2>

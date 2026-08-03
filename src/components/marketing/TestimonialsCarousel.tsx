@@ -118,7 +118,7 @@ function TestimonialsCarouselComponent() {
                   className="flex-shrink-0 px-2 md:px-3"
                   style={{ width: `${100 / visibleCount}%` }}
                 >
-                  <div className="bg-card border border-border rounded-2xl p-5 md:p-6 h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <div className="bg-card border border-border rounded-2xl p-5 md:p-6 h-full flex flex-col gap-3 shadow-xs hover:shadow-md transition-shadow duration-300">
                     <Quote className="h-5 w-5 text-primary/40 flex-shrink-0" />
                     <p className="text-foreground font-medium text-sm md:text-base italic leading-relaxed flex-1">
                       « {t.quote} »
@@ -140,7 +140,7 @@ function TestimonialsCarouselComponent() {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm h-11 w-11"
+            className="absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-xs hover:bg-background shadow-xs h-11 w-11"
             onClick={prev}
             aria-label="Témoignage précédent"
           >
@@ -149,7 +149,7 @@ function TestimonialsCarouselComponent() {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm h-11 w-11"
+            className="absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-xs hover:bg-background shadow-xs h-11 w-11"
             onClick={next}
             aria-label="Témoignage suivant"
           >

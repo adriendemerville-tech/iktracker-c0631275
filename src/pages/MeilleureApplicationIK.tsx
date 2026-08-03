@@ -240,7 +240,7 @@ const MeilleureApplicationIK = () => {
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
-        <main id="main-content" tabIndex={-1} className="outline-none">
+        <main id="main-content" tabIndex={-1} className="outline-hidden">
           <div className="container mx-auto px-4 pt-24">
             <Breadcrumb
               items={[{ label: "Meilleure application d'indemnités kilométriques" }]}

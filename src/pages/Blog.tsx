@@ -106,7 +106,7 @@ export default function Blog() {
       <div className="min-h-screen bg-background font-blog">
         <MarketingNav user={user} loading={authLoading} />
         
-        <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-none">
+        <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-hidden">
           {/* Breadcrumb */}
           <div className="container mx-auto px-4 pt-6">
             <Breadcrumb items={[{ label: 'Blog' }]} />

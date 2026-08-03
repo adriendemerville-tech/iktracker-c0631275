@@ -243,7 +243,7 @@ export default function BlogPost() {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <main id="main-content" tabIndex={-1} className="outline-none">
+        <main id="main-content" tabIndex={-1} className="outline-hidden">
           <article className="container mx-auto px-4 py-12 max-w-3xl">
             {/* Breadcrumb navigation with schema.org */}
             <Breadcrumb 

@@ -263,7 +263,7 @@ const Auth = () => {
           <link rel="canonical" href="https://iktracker.fr/auth" />
         </Helmet>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
-        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-xs">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="p-3 bg-green-500/10 rounded-full">
@@ -297,7 +297,7 @@ const Auth = () => {
   if (isResetPassword) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
-        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-xs">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="p-3 bg-primary/10 rounded-full">

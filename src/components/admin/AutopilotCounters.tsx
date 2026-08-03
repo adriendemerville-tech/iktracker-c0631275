@@ -130,7 +130,7 @@ export function AutopilotCounters({ auditLogs }: AutopilotCountersProps) {
                 <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </button>
               {isOpen && (
-                <div className="mt-1 rounded-md border bg-background/80 backdrop-blur-sm p-2 max-h-40 overflow-y-auto space-y-0.5">
+                <div className="mt-1 rounded-md border bg-background/80 backdrop-blur-xs p-2 max-h-40 overflow-y-auto space-y-0.5">
                   {c.slugs.map(({ slug, count }) => (
                     <div key={slug} className="flex items-center justify-between text-[11px] text-muted-foreground px-1 py-0.5 rounded hover:bg-muted/50">
                       <span className="font-mono truncate mr-2">{slug}</span>

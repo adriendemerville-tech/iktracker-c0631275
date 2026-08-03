@@ -69,7 +69,7 @@ const Privacy = () => {
       </a>
 
       <header 
-        className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border"
+        className="sticky top-0 z-10 bg-background/80 backdrop-blur-xs border-b border-border"
         role="banner"
       >
         <nav className="container mx-auto px-4 py-4 flex items-center gap-4" aria-label="Navigation">
@@ -89,7 +89,7 @@ const Privacy = () => {
       <main 
         id="main-content" 
         tabIndex={-1} 
-        className="container mx-auto px-4 py-8 max-w-3xl outline-none"
+        className="container mx-auto px-4 py-8 max-w-3xl outline-hidden"
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: 'Confidentialité' }]} />
@@ -209,14 +209,14 @@ const Privacy = () => {
                       href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-xs text-primary hover:underline transition-colors focus-visible-ring rounded-sm"
+                      className="text-xs text-primary hover:underline transition-colors focus-visible-ring rounded-xs"
                     >
                       Avenir Rénovations →
                     </a>
                     <span className="text-muted-foreground/50" aria-hidden="true">•</span>
                     <Link 
                       to="/" 
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors focus-visible-ring rounded-sm"
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors focus-visible-ring rounded-xs"
                     >
                       Accueil
                     </Link>

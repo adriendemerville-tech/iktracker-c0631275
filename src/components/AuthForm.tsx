@@ -165,7 +165,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     // Fixed min-height to prevent CLS during mode transitions
     <div className={cn("w-full", className)} style={{ minHeight: compact ? 'auto' : '420px', minWidth: '300px' }}>
       <div className={cn(
-        "bg-card/80 backdrop-blur-sm border border-border rounded-2xl",
+        "bg-card/80 backdrop-blur-xs border border-border rounded-2xl",
         compact ? "p-5" : "p-6 md:p-8"
       )}>
         {!compact && (
@@ -330,7 +330,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             <button
               type="button"
               onClick={() => setMode('forgot-password')}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors focus-visible-ring rounded-sm underline-offset-4 hover:underline"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
               Mot de passe oublié ?
             </button>
@@ -343,7 +343,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             <button
               type="button"
               onClick={() => setMode('login')}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 focus-visible-ring rounded-sm"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 focus-visible-ring rounded-xs"
             >
               <ArrowLeft className="w-3 h-3" aria-hidden="true" />
               Retour à la connexion
@@ -357,7 +357,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             <button
               type="button"
               onClick={() => navigate('/signup')}
-              className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-sm underline-offset-4 hover:underline"
+              className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
               {multilineCta 
                 ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
@@ -371,7 +371,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
             <button
               type="button"
               onClick={() => setMode('login')}
-              className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-sm underline-offset-4 hover:underline"
+              className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
               Déjà un compte ? Connectez-vous
             </button>

@@ -120,7 +120,7 @@ export default function IndemniteGrandDeplacement2026() {
 
       <MarketingNav />
 
-      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-none">
+      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-hidden">
         <div className="container mx-auto px-4 pt-6">
           <Breadcrumb items={[{ label: "Indemnité grand déplacement 2026" }]} />
         </div>
@@ -280,7 +280,7 @@ export default function IndemniteGrandDeplacement2026() {
             {FAQS.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-xl border border-border bg-card p-5 open:shadow-sm transition-shadow"
+                className="group rounded-xl border border-border bg-card p-5 open:shadow-xs transition-shadow"
               >
                 <summary className="cursor-pointer font-semibold text-foreground list-none flex justify-between items-center">
                   {f.q}

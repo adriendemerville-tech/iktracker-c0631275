@@ -116,7 +116,7 @@ const Contact = () => {
         Aller au contenu principal
       </a>
 
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border" role="banner">
+      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xs border-b border-border" role="banner">
         <nav className="container mx-auto px-4 py-4 flex items-center gap-4" aria-label="Navigation">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Retour">
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
@@ -125,7 +125,7 @@ const Contact = () => {
         </nav>
       </header>
 
-      <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-xl outline-none" aria-labelledby="page-heading">
+      <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-xl outline-hidden" aria-labelledby="page-heading">
         <Breadcrumb items={[{ label: 'Contact' }]} />
 
         {/* Direct email */}

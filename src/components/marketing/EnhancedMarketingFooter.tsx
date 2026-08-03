@@ -130,7 +130,7 @@ export function EnhancedMarketingFooter() {
               <Link 
                 to="/" 
                 onClick={handleLinkClick('/')} 
-                className="flex items-center gap-2 mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-fit"
+                className="flex items-center gap-2 mb-4 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-fit"
                 aria-label="IKtracker - Retour à l'accueil"
               >
                 <img 
@@ -158,7 +158,7 @@ export function EnhancedMarketingFooter() {
                 <Link 
                   to="/app" 
                   onClick={handleLinkClick('/app')}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                 >
                   <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
                   Accéder au dashboard
@@ -175,7 +175,7 @@ export function EnhancedMarketingFooter() {
                     <Link 
                       to={link.href}
                       onClick={handleLinkClick(link.href)}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                     >
                       {link.label}
                     </Link>
@@ -193,7 +193,7 @@ export function EnhancedMarketingFooter() {
                     <Link 
                       to={link.href}
                       onClick={handleLinkClick(link.href)}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                     >
                       {link.label}
                     </Link>
@@ -211,7 +211,7 @@ export function EnhancedMarketingFooter() {
                     <Link 
                       to={item.href}
                       onClick={handleLinkClick(item.href)}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                     >
                       {item.label}
                     </Link>
@@ -229,7 +229,7 @@ export function EnhancedMarketingFooter() {
                     <Link 
                       to={link.href}
                       onClick={handleLinkClick(link.href)}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                     >
                       {link.label}
                     </Link>
@@ -273,7 +273,7 @@ export function EnhancedMarketingFooter() {
                   <Link 
                     to="/privacy" 
                     onClick={handleLinkClick('/privacy')}
-                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                   >
                     Confidentialité
                   </Link>
@@ -282,7 +282,7 @@ export function EnhancedMarketingFooter() {
                   <Link 
                     to="/terms" 
                     onClick={handleLinkClick('/terms')}
-                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                   >
                     CGVU
                   </Link>
@@ -291,7 +291,7 @@ export function EnhancedMarketingFooter() {
                   <Link 
                     to="/mentions-legales" 
                     onClick={handleLinkClick('/mentions-legales')}
-                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                   >
                     Mentions légales
                   </Link>
@@ -300,7 +300,7 @@ export function EnhancedMarketingFooter() {
                   <Link 
                     to="/contact" 
                     onClick={handleLinkClick('/contact')}
-                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                    className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                   >
                     Contact
                   </Link>
@@ -317,7 +317,7 @@ export function EnhancedMarketingFooter() {
                 href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="underline hover:text-foreground/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                className="underline hover:text-foreground/60 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-xs"
               >
                 Avenir Rénovations
               </a>

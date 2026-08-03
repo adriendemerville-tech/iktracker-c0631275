@@ -25,7 +25,7 @@ export function TourButton({
       disabled={isLoading}
       className={cn(
         "w-16 h-16 rounded-full flex items-center justify-center relative",
-        "focus:outline-none focus:ring-4 focus:ring-offset-2",
+        "focus:outline-hidden focus:ring-4 focus:ring-offset-2",
         "transition-all duration-500",
         isActive
           ? "focus:ring-[#25D366]/50"
