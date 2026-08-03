@@ -1,9 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import BlogPost from "@/pages/BlogPost";
 import { supabase } from "@/integrations/supabase/client";
+import { BLOG_SLUG_REDIRECTS } from "@/lib/blog-redirects";
 
 export const Route = createFileRoute("/blog/$slug")({
+  beforeLoad: ({ params }) => {
+    const target = BLOG_SLUG_REDIRECTS[params.slug];
+    if (target) {
+      throw redirect({ href: target, statusCode: 301, throw: true });
+    }
+  },
   loader: async ({ params }) => {
+
     const { data } = await supabase
       .from("blog_posts")
       .select("title, meta_description, content, featured_image_url, slug, published_at, created_at, updated_at")
