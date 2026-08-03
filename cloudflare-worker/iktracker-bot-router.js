@@ -9,6 +9,11 @@
 
 const LOGPUSH_ENDPOINT = 'https://crawlers.fr/api/logs';
 
+// Origine réelle (hébergement Lovable). En configuration "Worker Custom Domain",
+// le Worker EST l'origine de iktracker.fr : tout fetch(request) tel quel boucherait
+// sur lui-même. On réécrit donc systématiquement l'hôte vers l'origine Lovable.
+const ORIGIN_HOST = 'iktracker.lovable.app';
+
 const SUPABASE_META_RENDERER = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/meta-renderer';
 const SUPABASE_SITEMAP = 'https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap';
 
