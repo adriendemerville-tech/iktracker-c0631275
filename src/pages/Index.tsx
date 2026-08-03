@@ -681,7 +681,7 @@ const Index = () => {
     setShowVehicleForm(true);
   };
 
-  const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+  const getVehicle = (vehicleId: string | null) => vehicles.find(v => v.id === vehicleId);
 
   // Export functions
   const IKTRACKER_URL = 'https://iktracker.fr';
@@ -1403,7 +1403,7 @@ ${IKTRACKER_MENTION}
           onDeleteLocation={deleteLocation}
           onUpdateLocation={updateLocation}
           onAddVehicle={handleAddVehicle}
-          onCreateTrip={addTrip}
+          onCreateTrip={(t) => { void addTrip({ ...t, status: "validated" }); }}
           getTotalAnnualKm={getTotalAnnualKm}
         />
       </Suspense>

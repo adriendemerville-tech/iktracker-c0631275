@@ -278,7 +278,7 @@ export default function Report() {
     return acc;
   }, {} as Record<string, Trip[]>);
 
-  const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+  const getVehicle = (vehicleId: string | null) => vehicles.find(v => v.id === vehicleId);
 
   // Filter trips that are tours (have tourStops)
   const pastTours = useMemo(() => {
@@ -1408,12 +1408,12 @@ ${IKTRACKER_URL}`;
           }}
           savedLocations={savedLocations}
           vehicles={vehicles}
-          editTrip={editingTrip}
+          editTrip={editingTrip ? { ...editingTrip, vehicleId: editingTrip.vehicleId ?? "" } : null}
           onAddLocation={addLocation}
           onDeleteLocation={deleteLocation}
           onUpdateLocation={updateLocation}
           onAddVehicle={handleAddVehicle}
-          onCreateTrip={addTrip}
+          onCreateTrip={(t) => { void addTrip({ ...t, status: "validated" }); }}
           onUpdateTrip={updateTrip}
           getTotalAnnualKm={getTotalAnnualKm}
           recurringOnly={newTripRecurringOnly}
