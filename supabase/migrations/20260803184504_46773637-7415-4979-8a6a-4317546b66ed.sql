@@ -1,0 +1,1 @@
+update public.maintenance_flags set enabled = false, updated_at = now() where key = 'backfill_blog_covers';

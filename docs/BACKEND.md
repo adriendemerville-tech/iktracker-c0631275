@@ -1277,3 +1277,9 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **2.81** (24 juillet 2026) — Sitemap Edge Function : suppression des `lastmod` statiques non-page-specific conformément à la politique sitemap. `robots.txt` enrichi de `Disallow` explicites pour `/app/`, `/auth`, `/unsubscribe`, `/temporaryreport/`, `/sso`, `/offline`, `/debug/`, `/.lovable/oauth/consent`.
 - **2.8** (24 juillet 2026) — Ajout Niveau 1 filtres calendrier (`shouldSkipEvent`) + section Intégrations d'agents (MCP OAuth). Documentation du fallback `IKTRACKER_WEBHOOK_SECRET` pour la signature HMAC des webhooks partenaires.
 - **2.7** (24 juillet 2026) — Relevé mensuel automatique utilisateur (15 du mois) + webhook `monthly_report.sent` + auto-provisioning des `user_preferences` pour les users partenaires.
+
+## Backfill couvertures blog (Wavespeed)
+
+- Edge function `backfill-blog-covers` (verify_jwt=false) : génère une couverture photoréaliste (flux-dev, 1216x640) pour les articles publiés sans visuel ou pointant vers un stockage externe, upload dans le bucket `blog-images`, met à jour `featured_image_url`.
+- Garde-fou : table `public.maintenance_flags` (cle `backfill_blog_covers`) — la fonction ne s' exécute que si `enabled = true` (sinon service_role ou JWT admin requis). Flag remis à `false` après le backfill.
+- Résultat août 2026 : 79 articles publiés, 0 sans image (49 couvertures générées).
