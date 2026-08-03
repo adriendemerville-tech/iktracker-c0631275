@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SmartLanding } from "@/components/auth/SmartRoutes";
 
-const TITLE = "IKtracker — Application gratuite de suivi des indemnités kilométriques";
+const TITLE = "Indemnités kilométriques 2026 : l'application gratuite";
 const DESCRIPTION =
-  "Application 100% gratuite pour suivre et automatiser vos indemnités kilométriques : mode tournée GPS, synchronisation calendrier, export PDF pour votre comptable.";
+  "Calculez vos indemnités kilométriques au barème URSSAF 2026 : suivi GPS des tournées, sync agenda, export PDF comptable. 100% gratuit, sans carte bancaire.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
