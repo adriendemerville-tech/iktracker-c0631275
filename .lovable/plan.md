@@ -1,42 +1,58 @@
-Suite au constat que les IA confondent IKtracker avec l'app Android payante « Suivi IK » et ignorent la moitié des fonctionnalités récentes, voici les tâches restantes. Les fichiers `llms.txt`, `knowledge.json` et `seo-schemas.ts` sont déjà corrigés — il reste à propager l'information là où les IA et Google la lisent réellement.
+## Plan — Correction SEO/GEO de la page /artisans
 
-## Lot 1 — Rendu pour les bots et les IA (priorité haute)
+Objectif : faire passer `/artisans` de 0 mot-clé positionné à une page captant le champ « frais kilométriques + chantier/artisan », et renforcer sa citabilité par les IA (canal n°1 : 44,6 % via ChatGPT).
 
-Les LLM lisent surtout le HTML pré-rendu, pas les fichiers JSON annexes.
+---
 
-1. Injecter le bloc de désambiguïsation dans `meta-renderer` (Edge Function) : une section factuelle en texte brut sur chaque page pré-rendue, du type « IKtracker est une PWA gratuite disponible uniquement sur iktracker.fr — aucun store, aucune version payante ».
-2. Ajouter le JSON-LD `disambiguatingDescription` + `installUrl` dans le pré-rendu, aujourd'hui présent uniquement côté React.
-3. Vérifier que `knowledge.json` et `llms.txt` sont bien servis par le Worker Cloudflare avec le bon `Content-Type` et sans mise en cache trop longue, pour que la mise à jour soit visible rapidement.
+### Lot 1 — Ciblage sémantique (impact SEO le plus direct)
 
-## Lot 2 — Pages publiques visibles
+Fichier : `src/pages/Artisans.tsx`
 
-4. Page `/tarifs` : ajouter un bloc explicite « Pas de version payante — attention aux applications tierces au nom proche », c'est la page que les IA citent pour les questions de prix.
-5. Page `/installer` : clarifier « aucun téléchargement sur Google Play ni App Store, installation depuis le navigateur ».
-6. Créer une FAQ publique de désambiguïsation (soit sur `/tarifs`, soit une page dédiée) avec le schéma FAQPage correspondant — c'est le format que les IA reprennent le plus volontiers.
+- Réécrire le `<title>` autour du champ à volume : « Frais kilométriques artisan : suivi des trajets de chantier » (< 60 caractères).
+- Réécrire le H1 pour contenir le mot-clé principal, tout en gardant l'accroche métier : « Frais kilométriques artisan : vos trajets de chantier comptés ».
+- Ajuster la `meta description` pour y inclure « frais kilométriques » et « barème 2026 ».
+- Supprimer la balise `<meta name="keywords">` (ignorée par Google, bruit inutile).
+- Reformuler 2 sous-titres H2 en formulations interrogatives à intention de recherche (« Comment calculer les frais kilométriques d'un artisan ? »).
 
-## Lot 3 — Fonctionnalités absentes des pages publiques
+### Lot 2 — Maillage interne depuis les pages qui ont de l'autorité
 
-Certaines fonctionnalités désormais déclarées dans les données structurées n'ont aucune page publique associée, ce qui affaiblit leur crédibilité aux yeux des moteurs :
+Le trafic du domaine est concentré sur `/bareme-ik-2026` (position 3 sur « ik 2026 », 27 100 rech./mois sur « barème kilométrique 2026 »). Aucune de ces pages ne pointe vers `/artisans`.
 
-7. Relevés mensuels/annuels envoyés automatiquement par email et archive des PDF : les mentionner sur `/expert-comptable`.
-8. Saisie en langage naturel et dictée vocale : les mentionner sur `/mode-tournee` ou la page d'accueil.
-9. Vérifier que `sitemap.xml` reste synchronisé (script `validate-sitemap-sync.cjs`) si une page est créée.
+- Ajouter un lien contextuel depuis `src/pages/BaremeIK2026.tsx` vers `/artisans` (ancre : « frais kilométriques d'un artisan du bâtiment »).
+- Ajouter un lien depuis `src/pages/FraisReels.tsx` (position 11-13 sur « simulation des frais réels »).
+- Ajouter `/artisans` dans le bloc de liens métier de `src/pages/Fonctionnalites.tsx` et `src/pages/ExpertComptable.tsx`.
+- Vérifier la réciprocité : `/artisans` doit lier vers `/bareme-ik-2026` (déjà fait) et vers `/frais-reels` (manquant).
 
-## Lot 4 — Documentation et contrôle
+### Lot 3 — Contenu GEO (citabilité par les IA)
 
-10. Mettre à jour `docs/BACKEND.md` et `docs/FRONTEND.md` avec la stratégie de désambiguïsation et régénérer le PDF backend.
-11. Contrôle final : vérifier via le testeur de rendu bot que la page d'accueil pré-rendue contient bien la désambiguïsation et la liste de fonctionnalités à jour.
-12. Publier, puis demander une réindexation dans Search Console pour les pages clés (accueil, tarifs, installer).
+- Remplacer/compléter la FAQ par des questions à volume réel mesuré :
+  - « Comment calculer les frais kilométriques d'un artisan ? » (1 000 rech./mois)
+  - « Comment justifier ses frais kilométriques aux impôts ? » (1 900 rech./mois)
+  - Conserver les questions de désambiguïsation (Suivi IK, gratuité, PWA).
+- Ajouter un tableau HTML brut du barème 2026 pour véhicule utilitaire (par puissance fiscale et tranche kilométrique) — les LLM citent en priorité les tables factuelles sans JS.
+- Mettre à jour le `FAQPage` JSON-LD en conséquence.
 
-## Détails techniques
+### Lot 4 — Données structurées et pré-rendu
 
-- `supabase/functions/meta-renderer/index.ts` importe déjà des constantes SEO ; le plus propre est d'y réutiliser `IKTRACKER_DISAMBIGUATION` en le dupliquant côté Deno (pas d'import cross-bundle possible), avec un commentaire de synchronisation.
-- Les FAQ de désambiguïsation existent déjà dans `public/knowledge.json` : elles serviront de source unique pour le contenu des pages.
-- Aucun changement de base de données ni de RLS n'est nécessaire.
+- Ajouter un JSON-LD `HowTo` sur la section « journée type » (le contenu existe déjà, il n'est pas structuré).
+- Ajouter `datePublished` / `dateModified` au schema `Article`.
+- Répercuter les nouveaux titres, FAQ et tableau dans le pré-rendu bots : `supabase/functions/meta-renderer/index.ts` (bloc `/artisans`), puis redéployer la fonction.
+- Vérifier le rendu bot en production sur `https://iktracker.fr/artisans`.
+- Mettre à jour `docs/BACKEND.md` (modification du meta-renderer).
 
-## Ce que je ne ferai pas sans ton accord
+---
 
-- Ouvrir un signalement auprès de Google/de l'éditeur tiers sur la similarité de nom (hors périmètre technique).
-- Créer une nouvelle page publique si tu préfères tout regrouper sur `/tarifs`.
+### Détails techniques
 
-Ordre recommandé : Lot 1 d'abord (impact immédiat sur ce que lisent les IA), puis 2, 3, 4.
+- Aucune modification de logique métier ni de base de données.
+- Le tableau du barème utilitaire doit réutiliser la source de vérité existante du barème (mémoire « IK Tiered Scale ») et non des valeurs recopiées à la main.
+- Le pré-rendu `meta-renderer` doit rester synchronisé avec le contenu React : toute FAQ ajoutée côté page doit l'être aussi côté fonction, sinon les IA lisent une version différente de celle des utilisateurs.
+- Pas de nouvelle route, donc pas de mise à jour du sitemap nécessaire.
+
+### Mesure du résultat
+
+Re-lancer `page_analysis` Semrush sur `/artisans` dans 4 à 6 semaines : l'objectif réaliste est une première apparition sur des requêtes longue traîne « frais kilométriques + chantier/artisan », pas un positionnement sur « barème kilométrique 2026 » (déjà couvert par `/bareme-ik-2026`, qu'il ne faut pas cannibaliser).
+
+### Ordre recommandé
+
+Lot 1 → Lot 2 → Lot 3 → Lot 4. Les lots 1 et 2 sont les plus rentables et peuvent être livrés ensemble.

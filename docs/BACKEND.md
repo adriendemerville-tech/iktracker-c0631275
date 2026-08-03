@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.6 — 3 août 2026
+> Version 3.7 — 3 août 2026
 
 ## Table des matières
 
@@ -604,7 +604,7 @@ Sert un HTML complet avec :
 
 **Page `/fonctionnalites`** : page statique dédiée listant l'ensemble des fonctionnalités d'IKtracker, avec bloc de désambiguïsation et FAQPage injectés dans le pré-rendu pour les bots/IA.
 
-**Page `/artisans`** : landing thématique BTP (trajets de chantier + indemnités kilométriques) avec FAQPage, bloc de désambiguïsation et lien dofollow contextuel vers `https://dictadevi.io` présenté comme solution complémentaire pour les devis vocaux. Alias client `/devis-chantier → /artisans` (redirection React Router).
+**Page `/artisans`** (optimisée SEO/GEO le 3 août 2026 après audit Semrush) : ciblage sémantique repositionné sur « frais kilométriques artisan » (title, H1, description), tableau HTML brut du barème par puissance fiscale servi aux LLM sans JS, deux questions FAQ à volume de recherche réel (« Comment calculer les frais kilométriques d'un artisan ? », « Comment justifier ses frais kilométriques aux impôts ? »), JSON-LD `HowTo` sur la journée type et `datePublished`/`dateModified` sur l'`Article`. Landing thématique BTP (trajets de chantier + indemnités kilométriques) avec FAQPage, bloc de désambiguïsation et lien dofollow contextuel vers `https://dictadevi.io` présenté comme solution complémentaire pour les devis vocaux. Alias client `/devis-chantier → /artisans` (redirection React Router).
 
 **Page `/independants`** : landing thématique visibilité & acquisition (SEO, GEO, leads) avec FAQPage, bloc de désambiguïsation et lien dofollow contextuel vers `https://crawlers.fr` présenté comme solution complémentaire SEO/GEO pilotée par l'IA. Alias clients `/acquisition-de-clients` et `/indépendants → /independants` (redirections React Router).
 
@@ -1237,6 +1237,8 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **3.7** (3 août 2026) — Audit SEO/GEO Semrush sur `/artisans` (0 mot-clé positionné en base FR) et correction : ciblage repositionné sur le champ « frais kilométriques » (1 900 rech./mois, KD 30) côté React **et** côté `meta-renderer` (titre, H1, description, tableau barème brut, 2 questions FAQ à volume réel, JSON-LD `HowTo` + dates). Maillage interne ajouté vers `/artisans` depuis `/bareme-ik-2026`, `/frais-reels`, `/fonctionnalites` et `/expert-comptable`. Fonction `meta-renderer` redéployée. **Point ouvert** : le pré-rendu bots n'est plus servi en production (toutes les pages renvoient le HTML SPA par défaut pour Googlebot/GPTBot/PerplexityBot) — la fonction `meta-renderer` répond pourtant correctement en appel direct, la régression se situe donc au niveau du Worker Cloudflare `iktracker-bot-router`.
 
 - **3.6** (3 août 2026) — Désambiguïsation IA généralisée : `DISAMBIGUATION_HTML` + `DISAMBIGUATION_JSONLD` injectés dans **toutes** les pages pré-rendues par `meta-renderer`, sources de vérité alignées (`public/llms.txt`, `public/knowledge.json`, `src/lib/seo-schemas.ts`). Trois nouvelles landings statiques pré-rendues et ajoutées au sitemap : `/fonctionnalites` (0.9, weekly), `/artisans` + alias `/devis-chantier` (partenaire DictaDevi, dofollow), `/independants` + alias `/acquisition-de-clients` et `/indépendants` (partenaire Crawlers.fr, dofollow). LinkedIn : bloc GEO **exactement 1** question/réponse imposé côté génération et côté audit (`geoBlockOk` bloquant), scope éditorial élargi à 6 familles de contenu sur un cycle de 10 mois avec anti-redondance sur les 12 derniers posts.
 

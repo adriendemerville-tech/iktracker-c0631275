@@ -287,13 +287,15 @@ const STATIC_PAGES: Record<string, PageMeta> = {
   },
 
   '/artisans': {
-    title: 'Artisans : suivi des trajets de chantier et devis vocaux',
-    description: 'Artisan du bâtiment : suivez vos kilomètres de chantier gratuitement avec IKtracker et dictez vos devis avec DictaDevi. Barème officiel, relevé PDF pour le comptable, 0 €.',
+    title: 'Frais kilométriques artisan : suivi des trajets de chantier',
+    description: "Artisan du bâtiment : calculez vos frais kilométriques au barème 2026 et suivez vos trajets de chantier gratuitement avec IKtracker. Relevé PDF pour le comptable, 0 €.",
     canonical: `${BASE_URL}/artisans`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
+        { "@type": "Question", "name": "Comment calculer les frais kilométriques d'un artisan ?", "acceptedAnswer": { "@type": "Answer", "text": "On multiplie les kilomètres professionnels de l'année par le taux du barème kilométrique correspondant à la puissance fiscale du véhicule, en appliquant la tranche kilométrique atteinte (jusqu'à 5 000 km, de 5 001 à 20 000 km, au-delà de 20 000 km). Un véhicule 100% électrique bénéficie d'une majoration de 20%. IKtracker applique ce calcul automatiquement à chaque trajet enregistré." } },
+        { "@type": "Question", "name": "Comment justifier ses frais kilométriques aux impôts ?", "acceptedAnswer": { "@type": "Answer", "text": "L'administration attend un relevé détaillé indiquant, pour chaque déplacement, la date, le point de départ, la destination, le motif professionnel et la distance parcourue, ainsi que la puissance fiscale du véhicule. IKtracker génère ce relevé au format PDF chaque mois et conserve l'historique complet dans une archive consultable." } },
         { "@type": "Question", "name": "Comment un artisan suit-il ses kilomètres de chantier ?", "acceptedAnswer": { "@type": "Answer", "text": "En lançant le Mode Tournée GPS d'IKtracker au départ du dépôt : chaque arrêt chantier est enregistré, la distance réelle est calculée entre les points et le barème kilométrique officiel est appliqué automatiquement. Le relevé mensuel part ensuite en PDF vers l'expert-comptable." } },
         { "@type": "Question", "name": "Combien coûte IKtracker pour un artisan ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium." } },
         { "@type": "Question", "name": "Quel outil pour faire les devis de chantier ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker ne fait pas de devis : il gère uniquement les trajets et les indemnités kilométriques. Pour la rédaction de devis, DictaDevi.io permet à l'artisan de dicter son devis à la voix depuis le chantier et de le transformer en document professionnel. Les deux outils sont complémentaires et interopérables via l'API partenaire d'IKtracker." } },
@@ -302,8 +304,26 @@ const STATIC_PAGES: Record<string, PageMeta> = {
     },
     content: `
       <section>
-        <h1>Artisans : vos trajets de chantier comptés, vos devis dictés</h1>
+        <h1>Frais kilométriques artisan : vos trajets de chantier comptés</h1>
         <p>Un artisan du bâtiment roule toute la journée entre le dépôt, les chantiers et le négoce, puis traite sa paperasse le soir. IKtracker enregistre gratuitement les kilomètres professionnels et produit le relevé fiscal ; DictaDevi.io couvre la partie devis.</p>
+      </section>
+      <section>
+        <h2>Comment calculer les frais kilométriques d'un artisan ?</h2>
+        <p>Le calcul dépend de la puissance fiscale du véhicule (fourgon, camionnette ou voiture) et du total annuel de kilomètres professionnels. Un véhicule 100% électrique bénéficie d'une majoration de 20%.</p>
+        <table>
+          <caption>Barème kilométrique par puissance fiscale et tranche kilométrique annuelle</caption>
+          <thead>
+            <tr><th>Puissance fiscale</th><th>Jusqu'à 5 000 km</th><th>De 5 001 à 20 000 km</th><th>Au-delà de 20 000 km</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>3 CV</td><td>0,529 € / km</td><td>0,316 € / km + 1065 €</td><td>0,370 € / km</td></tr>
+            <tr><td>4 CV</td><td>0,606 € / km</td><td>0,340 € / km + 1330 €</td><td>0,407 € / km</td></tr>
+            <tr><td>5 CV</td><td>0,636 € / km</td><td>0,357 € / km + 1395 €</td><td>0,427 € / km</td></tr>
+            <tr><td>6 CV</td><td>0,665 € / km</td><td>0,374 € / km + 1457 €</td><td>0,447 € / km</td></tr>
+            <tr><td>7 CV et plus</td><td>0,697 € / km</td><td>0,394 € / km + 1515 €</td><td>0,470 € / km</td></tr>
+          </tbody>
+        </table>
+        <p>Détail complet sur le <a href="${BASE_URL}/bareme-ik-2026">barème IK 2026</a> et comparaison avec la déduction forfaitaire sur la page <a href="${BASE_URL}/frais-reels">frais réels</a>.</p>
       </section>
       <section>
         <h2>Ce qu'IKtracker fait pour un artisan</h2>

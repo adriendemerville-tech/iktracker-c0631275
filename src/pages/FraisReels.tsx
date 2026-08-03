@@ -649,6 +649,13 @@ export default function FraisReels() {
               <p className="text-lg text-muted-foreground mb-8">
                 IKtracker génère automatiquement vos justificatifs fiscaux conformes au barème 2026.
               </p>
+              <p className="text-sm text-muted-foreground mb-8">
+                Vous travaillez sur chantier ? Consultez le guide dédié aux{" "}
+                <Link to="/artisans" className="text-primary hover:underline">
+                  frais kilométriques d'un artisan du bâtiment
+                </Link>
+                .
+              </p>
               <Button asChild variant="gradient" size="lg">
                 <Link to="/signup">
                   Accéder à l'outil gratuitement

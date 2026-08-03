@@ -8,6 +8,7 @@ import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { IK_BAREME_2024 } from "@/types/trip";
 import {
   ArrowRight,
   CheckCircle2,
@@ -27,6 +28,9 @@ const EnhancedMarketingFooter = lazy(() =>
 
 const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 FooterPlaceholder.displayName = "FooterPlaceholder";
+
+const PAGE_PUBLISHED = "2026-07-20";
+const PAGE_MODIFIED = "2026-08-03";
 
 const PAIN_POINTS = [
   {
@@ -77,7 +81,38 @@ const FEATURES = [
   },
 ];
 
+const JOURNEE_TYPE = [
+  {
+    name: "Départ du dépôt",
+    text: "7h30 — départ du dépôt : la tournée est lancée d'un geste dans IKtracker.",
+  },
+  {
+    name: "Premier chantier",
+    text: "9h00 — premier chantier : l'arrêt est détecté et horodaté automatiquement.",
+  },
+  {
+    name: "Métré et devis",
+    text: "11h00 — métré chez un prospect : le devis est dicté sur place avec DictaDevi.",
+  },
+  {
+    name: "Retour atelier",
+    text: "16h30 — retour atelier : la tournée est finalisée, les distances réelles sont calculées.",
+  },
+  {
+    name: "Relevé au comptable",
+    text: "Le 15 du mois — le relevé PDF part automatiquement vers l'expert-comptable.",
+  },
+];
+
 const FAQ = [
+  {
+    q: "Comment calculer les frais kilométriques d'un artisan ?",
+    a: "On multiplie les kilomètres professionnels de l'année par le taux du barème kilométrique correspondant à la puissance fiscale du véhicule, en appliquant la tranche kilométrique atteinte (jusqu'à 5 000 km, de 5 001 à 20 000 km, au-delà de 20 000 km). Un véhicule 100% électrique bénéficie d'une majoration de 20%. IKtracker applique ce calcul automatiquement à chaque trajet enregistré, sans saisie manuelle.",
+  },
+  {
+    q: "Comment justifier ses frais kilométriques aux impôts ?",
+    a: "L'administration attend un relevé détaillé indiquant, pour chaque déplacement, la date, le point de départ, la destination, le motif professionnel et la distance parcourue, ainsi que la puissance fiscale et la carte grise du véhicule. IKtracker génère ce relevé au format PDF chaque mois et conserve l'historique complet dans une archive consultable, ce qui constitue le justificatif à présenter en cas de contrôle.",
+  },
   {
     q: "Comment un artisan suit-il ses kilomètres de chantier ?",
     a: "En lançant le Mode Tournée GPS d'IKtracker au départ du dépôt : chaque arrêt chantier est enregistré, la distance réelle est calculée entre les points et le barème kilométrique officiel est appliqué automatiquement. Le relevé mensuel part ensuite en PDF vers l'expert-comptable.",
@@ -100,6 +135,8 @@ const FAQ = [
   },
 ];
 
+const fmt = (n: number) => n.toFixed(3).replace(".", ",");
+
 const Artisans = () => {
   const { user, loading } = useAuthLazy();
   const { trackCTAClick } = useMarketingTracker("artisans");
@@ -107,20 +144,16 @@ const Artisans = () => {
   return (
     <>
       <Helmet>
-        <title>Artisans : suivi des trajets de chantier et devis vocaux</title>
+        <title>Frais kilométriques artisan : suivi des trajets de chantier</title>
         <meta
           name="description"
-          content="Artisan du bâtiment : suivez vos kilomètres de chantier gratuitement avec IKtracker et dictez vos devis avec DictaDevi. Barème officiel, relevé PDF pour le comptable, 0 €."
-        />
-        <meta
-          name="keywords"
-          content="artisan indemnité kilométrique, suivi trajets chantier, devis chantier vocal, frais kilométriques BTP, carnet de bord artisan, dictadevi"
+          content="Artisan du bâtiment : calculez vos frais kilométriques au barème 2026 et suivez vos trajets de chantier gratuitement avec IKtracker. Relevé PDF pour le comptable, 0 €."
         />
         <link rel="canonical" href="https://iktracker.fr/artisans" />
-        <meta property="og:title" content="Artisans : trajets de chantier et devis, sans paperasse du soir" />
+        <meta property="og:title" content="Frais kilométriques artisan : trajets de chantier et devis" />
         <meta
           property="og:description"
-          content="IKtracker suit vos kilomètres de chantier gratuitement. DictaDevi transforme votre voix en devis. Deux outils complémentaires pour les artisans."
+          content="IKtracker calcule vos frais kilométriques de chantier au barème officiel, gratuitement. DictaDevi transforme votre voix en devis."
         />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="fr_FR" />
@@ -128,10 +161,10 @@ const Artisans = () => {
         <meta property="og:site_name" content="IKtracker" />
         <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Artisans : trajets de chantier et devis vocaux" />
+        <meta name="twitter:title" content="Frais kilométriques artisan : trajets de chantier" />
         <meta
           name="twitter:description"
-          content="Suivi kilométrique gratuit pour les artisans, et devis dictés à la voix avec DictaDevi."
+          content="Calcul automatique des frais kilométriques de chantier au barème officiel, gratuit, et devis dictés à la voix avec DictaDevi."
         />
         <meta name="geo.region" content="FR" />
         <meta name="language" content="fr" />
@@ -149,10 +182,29 @@ const Artisans = () => {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Article",
-            headline: "Artisans : suivre ses trajets de chantier et ses devis sans paperasse",
+            "@type": "HowTo",
+            name: "Suivre ses frais kilométriques de chantier en une journée",
             description:
-              "Guide pratique pour les artisans du bâtiment : suivi kilométrique gratuit avec IKtracker et rédaction de devis à la voix avec DictaDevi.",
+              "Déroulé d'une journée type d'artisan du bâtiment avec IKtracker, du départ du dépôt à l'envoi du relevé kilométrique à l'expert-comptable.",
+            totalTime: "PT1M",
+            estimatedCost: { "@type": "MonetaryAmount", currency: "EUR", value: "0" },
+            step: JOURNEE_TYPE.map((step, i) => ({
+              "@type": "HowToStep",
+              position: i + 1,
+              name: step.name,
+              text: step.text,
+            })),
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: "Frais kilométriques artisan : suivre ses trajets de chantier",
+            description:
+              "Guide pratique pour les artisans du bâtiment : calcul des frais kilométriques au barème officiel, suivi des trajets de chantier gratuit avec IKtracker et rédaction de devis à la voix avec DictaDevi.",
+            datePublished: PAGE_PUBLISHED,
+            dateModified: PAGE_MODIFIED,
             author: {
               "@type": "Person",
               name: "Adrien de Volontat",
@@ -183,11 +235,12 @@ const Artisans = () => {
             Artisans du bâtiment et TPE de chantier
           </div>
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            Vos trajets de chantier comptés, vos devis dictés
+            Frais kilométriques artisan : vos trajets de chantier comptés
           </h1>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
             Un artisan roule toute la journée et travaille sa paperasse le soir. IKtracker enregistre les kilomètres
-            entre chantiers et produit le relevé fiscal, gratuitement. Pour la partie devis, DictaDevi prend le relais.
+            entre chantiers, applique le barème kilométrique officiel et produit le relevé fiscal, gratuitement. Pour la
+            partie devis, DictaDevi prend le relais.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Button asChild size="lg" onClick={() => trackCTAClick()}>
@@ -216,6 +269,53 @@ const Artisans = () => {
               </Card>
             ))}
           </div>
+        </section>
+
+        {/* Barème */}
+        <section className="container mx-auto px-4 py-12 max-w-5xl">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Comment calculer les frais kilométriques d'un artisan ?
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-3xl">
+            Le calcul dépend de la puissance fiscale du véhicule (fourgon, camionnette ou voiture) et du total annuel de
+            kilomètres professionnels. Voici les taux du barème kilométrique applicables, appliqués automatiquement par
+            IKtracker à chaque trajet enregistré.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <caption className="sr-only">
+                Barème kilométrique par puissance fiscale et tranche kilométrique annuelle
+              </caption>
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th scope="col" className="py-3 pr-4 font-semibold">Puissance fiscale</th>
+                  <th scope="col" className="py-3 pr-4 font-semibold">Jusqu'à 5 000 km</th>
+                  <th scope="col" className="py-3 pr-4 font-semibold">De 5 001 à 20 000 km</th>
+                  <th scope="col" className="py-3 font-semibold">Au-delà de 20 000 km</th>
+                </tr>
+              </thead>
+              <tbody>
+                {IK_BAREME_2024.map(b => (
+                  <tr key={b.cv} className="border-b border-border/60">
+                    <th scope="row" className="py-3 pr-4 font-medium text-left">
+                      {b.cv === "7+" ? "7 CV et plus" : `${b.cv} CV`}
+                    </th>
+                    <td className="py-3 pr-4 text-muted-foreground">{fmt(b.upTo5000.rate)} € / km</td>
+                    <td className="py-3 pr-4 text-muted-foreground">
+                      {fmt(b.from5001To20000.rate)} € / km + {b.from5001To20000.fixed} €
+                    </td>
+                    <td className="py-3 text-muted-foreground">{fmt(b.over20000.rate)} € / km</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-sm text-muted-foreground mt-6">
+            Un véhicule 100% électrique bénéficie d'une majoration de 20% sur le montant obtenu. Détail complet des
+            tranches sur le <Link to="/bareme-ik-2026" className="font-medium text-primary hover:underline">barème IK
+            2026</Link>, et comparaison avec la déduction forfaitaire sur la page{" "}
+            <Link to="/frais-reels" className="font-medium text-primary hover:underline">frais réels</Link>.
+          </p>
         </section>
 
         {/* IKtracker features */}
@@ -294,20 +394,16 @@ const Artisans = () => {
 
         {/* Journée type */}
         <section className="container mx-auto px-4 py-12 max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-8">Une journée type, sans paperasse du soir</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-8">
+            Comment se déroule une journée de chantier sans paperasse du soir ?
+          </h2>
           <ol className="space-y-4">
-            {[
-              "7h30 — départ du dépôt : la tournée est lancée d'un geste dans IKtracker.",
-              "9h00 — premier chantier : l'arrêt est détecté et horodaté automatiquement.",
-              "11h00 — métré chez un prospect : le devis est dicté sur place avec DictaDevi.",
-              "16h30 — retour atelier : la tournée est finalisée, les distances réelles sont calculées.",
-              "Le 15 du mois — le relevé PDF part automatiquement vers l'expert-comptable.",
-            ].map((step, i) => (
-              <li key={step} className="flex gap-4">
+            {JOURNEE_TYPE.map((step, i) => (
+              <li key={step.name} className="flex gap-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                   {i + 1}
                 </span>
-                <p className="pt-1 text-muted-foreground">{step}</p>
+                <p className="pt-1 text-muted-foreground">{step.text}</p>
               </li>
             ))}
           </ol>
