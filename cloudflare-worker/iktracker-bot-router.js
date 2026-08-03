@@ -59,14 +59,27 @@ function isPrivateRoute(path) {
 }
 
 // Requête vers l'origine Lovable (évite la boucle en Worker Custom Domain)
-function fetchOrigin(request) {
+async function fetchOrigin(request) {
+  const incoming = new URL(request.url);
   const url = new URL(request.url);
   url.hostname = ORIGIN_HOST;
   url.protocol = 'https:';
   url.port = '';
   const req = new Request(url.toString(), request);
-  req.headers.set('X-Forwarded-Host', new URL(request.url).hostname);
-  return fetch(req);
+  req.headers.set('X-Forwarded-Host', incoming.hostname);
+  const res = await fetch(req, { redirect: 'manual' });
+
+  // Garde-fou anti-boucle : si l'origine renvoie une redirection vers notre propre
+  // domaine (cas où iktracker.fr est encore déclaré comme domaine principal côté
+  // hébergeur), on ne la suit pas — sinon la requête revient dans ce Worker.
+  const loc = res.headers.get('location') || '';
+  if (res.status >= 300 && res.status < 400 && loc.includes(incoming.hostname)) {
+    return new Response(
+      'Origin redirect loop detected. Remove iktracker.fr from the hosting provider custom domains.',
+      { status: 503, headers: { 'Content-Type': 'text/plain', 'Retry-After': '60' } }
+    );
+  }
+  return res;
 }
 
 // ─── Logpush ─────────────────────────────────────────────────────────────────
