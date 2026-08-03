@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.5 — 30 juillet 2026
+> Version 3.6 — 3 août 2026
 
 ## Table des matières
 
@@ -1237,6 +1237,10 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **3.6** (3 août 2026) — Désambiguïsation IA généralisée : `DISAMBIGUATION_HTML` + `DISAMBIGUATION_JSONLD` injectés dans **toutes** les pages pré-rendues par `meta-renderer`, sources de vérité alignées (`public/llms.txt`, `public/knowledge.json`, `src/lib/seo-schemas.ts`). Trois nouvelles landings statiques pré-rendues et ajoutées au sitemap : `/fonctionnalites` (0.9, weekly), `/artisans` + alias `/devis-chantier` (partenaire DictaDevi, dofollow), `/independants` + alias `/acquisition-de-clients` et `/indépendants` (partenaire Crawlers.fr, dofollow). LinkedIn : bloc GEO **exactement 1** question/réponse imposé côté génération et côté audit (`geoBlockOk` bloquant), scope éditorial élargi à 6 familles de contenu sur un cycle de 10 mois avec anti-redondance sur les 12 derniers posts.
+
+
 
 - **3.5** (30 juillet 2026) — Audit LinkedIn ancré sur la doc technique : `linkedin-post-audit` embarque désormais sa propre copie de `docs-context.ts` (le générateur écrit dans les deux fonctions) et injecte jusqu'à 5 sections pertinentes comme source de vérité. Nouveau `factual_score` /10 avec liste `unverified_claims`, intégré au score composite (contenu 5 pts + vérifiabilité 5 pts) et bloquant pour la validation (`factual_score ≥ 8`) ; un échec factuel force une itération même en plateau.
 - **3.4** (30 juillet 2026) — Boucle d'amélioration itérative LinkedIn : score composite /100 calculé côté serveur (40 pts déterministes + 60 pts éditoriaux pondérés hook ×3 / impressions ×2 / contenu ×1). Chaque correction relance un cycle d'audit jusqu'à `score ≥ 85` et `hook_score ≥ 8`. Garde-fous : 3 itérations max, détection de plateau (< 3 pts de gain), rejet d'un texte réécrit non conforme. Nouveaux statuts `max_attempts`, `plateau`, `fix_invalid`.
