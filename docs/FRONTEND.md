@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.4 — 24 juillet 2026
+> Version 1.5 — 3 août 2026
 
 ## Table des matières
 
@@ -92,16 +92,28 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/mentions-legales` | `MentionsLegales` | Mentions légales |
 | `/rgpd` | `Rgpd` | Conformité RGPD (droits, sécurité, hébergement) |
 | `/contact` | `Contact` | Page contact |
-| `/installer` | `Install` | Guide d'installation PWA |
-| `/expert-comptable` | `ExpertComptable` | Landing expert-comptable |
-| `/mode-tournee` | `ModeTournee` | Landing mode tournée |
+| `/installer` | `Install` | Guide d'installation PWA (bloc « distribution web uniquement, aucun store ») |
+| `/fonctionnalites` | `Fonctionnalites` | Panorama complet des fonctionnalités (5 familles) + FAQ de désambiguïsation |
+| `/expert-comptable` | `ExpertComptable` | Landing expert-comptable (relevés mensuels, récap annuel, archive PDF) |
+| `/artisans` | `Artisans` | Landing BTP / chantiers, partenaire DictaDevi (dofollow) |
+| `/independants` | `Independants` | Landing visibilité & acquisition, partenaire Crawlers.fr (dofollow) |
+| `/mode-tournee` | `ModeTournee` | Landing mode tournée (inclut la section Smart Add vocal) |
 | `/calendrier` | `Calendrier` | Landing sync calendrier |
 | `/bareme-ik-2026` | `BaremeIK2026` | Simulateur barème IK |
 | `/frais-reels` | `FraisReels` | Guide frais réels |
+| `/note-de-frais-kilometrique` | `NoteDeFraisKilometrique` | Guide note de frais |
+| `/indemnite-kilometrique-velo` | `IndemniteKilometriqueVelo` | Guide IK vélo |
+| `/indemnite-grand-deplacement-2026` | `IndemniteGrandDeplacement2026` | Guide grand déplacement |
+| `/mes-trajets` | `MesTrajetsLanding` | Landing SEO historique de trajets |
+| `/tarifs` | `Tarifs` | Tarifs (gratuit à vie) + FAQ anti-hallucination prix |
+| `/api-docs` | `ApiDocs` | Documentation API partenaire |
 | `/lexique` | `Lexique` | Lexique IK |
 | `/comparatif-izika` | `ComparatifIzika` | Comparatif vs Izika |
 | `/comparatif-driversnote` | `ComparatifDriversNote` | Comparatif vs Driver's Note |
+| `/meilleure-application-indemnites-kilometriques` | `MeilleureApplicationIK` | Comparatif applications IK |
 | `/marina` | `MarinaAnalyze` | Analyse IA documents |
+| `/sso` | `Sso` | Point d'entrée SSO partenaire |
+| `/unsubscribe` | `Unsubscribe` | Désinscription emails |
 | `/offline` | `Offline` | Page hors-ligne |
 | `/temporaryreport/:id` | `TemporaryReport` | Rapport partagé (public) |
 
@@ -111,15 +123,17 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 |---|---|---|
 | `/app` | `Index` | Dashboard principal (ajout trajet) |
 | `/app/mestrajets` | `MesTrajets` | Historique des trajets |
+| `/app/archive` | `Archive` | Archive des relevés PDF mensuels/annuels (aperçu + export CSV) |
 | `/app/profile` | `Profile` | Profil utilisateur |
 | `/app/admin` | `Admin` | Dashboard admin |
 | `/app/admin/blog` | `BlogAdmin` | Gestion articles blog (onglets : Articles, Brouillons, **Corbeille**, Journal API, **Liste noire**). Sélection multiple par checkbox + actions groupées (publier, dépublier, mettre à la corbeille, restaurer, supprimer définitivement) sur les onglets Articles et Corbeille. |
 | `/app/admin/blog/edit/:id?` | `BlogEditor` | Éditeur d'article |
+| `/app/admin/partners` | `AdminPartners` | Gestion des partenaires sortants |
 | `/app/blog/edit/:id?` | `BlogEditor` | Éditeur (alias) |
 | `/app/theme-onboarding` | `ThemeOnboarding` | Choix du thème |
 | `/app/recovery` | `RecoveryWizard` | Récupération tournée |
 
-### Redirections (anciennes URLs)
+### Redirections (anciennes URLs & alias)
 
 | Ancien path | Nouveau path |
 |---|---|
@@ -131,6 +145,9 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/recovery` | `/app/recovery` |
 | `/theme-onboarding` | `/app/theme-onboarding` |
 | `/install` | `/installer` |
+| `/experts-comptables` | `/expert-comptable` |
+| `/devis-chantier` | `/artisans` |
+| `/acquisition-de-clients`, `/indépendants` | `/independants` |
 
 ### Guards & Smart Components
 
@@ -501,7 +518,33 @@ src/
 - **Serveur MCP** : défini dans `src/lib/mcp/` (voir doc backend), 4 outils exposés : `list_vehicles`, `list_trips`, `get_ytd_summary`, `create_trip`.
 - **Vite plugin** : `mcpPlugin()` dans `vite.config.ts` — régénère `supabase/functions/mcp/index.ts` à chaque build.
 
+## Gate de vérification email (août 2026)
+
+- `src/components/EmailVerificationGate.tsx` : modale bloquante déclenchée après 5 min de première session si l'email n'est pas vérifié. Bouton « Renvoyer le lien », ouverture automatique d'un onglet Gmail si l'adresse est `@gmail.com`, croix de fermeture en haut à droite.
+- `src/hooks/useEmailGate.ts` : source de vérité des limites tant que l'email n'est pas confirmé — **3 trajets** et **1 tournée** maximum, export de relevé désactivé.
+
+## Ajout intelligent de trajet (Smart Add)
+
+- `src/components/TripPromptBar.tsx` : champ texte en langage naturel + bouton micro, en bas de la feuille « Nouveau trajet ».
+- Pipeline : transcription vocale (Whisper via `transcribe-audio`) puis extraction structurée (`parse-trip-prompt`, Mistral). Le résultat pré-remplit le formulaire, jamais d'insertion directe.
+- Surface marketing associée : section Smart Add sur `/mode-tournee`.
+
+## Archive des relevés (`/app/archive`)
+
+- `src/pages/Archive.tsx` : liste des relevés PDF mensuels et annuels générés automatiquement, aperçu inline, téléchargement et export CSV. Desktop-first (aperçu PDF non fiable sur mobile).
+
+## Véhicules — recalcul opt-in
+
+- `src/components/VehicleForm.tsx` : case « Mettre à jour les trajets passés » lors de la modification des CV fiscaux ou du statut électrique. Décochée par défaut ; le recalcul en lot passe par `useTrips.ts`.
+
+## Acquisition & désambiguïsation (SEO/GEO)
+
+- `src/lib/seo-schemas.ts` : constante `IKTRACKER_DISAMBIGUATION`, `disambiguatingDescription` et `installUrl` sur le schéma `SoftwareApplication`. Réutilisée par `/tarifs`, `/installer`, `/fonctionnalites`, `/artisans`, `/independants`.
+- `src/components/ReferralSourceModal.tsx` : questionnaire de découverte (Communauté, Google, Réseaux sociaux, ChatGPT) écrit dans `referral_sources`. Principale mesure fiable du canal IA, les référents HTTP étant absents pour les assistants.
+
 ## Changelog
+
+- **1.5** (3 août 2026) — Gate de vérification email (3 trajets / 1 tournée, export bloqué), Smart Add texte + vocal, page `/app/archive`, recalcul IK opt-in sur les véhicules, nouvelles landings `/fonctionnalites`, `/artisans`, `/independants` et bloc de désambiguïsation IA.
 
 - **1.4** (24 juillet 2026) — Modale « Compléter le trajet » centrée + pré-remplissage adresses réelles. Ajout page OAuthConsent et intégration MCP.
 - **1.3** (4 mai 2026) — Tournées, étapes horodatées et audit PDF.
