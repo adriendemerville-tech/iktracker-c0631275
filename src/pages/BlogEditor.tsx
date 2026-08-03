@@ -292,7 +292,6 @@ export default function BlogEditor() {
     <>
       <Helmet>
         <title>{existingPost ? "Modifier l'article" : "Nouvel article"} - Blog IKtracker</title>
-        <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={`https://iktracker.fr/blog/edit${id ? `/${id}` : ''}`} />
       </Helmet>
 

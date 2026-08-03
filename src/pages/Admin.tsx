@@ -550,9 +550,6 @@ const Admin = () => {
   return (
     <>
       <Helmet>
-        <title>Administration | IKtracker</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/admin" />
       </Helmet>
       <div className="min-h-screen bg-background cursor-default">
       {/* Header */}

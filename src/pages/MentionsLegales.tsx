@@ -11,21 +11,6 @@ const MentionsLegales = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Mentions Légales | IKtracker - Éditeur et Hébergeur</title>
-        <meta name="description" content="Mentions légales d'IKtracker : informations sur l'éditeur, l'hébergeur, la propriété intellectuelle et les conditions d'utilisation du site iktracker.fr." />
-        <link rel="canonical" href="https://iktracker.fr/mentions-legales" />
-        <meta name="robots" content="index, follow" />
-
-        <meta property="og:title" content="Mentions Légales | IKtracker" />
-        <meta property="og:description" content="Mentions légales d'IKtracker : éditeur, hébergeur et informations juridiques." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/mentions-legales" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Mentions Légales | IKtracker" />
-        <meta name="twitter:description" content="Mentions légales d'IKtracker : éditeur, hébergeur et informations juridiques." />
 
         <script type="application/ld+json">
           {JSON.stringify({

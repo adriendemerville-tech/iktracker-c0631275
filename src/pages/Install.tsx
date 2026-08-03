@@ -71,31 +71,12 @@ const Install = () => {
   return (
     <div className="min-h-screen bg-background select-text">
       <Helmet>
-        <title>Installer IKtracker | Application PWA gratuite iOS et Android</title>
-        <meta name="description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
-        <meta name="keywords" content="installer IKtracker, PWA indemnités kilométriques, application iOS IK, Android frais kilométriques, installer sans App Store, application gratuite mobile" />
-        <link rel="canonical" href="https://iktracker.fr/installer" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Installer IKtracker | Application PWA iOS et Android" />
-        <meta property="og:description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/installer" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Installer IKtracker | PWA iOS et Android" />
-        <meta name="twitter:description" content="Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         
         {/* Structured Data */}
         <script type="application/ld+json">

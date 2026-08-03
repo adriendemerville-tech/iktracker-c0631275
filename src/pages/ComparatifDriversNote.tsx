@@ -93,26 +93,6 @@ const ComparatifDriversNote = () => {
   return (
     <>
       <Helmet>
-        <title>Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker</title>
-        <meta 
-          name="description" 
-          content="Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite." 
-        />
-        <meta name="keywords" content="driversnote alternative, driversnote gratuit, ibeacon frais kilométriques, mouchard gps voiture, alternative driversnote france, suivi kilométrique sans gps" />
-        <link rel="canonical" href="https://iktracker.fr/comparatif-driversnote" />
-        <meta property="og:title" content="Driversnote vs IKtracker : Avez-vous vraiment besoin d'un mouchard GPS ?" />
-        <meta property="og:description" content="Comparatif 2026 : Le tracking GPS automatique vs la synchronisation d'agenda intelligente. Alternative gratuite et respectueuse de la vie privée." />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/comparatif-driversnote" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Alternative Driversnote Gratuite 2026" />
-        <meta name="twitter:description" content="Driversnote trop cher ? Découvrez IKtracker, l'alternative sans GPS permanent et 100% gratuite." />
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

@@ -77,17 +77,10 @@ export default function AuthorPage() {
   return (
     <>
       <Helmet>
-        <title>Adrien de Volontat - Fondateur IKtracker | Blog</title>
-        <meta name="description" content="Découvrez Adrien de Volontat, fondateur d'IKtracker et dirigeant d'Avenir Rénovations à Saint-Rémy-de-Provence. Un outil créé par un professionnel pour les professionnels." />
         <link rel="canonical" href={canonicalUrl} />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Adrien de Volontat - Fondateur IKtracker" />
-        <meta property="og:description" content="Découvrez le créateur d'IKtracker, outil de suivi des indemnités kilométriques." />
-        <meta property="og:type" content="profile" />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="profile:first_name" content="Adrien" />
-        <meta property="profile:last_name" content="de Volontat" />
         
         {/* Structured Data */}
         <script type="application/ld+json">

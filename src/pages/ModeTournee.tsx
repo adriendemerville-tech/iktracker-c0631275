@@ -116,31 +116,12 @@ export default function ModeTournee() {
   return (
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
-        <title>Mode Tournée GPS | Suivi kilométrique commercial, infirmier, artisan</title>
-        <meta name="description" content="Mode Tournée IKtracker : enregistrez automatiquement chaque arrêt client par GPS. Idéal pour commerciaux itinérants, VRP, infirmières libérales, artisans, livreurs et aide à domicile. Note de frais kilométrique générée en un clic." />
-        <meta name="keywords" content="mode tournée GPS, commercial itinérant, tournée VRP, note de frais kilométrique, suivi kilométrique infirmière libérale, indemnités kilométriques artisan, frais kilométriques multi-arrêts, auto-entrepreneur déplacement, application gratuite tournée" />
-        <link rel="canonical" href="https://iktracker.fr/mode-tournee" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
-        <meta property="og:description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/mode-tournee" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" />
-        <meta name="twitter:description" content="Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         
         {/* Structured Data */}
         <script type="application/ld+json">

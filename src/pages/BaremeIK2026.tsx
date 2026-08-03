@@ -80,27 +80,6 @@ const BaremeIK2026 = () => {
   return (
     <>
       <Helmet>
-        <title>Barème kilométrique 2026 | Simulateur IK URSSAF</title>
-        <meta 
-          name="description" 
-          content="Barème kilométrique 2025 & 2026 officiel URSSAF : tableau IK par CV, simulateur frais kilométrique gratuit et calcul automatique. Majoration véhicule électrique +20%." 
-        />
-        <meta name="keywords" content="barème kilométrique 2025, barème kilométrique 2026, simulateur frais kilométrique, indemnités kilométriques URSSAF, barème ik 2026, frais kilométrique impot, calcul IK, véhicule électrique IK, majoration 20% électrique" />
-        <link rel="canonical" href="https://iktracker.fr/bareme-ik-2026" />
-        <meta property="og:title" content="Barème Kilométrique 2026 Officiel - Simulateur IK Gratuit" />
-        <meta property="og:description" content="Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique." />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/bareme-ik-2026" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Barème Kilométrique 2026 Officiel | IKtracker" />
-        <meta name="twitter:description" content="Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

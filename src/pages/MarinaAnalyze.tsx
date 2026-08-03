@@ -188,8 +188,6 @@ const MarinaAnalyze = () => {
   return (
     <>
       <Helmet>
-        <meta name="robots" content="noindex, nofollow" />
-        <title>Marina — Analyse SEO</title>
       </Helmet>
 
       <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-16 px-4 pb-16">

@@ -782,9 +782,6 @@ export default function BlogAdmin() {
   return (
     <>
       <Helmet>
-        <title>Administration Blog - IKtracker</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/app/admin/blog" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

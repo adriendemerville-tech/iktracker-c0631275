@@ -545,7 +545,16 @@ src/
 - `src/lib/seo-schemas.ts` : constante `IKTRACKER_DISAMBIGUATION`, `disambiguatingDescription` et `installUrl` sur le schéma `SoftwareApplication`. Réutilisée par `/tarifs`, `/installer`, `/fonctionnalites`, `/artisans`, `/independants`.
 - `src/components/ReferralSourceModal.tsx` : questionnaire de découverte (Communauté, Google, Réseaux sociaux, ChatGPT) écrit dans `referral_sources`. Principale mesure fiable du canal IA, les référents HTTP étant absents pour les assistants.
 
+## Métadonnées SEO en SSR (TanStack `head()`)
+
+- Depuis la migration TanStack Start, les balises `<title>`, `description`, `canonical`, Open Graph et Twitter sont déclarées **dans le `head()` de chaque route** (`src/routes/**`), donc rendues côté serveur et visibles par Googlebot, GPTBot et les autres crawlers sans exécution JS.
+- `<Helmet>` reste utilisé dans les pages **uniquement** pour les JSON-LD et quelques balises dérivées d'un contenu chargé côté client. Ne jamais y remettre un `<title>` ou une `description` : cela créerait un doublon avec le `head()` de la route.
+- `/blog/$slug` possède un `loader` qui récupère l'article (titre, meta_description, image, dates) et alimente `head()` : chaque article a désormais ses vraies métadonnées en SSR, avec un fallback `noindex` si l'article n'existe pas.
+- Règle pour toute nouvelle page : créer la route avec son `head()` (titre unique < 60 caractères, description < 160, canonical absolu sur `https://iktracker.fr`), `og:image` uniquement au niveau feuille, jamais sur `__root.tsx`.
+
 ## Changelog
+
+- **2.1** (3 août 2026) — Métadonnées SEO migrées de `<Helmet>` vers le `head()` des routes TanStack (SSR) sur l'ensemble des pages publiques ; `head()` dynamique piloté par loader pour les articles de blog.
 
 - **1.5** (3 août 2026) — Gate de vérification email (3 trajets / 1 tournée, export bloqué), Smart Add texte + vocal, page `/app/archive`, recalcul IK opt-in sur les véhicules, nouvelles landings `/fonctionnalites`, `/artisans`, `/independants` et bloc de désambiguïsation IA.
 

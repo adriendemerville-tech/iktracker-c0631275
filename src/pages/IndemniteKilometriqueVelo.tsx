@@ -39,23 +39,6 @@ export default function IndemniteKilometriqueVelo() {
   return (
     <>
       <Helmet>
-        <title>Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables</title>
-        <meta
-          name="description"
-          content="Guide complet de l'indemnité kilométrique vélo et du Forfait Mobilités Durables en 2025-2026 : montant, plafond 700 €, exonération URSSAF, justificatifs. Pour salariés, freelances et employeurs."
-        />
-        <meta
-          name="keywords"
-          content="indemnité kilométrique vélo, IK vélo, forfait mobilités durables, FMD, indemnité vélo électrique, vélotaf, indemnité vélo employeur, plafond 700 euros vélo"
-        />
-        <link rel="canonical" href="https://iktracker.fr/indemnite-kilometrique-velo" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-        <meta property="og:title" content="Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables" />
-        <meta property="og:description" content="Tout savoir sur l'indemnité kilométrique vélo et le Forfait Mobilités Durables : 700 €/an exonérés, conditions, justificatifs et calcul." />
-        <meta property="og:url" content="https://iktracker.fr/indemnite-kilometrique-velo" />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
 
         <script type="application/ld+json">
           {JSON.stringify({

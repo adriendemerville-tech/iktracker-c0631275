@@ -24,9 +24,6 @@ export default function ApiDocs() {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>API Partenaires — IKtracker</title>
-        <meta name="description" content="Documentation de l'API Partenaires IKtracker : intégrez le calcul d'indemnités kilométriques, la création de trajets et le SSO dans votre plateforme." />
-        <link rel="canonical" href="https://iktracker.fr/api-docs" />
       </Helmet>
       <MarketingNav />
 

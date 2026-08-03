@@ -188,28 +188,6 @@ export default function Fonctionnalites() {
   return (
     <>
       <Helmet>
-        <title>Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites</title>
-        <meta
-          name="description"
-          content="Découvrez toutes les fonctionnalités gratuites d'IKtracker : calcul des indemnités kilométriques 2025-2026, Mode Tournée GPS, synchronisation calendrier, saisie vocale, export PDF/Excel, relevés automatiques."
-        />
-        <meta
-          name="keywords"
-          content="fonctionnalités IKtracker, indemnités kilométriques gratuit, mode tournée GPS, synchronisation calendrier, export PDF note de frais, saisie vocale trajet"
-        />
-        <link rel="canonical" href="https://iktracker.fr/fonctionnalites" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-        <meta property="og:title" content="Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites" />
-        <meta property="og:description" content="Liste complète des fonctionnalités d'IKtracker : calcul fiscal 2025-2026, Mode Tournée GPS, calendrier, dictée vocale, exports comptables, archive PDF." />
-        <meta property="og:url" content="https://iktracker.fr/fonctionnalites" />
-        <meta property="og:type" content="website" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites" />
-        <meta name="twitter:description" content="Liste complète des fonctionnalités d'IKtracker : calcul fiscal 2025-2026, Mode Tournée GPS, calendrier, dictée vocale, exports comptables." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
 
         <script type="application/ld+json">
           {JSON.stringify(buildSoftwareApplicationSchema({

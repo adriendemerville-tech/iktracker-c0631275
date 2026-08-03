@@ -35,23 +35,6 @@ export default function NoteDeFraisKilometrique() {
   return (
     <>
       <Helmet>
-        <title>Note de frais kilométrique 2025-2026 | Modèle & calcul gratuit</title>
-        <meta
-          name="description"
-          content="Comment faire une note de frais kilométrique conforme URSSAF en 2025-2026 : modèle, calcul automatique selon barème officiel, export PDF & Excel. Gratuit pour salariés, libéraux et auto-entrepreneurs."
-        />
-        <meta
-          name="keywords"
-          content="note de frais kilométrique, modèle note de frais kilométrique, comment faire une note de frais kilométrique, calcul note de frais, justifier frais kilométrique impôt, remboursement kilométrique"
-        />
-        <link rel="canonical" href="https://iktracker.fr/note-de-frais-kilometrique" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-        <meta property="og:title" content="Note de frais kilométrique 2025-2026 | Modèle gratuit" />
-        <meta property="og:description" content="Modèle de note de frais kilométrique conforme URSSAF + calcul automatique selon barème 2025-2026. Export PDF & Excel gratuit." />
-        <meta property="og:url" content="https://iktracker.fr/note-de-frais-kilometrique" />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
 
         <script type="application/ld+json">
           {JSON.stringify({

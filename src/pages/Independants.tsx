@@ -100,34 +100,6 @@ const Independants = () => {
   return (
     <>
       <Helmet>
-        <title>Indépendants : visibilité SEO, GEO et acquisition de clients</title>
-        <meta
-          name="description"
-          content="Indépendant ou freelance : rendez votre site visible sur Google et dans les réponses des IA. SEO et GEO automatisés avec Crawlers, frais kilométriques gratuits avec IKtracker."
-        />
-        <meta
-          name="keywords"
-          content="acquisition client indépendant, SEO freelance, GEO intelligence artificielle, visibilité en ligne auto-entrepreneur, générer des leads, crawlers.fr"
-        />
-        <link rel="canonical" href="https://iktracker.fr/independants" />
-        <meta property="og:title" content="Indépendants : visibilité en ligne et acquisition de clients" />
-        <meta
-          property="og:description"
-          content="Un site trouvé sur Google et cité par les IA génère des contacts en continu. Crawlers automatise le SEO et le GEO, IKtracker gère vos kilomètres gratuitement."
-        />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/independants" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Indépendants : SEO, GEO et acquisition de clients" />
-        <meta
-          name="twitter:description"
-          content="Rendez votre site visible sur Google et dans les réponses des IA, et laissez IKtracker gérer vos indemnités kilométriques."
-        />
-        <meta name="geo.region" content="FR" />
-        <meta name="language" content="fr" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
