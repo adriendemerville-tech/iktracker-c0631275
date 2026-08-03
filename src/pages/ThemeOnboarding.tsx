@@ -79,7 +79,7 @@ const ThemeOnboarding = () => {
           {/* Light Mode Button */}
           <button
             onClick={() => handleThemeSelect('light')}
-            className="group relative bg-white rounded-2xl p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-4 focus:ring-offset-slate-950"
+            className="group relative bg-white rounded-2xl p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-4 focus:ring-offset-slate-950"
           >
             <div className="flex flex-col items-center gap-5">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-200 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
@@ -104,7 +104,7 @@ const ThemeOnboarding = () => {
           {/* Dark Mode Button */}
           <button
             onClick={() => handleThemeSelect('dark')}
-            className="group relative bg-slate-800 border border-slate-700 rounded-2xl p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-4 focus:ring-offset-slate-950"
+            className="group relative bg-slate-800 border border-slate-700 rounded-2xl p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 hover:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-4 focus:ring-offset-slate-950"
           >
             <div className="flex flex-col items-center gap-5">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">

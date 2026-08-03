@@ -74,7 +74,7 @@ export function PersonaPicker({ onSelect }: PersonaPickerProps) {
                   'bg-slate-900/60 border-slate-800/60 text-slate-200',
                   'hover:bg-slate-800/80 hover:border-slate-600/60 hover:text-white',
                   'active:scale-[0.98]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50'
+                  'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500/50'
                 )}
                 style={{
                   animationDelay: `${index * 60}ms`,

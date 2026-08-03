@@ -74,7 +74,7 @@ function InlinePartner({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         {partner.logo_url && (
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-background/80 p-2 shadow-sm">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-background/80 p-2 shadow-xs">
             <img
               src={partner.logo_url}
               alt={`Logo ${partner.name}`}

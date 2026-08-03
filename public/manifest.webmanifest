@@ -1,0 +1,48 @@
+{
+  "name": "IKtracker - Indemnités Kilométriques",
+  "short_name": "IKtracker",
+  "description": "Suivez vos indemnités kilométriques facilement",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2661D9",
+  "orientation": "portrait",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau trajet",
+      "short_name": "Trajet",
+      "description": "Ajouter un nouveau trajet",
+      "url": "/?action=new-trip",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mes rapports",
+      "short_name": "Rapports",
+      "description": "Voir mes rapports kilométriques",
+      "url": "/report",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

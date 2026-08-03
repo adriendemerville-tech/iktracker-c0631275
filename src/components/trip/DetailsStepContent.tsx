@@ -321,7 +321,7 @@ export function DetailsStepContent({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
         {/* Aller-retour */}
         <div className={cn(
-          "flex items-center justify-between px-3 h-12 rounded-md transition-colors outline-none ring-0",
+          "flex items-center justify-between px-3 h-12 rounded-md transition-colors outline-hidden ring-0",
           roundTrip ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
         )}>
           <div className="flex items-center gap-2 min-w-0">

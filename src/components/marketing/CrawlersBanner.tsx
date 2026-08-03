@@ -54,7 +54,7 @@ function CrawlersBannerComponent() {
 
               {/* Text */}
               <div className="flex-1 text-center md:text-left space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-xs font-medium tracking-wide uppercase">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs text-white/90 text-xs font-medium tracking-wide uppercase">
                   <Sparkles className="h-3 w-3" />
                   Par le même fondateur
                 </div>

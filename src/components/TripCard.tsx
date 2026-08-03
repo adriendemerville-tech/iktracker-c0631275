@@ -130,7 +130,7 @@ export const TripCard = memo(function TripCard({
     <>
       <div 
         className={cn(
-          "bg-card rounded-md p-3 shadow-sm border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors group",
+          "bg-card rounded-md p-3 shadow-xs border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors group",
           isPending 
             ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
             : "border-border/50",
@@ -156,14 +156,14 @@ export const TripCard = memo(function TripCard({
         )}
         {/* Pending location badge */}
         {isPending && (
-          <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-400 rounded-full shadow-sm flex items-center justify-center border-2 border-white">
+          <div className="absolute -top-2 -left-2 w-6 h-6 bg-violet-400 rounded-full shadow-xs flex items-center justify-center border-2 border-white">
             <MapPinOff className="w-3.5 h-3.5 text-white" />
           </div>
         )}
         
         {/* Tour icon badge */}
         {isTour && !isPending && (
-          <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-sm border border-border/50 flex items-center justify-center">
+          <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-xs border border-border/50 flex items-center justify-center">
             <Truck className="w-3.5 h-3.5 text-primary" />
           </div>
         )}

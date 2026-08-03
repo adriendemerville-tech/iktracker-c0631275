@@ -184,7 +184,7 @@ export function TourLogSheet({
                         <MapPin className="w-3 h-3" />
                       </div>
 
-                      <div className="flex-1 min-w-0 bg-card rounded-md p-2.5 shadow-sm border border-border/50">
+                      <div className="flex-1 min-w-0 bg-card rounded-md p-2.5 shadow-xs border border-border/50">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate">
@@ -238,7 +238,7 @@ export function TourLogSheet({
               size="sm"
               onClick={onFinish}
             >
-              <span className="w-2.5 h-2.5 bg-white rounded-sm mr-1.5" />
+              <span className="w-2.5 h-2.5 bg-white rounded-xs mr-1.5" />
               Terminer
             </Button>
           ) : !isHistory ? (

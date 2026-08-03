@@ -33,7 +33,7 @@ const MarketingPWANotification = lazy(() => import("@/components/marketing/Marke
 // Lightweight placeholders
 const DemoLoader = memo(() => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>);
 const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
-const NavPlaceholder = memo(() => <div className="h-16 bg-background/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50" />);
+const NavPlaceholder = memo(() => <div className="h-16 bg-background/80 backdrop-blur-xs fixed top-0 left-0 right-0 z-50" />);
 
 // Inline scroll animation hook to avoid import overhead for critical path
 function useLazyScrollAnimation(threshold = 0.2) {
@@ -159,7 +159,7 @@ const ExpertComptable = () => {
         <MarketingNav />
       </Suspense>
 
-      <main id="main-content" tabIndex={-1} className="outline-none">
+      <main id="main-content" tabIndex={-1} className="outline-hidden">
         {/* Breadcrumb */}
         <div className="container mx-auto px-4 pt-20">
           <Breadcrumb items={[{ label: 'Expert-Comptable' }]} />
@@ -371,7 +371,7 @@ const ExpertComptable = () => {
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center">
                         <Car className="h-5 w-5 text-gray-600" />
                       </div>
                       <div>
@@ -398,7 +398,7 @@ const ExpertComptable = () => {
                     ].map((trip, i) => (
                       <div 
                         key={i} 
-                        className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-100"
+                        className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 shadow-xs border border-gray-100"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-gray-400 w-12">{trip.date}</span>

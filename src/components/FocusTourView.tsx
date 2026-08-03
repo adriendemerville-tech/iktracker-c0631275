@@ -309,7 +309,7 @@ export function FocusTourView({
         {/* Stop button - elegant, compact design */}
         <button
           onClick={handleStopClick}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-gray-300 font-medium text-sm hover:bg-white/20 transition-all active:scale-95"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 text-gray-300 font-medium text-sm hover:bg-white/20 transition-all active:scale-95"
           aria-label="Arrêter la tournée"
         >
           <Square className="w-4 h-4 fill-current" />

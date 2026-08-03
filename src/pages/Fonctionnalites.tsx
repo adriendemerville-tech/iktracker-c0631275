@@ -232,7 +232,7 @@ export default function Fonctionnalites() {
 
       <MarketingNav />
 
-      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-none">
+      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-hidden">
         <div className="container mx-auto px-4 pt-6">
           <Breadcrumb items={[{ label: 'Fonctionnalités' }]} />
         </div>
@@ -322,7 +322,7 @@ export default function Fonctionnalites() {
           </h2>
           <div className="space-y-4">
             {faqs.map((f) => (
-              <details key={f.q} className="group rounded-xl border border-border bg-card p-5 open:shadow-sm transition-shadow">
+              <details key={f.q} className="group rounded-xl border border-border bg-card p-5 open:shadow-xs transition-shadow">
                 <summary className="cursor-pointer font-semibold text-foreground list-none flex justify-between items-center">
                   {f.q}
                   <span className="ml-4 text-primary transition-transform group-open:rotate-45">+</span>

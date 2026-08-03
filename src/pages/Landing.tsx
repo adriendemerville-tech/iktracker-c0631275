@@ -34,7 +34,7 @@ const AuthForm = lazy(() => import("@/components/AuthForm").then(m => ({ default
 
 // Auth form loading placeholder
 const AuthFormSkeleton = memo(() => (
-  <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 min-h-[420px]">
+  <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 min-h-[420px]">
     <Skeleton className="h-8 w-32 mx-auto mb-2" />
     <Skeleton className="h-4 w-48 mx-auto mb-6" />
     <Skeleton className="h-12 w-full mb-4 rounded-lg" />
@@ -302,7 +302,7 @@ const Landing = () => {
       <MarketingNav user={user} loading={loading} />
 
       {/* Main content wrapper with skip link target */}
-      <main id="main-content" tabIndex={-1} className="outline-none">
+      <main id="main-content" tabIndex={-1} className="outline-hidden">
         {/* Hero Section */}
         <section 
           className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden contain-layout"
@@ -367,7 +367,7 @@ const Landing = () => {
             {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
             <div id="auth-section" className="animate-scale-in min-h-[420px] min-w-[320px] lg:min-w-[400px]">
               {user ? (
-                <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 text-center">
+                <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 text-center">
                   <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="h-8 w-8 text-success" />
                   </div>
@@ -775,7 +775,7 @@ const Landing = () => {
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center">
                         <Car className="h-5 w-5 text-gray-600" />
                       </div>
                       <div>
@@ -802,7 +802,7 @@ const Landing = () => {
                     ].map((trip, i) => (
                       <div 
                         key={i} 
-                        className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-100"
+                        className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 shadow-xs border border-gray-100"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-gray-400 w-12">{trip.date}</span>

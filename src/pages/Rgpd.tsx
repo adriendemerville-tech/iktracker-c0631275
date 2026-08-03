@@ -62,7 +62,7 @@ const Rgpd = () => {
         Aller au contenu principal
       </a>
 
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border" role="banner">
+      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xs border-b border-border" role="banner">
         <nav className="container mx-auto px-4 py-4 flex items-center gap-4" aria-label="Navigation">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Retour" className="focus-visible-ring">
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
@@ -71,7 +71,7 @@ const Rgpd = () => {
         </nav>
       </header>
 
-      <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-3xl outline-none" aria-labelledby="page-heading">
+      <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-3xl outline-hidden" aria-labelledby="page-heading">
         <Breadcrumb items={[{ label: 'RGPD' }]} />
 
         <div className="mb-8">

@@ -54,7 +54,7 @@ export default function Unsubscribe() {
         <link rel="canonical" href="https://iktracker.fr/unsubscribe" />
       </Helmet>
       <main className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-sm text-center space-y-5">
+        <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-xs text-center space-y-5">
         <h1 className="text-2xl font-semibold">Désabonnement IKtracker</h1>
 
         {state === 'loading' && (

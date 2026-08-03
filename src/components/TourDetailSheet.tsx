@@ -72,7 +72,7 @@ export function TourDetailSheet({ open, onOpenChange, stops, totalDistance, date
                   )}
                   
                   {/* Timeline dot avec label */}
-                  <div className={`absolute left-0 top-1 w-8 h-8 rounded-full border-2 flex items-center justify-center shadow-sm ${
+                  <div className={`absolute left-0 top-1 w-8 h-8 rounded-full border-2 flex items-center justify-center shadow-xs ${
                     isFirst 
                       ? 'bg-primary border-primary text-primary-foreground' 
                       : isLast 

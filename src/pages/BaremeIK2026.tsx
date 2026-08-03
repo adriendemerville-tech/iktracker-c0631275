@@ -153,7 +153,7 @@ const BaremeIK2026 = () => {
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />
 
-        <main id="main-content" tabIndex={-1} className="outline-none">
+        <main id="main-content" tabIndex={-1} className="outline-hidden">
           {/* Breadcrumb */}
           <div className="container mx-auto px-4 pt-24 md:pt-28">
             <Breadcrumb items={[{ label: 'Barème IK 2026' }]} />
@@ -895,7 +895,7 @@ const BaremeIK2026 = () => {
 
         {/* Sticky mobile CTA */}
         {!user && (
-          <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-sm border-t border-border p-3 safe-area-pb">
+          <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-xs border-t border-border p-3 safe-area-pb">
             <Link to="/signup" onClick={trackCTAClick} className="block">
               <Button variant="gradient" size="lg" className="w-full gap-2 text-sm">
                 Automatiser mes IK avec IKtracker

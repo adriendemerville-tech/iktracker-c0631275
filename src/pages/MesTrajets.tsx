@@ -902,7 +902,7 @@ ${IKTRACKER_URL}`;
       )}
 
       <div className="min-h-screen bg-background pb-28 cursor-default md:pl-16">
-        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2 md:py-4">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-xs border-b border-border px-4 py-2 md:py-4">
           <div className="flex items-center justify-between max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
             <Link to="/app" aria-label="Retour à l'accueil">
               <ArrowLeft className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
@@ -931,7 +931,7 @@ ${IKTRACKER_URL}`;
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-4 md:space-y-6">
         
         {/* Summary Stats Card */}
-        <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm border border-gray-100 dark:border-border space-y-3 md:space-y-4">
+        <div className="bg-card rounded-xl p-4 md:p-6 shadow-xs border border-gray-100 dark:border-border space-y-3 md:space-y-4">
           <div className="grid grid-cols-3 gap-4 md:gap-6 text-center">
             <div>
               <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
@@ -1358,7 +1358,7 @@ ${IKTRACKER_URL}`;
       )}
 
       {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-xs shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
 
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="grid grid-cols-3 gap-3 w-4/5 min-w-[280px]">

@@ -1155,7 +1155,7 @@ ${IKTRACKER_MENTION}
             <div className="flex items-center gap-2 mb-3">
               <Link
                 to="/app/mestrajets#pending"
-                className="flex items-center gap-2 rounded-md hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex items-center gap-2 rounded-md hover:opacity-80 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
                 aria-label="Voir tous les trajets à compléter"
               >
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 dark:text-purple-100">
@@ -1356,7 +1356,7 @@ ${IKTRACKER_MENTION}
       </div>
 
       {/* Mobile: Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-sm shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-xs shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
         <div className="max-w-lg mx-auto flex justify-center">
           <div className="flex gap-3">
             <Link to="/app/mestrajets" data-tutorial="report">
