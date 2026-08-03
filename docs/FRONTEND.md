@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 1.5 — 3 août 2026
+> Version 2.0 — 4 août 2026 (migration TanStack Start)
 
 ## Table des matières
 
@@ -20,57 +20,60 @@
 
 | Technologie | Version | Rôle |
 |---|---|---|
-| React | 18 | UI framework |
-| TypeScript | 5 | Typage statique |
-| Vite | 5 | Bundler & dev server |
-| Tailwind CSS | 3 | Utility-first CSS |
+| React | 19 | UI framework |
+| TypeScript | 5 (strict) | Typage statique |
+| TanStack Start | 1 | Framework full-stack SSR (Vite 7) |
+| Tailwind CSS | 4 | Utility-first CSS (`@theme` dans `src/styles.css`) |
 | shadcn/ui | - | Composants UI (Radix-based) |
-| React Router | 6 | Routing SPA |
+| TanStack Router | 1 | Routing file-based (`src/routes/`) |
 | TanStack Query | 5 | Data fetching & cache |
 | Framer Motion | - | Animations |
-| Helmet Async | - | SEO meta tags |
+| Helmet Async | - | SEO meta tags (via shim `@/lib/helmet-compat`) |
 | Lucide React | - | Icônes |
 | Recharts | - | Graphiques (lazy) |
 
-### Architecture
+### Architecture (post-migration TanStack Start — août 2026)
+
+L'application a été migrée du stack Classic (Vite SPA + React Router 6) vers TanStack Start avec SSR. Points clés :
 
 ```
 src/
-├── main.tsx              → Point d'entrée, rendu React, preload différé
-├── App.tsx               → Providers globaux, routing, guards d'auth
-├── App.css               → Styles globaux
-├── index.css             → Design tokens (CSS variables), Tailwind layers
-├── pages/                → Pages (lazy-loaded)
+├── router.tsx            → Création du router + QueryClient (staleTime 5min, retry 2)
+├── server.ts             → Entrée serveur SSR (wrapper erreurs h3)
+├── start.ts              → Middleware requêtes (errorMiddleware)
+├── styles.css            → Design tokens Tailwind v4 (@theme), remplace index.css
+├── routes/               → Routing file-based (1 fichier = 1 route)
+│   ├── __root.tsx        → Layout racine : head(), providers, errorComponent
+│   └── app/              → Espace protégé (ProtectedRoute par fichier de route)
+├── pages/                → Composants de pages (importés par src/routes/)
 ├── components/           → Composants réutilisables
-│   ├── ui/               → shadcn/ui primitives
-│   ├── admin/            → Composants admin
-│   ├── blog/             → Composants blog/CMS
-│   ├── charts/           → Graphiques (lazy)
-│   ├── icons/            → Icônes custom
-│   ├── marketing/        → Composants landing/SEO
-│   └── trip/             → Composants trajets
-├── hooks/                → Custom hooks
-├── lib/                  → Utilitaires
-├── types/                → Types TypeScript
-├── integrations/supabase → Client & types auto-générés
-└── assets/               → Images & assets statiques
+│   ├── AppChrome.tsx     → LogoutOverlay, GlobalTourRecovery, SurveyWidget
+│   └── auth/ProtectedRoute.tsx → Guard auth (AuthRequiredModal + EmailVerificationGate)
+├── lib/
+│   ├── router-compat.tsx → Shim react-router-dom → TanStack Router
+│   └── helmet-compat.tsx → Shim react-helmet-async (interop CJS/ESM SSR)
+├── hooks/ · types/ · integrations/supabase · assets/
 ```
 
-### Providers globaux (App.tsx)
+### Compat & invariants SSR
+
+- **`@/lib/router-compat`** : tous les anciens imports `react-router-dom` (Link, useNavigate, useParams, useSearchParams…) passent par ce shim — ne pas importer `react-router-dom` ni `@tanstack/react-router` directement dans les pages existantes.
+- **`@/lib/helmet-compat`** : tous les imports `Helmet`/`HelmetProvider` passent par ce shim (import namespace + résolution `.default`) — un import nommé direct de `react-helmet-async` casse le SSR, un import default casse le build client.
+- **Pas d'accès `window`/`localStorage`/`sessionStorage` au niveau module ou dans les initialiseurs `useState`** sans garde `typeof … !== 'undefined'` (le SSR évalue les modules côté serveur).
+- `src/routeTree.gen.ts` est généré — ne jamais l'éditer.
+
+### Providers globaux (src/routes/__root.tsx)
 
 ```
 QueryClientProvider (React Query, staleTime: 5min, retry: 2)
-  → ErrorBoundary
-    → Suspense
+  → HelmetProvider (shim)
+    → ErrorBoundary / errorComponent (fallback brandé + reportLovableError)
       → TooltipProvider (shadcn)
         → Toaster + Sonner (notifications)
-          → BrowserRouter
-            → AnalyticsTracker
-            → AppRoutes (AuthContext.Provider)
-              → LogoutOverlay
-              → GoogleMapsPreloader (idle)
-              → GlobalTourRecovery
-              → <Routes>
+          → AuthContext.Provider
+            → AnalyticsTracker (react-ga4, interop CJS)
+            → AppChrome (LogoutOverlay, GlobalTourRecovery, SurveyWidget)
+            → <Outlet />
 ```
 
 ---

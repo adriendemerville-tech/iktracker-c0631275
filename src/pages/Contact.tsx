@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react';
 import { useNavigate, Link } from '@/lib/router-compat';
 import { useState } from 'react';

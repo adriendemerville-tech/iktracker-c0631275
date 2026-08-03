@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Monitor, ExternalLink, Upload, MapPin, Check, Sparkles, ChevronRight, FileArchive, AlertCircle, ArrowLeft, Loader2, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';

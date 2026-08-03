@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import type { ReactNode } from "react";
-import { HelmetProvider } from "react-helmet-async";
+import { HelmetProvider } from '@/lib/helmet-compat';
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,

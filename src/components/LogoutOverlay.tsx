@@ -11,6 +11,7 @@ const FAREWELL_MESSAGES = [
 // Get or create session farewell message (consistent within a session)
 const getSessionFarewellMessage = (): string => {
   const storageKey = 'iktracker_farewell_message';
+  if (typeof sessionStorage === 'undefined') return FAREWELL_MESSAGES[0];
   const stored = sessionStorage.getItem(storageKey);
   
   if (stored) {

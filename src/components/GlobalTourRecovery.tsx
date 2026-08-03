@@ -46,6 +46,7 @@ export function GlobalTourRecovery() {
   const [sessionData, setSessionData] = useState<TourSessionDB | null>(null);
   const [inactivityText, setInactivityText] = useState('');
   const [hasChecked, setHasChecked] = useState(() => {
+    if (typeof sessionStorage === 'undefined') return false;
     return sessionStorage.getItem('tour_recovery_checked') === 'true';
   });
   const [isProcessing, setIsProcessing] = useState(false);

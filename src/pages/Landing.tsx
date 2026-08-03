@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense, memo } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from '@/lib/helmet-compat';
 import { Link, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageContent } from "@/hooks/usePageContent";

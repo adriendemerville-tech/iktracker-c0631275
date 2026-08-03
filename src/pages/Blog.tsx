@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@/lib/router-compat';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminLazy } from '@/hooks/useAdminLazy';
 import { useAuthLazy } from '@/hooks/useAuthLazy';

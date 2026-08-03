@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@/lib/helmet-compat';
 import { useNavigate } from '@/lib/router-compat';
 import { ArrowLeft, CalendarDays, Download, Eye, FileText, LayoutList, Loader2, Monitor, Sparkles, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';

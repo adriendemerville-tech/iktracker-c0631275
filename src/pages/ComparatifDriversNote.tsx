@@ -1,6 +1,6 @@
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from '@/lib/helmet-compat';
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
