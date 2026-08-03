@@ -106,7 +106,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                     role="menuitem"
                     aria-current={isActive(link.href) ? 'page' : undefined}
                     className={cn(
-                      "text-sm transition-colors relative flex items-center gap-1.5 focus-visible-ring rounded-md px-2 py-1",
+                      "text-sm transition-colors relative block focus-visible-ring rounded-md px-2 py-1",
                       isActive(link.href) 
                         ? "text-primary font-medium" 
                         : "text-muted-foreground hover:text-foreground"
@@ -115,7 +115,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                     {link.label}
                     {link.isNew && (
                       <span 
-                        className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse"
+                        className="ml-1 inline-block align-middle px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse"
                         aria-label="Nouveau"
                       >
                         2026
