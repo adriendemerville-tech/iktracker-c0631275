@@ -768,10 +768,13 @@ ${IKTRACKER_MENTION}
       });
       
       // Create the share in the database
+      if (!user?.id) {
+        throw new Error('Utilisateur non connecté');
+      }
       const { data: shareData, error: shareError } = await supabase
         .from('report_shares')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           html_content: shareHtmlContent,
         })
         .select('id')
