@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.0 — 4 août 2026 (migration TanStack Start)
+> Version 2.2 — 3 août 2026 (SEO : sitemap SSR dynamique, head() home, alias 301)
+
+**Notes v2.2 (SEO/GEO)**
+- `/sitemap.xml` est désormais une route serveur SSR (`src/routes/sitemap[.]xml.ts`) qui interroge `blog_posts` à la requête : 28 pages statiques + tous les articles publiés (104 URLs). Le fichier statique `public/sitemap.xml` et le hook `prebuild` de génération ont été supprimés (ils shadowaient la route et se construisaient sans les articles en prod).
+- La home `/` possède un `head()` dédié (titre orienté « application », canonical auto-référent) pour lever la cannibalisation avec `/bareme-ik-2026`.
+- Les 10 routes alias renvoient un **301 permanent** (`statusCode: 301`) au lieu d'un 307.
+
 
 ## Table des matières
 

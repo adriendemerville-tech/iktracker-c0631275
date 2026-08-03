@@ -45,6 +45,7 @@ import { Route as RecoveryRouteImport } from './routes/recovery'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as RgpdRouteImport } from './routes/rgpd'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SsoRouteImport } from './routes/sso'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -259,6 +260,11 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SsoRoute = SsoRouteImport.update({
   id: '/sso',
   path: '/sso',
@@ -447,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/report': typeof ReportRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sso': typeof SsoRoute
   '/tarifs': typeof TarifsRoute
   '/terms': typeof TermsRoute
@@ -515,6 +522,7 @@ export interface FileRoutesByTo {
   '/report': typeof ReportRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sso': typeof SsoRoute
   '/tarifs': typeof TarifsRoute
   '/terms': typeof TermsRoute
@@ -584,6 +592,7 @@ export interface FileRoutesById {
   '/report': typeof ReportRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sso': typeof SsoRoute
   '/tarifs': typeof TarifsRoute
   '/terms': typeof TermsRoute
@@ -654,6 +663,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/rgpd'
     | '/signup'
+    | '/sitemap.xml'
     | '/sso'
     | '/tarifs'
     | '/terms'
@@ -722,6 +732,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/rgpd'
     | '/signup'
+    | '/sitemap.xml'
     | '/sso'
     | '/tarifs'
     | '/terms'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/rgpd'
     | '/signup'
+    | '/sitemap.xml'
     | '/sso'
     | '/tarifs'
     | '/terms'
@@ -859,6 +871,7 @@ export interface RootRouteChildren {
   ReportRoute: typeof ReportRoute
   RgpdRoute: typeof RgpdRoute
   SignupRoute: typeof SignupRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SsoRoute: typeof SsoRoute
   TarifsRoute: typeof TarifsRoute
   TermsRoute: typeof TermsRoute
@@ -1145,6 +1158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sso': {
       id: '/sso'
       path: '/sso'
@@ -1396,6 +1416,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportRoute: ReportRoute,
   RgpdRoute: RgpdRoute,
   SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SsoRoute: SsoRoute,
   TarifsRoute: TarifsRoute,
   TermsRoute: TermsRoute,
