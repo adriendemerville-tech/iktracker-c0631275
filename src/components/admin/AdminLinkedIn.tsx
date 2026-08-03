@@ -328,7 +328,7 @@ export function AdminLinkedIn() {
               </div>
             )}
 
-            {result.slide_plan && (
+            {result.slide_plan ? (
               <div>
                 <Label className="text-xs text-muted-foreground">Plan du carrousel</Label>
                 <pre className="mt-1 p-3 rounded-md bg-muted whitespace-pre-wrap text-xs overflow-auto max-h-64">

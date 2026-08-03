@@ -236,7 +236,7 @@ export function AdminMonitoring() {
     mutationFn: async (errorId: string) => {
       const { error } = await supabase
         .from('error_logs')
-        .update({ resolved: true, resolved_at: new Date().toISOString() } as Record<string, unknown>)
+        .update({ resolved: true, resolved_at: new Date().toISOString() })
         .eq('id', errorId);
       if (error) throw error;
     },

@@ -441,9 +441,9 @@ function EventDetailCard({
                 {pageKey && (
                   <DetailSection icon={Globe} label="Page modifiée">
                     <code className="text-xs">{pageKey}</code>
-                    {newData?.meta_title && <p className="text-muted-foreground mt-1">Titre : {String(newData.meta_title)}</p>}
-                    {newData?.meta_description && <p className="text-muted-foreground mt-1">Description : {String(newData.meta_description)}</p>}
-                    {newData?.canonical_url && <p className="text-muted-foreground mt-1">URL canonique : {String(newData.canonical_url)}</p>}
+                    {newData?.meta_title ? <p className="text-muted-foreground mt-1">Titre : {String(newData.meta_title)}</p> : null}
+                    {newData?.meta_description ? <p className="text-muted-foreground mt-1">Description : {String(newData.meta_description)}</p> : null}
+                    {newData?.canonical_url ? <p className="text-muted-foreground mt-1">URL canonique : {String(newData.canonical_url)}</p> : null}
                   </DetailSection>
                 )}
 
@@ -978,7 +978,7 @@ export function AdminAutopilot() {
       // Fallback: mark as reverted directly
       const { error } = await supabase
         .from('api_audit_logs')
-        .update({ reverted: true, reverted_at: new Date().toISOString() } as Record<string, unknown>)
+        .update({ reverted: true, reverted_at: new Date().toISOString() })
         .eq('id', logId);
       if (error) throw error;
     },
@@ -996,7 +996,7 @@ export function AdminAutopilot() {
     mutationFn: async (eventId: string) => {
       const { error } = await supabase
         .from('autopilot_events')
-        .update({ resolved: true, resolved_at: new Date().toISOString() } as Record<string, unknown>)
+        .update({ resolved: true, resolved_at: new Date().toISOString() })
         .eq('id', eventId);
       if (error) throw error;
     },
