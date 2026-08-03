@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppAuth } from '@/App';
+import { useAppAuth } from '@/components/AppChrome';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
 import { usePreferences } from '@/hooks/usePreferences';

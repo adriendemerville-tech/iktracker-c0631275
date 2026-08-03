@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAppAuth } from '@/App';
+import { useAppAuth } from '@/components/AppChrome';
 import { Button } from '@/components/ui/button';
 import { CalendarConnections } from '@/components/CalendarConnections';
 import { FeedbackForm } from '@/components/FeedbackForm';
