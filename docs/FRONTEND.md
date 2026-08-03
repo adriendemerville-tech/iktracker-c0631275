@@ -518,7 +518,33 @@ src/
 - **Serveur MCP** : défini dans `src/lib/mcp/` (voir doc backend), 4 outils exposés : `list_vehicles`, `list_trips`, `get_ytd_summary`, `create_trip`.
 - **Vite plugin** : `mcpPlugin()` dans `vite.config.ts` — régénère `supabase/functions/mcp/index.ts` à chaque build.
 
+## Gate de vérification email (août 2026)
+
+- `src/components/EmailVerificationGate.tsx` : modale bloquante déclenchée après 5 min de première session si l'email n'est pas vérifié. Bouton « Renvoyer le lien », ouverture automatique d'un onglet Gmail si l'adresse est `@gmail.com`, croix de fermeture en haut à droite.
+- `src/hooks/useEmailGate.ts` : source de vérité des limites tant que l'email n'est pas confirmé — **3 trajets** et **1 tournée** maximum, export de relevé désactivé.
+
+## Ajout intelligent de trajet (Smart Add)
+
+- `src/components/TripPromptBar.tsx` : champ texte en langage naturel + bouton micro, en bas de la feuille « Nouveau trajet ».
+- Pipeline : transcription vocale (Whisper via `transcribe-audio`) puis extraction structurée (`parse-trip-prompt`, Mistral). Le résultat pré-remplit le formulaire, jamais d'insertion directe.
+- Surface marketing associée : section Smart Add sur `/mode-tournee`.
+
+## Archive des relevés (`/app/archive`)
+
+- `src/pages/Archive.tsx` : liste des relevés PDF mensuels et annuels générés automatiquement, aperçu inline, téléchargement et export CSV. Desktop-first (aperçu PDF non fiable sur mobile).
+
+## Véhicules — recalcul opt-in
+
+- `src/components/VehicleForm.tsx` : case « Mettre à jour les trajets passés » lors de la modification des CV fiscaux ou du statut électrique. Décochée par défaut ; le recalcul en lot passe par `useTrips.ts`.
+
+## Acquisition & désambiguïsation (SEO/GEO)
+
+- `src/lib/seo-schemas.ts` : constante `IKTRACKER_DISAMBIGUATION`, `disambiguatingDescription` et `installUrl` sur le schéma `SoftwareApplication`. Réutilisée par `/tarifs`, `/installer`, `/fonctionnalites`, `/artisans`, `/independants`.
+- `src/components/ReferralSourceModal.tsx` : questionnaire de découverte (Communauté, Google, Réseaux sociaux, ChatGPT) écrit dans `referral_sources`. Principale mesure fiable du canal IA, les référents HTTP étant absents pour les assistants.
+
 ## Changelog
+
+- **1.5** (3 août 2026) — Gate de vérification email (3 trajets / 1 tournée, export bloqué), Smart Add texte + vocal, page `/app/archive`, recalcul IK opt-in sur les véhicules, nouvelles landings `/fonctionnalites`, `/artisans`, `/independants` et bloc de désambiguïsation IA.
 
 - **1.4** (24 juillet 2026) — Modale « Compléter le trajet » centrée + pré-remplissage adresses réelles. Ajout page OAuthConsent et intégration MCP.
 - **1.3** (4 mai 2026) — Tournées, étapes horodatées et audit PDF.
