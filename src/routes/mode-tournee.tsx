@@ -4,8 +4,8 @@ import ModeTournee from "@/pages/ModeTournee";
 export const Route = createFileRoute("/mode-tournee")({
   head: () => ({
     meta: [
-      {"title":"Mode Tournée GPS | Suivi kilométrique commercial, infirmier, artisan"},
-      {"name":"description","content":"Mode Tournée IKtracker : enregistrez automatiquement chaque arrêt client par GPS. Idéal pour commerciaux itinérants, VRP, infirmières libérales, artisans, livreurs et aide à domicile. Note de frais kilométrique générée en un clic."},
+      {"title":"Mode Tournée GPS : tous vos arrêts clients en 1 trajet"},
+      {"name":"description","content":"Enregistrez chaque arrêt client par GPS et générez votre note de frais kilométrique en un clic. Gratuit pour infirmiers libéraux, artisans, commerciaux et livreurs."},
       {"name":"keywords","content":"mode tournée GPS, commercial itinérant, tournée VRP, note de frais kilométrique, suivi kilométrique infirmière libérale, indemnités kilométriques artisan, frais kilométriques multi-arrêts, auto-entrepreneur déplacement, application gratuite tournée"},
       {"name":"robots","content":"index, follow, max-image-preview:large, max-snippet:-1"},
       {"property":"og:title","content":"Mode Tournée IKtracker | Suivi kilométrique multi-arrêts"},

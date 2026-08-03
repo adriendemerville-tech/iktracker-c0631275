@@ -4,8 +4,8 @@ import Install from "@/pages/Install";
 export const Route = createFileRoute("/installer")({
   head: () => ({
     meta: [
-      {"title":"Installer IKtracker | Application PWA gratuite iOS et Android"},
-      {"name":"description","content":"Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store."},
+      {"title":"Installer IKtracker gratuitement sur iPhone et Android"},
+      {"name":"description","content":"Installez IKtracker en 2 minutes sur iPhone ou Android, directement depuis votre navigateur. Application gratuite, sans App Store, sans compte payant."},
       {"name":"keywords","content":"installer IKtracker, PWA indemnités kilométriques, application iOS IK, Android frais kilométriques, installer sans App Store, application gratuite mobile"},
       {"name":"robots","content":"index, follow, max-image-preview:large, max-snippet:-1"},
       {"property":"og:title","content":"Installer IKtracker | Application PWA iOS et Android"},
