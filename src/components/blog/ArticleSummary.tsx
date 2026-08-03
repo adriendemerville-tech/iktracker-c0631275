@@ -6,14 +6,62 @@ interface ArticleSummaryProps {
   content: string;
 }
 
+// Decode common HTML entities without relying on the DOM (SSR-safe)
+function decodeEntities(text: string): string {
+  return text
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;|&rsquo;/g, "'");
+}
+
+// Extract key points from HTML content (articles pushed via the blog API)
+function extractFromHtml(content: string): string[] {
+  const points: string[] = [];
+
+  const pick = (regex: RegExp, min: number, max: number) => {
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(content)) !== null && points.length < 3) {
+      const text = cleanText(match[1]);
+      if (text.length >= min && text.length <= max && !points.includes(text)) {
+        points.push(text);
+      }
+    }
+  };
+
+  // Prefer list items, then H2 headings, then paragraphs
+  pick(/<li[^>]*>([\s\S]*?)<\/li>/gi, 15, 140);
+  if (points.length < 3) pick(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, 10, 100);
+  if (points.length < 3) {
+    const paraRe = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    let match: RegExpExecArray | null;
+    while ((match = paraRe.exec(content)) !== null && points.length < 3) {
+      const sentence = cleanText(match[1]).split(/(?<=[.!?])\s/)[0]?.trim() ?? '';
+      if (sentence.length > 20 && sentence.length < 160 && !points.includes(sentence)) {
+        points.push(sentence);
+      }
+    }
+  }
+
+  return points.slice(0, 3);
+}
+
 // Extract key points from article content for summary
 function extractKeyPoints(content: string): string[] {
+  // HTML articles: parse tags instead of markdown syntax
+  if (/<(h[1-6]|p|ul|ol|li|div)\b[^>]*>/i.test(content)) {
+    const htmlPoints = extractFromHtml(content);
+    if (htmlPoints.length > 0) return htmlPoints;
+  }
+
   // Try to find bullet points in the content first
   const bulletMatches = content.match(/^[-•*]\s+(.+)$/gm);
   if (bulletMatches && bulletMatches.length >= 3) {
     return bulletMatches
       .slice(0, 3)
-      .map(line => cleanMarkdown(line.replace(/^[-•*]\s+/, '').trim()));
+      .map(line => cleanText(line.replace(/^[-•*]\s+/, '').trim()));
   }
 
   // Otherwise extract from headings or first sentences
@@ -25,7 +73,7 @@ function extractKeyPoints(content: string): string[] {
     if (line.startsWith('## ') && keyPoints.length < 3) {
       const heading = line.replace(/^##\s+/, '').trim();
       if (heading.length > 10 && heading.length < 100) {
-        keyPoints.push(cleanMarkdown(heading));
+        keyPoints.push(cleanText(heading));
       }
     }
   }
@@ -44,7 +92,7 @@ function extractKeyPoints(content: string): string[] {
       // Get first sentence
       const sentence = para.split(/[.!?]/)[0]?.trim();
       if (sentence && sentence.length > 20 && sentence.length < 120) {
-        const clean = cleanMarkdown(sentence);
+        const clean = cleanText(sentence);
         if (!keyPoints.includes(clean)) {
           keyPoints.push(clean);
         }
@@ -64,19 +112,25 @@ function extractKeyPoints(content: string): string[] {
   return keyPoints.slice(0, 3);
 }
 
-// Clean markdown formatting from text
-function cleanMarkdown(text: string): string {
-  return text
-    // Remove bold
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    // Remove italic
-    .replace(/\*([^*]+)\*/g, '$1')
-    // Remove links - keep only the text part
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // Remove inline code
-    .replace(/`([^`]+)`/g, '$1')
+// Clean markdown AND HTML formatting from text
+function cleanText(text: string): string {
+  return decodeEntities(
+    text
+      // Strip HTML tags
+      .replace(/<[^>]+>/g, ' ')
+      // Remove bold
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      // Remove italic
+      .replace(/\*([^*]+)\*/g, '$1')
+      // Remove links - keep only the text part
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      // Remove inline code
+      .replace(/`([^`]+)`/g, '$1')
+  )
+    .replace(/\s+/g, ' ')
     .trim();
 }
+
 
 export function ArticleSummary({ content }: ArticleSummaryProps) {
   const keyPoints = extractKeyPoints(content);
