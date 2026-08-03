@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { VehicleCard } from "./VehicleCard";
 import { Vehicle } from "@/types/trip";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "@/lib/router-compat";
 
 const baseVehicle: Vehicle = {
   id: "v1",

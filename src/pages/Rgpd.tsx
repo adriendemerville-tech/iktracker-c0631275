@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Mail, Shield, FileText, User, Clock, Server, Cookie, Lock } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import founderImage from '@/assets/founder-adrien-optimized.webp';
 import { Breadcrumb } from '@/components/Breadcrumb';

@@ -22,7 +22,7 @@ import {
   Zap,
   ExternalLink,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 
 interface Partner {
   id: string;

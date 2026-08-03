@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { buildSoftwareApplicationSchema } from '@/lib/seo-schemas';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
 import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
 import { PartnerStrip } from '@/components/marketing/PartnerStrip';

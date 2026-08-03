@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { LayoutDashboard, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { 

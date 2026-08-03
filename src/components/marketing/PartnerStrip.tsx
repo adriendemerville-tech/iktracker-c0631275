@@ -3,7 +3,7 @@ import {
   usePartners,
   buildPartnerRedirectUrl,
 } from "@/hooks/usePartners";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@/lib/router-compat";
 
 interface PartnerStripProps {
   page?: string;
