@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '@/lib/router-compat';
 import { useAuth } from '@/hooks/useAuth';
 import { useTourSessionDB, TourSessionDB } from '@/hooks/useTourSessionDB';
 import { useIsMobile } from '@/hooks/use-mobile';

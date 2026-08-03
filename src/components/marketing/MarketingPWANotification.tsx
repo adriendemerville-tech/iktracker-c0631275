@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { Download, X, Smartphone } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   isBrowser, 

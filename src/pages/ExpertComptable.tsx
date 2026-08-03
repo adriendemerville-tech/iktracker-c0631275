@@ -1,7 +1,7 @@
 import { lazy, Suspense, memo, useCallback, useEffect, useState, useRef } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { 
   Check, 

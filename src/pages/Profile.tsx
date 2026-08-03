@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from '@/lib/router-compat';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppAuth } from '@/App';
+import { useAppAuth } from '@/components/AppChrome';
 import { useTheme } from '@/hooks/useTheme';
 import { useTrips } from '@/hooks/useTrips';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -119,7 +119,7 @@ const Profile = () => {
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
-    const months = [];
+    const months: { month: string; year: number; monthIndex: number; km: number; ik: number }[] = [];
     
     for (let i = monthsToShow - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -501,7 +501,7 @@ const Profile = () => {
             } else {
               addLocation({
                 name: locationData.name,
-                address: locationData.address,
+                address: locationData.address ?? "",
                 type: locationData.type,
                 lat: locationData.latitude,
                 lng: locationData.longitude,

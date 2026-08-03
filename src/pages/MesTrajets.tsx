@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from '@/lib/router-compat';
 import { Helmet } from 'react-helmet-async';
 import { useTrips } from '@/hooks/useTrips';
 import { Trip, Vehicle, Location as TripLocation, TourStopData, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
@@ -278,7 +278,7 @@ export default function Report() {
     return acc;
   }, {} as Record<string, Trip[]>);
 
-  const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+  const getVehicle = (vehicleId: string | null) => vehicles.find(v => v.id === vehicleId);
 
   // Filter trips that are tours (have tourStops)
   const pastTours = useMemo(() => {
@@ -768,10 +768,13 @@ ${IKTRACKER_MENTION}
       });
       
       // Create the share in the database
+      if (!user?.id) {
+        throw new Error('Utilisateur non connecté');
+      }
       const { data: shareData, error: shareError } = await supabase
         .from('report_shares')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           html_content: shareHtmlContent,
         })
         .select('id')
@@ -1408,12 +1411,12 @@ ${IKTRACKER_URL}`;
           }}
           savedLocations={savedLocations}
           vehicles={vehicles}
-          editTrip={editingTrip}
+          editTrip={editingTrip ? { ...editingTrip, vehicleId: editingTrip.vehicleId ?? "" } : null}
           onAddLocation={addLocation}
           onDeleteLocation={deleteLocation}
           onUpdateLocation={updateLocation}
           onAddVehicle={handleAddVehicle}
-          onCreateTrip={addTrip}
+          onCreateTrip={(t) => { void addTrip({ ...t, status: "validated" }); }}
           onUpdateTrip={updateTrip}
           getTotalAnnualKm={getTotalAnnualKm}
           recurringOnly={newTripRecurringOnly}

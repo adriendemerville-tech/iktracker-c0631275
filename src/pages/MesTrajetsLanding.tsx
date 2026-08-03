@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";

@@ -7,7 +7,7 @@ import {
   buildPartnerRedirectUrl,
   type Partner,
 } from "@/hooks/usePartners";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@/lib/router-compat";
 
 interface PartnerCardProps {
   page?: string;

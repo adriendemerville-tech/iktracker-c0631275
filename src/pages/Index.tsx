@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense, memo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -681,7 +681,7 @@ const Index = () => {
     setShowVehicleForm(true);
   };
 
-  const getVehicle = (vehicleId: string) => vehicles.find(v => v.id === vehicleId);
+  const getVehicle = (vehicleId: string | null) => vehicles.find(v => v.id === vehicleId);
 
   // Export functions
   const IKTRACKER_URL = 'https://iktracker.fr';
@@ -1403,7 +1403,7 @@ ${IKTRACKER_MENTION}
           onDeleteLocation={deleteLocation}
           onUpdateLocation={updateLocation}
           onAddVehicle={handleAddVehicle}
-          onCreateTrip={addTrip}
+          onCreateTrip={(t) => { void addTrip({ ...t, status: "validated" }); }}
           getTotalAnnualKm={getTotalAnnualKm}
         />
       </Suspense>

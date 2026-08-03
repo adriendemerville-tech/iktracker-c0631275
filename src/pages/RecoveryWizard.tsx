@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import JSZip from 'jszip';

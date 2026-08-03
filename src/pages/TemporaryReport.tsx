@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet-async";
 import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-react";
 

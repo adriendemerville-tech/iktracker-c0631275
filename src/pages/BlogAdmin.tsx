@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -535,7 +535,7 @@ export default function BlogAdmin() {
     const ids = Array.from(selectedPostIds);
     if (ids.length === 0) return;
     setBulkActionLoading(true);
-    const updateData: Record<string, unknown> = { status: publish ? 'published' : 'draft' };
+    const updateData: { status: BlogPostStatus; published_at?: string } = { status: publish ? "published" : "draft" };
     if (publish) updateData.published_at = new Date().toISOString();
     const { error } = await supabase.from('blog_posts').update(updateData).in('id', ids);
     setBulkActionLoading(false);
@@ -590,7 +590,7 @@ export default function BlogAdmin() {
 
   const togglePostStatus = async (post: BlogPost) => {
     const newStatus: BlogPostStatus = post.status === 'published' ? 'draft' : 'published';
-    const updateData: Record<string, unknown> = { status: newStatus };
+    const updateData: { status: BlogPostStatus; published_at?: string } = { status: newStatus };
     
     if (newStatus === 'published' && !post.published_at) {
       updateData.published_at = new Date().toISOString();

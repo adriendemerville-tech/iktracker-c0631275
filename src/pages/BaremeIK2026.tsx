@@ -1,5 +1,5 @@
 import { lazy, Suspense, memo } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet-async";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { MarketingNav } from "@/components/marketing/MarketingNav";

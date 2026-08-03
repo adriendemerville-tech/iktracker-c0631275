@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from '@/lib/router-compat';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -242,7 +242,7 @@ export default function BlogEditor() {
     if (!existingPost) return;
     
     const newStatus: BlogPostStatus = existingPost.status === 'published' ? 'draft' : 'published';
-    const updateData: Record<string, unknown> = { status: newStatus };
+    const updateData: { status: BlogPostStatus; published_at?: string } = { status: newStatus };
     
     if (newStatus === 'published' && !existingPost.published_at) {
       updateData.published_at = new Date().toISOString();

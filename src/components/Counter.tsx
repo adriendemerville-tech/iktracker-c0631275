@@ -11,7 +11,7 @@ interface CounterProps {
 
 export function Counter({ value, label, unit, variant = 'default', decimals = 0 }: CounterProps) {
   const [displayValue, setDisplayValue] = useState(0);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number | null>(null);
   const prevValueRef = useRef<number | null>(null);
   const isFirstRender = useRef(true);

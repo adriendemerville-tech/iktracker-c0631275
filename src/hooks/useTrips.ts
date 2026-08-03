@@ -282,7 +282,7 @@ export function useTrips() {
           let tripFailure = false;
           const tripsToMigrate: Trip[] = JSON.parse(localTrips);
           for (const t of tripsToMigrate) {
-            const newVehicleId = vehicleIdMap.get(t.vehicleId);
+            const newVehicleId = vehicleIdMap.get(t.vehicleId ?? "");
             if (!newVehicleId) {
               tripFailure = true;
               continue;
@@ -390,7 +390,7 @@ export function useTrips() {
       // Explicit IK provided (e.g. regrouping existing trips into a tour) — trust it verbatim.
       ikAmount = options.ikAmountOverride;
     } else {
-      const totalAnnualKm = getTotalAnnualKm(trip.vehicleId) + trip.distance;
+      const totalAnnualKm = getTotalAnnualKm(trip.vehicleId ?? "") + trip.distance;
       const rateOverride = preferences.ikRateOverride;
       ikAmount = calculateTotalAnnualIK(totalAnnualKm, vehicle.fiscalPower, rateOverride) -
                  calculateTotalAnnualIK(totalAnnualKm - trip.distance, vehicle.fiscalPower, rateOverride);

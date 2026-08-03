@@ -61,8 +61,8 @@ interface DetailsStepContentProps {
   setPurpose: (value: string) => void;
   isBlinking: boolean;
   setIsBlinking: (value: boolean) => void;
-  distanceInputRef: React.RefObject<HTMLInputElement>;
-  purposeInputRef: React.RefObject<HTMLInputElement>;
+  distanceInputRef: React.RefObject<HTMLInputElement | null>;
+  purposeInputRef: React.RefObject<HTMLInputElement | null>;
   handleConfirm: () => void;
   isRecurring?: boolean;
   setIsRecurring?: (v: boolean) => void;
