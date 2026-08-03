@@ -64,20 +64,6 @@ export default function IndemniteGrandDeplacement2026() {
   return (
     <>
       <Helmet>
-        <title>{PAGE_TITLE}</title>
-        <meta name="description" content={PAGE_DESC} />
-        <meta
-          name="keywords"
-          content="indemnité grand déplacement 2026, barème grand déplacement URSSAF, indemnité repas 2026, indemnité nuitée 2026, frais de mission, forfait grand déplacement, découcher professionnel"
-        />
-        <link rel="canonical" href={PAGE_URL} />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-        <meta property="og:title" content={PAGE_TITLE} />
-        <meta property="og:description" content={PAGE_DESC} />
-        <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
 
         <script type="application/ld+json">
           {JSON.stringify({

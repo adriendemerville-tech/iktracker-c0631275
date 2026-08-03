@@ -11,24 +11,10 @@ const Privacy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Politique de confidentialité | IKtracker</title>
-        <meta name="description" content="Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD, droits d'accès, rectification et suppression. Sécurité de vos informations garantie." />
-        <meta name="keywords" content="politique confidentialité, RGPD, protection données, vie privée, IKtracker, données personnelles" />
-        <link rel="canonical" href="https://iktracker.fr/privacy" />
-        <meta name="robots" content="index, follow" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Politique de confidentialité | IKtracker" />
-        <meta property="og:description" content="Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD et sécurité garantie." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/privacy" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
         
         {/* Twitter */}
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Politique de confidentialité | IKtracker" />
-        <meta name="twitter:description" content="Découvrez comment IKtracker protège vos données personnelles. Conformité RGPD." />
         
         {/* Structured Data */}
         <script type="application/ld+json">

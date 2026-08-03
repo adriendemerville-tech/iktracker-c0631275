@@ -895,18 +895,6 @@ export default function Lexique() {
   return (
     <>
       <Helmet>
-        <title>Lexique des indemnités kilométriques 2026 | IKtracker</title>
-        <meta 
-          name="description" 
-          content="Dictionnaire des termes IK : barème 2026, frais réels, BNC, URSSAF, professions libérales. Définitions claires pour indépendants." 
-        />
-        <meta name="keywords" content="lexique indemnités kilométriques, barème kilométrique 2026, frais réels définition, BNC, URSSAF, profession libérale, indépendant France" />
-        <link rel="canonical" href="https://iktracker.fr/lexique" />
-        <meta property="og:title" content="Lexique des indemnités kilométriques France 2026" />
-        <meta property="og:description" content="Tous les termes, acronymes et concepts des IK expliqués simplement pour les indépendants et professions libérales." />
-        <meta property="og:url" content="https://iktracker.fr/lexique" />
-        <meta property="og:type" content="article" />
-        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>

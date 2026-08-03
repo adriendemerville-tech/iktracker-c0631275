@@ -43,26 +43,6 @@ const ComparatifIzika = () => {
   return (
     <>
       <Helmet>
-        <title>Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)</title>
-        <meta 
-          name="description" 
-          content="Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l'alternative 100% gratuite qui synchronise votre agenda et génère vos rapports fiscaux conformes." 
-        />
-        <meta name="keywords" content="izika alternative, izika gratuit, alternative izika 2026, izika vs iktracker, application indemnités kilométriques gratuite, izika prix" />
-        <link rel="canonical" href="https://iktracker.fr/comparatif-izika" />
-        <meta property="og:title" content="Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)" />
-        <meta property="og:description" content="Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l'alternative 100% gratuite." />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/comparatif-izika" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Izika vs IKtracker : Comparatif 2026" />
-        <meta name="twitter:description" content="L'alternative gratuite à Izika pour vos indemnités kilométriques." />
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

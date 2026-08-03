@@ -144,30 +144,6 @@ const Artisans = () => {
   return (
     <>
       <Helmet>
-        <title>Frais kilométriques artisan : suivi des trajets de chantier</title>
-        <meta
-          name="description"
-          content="Artisan du bâtiment : calculez vos frais kilométriques au barème 2026 et suivez vos trajets de chantier gratuitement avec IKtracker. Relevé PDF pour le comptable, 0 €."
-        />
-        <link rel="canonical" href="https://iktracker.fr/artisans" />
-        <meta property="og:title" content="Frais kilométriques artisan : trajets de chantier et devis" />
-        <meta
-          property="og:description"
-          content="IKtracker calcule vos frais kilométriques de chantier au barème officiel, gratuitement. DictaDevi transforme votre voix en devis."
-        />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content="https://iktracker.fr/artisans" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Frais kilométriques artisan : trajets de chantier" />
-        <meta
-          name="twitter:description"
-          content="Calcul automatique des frais kilométriques de chantier au barème officiel, gratuit, et devis dictés à la voix avec DictaDevi."
-        />
-        <meta name="geo.region" content="FR" />
-        <meta name="language" content="fr" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

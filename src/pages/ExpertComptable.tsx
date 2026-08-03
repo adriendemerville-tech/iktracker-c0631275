@@ -78,31 +78,12 @@ const ExpertComptable = () => {
   return (
     <div className="min-h-screen bg-background select-text">
       <Helmet>
-        <title>Logiciel IK pour experts-comptables & cabinets | Export PDF/Excel</title>
-        <meta name="description" content="Outil gratuit recommandé par les cabinets comptables : exports PDF & Excel standardisés, carnet de bord opposable URSSAF, calcul barème kilométrique 2025-2026 pour vos clients salariés, BNC et BIC." />
-        <meta name="keywords" content="logiciel expert-comptable IK, cabinet comptable indemnités kilométriques, export PDF frais kilométriques, Excel IK client, barème fiscal 2025 2026, carnet de bord URSSAF, déclaration BNC BIC" />
-        <link rel="canonical" href="https://iktracker.fr/expert-comptable" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="IKtracker pour Experts-Comptables | Export IK PDF et Excel" />
-        <meta property="og:description" content="Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/expert-comptable" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="IKtracker pour Experts-Comptables" />
-        <meta name="twitter:description" content="Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         
         {/* Structured Data */}
         <script type="application/ld+json">

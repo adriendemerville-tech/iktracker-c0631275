@@ -887,10 +887,6 @@ ${IKTRACKER_URL}`;
   return (
     <>
       <Helmet>
-        <title>Relevé des trajets | IKtracker - Suivi kilométrique</title>
-        <meta name="description" content="Consultez et exportez vos trajets professionnels. Calcul automatique des indemnités kilométriques selon le barème fiscal 2026." />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/app/mestrajets" />
       </Helmet>
       
       {/* Desktop Sidebar - hidden on mobile */}

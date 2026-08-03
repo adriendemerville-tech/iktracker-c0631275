@@ -514,9 +514,6 @@ export default function RecoveryWizard() {
   return (
     <>
       <Helmet>
-        <title>Récupérer mes trajets | IKtracker</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/recovery" />
       </Helmet>
       <div className="min-h-screen bg-slate-950 flex">
         {/* Desktop Sidebar - sticky */}

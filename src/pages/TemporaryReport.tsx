@@ -233,11 +233,7 @@ https://iktracker.fr`;
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
         <title>{title}</title>
-        <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={window.location.href} />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icon-192.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </Helmet>
 
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">

@@ -214,10 +214,6 @@ const Profile = () => {
   return (
     <>
       <Helmet>
-        <title>Mon profil | IKtracker</title>
-        <meta name="description" content="Gérez votre profil IKtracker : véhicules, adresses favorites, préférences et paramètres de compte." />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/app/profile" />
       </Helmet>
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (

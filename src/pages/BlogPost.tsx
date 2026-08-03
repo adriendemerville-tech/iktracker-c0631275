@@ -194,42 +194,11 @@ export default function BlogPost() {
   return (
     <>
       <Helmet>
-        <title>{post.title} | Blog IKtracker</title>
-        <meta name="description" content={metaDescription} />
-        <link rel="canonical" href={canonicalUrl} />
-        
-        {/* Preconnect for image CDN - prioritize the actual image origin */}
-        <link rel="preconnect" href="https://yarjaudctshlxkatqgeb.supabase.co" crossOrigin="anonymous" />
-        
-        {/* Open Graph */}
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp"} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:locale" content="fr_FR" />
-        
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp"} />
-        
-        {/* Article metadata */}
-        <meta property="article:published_time" content={dateISO} />
-        <meta property="article:modified_time" content={modifiedDateISO} />
-        {post.author_name && <meta property="article:author" content={post.author_name} />}
-        <meta property="article:section" content="Indemnités kilométriques" />
-        
-        {/* GEO optimization */}
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="content-language" content="fr" />
-        
-        {/* Additional SEO */}
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        {/* Title, description, canonical, OG and Twitter tags are served
+            server-side from the route head() in src/routes/blog/$slug.tsx */}
+        {post.author_name ? <meta property="article:author" content={post.author_name} /> : null}
         <meta name="author" content={post.author_name || "IKtracker"} />
+        
         
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>

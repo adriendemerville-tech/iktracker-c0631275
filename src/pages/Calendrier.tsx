@@ -115,31 +115,12 @@ export default function Calendrier() {
   return (
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
-        <title>Synchronisation Calendrier IKtracker | Google Calendar & Outlook</title>
-        <meta name="description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
-        <meta name="keywords" content="synchronisation calendrier, Google Calendar IK, Outlook indemnités kilométriques, import automatique trajets, RDV en trajets, calendrier frais kilométriques" />
-        <link rel="canonical" href="https://iktracker.fr/calendrier" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Synchronisation Calendrier IKtracker | Google Calendar & Outlook" />
-        <meta property="og:description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/calendrier" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Synchronisation Calendrier IKtracker" />
-        <meta name="twitter:description" content="Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité." />
-        <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
         
         {/* Geo */}
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         
         {/* Structured Data */}
         <script type="application/ld+json">

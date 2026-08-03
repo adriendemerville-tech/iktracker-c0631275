@@ -212,26 +212,6 @@ const MeilleureApplicationIK = () => {
   return (
     <>
       <Helmet>
-        <title>{PAGE_TITLE} | IKtracker</title>
-        <meta name="description" content={PAGE_DESC} />
-        <meta
-          name="keywords"
-          content="meilleure application indemnités kilométriques, meilleure app frais kilométriques, calculatrice frais kilometrique 2026, application ik gratuite, alternative izika, alternative driversnote, alternative mileiq, indemnités kilométriques 2026, barème ik 2026"
-        />
-        <link rel="canonical" href={PAGE_URL} />
-        <meta property="og:title" content={PAGE_TITLE} />
-        <meta property="og:description" content={PAGE_DESC} />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:site_name" content="IKtracker" />
-        <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={PAGE_TITLE} />
-        <meta name="twitter:description" content={PAGE_DESC} />
-        <meta name="geo.region" content="FR" />
-        <meta name="geo.placename" content="France" />
-        <meta name="language" content="fr" />
         <script type="application/ld+json">{JSON.stringify(softwareJsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>

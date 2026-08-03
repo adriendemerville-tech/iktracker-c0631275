@@ -93,26 +93,6 @@ export default function MesTrajetsLanding() {
   return (
     <>
       <Helmet>
-        <title>Mes Trajets — Journal kilométrique pro gratuit | IKtracker</title>
-        <meta
-          name="description"
-          content="Centralisez tous vos trajets professionnels dans un journal kilométrique conforme URSSAF : saisie manuelle, trajets récurrents, import agenda, Mode Tournée GPS, export PDF & Excel. 100 % gratuit."
-        />
-        <meta
-          name="keywords"
-          content="mes trajets, journal de bord kilométrique, suivi trajets professionnels, trajets récurrents, carnet de bord URSSAF, application trajets pro, registre kilométrique"
-        />
-        <link rel="canonical" href="https://iktracker.fr/mes-trajets" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-        <meta property="og:title" content="Mes Trajets — Journal kilométrique pro gratuit" />
-        <meta
-          property="og:description"
-          content="Saisie, trajets récurrents, import agenda, GPS, export PDF. Le journal de bord kilométrique conforme URSSAF, gratuit à vie."
-        />
-        <meta property="og:url" content="https://iktracker.fr/mes-trajets" />
-        <meta property="og:type" content="article" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
 
         <script type="application/ld+json">
           {JSON.stringify({

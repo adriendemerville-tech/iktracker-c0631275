@@ -188,8 +188,6 @@ export default function Archive() {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Archive des relevés IK | IKtracker</title>
-        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <DesktopSidebar />

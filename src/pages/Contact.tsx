@@ -64,21 +64,6 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Contact | IKtracker - Nous contacter</title>
-        <meta name="description" content="Contactez l'équipe IKtracker pour toute question, suggestion ou demande d'assistance. Réponse rapide garantie." />
-        <link rel="canonical" href="https://iktracker.fr/contact" />
-        <meta name="robots" content="index, follow" />
-
-        <meta property="og:title" content="Contactez IKtracker" />
-        <meta property="og:description" content="Une question sur IKtracker ? Contactez-nous facilement." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://iktracker.fr/contact" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="IKtracker" />
-
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Contactez IKtracker" />
-        <meta name="twitter:description" content="Une question sur IKtracker ? Contactez-nous facilement." />
 
         <script type="application/ld+json">
           {JSON.stringify({
