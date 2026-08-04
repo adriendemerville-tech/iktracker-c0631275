@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 3.7 — 3 août 2026
+> Version 4.1 — 4 août 2026
 
 ## Table des matières
 
@@ -359,12 +359,15 @@ Content-Type: application/json
 - **Cache** : Résultats stockés dans `vehicle_cache`
 - **Secrets** : `IMMATRICULATION_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
-#### `sitemap` — Sitemap XML dynamique
+#### `sitemap` — Proxy vers le sitemap SSR
 
 - **Auth** : Aucune
 - **Endpoint** : `GET`
-- **Logique** : 18 pages statiques + articles blog (paginated)
-- **Cache** : `max-age=300` (5 minutes)
+- **Logique** : depuis la v4.1, cette fonction **ne génère plus rien**. Elle relaie
+  `https://iktracker.lovable.app/sitemap.xml`, produit par la route SSR TanStack
+  `src/routes/sitemap[.]xml.ts` (source de vérité unique : pages statiques + articles `published`).
+  On vise l'origine Lovable et non l'apex : le Worker route déjà `/sitemap.xml` vers cette fonction.
+- **Cache** : `max-age=300` (5 minutes) · en-tête `X-Sitemap-Source: ssr-proxy`
 - **Proxy** : Servi via le Worker Cloudflare sur `/sitemap.xml`
 
 #### `view-report` — Rapports partagés
@@ -593,11 +596,12 @@ L'origine de `iktracker.fr` (`185.158.133.1`, hébergement Lovable) est elle-mê
 
 | Source | Rôle | Quand |
 |---|---|---|
-| Edge Function `sitemap` | Source primaire dynamique | Chaque requête (cache 5 min) |
+| Route SSR `src/routes/sitemap[.]xml.ts` | **Source de vérité unique** (génération) | Chaque requête |
+| Edge Function `sitemap` | Proxy vers la route SSR (v4.1) | Chaque requête (cache 5 min) |
 | Cloudflare Worker | Proxy transparent | Intercepte `/sitemap.xml` |
-| `public/sitemap.xml` | Fallback statique | Seulement si Edge Function down |
+| `public/sitemap.xml` | Fallback statique | Seulement si les deux sont down |
 | `scripts/generate-sitemap.cjs` | Génère le fallback | Chaque build (prebuild) |
-| `scripts/validate-sitemap-sync.cjs` | Validation CI | Compare les 2 sources |
+| `scripts/validate-sitemap-sync.cjs` | Validation CI | Compare les sources statiques |
 
 **Contenu** : 28 pages statiques + ~45 articles de blog ≈ 73 URLs — toutes en `https://iktracker.fr/*`.
 
@@ -1254,6 +1258,22 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **4.1** (4 août 2026) — Audit post-consolidation, 4 correctifs :
+  1. **Soft 404 bots supprimés** — `meta-renderer` importe désormais
+     `supabase/functions/_shared/blog-redirects.ts` et renvoie un vrai **301** pour les
+     22 slugs de blog consolidés (auparavant : page générique en 200 pour Googlebot et les
+     crawlers IA). Le Worker `iktracker-bot-router` interroge le meta-renderer en
+     `redirect: 'manual'` et **propage** ce 301.
+  2. **Source de vérité unique des redirections** — `supabase/functions/_shared/blog-redirects.ts`,
+     miroirs vérifiés par `node scripts/validate-blog-redirects-sync.cjs`
+     (compare `src/lib/blog-redirects.ts` et `LEGACY_REDIRECTS` du Worker ; exit 1 si dérive).
+  3. **Sitemap unifié** — l'Edge Function `sitemap` devient un simple proxy de la route SSR
+     (99 URLs, plus aucun article archivé listé).
+  4. **Nettoyage éditorial** — liens internes des articles publiés pointant vers des slugs
+     archivés réécrits vers l'article pilier (9 occurrences sur 4 articles) ;
+     couverture manquante générée pour `controle-urssaf-liste-des-pieces-a-fournir` ;
+     `robots.txt` remis à jour (pages clés) ; alias `/admin` passé en 301.
 
 - **4.0** (3 août 2026) — Désambiguïsation du blog (consolidation, pruning, réorientation). **19 articles redondants** passés en `status = 'archived'` (retirés des listes et du sitemap, toujours accessibles en URL directe) sur les clusters « frais réels vs forfait », « URSSAF / anti-redressement », « calcul / étapes » et « barème 2026 ». **3 articles réorientés** (nouveau slug, nouveau titre, contenu réécrit sur une intention distincte) : `seuil-rentabilite-frais-reels-kilometrage-annuel`, `controle-urssaf-liste-des-pieces-a-fournir`, `declaration-2042-ou-reporter-ses-indemnites-kilometriques`. **23 redirections 301** ajoutées dans `LEGACY_REDIRECTS` du Worker `iktracker-bot-router` (redéployé) **et** dupliquées côté application dans `src/lib/blog-redirects.ts`, consommées par `beforeLoad` de `src/routes/blog/$slug.tsx` — les 301 sont donc effectives en SSR même tant que le Worker est court-circuité par l'Orange-to-Orange (cf. 3.8). Note : le déploiement Worker signale toujours l'échec des routes de la zone `iktracker.com`, absente du compte Cloudflare.
 

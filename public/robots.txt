@@ -82,18 +82,31 @@ Sitemap: https://iktracker.fr/sitemap.xml
 # https://iktracker.fr/llms.txt
 
 # Pages clés indexables :
-# https://iktracker.fr/
+# https://iktracker.fr
+# https://iktracker.fr/fonctionnalites
 # https://iktracker.fr/bareme-ik-2026
 # https://iktracker.fr/mode-tournee
 # https://iktracker.fr/calendrier
 # https://iktracker.fr/frais-reels
+# https://iktracker.fr/note-de-frais-kilometrique
+# https://iktracker.fr/indemnite-kilometrique-velo
+# https://iktracker.fr/indemnite-grand-deplacement-2026
+# https://iktracker.fr/mes-trajets
+# https://iktracker.fr/meilleure-application-indemnites-kilometriques
 # https://iktracker.fr/lexique
 # https://iktracker.fr/comparatif-izika
 # https://iktracker.fr/comparatif-driversnote
 # https://iktracker.fr/expert-comptable
+# https://iktracker.fr/artisans
+# https://iktracker.fr/independants
 # https://iktracker.fr/tarifs
-# https://iktracker.fr/note-de-frais-kilometrique
-# https://iktracker.fr/rgpd
 # https://iktracker.fr/installer
+# https://iktracker.fr/api-docs
 # https://iktracker.fr/blog
+# https://iktracker.fr/blog/auteur/adrien-de-volontat
+# https://iktracker.fr/contact
+# https://iktracker.fr/mentions-legales
+# https://iktracker.fr/privacy
+# https://iktracker.fr/rgpd
+# https://iktracker.fr/terms
 # https://iktracker.fr/signup

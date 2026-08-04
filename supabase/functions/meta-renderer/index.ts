@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { BLOG_SLUG_REDIRECTS } from "../_shared/blog-redirects.ts";
 
 /**
  * Meta Renderer Edge Function — Full-content version
@@ -1352,12 +1353,28 @@ serve(async (req) => {
     const path = url.searchParams.get('path') || '/';
     const userAgent = req.headers.get('user-agent') || '';
 
+    // Slugs de blog consolidés (archivés) → 301 vers le pilier, jamais de soft 404.
+    // Doit précéder toute recherche en base : l'article n'est plus `published`.
+    const legacySlug = path.match(/^\/blog\/([^/]+)$/)?.[1];
+    if (legacySlug && BLOG_SLUG_REDIRECTS[legacySlug]) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          ...corsHeaders,
+          'Location': `${BASE_URL}${BLOG_SLUG_REDIRECTS[legacySlug]}`,
+          'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+        },
+      });
+    }
+
     // Only respond to bots
     if (!isBot(userAgent)) {
       return new Response(JSON.stringify({ redirect: true, url: `${BASE_URL}${path}` }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+
 
     // Blog listing needs DB query, handle before static fallback
     if (path === '/blog') {
