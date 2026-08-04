@@ -312,7 +312,19 @@ export default {
         const metaUrl = `${SUPABASE_META_RENDERER}?path=${encodeURIComponent(path)}`;
         const metaRes = await fetch(metaUrl, {
           headers: { 'User-Agent': ua },
+          redirect: 'manual',
         });
+
+        // Le meta-renderer renvoie un 301 pour les slugs de blog consolidés :
+        // on le propage tel quel (jamais de soft 404 pour les crawlers).
+        if (metaRes.status === 301 || metaRes.status === 308) {
+          const location = metaRes.headers.get('location');
+          if (location) {
+            const response = Response.redirect(location, 301);
+            ctx.waitUntil(sendLog(request, response, botDetected));
+            return response;
+          }
+        }
 
         if (metaRes.ok) {
           const html = await metaRes.text();
@@ -332,6 +344,7 @@ export default {
         // Fallback vers l'origine
       }
     }
+
 
     // ── 5. Utilisateur normal → passthrough vers l'origine ──
     const response = await fetchOrigin(request);
