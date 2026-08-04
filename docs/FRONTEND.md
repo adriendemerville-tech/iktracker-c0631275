@@ -1,6 +1,15 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.2 — 3 août 2026 (SEO : sitemap SSR dynamique, head() home, alias 301)
+> Version 2.3 — 4 août 2026 (redirections blog 301 unifiées, sitemap 99 URLs, robots.txt)
+
+**Notes v2.3 (consolidation blog & redirections)**
+- `src/lib/blog-redirects.ts` contient les **22 redirections 301** des slugs de blog consolidés (articles archivés ou réorientés). Il est consommé par `beforeLoad` de `src/routes/blog/$slug.tsx` : la 301 part donc du SSR, sans dépendre du Worker Cloudflare.
+- Ce fichier est le **miroir** de `supabase/functions/_shared/blog-redirects.ts` (source de vérité) et de `LEGACY_REDIRECTS` du Worker. `node scripts/validate-blog-redirects-sync.cjs` échoue si les trois divergent — à lancer après toute consolidation d'articles.
+- Ajouter une redirection : éditer le fichier partagé côté Edge Function, répercuter dans `src/lib/blog-redirects.ts` et dans le Worker, puis relancer le script de validation.
+- La route SSR `/sitemap.xml` sert **99 URLs** (28 pages statiques + articles `published`) ; les articles `archived` en sont exclus par la requête `status = 'published'`.
+- `public/robots.txt` liste explicitement les pages indexables (dont `/artisans`, `/independants`, `/fonctionnalites`) ; le tenir à jour à chaque nouvelle landing publique.
+- L'alias `/admin` redirige en **301** vers `/app/admin` (comme les 10 autres alias).
+- Rappel images : tout article publié doit avoir un `featured_image_url` — les couvertures manquantes sont générées puis stockées dans le bucket `blog-images`.
 
 **Notes v2.2 (SEO/GEO)**
 - `/sitemap.xml` est désormais une route serveur SSR (`src/routes/sitemap[.]xml.ts`) qui interroge `blog_posts` à la requête : 28 pages statiques + tous les articles publiés (104 URLs). Le fichier statique `public/sitemap.xml` et le hook `prebuild` de génération ont été supprimés (ils shadowaient la route et se construisaient sans les articles en prod).
@@ -559,6 +568,8 @@ src/
 - Règle pour toute nouvelle page : créer la route avec son `head()` (titre unique < 60 caractères, description < 160, canonical absolu sur `https://iktracker.fr`), `og:image` uniquement au niveau feuille, jamais sur `__root.tsx`.
 
 ## Changelog
+
+- **2.3** (4 août 2026) — Consolidation du blog côté front : `src/lib/blog-redirects.ts` (22 slugs) branché sur `beforeLoad` de `/blog/$slug`, synchronisé avec l'Edge Function partagée et le Worker via `scripts/validate-blog-redirects-sync.cjs` ; alias `/admin` en 301 ; `public/robots.txt` remis à jour ; sitemap SSR ramené à 99 URLs après archivage de 19 articles.
 
 - **2.1** (3 août 2026) — Métadonnées SEO migrées de `<Helmet>` vers le `head()` des routes TanStack (SSR) sur l'ensemble des pages publiques ; `head()` dynamique piloté par loader pour les articles de blog.
 
