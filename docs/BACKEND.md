@@ -35,7 +35,7 @@ Utilisateur → Cloudflare DNS (proxied)
   → Cloudflare Worker (iktracker-bot-router)
     ├─ www.* / .com → 301 → apex iktracker.fr
     ├─ Bot détecté → Edge Function meta-renderer → HTML pré-rendu
-    ├─ /sitemap.xml → Edge Function sitemap (fallback: fichier statique)
+    ├─ /sitemap.xml → Edge Function sitemap (proxy de la route SSR)
     ├─ Slug legacy (LEGACY_REDIRECTS) → 301 vers slug moderne
     ├─ Asset statique → Origin + cache headers
     ├─ Route privée (/app/*) → Origin passthrough
@@ -556,7 +556,7 @@ CREATE POLICY "Users can manage own data" ON public.table_name
 **Logique de routage** :
 1. `www.iktracker.fr` / `www.iktracker.com` / `iktracker.com` → 301 → apex `iktracker.fr` (sauf robots.txt/llms.txt proxiés depuis .com)
 2. Slug présent dans `LEGACY_REDIRECTS` → 301 vers slug moderne
-3. `/sitemap.xml` → Proxy vers Edge Function (fallback fichier statique)
+3. `/sitemap.xml` → Proxy Worker → Edge Function `sitemap` → route SSR `sitemap[.]xml.ts`
 4. Assets statiques → Passthrough + cache headers
 5. Routes privées (`/app/*`, `/auth`, `/sso`, etc.) → Passthrough
 6. Bot détecté → Edge Function `meta-renderer`
@@ -599,11 +599,9 @@ L'origine de `iktracker.fr` (`185.158.133.1`, hébergement Lovable) est elle-mê
 | Route SSR `src/routes/sitemap[.]xml.ts` | **Source de vérité unique** (génération) | Chaque requête |
 | Edge Function `sitemap` | Proxy vers la route SSR (v4.1) | Chaque requête (cache 5 min) |
 | Cloudflare Worker | Proxy transparent | Intercepte `/sitemap.xml` |
-| `public/sitemap.xml` | Fallback statique | Seulement si les deux sont down |
-| `scripts/generate-sitemap.cjs` | Génère le fallback | Chaque build (prebuild) |
-| `scripts/validate-sitemap-sync.cjs` | Validation CI | Compare les sources statiques |
+| `public/sitemap.xml` | **Supprimé** (v2.2 frontend) — il shadowait la route SSR | — |
 
-**Contenu** : 28 pages statiques + ~45 articles de blog ≈ 73 URLs — toutes en `https://iktracker.fr/*`.
+**Contenu** : 28 pages statiques + articles `published` ≈ **99 URLs** — toutes en `https://iktracker.fr/*`, aucun article archivé.
 
 **Priorités & changefreq notables** (alignées entre l'Edge Function et le script statique) :
 - `/` : `priority 1.0`, `weekly`
@@ -970,11 +968,8 @@ Le dashboard `/app/admin/partners` (réservé `admin`) permet de :
 ## Annexe — Commandes utiles
 
 ```bash
-# Valider la synchronisation des sources sitemap
-node scripts/validate-sitemap-sync.cjs
-
-# Générer le sitemap statique (fallback)
-node scripts/generate-sitemap.cjs
+# Valider la synchronisation des redirections blog (SSR ↔ Worker ↔ Edge Function)
+node scripts/validate-blog-redirects-sync.cjs
 
 # Vérifier la source du sitemap en production
 curl -sI https://www.iktracker.fr/sitemap.xml | grep X-Sitemap-Source
