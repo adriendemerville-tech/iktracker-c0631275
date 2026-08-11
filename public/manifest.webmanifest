@@ -2,7 +2,7 @@
   "name": "IKtracker - Indemnités Kilométriques",
   "short_name": "IKtracker",
   "description": "Suivez vos indemnités kilométriques facilement",
-  "start_url": "/",
+  "start_url": "/?utm_source=pwa&utm_medium=app&utm_campaign=standalone_launch",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",

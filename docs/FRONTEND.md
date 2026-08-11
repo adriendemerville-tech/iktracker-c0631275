@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.3 — 4 août 2026 (redirections blog 301 unifiées, sitemap 99 URLs, robots.txt)
+> Version 2.4 — 11 août 2026 (attribution de trafic & détection IA GA4)
 
 **Notes v2.3 (consolidation blog & redirections)**
 - `src/lib/blog-redirects.ts` contient les **22 redirections 301** des slugs de blog consolidés (articles archivés ou réorientés). Il est consommé par `beforeLoad` de `src/routes/blog/$slug.tsx` : la 301 part donc du SSR, sans dépendre du Worker Cloudflare.
@@ -567,7 +567,17 @@ src/
 - `/blog/$slug` possède un `loader` qui récupère l'article (titre, meta_description, image, dates) et alimente `head()` : chaque article a désormais ses vraies métadonnées en SSR, avec un fallback `noindex` si l'article n'existe pas.
 - Règle pour toute nouvelle page : créer la route avec son `head()` (titre unique < 60 caractères, description < 160, canonical absolu sur `https://iktracker.fr`), `og:image` uniquement au niveau feuille, jamais sur `__root.tsx`.
 
+## Attribution de trafic & détection IA (GA4)
+
+- `src/lib/traffic-attribution.ts` calcule **une seule fois par session** la source réelle : referrer, UTM, et mode de lancement (`browser` / `standalone` / `twa`). Résultat mémorisé en `sessionStorage` (`ik_attribution_v1`), les navigations internes ne l'écrasent pas.
+- Canaux produits : `ai`, `pwa`, `search`, `social`, `referral`, `direct`. La liste des referrers IA (ChatGPT, Perplexity, Gemini, Copilot, Claude, Le Chat, Grok, DeepSeek, You, Phind, Poe, Kagi, Meta AI…) est plus large que le canal natif « AI Assistant » de GA4.
+- `AnalyticsTracker` envoie ces valeurs comme dimensions personnalisées (`traffic_channel`, `ai_vendor`, `launch_mode`, `entry_referrer`) et **surcharge la campagne** (`campaign_source` / `campaign_medium`) pour sortir les sessions IA et PWA du bucket « Direct ». Un évènement `ai_referral_session` est émis pour les sessions IA.
+- `public/manifest.webmanifest` : `start_url` taggué `?utm_source=pwa&utm_medium=app&utm_campaign=standalone_launch`, afin que les lancements depuis l'icône installée ne soient plus comptés comme acquisition directe.
+- Prérequis GA4 côté interface : déclarer les 4 dimensions personnalisées (portée évènement) avec les noms de paramètres ci-dessus, puis créer un groupe de canaux personnalisé mappant `medium = ai_assistant` → « IA » et `medium = app` → « App installée ».
+
 ## Changelog
+
+- **2.4** (11 août 2026) — Attribution de trafic fiabilisée : `traffic-attribution.ts` (détection IA élargie, mode de lancement PWA), dimensions personnalisées et override de campagne dans `AnalyticsTracker`, `start_url` du manifeste taggué UTM.
 
 - **2.3** (4 août 2026) — Consolidation du blog côté front : `src/lib/blog-redirects.ts` (22 slugs) branché sur `beforeLoad` de `/blog/$slug`, synchronisé avec l'Edge Function partagée et le Worker via `scripts/validate-blog-redirects-sync.cjs` ; alias `/admin` en 301 ; `public/robots.txt` remis à jour ; sitemap SSR ramené à 99 URLs après archivage de 19 articles.
 
