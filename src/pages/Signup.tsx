@@ -53,7 +53,14 @@ const Signup = () => {
   const [firstName, setFirstName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+  // Priorise Apple sur iPhone/iPad (Sign in with Apple natif), Google ailleurs.
+  const [isIOS, setIsIOS] = useState(false);
+  useEffect(() => {
+    const ua = navigator.userAgent || '';
+    setIsIOS(/iPad|iPhone|iPod/.test(ua) || (/Mac/.test(ua) && navigator.maxTouchPoints > 1));
+  }, []);
+
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [selectedPersona, setSelectedPersona] = useState<PersonaValue | null>(null);
