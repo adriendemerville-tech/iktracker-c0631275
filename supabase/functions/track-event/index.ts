@@ -35,6 +35,10 @@ const ALLOWED_EVENTS = new Set([
   'crawlers_click',
   'signup_view',
   'signup_oauth_start',
+  'signup_oauth_return',
+  'signup_oauth_denied',
+  'signup_oauth_abandon',
+
   'signup_form_submit',
   'signup_error',
   'signup_success',
