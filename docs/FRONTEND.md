@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.3 — 4 août 2026 (redirections blog 301 unifiées, sitemap 99 URLs, robots.txt)
+> Version 2.4 — 11 août 2026 (attribution de trafic & détection IA GA4)
 
 **Notes v2.3 (consolidation blog & redirections)**
 - `src/lib/blog-redirects.ts` contient les **22 redirections 301** des slugs de blog consolidés (articles archivés ou réorientés). Il est consommé par `beforeLoad` de `src/routes/blog/$slug.tsx` : la 301 part donc du SSR, sans dépendre du Worker Cloudflare.
