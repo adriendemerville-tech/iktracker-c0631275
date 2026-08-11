@@ -158,16 +158,19 @@ const Signup = () => {
     markOAuthStart(provider, 'signup');
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      if (result.error) throw new Error(result.error.message ?? 'oauth_error');
+      if (result.redirected) return;
     } catch (error: any) {
       trackSignupEvent('signup_error', `oauth_${provider}: ${(error?.message || 'unknown').slice(0, 200)}`);
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
   };
+
 
 
   const handleSubmit = async (e: React.FormEvent) => {

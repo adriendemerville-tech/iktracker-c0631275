@@ -77,14 +77,21 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     markOAuthStart(provider, 'auth');
 
     try {
+      // Google/Apple passent par le broker OAuth managé (identifiants gérés côté plateforme).
+      if (provider === 'google' || provider === 'apple') {
+        const { lovable } = await import('@/integrations/lovable/index');
+        const result = await lovable.auth.signInWithOAuth(provider, {
+          redirect_uri: window.location.origin,
+        });
+        if (result.error) throw new Error(result.error.message ?? 'oauth_error');
+        if (result.redirected) return;
+        if (nextPath) window.location.href = nextPath;
+        return;
+      }
       const options: any = {};
       if (provider === 'azure') {
         options.scopes = 'email offline_access Calendars.Read';
       }
-      // Google: ne demander que le profil de base à la connexion/inscription.
-      // L'accès agenda est demandé plus tard, via la page Calendrier (flux dédié),
-      // pour éviter un écran de consentement effrayant qui bloque les inscriptions.
-      // Preserve OAuth consent flow (or any post-login redirect) across the OAuth round-trip.
       if (nextPath) {
         options.redirectTo = `${window.location.origin}${nextPath}`;
       }
@@ -93,6 +100,7 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         options,
       });
       if (error) throw error;
+
     } catch (error: any) {
       trackSignupEvent('signup_error', error?.message ?? 'oauth_error', 'auth');
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
