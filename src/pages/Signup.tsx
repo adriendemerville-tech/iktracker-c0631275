@@ -148,6 +148,8 @@ const Signup = () => {
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
     trackSignupEvent('signup_oauth_start', 'google');
+    markOAuthStart('google', 'signup');
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
