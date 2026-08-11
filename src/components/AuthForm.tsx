@@ -8,6 +8,8 @@ import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { trackSignupEvent } from '@/lib/signup-tracking';
+import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from '@/lib/oauth-return-tracking';
+
 
 // Validate a `next` search-param as a same-origin relative path so we can safely
 // redirect after login/signup/OAuth (used by the OAuth consent route).
@@ -55,10 +57,25 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     }
   }, [mode]);
 
+  // Résout un éventuel retour depuis l'écran de consentement OAuth
+  // (succès, refus explicite, ou abandon sans session).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!cancelled) resolveOAuthReturn(!!data.session, 'auth');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleOAuthLogin = async (provider: 'google' | 'azure' | 'apple') => {
     setOauthLoading(provider);
     // Track OAuth start as a signup funnel event (OAuth on /auth can create accounts)
     trackSignupEvent('signup_oauth_start', provider, 'auth');
+    markOAuthStart(provider, 'auth');
+
     try {
       const options: any = {};
       if (provider === 'azure') {
@@ -95,7 +112,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
           password,
         });
         if (error) throw error;
+        clearOAuthPending();
         toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
+
         onSuccess?.();
         navigate(nextPath ?? '/app');
       } else if (mode === 'signup') {

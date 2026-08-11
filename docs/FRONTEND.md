@@ -335,7 +335,9 @@ Custom UI : `optimized-image.tsx` (chargement lazy avec blurhash).
 | `useOnlineStatus.ts` | Détection connectivité |
 | `useWakeLock.ts` | Wake Lock API (écran allumé) |
 | `useMarketingTracker.ts` | Tracking événements marketing. Délègue à l'edge function `track-event` (IP captée server-side via headers Cloudflare — plus de dépendance à `api.ipify.org`, bloqué par uBlock/Brave/Pi-hole). Filtre bots + admins (double filtre client+serveur, cache session sur `is_admin_user`). Session/device/admin helpers factorisés dans `src/lib/tracking-shared.ts`. |
-| `signup-tracking.ts` (lib) | Événements funnel signup (`signup_view`, `signup_oauth_start`, `signup_form_submit`, `signup_error`, `signup_success`). Passe par `track-event`. Déduplication de `signup_view` par session via `sessionStorage` (un rechargement de `/signup` ne compte plus double). |
+| `signup-tracking.ts` (lib) | Événements funnel signup (`signup_view`, `signup_oauth_start`, `signup_oauth_return`, `signup_oauth_denied`, `signup_oauth_abandon`, `signup_form_submit`, `signup_error`, `signup_success`). Passe par `track-event`. Déduplication de `signup_view` par session via `sessionStorage` (un rechargement de `/signup` ne compte plus double). |
+| `oauth-return-tracking.ts` (lib) | Détecte le retour depuis l'écran de consentement OAuth. `markOAuthStart()` pose un marqueur `sessionStorage` avant `signInWithOAuth`; `resolveOAuthReturn(hasSession)` (monté sur `/auth` et `/signup`) émet `signup_oauth_return`, `signup_oauth_denied` (`error=access_denied`) ou `signup_oauth_abandon` (retour sans session ni erreur, ou marqueur périmé > 15 min). Miroir GA4 des mêmes évènements avec `provider`, `elapsed_ms`, `outcome`. |
+
 | `tracking-shared.ts` (lib) | Helpers communs `getSessionId()`, `getDeviceType()`, `checkIsAdmin()` (cache session) partagés entre `useMarketingTracker` et `signup-tracking`. |
 
 ### Hooks mode tournée

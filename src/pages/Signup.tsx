@@ -10,6 +10,8 @@ import confetti from 'canvas-confetti';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from '@/components/PersonaPicker';
 import { trackSignupEvent } from '@/lib/signup-tracking';
+import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from '@/lib/oauth-return-tracking';
+
 
 const RECAPTCHA_SITE_KEY = '6LeqDVMsAAAAAE_prKZwP9zj8ovr49OFOQnoISsP';
 
@@ -83,6 +85,9 @@ const Signup = () => {
 
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      // Résout un retour depuis l'écran de consentement Google
+      // (retour effectif, refus explicite, ou abandon sans session).
+      resolveOAuthReturn(!!session, 'signup');
       if (session) {
         navigate('/app', { replace: true });
       }
@@ -92,9 +97,11 @@ const Signup = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        clearOAuthPending();
         // Determine provider (google/apple for OAuth, else email)
         const provider = (session.user.app_metadata?.provider as string) || 'email';
         trackSignupEvent('signup_success', provider);
+
 
         // Save persona to database after signup
         if (selectedPersona) {
@@ -141,6 +148,8 @@ const Signup = () => {
   const handleOAuthLogin = async () => {
     setOauthLoading('google');
     trackSignupEvent('signup_oauth_start', 'google');
+    markOAuthStart('google', 'signup');
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

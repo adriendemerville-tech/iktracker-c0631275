@@ -5,9 +5,13 @@ import { getSessionId, getDeviceType } from '@/lib/tracking-shared';
 type SignupEventType =
   | 'signup_view'
   | 'signup_oauth_start'
+  | 'signup_oauth_return'
+  | 'signup_oauth_denied'
+  | 'signup_oauth_abandon'
   | 'signup_form_submit'
   | 'signup_error'
   | 'signup_success';
+
 
 /**
  * Track a signup funnel event. Stores the "context" (provider name for
