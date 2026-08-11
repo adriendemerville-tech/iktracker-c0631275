@@ -145,22 +145,23 @@ const Signup = () => {
     setShowPersonaPicker(false);
   };
 
-  const handleOAuthLogin = async () => {
-    setOauthLoading('google');
-    trackSignupEvent('signup_oauth_start', 'google');
-    markOAuthStart('google', 'signup');
+  const handleOAuthLogin = async (provider: 'google' | 'apple' = 'google') => {
+    setOauthLoading(provider);
+    trackSignupEvent('signup_oauth_start', provider);
+    markOAuthStart(provider, 'signup');
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
       });
       if (error) throw error;
     } catch (error: any) {
-      trackSignupEvent('signup_error', `oauth_google: ${(error?.message || 'unknown').slice(0, 200)}`);
+      trackSignupEvent('signup_error', `oauth_${provider}: ${(error?.message || 'unknown').slice(0, 200)}`);
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       setOauthLoading(null);
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
