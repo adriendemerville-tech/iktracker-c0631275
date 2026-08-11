@@ -55,10 +55,25 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     }
   }, [mode]);
 
+  // Résout un éventuel retour depuis l'écran de consentement OAuth
+  // (succès, refus explicite, ou abandon sans session).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!cancelled) resolveOAuthReturn(!!data.session, 'auth');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleOAuthLogin = async (provider: 'google' | 'azure' | 'apple') => {
     setOauthLoading(provider);
     // Track OAuth start as a signup funnel event (OAuth on /auth can create accounts)
     trackSignupEvent('signup_oauth_start', provider, 'auth');
+    markOAuthStart(provider, 'auth');
+
     try {
       const options: any = {};
       if (provider === 'azure') {
