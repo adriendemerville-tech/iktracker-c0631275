@@ -112,7 +112,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
           password,
         });
         if (error) throw error;
+        clearOAuthPending();
         toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
+
         onSuccess?.();
         navigate(nextPath ?? '/app');
       } else if (mode === 'signup') {
