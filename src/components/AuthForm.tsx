@@ -64,10 +64,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
       if (provider === 'azure') {
         options.scopes = 'email offline_access Calendars.Read';
       }
-      if (provider === 'google') {
-        // Include calendar scope at sign-up so tokens are stored immediately
-        options.scopes = 'https://www.googleapis.com/auth/calendar.readonly';
-      }
+      // Google: ne demander que le profil de base à la connexion/inscription.
+      // L'accès agenda est demandé plus tard, via la page Calendrier (flux dédié),
+      // pour éviter un écran de consentement effrayant qui bloque les inscriptions.
       // Preserve OAuth consent flow (or any post-login redirect) across the OAuth round-trip.
       if (nextPath) {
         options.redirectTo = `${window.location.origin}${nextPath}`;
