@@ -83,6 +83,9 @@ const Signup = () => {
 
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      // Résout un retour depuis l'écran de consentement Google
+      // (retour effectif, refus explicite, ou abandon sans session).
+      resolveOAuthReturn(!!session, 'signup');
       if (session) {
         navigate('/app', { replace: true });
       }
@@ -92,9 +95,11 @@ const Signup = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        clearOAuthPending();
         // Determine provider (google/apple for OAuth, else email)
         const provider = (session.user.app_metadata?.provider as string) || 'email';
         trackSignupEvent('signup_success', provider);
+
 
         // Save persona to database after signup
         if (selectedPersona) {
