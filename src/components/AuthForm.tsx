@@ -8,6 +8,8 @@ import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { trackSignupEvent } from '@/lib/signup-tracking';
+import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from '@/lib/oauth-return-tracking';
+
 
 // Validate a `next` search-param as a same-origin relative path so we can safely
 // redirect after login/signup/OAuth (used by the OAuth consent route).
