@@ -17,9 +17,9 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "REMPLACER_PAR_TON_APPLE_ID",
+        "appleId": "adriendemerville@gmail.com",
         "ascAppId": "REMPLACER_PAR_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "REMPLACER_PAR_TEAM_ID"
+        "appleTeamId": "ZG5QHXSQXK"
       }
     }
   }
