@@ -163,3 +163,24 @@ src/hooks/useAuth.tsx      Session Supabase + OAuth Apple/Google
 ## 7. Dette connue
 
 Le barème IK est dupliqué entre web (`src/types/trip.ts`) et mobile (`src/lib/ik.ts`). Extraire un package partagé `@iktracker/core` dès que les deux codebases coexistent durablement.
+
+## 8. CI GitHub Actions
+
+Deux workflows sont fournis dans `.github/workflows/` :
+
+- `eas-build.yml` — build à chaque push sur `main` (profil `preview`, iOS par défaut) et lancement manuel avec choix du profil/plateforme.
+- `eas-submit.yml` — lancement manuel : build `production` + `--auto-submit` vers App Store Connect ou Play Console.
+
+### Secrets à créer dans GitHub (Settings → Secrets and variables → Actions)
+
+| Secret | Où le trouver |
+| --- | --- |
+| `EXPO_TOKEN` | expo.dev → Account settings → Access tokens → Create token |
+| `EXPO_PUBLIC_SUPABASE_URL` | même valeur que `.env` |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | même valeur que `.env` (clé publique) |
+| `EXPO_PUBLIC_SITE_URL` | `https://iktracker.fr` |
+| `EXPO_APPLE_APP_SPECIFIC_PASSWORD` | appleid.apple.com → Sécurité → mot de passe pour application (uniquement pour `eas-submit`) |
+
+Les certificats et provisioning profiles restent gérés par EAS (`eas credentials`) : rien à stocker dans GitHub.
+
+> Les builds sont lancés en `--no-wait` : le job GitHub se termine tout de suite, le suivi se fait sur expo.dev.
