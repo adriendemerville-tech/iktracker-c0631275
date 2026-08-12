@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "IKTracker",
+    "slug": "iktracker",
+    "scheme": "iktracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "fr.iktracker.app",
+      "supportsTablet": true,
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "fetch"],
+        "NSLocationWhenInUseUsageDescription": "IKTracker utilise votre position pour enregistrer automatiquement la distance de vos trajets professionnels.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Le Mode Tournée enregistre votre itinéraire en arrière-plan afin de calculer vos indemnités kilométriques, même écran éteint.",
+        "NSCalendarsUsageDescription": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets professionnels.",
+        "NSCalendarsFullAccessUsageDescription": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets professionnels."
+      }
+    },
+    "android": {
+      "package": "fr.iktracker.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "READ_CALENDAR"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Le Mode Tournée enregistre votre itinéraire en arrière-plan pour calculer vos indemnités kilométriques.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "REMPLACER_PAR_TON_EAS_PROJECT_ID"
+      }
+    }
+  }
+}
