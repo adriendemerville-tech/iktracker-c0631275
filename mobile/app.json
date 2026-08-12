@@ -12,7 +12,10 @@
       "supportsTablet": true,
       "buildNumber": "1",
       "infoPlist": {
-        "UIBackgroundModes": ["location", "fetch"],
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
         "NSLocationWhenInUseUsageDescription": "IKTracker utilise votre position pour enregistrer automatiquement la distance de vos trajets professionnels.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Le Mode Tournée enregistre votre itinéraire en arrière-plan afin de calculer vos indemnités kilométriques, même écran éteint.",
         "NSCalendarsUsageDescription": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets professionnels.",
@@ -50,7 +53,10 @@
     "extra": {
       "eas": {
         "projectId": "REMPLACER_PAR_TON_EAS_PROJECT_ID"
-      }
+      },
+      "supabaseUrl": "https://yarjaudctshlxkatqgeb.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhcmphdWRjdHNobHhrYXRxZ2ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NzY2NTIsImV4cCI6MjA4MTQ1MjY1Mn0.FRJSAOY3ruERComZ0QeEyQNK_yNzsS3XwR4qBRsNZWI",
+      "siteUrl": "https://iktracker.fr"
     }
   }
 }
