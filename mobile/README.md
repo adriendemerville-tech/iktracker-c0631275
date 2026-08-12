@@ -28,18 +28,100 @@ npx expo run:ios         # build natif local (nécessaire pour tester le Mode To
 
 Le suivi en arrière-plan (`expo-location` + `expo-task-manager`) ne fonctionne **pas** dans Expo Go : il faut un development build.
 
-## 3. Premier build iOS
+## 3. EAS Build pas à pas
+
+### 3.1 Prérequis
+
+- Un compte **Apple Developer** (99 $/an) + un Mac ou un poste quelconque avec un terminal.
+- Node.js ≥ 18 et npm installés.
+- L’app est destinée à être dans un **repo GitHub séparé** (`iktracker-mobile`).
+
+### 3.2 Préparer le repo local
+
+```bash
+# 1. Copier le dossier mobile hors du repo web
+cp -r mobile ~/iktracker-mobile && cd ~/iktracker-mobile
+
+# 2. Variables d’environnement publiques
+cp .env.example .env
+# édite .env avec tes vraies valeurs Supabase (même URL/anon key que le web)
+
+# 3. Installer les dépendances
+npm install
+npm i -D babel-plugin-module-resolver
+npx expo install --fix
+```
+
+### 3.3 Lier le projet à Expo / EAS
 
 ```bash
 npm i -g eas-cli
-eas login
-eas init                 # renseigne extra.eas.projectId dans app.json
-eas build --platform ios --profile development   # test sur device
-eas build --platform ios --profile production    # build App Store
+eas login                 # te connecte avec ton compte Expo
+eas init                  # crée le projet EAS et injecte extra.eas.projectId dans app.json
+```
+
+> `eas init` modifie automatiquement `app.json`. Ne remplace pas cette valeur ensuite.
+
+### 3.4 Configurer les identifiants Apple
+
+Dans `eas.json`, remplace les placeholders par tes vraies valeurs Apple :
+
+```json
+"submit": {
+  "production": {
+    "ios": {
+      "appleId": "adrien@iktracker.fr",
+      "ascAppId": "1234567890",
+      "appleTeamId": "ABCDEF1234"
+    }
+  }
+}
+```
+
+Où les trouver :
+- `appleId` : l’e-mail de ton Apple ID utilisé pour App Store Connect.
+- `ascAppId` : l’**App ID** de l’app dans App Store Connect (un nombre, ex. `6734567890`).
+- `appleTeamId` : l’**Team ID** Apple (10 caractères alphanumériques) visible dans [Apple Developer](https://developer.apple.com) → Membership.
+
+### 3.5 Build de test (simulateur iOS)
+
+Le plus rapide pour vérifier que tout compile :
+
+```bash
+eas build --platform ios --profile development
+```
+
+Le `.app` est téléchargeable ; tu peux l’installer sur un simulateur iOS depuis Xcode.
+
+### 3.6 Build sur vrai device (TestFlight interne)
+
+```bash
+eas build --platform ios --profile preview
+```
+
+Ce profil génère un `.ipa` signé pour appareil physique et peut être distribué en **internal distribution** (lien Expo Go ou TestFlight).
+
+### 3.7 Build Production + soumission App Store
+
+```bash
+# 1. Build production signé pour l’App Store
+eas build --platform ios --profile production
+
+# 2. Envoyer sur App Store Connect
 eas submit --platform ios
 ```
 
-Avant le build production, remplacer dans `eas.json` : `appleId`, `ascAppId`, `appleTeamId`.
+`eas submit` uploie le `.ipa`. Ensuite, tu dois aller dans **App Store Connect** → ton app → **App Store** → cliquer **Submit for Review**.
+
+### 3.8 Commandes récapitulatives
+
+```bash
+# Tout en une seule passe (build prod + submit)
+eas build --platform ios --profile production --auto-submit
+
+# Build Android (optionnel, même repo)
+eas build --platform android --profile production
+```
 
 ## 4. Structure
 
