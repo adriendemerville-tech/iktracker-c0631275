@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { PermissionStatus } from 'expo-location';
 import {
   getActiveSession,
   getLiveDistance,
@@ -13,6 +12,8 @@ import {
 import { createTrip, fetchVehicles, type Vehicle } from '@/lib/trips';
 import { describeLocationIssue } from '@/lib/startup-checks';
 import { colors, radius, spacing } from '@/theme';
+
+type LocationPermissionStatus = 'granted' | 'denied' | 'undetermined';
 
 export default function TourneeScreen() {
   const [running, setRunning] = useState(false);
