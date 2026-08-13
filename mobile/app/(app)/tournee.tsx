@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   getActiveSession,
   getLiveDistance,
@@ -9,7 +9,9 @@ import {
   stopTour,
 } from '@/lib/tour-tracking';
 import { createTrip, fetchVehicles, type Vehicle } from '@/lib/trips';
+import { describeLocationIssue } from '@/lib/startup-checks';
 import { colors, radius, spacing } from '@/theme';
+
 
 export default function TourneeScreen() {
   const [running, setRunning] = useState(false);
