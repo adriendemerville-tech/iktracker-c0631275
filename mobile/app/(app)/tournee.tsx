@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import type { PermissionStatus } from 'expo-location';
 import {
   getActiveSession,
   getLiveDistance,
+  getLocationPermissionStatus,
   isTourRunning,
   requestTourPermissions,
   startTour,
@@ -12,12 +14,15 @@ import { createTrip, fetchVehicles, type Vehicle } from '@/lib/trips';
 import { describeLocationIssue } from '@/lib/startup-checks';
 import { colors, radius, spacing } from '@/theme';
 
-
 export default function TourneeScreen() {
   const [running, setRunning] = useState(false);
   const [distance, setDistance] = useState(0);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehicleId, setVehicleId] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<{
+    foreground: PermissionStatus;
+    background: PermissionStatus;
+  } | null>(null);
 
   useEffect(() => {
     fetchVehicles()
@@ -26,6 +31,11 @@ export default function TourneeScreen() {
         setVehicleId((cur) => cur ?? v[0]?.id ?? null);
       })
       .catch(() => undefined);
+  }, []);
+
+  // Vérifie les permissions dès l’arrivée sur l’écran, sans déclencher de dialogue système.
+  useEffect(() => {
+    getLocationPermissionStatus().then(setPermissionStatus).catch(() => undefined);
   }, []);
 
   // Reprise de session : si une tournée tourne encore après un kill de l'app.
@@ -46,8 +56,9 @@ export default function TourneeScreen() {
     return () => clearInterval(id);
   }, [running]);
 
-  const onStart = useCallback(async () => {
+  const requestPermissionsAndStart = useCallback(async () => {
     const ok = await requestTourPermissions();
+    setPermissionStatus(await getLocationPermissionStatus().catch(() => ({ foreground: 'denied' as PermissionStatus, background: 'denied' as PermissionStatus })));
     if (!ok) {
       const issue = describeLocationIssue(true);
       Alert.alert(issue.title, `${issue.detail}\n\n${issue.hint}`, [
@@ -56,7 +67,6 @@ export default function TourneeScreen() {
       ]);
       return;
     }
-
     await startTour(vehicleId);
     setDistance(0);
     setRunning(true);
@@ -88,6 +98,10 @@ export default function TourneeScreen() {
     }
   }, [vehicleId, vehicles]);
 
+  const fgGranted = permissionStatus?.foreground === 'granted';
+  const bgGranted = permissionStatus?.background === 'granted';
+  const needsPermission = permissionStatus !== null && (!fgGranted || !bgGranted);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
@@ -97,6 +111,27 @@ export default function TourneeScreen() {
           {running ? 'Enregistrement actif — arrière-plan autorisé' : 'Tournée à l’arrêt'}
         </Text>
       </View>
+
+      {needsPermission && !running && (
+        <View style={[styles.card, styles.permissionCard]}>
+          <Text style={styles.permissionTitle}>Localisation requise</Text>
+          <Text style={styles.permissionText}>
+            Le Mode Tournée a besoin d’accéder à votre position en arrière-plan pour enregistrer
+            automatiquement la distance parcourue, même lorsque l’application est fermée.
+          </Text>
+          <Text style={styles.permissionHint}>
+            Choisissez « Autoriser toujours » lorsque le système le demande.
+          </Text>
+          <Pressable style={styles.btnPrimary} onPress={requestPermissionsAndStart}>
+            <Text style={styles.btnText}>Autoriser la localisation</Text>
+          </Pressable>
+          {!fgGranted && (
+            <Pressable style={styles.btnLink} onPress={() => Linking.openSettings()}>
+              <Text style={styles.btnLinkText}>Ouvrir les réglages iPhone</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
 
       <Text style={styles.label}>Véhicule</Text>
       <View style={styles.vehicles}>
@@ -114,7 +149,11 @@ export default function TourneeScreen() {
         ))}
       </View>
 
-      <Pressable style={[styles.btn, running ? styles.btnDanger : styles.btnPrimary]} onPress={running ? onStop : onStart}>
+      <Pressable
+        style={[styles.btn, running ? styles.btnDanger : styles.btnPrimary]}
+        onPress={running ? onStop : requestPermissionsAndStart}
+        disabled={!running && needsPermission}
+      >
         <Text style={styles.btnText}>{running ? 'Terminer la tournée' : 'Démarrer la tournée'}</Text>
       </Pressable>
     </ScrollView>
@@ -131,9 +170,13 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     alignItems: 'center',
   },
+  permissionCard: { alignItems: 'stretch' },
   label: { color: colors.muted, fontSize: 13 },
   distance: { fontSize: 48, fontWeight: '700', color: colors.text, marginVertical: spacing.xs },
   status: { fontSize: 13, fontWeight: '600' },
+  permissionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
+  permissionText: { fontSize: 15, color: colors.text, lineHeight: 22, textAlign: 'center', marginBottom: spacing.md },
+  permissionHint: { fontSize: 13, color: colors.muted, textAlign: 'center', marginBottom: spacing.md },
   vehicles: { gap: spacing.sm },
   chip: {
     borderWidth: 1,
@@ -146,7 +189,9 @@ const styles = StyleSheet.create({
   chipText: { color: colors.text },
   chipTextActive: { color: colors.primary, fontWeight: '600' },
   btn: { height: 56, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md },
-  btnPrimary: { backgroundColor: colors.primary },
+  btnPrimary: { backgroundColor: colors.primary, height: 56, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   btnDanger: { backgroundColor: colors.danger },
   btnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  btnLink: { marginTop: spacing.md, alignSelf: 'center' },
+  btnLinkText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
 });
