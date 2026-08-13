@@ -1,6 +1,7 @@
 import React from 'react';
 import { StartupErrorScreen } from './StartupErrorScreen';
 import { describeRuntimeError, type StartupIssue } from '@/lib/startup-checks';
+import { captureStartupError } from '@/lib/monitoring';
 
 interface Props {
   children: React.ReactNode;
@@ -19,8 +20,11 @@ export class StartupBoundary extends React.Component<Props, State> {
     return { issue: describeRuntimeError(error) };
   }
 
-  override componentDidCatch(error: unknown) {
+  override componentDidCatch(error: unknown, info: React.ErrorInfo) {
     console.error('[startup]', error);
+    captureStartupError(error, 'react-startup-boundary', {
+      componentStack: info.componentStack ?? 'unavailable',
+    });
   }
 
   override render() {

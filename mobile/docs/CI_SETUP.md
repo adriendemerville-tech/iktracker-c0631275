@@ -44,6 +44,11 @@ Repo GitHub → **Settings → Secrets and variables → Actions → New reposit
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | la clé anon (voir `.env.example`) | oui |
 | `EXPO_PUBLIC_SITE_URL` | `https://iktracker.fr` | oui |
 | `EXPO_APPLE_APP_SPECIFIC_PASSWORD` | mot de passe app-specific Apple | seulement pour submit iOS |
+| `EXPO_PUBLIC_SENTRY_DSN` | DSN public du projet Sentry React Native | oui pour recevoir les crashs |
+| `SENTRY_AUTH_TOKEN` | token Sentry pour envoyer les source maps | recommandé |
+
+Ajoute aussi deux **Repository variables** GitHub : `SENTRY_ORG` et `SENTRY_PROJECT`.
+Dans Sentry, connecte ensuite GitHub dans **Settings → Integrations → GitHub** pour créer ou lier automatiquement une issue GitHub à chaque nouvelle régression. EAS conserve les journaux de compilation ; Sentry reçoit les crashs sur l'iPhone, y compris ceux survenus avant le premier écran React, au prochain lancement de l'app.
 
 Le mot de passe app-specific se crée sur https://account.apple.com → Connexion et sécurité → Mots de passe pour app.
 
@@ -108,3 +113,6 @@ Ensuite les builds CI (`--non-interactive`) réutilisent les credentials stocké
 | `npm ci` échoue | pas de `package-lock.json` — le workflow bascule sur `npm install` |
 | `Credentials are not set up` | faire un build interactif local une fois (étape 6) |
 | Submit iOS refusé | `appleId` / `ascAppId` / `appleTeamId` incorrects dans `eas.json` |
+| Flash blanc puis fermeture | consulter Sentry → Issues ; le crash natif précédent est envoyé au prochain lancement |
+
+Après un changement d'icône iOS, supprime entièrement l'ancienne app de l'iPhone avant d'installer le nouveau build : iOS conserve parfois l'ancienne icône en cache.

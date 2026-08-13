@@ -47,9 +47,12 @@ jobs:
           eas build \
             --platform ${{ github.event.inputs.platform || 'ios' }} \
             --profile ${{ github.event.inputs.profile || 'preview' }} \
-            --non-interactive \
-            --no-wait
+            --non-interactive
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_SITE_URL: ${{ secrets.EXPO_PUBLIC_SITE_URL }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}

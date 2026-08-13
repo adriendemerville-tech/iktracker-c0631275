@@ -1,7 +1,7 @@
 {
   "name": "iktracker-mobile",
   "version": "1.0.0",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "ios": "expo run:ios",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
+    "@sentry/react-native": "~6.10.0",
     "@supabase/supabase-js": "^2.45.0",
     "expo": "~52.0.0",
     "expo-asset": "~11.0.0",
@@ -25,6 +26,7 @@
     "expo-router": "~4.0.0",
     "expo-secure-store": "~14.0.0",
     "expo-sharing": "~13.0.0",
+    "expo-splash-screen": "~0.29.24",
     "expo-status-bar": "~2.0.0",
     "expo-task-manager": "~12.0.0",
     "expo-web-browser": "~14.0.0",
