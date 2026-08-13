@@ -59,7 +59,7 @@ export default function TourneeScreen() {
 
   const requestPermissionsAndStart = useCallback(async () => {
     const ok = await requestTourPermissions();
-    setPermissionStatus(await getLocationPermissionStatus().catch(() => ({ foreground: 'denied' as PermissionStatus, background: 'denied' as PermissionStatus })));
+    setPermissionStatus(await getLocationPermissionStatus().catch(() => ({ foreground: 'denied' as LocationPermissionStatus, background: 'denied' as LocationPermissionStatus })));
     if (!ok) {
       const issue = describeLocationIssue(true);
       Alert.alert(issue.title, `${issue.detail}\n\n${issue.hint}`, [
