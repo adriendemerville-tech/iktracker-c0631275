@@ -4,21 +4,45 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/hooks/useAuth';
 import { colors } from '@/theme';
-import '@/lib/tour-tracking'; // enregistre la tâche background au démarrage
+import { StartupBoundary } from '@/components/StartupBoundary';
+import { StartupErrorScreen } from '@/components/StartupErrorScreen';
+import { checkBackendConfig, describeRuntimeError, type StartupIssue } from '@/lib/startup-checks';
+
+// Enregistrement de la tâche GPS background : ne doit jamais faire crasher le boot.
+let taskIssue: StartupIssue | null = null;
+try {
+  require('@/lib/tour-tracking');
+} catch (error) {
+  taskIssue = describeRuntimeError(error);
+}
 
 export default function RootLayout() {
+  const [retryKey, setRetryKey] = React.useState(0);
+  const issue = React.useMemo(() => checkBackendConfig() ?? taskIssue, [retryKey]);
+
+  if (issue) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <StartupErrorScreen issue={issue} onRetry={() => setRetryKey((k) => k + 1)} />
+      </SafeAreaProvider>
+    );
+  }
+
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerStyle: { backgroundColor: colors.background },
-            headerTintColor: colors.text,
-            contentStyle: { backgroundColor: colors.background },
-          }}
-        />
-      </AuthProvider>
+      <StartupBoundary>
+        <AuthProvider>
+          <StatusBar style="dark" />
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: colors.background },
+              headerTintColor: colors.text,
+              contentStyle: { backgroundColor: colors.background },
+            }}
+          />
+        </AuthProvider>
+      </StartupBoundary>
     </SafeAreaProvider>
   );
 }
