@@ -37,6 +37,15 @@ TaskManager.defineTask(TOUR_TASK, async ({ data, error }) => {
   await writePoints(next);
 });
 
+export async function getLocationPermissionStatus(): Promise<{
+  foreground: Location.PermissionStatus;
+  background: Location.PermissionStatus;
+}> {
+  const fg = await Location.getForegroundPermissionsAsync();
+  const bg = await Location.getBackgroundPermissionsAsync();
+  return { foreground: fg.status, background: bg.status };
+}
+
 export async function requestTourPermissions(): Promise<boolean> {
   const fg = await Location.requestForegroundPermissionsAsync();
   if (fg.status !== 'granted') return false;
