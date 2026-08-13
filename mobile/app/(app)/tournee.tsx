@@ -21,8 +21,8 @@ export default function TourneeScreen() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<{
-    foreground: PermissionStatus;
-    background: PermissionStatus;
+    foreground: LocationPermissionStatus;
+    background: LocationPermissionStatus;
   } | null>(null);
 
   useEffect(() => {
