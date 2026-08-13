@@ -3,10 +3,11 @@
     "name": "IKTracker",
     "slug": "iktracker",
     "scheme": "iktracker",
+    "icon": "./assets/icon.png",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "bundleIdentifier": "fr.iktracker.app",
       "supportsTablet": true,
@@ -17,6 +18,7 @@
           "fetch"
         ],
         "NSLocationWhenInUseUsageDescription": "IKTracker utilise votre position pour enregistrer automatiquement la distance de vos trajets professionnels.",
+        "NSLocationAlwaysUsageDescription": "Le Mode Tournée enregistre votre itinéraire en arrière-plan afin de calculer vos indemnités kilométriques, même écran éteint.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Le Mode Tournée enregistre votre itinéraire en arrière-plan afin de calculer vos indemnités kilométriques, même écran éteint.",
         "NSCalendarsUsageDescription": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets professionnels.",
         "NSCalendarsFullAccessUsageDescription": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets professionnels."
