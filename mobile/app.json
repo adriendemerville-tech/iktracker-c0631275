@@ -3,6 +3,7 @@
     "name": "IKTracker",
     "slug": "iktracker",
     "scheme": "iktracker",
+    "icon": "./assets/icon.png",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
