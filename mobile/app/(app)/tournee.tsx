@@ -47,12 +47,14 @@ export default function TourneeScreen() {
   const onStart = useCallback(async () => {
     const ok = await requestTourPermissions();
     if (!ok) {
-      Alert.alert(
-        'Localisation requise',
-        "Autorisez la position « Toujours » pour que le Mode Tournée enregistre votre itinéraire écran éteint.",
-      );
+      const issue = describeLocationIssue(true);
+      Alert.alert(issue.title, `${issue.detail}\n\n${issue.hint}`, [
+        { text: 'Fermer', style: 'cancel' },
+        { text: 'Ouvrir les réglages', onPress: () => Linking.openSettings() },
+      ]);
       return;
     }
+
     await startTour(vehicleId);
     setDistance(0);
     setRunning(true);
