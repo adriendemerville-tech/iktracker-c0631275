@@ -10,6 +10,7 @@
     "newArchEnabled": false,
     "ios": {
       "bundleIdentifier": "fr.iktracker.app",
+      "icon": "./assets/icon.png",
       "supportsTablet": true,
       "buildNumber": "1",
       "infoPlist": {
@@ -35,7 +36,21 @@
       ]
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "root": "./app"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#fffaf0",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain"
+        }
+      ],
       "expo-secure-store",
       [
         "expo-location",
@@ -55,7 +70,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "REMPLACER_PAR_TON_EAS_PROJECT_ID"
+        "projectId": "2dccdc77-6282-472a-91ad-6a2baf04f2b6"
       },
       "supabaseUrl": "https://yarjaudctshlxkatqgeb.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhcmphdWRjdHNobHhrYXRxZ2ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NzY2NTIsImV4cCI6MjA4MTQ1MjY1Mn0.FRJSAOY3ruERComZ0QeEyQNK_yNzsS3XwR4qBRsNZWI",
