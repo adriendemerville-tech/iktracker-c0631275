@@ -30,6 +30,7 @@ import { AdminTourMode } from '@/components/admin/AdminTourMode';
 import { AdminApiPartners } from '@/components/admin/AdminApiPartners';
 import { AdminWavespeed } from '@/components/admin/AdminWavespeed';
 import { AdminLinkedIn } from '@/components/admin/AdminLinkedIn';
+import { AdminGitHubActions } from '@/components/admin/AdminGitHubActions';
 import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
 import { 
   ArrowLeft, 
@@ -62,7 +63,8 @@ import {
   AlertTriangle,
   Car,
   Key,
-  Sparkles
+  Sparkles,
+  Github
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -675,6 +677,12 @@ const Admin = () => {
                 <span className="hidden sm:inline">LinkedIn</span>
               </TabsTrigger>
             )}
+            {adminRole !== 'viewer' && (
+              <TabsTrigger value="github" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Github className="w-4 h-4" />
+                <span className="hidden sm:inline">GitHub</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Stats Tab */}
@@ -1192,6 +1200,12 @@ const Admin = () => {
           <TabsContent value="linkedin">
             <AdminLinkedIn />
           </TabsContent>
+
+          {adminRole !== 'viewer' && (
+            <TabsContent value="github">
+              <AdminGitHubActions />
+            </TabsContent>
+          )}
 
         </Tabs>
       </main>
