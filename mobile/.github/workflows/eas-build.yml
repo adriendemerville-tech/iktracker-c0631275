@@ -48,7 +48,8 @@ jobs:
           eas build \
             --platform ${{ github.event.inputs.platform || 'ios' }} \
             --profile ${{ github.event.inputs.profile || 'preview' }} \
-            --non-interactive
+            --non-interactive \
+            --no-wait
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
