@@ -73,6 +73,7 @@
       "supabaseUrl": "https://yarjaudctshlxkatqgeb.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhcmphdWRjdHNobHhrYXRxZ2ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NzY2NTIsImV4cCI6MjA4MTQ1MjY1Mn0.FRJSAOY3ruERComZ0QeEyQNK_yNzsS3XwR4qBRsNZWI",
       "siteUrl": "https://iktracker.fr"
-    }
+    },
+    "owner": "adrien-de-volontat"
   }
 }
