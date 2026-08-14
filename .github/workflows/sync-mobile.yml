@@ -1,0 +1,50 @@
+name: Sync mobile -> iktracker-mobile
+
+# Copie automatiquement le dossier mobile/ de ce repo vers le repo
+# adriendemerville-tech/iktracker-mobile, ce qui declenche le build EAS.
+# Necessite le secret MOBILE_REPO_TOKEN (PAT GitHub avec le scope "repo").
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/sync-mobile.yml'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web repo
+        uses: actions/checkout@v4
+
+      - name: Checkout mobile repo
+        uses: actions/checkout@v4
+        with:
+          repository: adriendemerville-tech/iktracker-mobile
+          token: ${{ secrets.MOBILE_REPO_TOKEN }}
+          path: mobile-repo
+          fetch-depth: 0
+
+      - name: Copy mobile/ into mobile repo
+        run: |
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude 'node_modules/' \
+            --exclude 'ios/' \
+            --exclude 'android/' \
+            mobile/ mobile-repo/
+
+      - name: Commit and push
+        working-directory: mobile-repo
+        run: |
+          git config user.name "lovable-sync"
+          git config user.email "sync@iktracker.fr"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Aucun changement mobile a synchroniser."
+            exit 0
+          fi
+          git commit -m "sync: mobile depuis Lovable (${GITHUB_SHA::7})"
+          git push origin HEAD:main
