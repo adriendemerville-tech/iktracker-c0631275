@@ -167,7 +167,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `get_user_stats(_user_id)` | Stats détaillées d'un utilisateur |
 | `search_users(search_term, limit_count)` | Recherche d'utilisateurs |
 | `get_recent_signups(limit_count)` | Dernières inscriptions |
-| `get_total_tours_count(start_date, end_date)` | Nombre total de tournées |
+| `get_total_tours_count(start_date date, end_date date)` | Nombre total de tournées (surcharge `timestamptz` supprimée le 14/08/2026 pour lever l'ambiguïté ; exclut les comptes admin) |
 | `get_tour_mode_stats(days_back)` | Compteurs Mode Tournée (totales, manuel/auto, abandonnées, moyennes, uniques 7j) |
 | `get_tour_mode_daily(days_back)` | Série journalière : tournées créées + utilisateurs uniques 7j glissants |
 | `get_tour_mode_personas(days_back)` | Répartition par persona des utilisateurs Mode Tournée |
@@ -1065,7 +1065,7 @@ Clé unique logique : `user_id` + `date` + destination normalisée (`end_locatio
 Cron `purge-duplicate-trips-daily` (`pg_cron`), tous les jours à **03:15 UTC**, exécute la purge réelle sur les **90 derniers jours**. Le secret cron est lu depuis `vault.decrypted_secrets`.
 
 **Requalification des fausses tournées**
-- Fonction SQL `public.demote_invalid_tours()` (SECURITY DEFINER, `search_path = public`, EXECUTE réservé au `service_role`) : tout trajet actif dont `tour_stops` contient **moins de 3 points** n'est pas une vraie tournée. La fonction récupère au besoin les adresses / coordonnées de départ et d'arrivée depuis le premier et le dernier point, puis met `tour_stops = NULL` (retour en trajet simple). Retourne le nombre de trajets requalifiés.
+- Fonction SQL `public.demote_invalid_tours()` (SECURITY DEFINER, `search_path = public`, EXECUTE réservé au `service_role`) : tout trajet actif dont `tour_stops` contient **moins de 2 points** n'est pas une vraie tournée (seuil aligné le 14/08/2026 sur la définition front `isTour = stops >= 2` ; auparavant 3, ce qui rétrogradait à tort les tournées à 2 étapes). La fonction récupère au besoin l'adresse / les coordonnées de départ depuis le premier point, puis met `tour_stops = NULL` (retour en trajet simple). Retourne le nombre de trajets requalifiés.
 - Cron `demote-invalid-tours-daily` (`pg_cron`) : exécution quotidienne à **03:20 UTC**.
 - Premier passage du 30 juillet 2026 : 26 trajets requalifiés.
 
