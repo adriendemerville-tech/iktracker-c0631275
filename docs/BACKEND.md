@@ -167,7 +167,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `get_user_stats(_user_id)` | Stats détaillées d'un utilisateur |
 | `search_users(search_term, limit_count)` | Recherche d'utilisateurs |
 | `get_recent_signups(limit_count)` | Dernières inscriptions |
-| `get_total_tours_count(start_date date, end_date date)` | Nombre total de tournées (surcharge `timestamptz` supprimée le 14/08/2026 pour lever l'ambiguïté ; exclut les comptes admin) |
+| `get_total_tours_count(start_date date, end_date date)` | Nombre de tournées **lancées** = sessions `tour_sessions` démarrées (`started_at` dans la période), et non les tournées finalisées en trajet (modifié le 14/08/2026 ; surcharge `timestamptz` supprimée ; exclut les comptes admin) |
 | `get_tour_mode_stats(days_back)` | Compteurs Mode Tournée (totales, manuel/auto, abandonnées, moyennes, uniques 7j) |
 | `get_tour_mode_daily(days_back)` | Série journalière : tournées créées + utilisateurs uniques 7j glissants |
 | `get_tour_mode_personas(days_back)` | Répartition par persona des utilisateurs Mode Tournée |

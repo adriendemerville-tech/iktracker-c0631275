@@ -1357,7 +1357,7 @@ export function AdminStats() {
                           <CardContent className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <Map className="w-5 h-5 text-teal-500" />
-                              <span className="text-xs text-muted-foreground">Tournées</span>
+                              <span className="text-xs text-muted-foreground" title="Tournées lancées sur mobile (sessions démarrées)">Tournées lancées</span>
                             </div>
                             {toursCountLoading ? (
                               <Skeleton className="h-8 w-16" />
