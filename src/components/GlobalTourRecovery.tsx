@@ -261,8 +261,20 @@ export function GlobalTourRecovery() {
           .eq('user_id', session.user_id)
           .limit(1);
 
-        if (vehicles && vehicles.length > 0) {
-          const vehicleId = vehicles[0].id;
+        {
+          // No vehicle must NEVER silently discard a tour: insert without vehicle,
+          // the DB trigger / user can assign one later.
+          const vehicleId = vehicles && vehicles.length > 0 ? vehicles[0].id : null;
+          if (!vehicleId) {
+            logTourRecovery({
+              eventType: 'auto_finalize_error',
+              sessionId: session.id,
+              errorMessage: 'no_vehicle_saved_without_vehicle',
+              isMobile: !fromDesktop,
+              stopsCount,
+              distanceKm,
+            });
+          }
           const isTour = stopsCount >= 2;
 
           let startLocation = 'À compléter';
