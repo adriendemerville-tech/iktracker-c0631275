@@ -708,6 +708,18 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | Audit | Toute modification loggée dans `api_audit_logs` |
 | Webhook | `BLOG_WEBHOOK_TOKEN` pour notifications |
 
+### GitHub (Actions mobile)
+
+| Aspect | Détail |
+|---|---|---|
+| Connector | GitHub API via Lovable connector gateway |
+| Secret projet | `GITHUB_API_KEY` |
+| Secret gateway | `LOVABLE_API_KEY` |
+| Server function | `getGitHubActionsRuns` — `src/lib/github.functions.ts` |
+| Usage | Lecture des workflow runs du repo `adriendemerville-tech/iktracker-mobile` |
+| Auth côté app | `requireSupabaseAuth` + vérification `has_role(..., 'admin')` |
+| UI | Onglet "GitHub" dans `/app/admin` (`AdminGitHubActions.tsx`) |
+
 ---
 
 ## 7. Monitoring & Coûts
