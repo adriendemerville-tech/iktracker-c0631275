@@ -1,38 +1,20 @@
-import * as Sentry from '@sentry/react-native';
-import Constants from 'expo-constants';
+// Monitoring volontairement sans dépendance native.
+// Le pont Sentry natif a été retiré du démarrage : il s'initialisait avant le
+// premier écran React et provoquait une fermeture immédiate de l'app (crash au
+// lancement, hors de portée de StartupBoundary). On garde ici une API stable,
+// purement JS, que l'on pourra rebrancher plus tard sur un service distant.
 
-const dsn = process.env.EXPO_PUBLIC_SENTRY_DSN ?? '';
+type Extra = Record<string, string>;
 
-// Ne jamais initialiser le pont natif sans DSN. Cette étape s'exécute avant
-// le premier écran React : une erreur ici provoquerait un flash blanc puis
-// la fermeture de l'app, hors de portée de StartupBoundary.
-if (dsn) {
-  try {
-    Sentry.init({
-      dsn,
-      enabled: true,
-      environment: __DEV__ ? 'development' : 'production',
-      release: `iktracker-mobile@${Constants.expoConfig?.version ?? 'unknown'}`,
-      enableNative: true,
-      enableNativeCrashHandling: true,
-      attachStacktrace: true,
-      sendDefaultPii: false,
-    });
-  } catch (error) {
-    console.warn('[startup] monitoring initialization failed', error);
-  }
+const buffer: Array<{ stage: string; message: string; extra?: Extra; at: string }> = [];
+
+export function captureStartupError(error: unknown, stage: string, extra?: Extra) {
+  const message = error instanceof Error ? `${error.message}\n${error.stack ?? ''}` : String(error);
+  buffer.push({ stage, message, extra, at: new Date().toISOString() });
+  if (buffer.length > 50) buffer.shift();
+  console.warn(`[startup:${stage}]`, message, extra ?? '');
 }
 
-export function captureStartupError(
-  error: unknown,
-  stage: string,
-  extra?: Record<string, string>,
-) {
-  if (!dsn) return;
-
-  Sentry.withScope((scope) => {
-    scope.setTag('startup.stage', stage);
-    if (extra) scope.setExtras(extra);
-    Sentry.captureException(error);
-  });
+export function getStartupErrors() {
+  return [...buffer];
 }
