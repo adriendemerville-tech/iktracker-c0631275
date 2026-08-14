@@ -745,7 +745,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 - **Realtime UI** (P2) : `api_audit_logs` et `autopilot_events` sont publiés dans la publication `supabase_realtime` (REPLICA IDENTITY FULL). Le composant `AdminAutopilot` souscrit à un channel `autopilot-realtime` qui invalide les queries TanStack à chaque INSERT/UPDATE/DELETE. Le polling de fallback est ramené de 30 s à 5 min. Un badge "Live" (vert pulsant) ou "Polling" (gris) dans le header indique l'état de la connexion ; tooltip avec timestamp du dernier événement reçu. **Sécurité** : RLS activée sur `realtime.messages`. Les souscriptions aux topics `api_audit_logs` et `autopilot_events` (et leurs sous-topics `…:%`) sont restreintes aux **administrateurs** via `has_role(auth.uid(), 'admin')`. Les autres canaux temps réel restent ouverts aux utilisateurs authentifiés.
 - **Export CSV** (P3 — Tâche 8) : utilitaire pur `src/lib/autopilot-export.ts` (escaping RFC 4180, BOM UTF-8 pour Excel, helpers `auditLogsToCsv` / `eventsToCsv` / `downloadCsv`). Bouton « CSV » dans le header `AdminAutopilot` exporte la vue courante (logs ou événements selon l'onglet, filtres clé API + statut respectés). Bouton « CSV » dans `SessionDetailSheet` exporte les logs d'une session unique (nom de fichier : `session_<key>_<YYYY-MM-DD_HHMM>.csv`). Le bouton « Rapport » HTML/PDF reste disponible pour les vues synthétiques imprimables.
 
-### Secrets configurés (16)
+### Secrets configurés (17)
 
 | Secret | Usage |
 |---|---|
@@ -765,6 +765,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | `BLOG_API` | (legacy) |
 | `BLOG_WEBHOOK_TOKEN` | Webhook de notification blog |
 | `LOVABLE_API_KEY` | API Lovable AI Gateway |
+| `GITHUB_API_KEY` | Connector GitHub API (Actions mobile) |
 
 ### Storage Buckets
 
