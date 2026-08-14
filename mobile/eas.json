@@ -17,9 +17,9 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "adriendemerville@gmail.com",
-        "ascAppId": "6800895090",
-        "appleTeamId": "ZG5QHXSQXK"
+        "appleId": "remplace_appleId",
+        "ascAppId": "replace_ascAppId",
+        "appleTeamId": "replace_teamId"
       }
     }
   }
