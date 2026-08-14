@@ -2463,9 +2463,10 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_total_tours_count:
-        | { Args: { end_date?: string; start_date?: string }; Returns: number }
-        | { Args: { end_date?: string; start_date?: string }; Returns: number }
+      get_total_tours_count: {
+        Args: { end_date?: string; start_date?: string }
+        Returns: number
+      }
       get_tour_mode_daily: {
         Args: { days_back?: number }
         Returns: {
