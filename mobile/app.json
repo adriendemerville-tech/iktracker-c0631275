@@ -7,7 +7,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
     "ios": {
       "bundleIdentifier": "fr.iktracker.app",
       "icon": "./assets/icon.png",
