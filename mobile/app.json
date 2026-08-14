@@ -65,8 +65,7 @@
         {
           "calendarPermission": "IKTracker lit vos rendez-vous pour pré-remplir vos trajets."
         }
-      ],
-      "@sentry/react-native"
+      ]
     ],
     "extra": {
       "eas": {
