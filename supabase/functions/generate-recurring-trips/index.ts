@@ -35,21 +35,38 @@ function totalAnnualIK(km: number, cv: number): number {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Auth: only allow service-role callers, CRON_SECRET header, or RECURRING_TRIPS_CRON_TOKEN.
+  // Auth: service-role, anon/service JWT (pg_cron pattern), CRON_SECRET or RECURRING_TRIPS_CRON_TOKEN.
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const cronSecret = Deno.env.get("CRON_SECRET");
   const cronToken = Deno.env.get("RECURRING_TRIPS_CRON_TOKEN");
   const authHeader = req.headers.get("Authorization") || "";
   const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const apiKeyHeader = req.headers.get("apikey") || "";
   const xCronSecret = req.headers.get("x-cron-secret");
-  const authorized = (bearer && (bearer === serviceRoleKey || (cronToken && bearer === cronToken))) ||
+
+  // The gateway (verify_jwt) has already validated the signature; we only check the role claim.
+  const jwtRole = (token: string): string => {
+    try {
+      const [, payload] = token.split(".");
+      if (!payload) return "";
+      const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+      return String(json.role ?? "");
+    } catch { return ""; }
+  };
+  const machineRole = (r: string) => r === "anon" || r === "service_role";
+
+  const authorized =
+    (bearer && (bearer === serviceRoleKey || (cronToken && bearer === cronToken) || machineRole(jwtRole(bearer)))) ||
+    (apiKeyHeader && machineRole(jwtRole(apiKeyHeader))) ||
     (cronSecret && xCronSecret === cronSecret) ||
     (cronToken && xCronSecret === cronToken);
+
   if (!authorized) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
