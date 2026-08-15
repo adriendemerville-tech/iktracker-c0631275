@@ -35,14 +35,18 @@ function totalAnnualIK(km: number, cv: number): number {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Auth: only allow service-role callers, CRON_SECRET header, or RECURRING_TRIPS_CRON_TOKEN.
+  // Auth: service-role, anon key (pg_cron pattern), CRON_SECRET or RECURRING_TRIPS_CRON_TOKEN.
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
   const cronSecret = Deno.env.get("CRON_SECRET");
   const cronToken = Deno.env.get("RECURRING_TRIPS_CRON_TOKEN");
   const authHeader = req.headers.get("Authorization") || "";
   const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const apiKeyHeader = req.headers.get("apikey") || "";
   const xCronSecret = req.headers.get("x-cron-secret");
-  const authorized = (bearer && (bearer === serviceRoleKey || (cronToken && bearer === cronToken))) ||
+  const authorized =
+    (bearer && (bearer === serviceRoleKey || (anonKey && bearer === anonKey) || (cronToken && bearer === cronToken))) ||
+    (anonKey && apiKeyHeader === anonKey) ||
     (cronSecret && xCronSecret === cronSecret) ||
     (cronToken && xCronSecret === cronToken);
   if (!authorized) {
@@ -50,6 +54,7 @@ Deno.serve(async (req) => {
       status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
