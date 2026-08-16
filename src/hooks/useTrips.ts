@@ -119,19 +119,7 @@ export function useTrips() {
         .order("created_at", { ascending: false });
 
       if (dbVehicles) {
-        setVehicles(
-          dbVehicles.map((v) => ({
-            id: v.id,
-            ownerFirstName: (v as any).owner_first_name || "",
-            ownerLastName: (v as any).owner_last_name || "",
-            licensePlate: (v as any).license_plate || "",
-            make: (v as any).make || "",
-            model: (v as any).model || v.name,
-            fiscalPower: v.fiscal_power,
-            year: (v as any).year || undefined,
-            isElectric: (v as any).is_electric || false,
-          })),
-        );
+        setVehicles(dbVehicles.map(mapVehicleRow));
       }
 
       // Load locations
