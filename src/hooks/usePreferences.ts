@@ -236,11 +236,12 @@ export function usePreferences() {
     async (mode: CalendarImportMode) => {
       if (!user) return;
       try {
-        const { error } = await supabase
-          .from("user_preferences")
-          .upsert({ user_id: user.id, calendar_import_mode: mode }, {
+        const { error } = await supabase.from("user_preferences").upsert(
+          { user_id: user.id, calendar_import_mode: mode },
+          {
             onConflict: "user_id",
-          });
+          },
+        );
         if (error) console.warn("Failed to save calendar_import_mode:", error);
       } catch (e) {
         console.warn("Failed to save calendar_import_mode:", e);
@@ -254,11 +255,12 @@ export function usePreferences() {
     async (override: IKRateOverride) => {
       if (!user) return;
       try {
-        const { error } = await supabase
-          .from("user_preferences")
-          .upsert({ user_id: user.id, ik_rate_override: override }, {
+        const { error } = await supabase.from("user_preferences").upsert(
+          { user_id: user.id, ik_rate_override: override },
+          {
             onConflict: "user_id",
-          });
+          },
+        );
         if (error) console.warn("Failed to save ik_rate_override:", error);
       } catch (e) {
         console.warn("Failed to save ik_rate_override:", e);

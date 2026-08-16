@@ -126,10 +126,7 @@ export function useRecurringTrips() {
   }, []);
 
   const remove = useCallback(async (id: string) => {
-    const { error } = await supabase
-      .from("recurring_trips")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("recurring_trips").delete().eq("id", id);
     if (!error) setItems((p) => p.filter((x) => x.id !== id));
   }, []);
 
