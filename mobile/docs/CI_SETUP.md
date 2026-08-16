@@ -115,5 +115,6 @@ Ensuite les builds CI (`--non-interactive`) réutilisent les credentials stocké
 | `Credentials are not set up` | faire un build interactif local une fois (étape 6) |
 | Submit iOS refusé | `appleId` / `ascAppId` / `appleTeamId` incorrects dans `eas.json` |
 | Flash blanc puis fermeture | consulter Sentry → Issues ; le crash natif précédent est envoyé au prochain lancement |
+| `expo doctor` : patch version mismatches puis `expo export:embed` code 1 | versions de patch Expo désalignées — aligner `package.json` sur les versions attendues (`npx expo install --check`) et régénérer `package-lock.json` |
 
 Après un changement d'icône iOS, supprime entièrement l'ancienne app de l'iPhone avant d'installer le nouveau build : iOS conserve parfois l'ancienne icône en cache.
