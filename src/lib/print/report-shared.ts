@@ -153,4 +153,3 @@ export function extractCity(address: string): string {
   // Ultimate fallback: truncate address
   return address.length > 25 ? address.substring(0, 24) + "…" : address;
 }
-

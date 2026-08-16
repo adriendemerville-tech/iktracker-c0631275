@@ -66,7 +66,13 @@ export const STATUS_LABELS: Record<
   completed: { label: "Terminé", variant: "destructive" },
 };
 
-export const PAGE_OPTIONS = ["/app", "/app/mestrajets", "/app/profile", "/calendrier", "/mode-tournee"];
+export const PAGE_OPTIONS = [
+  "/app",
+  "/app/mestrajets",
+  "/app/profile",
+  "/calendrier",
+  "/mode-tournee",
+];
 
 // ---- Helpers ----
 
@@ -104,4 +110,3 @@ export function defaultContentBlock(type: ContentBlock["type"]): ContentBlock {
 }
 
 // ---- Sub-components ----
-

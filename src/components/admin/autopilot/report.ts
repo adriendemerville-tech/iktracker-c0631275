@@ -398,4 +398,3 @@ export function generateReportHTML(
 </body>
 </html>`;
 }
-

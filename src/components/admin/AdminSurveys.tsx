@@ -60,7 +60,6 @@ import {
 import { ContentBlockEditor, VariantEditor } from "./surveys/SurveyEditors";
 import { SurveyResponsesPanel, SurveyAggregatedStats } from "./surveys/SurveyStats";
 
-
 // ---- Main component ----
 
 export function AdminSurveys() {

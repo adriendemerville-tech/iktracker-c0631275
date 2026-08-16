@@ -271,4 +271,3 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
 </body>
 </html>`;
 }
-

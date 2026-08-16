@@ -14,7 +14,6 @@ export function termToSlug(term: string): string {
     .replace(/^-|-$/g, "");
 }
 
-
 export const lexiqueTerms: Term[] = [
   // Acronymes
   {

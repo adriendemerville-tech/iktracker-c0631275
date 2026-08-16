@@ -195,4 +195,3 @@ export function generateDocPdfHtml(): string {
 </body>
 </html>`;
 }
-

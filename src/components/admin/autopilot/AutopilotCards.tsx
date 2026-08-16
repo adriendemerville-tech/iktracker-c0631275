@@ -5,7 +5,23 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
-  AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ChevronUp, Eye, Info, RotateCcw, Shield, XCircle, Zap, FileText, Code2, Globe, Settings, Database, FileCode,
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Info,
+  RotateCcw,
+  Shield,
+  XCircle,
+  Zap,
+  FileText,
+  Code2,
+  Globe,
+  Settings,
+  Database,
+  FileCode,
 } from "lucide-react";
 import type { AuditLog, AutopilotEvent } from "./types";
 import { classifySource } from "./report";
@@ -520,4 +536,3 @@ export function EventDetailCard({
     </Card>
   );
 }
-

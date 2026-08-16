@@ -24,4 +24,3 @@ export interface AutopilotEvent {
   resolved: boolean;
   resolved_at: string | null;
 }
-

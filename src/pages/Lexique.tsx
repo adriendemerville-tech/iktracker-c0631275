@@ -20,7 +20,6 @@ import {
   categoryColors,
 } from "@/data/lexique-terms";
 
-
 export default function Lexique() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Term["category"] | "all">("all");

@@ -124,7 +124,6 @@ import {
   DEFAULT_MARKETING_SECTION_ORDER,
 } from "@/components/admin/admin-stats-config";
 
-
 export function AdminStats() {
   const queryClient = useQueryClient();
   const [onlineUsers, setOnlineUsers] = useState(0);

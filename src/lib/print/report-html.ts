@@ -972,4 +972,3 @@ export function generateReportHTML(options: PrintReportOptions): string {
 </html>
 `;
 }
-
