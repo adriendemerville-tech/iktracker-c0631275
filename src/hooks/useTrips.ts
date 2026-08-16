@@ -37,7 +37,17 @@ function dbLocation(name: string, address: unknown, lat: unknown, lng: unknown):
 
 // Coordinate payload for trips insert/update. Undefined values are omitted so
 // a partial update never wipes previously stored coordinates.
-function locationColumns(prefix: "start" | "end", loc?: Location) {
+type TripRow = Tables<"trips">;
+type TripInsert = TablesInsert<"trips">;
+type TripUpdate = TablesUpdate<"trips">;
+type VehicleRow = Tables<"vehicles">;
+
+type TripLocationColumns = Pick<
+  TripInsert,
+  "start_address" | "start_lat" | "start_lng" | "end_address" | "end_lat" | "end_lng"
+>;
+
+function locationColumns(prefix: "start" | "end", loc?: Location): Partial<TripLocationColumns> {
   if (!loc) return {};
   const valid =
     typeof loc.lat === "number" &&
@@ -49,7 +59,41 @@ function locationColumns(prefix: "start" | "end", loc?: Location) {
     [`${prefix}_address`]: loc.address || null,
     [`${prefix}_lat`]: valid ? loc.lat : null,
     [`${prefix}_lng`]: valid ? loc.lng : null,
-  } as Record<string, unknown>;
+  };
+}
+
+// Single source of truth for DB row -> Trip mapping (active and archived trips).
+function mapTripRow(t: TripRow): Trip {
+  return {
+    id: t.id,
+    vehicleId: t.vehicle_id,
+    startLocation: dbLocation(t.start_location, t.start_address, t.start_lat, t.start_lng),
+    endLocation: dbLocation(t.end_location, t.end_address, t.end_lat, t.end_lng),
+    distance: t.distance,
+    baseDistance: t.round_trip ? t.distance / 2 : t.distance,
+    roundTrip: t.round_trip,
+    purpose: t.purpose || "",
+    startTime: new Date(t.date),
+    endTime: new Date(t.date),
+    ikAmount: t.ik_amount,
+    tourStops: (t.tour_stops as TourStopData[] | null) ?? undefined,
+    calendarEventId: t.calendar_event_id || undefined,
+    status: (t.status as Trip["status"]) || "validated",
+  };
+}
+
+function mapVehicleRow(v: VehicleRow): Vehicle {
+  return {
+    id: v.id,
+    ownerFirstName: v.owner_first_name || "",
+    ownerLastName: v.owner_last_name || "",
+    licensePlate: v.license_plate || "",
+    make: v.make || "",
+    model: v.model || v.name,
+    fiscalPower: v.fiscal_power,
+    year: v.year || undefined,
+    isElectric: v.is_electric || false,
+  };
 }
 
 export function useTrips() {
