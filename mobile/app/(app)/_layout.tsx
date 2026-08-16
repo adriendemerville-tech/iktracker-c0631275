@@ -17,6 +17,7 @@ export default function AppLayout() {
         sceneStyle: { backgroundColor: colors.background },
       }}
     >
+      <Tabs.Screen name="trajet" options={{ title: 'Trajet' }} />
       <Tabs.Screen name="tournee" options={{ title: 'Mode Tournée' }} />
       <Tabs.Screen name="nouveau-trajet" options={{ title: 'Nouveau trajet' }} />
       <Tabs.Screen name="rapports" options={{ title: 'Relevés' }} />
