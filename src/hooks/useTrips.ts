@@ -39,8 +39,22 @@ function dbLocation(name: string, address: unknown, lat: unknown, lng: unknown):
 // a partial update never wipes previously stored coordinates.
 type TripRow = Tables<"trips">;
 type TripInsert = TablesInsert<"trips">;
-type TripUpdate = TablesUpdate<"trips">;
 type VehicleRow = Tables<"vehicles">;
+
+// Forme historique d'un trajet stocké en localStorage (utilisateurs non connectés).
+// Les dates y sont sérialisées en chaînes, d'où la réhydratation ci-dessous.
+type StoredTrip = Omit<Trip, "startTime" | "endTime"> & {
+  startTime: string | Date;
+  endTime: string | Date;
+  baseDistance?: number;
+  roundTrip?: boolean;
+};
+
+// Les colonnes jsonb attendent le type Json généré : les interfaces applicatives
+// n'ont pas d'index signature, on convertit explicitement au lieu de caster en any.
+function toJson(value: unknown): Json | null {
+  return value === undefined || value === null ? null : (value as Json);
+}
 
 type TripLocationColumns = Pick<
   TripInsert,
