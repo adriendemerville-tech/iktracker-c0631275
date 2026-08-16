@@ -2,11 +2,7 @@ import { ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  usePartners,
-  buildPartnerRedirectUrl,
-  type Partner,
-} from "@/hooks/usePartners";
+import { usePartners, buildPartnerRedirectUrl, type Partner } from "@/hooks/usePartners";
 import { useLocation } from "@/lib/router-compat";
 
 interface PartnerCardProps {
@@ -40,7 +36,9 @@ export function PartnerCard({
   const partner = partners[0];
 
   if (variant === "compact") {
-    return <CompactPartner partner={partner} page={pageKey} placement={placement} persona={persona} />;
+    return (
+      <CompactPartner partner={partner} page={pageKey} placement={placement} persona={persona} />
+    );
   }
 
   return <InlinePartner partner={partner} page={pageKey} placement={placement} persona={persona} />;
@@ -85,26 +83,16 @@ function InlinePartner({
         )}
 
         <div className="flex-1">
-          <h3 className="text-base font-semibold text-foreground sm:text-lg">
-            {partner.name}
-          </h3>
+          <h3 className="text-base font-semibold text-foreground sm:text-lg">{partner.name}</h3>
           {partner.tagline && (
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {partner.tagline}
-            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{partner.tagline}</p>
           )}
           {partner.description && (
-            <p className="mt-2 text-sm text-foreground/80">
-              {partner.description}
-            </p>
+            <p className="mt-2 text-sm text-foreground/80">{partner.description}</p>
           )}
 
           <Button asChild size="sm" className="mt-4 gap-1.5">
-            <a
-              href={href}
-              target="_blank"
-              rel="sponsored nofollow noopener"
-            >
+            <a href={href} target="_blank" rel="sponsored nofollow noopener">
               Découvrir {partner.name}
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -149,13 +137,9 @@ function CompactPartner({
         />
       )}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">
-          {partner.name}
-        </p>
+        <p className="truncate text-sm font-medium text-foreground">{partner.name}</p>
         {partner.tagline && (
-          <p className="truncate text-xs text-muted-foreground">
-            {partner.tagline}
-          </p>
+          <p className="truncate text-xs text-muted-foreground">{partner.tagline}</p>
         )}
       </div>
       <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" />

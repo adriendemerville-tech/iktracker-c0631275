@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { TourStop } from './useTourTracker';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { TourStop } from "./useTourTracker";
 
 // Time thresholds in milliseconds
 const TRANSPARENT_RESUME_THRESHOLD = 20 * 60 * 1000; // 20 minutes
@@ -7,10 +7,10 @@ const MODAL_RESUME_THRESHOLD = 2 * 60 * 60 * 1000; // 2 hours
 
 // Storage keys
 const STORAGE_KEYS = {
-  SESSION_ACTIVE: 'tour_session_active',
-  SESSION_ID: 'tour_session_id',
-  LAST_ACTIVITY: 'tour_last_activity',
-  TOUR_DATA: 'tour_session_data', // Complete tour state for recovery
+  SESSION_ACTIVE: "tour_session_active",
+  SESSION_ID: "tour_session_id",
+  LAST_ACTIVITY: "tour_last_activity",
+  TOUR_DATA: "tour_session_data", // Complete tour state for recovery
 };
 
 export interface TourSessionData {
@@ -22,7 +22,7 @@ export interface TourSessionData {
   gpsPoints: Array<{ lat: number; lng: number; timestamp: number; accuracy: number }>;
 }
 
-export type SessionRecoveryCase = 'transparent' | 'modal' | 'auto_finalize' | 'none';
+export type SessionRecoveryCase = "transparent" | "modal" | "auto_finalize" | "none";
 
 export interface SessionRecoveryResult {
   case: SessionRecoveryCase;
@@ -39,9 +39,9 @@ export function saveSessionState(data: Partial<TourSessionData>) {
     const newData = { ...existingData, ...data, lastActivity: new Date().toISOString() };
     localStorage.setItem(STORAGE_KEYS.TOUR_DATA, JSON.stringify(newData));
     localStorage.setItem(STORAGE_KEYS.LAST_ACTIVITY, newData.lastActivity);
-    localStorage.setItem(STORAGE_KEYS.SESSION_ACTIVE, 'true');
+    localStorage.setItem(STORAGE_KEYS.SESSION_ACTIVE, "true");
   } catch (e) {
-    console.warn('Failed to save session state:', e);
+    console.warn("Failed to save session state:", e);
   }
 }
 
@@ -63,7 +63,7 @@ export function loadSessionState(): TourSessionData | null {
       return parsed;
     }
   } catch (e) {
-    console.warn('Failed to load session state:', e);
+    console.warn("Failed to load session state:", e);
   }
   return null;
 }
@@ -72,7 +72,7 @@ export function loadSessionState(): TourSessionData | null {
  * Clear all session data from localStorage
  */
 export function clearSessionState() {
-  Object.values(STORAGE_KEYS).forEach(key => {
+  Object.values(STORAGE_KEYS).forEach((key) => {
     localStorage.removeItem(key);
   });
 }
@@ -82,9 +82,9 @@ export function clearSessionState() {
  */
 export function checkSessionRecovery(): SessionRecoveryResult {
   try {
-    const isActive = localStorage.getItem(STORAGE_KEYS.SESSION_ACTIVE) === 'true';
+    const isActive = localStorage.getItem(STORAGE_KEYS.SESSION_ACTIVE) === "true";
     if (!isActive) {
-      return { case: 'none', sessionData: null, inactivityDuration: 0 };
+      return { case: "none", sessionData: null, inactivityDuration: 0 };
     }
 
     const lastActivityStr = localStorage.getItem(STORAGE_KEYS.LAST_ACTIVITY);
@@ -92,7 +92,7 @@ export function checkSessionRecovery(): SessionRecoveryResult {
       // Active but no last activity - treat as auto finalize
       const sessionData = loadSessionState();
       clearSessionState();
-      return { case: 'auto_finalize', sessionData, inactivityDuration: Infinity };
+      return { case: "auto_finalize", sessionData, inactivityDuration: Infinity };
     }
 
     const lastActivity = new Date(lastActivityStr).getTime();
@@ -102,17 +102,17 @@ export function checkSessionRecovery(): SessionRecoveryResult {
 
     if (inactivityDuration < TRANSPARENT_RESUME_THRESHOLD) {
       // Case A: < 4 minutes - transparent resume
-      return { case: 'transparent', sessionData, inactivityDuration };
+      return { case: "transparent", sessionData, inactivityDuration };
     } else if (inactivityDuration < MODAL_RESUME_THRESHOLD) {
       // Case B: 4 minutes - 2 hours - show modal
-      return { case: 'modal', sessionData, inactivityDuration };
+      return { case: "modal", sessionData, inactivityDuration };
     } else {
       // Case C: > 2 hours - auto finalize
-      return { case: 'auto_finalize', sessionData, inactivityDuration };
+      return { case: "auto_finalize", sessionData, inactivityDuration };
     }
   } catch (e) {
-    console.warn('Error checking session recovery:', e);
-    return { case: 'none', sessionData: null, inactivityDuration: 0 };
+    console.warn("Error checking session recovery:", e);
+    return { case: "none", sessionData: null, inactivityDuration: 0 };
   }
 }
 
@@ -122,14 +122,12 @@ export function checkSessionRecovery(): SessionRecoveryResult {
 export function formatInactivityDuration(ms: number): string {
   const minutes = Math.floor(ms / 60000);
   const hours = Math.floor(minutes / 60);
-  
+
   if (hours >= 1) {
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 
-      ? `${hours}h ${remainingMinutes}min`
-      : `${hours}h`;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
   }
-  return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
 }
 
 /**
@@ -140,7 +138,7 @@ export function useTourSessionRecovery() {
   const [recoveryResult, setRecoveryResult] = useState<SessionRecoveryResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const hasCheckedRef = useRef(false);
-  
+
   // Start a new session
   const startSession = useCallback((tourStartTime: Date) => {
     const sessionId = crypto.randomUUID();
@@ -152,32 +150,35 @@ export function useTourSessionRecovery() {
       totalDistanceKm: 0,
       gpsPoints: [],
     });
-    console.log('Tour session started:', sessionId);
+    console.log("Tour session started:", sessionId);
   }, []);
-  
+
   // Update session activity (call this regularly during tour)
-  const updateSessionActivity = useCallback((data: {
-    stops?: TourStop[];
-    totalDistanceKm?: number;
-    gpsPoints?: Array<{ lat: number; lng: number; timestamp: number; accuracy: number }>;
-  }) => {
-    const existingData = loadSessionState();
-    if (!existingData) return;
-    
-    saveSessionState({
-      ...existingData,
-      ...data,
-      stops: data.stops || existingData.stops,
-      lastActivity: new Date().toISOString(),
-    });
-  }, []);
-  
+  const updateSessionActivity = useCallback(
+    (data: {
+      stops?: TourStop[];
+      totalDistanceKm?: number;
+      gpsPoints?: Array<{ lat: number; lng: number; timestamp: number; accuracy: number }>;
+    }) => {
+      const existingData = loadSessionState();
+      if (!existingData) return;
+
+      saveSessionState({
+        ...existingData,
+        ...data,
+        stops: data.stops || existingData.stops,
+        lastActivity: new Date().toISOString(),
+      });
+    },
+    [],
+  );
+
   // End session normally
   const endSession = useCallback(() => {
     clearSessionState();
-    console.log('Tour session ended normally');
+    console.log("Tour session ended normally");
   }, []);
-  
+
   // Accept recovery (Case B - user said yes)
   const acceptRecovery = useCallback(() => {
     setShowRecoveryModal(false);
@@ -188,7 +189,7 @@ export function useTourSessionRecovery() {
     }
     return recoveryResult?.sessionData || null;
   }, [recoveryResult]);
-  
+
   // Decline recovery (Case B - user said no) - returns session data for finalization
   const declineRecovery = useCallback(() => {
     setShowRecoveryModal(false);
@@ -196,31 +197,31 @@ export function useTourSessionRecovery() {
     clearSessionState();
     return data;
   }, [recoveryResult]);
-  
+
   // Get recovery status for initial check
   const checkRecoveryOnMount = useCallback((): SessionRecoveryResult => {
     if (hasCheckedRef.current) {
-      return { case: 'none', sessionData: null, inactivityDuration: 0 };
+      return { case: "none", sessionData: null, inactivityDuration: 0 };
     }
     hasCheckedRef.current = true;
-    
+
     const result = checkSessionRecovery();
     setRecoveryResult(result);
-    
-    if (result.case === 'modal') {
+
+    if (result.case === "modal") {
       setShowRecoveryModal(true);
     }
-    
+
     return result;
   }, []);
-  
+
   // Reset for new check (useful when navigating back)
   const resetRecoveryCheck = useCallback(() => {
     hasCheckedRef.current = false;
     setRecoveryResult(null);
     setShowRecoveryModal(false);
   }, []);
-  
+
   return {
     showRecoveryModal,
     recoveryResult,

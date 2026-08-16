@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import type { ReactNode } from "react";
-import { HelmetProvider } from '@/lib/helmet-compat';
+import { HelmetProvider } from "@/lib/helmet-compat";
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -19,9 +19,11 @@ import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 
 // Lazy load UI components that aren't needed for initial render (ported from App.tsx)
-const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
-const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
-const TooltipProvider = lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
+const Toaster = lazy(() => import("@/components/ui/toaster").then((m) => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })));
+const TooltipProvider = lazy(() =>
+  import("@/components/ui/tooltip").then((m) => ({ default: m.TooltipProvider })),
+);
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 // ported from index.html — CRITICAL: theme detection must run before first paint
@@ -58,9 +60,17 @@ const organizationJsonLd = JSON.stringify({
   },
   foundingLocation: {
     "@type": "Place",
-    address: { "@type": "PostalAddress", addressLocality: "Saint-Rémy-de-Provence", addressCountry: "FR" },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Saint-Rémy-de-Provence",
+      addressCountry: "FR",
+    },
   },
-  address: { "@type": "PostalAddress", addressCountry: "FR", addressLocality: "Saint-Rémy-de-Provence" },
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "FR",
+    addressLocality: "Saint-Rémy-de-Provence",
+  },
   areaServed: { "@type": "Country", name: "France" },
   knowsAbout: [
     "Indemnités kilométriques",
@@ -173,7 +183,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "indemnités kilométriques, calcul frais kilométriques, barème 2026, application IK, gestion trajets pro, comptabilité libéral, outil communautaire, frais réels, mode tournée GPS",
       },
       { name: "author", content: "IKtracker" },
-      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      {
+        name: "robots",
+        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      },
       // PWA meta
       { name: "theme-color", content: "#2661D9" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
@@ -222,9 +235,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Preconnects
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "preconnect", href: "https://yarjaudctshlxkatqgeb.supabase.co", crossOrigin: "anonymous" },
+      {
+        rel: "preconnect",
+        href: "https://yarjaudctshlxkatqgeb.supabase.co",
+        crossOrigin: "anonymous",
+      },
       // LCP image + critical font preloads
-      { rel: "preload", href: "/logo-iktracker-250.webp", as: "image", type: "image/webp", fetchPriority: "high" },
+      {
+        rel: "preload",
+        href: "/logo-iktracker-250.webp",
+        as: "image",
+        type: "image/webp",
+        fetchPriority: "high",
+      },
       {
         rel: "preload",
         href: "https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2",
@@ -257,39 +280,50 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "apple-touch-startup-image",
         href: "/splash/splash-1170x2532.png",
-        media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
+        media:
+          "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
         rel: "apple-touch-startup-image",
         href: "/splash/splash-1284x2778.png",
-        media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)",
+        media:
+          "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
         rel: "apple-touch-startup-image",
         href: "/splash/splash-1170x2532.png",
-        media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)",
+        media:
+          "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
         rel: "apple-touch-startup-image",
         href: "/splash/splash-1284x2778.png",
-        media: "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)",
+        media:
+          "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
         rel: "apple-touch-startup-image",
         href: "/splash/splash-2048x2732.png",
-        media: "(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)",
+        media:
+          "(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)",
       },
       {
         rel: "apple-touch-startup-image",
         href: "/splash/splash-2048x2732.png",
-        media: "(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)",
+        media:
+          "(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)",
       },
       { rel: "apple-touch-startup-image", href: "/splash/splash-1170x2532.png" },
       // Language / discovery
       { rel: "alternate", hrefLang: "fr-FR", href: "https://iktracker.fr/" },
       { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
       { rel: "llms", href: "/llms.txt", type: "text/plain", title: "LLM Information" },
-      { rel: "alternate", href: "/knowledge.json", type: "application/ld+json", title: "IKtracker Knowledge Graph" },
+      {
+        rel: "alternate",
+        href: "/knowledge.json",
+        type: "application/ld+json",
+        title: "IKtracker Knowledge Graph",
+      },
       // DNS prefetch for non-critical resources
       { rel: "dns-prefetch", href: "https://maps.googleapis.com" },
       { rel: "dns-prefetch", href: "https://maps.gstatic.com" },

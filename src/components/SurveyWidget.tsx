@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation, useNavigate } from '@/lib/router-compat';
-import { X, Star, Send, ChevronRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { PERSONA_OPTIONS, type PersonaValue } from '@/components/PersonaPicker';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation, useNavigate } from "@/lib/router-compat";
+import { X, Star, Send, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ContentBlock {
   id: string;
-  type: 'poll' | 'rating' | 'text_question' | 'screenshot' | 'share' | 'info';
+  type: "poll" | "rating" | "text_question" | "screenshot" | "share" | "info";
   config: Record<string, unknown>;
 }
 
@@ -26,40 +26,77 @@ interface ActiveSurvey {
  * meaning the survey is a "persona qualification" survey.
  */
 function isPersonaPoll(block: ContentBlock): boolean {
-  if (block.type !== 'poll') return false;
+  if (block.type !== "poll") return false;
   const options = (block.config.options as string[]) || [];
   // Check if at least 3 options match persona labels
-  const personaLabels: string[] = PERSONA_OPTIONS.map(p => p.label);
-  const matches = options.filter(o => personaLabels.includes(o));
+  const personaLabels: string[] = PERSONA_OPTIONS.map((p) => p.label);
+  const matches = options.filter((o) => personaLabels.includes(o));
   return matches.length >= 3;
 }
 
 // Keyword-based fallback matching for tolerant persona detection
 const PERSONA_KEYWORDS: Record<PersonaValue, string[]> = {
-  sante_liberal: ['sante', 'santé', 'medical', 'médical', 'liberal', 'libéral', 'infirmier', 'medecin', 'médecin', 'kine', 'kiné'],
-  artisan_btp: ['artisan', 'btp', 'batiment', 'bâtiment', 'maitre', 'maître', 'oeuvre', 'œuvre', 'plombier', 'electricien', 'électricien', 'macon', 'maçon'],
-  consultant_freelance: ['consultant', 'freelance', 'independant', 'indépendant', 'avocat', 'coach'],
-  commercial_immobilier: ['commercial', 'immobilier', 'agent', 'vente', 'vendeur', 'vrp'],
-  expert_comptable_tns: ['comptable', 'expert', 'tns', 'dirigeant', 'gerant', 'gérant'],
+  sante_liberal: [
+    "sante",
+    "santé",
+    "medical",
+    "médical",
+    "liberal",
+    "libéral",
+    "infirmier",
+    "medecin",
+    "médecin",
+    "kine",
+    "kiné",
+  ],
+  artisan_btp: [
+    "artisan",
+    "btp",
+    "batiment",
+    "bâtiment",
+    "maitre",
+    "maître",
+    "oeuvre",
+    "œuvre",
+    "plombier",
+    "electricien",
+    "électricien",
+    "macon",
+    "maçon",
+  ],
+  consultant_freelance: [
+    "consultant",
+    "freelance",
+    "independant",
+    "indépendant",
+    "avocat",
+    "coach",
+  ],
+  commercial_immobilier: ["commercial", "immobilier", "agent", "vente", "vendeur", "vrp"],
+  expert_comptable_tns: ["comptable", "expert", "tns", "dirigeant", "gerant", "gérant"],
 };
 
 function normalize(s: string): string {
-  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 }
 
 export function getPersonaValueFromLabel(label: string): PersonaValue | null {
   if (!label) return null;
   // 1. Exact match
-  const exact = PERSONA_OPTIONS.find(p => p.label === label);
+  const exact = PERSONA_OPTIONS.find((p) => p.label === label);
   if (exact) return exact.value;
 
   // 2. Strip "Autre:" / "Autre :" prefix
-  const cleaned = label.replace(/^autre\s*:?\s*/i, '').trim();
+  const cleaned = label.replace(/^autre\s*:?\s*/i, "").trim();
   const norm = normalize(cleaned);
   if (!norm) return null;
 
   // 3. Case-insensitive label match (partial)
-  const labelMatch = PERSONA_OPTIONS.find(p => {
+  const labelMatch = PERSONA_OPTIONS.find((p) => {
     const pn = normalize(p.label);
     return pn === norm || pn.includes(norm) || norm.includes(pn);
   });
@@ -68,7 +105,7 @@ export function getPersonaValueFromLabel(label: string): PersonaValue | null {
   // 4. Keyword match — score by number of keywords found
   let best: { value: PersonaValue; score: number } | null = null;
   for (const [value, keywords] of Object.entries(PERSONA_KEYWORDS) as [PersonaValue, string[]][]) {
-    const score = keywords.filter(kw => norm.includes(kw)).length;
+    const score = keywords.filter((kw) => norm.includes(kw)).length;
     if (score > 0 && (!best || score > best.score)) {
       best = { value, score };
     }
@@ -102,25 +139,25 @@ export function SurveyWidget() {
     const fetchSurvey = async () => {
       // Get user persona
       const { data: prefs } = await supabase
-        .from('user_preferences')
-        .select('persona')
-        .eq('user_id', user.id)
+        .from("user_preferences")
+        .select("persona")
+        .eq("user_id", user.id)
         .maybeSingle();
 
-      const userPersona = prefs?.persona || 'undefined';
+      const userPersona = prefs?.persona || "undefined";
       const currentPath = location.pathname;
 
       // Get published surveys
       const { data: surveys } = await supabase
-        .from('surveys')
-        .select('*')
-        .eq('status', 'published')
-        .not('published_at', 'is', null);
+        .from("surveys")
+        .select("*")
+        .eq("status", "published")
+        .not("published_at", "is", null);
 
       if (!surveys?.length) return;
 
       // Filter by persona targeting and page
-      const eligible = surveys.filter(s => {
+      const eligible = surveys.filter((s) => {
         const targets = (s.target_personas as string[]) || [];
         const personaMatch = targets.length === 0 || targets.includes(userPersona);
         const pageMatch = currentPath.startsWith(s.target_page);
@@ -132,43 +169,44 @@ export function SurveyWidget() {
       // Check impressions — skip surveys already completed or shown too many times
       for (const s of eligible) {
         const { count: impressionCount } = await supabase
-          .from('survey_impressions')
-          .select('*', { count: 'exact', head: true })
-          .eq('survey_id', s.id)
-          .eq('user_id', user.id);
+          .from("survey_impressions")
+          .select("*", { count: "exact", head: true })
+          .eq("survey_id", s.id)
+          .eq("user_id", user.id);
 
         if ((impressionCount ?? 0) >= s.max_impressions_per_user) continue;
 
         // Check if already responded
         const { count: responseCount } = await supabase
-          .from('survey_responses')
-          .select('*', { count: 'exact', head: true })
-          .eq('survey_id', s.id)
-          .eq('user_id', user.id)
-          .eq('completed', true);
+          .from("survey_responses")
+          .select("*", { count: "exact", head: true })
+          .eq("survey_id", s.id)
+          .eq("user_id", user.id)
+          .eq("completed", true);
 
         if ((responseCount ?? 0) > 0) continue;
 
         // Check delay between impressions
         const { data: lastImpression } = await supabase
-          .from('survey_impressions')
-          .select('created_at')
-          .eq('survey_id', s.id)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .from("survey_impressions")
+          .select("created_at")
+          .eq("survey_id", s.id)
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
 
         if (lastImpression) {
-          const hoursSince = (Date.now() - new Date(lastImpression.created_at).getTime()) / (1000 * 60 * 60);
+          const hoursSince =
+            (Date.now() - new Date(lastImpression.created_at).getTime()) / (1000 * 60 * 60);
           if (hoursSince < s.delay_between_impressions_hours) continue;
         }
 
         // Get variant (pick one by weighted distribution)
         const { data: variants } = await supabase
-          .from('survey_variants')
-          .select('*')
-          .eq('survey_id', s.id);
+          .from("survey_variants")
+          .select("*")
+          .eq("survey_id", s.id);
 
         if (!variants?.length) continue;
 
@@ -178,18 +216,21 @@ export function SurveyWidget() {
         let chosen = variants[0];
         for (const v of variants) {
           rand -= v.distribution_pct;
-          if (rand <= 0) { chosen = v; break; }
+          if (rand <= 0) {
+            chosen = v;
+            break;
+          }
         }
 
         const blocks = (chosen.content_blocks as unknown as ContentBlock[]) || [];
         if (!blocks.length) continue;
 
         // Record impression
-        await supabase.from('survey_impressions').insert({
+        await supabase.from("survey_impressions").insert({
           survey_id: s.id,
           user_id: user.id,
           variant_id: chosen.id,
-          action: 'shown',
+          action: "shown",
         });
 
         setSurvey({
@@ -209,30 +250,34 @@ export function SurveyWidget() {
 
   const handleDismiss = useCallback(async () => {
     if (survey && user) {
-      await supabase.from('survey_impressions').insert({
+      await supabase.from("survey_impressions").insert({
         survey_id: survey.id,
         user_id: user.id,
         variant_id: survey.variant_id,
-        action: 'dismissed',
+        action: "dismissed",
       });
     }
     setDismissed(true);
   }, [survey, user]);
 
-  const syncPersonaIfNeeded = useCallback(async (block: ContentBlock, answer: unknown) => {
-    if (!user || !isPersonaPoll(block)) return;
-    const label = answer as string;
-    const personaValue = getPersonaValueFromLabel(label);
-    if (!personaValue) return;
+  const syncPersonaIfNeeded = useCallback(
+    async (block: ContentBlock, answer: unknown) => {
+      if (!user || !isPersonaPoll(block)) return;
+      const label = answer as string;
+      const personaValue = getPersonaValueFromLabel(label);
+      if (!personaValue) return;
 
-    // Update user_preferences.persona
-    await supabase
-      .from('user_preferences')
-      .upsert({
-        user_id: user.id,
-        persona: personaValue,
-      }, { onConflict: 'user_id' });
-  }, [user]);
+      // Update user_preferences.persona
+      await supabase.from("user_preferences").upsert(
+        {
+          user_id: user.id,
+          persona: personaValue,
+        },
+        { onConflict: "user_id" },
+      );
+    },
+    [user],
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!survey || !user) return;
@@ -242,27 +287,27 @@ export function SurveyWidget() {
     try {
       for (const block of survey.blocks) {
         const rawAnswer = responses[block.id];
-        if (rawAnswer === undefined || rawAnswer === null || rawAnswer === '') {
+        if (rawAnswer === undefined || rawAnswer === null || rawAnswer === "") {
           resolvedResponses[block.id] = rawAnswer ?? null;
           continue;
         }
 
         // Non-string answers (e.g. rating numbers) are stored as-is
-        if (typeof rawAnswer !== 'string') {
+        if (typeof rawAnswer !== "string") {
           resolvedResponses[block.id] = rawAnswer;
           continue;
         }
 
         const answer = rawAnswer;
         const freeMatch = answer.match(/^__free_(\d+)__$/);
-        if (answer === '__other__') {
-          resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ''}`.trim();
+        if (answer === "__other__") {
+          resolvedResponses[block.id] = `Autre: ${otherTexts[block.id] || ""}`.trim();
         } else if (freeMatch) {
           const idx = parseInt(freeMatch[1]);
           const options = (block.config.options as string[]) || [];
-          const label = options[idx] || 'Autre';
+          const label = options[idx] || "Autre";
           const freeKey = `${block.id}_${idx}`;
-          resolvedResponses[block.id] = `${label}: ${otherTexts[freeKey] || ''}`.trim();
+          resolvedResponses[block.id] = `${label}: ${otherTexts[freeKey] || ""}`.trim();
         } else {
           resolvedResponses[block.id] = answer;
         }
@@ -270,16 +315,18 @@ export function SurveyWidget() {
       }
 
       // Save response
-      const { error: insertError } = await supabase.from('survey_responses').insert([{
-        survey_id: survey.id,
-        user_id: user.id,
-        variant_id: survey.variant_id,
-        responses: JSON.parse(JSON.stringify(resolvedResponses)),
-        completed: true,
-      }]);
-      if (insertError) console.error('Survey insert failed:', insertError);
+      const { error: insertError } = await supabase.from("survey_responses").insert([
+        {
+          survey_id: survey.id,
+          user_id: user.id,
+          variant_id: survey.variant_id,
+          responses: JSON.parse(JSON.stringify(resolvedResponses)),
+          completed: true,
+        },
+      ]);
+      if (insertError) console.error("Survey insert failed:", insertError);
     } catch (err) {
-      console.error('Survey submit error:', err);
+      console.error("Survey submit error:", err);
     }
 
     setSubmitted(true);
@@ -289,7 +336,7 @@ export function SurveyWidget() {
   const handleNext = () => {
     if (!survey) return;
     if (currentBlockIndex < survey.blocks.length - 1) {
-      setCurrentBlockIndex(i => i + 1);
+      setCurrentBlockIndex((i) => i + 1);
     } else {
       handleSubmit();
     }
@@ -313,22 +360,31 @@ export function SurveyWidget() {
   const block = survey.blocks[currentBlockIndex];
   const isLast = currentBlockIndex === survey.blocks.length - 1;
   const rawAnswer = responses[block.id] as string | undefined;
-  const isFreeAnswer = typeof rawAnswer === 'string' && (rawAnswer === '__other__' || rawAnswer.startsWith('__free_'));
-  const freeKey = rawAnswer === '__other__' ? block.id : `${block.id}_${rawAnswer?.match(/__free_(\d+)__/)?.[1] ?? ''}`;
-  const hasAnswer = block.type === 'info' || block.type === 'screenshot' || block.type === 'share'
-    || (rawAnswer !== undefined && rawAnswer !== '' && (!isFreeAnswer || (otherTexts[freeKey] || '').trim().length > 0));
+  const isFreeAnswer =
+    typeof rawAnswer === "string" && (rawAnswer === "__other__" || rawAnswer.startsWith("__free_"));
+  const freeKey =
+    rawAnswer === "__other__"
+      ? block.id
+      : `${block.id}_${rawAnswer?.match(/__free_(\d+)__/)?.[1] ?? ""}`;
+  const hasAnswer =
+    block.type === "info" ||
+    block.type === "screenshot" ||
+    block.type === "share" ||
+    (rawAnswer !== undefined &&
+      rawAnswer !== "" &&
+      (!isFreeAnswer || (otherTexts[freeKey] || "").trim().length > 0));
 
   const handleInfoButtonClick = (url: string) => {
     if (!url) return;
-    if (url.startsWith('tab=')) {
+    if (url.startsWith("tab=")) {
       const params = new URLSearchParams(location.search);
-      params.set('tab', url.slice(4));
+      params.set("tab", url.slice(4));
       navigate(`${location.pathname}?${params.toString()}`);
       setDismissed(true);
       return;
     }
     if (/^https?:\/\//i.test(url)) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
     navigate(url);
@@ -337,80 +393,91 @@ export function SurveyWidget() {
 
   return (
     <>
-    <div className="fixed inset-0 z-50 bg-black/50" onClick={handleDismiss} />
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-    <div className="w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted">
-        <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
-        <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+      <div className="fixed inset-0 z-50 bg-black/50" onClick={handleDismiss} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div className="w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted">
+            <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
+            <button
+              onClick={handleDismiss}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {block.type === 'poll' && (
-          <PollBlock
-            block={block}
-            value={responses[block.id] as string}
-            onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
-            otherTexts={otherTexts}
-            onOtherTextChange={(key, val) => setOtherTexts(t => ({ ...t, [key]: val }))}
-          />
-        )}
-        {block.type === 'rating' && (
-          <RatingBlock
-            block={block}
-            value={responses[block.id] as number}
-            hovered={hoveredRating}
-            onHover={setHoveredRating}
-            onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
-          />
-        )}
-        {block.type === 'text_question' && (
-          <TextBlock
-            block={block}
-            value={(responses[block.id] as string) || ''}
-            onChange={val => setResponses(r => ({ ...r, [block.id]: val }))}
-          />
-        )}
-        {block.type === 'info' && (
-          <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
-        )}
-      </div>
+          {/* Content */}
+          <div className="p-4 space-y-3">
+            {block.type === "poll" && (
+              <PollBlock
+                block={block}
+                value={responses[block.id] as string}
+                onChange={(val) => setResponses((r) => ({ ...r, [block.id]: val }))}
+                otherTexts={otherTexts}
+                onOtherTextChange={(key, val) => setOtherTexts((t) => ({ ...t, [key]: val }))}
+              />
+            )}
+            {block.type === "rating" && (
+              <RatingBlock
+                block={block}
+                value={responses[block.id] as number}
+                hovered={hoveredRating}
+                onHover={setHoveredRating}
+                onChange={(val) => setResponses((r) => ({ ...r, [block.id]: val }))}
+              />
+            )}
+            {block.type === "text_question" && (
+              <TextBlock
+                block={block}
+                value={(responses[block.id] as string) || ""}
+                onChange={(val) => setResponses((r) => ({ ...r, [block.id]: val }))}
+              />
+            )}
+            {block.type === "info" && (
+              <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
+            )}
+          </div>
 
-
-      {/* Footer */}
-      <div className="px-4 pb-3 flex items-center justify-between">
-        {survey.blocks.length > 1 && (
-          <span className="text-[10px] text-muted-foreground">
-            {currentBlockIndex + 1}/{survey.blocks.length}
-          </span>
-        )}
-        <Button
-          size="sm"
-          disabled={!hasAnswer}
-          onClick={handleNext}
-          className="ml-auto text-xs gap-1"
-        >
-          {isLast ? 'Envoyer' : 'Suivant'}
-          {isLast ? <Send className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-        </Button>
+          {/* Footer */}
+          <div className="px-4 pb-3 flex items-center justify-between">
+            {survey.blocks.length > 1 && (
+              <span className="text-[10px] text-muted-foreground">
+                {currentBlockIndex + 1}/{survey.blocks.length}
+              </span>
+            )}
+            <Button
+              size="sm"
+              disabled={!hasAnswer}
+              onClick={handleNext}
+              className="ml-auto text-xs gap-1"
+            >
+              {isLast ? "Envoyer" : "Suivant"}
+              {isLast ? <Send className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
-    </div>
     </>
   );
 }
 
 // ---- Sub-components ----
 
-function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
-  block: ContentBlock; value?: string; onChange: (v: string) => void;
-  otherTexts: Record<string, string>; onOtherTextChange: (key: string, v: string) => void;
+function PollBlock({
+  block,
+  value,
+  onChange,
+  otherTexts,
+  onOtherTextChange,
+}: {
+  block: ContentBlock;
+  value?: string;
+  onChange: (v: string) => void;
+  otherTexts: Record<string, string>;
+  onOtherTextChange: (key: string, v: string) => void;
 }) {
-  const question = (block.config.question as string) || '';
+  const question = (block.config.question as string) || "";
   const options = (block.config.options as string[]) || [];
   const freeOptions = (block.config.freeOptions as number[]) || [];
   // Legacy support: allowOther adds a standalone "Autre" option
@@ -421,7 +488,7 @@ function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
       {question && <p className="text-sm font-medium text-foreground">{question}</p>}
       <div className="space-y-1.5">
         {options.map((opt, i) => {
-          const personaOption = PERSONA_OPTIONS.find(p => p.label === opt);
+          const personaOption = PERSONA_OPTIONS.find((p) => p.label === opt);
           const Icon = personaOption?.icon;
           const isFree = freeOptions.includes(i);
           const isSelected = value === opt || (isFree && value === `__free_${i}__`);
@@ -431,10 +498,10 @@ function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
               <button
                 onClick={() => onChange(isFree ? `__free_${i}__` : opt)}
                 className={cn(
-                  'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
+                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all",
                   isSelected
-                    ? 'border-primary bg-primary/10 text-primary font-medium'
-                    : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50",
                 )}
               >
                 {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
@@ -442,8 +509,8 @@ function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
               </button>
               {isFree && isSelected && (
                 <Textarea
-                  value={otherTexts[freeKey] || ''}
-                  onChange={e => onOtherTextChange(freeKey, e.target.value.slice(0, 260))}
+                  value={otherTexts[freeKey] || ""}
+                  onChange={(e) => onOtherTextChange(freeKey, e.target.value.slice(0, 260))}
                   placeholder="Précisez..."
                   rows={2}
                   maxLength={260}
@@ -457,20 +524,20 @@ function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
         {legacyAllowOther && (
           <>
             <button
-              onClick={() => onChange('__other__')}
+              onClick={() => onChange("__other__")}
               className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all',
-                value === '__other__'
-                  ? 'border-primary bg-primary/10 text-primary font-medium'
-                  : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50'
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all",
+                value === "__other__"
+                  ? "border-primary bg-primary/10 text-primary font-medium"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50",
               )}
             >
               <span>Autre</span>
             </button>
-            {value === '__other__' && (
+            {value === "__other__" && (
               <Textarea
-                value={otherTexts[block.id] || ''}
-                onChange={e => onOtherTextChange(block.id, e.target.value.slice(0, 260))}
+                value={otherTexts[block.id] || ""}
+                onChange={(e) => onOtherTextChange(block.id, e.target.value.slice(0, 260))}
                 placeholder="Précisez..."
                 rows={2}
                 maxLength={260}
@@ -485,16 +552,25 @@ function PollBlock({ block, value, onChange, otherTexts, onOtherTextChange }: {
   );
 }
 
-function RatingBlock({ block, value, hovered, onHover, onChange }: {
-  block: ContentBlock; value?: number; hovered: number;
-  onHover: (v: number) => void; onChange: (v: number) => void;
+function RatingBlock({
+  block,
+  value,
+  hovered,
+  onHover,
+  onChange,
+}: {
+  block: ContentBlock;
+  value?: number;
+  hovered: number;
+  onHover: (v: number) => void;
+  onChange: (v: number) => void;
 }) {
-  const question = (block.config.question as string) || '';
+  const question = (block.config.question as string) || "";
   return (
     <div className="space-y-2">
       {question && <p className="text-sm font-medium text-foreground">{question}</p>}
       <div className="flex gap-1 justify-center" onMouseLeave={() => onHover(0)}>
-        {[1, 2, 3, 4, 5].map(n => (
+        {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             onMouseEnter={() => onHover(n)}
@@ -503,10 +579,10 @@ function RatingBlock({ block, value, hovered, onHover, onChange }: {
           >
             <Star
               className={cn(
-                'w-7 h-7 transition-colors',
+                "w-7 h-7 transition-colors",
                 (hovered || value || 0) >= n
-                  ? 'text-primary fill-primary'
-                  : 'text-muted-foreground/30'
+                  ? "text-primary fill-primary"
+                  : "text-muted-foreground/30",
               )}
             />
           </button>
@@ -516,15 +592,23 @@ function RatingBlock({ block, value, hovered, onHover, onChange }: {
   );
 }
 
-function TextBlock({ block, value, onChange }: { block: ContentBlock; value: string; onChange: (v: string) => void }) {
-  const question = (block.config.question as string) || '';
-  const placeholder = (block.config.placeholder as string) || 'Votre réponse...';
+function TextBlock({
+  block,
+  value,
+  onChange,
+}: {
+  block: ContentBlock;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const question = (block.config.question as string) || "";
+  const placeholder = (block.config.placeholder as string) || "Votre réponse...";
   return (
     <div className="space-y-2">
       {question && <p className="text-sm font-medium text-foreground">{question}</p>}
       <Textarea
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={3}
         className="text-xs resize-none"
@@ -533,17 +617,28 @@ function TextBlock({ block, value, onChange }: { block: ContentBlock; value: str
   );
 }
 
-function InfoBlock({ block, onButtonClick }: { block: ContentBlock; onButtonClick: (url: string) => void }) {
-  const title = (block.config.title as string) || '';
-  const text = (block.config.text as string) || '';
-  const buttonLabel = (block.config.buttonLabel as string) || '';
-  const buttonUrl = (block.config.buttonUrl as string) || '';
+function InfoBlock({
+  block,
+  onButtonClick,
+}: {
+  block: ContentBlock;
+  onButtonClick: (url: string) => void;
+}) {
+  const title = (block.config.title as string) || "";
+  const text = (block.config.text as string) || "";
+  const buttonLabel = (block.config.buttonLabel as string) || "";
+  const buttonUrl = (block.config.buttonUrl as string) || "";
   return (
     <div className="space-y-2">
       {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
       {text && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{text}</p>}
       {buttonLabel && buttonUrl && (
-        <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => onButtonClick(buttonUrl)}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full text-xs"
+          onClick={() => onButtonClick(buttonUrl)}
+        >
           {buttonLabel}
         </Button>
       )}

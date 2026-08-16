@@ -1,11 +1,9 @@
-import { ReactNode } from 'react';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Card } from '@/components/ui/card';
-import { Move, Columns3 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { ReactNode } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Card } from "@/components/ui/card";
+import { Move, Columns3 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type CardWidth = 1 | 2 | 3;
 
@@ -20,15 +18,15 @@ interface DraggableStatsSectionProps {
 }
 
 const widthClassMap: Record<CardWidth, string> = {
-  1: 'col-span-1',
-  2: 'col-span-2',
-  3: 'col-span-3',
+  1: "col-span-1",
+  2: "col-span-2",
+  3: "col-span-3",
 };
 
 const widthLabels: Record<CardWidth, string> = {
-  1: '⅓',
-  2: '⅔',
-  3: '3/3',
+  1: "⅓",
+  2: "⅔",
+  3: "3/3",
 };
 
 function cycleWidth(current: CardWidth): CardWidth {
@@ -37,30 +35,28 @@ function cycleWidth(current: CardWidth): CardWidth {
   return 3;
 }
 
-export function DraggableStatsSection({ 
-  id, children, className = '', isCard = true, isDraggable = true,
-  cardWidth = 3, onWidthChange 
+export function DraggableStatsSection({
+  id,
+  children,
+  className = "",
+  isCard = true,
+  isDraggable = true,
+  cardWidth = 3,
+  onWidthChange,
 }: DraggableStatsSectionProps) {
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
   const canDrag = isDesktop && isDraggable;
   const canResize = isDesktop && !!onWidthChange;
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-    isOver,
-  } = useSortable({ id, disabled: !canDrag });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } =
+    useSortable({ id, disabled: !canDrag });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 200ms ease',
+    transition: transition || "transform 200ms ease",
     opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 50 : 'auto' as const,
+    zIndex: isDragging ? 50 : ("auto" as const),
   };
 
   if (!isDesktop) {
@@ -71,8 +67,8 @@ export function DraggableStatsSection({
     );
   }
 
-  const Wrapper = isCard ? Card : 'div';
-  const gridClass = onWidthChange ? widthClassMap[cardWidth] : '';
+  const Wrapper = isCard ? Card : "div";
+  const gridClass = onWidthChange ? widthClassMap[cardWidth] : "";
 
   return (
     <div className={`relative ${gridClass}`}>
@@ -80,15 +76,15 @@ export function DraggableStatsSection({
       <div
         className={`transition-all duration-200 rounded-md ${
           isOver && !isDragging
-            ? 'h-16 mb-2 border-2 border-dashed border-primary/40 bg-primary/5'
-            : 'h-0'
+            ? "h-16 mb-2 border-2 border-dashed border-primary/40 bg-primary/5"
+            : "h-0"
         }`}
       />
       <Wrapper
         ref={setNodeRef}
         style={style}
         className={`w-full h-full relative group/card transition-shadow duration-200 ${
-          isDragging ? 'shadow-2xl ring-2 ring-primary scale-[1.01]' : ''
+          isDragging ? "shadow-2xl ring-2 ring-primary scale-[1.01]" : ""
         } ${className}`}
       >
         {canDrag && (
@@ -112,7 +108,9 @@ export function DraggableStatsSection({
             title={`Largeur : ${widthLabels[cardWidth]} → ${widthLabels[cycleWidth(cardWidth)]}`}
           >
             <Columns3 className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-[10px] font-semibold text-muted-foreground tabular-nums">{widthLabels[cardWidth]}</span>
+            <span className="text-[10px] font-semibold text-muted-foreground tabular-nums">
+              {widthLabels[cardWidth]}
+            </span>
           </button>
         )}
 

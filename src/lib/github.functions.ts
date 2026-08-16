@@ -34,10 +34,10 @@ export const getGitHubActionsRuns = createServerFn({ method: "GET" })
     const { owner, repo, per_page, page } = data;
 
     // Only admins can read the mobile build status.
-    const { data: isAdmin, error: roleError } = await context.supabase.rpc(
-      "has_role",
-      { _user_id: context.userId, _role: "admin" } as any
-    );
+    const { data: isAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    } as any);
     if (roleError || !isAdmin) {
       throw new Response("Forbidden", { status: 403 });
     }
@@ -50,7 +50,7 @@ export const getGitHubActionsRuns = createServerFn({ method: "GET" })
     }
 
     const url = new URL(
-      `https://connector-gateway.lovable.dev/github/repos/${owner}/${repo}/actions/runs`
+      `https://connector-gateway.lovable.dev/github/repos/${owner}/${repo}/actions/runs`,
     );
     url.searchParams.set("per_page", String(per_page));
     url.searchParams.set("page", String(page));
@@ -66,12 +66,8 @@ export const getGitHubActionsRuns = createServerFn({ method: "GET" })
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error(
-        `GitHub Actions gateway request failed [${response.status}]: ${errorBody}`
-      );
-      throw new Error(
-        `GitHub Actions request failed [${response.status}]: ${errorBody}`
-      );
+      console.error(`GitHub Actions gateway request failed [${response.status}]: ${errorBody}`);
+      throw new Error(`GitHub Actions request failed [${response.status}]: ${errorBody}`);
     }
 
     const json = (await response.json()) as GitHubActionsRunsResponse;

@@ -1,4 +1,4 @@
-import * as Calendar from 'expo-calendar';
+import * as Calendar from "expo-calendar";
 
 export interface DayEvent {
   id: string;
@@ -10,7 +10,7 @@ export interface DayEvent {
 
 export async function requestCalendarAccess(): Promise<boolean> {
   const { status } = await Calendar.requestCalendarPermissionsAsync();
-  return status === 'granted';
+  return status === "granted";
 }
 
 /**
@@ -34,7 +34,7 @@ export async function fetchDayEvents(date = new Date()): Promise<Record<string, 
   for (const e of events) {
     const item: DayEvent = {
       id: e.id,
-      title: e.title ?? 'Rendez-vous',
+      title: e.title ?? "Rendez-vous",
       location: e.location ?? null,
       startDate: new Date(e.startDate as string).toISOString(),
       calendarId: e.calendarId,

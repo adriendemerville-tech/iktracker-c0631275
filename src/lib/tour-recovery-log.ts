@@ -1,22 +1,22 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 export type TourRecoveryEventType =
-  | 'modal_shown'
-  | 'resume_clicked'
-  | 'resume_success'
-  | 'resume_error'
-  | 'finalize_clicked'
-  | 'transparent_resume_attempt'
-  | 'transparent_resume_success'
-  | 'transparent_resume_error'
-  | 'auto_finalize_attempt'
-  | 'auto_finalize_success'
-  | 'auto_finalize_error'
-  | 'toast_shown'
-  | 'session_end'
-  | 'check_error'
-  | 'manual_stop_added'
-  | 'manual_stop_error';
+  | "modal_shown"
+  | "resume_clicked"
+  | "resume_success"
+  | "resume_error"
+  | "finalize_clicked"
+  | "transparent_resume_attempt"
+  | "transparent_resume_success"
+  | "transparent_resume_error"
+  | "auto_finalize_attempt"
+  | "auto_finalize_success"
+  | "auto_finalize_error"
+  | "toast_shown"
+  | "session_end"
+  | "check_error"
+  | "manual_stop_added"
+  | "manual_stop_error";
 
 interface LogPayload {
   eventType: TourRecoveryEventType;
@@ -37,10 +37,12 @@ interface LogPayload {
  */
 export async function logTourRecovery(payload: LogPayload): Promise<void> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase.from('tour_recovery_events' as any).insert({
+    await supabase.from("tour_recovery_events" as any).insert({
       user_id: user.id,
       session_id: payload.sessionId ?? null,
       trip_id: payload.tripId ?? null,
@@ -62,25 +64,25 @@ export async function logTourRecovery(payload: LogPayload): Promise<void> {
       }
     }
   } catch (e) {
-    console.warn('[tour-recovery-log] silent failure:', e);
+    console.warn("[tour-recovery-log] silent failure:", e);
   }
 }
 
 function mapEventToCounter(
-  type: TourRecoveryEventType
-): 'recovery_attempts' | 'recovery_success' | 'notifications_count' | null {
+  type: TourRecoveryEventType,
+): "recovery_attempts" | "recovery_success" | "notifications_count" | null {
   switch (type) {
-    case 'modal_shown':
-    case 'transparent_resume_attempt':
-    case 'auto_finalize_attempt':
-    case 'resume_clicked':
-      return 'recovery_attempts';
-    case 'resume_success':
-    case 'transparent_resume_success':
-    case 'auto_finalize_success':
-      return 'recovery_success';
-    case 'toast_shown':
-      return 'notifications_count';
+    case "modal_shown":
+    case "transparent_resume_attempt":
+    case "auto_finalize_attempt":
+    case "resume_clicked":
+      return "recovery_attempts";
+    case "resume_success":
+    case "transparent_resume_success":
+    case "auto_finalize_success":
+      return "recovery_success";
+    case "toast_shown":
+      return "notifications_count";
     default:
       return null;
   }
@@ -88,15 +90,15 @@ function mapEventToCounter(
 
 async function incrementSessionCounter(
   sessionId: string,
-  field: 'recovery_attempts' | 'recovery_success' | 'notifications_count',
-  errorMessage?: string
+  field: "recovery_attempts" | "recovery_success" | "notifications_count",
+  errorMessage?: string,
 ) {
   try {
     // Read current value, increment, write back (no atomic RPC available)
     const { data } = await supabase
-      .from('tour_sessions')
+      .from("tour_sessions")
       .select(`${field}, last_recovery_at, last_error` as any)
-      .eq('id', sessionId)
+      .eq("id", sessionId)
       .maybeSingle();
 
     const current = (data as any)?.[field] ?? 0;
@@ -108,9 +110,9 @@ async function incrementSessionCounter(
     if (errorMessage) updatePayload.last_error = errorMessage;
 
     await supabase
-      .from('tour_sessions')
+      .from("tour_sessions")
       .update(updatePayload as any)
-      .eq('id', sessionId);
+      .eq("id", sessionId);
   } catch {
     // silent
   }

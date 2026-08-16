@@ -5,7 +5,7 @@ import type { Json } from "@/integrations/supabase/types";
 /**
  * Hook to fetch dynamic page content from `page_contents` table.
  * Returns hardcoded fallback values instantly, then merges DB overrides.
- * 
+ *
  * Usage:
  *   const { content } = usePageContent("home", defaultContent);
  *   // content.hero_title is either the DB value or the fallback
@@ -15,7 +15,7 @@ type ContentMap = Record<string, string>;
 
 export function usePageContent<T extends ContentMap>(
   pageKey: string,
-  fallback: T
+  fallback: T,
 ): { content: T; isLoaded: boolean } {
   const { data, isSuccess } = useQuery({
     queryKey: ["page-content", pageKey],

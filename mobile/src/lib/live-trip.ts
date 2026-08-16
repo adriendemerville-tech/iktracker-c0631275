@@ -1,8 +1,8 @@
-import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { drivingDistanceKm, type Coord } from './distance';
+import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { drivingDistanceKm, type Coord } from "./distance";
 
-const LIVE_TRIP_KEY = 'iktracker.livetrip';
+const LIVE_TRIP_KEY = "iktracker.livetrip";
 
 export interface LiveTripPoint extends Coord {
   address: string | null;
@@ -17,7 +17,7 @@ export interface LiveTrip {
 
 export async function requestForegroundLocation(): Promise<boolean> {
   const { status } = await Location.requestForegroundPermissionsAsync();
-  return status === 'granted';
+  return status === "granted";
 }
 
 async function reverseGeocode(coord: Coord): Promise<string | null> {
@@ -28,12 +28,12 @@ async function reverseGeocode(coord: Coord): Promise<string | null> {
     });
     if (!place) return null;
     const line = [
-      [place.streetNumber, place.street].filter(Boolean).join(' '),
+      [place.streetNumber, place.street].filter(Boolean).join(" "),
       place.postalCode,
       place.city ?? place.subregion,
     ]
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
     return line || place.name || null;
   } catch {
     return null;
@@ -67,7 +67,7 @@ export interface FinishedLiveTrip {
   start: LiveTripPoint;
   end: LiveTripPoint;
   distanceKm: number;
-  source: 'google' | 'estimation';
+  source: "google" | "estimation";
   durationMin: number;
   vehicleId: string | null;
 }
@@ -75,7 +75,7 @@ export interface FinishedLiveTrip {
 /** Termine le trajet : géolocalise l'arrivée, horodate et calcule la distance routière. */
 export async function finishLiveTrip(): Promise<FinishedLiveTrip> {
   const trip = await getLiveTrip();
-  if (!trip) throw new Error('Aucun trajet en cours');
+  if (!trip) throw new Error("Aucun trajet en cours");
   const end = await capturePoint();
   const { km, source } = await drivingDistanceKm(trip.start, end);
   const durationMin = Math.max(

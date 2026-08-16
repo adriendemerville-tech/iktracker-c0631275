@@ -2,8 +2,7 @@
 // used for verified founder identity on /blog/auteur/adrien-de-volontat
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
@@ -19,10 +18,10 @@ Deno.serve(async (req) => {
     const linkedinApiKey = Deno.env.get("LINKEDIN_API_KEY");
 
     if (!lovableApiKey || !linkedinApiKey) {
-      return new Response(
-        JSON.stringify({ error: "LinkedIn connector not configured" }),
-        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "LinkedIn connector not configured" }), {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const upstream = await fetch(`${GATEWAY_URL}/v2/userinfo`, {
@@ -38,7 +37,10 @@ Deno.serve(async (req) => {
       console.error(`LinkedIn userinfo failed [${upstream.status}]: ${details}`);
       return new Response(
         JSON.stringify({ error: "LinkedIn request failed", status: upstream.status, details }),
-        { status: upstream.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        {
+          status: upstream.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
       );
     }
 

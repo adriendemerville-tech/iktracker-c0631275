@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Trip, Vehicle } from '@/types/trip';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useState } from "react";
+import { Trip, Vehicle } from "@/types/trip";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from "@/components/ui/accordion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,8 +17,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Archive, RotateCcw, Trash2, Calendar, CheckSquare, X } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Archive, RotateCcw, Trash2, Calendar, CheckSquare, X } from "lucide-react";
 
 interface ArchivedTripsSectionProps {
   archivedTrips: Trip[];
@@ -42,15 +42,15 @@ export const ArchivedTripsSection = ({
 
   const getVehicleName = (vehicleId: string | null) => {
     if (!vehicleId) return null;
-    const vehicle = vehicles.find(v => v.id === vehicleId);
+    const vehicle = vehicles.find((v) => v.id === vehicleId);
     return vehicle ? `${vehicle.make} ${vehicle.model}` : null;
   };
 
   const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date);
+    new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" }).format(date);
 
   const toggle = (id: string) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -61,7 +61,7 @@ export const ArchivedTripsSection = ({
   const allSelected = selectedIds.size === archivedTrips.length && archivedTrips.length > 0;
   const toggleAll = () => {
     if (allSelected) setSelectedIds(new Set());
-    else setSelectedIds(new Set(archivedTrips.map(t => t.id)));
+    else setSelectedIds(new Set(archivedTrips.map((t) => t.id)));
   };
 
   const exitSelection = () => {
@@ -70,7 +70,7 @@ export const ArchivedTripsSection = ({
   };
 
   const confirmBulkDelete = () => {
-    selectedIds.forEach(id => onPermanentDelete(id));
+    selectedIds.forEach((id) => onPermanentDelete(id));
     exitSelection();
     setBulkDeleteOpen(false);
   };
@@ -118,7 +118,7 @@ export const ArchivedTripsSection = ({
               <div className="flex items-center justify-between gap-2 px-2 py-2 bg-muted/50 rounded-lg mb-2">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
-                  <span>{allSelected ? 'Tout désélectionner' : 'Tout sélectionner'}</span>
+                  <span>{allSelected ? "Tout désélectionner" : "Tout sélectionner"}</span>
                   {selectedIds.size > 0 && (
                     <span className="text-xs text-muted-foreground">({selectedIds.size})</span>
                   )}
@@ -154,7 +154,9 @@ export const ArchivedTripsSection = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                      <span className="text-muted-foreground">{formatDate(new Date(trip.startTime))}</span>
+                      <span className="text-muted-foreground">
+                        {formatDate(new Date(trip.startTime))}
+                      </span>
                       {trip.calendarEventId && (
                         <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                           Calendrier
@@ -162,7 +164,7 @@ export const ArchivedTripsSection = ({
                       )}
                     </div>
                     <p className="text-sm font-medium truncate mt-1">
-                      {trip.purpose || 'Sans motif'}
+                      {trip.purpose || "Sans motif"}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {trip.startLocation.name} → {trip.endLocation.name}
@@ -238,10 +240,11 @@ export const ArchivedTripsSection = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Supprimer {selectedIds.size} trajet{selectedIds.size > 1 ? 's' : ''} ?
+              Supprimer {selectedIds.size} trajet{selectedIds.size > 1 ? "s" : ""} ?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Les trajets sélectionnés seront supprimés de façon permanente et ne pourront plus être restaurés.
+              Les trajets sélectionnés seront supprimés de façon permanente et ne pourront plus être
+              restaurés.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -1,12 +1,21 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2, AlertTriangle, CheckCircle, ExternalLink, BarChart3, Network, Brain } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  AlertTriangle,
+  CheckCircle,
+  ExternalLink,
+  BarChart3,
+  Network,
+  Brain,
+} from "lucide-react";
 
 interface MarinaResult {
   report_url?: string;
@@ -22,7 +31,17 @@ interface MarinaResult {
   [key: string]: unknown;
 }
 
-const ScoreCard = ({ label, value, max, icon: Icon }: { label: string; value?: number; max?: number; icon: React.ElementType }) => {
+const ScoreCard = ({
+  label,
+  value,
+  max,
+  icon: Icon,
+}: {
+  label: string;
+  value?: number;
+  max?: number;
+  icon: React.ElementType;
+}) => {
   if (value === undefined) return null;
   const pct = max ? Math.round((value / max) * 100) : value;
   const color = pct >= 70 ? "text-green-500" : pct >= 40 ? "text-yellow-500" : "text-red-500";
@@ -32,7 +51,8 @@ const ScoreCard = ({ label, value, max, icon: Icon }: { label: string; value?: n
       <div className="flex-1 min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className={`text-lg font-bold ${color}`}>
-          {value}{max ? `/${max}` : ""}
+          {value}
+          {max ? `/${max}` : ""}
         </p>
       </div>
     </div>
@@ -56,61 +76,67 @@ const MarinaAnalyze = () => {
     }
   }, []);
 
-  const doPoll = useCallback(async (jobId: string) => {
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    const baseUrl = `https://${projectId}.supabase.co/functions/v1/marina-analyze`;
+  const doPoll = useCallback(
+    async (jobId: string) => {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const baseUrl = `https://${projectId}.supabase.co/functions/v1/marina-analyze`;
 
-    try {
-      const res = await fetch(`${baseUrl}?job_id=${encodeURIComponent(jobId)}`, {
-        headers: {
-          'apikey': anonKey,
-          'Authorization': `Bearer ${anonKey}`,
-        },
-      });
-      const data = await res.json();
+      try {
+        const res = await fetch(`${baseUrl}?job_id=${encodeURIComponent(jobId)}`, {
+          headers: {
+            apikey: anonKey,
+            Authorization: `Bearer ${anonKey}`,
+          },
+        });
+        const data = await res.json();
 
-      if (data.status === 'processing') {
-        setProgress(data.progress ?? 0);
-        setPhase(data.phase ?? "");
-      } else if (data.status === 'completed') {
+        if (data.status === "processing") {
+          setProgress(data.progress ?? 0);
+          setPhase(data.phase ?? "");
+        } else if (data.status === "completed") {
+          stopPolling();
+          jobIdRef.current = null;
+          const resultData = (data.data ?? data) as MarinaResult;
+          setResult(resultData);
+          setLoading(false);
+          setProgress(100);
+        } else if (data.status === "failed" || data.status === "error" || data.error) {
+          stopPolling();
+          jobIdRef.current = null;
+          setError(data.error || "Échec de l'analyse");
+          setLoading(false);
+        }
+      } catch {
         stopPolling();
         jobIdRef.current = null;
-        const resultData = (data.data ?? data) as MarinaResult;
-        setResult(resultData);
-        setLoading(false);
-        setProgress(100);
-      } else if (data.status === 'failed' || data.status === 'error' || data.error) {
-        stopPolling();
-        jobIdRef.current = null;
-        setError(data.error || "Échec de l'analyse");
+        setError("Connexion perdue avec le service d'analyse");
         setLoading(false);
       }
-    } catch {
-      stopPolling();
-      jobIdRef.current = null;
-      setError("Connexion perdue avec le service d'analyse");
-      setLoading(false);
-    }
-  }, [stopPolling]);
+    },
+    [stopPolling],
+  );
 
-  const pollJob = useCallback((jobId: string) => {
-    jobIdRef.current = jobId;
-    doPoll(jobId);
-    pollingRef.current = setInterval(() => doPoll(jobId), 5000);
-  }, [doPoll]);
+  const pollJob = useCallback(
+    (jobId: string) => {
+      jobIdRef.current = jobId;
+      doPoll(jobId);
+      pollingRef.current = setInterval(() => doPoll(jobId), 5000);
+    },
+    [doPoll],
+  );
 
   useEffect(() => {
     const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && jobIdRef.current) {
+      if (document.visibilityState === "visible" && jobIdRef.current) {
         stopPolling();
         doPoll(jobIdRef.current);
         pollingRef.current = setInterval(() => doPoll(jobIdRef.current!), 5000);
       }
     };
-    document.addEventListener('visibilitychange', handleVisibility);
+    document.addEventListener("visibilitychange", handleVisibility);
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
+      document.removeEventListener("visibilitychange", handleVisibility);
       stopPolling();
     };
   }, [doPoll, stopPolling]);
@@ -150,7 +176,7 @@ const MarinaAnalyze = () => {
         return;
       }
 
-      if (data?.status === 'completed' || data?.data) {
+      if (data?.status === "completed" || data?.data) {
         const resultData = (data.data ?? data) as MarinaResult;
         setResult(resultData);
         setLoading(false);
@@ -176,19 +202,27 @@ const MarinaAnalyze = () => {
   const [reportHtml, setReportHtml] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!viewUrl) { setReportHtml(null); return; }
+    if (!viewUrl) {
+      setReportHtml(null);
+      return;
+    }
     let cancelled = false;
     fetch(viewUrl)
-      .then(r => r.text())
-      .then(html => { if (!cancelled) setReportHtml(html); })
-      .catch(() => { if (!cancelled) setReportHtml(null); });
-    return () => { cancelled = true; };
+      .then((r) => r.text())
+      .then((html) => {
+        if (!cancelled) setReportHtml(html);
+      })
+      .catch(() => {
+        if (!cancelled) setReportHtml(null);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [viewUrl]);
 
   return (
     <>
-      <Helmet>
-      </Helmet>
+      <Helmet></Helmet>
 
       <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-16 px-4 pb-16">
         <div className="w-full max-w-2xl space-y-8">
@@ -199,7 +233,12 @@ const MarinaAnalyze = () => {
             </h1>
             <p className="text-muted-foreground">
               Entrez une URL pour obtenir une analyse complète via l'API Marina de{" "}
-              <a href="https://crawlers.fr" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a
+                href="https://crawlers.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
                 Crawlers
               </a>
             </p>
@@ -251,10 +290,21 @@ const MarinaAnalyze = () => {
           {result && viewUrl && (
             <div className="space-y-4">
               {/* Score cards */}
-              {(result.expert_seo_score !== undefined || result.strategic_score !== undefined || result.cocoon_nodes !== undefined) && (
+              {(result.expert_seo_score !== undefined ||
+                result.strategic_score !== undefined ||
+                result.cocoon_nodes !== undefined) && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <ScoreCard label="Score SEO" value={result.expert_seo_score} max={result.expert_seo_max} icon={BarChart3} />
-                  <ScoreCard label="Score stratégique" value={result.strategic_score} icon={Brain} />
+                  <ScoreCard
+                    label="Score SEO"
+                    value={result.expert_seo_score}
+                    max={result.expert_seo_max}
+                    icon={BarChart3}
+                  />
+                  <ScoreCard
+                    label="Score stratégique"
+                    value={result.strategic_score}
+                    icon={Brain}
+                  />
                   <ScoreCard label="Nœuds cocon" value={result.cocoon_nodes} icon={Network} />
                 </div>
               )}
@@ -264,7 +314,11 @@ const MarinaAnalyze = () => {
                 <div className="flex items-center gap-2 text-foreground font-medium">
                   <CheckCircle className="text-green-500 h-5 w-5" />
                   Rapport prêt
-                  {result.domain && <Badge variant="secondary" className="text-xs">{result.domain}</Badge>}
+                  {result.domain && (
+                    <Badge variant="secondary" className="text-xs">
+                      {result.domain}
+                    </Badge>
+                  )}
                 </div>
                 <a
                   href={viewUrl}
@@ -278,7 +332,10 @@ const MarinaAnalyze = () => {
               </div>
 
               {/* Iframe with fetched HTML via srcdoc */}
-              <div className="w-full rounded-lg border border-border overflow-hidden" style={{ height: '80vh' }}>
+              <div
+                className="w-full rounded-lg border border-border overflow-hidden"
+                style={{ height: "80vh" }}
+              >
                 {reportHtml ? (
                   <iframe
                     srcDoc={reportHtml}

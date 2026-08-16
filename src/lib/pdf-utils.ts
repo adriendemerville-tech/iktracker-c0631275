@@ -6,7 +6,7 @@ let html2pdfPromise: Promise<any> | null = null;
 // Preload ZIP library
 export function preloadZip() {
   if (!zipPromise) {
-    zipPromise = import('jszip').then(m => m.default);
+    zipPromise = import("jszip").then((m) => m.default);
   }
   return zipPromise;
 }
@@ -18,7 +18,7 @@ export async function loadZip() {
 // Load html2pdf library for converting HTML to PDF
 async function loadHtml2Pdf() {
   if (!html2pdfPromise) {
-    html2pdfPromise = import('html2pdf.js').then(m => m.default);
+    html2pdfPromise = import("html2pdf.js").then((m) => m.default);
   }
   return html2pdfPromise;
 }
@@ -36,17 +36,17 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const originalScrollX = window.scrollX;
 
   // Overlay de chargement (pour masquer le site derrière)
-  const overlay = document.createElement('div');
-  overlay.setAttribute('data-pdf-overlay', 'true');
+  const overlay = document.createElement("div");
+  overlay.setAttribute("data-pdf-overlay", "true");
   Object.assign(overlay.style, {
-    position: 'fixed',
-    inset: '0',
-    background: 'white',
-    zIndex: '99998', // Juste en dessous du renderRoot pendant la capture
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: 'system-ui, sans-serif',
+    position: "fixed",
+    inset: "0",
+    background: "white",
+    zIndex: "99998", // Juste en dessous du renderRoot pendant la capture
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "system-ui, sans-serif",
   });
   overlay.innerHTML = `
     <div style="text-align:center">
@@ -56,24 +56,24 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   `;
 
   // Container pour le rendu - positionné au-dessus de l'overlay pendant la capture
-  const renderRoot = document.createElement('div');
-  renderRoot.setAttribute('data-pdf-root', 'true');
+  const renderRoot = document.createElement("div");
+  renderRoot.setAttribute("data-pdf-root", "true");
   Object.assign(renderRoot.style, {
-    position: 'absolute',
-    left: '0',
-    top: '0',
+    position: "absolute",
+    left: "0",
+    top: "0",
     // Largeur adaptée au format A4 paysage
-    width: '1122px',
-    minHeight: '794px',
-    background: '#ffffff',
-    color: '#000000',
-    zIndex: '99999', // Au-dessus de l'overlay pour être capturé
-    overflow: 'visible',
-    padding: '40px 60px',
-    boxSizing: 'border-box',
+    width: "1122px",
+    minHeight: "794px",
+    background: "#ffffff",
+    color: "#000000",
+    zIndex: "99999", // Au-dessus de l'overlay pour être capturé
+    overflow: "visible",
+    padding: "40px 60px",
+    boxSizing: "border-box",
     // Force visibility for html2canvas
-    opacity: '1',
-    visibility: 'visible',
+    opacity: "1",
+    visibility: "visible",
   });
 
   // Scroll en haut AVANT d'ajouter les éléments
@@ -89,41 +89,43 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
   const injectedHeadNodes: HTMLElement[] = [];
 
   try {
-    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    const parsed = new DOMParser().parseFromString(html, "text/html");
 
-    const bodyHtml = (parsed.body?.innerHTML || '').trim();
+    const bodyHtml = (parsed.body?.innerHTML || "").trim();
     if (!bodyHtml) {
-      throw new Error('Relevé HTML vide');
+      throw new Error("Relevé HTML vide");
     }
 
     // Injecter les styles du document HTML (si présents)
-    const rawStyles = Array.from(parsed.querySelectorAll('style'))
-      .map((s) => s.textContent || '')
-      .join('\n');
+    const rawStyles = Array.from(parsed.querySelectorAll("style"))
+      .map((s) => s.textContent || "")
+      .join("\n");
     if (rawStyles.trim()) {
-      const styleEl = document.createElement('style');
-      styleEl.setAttribute('data-pdf-style', 'true');
+      const styleEl = document.createElement("style");
+      styleEl.setAttribute("data-pdf-style", "true");
       styleEl.textContent = rawStyles;
       document.head.appendChild(styleEl);
       injectedHeadNodes.push(styleEl);
     }
 
     // Injecter les <link rel="stylesheet"> du HTML
-    const linkEls = Array.from(parsed.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+    const linkEls = Array.from(
+      parsed.querySelectorAll('link[rel="stylesheet"]'),
+    ) as HTMLLinkElement[];
     const linkLoads = linkEls.map((l) => {
-      const href = l.getAttribute('href');
+      const href = l.getAttribute("href");
       if (!href) return Promise.resolve();
 
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
       link.href = href;
-      link.setAttribute('data-pdf-link', 'true');
+      link.setAttribute("data-pdf-link", "true");
       document.head.appendChild(link);
       injectedHeadNodes.push(link as any);
 
       return new Promise<void>((resolve) => {
-        link.addEventListener('load', () => resolve(), { once: true });
-        link.addEventListener('error', () => resolve(), { once: true });
+        link.addEventListener("load", () => resolve(), { once: true });
+        link.addEventListener("error", () => resolve(), { once: true });
       });
     });
 
@@ -131,14 +133,14 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     renderRoot.innerHTML = bodyHtml;
 
     // Appliquer les styles visuels sur les .page
-    const pageElements = renderRoot.querySelectorAll('.page');
+    const pageElements = renderRoot.querySelectorAll(".page");
     pageElements.forEach((page) => {
       const el = page as HTMLElement;
-      el.style.padding = '30px 40px';
-      el.style.background = '#fff';
-      el.style.borderRadius = '8px';
-      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-      el.style.marginBottom = '30px';
+      el.style.padding = "30px 40px";
+      el.style.background = "#fff";
+      el.style.borderRadius = "8px";
+      el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+      el.style.marginBottom = "30px";
     });
 
     // Forcer un reflow pour s'assurer que le contenu est rendu
@@ -162,15 +164,15 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     }
 
     // Attendre les images
-    const images = Array.from(renderRoot.querySelectorAll('img')) as HTMLImageElement[];
+    const images = Array.from(renderRoot.querySelectorAll("img")) as HTMLImageElement[];
     const waitImages = Promise.all(
       images.map((img) => {
         if (img.complete) return Promise.resolve();
         return new Promise<void>((resolve) => {
-          img.addEventListener('load', () => resolve(), { once: true });
-          img.addEventListener('error', () => resolve(), { once: true });
+          img.addEventListener("load", () => resolve(), { once: true });
+          img.addEventListener("error", () => resolve(), { once: true });
         });
-      })
+      }),
     );
     await Promise.race([waitImages, wait(4000)]);
 
@@ -179,12 +181,12 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     const options = {
       margin: 10,
-      filename: 'releve-ik.pdf',
-      image: { type: 'jpeg', quality: 0.95 },
+      filename: "releve-ik.pdf",
+      image: { type: "jpeg", quality: 0.95 },
       html2canvas: {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         logging: false,
         scrollX: 0,
         scrollY: -window.scrollY, // Compenser le scroll de la page
@@ -200,16 +202,16 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
         y: 0,
       },
       jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'landscape' as const,
+        unit: "mm",
+        format: "a4",
+        orientation: "landscape" as const,
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
     };
 
     // Le renderRoot est maintenant au-dessus de l'overlay (zIndex 99999 vs 99998)
     // donc pas besoin de masquer l'overlay pendant la capture
-    
+
     // Attendre plusieurs frames pour s'assurer que le DOM est stable
     await nextFrame();
     await nextFrame();
@@ -217,18 +219,15 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
 
     try {
       // Utiliser la méthode directe de html2pdf
-      const pdfBlob: Blob = await html2pdf()
-        .set(options)
-        .from(renderRoot)
-        .outputPdf('blob');
+      const pdfBlob: Blob = await html2pdf().set(options).from(renderRoot).outputPdf("blob");
 
       if (!pdfBlob || pdfBlob.size < 1500) {
-        throw new Error('PDF vide - taille: ' + (pdfBlob?.size || 0));
+        throw new Error("PDF vide - taille: " + (pdfBlob?.size || 0));
       }
 
       return pdfBlob;
     } catch (err) {
-      console.error('html2pdf error:', err);
+      console.error("html2pdf error:", err);
       throw err;
     }
   } finally {
@@ -248,4 +247,3 @@ export async function htmlToPdfBlob(html: string): Promise<Blob> {
     window.scrollTo(originalScrollX, originalScrollY);
   }
 }
-

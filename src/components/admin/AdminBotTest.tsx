@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Bot, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2, Bot, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const ALL_BOTS = [
-  'GPTBot',
-  'CCBot',
-  'Google-Extended',
-  'ClaudeBot',
-  'Applebot-Extended',
-  'PerplexityBot',
+  "GPTBot",
+  "CCBot",
+  "Google-Extended",
+  "ClaudeBot",
+  "Applebot-Extended",
+  "PerplexityBot",
 ];
 
 interface BotResult {
@@ -36,7 +36,7 @@ interface BotResult {
 }
 
 export function AdminBotTest() {
-  const [url, setUrl] = useState('https://iktracker.fr/');
+  const [url, setUrl] = useState("https://iktracker.fr/");
   const [selected, setSelected] = useState<string[]>(ALL_BOTS);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<BotResult[] | null>(null);
@@ -48,31 +48,39 @@ export function AdminBotTest() {
 
   const run = async () => {
     if (!url.trim()) {
-      toast.error('URL requise');
+      toast.error("URL requise");
       return;
     }
     setLoading(true);
     setResults(null);
     try {
-      const { data, error } = await supabase.functions.invoke('test-bot-rendering', {
+      const { data, error } = await supabase.functions.invoke("test-bot-rendering", {
         body: { url: url.trim(), bots: selected.length ? selected : undefined },
       });
       if (error) throw error;
       setResults(data.results);
       setTestedAt(data.testedAt);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Erreur');
+      toast.error(e instanceof Error ? e.message : "Erreur");
     } finally {
       setLoading(false);
     }
   };
 
   const verdict = (r: BotResult) => {
-    if (!r.ok || r.error) return { icon: XCircle, label: 'Échec', color: 'bg-destructive text-destructive-foreground' };
-    if (r.isSpaShell) return { icon: XCircle, label: 'SPA shell', color: 'bg-destructive text-destructive-foreground' };
-    if (r.prerendered) return { icon: CheckCircle2, label: 'Pré-rendu', color: 'bg-emerald-600 text-white' };
-    if (r.hasH1 && r.bodyTextLength > 500) return { icon: CheckCircle2, label: 'Contenu OK', color: 'bg-emerald-600 text-white' };
-    return { icon: AlertTriangle, label: 'Suspect', color: 'bg-amber-500 text-white' };
+    if (!r.ok || r.error)
+      return { icon: XCircle, label: "Échec", color: "bg-destructive text-destructive-foreground" };
+    if (r.isSpaShell)
+      return {
+        icon: XCircle,
+        label: "SPA shell",
+        color: "bg-destructive text-destructive-foreground",
+      };
+    if (r.prerendered)
+      return { icon: CheckCircle2, label: "Pré-rendu", color: "bg-emerald-600 text-white" };
+    if (r.hasH1 && r.bodyTextLength > 500)
+      return { icon: CheckCircle2, label: "Contenu OK", color: "bg-emerald-600 text-white" };
+    return { icon: AlertTriangle, label: "Suspect", color: "bg-amber-500 text-white" };
   };
 
   return (
@@ -82,7 +90,8 @@ export function AdminBotTest() {
           <Bot className="w-5 h-5" /> Test rendu bots IA
         </CardTitle>
         <CardDescription>
-          Vérifie ce que GPTBot, CCBot, Google-Extended, ClaudeBot, Applebot-Extended et PerplexityBot reçoivent sur une URL.
+          Vérifie ce que GPTBot, CCBot, Google-Extended, ClaudeBot, Applebot-Extended et
+          PerplexityBot reçoivent sur une URL.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -103,14 +112,20 @@ export function AdminBotTest() {
         <div className="flex flex-wrap gap-3">
           {ALL_BOTS.map((bot) => (
             <label key={bot} className="flex items-center gap-2 text-sm cursor-pointer">
-              <Checkbox checked={selected.includes(bot)} onCheckedChange={() => toggle(bot)} disabled={loading} />
+              <Checkbox
+                checked={selected.includes(bot)}
+                onCheckedChange={() => toggle(bot)}
+                disabled={loading}
+              />
               {bot}
             </label>
           ))}
         </div>
 
         {testedAt && (
-          <p className="text-xs text-muted-foreground">Test effectué à {new Date(testedAt).toLocaleString('fr-FR')}</p>
+          <p className="text-xs text-muted-foreground">
+            Test effectué à {new Date(testedAt).toLocaleString("fr-FR")}
+          </p>
         )}
 
         {results && (
@@ -139,7 +154,8 @@ export function AdminBotTest() {
                   {r.error && <p className="text-xs text-destructive">{r.error}</p>}
                   {r.renderedBy && (
                     <p className="text-xs">
-                      <span className="text-muted-foreground">X-Rendered-By:</span> <code>{r.renderedBy}</code>
+                      <span className="text-muted-foreground">X-Rendered-By:</span>{" "}
+                      <code>{r.renderedBy}</code>
                     </p>
                   )}
                   {r.title && (

@@ -19,9 +19,7 @@ export function getDistanceMeters(a: LoopPoint, b: LoopPoint): number {
   const dLng = toRad(b.lng - a.lng);
   const lat1 = toRad(a.lat);
   const lat2 = toRad(b.lat);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  const h = Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
@@ -63,7 +61,7 @@ export function detectLoop(
       isLoop: false,
       startEndDistanceMeters: 0,
       farthestStopMeters: 0,
-      reason: 'not_enough_stops',
+      reason: "not_enough_stops",
     };
   }
 
@@ -83,7 +81,7 @@ export function detectLoop(
       isLoop: false,
       startEndDistanceMeters: startEnd,
       farthestStopMeters: farthest,
-      reason: 'distance_too_short',
+      reason: "distance_too_short",
     };
   }
 
@@ -92,7 +90,7 @@ export function detectLoop(
       isLoop: false,
       startEndDistanceMeters: startEnd,
       farthestStopMeters: farthest,
-      reason: 'no_real_excursion',
+      reason: "no_real_excursion",
     };
   }
 
@@ -101,7 +99,7 @@ export function detectLoop(
       isLoop: false,
       startEndDistanceMeters: startEnd,
       farthestStopMeters: farthest,
-      reason: 'start_end_too_far',
+      reason: "start_end_too_far",
     };
   }
 
@@ -109,6 +107,6 @@ export function detectLoop(
     isLoop: true,
     startEndDistanceMeters: startEnd,
     farthestStopMeters: farthest,
-    reason: 'loop_detected',
+    reason: "loop_detected",
   };
 }

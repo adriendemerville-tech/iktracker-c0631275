@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { Calendar, CheckCircle2, RefreshCw, MapPin, ArrowRight, Zap } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { Calendar, CheckCircle2, RefreshCw, MapPin, ArrowRight, Zap } from "lucide-react";
 
 interface CalendarSyncDemoProps {
   className?: string;
@@ -34,7 +34,9 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
 
   if (compact) {
     return (
-      <div className={cn("bg-card border border-border rounded-2xl p-6 overflow-hidden", className)}>
+      <div
+        className={cn("bg-card border border-border rounded-2xl p-6 overflow-hidden", className)}
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Calendar className="w-6 h-6 text-primary" />
@@ -47,11 +49,11 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
 
         <div className="space-y-2">
           {events.map((event, i) => (
-            <div 
+            <div
               key={i}
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg transition-all duration-500",
-                syncStep > i ? "bg-success/10 border border-success/20" : "bg-muted"
+                syncStep > i ? "bg-success/10 border border-success/20" : "bg-muted",
               )}
             >
               <span className="text-xs text-muted-foreground w-10">{event.time}</span>
@@ -68,8 +70,7 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
         {showTrips && (
           <div className="mt-4 p-3 bg-primary/10 rounded-lg animate-fade-in">
             <p className="text-sm font-medium text-primary flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              3 trajets créés automatiquement !
+              <Zap className="w-4 h-4" />3 trajets créés automatiquement !
             </p>
           </div>
         )}
@@ -78,7 +79,12 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
   }
 
   return (
-    <div className={cn("bg-card border border-border rounded-2xl md:rounded-3xl p-4 md:p-8 overflow-hidden", className)}>
+    <div
+      className={cn(
+        "bg-card border border-border rounded-2xl md:rounded-3xl p-4 md:p-8 overflow-hidden",
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div className="flex items-center gap-3 md:gap-4">
@@ -86,14 +92,20 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
             <Calendar className="w-5 h-5 md:w-7 md:h-7 text-white" />
           </div>
           <div>
-            <h3 className="text-lg md:text-2xl font-bold text-foreground">Synchronisation Calendrier</h3>
-            <p className="text-sm md:text-base text-muted-foreground">Vos RDV deviennent des trajets automatiquement</p>
+            <h3 className="text-lg md:text-2xl font-bold text-foreground">
+              Synchronisation Calendrier
+            </h3>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Vos RDV deviennent des trajets automatiquement
+            </p>
           </div>
         </div>
-        <div className={cn(
-          "flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-500 self-start sm:self-auto text-sm md:text-base",
-          syncStep >= 3 ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-500 self-start sm:self-auto text-sm md:text-base",
+            syncStep >= 3 ? "bg-success/10 text-success" : "bg-muted text-muted-foreground",
+          )}
+        >
           {syncStep >= 3 ? (
             <>
               <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
@@ -116,24 +128,30 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
             <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-[#4285F4] flex items-center justify-center">
               <Calendar className="w-3 h-3 md:w-4 md:h-4 text-white" />
             </div>
-            <span className="font-medium text-foreground text-sm md:text-base">Google Calendar</span>
+            <span className="font-medium text-foreground text-sm md:text-base">
+              Google Calendar
+            </span>
           </div>
 
           <div className="bg-muted/50 rounded-xl p-3 md:p-4 space-y-2 md:space-y-3">
             {events.map((event, i) => (
-              <div 
+              <div
                 key={i}
                 className={cn(
                   "flex items-start gap-2 md:gap-3 p-2 md:p-3 rounded-lg bg-card border transition-all duration-500",
-                  syncStep > i ? "border-success/50 bg-success/5" : "border-border"
+                  syncStep > i ? "border-success/50 bg-success/5" : "border-border",
                 )}
               >
                 <div className="text-center shrink-0">
-                  <p className="text-base md:text-lg font-bold text-foreground">{event.time.split(':')[0]}</p>
-                  <p className="text-xs text-muted-foreground">:{event.time.split(':')[1]}</p>
+                  <p className="text-base md:text-lg font-bold text-foreground">
+                    {event.time.split(":")[0]}
+                  </p>
+                  <p className="text-xs text-muted-foreground">:{event.time.split(":")[1]}</p>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground text-sm md:text-base truncate">{event.title}</p>
+                  <p className="font-medium text-foreground text-sm md:text-base truncate">
+                    {event.title}
+                  </p>
                   <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-1 truncate">
                     <MapPin className="w-3 h-3 shrink-0" />
                     {event.address}
@@ -153,12 +171,12 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
         {/* Trips side */}
         <div>
           <div className="flex items-center gap-2 mb-3 md:mb-4 mt-4 md:mt-0">
-            <img 
-              src="/logo-iktracker-250.webp" 
-              alt="IKtracker" 
+            <img
+              src="/logo-iktracker-250.webp"
+              alt="IKtracker"
               width={250}
               height={250}
-              className="w-6 h-6 md:w-8 md:h-8 rounded-lg" 
+              className="w-6 h-6 md:w-8 md:h-8 rounded-lg"
               loading="lazy"
               decoding="async"
             />
@@ -169,7 +187,7 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
             {syncStep >= 3 ? (
               <>
                 {events.map((event, i) => (
-                  <div 
+                  <div
                     key={i}
                     className="p-2 md:p-3 rounded-lg bg-card border border-primary/20 animate-fade-in"
                     style={{ animationDelay: `${i * 100}ms` }}
@@ -179,11 +197,13 @@ export function CalendarSyncDemo({ className, compact = false }: CalendarSyncDem
                       <span className="font-medium">Domicile</span>
                       <ArrowRight className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground shrink-0" />
                       <MapPin className="w-3 h-3 md:w-4 md:h-4 text-accent shrink-0" />
-                      <span className="font-medium truncate">{event.address.split(',')[0]}</span>
+                      <span className="font-medium truncate">{event.address.split(",")[0]}</span>
                     </div>
                     <div className="flex items-center justify-between mt-1.5 md:mt-2">
                       <span className="text-xs text-muted-foreground">{event.time}</span>
-                      <span className="text-xs md:text-sm font-semibold text-primary">{12 + i * 5} km</span>
+                      <span className="text-xs md:text-sm font-semibold text-primary">
+                        {12 + i * 5} km
+                      </span>
                     </div>
                   </div>
                 ))}

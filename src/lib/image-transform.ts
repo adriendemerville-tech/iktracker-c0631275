@@ -7,8 +7,8 @@ interface ImageTransformOptions {
   width?: number;
   height?: number;
   quality?: number;
-  format?: 'webp' | 'avif' | 'origin';
-  resize?: 'cover' | 'contain' | 'fill';
+  format?: "webp" | "avif" | "origin";
+  resize?: "cover" | "contain" | "fill";
 }
 
 /**
@@ -20,10 +20,10 @@ interface ImageTransformOptions {
  */
 export function getOptimizedImageUrl(
   url: string | null | undefined,
-  _options: ImageTransformOptions = {}
+  _options: ImageTransformOptions = {},
 ): string | null {
   if (!url) return null;
-  
+
   // Return URL as-is - image transformation requires Supabase Pro plan
   // Images are already converted to WebP on upload via convertToWebP()
   return url;
@@ -34,7 +34,7 @@ export function getOptimizedImageUrl(
  */
 export function getResponsiveSrcSet(
   url: string | null | undefined,
-  _widths: number[] = [400, 800, 1200]
+  _widths: number[] = [400, 800, 1200],
 ): string | null {
   // Image transformation requires Supabase Pro plan
   // Return null to skip srcset - browser will use original image

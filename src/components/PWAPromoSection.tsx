@@ -1,15 +1,15 @@
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { 
-  Smartphone, 
-  Download, 
-  Wifi, 
-  Zap, 
+import {
+  Smartphone,
+  Download,
+  Wifi,
+  Zap,
   Bell,
   CheckCircle2,
   Share,
   Plus,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,32 +23,46 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
     {
       icon: Zap,
       title: "Accès instantané",
-      description: "Lancez l'app en un clic depuis votre écran d'accueil"
+      description: "Lancez l'app en un clic depuis votre écran d'accueil",
     },
     {
       icon: Wifi,
       title: "Fonctionne hors-ligne",
-      description: "Consultez vos trajets même sans connexion"
+      description: "Consultez vos trajets même sans connexion",
     },
     {
       icon: Bell,
       title: "Notifications",
-      description: "Soyez alerté des nouveaux rendez-vous détectés"
-    }
+      description: "Soyez alerté des nouveaux rendez-vous détectés",
+    },
   ];
 
   const installSteps = [
-    { os: "iPhone", icon: Share, step: "Appuyez sur", action: "Partager", final: "puis \"Sur l'écran d'accueil\"" },
-    { os: "Android", icon: Plus, step: "Appuyez sur", action: "Menu ⋮", final: "puis \"Installer l'application\"" }
+    {
+      os: "iPhone",
+      icon: Share,
+      step: "Appuyez sur",
+      action: "Partager",
+      final: "puis \"Sur l'écran d'accueil\"",
+    },
+    {
+      os: "Android",
+      icon: Plus,
+      step: "Appuyez sur",
+      action: "Menu ⋮",
+      final: 'puis "Installer l\'application"',
+    },
   ];
 
   return (
     <section className={cn("py-16 px-4", className)}>
       <div className="container mx-auto">
-        <div className={cn(
-          "bg-gradient-to-br from-muted/80 to-muted/40 rounded-3xl border border-border overflow-hidden",
-          compact ? "p-6 md:p-8" : "p-8 md:p-12"
-        )}>
+        <div
+          className={cn(
+            "bg-gradient-to-br from-muted/80 to-muted/40 rounded-3xl border border-border overflow-hidden",
+            compact ? "p-6 md:p-8" : "p-8 md:p-12",
+          )}
+        >
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left: Content */}
             <div className="order-2 lg:order-1">
@@ -56,18 +70,19 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                 <Smartphone className="h-4 w-4" />
                 Application mobile
               </div>
-              
-              <h2 className={cn(
-                "font-bold text-foreground mb-4",
-                compact ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl"
-              )}>
-                Installez IKtracker sur votre{" "}
-                <span className="text-gradient">téléphone</span>
+
+              <h2
+                className={cn(
+                  "font-bold text-foreground mb-4",
+                  compact ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl",
+                )}
+              >
+                Installez IKtracker sur votre <span className="text-gradient">téléphone</span>
               </h2>
-              
+
               <p className="text-muted-foreground mb-6 text-lg">
-                Accédez à vos trajets en un instant, comme une vraie application native. 
-                Pas besoin de télécharger sur l'App Store !
+                Accédez à vos trajets en un instant, comme une vraie application native. Pas besoin
+                de télécharger sur l'App Store !
               </p>
 
               {/* Benefits */}
@@ -123,18 +138,18 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                     <div className="h-12 bg-primary/5 flex items-center justify-center">
                       <div className="w-20 h-6 bg-foreground/10 rounded-full" />
                     </div>
-                    
+
                     {/* App content mockup */}
                     <div className="p-4">
                       {/* Header */}
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                          <img 
-                            src="/logo-iktracker-250.webp" 
-                            alt="IKtracker" 
+                          <img
+                            src="/logo-iktracker-250.webp"
+                            alt="IKtracker"
                             width={250}
                             height={250}
-                            className="w-8 h-8 rounded-lg" 
+                            className="w-8 h-8 rounded-lg"
                             loading="lazy"
                             decoding="async"
                           />
@@ -153,13 +168,15 @@ export const PWAPromoSection = ({ className, compact = false }: PWAPromoSectionP
                       {/* Trip cards */}
                       {[
                         { date: "Aujourd'hui", from: "Paris", to: "Versailles", km: 42 },
-                        { date: "Hier", from: "Domicile", to: "Paris 8e", km: 35 }
+                        { date: "Hier", from: "Domicile", to: "Paris 8e", km: 35 },
                       ].map((trip, i) => (
                         <div key={i} className="bg-card border border-border rounded-lg p-3 mb-2">
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-xs text-muted-foreground">{trip.date}</p>
-                              <p className="text-sm font-medium text-foreground">{trip.from} → {trip.to}</p>
+                              <p className="text-sm font-medium text-foreground">
+                                {trip.from} → {trip.to}
+                              </p>
                             </div>
                             <span className="text-sm font-semibold text-primary">{trip.km} km</span>
                           </div>

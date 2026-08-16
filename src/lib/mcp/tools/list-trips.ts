@@ -26,7 +26,13 @@ export default defineTool({
       .optional()
       .describe("Date de fin incluse (YYYY-MM-DD)."),
     vehicle_id: z.string().uuid().optional().describe("Filtrer sur un véhicule."),
-    limit: z.number().int().min(1).max(200).optional().describe("Nombre max de trajets (défaut 50)."),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(200)
+      .optional()
+      .describe("Nombre max de trajets (défaut 50)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ from, to, vehicle_id, limit }, ctx) => {
@@ -35,7 +41,9 @@ export default defineTool({
     }
     let q = sb(ctx)
       .from("trips")
-      .select("id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status")
+      .select(
+        "id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status",
+      )
       .is("deleted_at", null)
       .order("date", { ascending: false })
       .limit(limit ?? 50);

@@ -1,17 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from '@/lib/router-compat';
-import { useAuth } from '@/hooks/useAuth';
-import { useTourSessionDB, TourSessionDB } from '@/hooks/useTourSessionDB';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { logTourRecovery } from '@/lib/tour-recovery-log';
-import { loadGoogleMapsAsync } from '@/hooks/useGoogleMaps';
-import { reverseGeocode } from '@/lib/geocoding';
-import { detectLoop } from '@/lib/loop-detection';
-import { getDistanceMeters } from '@/lib/loop-detection';
-import { TourRecoveryModal } from '@/components/TourRecoveryModal';
-import type { TourStop } from '@/hooks/useTourTracker';
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "@/lib/router-compat";
+import { useAuth } from "@/hooks/useAuth";
+import { useTourSessionDB, TourSessionDB } from "@/hooks/useTourSessionDB";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { logTourRecovery } from "@/lib/tour-recovery-log";
+import { loadGoogleMapsAsync } from "@/hooks/useGoogleMaps";
+import { reverseGeocode } from "@/lib/geocoding";
+import { detectLoop } from "@/lib/loop-detection";
+import { getDistanceMeters } from "@/lib/loop-detection";
+import { TourRecoveryModal } from "@/components/TourRecoveryModal";
+import type { TourStop } from "@/hooks/useTourTracker";
 
 // Time thresholds
 const TRANSPARENT_THRESHOLD = 20 * 60 * 1000; // 20 minutes
@@ -27,7 +27,7 @@ function formatInactivity(ms: number): string {
     const rem = minutes % 60;
     return rem > 0 ? `${hours}h ${rem}min` : `${hours}h`;
   }
-  return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
 }
 
 /**
@@ -41,13 +41,13 @@ export function GlobalTourRecovery() {
   const location = useLocation();
   const isMobile = useIsMobile();
   const { fetchActiveSession, endSession } = useTourSessionDB();
-  
+
   const [showModal, setShowModal] = useState(false);
   const [sessionData, setSessionData] = useState<TourSessionDB | null>(null);
-  const [inactivityText, setInactivityText] = useState('');
+  const [inactivityText, setInactivityText] = useState("");
   const [hasChecked, setHasChecked] = useState(() => {
-    if (typeof sessionStorage === 'undefined') return false;
-    return sessionStorage.getItem('tour_recovery_checked') === 'true';
+    if (typeof sessionStorage === "undefined") return false;
+    return sessionStorage.getItem("tour_recovery_checked") === "true";
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -57,10 +57,12 @@ export function GlobalTourRecovery() {
     // Robust mobile detection (independent of useIsMobile hydration timing)
     // Desktop = wide screen AND no touch/mobile UA. Anything else = mobile.
     const detectIsMobileStrict = (): boolean => {
-      if (typeof window === 'undefined') return false;
+      if (typeof window === "undefined") return false;
       const width = window.innerWidth || 0;
-      const hasTouch = 'ontouchstart' in window || (navigator.maxTouchPoints ?? 0) > 0;
-      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const hasTouch = "ontouchstart" in window || (navigator.maxTouchPoints ?? 0) > 0;
+      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      );
       // Treat as desktop only if wide screen AND no touch AND no mobile UA
       if (width >= 1024 && !hasTouch && !mobileUA) return false;
       return true;
@@ -70,7 +72,7 @@ export function GlobalTourRecovery() {
       try {
         const session = await fetchActiveSession();
         setHasChecked(true);
-        sessionStorage.setItem('tour_recovery_checked', 'true');
+        sessionStorage.setItem("tour_recovery_checked", "true");
         if (!session) return;
 
         const lastActivity = new Date(session.last_activity).getTime();
@@ -78,14 +80,22 @@ export function GlobalTourRecovery() {
         const inactivitySec = Math.round(inactivity / 1000);
 
         const isMobileStrict = detectIsMobileStrict();
-        console.log('[GlobalTourRecovery] Found active session, isMobile:', isMobile, 'isMobileStrict:', isMobileStrict, 'inactivity:', inactivitySec, 's');
+        console.log(
+          "[GlobalTourRecovery] Found active session, isMobile:",
+          isMobile,
+          "isMobileStrict:",
+          isMobileStrict,
+          "inactivity:",
+          inactivitySec,
+          "s",
+        );
 
         // Desktop: always auto-finalize. Use strict detection to avoid false desktop on mobile hydration.
         if (!isMobileStrict) {
           logTourRecovery({
-            eventType: 'auto_finalize_attempt',
+            eventType: "auto_finalize_attempt",
             sessionId: session.id,
-            context: 'desktop_detected',
+            context: "desktop_detected",
             inactivitySeconds: inactivitySec,
             isMobile: false,
             stopsCount: session.stops.length,
@@ -98,7 +108,7 @@ export function GlobalTourRecovery() {
         // Mobile recovery logic
         if (inactivity < TRANSPARENT_THRESHOLD) {
           logTourRecovery({
-            eventType: 'transparent_resume_attempt',
+            eventType: "transparent_resume_attempt",
             sessionId: session.id,
             context: location.pathname,
             inactivitySeconds: inactivitySec,
@@ -109,34 +119,37 @@ export function GlobalTourRecovery() {
           try {
             // CRITICAL: Update DB last_activity IMMEDIATELY so next reload doesn't re-detect "lost session"
             await supabase
-              .from('tour_sessions')
-              .update({ last_activity: new Date().toISOString(), updated_at: new Date().toISOString() } as any)
-              .eq('user_id', session.user_id)
-              .eq('is_active', true);
+              .from("tour_sessions")
+              .update({
+                last_activity: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              } as any)
+              .eq("user_id", session.user_id)
+              .eq("is_active", true);
 
             restoreToLocalStorage(session);
-            sessionStorage.setItem('tour_force_resume', 'true');
-            sessionStorage.setItem('tour_is_resuming', 'true');
+            sessionStorage.setItem("tour_force_resume", "true");
+            sessionStorage.setItem("tour_is_resuming", "true");
 
             // Single unified toast for resume
-            toast.success('Tournée reprise', {
-              description: `${session.stops.length} étape${session.stops.length > 1 ? 's' : ''} • ${session.total_distance_km.toFixed(1)} km`,
+            toast.success("Tournée reprise", {
+              description: `${session.stops.length} étape${session.stops.length > 1 ? "s" : ""} • ${session.total_distance_km.toFixed(1)} km`,
               duration: 3000,
             });
 
-            if (location.pathname.startsWith('/app')) {
-              window.dispatchEvent(new Event('tour_force_resume'));
+            if (location.pathname.startsWith("/app")) {
+              window.dispatchEvent(new Event("tour_force_resume"));
             } else {
-              navigate('/app');
+              navigate("/app");
             }
             logTourRecovery({
-              eventType: 'transparent_resume_success',
+              eventType: "transparent_resume_success",
               sessionId: session.id,
               isMobile: true,
             });
           } catch (e: any) {
             logTourRecovery({
-              eventType: 'transparent_resume_error',
+              eventType: "transparent_resume_error",
               sessionId: session.id,
               errorMessage: e?.message ?? String(e),
               isMobile: true,
@@ -147,7 +160,7 @@ export function GlobalTourRecovery() {
           setInactivityText(formatInactivity(inactivity));
           setShowModal(true);
           logTourRecovery({
-            eventType: 'modal_shown',
+            eventType: "modal_shown",
             sessionId: session.id,
             inactivitySeconds: inactivitySec,
             isMobile: true,
@@ -156,9 +169,9 @@ export function GlobalTourRecovery() {
           });
         } else {
           logTourRecovery({
-            eventType: 'auto_finalize_attempt',
+            eventType: "auto_finalize_attempt",
             sessionId: session.id,
-            context: 'inactivity_threshold_exceeded',
+            context: "inactivity_threshold_exceeded",
             inactivitySeconds: inactivitySec,
             isMobile: true,
             stopsCount: session.stops.length,
@@ -167,11 +180,11 @@ export function GlobalTourRecovery() {
           await autoFinalize(session);
         }
       } catch (e: any) {
-        console.warn('[GlobalTourRecovery] Error checking session:', e);
+        console.warn("[GlobalTourRecovery] Error checking session:", e);
         setHasChecked(true);
-        sessionStorage.setItem('tour_recovery_checked', 'true');
+        sessionStorage.setItem("tour_recovery_checked", "true");
         logTourRecovery({
-          eventType: 'check_error',
+          eventType: "check_error",
           errorMessage: e?.message ?? String(e),
         });
       }
@@ -182,23 +195,26 @@ export function GlobalTourRecovery() {
 
   const restoreToLocalStorage = (session: TourSessionDB) => {
     try {
-      localStorage.setItem('tour_active', JSON.stringify(true));
-      localStorage.setItem('tour_start_time', JSON.stringify(session.started_at));
-      localStorage.setItem('tour_stops', JSON.stringify(
-        session.stops.map(s => ({
-          ...s,
-          timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
-        }))
-      ));
-      localStorage.setItem('tour_gps_points', JSON.stringify(session.gps_points));
-      localStorage.setItem('tour_total_distance', JSON.stringify(session.total_distance_km));
-      localStorage.setItem('tour_last_activity', JSON.stringify(new Date().toISOString()));
+      localStorage.setItem("tour_active", JSON.stringify(true));
+      localStorage.setItem("tour_start_time", JSON.stringify(session.started_at));
+      localStorage.setItem(
+        "tour_stops",
+        JSON.stringify(
+          session.stops.map((s) => ({
+            ...s,
+            timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
+          })),
+        ),
+      );
+      localStorage.setItem("tour_gps_points", JSON.stringify(session.gps_points));
+      localStorage.setItem("tour_total_distance", JSON.stringify(session.total_distance_km));
+      localStorage.setItem("tour_last_activity", JSON.stringify(new Date().toISOString()));
       if (session.pending_stop) {
-        localStorage.setItem('tour_pending_stop', JSON.stringify(session.pending_stop));
+        localStorage.setItem("tour_pending_stop", JSON.stringify(session.pending_stop));
       }
-      console.log('[GlobalTourRecovery] Restored session to localStorage');
+      console.log("[GlobalTourRecovery] Restored session to localStorage");
     } catch (e) {
-      console.warn('[GlobalTourRecovery] Failed to restore to localStorage:', e);
+      console.warn("[GlobalTourRecovery] Failed to restore to localStorage:", e);
       throw e;
     }
   };
@@ -206,24 +222,28 @@ export function GlobalTourRecovery() {
   const clearTourLocalStorage = () => {
     try {
       [
-        'tour_active',
-        'tour_start_time',
-        'tour_stops',
-        'tour_gps_points',
-        'tour_total_distance',
-        'tour_last_activity',
-        'tour_pending_stop',
-      ].forEach(key => localStorage.removeItem(key));
-      sessionStorage.removeItem('tour_force_resume');
-      sessionStorage.removeItem('tour_is_resuming');
-      console.log('[GlobalTourRecovery] Cleared tour localStorage');
+        "tour_active",
+        "tour_start_time",
+        "tour_stops",
+        "tour_gps_points",
+        "tour_total_distance",
+        "tour_last_activity",
+        "tour_pending_stop",
+      ].forEach((key) => localStorage.removeItem(key));
+      sessionStorage.removeItem("tour_force_resume");
+      sessionStorage.removeItem("tour_is_resuming");
+      console.log("[GlobalTourRecovery] Cleared tour localStorage");
     } catch (e) {
-      console.warn('[GlobalTourRecovery] Failed to clear localStorage:', e);
+      console.warn("[GlobalTourRecovery] Failed to clear localStorage:", e);
     }
   };
 
   // Resolve a city name from a GPS point via reverse geocoding (best effort)
-  const resolveCityFromGps = async (lat: number, lng: number, fallback: string): Promise<string> => {
+  const resolveCityFromGps = async (
+    lat: number,
+    lng: number,
+    fallback: string,
+  ): Promise<string> => {
     try {
       const ok = await loadGoogleMapsAsync(8000);
       if (!ok) return fallback;
@@ -240,10 +260,12 @@ export function GlobalTourRecovery() {
     const hasGps = gpsPoints.length > 0;
     const distanceKm = session.total_distance_km || 0;
 
-    console.log(
-      '[GlobalTourRecovery] Auto-finalizing session',
-      { stopsCount, gpsPoints: gpsPoints.length, distanceKm, fromDesktop }
-    );
+    console.log("[GlobalTourRecovery] Auto-finalizing session", {
+      stopsCount,
+      gpsPoints: gpsPoints.length,
+      distanceKm,
+      fromDesktop,
+    });
 
     try {
       // Determine which case applies
@@ -256,9 +278,9 @@ export function GlobalTourRecovery() {
 
       if (!isCaseE) {
         const { data: vehicles } = await supabase
-          .from('vehicles')
-          .select('id')
-          .eq('user_id', session.user_id)
+          .from("vehicles")
+          .select("id")
+          .eq("user_id", session.user_id)
           .limit(1);
 
         {
@@ -267,9 +289,9 @@ export function GlobalTourRecovery() {
           const vehicleId = vehicles && vehicles.length > 0 ? vehicles[0].id : null;
           if (!vehicleId) {
             logTourRecovery({
-              eventType: 'auto_finalize_error',
+              eventType: "auto_finalize_error",
               sessionId: session.id,
-              errorMessage: 'no_vehicle_saved_without_vehicle',
+              errorMessage: "no_vehicle_saved_without_vehicle",
               isMobile: !fromDesktop,
               stopsCount,
               distanceKm,
@@ -277,19 +299,19 @@ export function GlobalTourRecovery() {
           }
           const isTour = stopsCount >= 2;
 
-          let startLocation = 'À compléter';
-          let endLocation = 'À compléter';
+          let startLocation = "À compléter";
+          let endLocation = "À compléter";
           let tourStopsData: any = undefined;
-          let purpose = 'Trajet à vérifier';
-          let caseLabel = '';
+          let purpose = "Trajet à vérifier";
+          let caseLabel = "";
 
           if (isTour) {
             // Case A
             const firstStop = session.stops[0];
             const lastStop = session.stops[stopsCount - 1];
-            startLocation = firstStop.city || firstStop.address || 'Position';
-            endLocation = lastStop.city || lastStop.address || 'À compléter';
-            tourStopsData = session.stops.map(s => ({
+            startLocation = firstStop.city || firstStop.address || "Position";
+            endLocation = lastStop.city || lastStop.address || "À compléter";
+            tourStopsData = session.stops.map((s) => ({
               id: s.id,
               timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
               lat: s.lat,
@@ -299,61 +321,65 @@ export function GlobalTourRecovery() {
               duration: s.duration,
             }));
             const loopResult = detectLoop(
-              session.stops.map(s => ({ lat: s.lat, lng: s.lng })),
+              session.stops.map((s) => ({ lat: s.lat, lng: s.lng })),
               distanceKm,
             );
             if (loopResult.isLoop) {
-              purpose = 'Tournée récupérée (aller-retour)';
-              caseLabel = 'A_full_tour_loop';
+              purpose = "Tournée récupérée (aller-retour)";
+              caseLabel = "A_full_tour_loop";
             } else {
-              purpose = 'Tournée récupérée';
-              caseLabel = 'A_full_tour';
+              purpose = "Tournée récupérée";
+              caseLabel = "A_full_tour";
             }
           } else if (stopsCount === 1) {
             const firstStop = session.stops[0];
-            startLocation = firstStop.city || firstStop.address || 'Position';
+            startLocation = firstStop.city || firstStop.address || "Position";
             if (hasGps) {
               // Case B: reverse-geocode last GPS point
               const lastGps = gpsPoints[gpsPoints.length - 1];
-              endLocation = await resolveCityFromGps(lastGps.lat, lastGps.lng, 'À compléter');
-              caseLabel = 'B_one_stop_with_gps';
+              endLocation = await resolveCityFromGps(lastGps.lat, lastGps.lng, "À compléter");
+              caseLabel = "B_one_stop_with_gps";
             } else {
               // Case C
-              endLocation = 'À compléter';
-              caseLabel = 'C_one_stop_no_gps';
+              endLocation = "À compléter";
+              caseLabel = "C_one_stop_no_gps";
             }
-            purpose = 'Trajet à vérifier';
+            purpose = "Trajet à vérifier";
           } else {
             // Case D: 0 stop, GPS available, distance ≥ MIN_GPS_DISTANCE_KM
             const firstGps = gpsPoints[0];
             const lastGps = gpsPoints[gpsPoints.length - 1];
-            startLocation = await resolveCityFromGps(firstGps.lat, firstGps.lng, 'Départ inconnu');
-            endLocation = await resolveCityFromGps(lastGps.lat, lastGps.lng, 'À compléter');
-            purpose = 'Trajet à vérifier';
-            caseLabel = 'D_no_stop_with_gps';
+            startLocation = await resolveCityFromGps(firstGps.lat, firstGps.lng, "Départ inconnu");
+            endLocation = await resolveCityFromGps(lastGps.lat, lastGps.lng, "À compléter");
+            purpose = "Trajet à vérifier";
+            caseLabel = "D_no_stop_with_gps";
           }
 
-          const { data: insertedTrip, error: insertError } = await supabase.from('trips').insert({
-            user_id: session.user_id,
-            vehicle_id: vehicleId,
-            start_location: startLocation,
-            end_location: endLocation,
-            distance: distanceKm,
-            date: new Date(session.started_at).toISOString().split('T')[0],
-            round_trip: caseLabel === 'A_full_tour_loop',
-            purpose,
-            tour_stops: tourStopsData,
-            status: 'pending_location',
-            source: 'tour',
-          }).select('id').maybeSingle();
+          const { data: insertedTrip, error: insertError } = await supabase
+            .from("trips")
+            .insert({
+              user_id: session.user_id,
+              vehicle_id: vehicleId,
+              start_location: startLocation,
+              end_location: endLocation,
+              distance: distanceKm,
+              date: new Date(session.started_at).toISOString().split("T")[0],
+              round_trip: caseLabel === "A_full_tour_loop",
+              purpose,
+              tour_stops: tourStopsData,
+              status: "pending_location",
+              source: "tour",
+            })
+            .select("id")
+            .maybeSingle();
 
           if (insertError) throw insertError;
 
           const toastTitle = fromDesktop
-            ? 'Dernière tournée enregistrée dans vos trajets.'
+            ? "Dernière tournée enregistrée dans vos trajets."
             : isTour
-              ? 'Tournée terminée automatiquement'
-              : 'Trajet à vérifier ajouté';
+              ? "Tournée terminée automatiquement"
+              : "Trajet à vérifier ajouté";
 
           toast.info(toastTitle, {
             description: isTour
@@ -363,13 +389,13 @@ export function GlobalTourRecovery() {
           });
 
           logTourRecovery({
-            eventType: 'toast_shown',
+            eventType: "toast_shown",
             sessionId: session.id,
             tripId: insertedTrip?.id ?? null,
-            context: `${fromDesktop ? 'desktop' : 'mobile'}_auto_finalize_${caseLabel}`,
+            context: `${fromDesktop ? "desktop" : "mobile"}_auto_finalize_${caseLabel}`,
           });
           logTourRecovery({
-            eventType: 'auto_finalize_success',
+            eventType: "auto_finalize_success",
             sessionId: session.id,
             tripId: insertedTrip?.id ?? null,
             isMobile: !fromDesktop,
@@ -379,21 +405,22 @@ export function GlobalTourRecovery() {
           });
         }
       } else {
-        console.log('[GlobalTourRecovery] Case E: discarding session (no stops, insufficient GPS data)');
+        console.log(
+          "[GlobalTourRecovery] Case E: discarding session (no stops, insufficient GPS data)",
+        );
         logTourRecovery({
-          eventType: 'auto_finalize_success',
+          eventType: "auto_finalize_success",
           sessionId: session.id,
           tripId: null,
           isMobile: !fromDesktop,
           stopsCount: 0,
           distanceKm,
-          context: 'E_discarded_no_data',
+          context: "E_discarded_no_data",
         });
       }
-
     } catch (e: any) {
       logTourRecovery({
-        eventType: 'auto_finalize_error',
+        eventType: "auto_finalize_error",
         sessionId: session.id,
         errorMessage: e?.message ?? String(e),
         isMobile: !fromDesktop,
@@ -404,17 +431,19 @@ export function GlobalTourRecovery() {
       try {
         await endSession();
       } catch (endErr) {
-        console.warn('[GlobalTourRecovery] endSession failed, forcing DB cleanup:', endErr);
+        console.warn("[GlobalTourRecovery] endSession failed, forcing DB cleanup:", endErr);
         // Fallback: directly update DB if endSession hook fails
         try {
           await supabase
-            .from('tour_sessions')
+            .from("tour_sessions")
             .update({ is_active: false, updated_at: new Date().toISOString() } as any)
-            .eq('id', session.id);
-        } catch { /* last resort */ }
+            .eq("id", session.id);
+        } catch {
+          /* last resort */
+        }
       }
       clearTourLocalStorage();
-      logTourRecovery({ eventType: 'session_end', sessionId: session.id });
+      logTourRecovery({ eventType: "session_end", sessionId: session.id });
     }
   };
 
@@ -422,43 +451,48 @@ export function GlobalTourRecovery() {
     if (!sessionData) return;
     setShowModal(false);
     logTourRecovery({
-      eventType: 'resume_clicked',
+      eventType: "resume_clicked",
       sessionId: sessionData.id,
       isMobile: true,
     });
 
     try {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
       if (currentUser) {
         await supabase
-          .from('tour_sessions')
-          .update({ last_activity: new Date().toISOString(), updated_at: new Date().toISOString() } as any)
-          .eq('user_id', currentUser.id)
-          .eq('is_active', true);
+          .from("tour_sessions")
+          .update({
+            last_activity: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } as any)
+          .eq("user_id", currentUser.id)
+          .eq("is_active", true);
       }
 
       restoreToLocalStorage(sessionData);
-      sessionStorage.setItem('tour_force_resume', 'true');
-      sessionStorage.setItem('tour_is_resuming', 'true');
+      sessionStorage.setItem("tour_force_resume", "true");
+      sessionStorage.setItem("tour_is_resuming", "true");
 
-      toast.success('Tournée reprise', {
-        description: `${sessionData.stops.length} étape${sessionData.stops.length > 1 ? 's' : ''} • ${sessionData.total_distance_km.toFixed(1)} km`,
+      toast.success("Tournée reprise", {
+        description: `${sessionData.stops.length} étape${sessionData.stops.length > 1 ? "s" : ""} • ${sessionData.total_distance_km.toFixed(1)} km`,
         duration: 3000,
       });
 
-      if (location.pathname.startsWith('/app')) {
-        window.dispatchEvent(new Event('tour_force_resume'));
+      if (location.pathname.startsWith("/app")) {
+        window.dispatchEvent(new Event("tour_force_resume"));
       } else {
-        navigate('/app');
+        navigate("/app");
       }
       logTourRecovery({
-        eventType: 'resume_success',
+        eventType: "resume_success",
         sessionId: sessionData.id,
         isMobile: true,
       });
     } catch (e: any) {
       logTourRecovery({
-        eventType: 'resume_error',
+        eventType: "resume_error",
         sessionId: sessionData.id,
         errorMessage: e?.message ?? String(e),
         isMobile: true,
@@ -471,7 +505,7 @@ export function GlobalTourRecovery() {
     setIsProcessing(true);
     setShowModal(false);
     logTourRecovery({
-      eventType: 'finalize_clicked',
+      eventType: "finalize_clicked",
       sessionId: sessionData.id,
       isMobile: true,
     });
@@ -487,8 +521,8 @@ export function GlobalTourRecovery() {
 
   const handleAddCurrentLocation = useCallback(async () => {
     if (!sessionData || isAddingLocation) return;
-    if (!('geolocation' in navigator)) {
-      toast.error('Géolocalisation indisponible sur ce navigateur');
+    if (!("geolocation" in navigator)) {
+      toast.error("Géolocalisation indisponible sur ce navigateur");
       return;
     }
     setIsAddingLocation(true);
@@ -504,18 +538,20 @@ export function GlobalTourRecovery() {
       const { latitude: lat, longitude: lng } = position.coords;
 
       // Best-effort reverse geocoding (don't block on failure)
-      let city = '';
-      let address = '';
+      let city = "";
+      let address = "";
       try {
         const ok = await loadGoogleMapsAsync(5000);
         if (ok) {
           const geo = await reverseGeocode(lat, lng);
           if (geo) {
-            city = geo.city || '';
-            address = geo.fullAddress || '';
+            city = geo.city || "";
+            address = geo.fullAddress || "";
           }
         }
-      } catch { /* fallback to coords */ }
+      } catch {
+        /* fallback to coords */
+      }
 
       const newStop: TourStop = {
         id: `manual-${Date.now()}`,
@@ -523,7 +559,7 @@ export function GlobalTourRecovery() {
         lat,
         lng,
         address: address || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-        city: city || 'Position actuelle',
+        city: city || "Position actuelle",
       };
 
       // Compute incremental distance from previous stop (Haversine fallback —
@@ -538,9 +574,9 @@ export function GlobalTourRecovery() {
 
       // Persist to DB
       const { error } = await supabase
-        .from('tour_sessions')
+        .from("tour_sessions")
         .update({
-          stops: updatedStops.map(s => ({
+          stops: updatedStops.map((s) => ({
             ...s,
             timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
           })),
@@ -548,7 +584,7 @@ export function GlobalTourRecovery() {
           last_activity: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         } as any)
-        .eq('id', sessionData.id);
+        .eq("id", sessionData.id);
 
       if (error) throw error;
 
@@ -559,26 +595,27 @@ export function GlobalTourRecovery() {
         total_distance_km: updatedDistance,
       });
 
-      toast.success('Position ajoutée', {
-        description: city || address || 'Position GPS enregistrée',
+      toast.success("Position ajoutée", {
+        description: city || address || "Position GPS enregistrée",
         duration: 2500,
       });
       logTourRecovery({
-        eventType: 'manual_stop_added',
+        eventType: "manual_stop_added",
         sessionId: sessionData.id,
         isMobile: true,
         stopsCount: updatedStops.length,
         distanceKm: updatedDistance,
       });
     } catch (e: any) {
-      const msg = e?.code === 1
-        ? 'Autorisation de localisation refusée'
-        : e?.code === 3
-          ? 'Localisation trop longue — réessayez'
-          : 'Impossible d\'obtenir votre position';
+      const msg =
+        e?.code === 1
+          ? "Autorisation de localisation refusée"
+          : e?.code === 3
+            ? "Localisation trop longue — réessayez"
+            : "Impossible d'obtenir votre position";
       toast.error(msg);
       logTourRecovery({
-        eventType: 'manual_stop_error',
+        eventType: "manual_stop_error",
         sessionId: sessionData.id,
         errorMessage: e?.message ?? String(e),
         isMobile: true,
@@ -606,4 +643,3 @@ export function GlobalTourRecovery() {
     />
   );
 }
-

@@ -11,21 +11,21 @@ const MAX_IMAGE_WIDTH = 1200;
  * @returns Promise<File> - The converted and optimized WebP file
  */
 export async function convertToWebP(
-  file: File, 
-  quality = 0.8, 
-  maxWidth = MAX_IMAGE_WIDTH
+  file: File,
+  quality = 0.8,
+  maxWidth = MAX_IMAGE_WIDTH,
 ): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
     img.onload = () => {
       // Clean up object URL
       URL.revokeObjectURL(img.src);
-      
+
       if (!ctx) {
-        reject(new Error('Could not get canvas context'));
+        reject(new Error("Could not get canvas context"));
         return;
       }
 
@@ -46,7 +46,7 @@ export async function convertToWebP(
 
       // Use high-quality image rendering
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = "high";
 
       // Draw resized image onto canvas
       ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
@@ -55,32 +55,32 @@ export async function convertToWebP(
       canvas.toBlob(
         (blob) => {
           if (!blob) {
-            reject(new Error('Failed to convert image to WebP'));
+            reject(new Error("Failed to convert image to WebP"));
             return;
           }
 
           // Create new filename with .webp extension
-          const originalName = file.name.replace(/\.[^/.]+$/, '');
+          const originalName = file.name.replace(/\.[^/.]+$/, "");
           const webpFile = new File([blob], `${originalName}.webp`, {
-            type: 'image/webp',
+            type: "image/webp",
             lastModified: Date.now(),
           });
 
           console.log(
             `Image optimized: ${file.name} (${file.size} bytes, ${img.naturalWidth}x${img.naturalHeight}) → ` +
-            `${webpFile.name} (${webpFile.size} bytes, ${targetWidth}x${targetHeight})`
+              `${webpFile.name} (${webpFile.size} bytes, ${targetWidth}x${targetHeight})`,
           );
 
           resolve(webpFile);
         },
-        'image/webp',
-        quality
+        "image/webp",
+        quality,
       );
     };
 
     img.onerror = () => {
       URL.revokeObjectURL(img.src);
-      reject(new Error('Failed to load image'));
+      reject(new Error("Failed to load image"));
     };
 
     // Load image from file
@@ -92,7 +92,7 @@ export async function convertToWebP(
  * Check if a URL points to an optimized WebP image
  */
 export function isOptimizedUrl(url: string): boolean {
-  return url.endsWith('.webp');
+  return url.endsWith(".webp");
 }
 
 /**
@@ -102,11 +102,11 @@ export function isOptimizedUrl(url: string): boolean {
 export function convertLegacyImageUrls(content: string): string {
   // Match image URLs ending in .png, .jpg, .jpeg (case insensitive)
   const imageUrlPattern = /(https?:\/\/[^\s"')]+)\.(png|jpe?g)(\?[^\s"')]*)?/gi;
-  
+
   return content.replace(imageUrlPattern, (match, base, ext, query) => {
     // If the URL is from our Supabase storage, convert to WebP
-    if (base.includes('supabase.co/storage')) {
-      return `${base}.webp${query || ''}`;
+    if (base.includes("supabase.co/storage")) {
+      return `${base}.webp${query || ""}`;
     }
     return match;
   });

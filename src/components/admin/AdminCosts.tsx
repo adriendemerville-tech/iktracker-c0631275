@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Zap,
   Hash,
@@ -24,9 +24,9 @@ import {
   Car,
   AlertTriangle,
   CheckCircle2,
-} from 'lucide-react';
+} from "lucide-react";
 
-type PeriodFilter = '7' | '30' | '90' | 'all';
+type PeriodFilter = "7" | "30" | "90" | "all";
 
 interface CostStats {
   total_requests: number;
@@ -63,30 +63,34 @@ interface DailyCost {
 }
 
 const PERIOD_LABELS: Record<PeriodFilter, string> = {
-  '7': '7 jours',
-  '30': '30 jours',
-  '90': '90 jours',
-  'all': 'Tout',
+  "7": "7 jours",
+  "30": "30 jours",
+  "90": "90 jours",
+  all: "Tout",
 };
 
 function formatNumber(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'k';
-  return n.toLocaleString('fr-FR');
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + "k";
+  return n.toLocaleString("fr-FR");
 }
 
 function formatCost(n: number): string {
-  return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }) + ' €';
+  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 4 }) + " €";
 }
 
 export function AdminCosts() {
-  const [period, setPeriod] = useState<PeriodFilter>('30');
-  const daysBack = period === 'all' ? 3650 : parseInt(period);
+  const [period, setPeriod] = useState<PeriodFilter>("30");
+  const daysBack = period === "all" ? 3650 : parseInt(period);
 
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
-    queryKey: ['admin-cost-stats', daysBack],
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ["admin-cost-stats", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_api_cost_stats', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_api_cost_stats", { days_back: daysBack });
       if (error) throw error;
       return data as unknown as CostStats;
     },
@@ -94,9 +98,11 @@ export function AdminCosts() {
   });
 
   const { data: byFunction = [], isLoading: fnLoading } = useQuery({
-    queryKey: ['admin-cost-by-function', daysBack],
+    queryKey: ["admin-cost-by-function", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_api_cost_by_function', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_api_cost_by_function", {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return data as unknown as FunctionCost[];
     },
@@ -104,9 +110,9 @@ export function AdminCosts() {
   });
 
   const { data: byModel = [], isLoading: modelLoading } = useQuery({
-    queryKey: ['admin-cost-by-model', daysBack],
+    queryKey: ["admin-cost-by-model", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_api_cost_by_model', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_api_cost_by_model", { days_back: daysBack });
       if (error) throw error;
       return data as unknown as ModelCost[];
     },
@@ -114,9 +120,9 @@ export function AdminCosts() {
   });
 
   const { data: byDay = [], isLoading: dayLoading } = useQuery({
-    queryKey: ['admin-cost-by-day', daysBack],
+    queryKey: ["admin-cost-by-day", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_api_cost_by_day', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_api_cost_by_day", { days_back: daysBack });
       if (error) throw error;
       return data as unknown as DailyCost[];
     },
@@ -125,17 +131,17 @@ export function AdminCosts() {
 
   // Vehicle lookup stats
   const { data: vehicleLookupStats, isLoading: vehicleLoading } = useQuery({
-    queryKey: ['admin-vehicle-lookup-stats', daysBack],
+    queryKey: ["admin-vehicle-lookup-stats", daysBack],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('api_usage_logs')
-        .select('model, metadata')
-        .eq('function_name', 'vehicle-lookup')
-        .gte('created_at', new Date(Date.now() - daysBack * 86400000).toISOString());
+        .from("api_usage_logs")
+        .select("model, metadata")
+        .eq("function_name", "vehicle-lookup")
+        .gte("created_at", new Date(Date.now() - daysBack * 86400000).toISOString());
       if (error) throw error;
       const total = data.length;
-      const simulated = data.filter((d: any) => d.model === 'simulated').length;
-      const errors = data.filter((d: any) => d.model === 'error').length;
+      const simulated = data.filter((d: any) => d.model === "simulated").length;
+      const errors = data.filter((d: any) => d.model === "error").length;
       const real = total - simulated - errors;
       return { total, simulated, errors, real };
     },
@@ -152,7 +158,7 @@ export function AdminCosts() {
           {(Object.keys(PERIOD_LABELS) as PeriodFilter[]).map((p) => (
             <Button
               key={p}
-              variant={period === p ? 'default' : 'ghost'}
+              variant={period === p ? "default" : "ghost"}
               size="sm"
               onClick={() => setPeriod(p)}
               className="text-xs h-7 px-3"
@@ -170,7 +176,9 @@ export function AdminCosts() {
       {/* KPI Cards */}
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28" />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       ) : stats ? (
         <>
@@ -244,7 +252,10 @@ export function AdminCosts() {
                 highlight
                 badge={
                   stats.total_cost > 0 ? (
-                    <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-600">
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] border-emerald-500/30 text-emerald-600"
+                    >
                       Cumulé
                     </Badge>
                   ) : null
@@ -287,9 +298,15 @@ export function AdminCosts() {
                     <TableRow key={fn.function_name}>
                       <TableCell className="font-mono text-xs">{fn.function_name}</TableCell>
                       <TableCell className="text-right">{formatNumber(fn.request_count)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatNumber(fn.tokens_in)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatNumber(fn.tokens_out)}</TableCell>
-                      <TableCell className="text-right font-medium">{formatCost(fn.cost)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatNumber(fn.tokens_in)}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatNumber(fn.tokens_out)}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCost(fn.cost)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -331,8 +348,12 @@ export function AdminCosts() {
                     <TableRow key={m.model}>
                       <TableCell className="font-mono text-xs">{m.model}</TableCell>
                       <TableCell className="text-right">{formatNumber(m.request_count)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatNumber(m.tokens_in)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatNumber(m.tokens_out)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatNumber(m.tokens_in)}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatNumber(m.tokens_out)}
+                      </TableCell>
                       <TableCell className="text-right font-medium">{formatCost(m.cost)}</TableCell>
                     </TableRow>
                   ))}
@@ -370,19 +391,28 @@ export function AdminCosts() {
                 </TableHeader>
                 <TableBody>
                   {byDay
-                    .filter(d => d.request_count > 0)
+                    .filter((d) => d.request_count > 0)
                     .reverse()
                     .map((d) => (
                       <TableRow key={d.day}>
                         <TableCell className="text-sm">
-                          {new Date(d.day).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                          {new Date(d.day).toLocaleDateString("fr-FR", {
+                            day: "2-digit",
+                            month: "short",
+                          })}
                         </TableCell>
-                        <TableCell className="text-right">{formatNumber(d.request_count)}</TableCell>
-                        <TableCell className="text-right text-muted-foreground">{formatNumber(d.tokens)}</TableCell>
-                        <TableCell className="text-right font-medium">{formatCost(d.cost)}</TableCell>
+                        <TableCell className="text-right">
+                          {formatNumber(d.request_count)}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground">
+                          {formatNumber(d.tokens)}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {formatCost(d.cost)}
+                        </TableCell>
                       </TableRow>
                     ))}
-                  {byDay.filter(d => d.request_count > 0).length === 0 && (
+                  {byDay.filter((d) => d.request_count > 0).length === 0 && (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
                         Aucune activité sur cette période
@@ -423,7 +453,9 @@ export function AdminCosts() {
               <div className="text-center p-3 bg-muted/50 rounded-lg">
                 <div className="flex items-center justify-center gap-1">
                   <AlertTriangle className="w-4 h-4 text-amber-500" />
-                  <p className="text-2xl font-bold text-amber-600">{vehicleLookupStats.simulated}</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {vehicleLookupStats.simulated}
+                  </p>
                 </div>
                 <p className="text-xs text-muted-foreground">Simulés (fallback)</p>
               </div>
@@ -442,7 +474,8 @@ export function AdminCosts() {
             <div className="mt-3 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
               <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-                L'API RapidAPI retourne des données simulées — la clé est probablement expirée ou l'abonnement terminé.
+                L'API RapidAPI retourne des données simulées — la clé est probablement expirée ou
+                l'abonnement terminé.
               </p>
             </div>
           )}
@@ -468,13 +501,15 @@ function CostCard({
   muted?: boolean;
 }) {
   return (
-    <Card className={muted ? 'bg-muted/30' : ''}>
+    <Card className={muted ? "bg-muted/30" : ""}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
           {icon}
           {badge}
         </div>
-        <p className={`text-2xl font-bold tabular-nums ${highlight ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
+        <p
+          className={`text-2xl font-bold tabular-nums ${highlight ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+        >
           {value}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">{label}</p>

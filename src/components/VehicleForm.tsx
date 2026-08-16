@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Vehicle } from '@/types/trip';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
-import { Switch } from './ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { Car, Loader2, AlertCircle, Check, Zap, Info } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { Vehicle } from "@/types/trip";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Switch } from "./ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Car, Loader2, AlertCircle, Check, Zap, Info } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface VehicleSaveOptions {
   updatePastTrips?: boolean;
@@ -18,21 +18,40 @@ export interface VehicleSaveOptions {
 interface VehicleFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (vehicle: Omit<Vehicle, 'id'>, options?: VehicleSaveOptions) => void;
+  onSave: (vehicle: Omit<Vehicle, "id">, options?: VehicleSaveOptions) => void;
   editVehicle?: Vehicle;
 }
 
 // Common French car makes for suggestion
-const COMMON_MAKES = ['Renault', 'Peugeot', 'Citroën', 'Volkswagen', 'BMW', 'Mercedes', 'Audi', 'Toyota', 'Ford', 'Fiat', 'Opel', 'Nissan', 'Hyundai', 'Kia', 'Dacia', 'Skoda', 'Seat', 'Tesla'];
+const COMMON_MAKES = [
+  "Renault",
+  "Peugeot",
+  "Citroën",
+  "Volkswagen",
+  "BMW",
+  "Mercedes",
+  "Audi",
+  "Toyota",
+  "Ford",
+  "Fiat",
+  "Opel",
+  "Nissan",
+  "Hyundai",
+  "Kia",
+  "Dacia",
+  "Skoda",
+  "Seat",
+  "Tesla",
+];
 
 export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: VehicleFormProps) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [licensePlate, setLicensePlate] = useState('');
-  const [make, setMake] = useState('');
-  const [model, setModel] = useState('');
-  const [fiscalPower, setFiscalPower] = useState('');
-  const [year, setYear] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [licensePlate, setLicensePlate] = useState("");
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [fiscalPower, setFiscalPower] = useState("");
+  const [year, setYear] = useState("");
   const [isElectric, setIsElectric] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
@@ -41,13 +60,13 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
     if (open) {
-      setFirstName(editVehicle?.ownerFirstName || '');
-      setLastName(editVehicle?.ownerLastName || '');
-      setLicensePlate(editVehicle?.licensePlate || '');
-      setMake(editVehicle?.make || '');
-      setModel(editVehicle?.model || '');
-      setFiscalPower(editVehicle?.fiscalPower?.toString() || '');
-      setYear(editVehicle?.year?.toString() || '');
+      setFirstName(editVehicle?.ownerFirstName || "");
+      setLastName(editVehicle?.ownerLastName || "");
+      setLicensePlate(editVehicle?.licensePlate || "");
+      setMake(editVehicle?.make || "");
+      setModel(editVehicle?.model || "");
+      setFiscalPower(editVehicle?.fiscalPower?.toString() || "");
+      setYear(editVehicle?.year?.toString() || "");
       setIsElectric(editVehicle?.isElectric || false);
       setLookupDone(!!editVehicle);
       setUpdatePastTrips(false);
@@ -55,15 +74,15 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   }, [open, editVehicle]);
 
   const formatLicensePlate = (value: string) => {
-    const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (!cleaned) return '';
+    const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!cleaned) return "";
 
     // FNI (ancien format pre-2009): commence par un chiffre. Ex: 1234-AB-56
     if (/^\d/.test(cleaned)) {
       const m = cleaned.match(/^(\d{1,4})([A-Z]{0,3})(\d{0,2})/);
       if (!m) return cleaned;
       const [, d1, letters, d2] = m;
-      return [d1, letters, d2].filter(Boolean).join('-');
+      return [d1, letters, d2].filter(Boolean).join("-");
     }
 
     // SIV (format actuel): AA-123-BB
@@ -81,7 +100,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     const formatted = formatLicensePlate(value);
     setLicensePlate(formatted);
     setLookupDone(false);
-    
+
     if (isPlateComplete(formatted) && !isLookingUp) {
       await performLookup(formatted);
     }
@@ -89,15 +108,15 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
   const performLookup = async (plate: string) => {
     setIsLookingUp(true);
-    
+
     try {
-      const { data, error } = await supabase.functions.invoke('vehicle-lookup', {
-        body: { licensePlate: plate }
+      const { data, error } = await supabase.functions.invoke("vehicle-lookup", {
+        body: { licensePlate: plate },
       });
 
       if (error) {
-        console.error('Lookup error:', error);
-        toast.error('Impossible de récupérer les informations du véhicule');
+        console.error("Lookup error:", error);
+        toast.error("Impossible de récupérer les informations du véhicule");
         setIsLookingUp(false);
         return;
       }
@@ -109,66 +128,65 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
         if (data.year) setYear(data.year.toString());
         if (data.fiscalPower) setFiscalPower(data.fiscalPower.toString());
         if (data.isElectric !== undefined) setIsElectric(data.isElectric);
-        
+
         setLookupDone(true);
-        
+
         if (data.simulated) {
-          toast.success('Véhicule détecté (données simulées)', {
-            description: 'Veuillez vérifier et corriger les informations si nécessaire.'
+          toast.success("Véhicule détecté (données simulées)", {
+            description: "Veuillez vérifier et corriger les informations si nécessaire.",
           });
         } else {
-          toast.success('Véhicule trouvé !', {
-            description: 'Vérifiez la puissance fiscale sur votre carte grise (rubrique P.6).'
+          toast.success("Véhicule trouvé !", {
+            description: "Vérifiez la puissance fiscale sur votre carte grise (rubrique P.6).",
           });
         }
       } else {
-        toast.error('Véhicule non trouvé', {
-          description: 'Veuillez saisir les informations manuellement.'
+        toast.error("Véhicule non trouvé", {
+          description: "Veuillez saisir les informations manuellement.",
         });
       }
     } catch (err) {
-      console.error('Lookup error:', err);
-      toast.error('Erreur lors de la recherche');
+      console.error("Lookup error:", err);
+      toast.error("Erreur lors de la recherche");
     }
-    
+
     setIsLookingUp(false);
   };
 
   // Determine fuel type label and color
   const getFuelTypeInfo = () => {
-    if (isElectric) return { label: 'Électrique', className: 'bg-emerald-500 text-white' };
+    if (isElectric) return { label: "Électrique", className: "bg-emerald-500 text-white" };
     // For now, we assume non-electric is thermal. Hybrid detection could be added later.
-    return { label: 'Thermique', className: 'bg-red-500 text-white' };
+    return { label: "Thermique", className: "bg-red-500 text-white" };
   };
 
   const handleSave = () => {
     if (!licensePlate || !fiscalPower) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
+      toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
     const cv = parseInt(fiscalPower);
     if (isNaN(cv) || cv < 1 || cv > 50) {
-      toast.error('Puissance fiscale invalide');
+      toast.error("Puissance fiscale invalide");
       return;
     }
 
     const impactsPastTrips =
-      !!editVehicle &&
-      (cv !== editVehicle.fiscalPower || isElectric !== !!editVehicle.isElectric);
+      !!editVehicle && (cv !== editVehicle.fiscalPower || isElectric !== !!editVehicle.isElectric);
 
     onSave(
       {
         ownerFirstName: firstName.trim(),
         ownerLastName: lastName.trim(),
         licensePlate: licensePlate.toUpperCase(),
-        make: make.trim() || 'Non renseigné',
-        model: model.trim() || 'Non renseigné',
+        make: make.trim() || "Non renseigné",
+        model: model.trim() || "Non renseigné",
         fiscalPower: cv,
         year: year ? parseInt(year) : undefined,
         isElectric,
       },
-      { updatePastTrips: impactsPastTrips ? updatePastTrips : false }
+      { updatePastTrips: impactsPastTrips ? updatePastTrips : false },
     );
 
     onOpenChange(false);
@@ -184,12 +202,15 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col">
+      <SheetContent
+        side="bottom"
+        className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col"
+      >
         <div className="w-full flex flex-col">
           <SheetHeader className="pb-5 shrink-0">
             <SheetTitle className="text-lg flex items-center gap-2 font-display">
               <Car className="w-5 h-5 text-primary" />
-              {editVehicle ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
+              {editVehicle ? "Modifier le véhicule" : "Ajouter un véhicule"}
             </SheetTitle>
           </SheetHeader>
 
@@ -207,7 +228,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     maxLength={11}
                     className={cn(
                       "font-mono text-base sm:text-lg tracking-wider pr-10 h-12",
-                      isPlateEmpty && "ring-2 ring-primary/50 border-primary"
+                      isPlateEmpty && "ring-2 ring-primary/50 border-primary",
                     )}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -224,7 +245,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
               <div className="space-y-2">
                 <Label>Puissance fiscale (CV) *</Label>
                 <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
-                  {fiscalPowerOptions.map(cv => (
+                  {fiscalPowerOptions.map((cv) => (
                     <button
                       key={cv}
                       type="button"
@@ -233,7 +254,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                         "py-2 px-2 rounded-lg text-sm font-medium transition-all font-display",
                         fiscalPower === cv.toString()
                           ? "bg-primary text-primary-foreground shadow-md scale-105"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                       )}
                     >
                       {cv}
@@ -254,7 +275,12 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     {make && <span className="bg-background px-2 py-0.5 rounded">{make}</span>}
                     {model && <span className="bg-background px-2 py-0.5 rounded">{model}</span>}
                     {year && <span className="bg-background px-2 py-0.5 rounded">{year}</span>}
-                    <span className={cn("px-2 py-0.5 rounded text-xs font-medium", getFuelTypeInfo().className)}>
+                    <span
+                      className={cn(
+                        "px-2 py-0.5 rounded text-xs font-medium",
+                        getFuelTypeInfo().className,
+                      )}
+                    >
                       {getFuelTypeInfo().label}
                     </span>
                   </div>
@@ -262,19 +288,21 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
               )}
 
               {/* Electric Vehicle Toggle */}
-              <div className={cn(
-                "flex items-center justify-between p-3 rounded-xl border-2 transition-all",
-                isElectric 
-                  ? "border-emerald-500/50 bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/40 dark:to-emerald-900/20" 
-                  : "border-border bg-card"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center justify-between p-3 rounded-xl border-2 transition-all",
+                  isElectric
+                    ? "border-emerald-500/50 bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/40 dark:to-emerald-900/20"
+                    : "border-border bg-card",
+                )}
+              >
                 <div className="flex items-center gap-2.5">
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                    isElectric 
-                      ? "bg-emerald-500 text-white" 
-                      : "bg-muted text-muted-foreground"
-                  )}>
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                      isElectric ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground",
+                    )}
+                  >
                     <Zap className="w-4 h-4" />
                   </div>
                   <div>
@@ -296,11 +324,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     <p className="text-xs text-muted-foreground">+20% IK</p>
                   </div>
                 </div>
-                <Switch
-                  id="electric"
-                  checked={isElectric}
-                  onCheckedChange={setIsElectric}
-                />
+                <Switch id="electric" checked={isElectric} onCheckedChange={setIsElectric} />
               </div>
 
               {/* Retroactive recalculation toggle */}
@@ -316,26 +340,27 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     className="mt-0.5"
                   />
                   <div className="flex-1 space-y-1">
-                    <div className="text-sm font-semibold">
-                      Mettre à jour les trajets passés
-                    </div>
+                    <div className="text-sm font-semibold">Mettre à jour les trajets passés</div>
                     <p className="text-xs text-muted-foreground leading-snug">
                       {updatePastTrips
-                        ? 'Les indemnités de tous vos trajets passés liés à ce véhicule seront immédiatement recalculées avec le nouveau barème.'
-                        : 'Seuls les trajets à venir utiliseront le nouveau barème. Les trajets passés conservent leurs indemnités actuelles.'}
+                        ? "Les indemnités de tous vos trajets passés liés à ce véhicule seront immédiatement recalculées avec le nouveau barème."
+                        : "Seuls les trajets à venir utiliseront le nouveau barème. Les trajets passés conservent leurs indemnités actuelles."}
                     </p>
                   </div>
                 </label>
               )}
 
-
               {/* Actions */}
               <div className="flex gap-3 pt-2">
-                <Button variant="secondary" className="flex-1 font-display" onClick={() => onOpenChange(false)}>
+                <Button
+                  variant="secondary"
+                  className="flex-1 font-display"
+                  onClick={() => onOpenChange(false)}
+                >
                   Annuler
                 </Button>
                 <Button variant="gradient" className="flex-1 font-display" onClick={handleSave}>
-                  {editVehicle ? 'Enregistrer' : 'Ajouter'}
+                  {editVehicle ? "Enregistrer" : "Ajouter"}
                 </Button>
               </div>
             </div>

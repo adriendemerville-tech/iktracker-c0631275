@@ -1,10 +1,20 @@
-import { useState, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
-import { Button } from './ui/button';
-import { TourStop } from '@/hooks/useTourTracker';
-import { MapPin, Clock, Car, Play, History, Timer, Navigation, Sun, BatteryWarning } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { removeCountryFromAddress } from '@/lib/geocoding';
+import { useState, useEffect } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Button } from "./ui/button";
+import { TourStop } from "@/hooks/useTourTracker";
+import {
+  MapPin,
+  Clock,
+  Car,
+  Play,
+  History,
+  Timer,
+  Navigation,
+  Sun,
+  BatteryWarning,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { removeCountryFromAddress } from "@/lib/geocoding";
 
 interface TourLogSheetProps {
   open: boolean;
@@ -39,26 +49,26 @@ export function TourLogSheet({
   onShowHistory,
   isHistory,
 }: TourLogSheetProps) {
-  const [elapsedTime, setElapsedTime] = useState('');
+  const [elapsedTime, setElapsedTime] = useState("");
 
   // Calculate elapsed time
   useEffect(() => {
     if (!isActive || stops.length === 0) {
-      setElapsedTime('');
+      setElapsedTime("");
       return;
     }
 
     const startTime = stops[0].timestamp;
-    
+
     const updateElapsed = () => {
       const now = new Date();
       const diffMs = now.getTime() - startTime.getTime();
       const diffMins = Math.floor(diffMs / 60000);
       const hours = Math.floor(diffMins / 60);
       const mins = diffMins % 60;
-      
+
       if (hours > 0) {
-        setElapsedTime(`${hours}h${mins.toString().padStart(2, '0')}`);
+        setElapsedTime(`${hours}h${mins.toString().padStart(2, "0")}`);
       } else {
         setElapsedTime(`${mins} min`);
       }
@@ -70,7 +80,7 @@ export function TourLogSheet({
   }, [isActive, stops]);
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   };
 
   const formatDuration = (seconds?: number) => {
@@ -85,17 +95,17 @@ export function TourLogSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent 
-        side="bottom" 
+      <SheetContent
+        side="bottom"
         className={cn(
           "rounded-t-2xl w-[90%] sm:w-[70%] md:w-[50%] lg:w-[44%] max-w-lg left-1/2 -translate-x-1/2",
-          showFullList ? "h-[55vh]" : "h-auto pb-6"
+          showFullList ? "h-[55vh]" : "h-auto pb-6",
         )}
       >
         <SheetHeader className="pb-4 pt-2">
           <SheetTitle className="text-base flex items-center gap-2">
             <Car className="w-5 h-5 text-primary" />
-            {isHistory ? 'Dernière tournée' : 'Tournée'}
+            {isHistory ? "Dernière tournée" : "Tournée"}
           </SheetTitle>
         </SheetHeader>
 
@@ -118,14 +128,14 @@ export function TourLogSheet({
                 )}
               </div>
             </div>
-            
+
             {/* Wake Lock indicator - icon only */}
             {wakeLockActive && (
               <div className="flex items-center justify-center">
                 <Sun className="w-4 h-4 text-amber-500" />
               </div>
             )}
-            
+
             {/* Low battery warning */}
             {lowBattery && (
               <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-destructive/10 text-destructive rounded-lg text-xs">
@@ -142,7 +152,7 @@ export function TourLogSheet({
             <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mb-2 shadow-md">
               <MapPin className="w-5 h-5" />
             </div>
-            <p className="text-sm font-medium">{stops[0].city || 'Point de départ'}</p>
+            <p className="text-sm font-medium">{stops[0].city || "Point de départ"}</p>
             <p className="text-xs text-muted-foreground">
               Démarré à {formatTime(stops[0].timestamp)}
             </p>
@@ -152,9 +162,7 @@ export function TourLogSheet({
         {/* No stops yet */}
         {stops.length === 0 && isActive && (
           <div className="mb-4 p-3 bg-muted/50 rounded-lg text-center">
-            <p className="text-sm text-muted-foreground">
-              En attente de la première position...
-            </p>
+            <p className="text-sm text-muted-foreground">En attente de la première position...</p>
           </div>
         )}
 
@@ -177,8 +185,8 @@ export function TourLogSheet({
                           index === 0
                             ? "bg-primary text-primary-foreground"
                             : index === stops.length - 1 && !isActive
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-secondary text-secondary-foreground"
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-secondary text-secondary-foreground",
                         )}
                       >
                         <MapPin className="w-3 h-3" />
@@ -188,7 +196,7 @@ export function TourLogSheet({
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate">
-                              {stop.city || 'Position'}
+                              {stop.city || "Position"}
                             </p>
                             {stop.address && (
                               <p className="text-xs text-muted-foreground truncate">
@@ -228,16 +236,14 @@ export function TourLogSheet({
         )}
 
         {/* Actions */}
-        <div className={cn(
-          "flex justify-center gap-2",
-          showFullList && "absolute bottom-0 left-0 right-0 p-4 bg-background border-t"
-        )}>
+        <div
+          className={cn(
+            "flex justify-center gap-2",
+            showFullList && "absolute bottom-0 left-0 right-0 p-4 bg-background border-t",
+          )}
+        >
           {isActive ? (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={onFinish}
-            >
+            <Button variant="destructive" size="sm" onClick={onFinish}>
               <span className="w-2.5 h-2.5 bg-white rounded-xs mr-1.5" />
               Terminer
             </Button>
@@ -252,7 +258,7 @@ export function TourLogSheet({
                   className="flex-1"
                 >
                   <Play className="w-4 h-4 mr-2" />
-                  {isLoading ? 'Démarrage...' : 'Nouvelle tournée'}
+                  {isLoading ? "Démarrage..." : "Nouvelle tournée"}
                 </Button>
               )}
               {hasHistory && onShowHistory && (

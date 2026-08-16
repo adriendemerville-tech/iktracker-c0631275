@@ -1,6 +1,6 @@
 import { useEffect, lazy, Suspense, memo } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -19,21 +19,49 @@ import {
   Users,
   RefreshCw,
   ShieldCheck,
-  Smartphone
+  Smartphone,
 } from "lucide-react";
 
 // Lazy load heavy demo components
-const TourModeDemo = lazy(() => import("@/components/marketing/TourModeDemo").then(m => ({ default: m.TourModeDemo })));
-const TourModeMockup = lazy(() => import("@/components/marketing/TourModeMockup").then(m => ({ default: m.TourModeMockup })));
-const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
-const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
-const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
-const MarketingPWANotification = lazy(() => import("@/components/marketing/MarketingPWANotification").then(m => ({ default: m.MarketingPWANotification })));
+const TourModeDemo = lazy(() =>
+  import("@/components/marketing/TourModeDemo").then((m) => ({ default: m.TourModeDemo })),
+);
+const TourModeMockup = lazy(() =>
+  import("@/components/marketing/TourModeMockup").then((m) => ({ default: m.TourModeMockup })),
+);
+const AnimatedPhoneMockup = lazy(() =>
+  import("@/components/marketing/AnimatedPhoneMockup").then((m) => ({
+    default: m.AnimatedPhoneMockup,
+  })),
+);
+const AppCarousel = lazy(() =>
+  import("@/components/marketing/AppCarousel").then((m) => ({ default: m.AppCarousel })),
+);
+const EnhancedMarketingFooter = lazy(() =>
+  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
+    default: m.EnhancedMarketingFooter,
+  })),
+);
+const MarketingPWANotification = lazy(() =>
+  import("@/components/marketing/MarketingPWANotification").then((m) => ({
+    default: m.MarketingPWANotification,
+  })),
+);
 
-const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
+const DemoLoader = () => (
+  <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>
+);
 const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 
-const AnimatedSection = ({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
+const AnimatedSection = ({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
   return (
     <div
@@ -41,7 +69,7 @@ const AnimatedSection = ({ children, className, delay = 0 }: { children: React.R
       className={cn(
         "transition-all duration-700 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
-        className
+        className,
       )}
       style={{ transitionDelay: `${delay}ms` }}
     >
@@ -59,70 +87,69 @@ export default function ModeTournee() {
     {
       icon: Clock,
       title: "Gain de temps",
-      description: "Plus besoin de saisir chaque trajet séparément"
+      description: "Plus besoin de saisir chaque trajet séparément",
     },
     {
       icon: MapPin,
       title: "Tous les arrêts",
-      description: "Enregistrez domicile + tous vos clients + retour"
+      description: "Enregistrez domicile + tous vos clients + retour",
     },
     {
       icon: TrendingUp,
       title: "Distance exacte",
-      description: "Calcul automatique du kilométrage total"
+      description: "Calcul automatique du kilométrage total",
     },
     {
       icon: Zap,
       title: "Navigation intégrée",
-      description: "Lancez Waze ou Maps en un clic"
+      description: "Lancez Waze ou Maps en un clic",
     },
     {
       icon: RefreshCw,
       title: "Reprise auto",
-      description: "App fermée par erreur ? Reprenez votre tournée là où vous l'avez laissée"
+      description: "App fermée par erreur ? Reprenez votre tournée là où vous l'avez laissée",
     },
     {
       icon: ShieldCheck,
       title: "Finalisation intelligente",
-      description: "Tournée oubliée ? Elle se termine seule et crée un trajet à vérifier"
-    }
+      description: "Tournée oubliée ? Elle se termine seule et crée un trajet à vérifier",
+    },
   ];
 
   const professions = [
     { icon: Users, name: "Infirmiers libéraux", description: "10+ patients/jour" },
     { icon: Car, name: "Commerciaux", description: "Prospection terrain" },
     { icon: Users, name: "Artisans", description: "Interventions multiples" },
-    { icon: Users, name: "Aide à domicile", description: "Tournées quotidiennes" }
+    { icon: Users, name: "Aide à domicile", description: "Tournées quotidiennes" },
   ];
 
   const carouselSlides = [
     {
       title: "Démarrez votre tournée",
       description: "Un clic pour commencer. L'app détecte votre position de départ.",
-      mockup: <AnimatedPhoneMockup screen="tour" />
+      mockup: <AnimatedPhoneMockup screen="tour" />,
     },
     {
       title: "Ajoutez vos arrêts",
       description: "Chaque client visité est automatiquement enregistré.",
-      mockup: <AnimatedPhoneMockup screen="newTrip" />
+      mockup: <AnimatedPhoneMockup screen="newTrip" />,
     },
     {
       title: "Récapitulatif complet",
       description: "Distance totale, IK calculées, prêt pour l'export.",
-      mockup: <AnimatedPhoneMockup screen="dashboard" />
-    }
+      mockup: <AnimatedPhoneMockup screen="dashboard" />,
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
-        
         {/* Open Graph */}
-        
+
         {/* Twitter */}
-        
+
         {/* Geo */}
-        
+
         {/* Structured Data */}
         <script type="application/ld+json">
           {JSON.stringify({
@@ -130,58 +157,84 @@ export default function ModeTournee() {
             "@graph": [
               {
                 "@type": "WebPage",
-                "name": "Mode Tournée IKtracker - Outil communautaire",
-                "description": "Fonctionnalité de suivi kilométrique multi-arrêts par GPS pour professionnels itinérants. Outil communautaire gratuit.",
-                "url": "https://iktracker.fr/mode-tournee",
-                "isPartOf": {
+                name: "Mode Tournée IKtracker - Outil communautaire",
+                description:
+                  "Fonctionnalité de suivi kilométrique multi-arrêts par GPS pour professionnels itinérants. Outil communautaire gratuit.",
+                url: "https://iktracker.fr/mode-tournee",
+                isPartOf: {
                   "@type": "WebSite",
-                  "name": "IKtracker",
-                  "url": "https://iktracker.fr"
+                  name: "IKtracker",
+                  url: "https://iktracker.fr",
                 },
-                "speakable": {
+                speakable: {
                   "@type": "SpeakableSpecification",
-                  "cssSelector": ["#hero-heading", "#main-content > section:first-of-type p"]
-                }
+                  cssSelector: ["#hero-heading", "#main-content > section:first-of-type p"],
+                },
               },
               {
                 "@type": "SoftwareApplication",
-                "name": "IKtracker Mode Tournée",
-                "applicationCategory": "BusinessApplication",
-                "operatingSystem": "Web, iOS, Android",
-                "offers": {
+                name: "IKtracker Mode Tournée",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Web, iOS, Android",
+                offers: {
                   "@type": "Offer",
-                  "price": "0.00",
-                  "priceCurrency": "EUR"
+                  price: "0.00",
+                  priceCurrency: "EUR",
                 },
-                "featureList": [
+                featureList: [
                   "Tracking GPS en temps réel des arrêts clients",
                   "Calcul automatique des distances via Google Maps",
                   "Navigation intégrée Waze et Google Maps",
                   "Génération automatique des trajets et IK",
-                  "Export PDF/CSV de la tournée complète"
+                  "Export PDF/CSV de la tournée complète",
                 ],
-                "audience": {
+                audience: {
                   "@type": "BusinessAudience",
-                  "audienceType": "Infirmiers libéraux, artisans, commerciaux, aide à domicile"
-                }
+                  audienceType: "Infirmiers libéraux, artisans, commerciaux, aide à domicile",
+                },
               },
               {
                 "@type": "HowTo",
-                "name": "Comment utiliser le Mode Tournée IKtracker",
-                "description": "Suivez automatiquement vos arrêts clients et calculez vos indemnités kilométriques en 3 étapes.",
-                "totalTime": "PT1M",
-                "tool": [{ "@type": "HowToTool", "name": "Smartphone avec GPS activé" }],
-                "step": [
-                  { "@type": "HowToStep", "position": 1, "name": "Démarrez votre tournée", "text": "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS.", "url": "https://iktracker.fr/mode-tournee#etape-1" },
-                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos arrêts", "text": "Chaque client visité est automatiquement enregistré grâce à la géolocalisation.", "url": "https://iktracker.fr/mode-tournee#etape-2" },
-                  { "@type": "HowToStep", "position": 3, "name": "Récapitulatif complet", "text": "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF.", "url": "https://iktracker.fr/mode-tournee#etape-3" }
-                ]
-              }
-            ]
+                name: "Comment utiliser le Mode Tournée IKtracker",
+                description:
+                  "Suivez automatiquement vos arrêts clients et calculez vos indemnités kilométriques en 3 étapes.",
+                totalTime: "PT1M",
+                tool: [{ "@type": "HowToTool", name: "Smartphone avec GPS activé" }],
+                step: [
+                  {
+                    "@type": "HowToStep",
+                    position: 1,
+                    name: "Démarrez votre tournée",
+                    text: "Un clic pour commencer. L'app détecte votre position de départ grâce au GPS.",
+                    url: "https://iktracker.fr/mode-tournee#etape-1",
+                  },
+                  {
+                    "@type": "HowToStep",
+                    position: 2,
+                    name: "Ajoutez vos arrêts",
+                    text: "Chaque client visité est automatiquement enregistré grâce à la géolocalisation.",
+                    url: "https://iktracker.fr/mode-tournee#etape-2",
+                  },
+                  {
+                    "@type": "HowToStep",
+                    position: 3,
+                    name: "Récapitulatif complet",
+                    text: "Distance totale, IK calculées selon le barème 2026, prêt pour l'export PDF.",
+                    url: "https://iktracker.fr/mode-tournee#etape-3",
+                  },
+                ],
+              },
+            ],
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/mode-tournee", pageDescription: "Mode Tournée IKtracker : enregistrement GPS multi-arrêts pour professionnels itinérants (infirmiers libéraux, commerciaux, artisans). Détection automatique des stops, reprise de session après fermeture, finalisation intelligente." }))}
+          {JSON.stringify(
+            buildSoftwareApplicationSchema({
+              pageUrl: "https://iktracker.fr/mode-tournee",
+              pageDescription:
+                "Mode Tournée IKtracker : enregistrement GPS multi-arrêts pour professionnels itinérants (infirmiers libéraux, commerciaux, artisans). Détection automatique des stops, reprise de session après fermeture, finalisation intelligente.",
+            }),
+          )}
         </script>
       </Helmet>
       <MarketingNav />
@@ -189,16 +242,19 @@ export default function ModeTournee() {
       <main id="main-content" tabIndex={-1} className="outline-hidden">
         {/* Breadcrumb */}
         <div className="container mx-auto px-4 pt-24">
-          <Breadcrumb items={[{ label: 'Mode Tournée' }]} />
+          <Breadcrumb items={[{ label: "Mode Tournée" }]} />
         </div>
 
         {/* Hero */}
-        <section 
+        <section
           className="pt-28 pb-20 md:pt-36 md:pb-28 px-4 relative overflow-hidden"
           aria-labelledby="hero-heading"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/5" aria-hidden="true" />
-          
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/5"
+            aria-hidden="true"
+          />
+
           <div className="container mx-auto relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <AnimatedSection>
@@ -206,21 +262,27 @@ export default function ModeTournee() {
                   <Navigation className="h-4 w-4" aria-hidden="true" />
                   <span>Fonctionnalité exclusive</span>
                 </div>
-                
-                <h1 id="hero-heading" className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-6">
+
+                <h1
+                  id="hero-heading"
+                  className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-6"
+                >
                   Le <span className="text-gradient">Mode Tournée</span> pour les pros itinérants
                 </h1>
-                
+
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
-                  Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts grâce à la localisation GPS. 
-                  Distance totale calculée automatiquement.
+                  Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts
+                  grâce à la localisation GPS. Distance totale calculée automatiquement.
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
                   <Link to="/signup" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="gradient" className="group">
                       Accéder à l'outil
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                      <ArrowRight
+                        className="h-5 w-5 group-hover:translate-x-1 transition-transform"
+                        aria-hidden="true"
+                      />
                     </Button>
                   </Link>
                   <Link to="/installer" className="focus-visible-ring rounded-lg">
@@ -230,7 +292,11 @@ export default function ModeTournee() {
                   </Link>
                 </div>
 
-                <ul className="flex flex-wrap gap-4 text-sm text-muted-foreground" role="list" aria-label="Avantages">
+                <ul
+                  className="flex flex-wrap gap-4 text-sm text-muted-foreground"
+                  role="list"
+                  aria-label="Avantages"
+                >
                   {["100% Gratuit", "Pas de pub", "Données en Europe"].map((item, i) => (
                     <li key={i} className="flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
@@ -302,12 +368,15 @@ export default function ModeTournee() {
                 <Smartphone className="h-4 w-4" aria-hidden="true" />
                 <span>Exclusivité mobile</span>
               </div>
-              <h2 id="recovery-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2
+                id="recovery-heading"
+                className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+              >
                 Aucune tournée perdue, jamais
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                L'app fonctionne en conditions réelles : téléphone qui s'éteint, app fermée, oubli de finaliser. 
-                On a tout prévu.
+                L'app fonctionne en conditions réelles : téléphone qui s'éteint, app fermée, oubli
+                de finaliser. On a tout prévu.
               </p>
             </AnimatedSection>
 
@@ -321,17 +390,23 @@ export default function ModeTournee() {
                     <h3 className="font-bold text-foreground text-lg">Reprise sur mobile</h3>
                   </div>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Vous rouvrez l'app sur votre téléphone après une interruption ?
-                    Une fenêtre vous propose de <strong>reprendre</strong> votre tournée 
-                    avec tous les arrêts déjà enregistrés, ou de la <strong>terminer</strong>.
+                    Vous rouvrez l'app sur votre téléphone après une interruption ? Une fenêtre vous
+                    propose de <strong>reprendre</strong> votre tournée avec tous les arrêts déjà
+                    enregistrés, ou de la <strong>terminer</strong>.
                   </p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
                       <span className="text-muted-foreground">Étapes et distance préservées</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
                       <span className="text-muted-foreground">GPS reprend automatiquement</span>
                     </li>
                   </ul>
@@ -347,29 +422,57 @@ export default function ModeTournee() {
                     <h3 className="font-bold text-foreground text-lg">Finalisation intelligente</h3>
                   </div>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Tournée oubliée ? Elle se <strong>termine seule</strong> et crée le trajet le plus pertinent
-                    selon les données disponibles :
+                    Tournée oubliée ? Elle se <strong>termine seule</strong> et crée le trajet le
+                    plus pertinent selon les données disponibles :
                   </p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground"><strong>2 arrêts ou plus</strong> → tournée complète enregistrée</span>
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="text-muted-foreground">
+                        <strong>2 arrêts ou plus</strong> → tournée complète enregistrée
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground"><strong>1 arrêt + GPS</strong> → trajet à vérifier (arrivée détectée par GPS)</span>
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="text-muted-foreground">
+                        <strong>1 arrêt + GPS</strong> → trajet à vérifier (arrivée détectée par
+                        GPS)
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground"><strong>1 arrêt seul</strong> → trajet à compléter (arrivée à renseigner)</span>
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="text-muted-foreground">
+                        <strong>1 arrêt seul</strong> → trajet à compléter (arrivée à renseigner)
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground"><strong>0 arrêt mais GPS ≥ 2 km</strong> → trajet à vérifier (villes GPS détectées)</span>
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="text-muted-foreground">
+                        <strong>0 arrêt mais GPS ≥ 2 km</strong> → trajet à vérifier (villes GPS
+                        détectées)
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground">Tous les trajets « à vérifier » se complètent en un clic depuis « Mes trajets »</span>
+                      <CheckCircle2
+                        className="h-4 w-4 text-success mt-0.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="text-muted-foreground">
+                        Tous les trajets « à vérifier » se complètent en un clic depuis « Mes
+                        trajets »
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -399,12 +502,16 @@ export default function ModeTournee() {
         <section className="py-20 px-4" aria-labelledby="smart-add-heading">
           <div className="container mx-auto max-w-3xl">
             <AnimatedSection className="text-center mb-8">
-              <h2 id="smart-add-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2
+                id="smart-add-heading"
+                className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+              >
                 Ajoutez un trajet en le dictant
               </h2>
               <p className="text-lg text-muted-foreground">
-                Quand la tournée n'est pas lancée, il reste la voix. Dictez ou écrivez votre trajet en une phrase :
-                IKtracker en extrait la date, le départ, l'arrivée et le motif, puis calcule la distance.
+                Quand la tournée n'est pas lancée, il reste la voix. Dictez ou écrivez votre trajet
+                en une phrase : IKtracker en extrait la date, le départ, l'arrivée et le motif, puis
+                calcule la distance.
               </p>
             </AnimatedSection>
             <AnimatedSection>
@@ -415,13 +522,14 @@ export default function ModeTournee() {
                 <ul className="mt-6 space-y-2 text-muted-foreground">
                   <li>Dictée vocale depuis le téléphone, transcription automatique.</li>
                   <li>Extraction des adresses, de la date et du motif professionnel.</li>
-                  <li>Distance calculée puis trajet proposé à la validation avant enregistrement.</li>
+                  <li>
+                    Distance calculée puis trajet proposé à la validation avant enregistrement.
+                  </li>
                 </ul>
               </div>
             </AnimatedSection>
           </div>
         </section>
-
 
         {/* For who */}
         <section className="py-20 px-4">
@@ -465,14 +573,15 @@ export default function ModeTournee() {
                 </p>
                 <p className="text-sm text-muted-foreground mb-8">
                   Barème conforme aux{" "}
-                  <a 
-                    href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html" 
-                    target="_blank" 
+                  <a
+                    href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="underline hover:text-primary transition-colors"
                   >
                     taux officiels URSSAF
-                  </a>.
+                  </a>
+                  .
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Link to="/signup">

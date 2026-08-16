@@ -11,10 +11,11 @@ export const Route = createFileRoute("/blog/$slug")({
     }
   },
   loader: async ({ params }) => {
-
     const { data } = await supabase
       .from("blog_posts")
-      .select("title, meta_description, content, featured_image_url, slug, published_at, created_at, updated_at")
+      .select(
+        "title, meta_description, content, featured_image_url, slug, published_at, created_at, updated_at",
+      )
       .eq("slug", params.slug)
       .eq("status", "published")
       .maybeSingle();
@@ -31,10 +32,14 @@ export const Route = createFileRoute("/blog/$slug")({
     return {
       title: data.title as string,
       description,
-      image: (data.featured_image_url as string | null) || "https://iktracker.fr/logo-iktracker-250.webp",
+      image:
+        (data.featured_image_url as string | null) ||
+        "https://iktracker.fr/logo-iktracker-250.webp",
       url: `https://iktracker.fr/blog/${data.slug}`,
       publishedAt: new Date((data.published_at || data.created_at) as string).toISOString(),
-      modifiedAt: new Date((data.updated_at || data.published_at || data.created_at) as string).toISOString(),
+      modifiedAt: new Date(
+        (data.updated_at || data.published_at || data.created_at) as string,
+      ).toISOString(),
     };
   },
   head: ({ loaderData }) => {

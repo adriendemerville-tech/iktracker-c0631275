@@ -1,11 +1,18 @@
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { lazy, Suspense, memo } from "react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ArrowRight, BedDouble, UtensilsCrossed, Plane, ShieldCheck, Euro } from "lucide-react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 
@@ -28,9 +35,24 @@ const BAREME_METROPOLE = [
 ];
 
 const BAREME_LONGUE_DUREE = [
-  { periode: "Du 1ᵉʳ au 3ᵉ mois", repas: "20,70 €", nuitee_paris: "74,30 €", nuitee_prov: "55,10 €" },
-  { periode: "Du 4ᵉ au 24ᵉ mois (−15 %)", repas: "17,60 €", nuitee_paris: "63,20 €", nuitee_prov: "46,80 €" },
-  { periode: "Du 25ᵉ au 72ᵉ mois (−30 %)", repas: "14,50 €", nuitee_paris: "52,00 €", nuitee_prov: "38,60 €" },
+  {
+    periode: "Du 1ᵉʳ au 3ᵉ mois",
+    repas: "20,70 €",
+    nuitee_paris: "74,30 €",
+    nuitee_prov: "55,10 €",
+  },
+  {
+    periode: "Du 4ᵉ au 24ᵉ mois (−15 %)",
+    repas: "17,60 €",
+    nuitee_paris: "63,20 €",
+    nuitee_prov: "46,80 €",
+  },
+  {
+    periode: "Du 25ᵉ au 72ᵉ mois (−30 %)",
+    repas: "14,50 €",
+    nuitee_paris: "52,00 €",
+    nuitee_prov: "38,60 €",
+  },
 ];
 
 const FAQS = [
@@ -64,7 +86,6 @@ export default function IndemniteGrandDeplacement2026() {
   return (
     <>
       <Helmet>
-
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -106,7 +127,11 @@ export default function IndemniteGrandDeplacement2026() {
 
       <MarketingNav />
 
-      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-hidden">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="min-h-screen bg-background pt-20 outline-hidden"
+      >
         <div className="container mx-auto px-4 pt-6">
           <Breadcrumb items={[{ label: "Indemnité grand déplacement 2026" }]} />
         </div>
@@ -120,9 +145,9 @@ export default function IndemniteGrandDeplacement2026() {
           </h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
             Montants officiels des <strong className="text-foreground">frais de repas</strong> et de{" "}
-            <strong className="text-foreground">nuitée</strong> quand un salarié ou un freelance ne peut
-            pas rentrer chez lui : conditions, plafonds Paris/province, cumul avec les indemnités
-            kilométriques 2026.
+            <strong className="text-foreground">nuitée</strong> quand un salarié ou un freelance ne
+            peut pas rentrer chez lui : conditions, plafonds Paris/province, cumul avec les
+            indemnités kilométriques 2026.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/signup">
@@ -145,10 +170,26 @@ export default function IndemniteGrandDeplacement2026() {
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: UtensilsCrossed, t: "20,70 € par repas", d: "Forfait exonéré URSSAF pour chaque repas pris hors du domicile en situation de grand déplacement." },
-              { icon: BedDouble, t: "55,10 € à 74,30 € / nuit", d: "Nuitée + petit-déjeuner. 74,30 € à Paris et petite couronne, 55,10 € en province." },
-              { icon: Plane, t: "≥ 50 km ET ≥ 1h30", d: "Conditions cumulatives : au moins 50 km entre le domicile et le lieu de mission, ET 1h30 de trajet en transports en commun." },
-              { icon: ShieldCheck, t: "Exonéré URSSAF & impôt", d: "Sans justificatif dans la limite du barème forfaitaire. Au-delà : régime des frais réels avec factures." },
+              {
+                icon: UtensilsCrossed,
+                t: "20,70 € par repas",
+                d: "Forfait exonéré URSSAF pour chaque repas pris hors du domicile en situation de grand déplacement.",
+              },
+              {
+                icon: BedDouble,
+                t: "55,10 € à 74,30 € / nuit",
+                d: "Nuitée + petit-déjeuner. 74,30 € à Paris et petite couronne, 55,10 € en province.",
+              },
+              {
+                icon: Plane,
+                t: "≥ 50 km ET ≥ 1h30",
+                d: "Conditions cumulatives : au moins 50 km entre le domicile et le lieu de mission, ET 1h30 de trajet en transports en commun.",
+              },
+              {
+                icon: ShieldCheck,
+                t: "Exonéré URSSAF & impôt",
+                d: "Sans justificatif dans la limite du barème forfaitaire. Au-delà : régime des frais réels avec factures.",
+              },
             ].map(({ icon: Icon, t, d }) => (
               <Card key={t} className="border-border">
                 <CardContent className="p-5 flex gap-4">
@@ -182,14 +223,17 @@ export default function IndemniteGrandDeplacement2026() {
                 {BAREME_METROPOLE.map((r) => (
                   <TableRow key={r.label}>
                     <TableCell>{r.label}</TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">{r.value}</TableCell>
+                    <TableCell className="text-right font-semibold text-foreground">
+                      {r.value}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
           <p className="text-sm text-muted-foreground mt-3">
-            Source : URSSAF — Barème 2026 des indemnités forfaitaires de grand déplacement en métropole.
+            Source : URSSAF — Barème 2026 des indemnités forfaitaires de grand déplacement en
+            métropole.
           </p>
         </section>
 
@@ -234,24 +278,27 @@ export default function IndemniteGrandDeplacement2026() {
           </h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              Les <Link to="/bareme-ik-2026" className="text-primary underline">indemnités kilométriques</Link> couvrent
-              l'usage du véhicule personnel pour se rendre sur le lieu de mission. Les indemnités
-              de grand déplacement couvrent, elles, les frais engagés{" "}
+              Les{" "}
+              <Link to="/bareme-ik-2026" className="text-primary underline">
+                indemnités kilométriques
+              </Link>{" "}
+              couvrent l'usage du véhicule personnel pour se rendre sur le lieu de mission. Les
+              indemnités de grand déplacement couvrent, elles, les frais engagés{" "}
               <strong className="text-foreground">sur place</strong> (repas + nuitée).
             </p>
             <p>
               Concrètement : un commercial qui part 3 jours à 400 km de chez lui peut cumuler{" "}
-              <strong className="text-foreground">800 km × barème IK</strong> (aller-retour) + 3 nuitées + 6 repas au
-              forfait grand déplacement. Les deux régimes sont indépendants et cumulables tant que
-              chaque dépense correspond à une réalité professionnelle distincte.
+              <strong className="text-foreground">800 km × barème IK</strong> (aller-retour) + 3
+              nuitées + 6 repas au forfait grand déplacement. Les deux régimes sont indépendants et
+              cumulables tant que chaque dépense correspond à une réalité professionnelle distincte.
             </p>
             <div className="rounded-xl border border-border bg-card p-5 flex gap-4 items-start">
               <Euro className="w-6 h-6 text-primary shrink-0 mt-1" />
               <p className="text-sm">
-                <strong className="text-foreground">Astuce IKtracker :</strong> consignez chaque déplacement
-                dans votre journal (date, motif, kilomètres, découchers). Le PDF mensuel envoyé le 15
-                sert de pièce probante à votre employeur ou expert-comptable, en complément des notes
-                de frais de repas et de nuitée.
+                <strong className="text-foreground">Astuce IKtracker :</strong> consignez chaque
+                déplacement dans votre journal (date, motif, kilomètres, découchers). Le PDF mensuel
+                envoyé le 15 sert de pièce probante à votre employeur ou expert-comptable, en
+                complément des notes de frais de repas et de nuitée.
               </p>
             </div>
           </div>
@@ -270,7 +317,9 @@ export default function IndemniteGrandDeplacement2026() {
               >
                 <summary className="cursor-pointer font-semibold text-foreground list-none flex justify-between items-center">
                   {f.q}
-                  <span className="ml-4 text-primary transition-transform group-open:rotate-45">+</span>
+                  <span className="ml-4 text-primary transition-transform group-open:rotate-45">
+                    +
+                  </span>
                 </summary>
                 <p className="mt-3 text-muted-foreground leading-relaxed">{f.a}</p>
               </details>
@@ -281,7 +330,8 @@ export default function IndemniteGrandDeplacement2026() {
         {/* CTA */}
         <section className="max-w-md mx-auto px-4 pb-24 pt-8 text-center">
           <p className="text-muted-foreground mb-4">
-            Un journal unique pour vos kilomètres, découchers et repas professionnels — gratuit à vie.
+            Un journal unique pour vos kilomètres, découchers et repas professionnels — gratuit à
+            vie.
           </p>
           <Link to="/signup">
             <Button size="lg" className="gap-2 px-8">

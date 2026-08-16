@@ -61,10 +61,7 @@ Deno.test("OPTIONS preflight from allowed origin echoes origin", async () => {
   });
   await res.text();
   assertEquals(res.status, 200);
-  assertEquals(
-    res.headers.get("access-control-allow-origin"),
-    "https://iktracker.fr",
-  );
+  assertEquals(res.headers.get("access-control-allow-origin"), "https://iktracker.fr");
 });
 
 Deno.test("OPTIONS preflight from disallowed origin returns null ACAO", async () => {

@@ -1,39 +1,53 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuth } from '@/hooks/useAuth';
-import { colors, radius, spacing } from '@/theme';
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
+import { colors, radius, spacing } from "@/theme";
 
 export default function Login() {
   const { signInWithEmail, signInWithProvider } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isIOS = Platform.OS === 'ios';
+  const isIOS = Platform.OS === "ios";
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
     setError(null);
     try {
       await fn();
-      router.replace('/(app)/tournee');
+      router.replace("/(app)/tournee");
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Connexion impossible');
+      setError(e instanceof Error ? e.message : "Connexion impossible");
     } finally {
       setBusy(false);
     }
   };
 
   const appleButton = (
-    <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => run(() => signInWithProvider('apple'))}>
+    <Pressable
+      style={[styles.btn, styles.btnPrimary]}
+      onPress={() => run(() => signInWithProvider("apple"))}
+    >
       <Text style={styles.btnPrimaryText}>Continuer avec Apple</Text>
     </Pressable>
   );
   const googleButton = (
-    <Pressable style={[styles.btn, styles.btnOutline]} onPress={() => run(() => signInWithProvider('google'))}>
+    <Pressable
+      style={[styles.btn, styles.btnOutline]}
+      onPress={() => run(() => signInWithProvider("google"))}
+    >
       <Text style={styles.btnOutlineText}>Continuer avec Google</Text>
     </Pressable>
   );
@@ -54,7 +68,9 @@ export default function Login() {
           {appleButton}
         </>
       )}
-      <Text style={styles.hint}>Inscription immédiate, sans mot de passe ni e-mail de confirmation.</Text>
+      <Text style={styles.hint}>
+        Inscription immédiate, sans mot de passe ni e-mail de confirmation.
+      </Text>
 
       <View style={styles.separator} />
 
@@ -75,7 +91,10 @@ export default function Login() {
         onChangeText={setPassword}
         placeholderTextColor={colors.muted}
       />
-      <Pressable style={[styles.btn, styles.btnOutline]} onPress={() => run(() => signInWithEmail(email, password))}>
+      <Pressable
+        style={[styles.btn, styles.btnOutline]}
+        onPress={() => run(() => signInWithEmail(email, password))}
+      >
         <Text style={styles.btnOutlineText}>Se connecter</Text>
       </Pressable>
 
@@ -86,15 +105,26 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, justifyContent: 'center', backgroundColor: colors.background },
-  title: { fontSize: 32, fontWeight: '700', color: colors.text },
+  container: {
+    flex: 1,
+    padding: spacing.lg,
+    justifyContent: "center",
+    backgroundColor: colors.background,
+  },
+  title: { fontSize: 32, fontWeight: "700", color: colors.text },
   subtitle: { color: colors.muted, marginTop: spacing.xs, marginBottom: spacing.lg },
-  btn: { height: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
+  btn: {
+    height: 48,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.sm,
+  },
   btnPrimary: { backgroundColor: colors.text },
-  btnPrimaryText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  btnPrimaryText: { color: "#fff", fontWeight: "600", fontSize: 16 },
   btnOutline: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  btnOutlineText: { color: colors.text, fontWeight: '600', fontSize: 16 },
-  hint: { color: colors.muted, fontSize: 12, textAlign: 'center', marginTop: spacing.xs },
+  btnOutlineText: { color: colors.text, fontWeight: "600", fontSize: 16 },
+  hint: { color: colors.muted, fontSize: 12, textAlign: "center", marginTop: spacing.xs },
   separator: { height: 1, backgroundColor: colors.border, marginVertical: spacing.lg },
   input: {
     height: 48,
@@ -106,5 +136,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     color: colors.text,
   },
-  error: { color: colors.danger, marginTop: spacing.md, textAlign: 'center' },
+  error: { color: colors.danger, marginTop: spacing.md, textAlign: "center" },
 });

@@ -1,28 +1,29 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, RefreshCw, Copy, ExternalLink, Activity } from 'lucide-react';
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Sparkles, RefreshCw, Copy, ExternalLink, Activity } from "lucide-react";
 
-const DEFAULT_MODEL = 'wavespeed-ai/flux-dev';
+const DEFAULT_MODEL = "wavespeed-ai/flux-dev";
 const DEFAULT_INPUT = JSON.stringify(
   {
-    prompt: 'A minimalist illustration of a red car driving on a mountain road at sunset, flat design',
-    size: '1024*1024',
+    prompt:
+      "A minimalist illustration of a red car driving on a mountain road at sunset, flat design",
+    size: "1024*1024",
     num_inference_steps: 28,
     guidance_scale: 3.5,
     num_images: 1,
     enable_safety_checker: true,
   },
   null,
-  2
+  2,
 );
 
 type PredictionResult = {
@@ -56,9 +57,13 @@ export function AdminWavespeed() {
   const [inputText, setInputText] = useState(DEFAULT_INPUT);
   const [wait, setWait] = useState(true);
   const [result, setResult] = useState<PredictionResult | null>(null);
-  const [rawResponse, setRawResponse] = useState<string>('');
+  const [rawResponse, setRawResponse] = useState<string>("");
   const [balance, setBalance] = useState<string | null>(null);
-  const [connectionTest, setConnectionTest] = useState<{ ok: boolean; message: string; raw: string } | null>(null);
+  const [connectionTest, setConnectionTest] = useState<{
+    ok: boolean;
+    message: string;
+    raw: string;
+  } | null>(null);
 
   const generate = useMutation({
     mutationFn: async () => {
@@ -66,9 +71,9 @@ export function AdminWavespeed() {
       try {
         parsedInput = JSON.parse(inputText);
       } catch {
-        throw new Error('Input JSON invalide');
+        throw new Error("Input JSON invalide");
       }
-      const cleanModel = model.trim().replace(/^\/+|\/+$/g, '');
+      const cleanModel = model.trim().replace(/^\/+|\/+$/g, "");
       const path = wait ? `wavespeed/${cleanModel}?wait=1` : `wavespeed/${cleanModel}`;
       const { data, error } = await supabase.functions.invoke(path, {
         body: parsedInput as Record<string, unknown>,
@@ -79,22 +84,29 @@ export function AdminWavespeed() {
     onSuccess: (data) => {
       setResult(data);
       setRawResponse(JSON.stringify(data, null, 2));
-      toast({ title: 'Requête envoyée', description: 'Voir le résultat ci-dessous.' });
+      toast({ title: "Requête envoyée", description: "Voir le résultat ci-dessous." });
     },
     onError: (e: any) => {
       setResult(null);
       setRawResponse(String(e?.message ?? e));
-      toast({ title: 'Erreur', description: e?.message ?? 'Échec de la génération', variant: 'destructive' });
+      toast({
+        title: "Erreur",
+        description: e?.message ?? "Échec de la génération",
+        variant: "destructive",
+      });
     },
   });
 
   const refresh = useMutation({
     mutationFn: async () => {
       const id = normalize(result ?? {}).id;
-      if (!id) throw new Error('Aucun request_id à rafraîchir');
-      const { data, error } = await supabase.functions.invoke(`wavespeed/predictions/${id}/result`, {
-        method: 'GET' as any,
-      });
+      if (!id) throw new Error("Aucun request_id à rafraîchir");
+      const { data, error } = await supabase.functions.invoke(
+        `wavespeed/predictions/${id}/result`,
+        {
+          method: "GET" as any,
+        },
+      );
       if (error) throw error;
       return data as PredictionResult;
     },
@@ -103,21 +115,25 @@ export function AdminWavespeed() {
       setRawResponse(JSON.stringify(data, null, 2));
     },
     onError: (e: any) => {
-      toast({ title: 'Erreur', description: e?.message ?? 'Échec du refresh', variant: 'destructive' });
+      toast({
+        title: "Erreur",
+        description: e?.message ?? "Échec du refresh",
+        variant: "destructive",
+      });
     },
   });
 
   const fetchBalance = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('wavespeed/balance', {
-        method: 'GET' as any,
+      const { data, error } = await supabase.functions.invoke("wavespeed/balance", {
+        method: "GET" as any,
       });
       if (error) throw error;
       return data as any;
     },
     onSuccess: (data) => {
       const b = data?.data?.balance ?? data?.balance ?? JSON.stringify(data);
-      const value = typeof b === 'string' ? b : JSON.stringify(b);
+      const value = typeof b === "string" ? b : JSON.stringify(b);
       setBalance(value);
       setConnectionTest({
         ok: true,
@@ -128,10 +144,14 @@ export function AdminWavespeed() {
     onError: (e: any) => {
       setConnectionTest({
         ok: false,
-        message: e?.message ?? 'Impossible de contacter Wavespeed',
+        message: e?.message ?? "Impossible de contacter Wavespeed",
         raw: JSON.stringify(e, null, 2),
       });
-      toast({ title: 'Erreur', description: e?.message ?? 'Impossible de récupérer le solde', variant: 'destructive' });
+      toast({
+        title: "Erreur",
+        description: e?.message ?? "Impossible de récupérer le solde",
+        variant: "destructive",
+      });
     },
   });
 
@@ -151,19 +171,36 @@ export function AdminWavespeed() {
                 Test des générations via l'edge function <code className="text-xs">wavespeed</code>.
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={() => fetchBalance.mutate()} disabled={fetchBalance.isPending}>
-              {fetchBalance.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Activity className="w-4 h-4 mr-2" />}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchBalance.mutate()}
+              disabled={fetchBalance.isPending}
+            >
+              {fetchBalance.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Activity className="w-4 h-4 mr-2" />
+              )}
               Tester la connexion
-              {balance !== null && <Badge variant="secondary" className="ml-2">{balance}</Badge>}
+              {balance !== null && (
+                <Badge variant="secondary" className="ml-2">
+                  {balance}
+                </Badge>
+              )}
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {connectionTest && (
-            <div className={`p-3 rounded-md text-sm space-y-2 ${connectionTest.ok ? 'bg-green-500/10 text-green-700' : 'bg-destructive/10 text-destructive'}`}>
+            <div
+              className={`p-3 rounded-md text-sm space-y-2 ${connectionTest.ok ? "bg-green-500/10 text-green-700" : "bg-destructive/10 text-destructive"}`}
+            >
               <p className="font-medium">{connectionTest.message}</p>
               <details>
-                <summary className="cursor-pointer opacity-80 hover:opacity-100">Détails de la réponse</summary>
+                <summary className="cursor-pointer opacity-80 hover:opacity-100">
+                  Détails de la réponse
+                </summary>
                 <pre className="mt-2 p-2 rounded bg-background/50 overflow-auto max-h-40 whitespace-pre-wrap break-all text-xs">
                   {connectionTest.raw}
                 </pre>
@@ -180,7 +217,8 @@ export function AdminWavespeed() {
               placeholder="wavespeed-ai/flux-dev"
             />
             <p className="text-xs text-muted-foreground">
-              Ex: <code>wavespeed-ai/flux-dev</code>, <code>wavespeed-ai/flux-schnell</code>, <code>bytedance/seedream-v4</code>.{' '}
+              Ex: <code>wavespeed-ai/flux-dev</code>, <code>wavespeed-ai/flux-schnell</code>,{" "}
+              <code>bytedance/seedream-v4</code>.{" "}
               <a
                 href="https://wavespeed.ai/models"
                 target="_blank"
@@ -214,7 +252,7 @@ export function AdminWavespeed() {
               {generate.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  {wait ? 'Génération…' : 'Envoi…'}
+                  {wait ? "Génération…" : "Envoi…"}
                 </>
               ) : (
                 <>
@@ -236,7 +274,11 @@ export function AdminWavespeed() {
                 {n.status && (
                   <Badge
                     variant={
-                      n.status === 'completed' ? 'default' : n.status === 'failed' ? 'destructive' : 'secondary'
+                      n.status === "completed"
+                        ? "default"
+                        : n.status === "failed"
+                          ? "destructive"
+                          : "secondary"
                     }
                   >
                     {n.status}
@@ -253,14 +295,19 @@ export function AdminWavespeed() {
                     size="sm"
                     onClick={() => {
                       navigator.clipboard.writeText(n.id!);
-                      toast({ title: 'request_id copié' });
+                      toast({ title: "request_id copié" });
                     }}
                   >
                     <Copy className="w-3.5 h-3.5 mr-1" /> {n.id.slice(0, 8)}…
                   </Button>
                 )}
-                {n.id && n.status !== 'completed' && n.status !== 'failed' && (
-                  <Button variant="outline" size="sm" onClick={() => refresh.mutate()} disabled={refresh.isPending}>
+                {n.id && n.status !== "completed" && n.status !== "failed" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refresh.mutate()}
+                    disabled={refresh.isPending}
+                  >
                     {refresh.isPending ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
                     ) : (
@@ -294,7 +341,12 @@ export function AdminWavespeed() {
                       {isVideo ? (
                         <video src={url} controls className="w-full h-auto" />
                       ) : (
-                        <img src={url} alt={`output ${i + 1}`} className="w-full h-auto" loading="lazy" />
+                        <img
+                          src={url}
+                          alt={`output ${i + 1}`}
+                          className="w-full h-auto"
+                          loading="lazy"
+                        />
                       )}
                     </a>
                   );

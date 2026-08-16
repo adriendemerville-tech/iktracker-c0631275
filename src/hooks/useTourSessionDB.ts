@@ -1,6 +1,6 @@
-import { useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { TourStop } from './useTourTracker';
+import { useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { TourStop } from "./useTourTracker";
 
 export interface TourSessionDB {
   id: string;
@@ -29,18 +29,20 @@ export function useTourSessionDB() {
    * Create a new tour session in DB
    */
   const createSession = useCallback(async (startTime: Date): Promise<string | null> => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return null;
 
     // Deactivate any existing active sessions first
     await supabase
-      .from('tour_sessions')
+      .from("tour_sessions")
       .update({ is_active: false, updated_at: new Date().toISOString() } as any)
-      .eq('user_id', user.id)
-      .eq('is_active', true);
+      .eq("user_id", user.id)
+      .eq("is_active", true);
 
     const { data, error } = await supabase
-      .from('tour_sessions')
+      .from("tour_sessions")
       .insert({
         user_id: user.id,
         started_at: startTime.toISOString(),
@@ -50,106 +52,118 @@ export function useTourSessionDB() {
         gps_points: [],
         total_distance_km: 0,
       } as any)
-      .select('id')
+      .select("id")
       .single();
 
     if (error) {
-      console.warn('[TourSessionDB] Failed to create session:', error.message);
+      console.warn("[TourSessionDB] Failed to create session:", error.message);
       return null;
     }
 
     sessionIdRef.current = data.id;
     lastSyncRef.current = Date.now();
-    console.log('[TourSessionDB] Session created:', data.id);
+    console.log("[TourSessionDB] Session created:", data.id);
     return data.id;
   }, []);
 
   /**
    * Update the active session in DB (debounced)
    */
-  const updateSession = useCallback(async (data: {
-    stops?: TourStop[];
-    totalDistanceKm?: number;
-    gpsPoints?: Array<{ lat: number; lng: number; timestamp: number; accuracy: number }>;
-    pendingStop?: any;
-  }, force = false) => {
-    const now = Date.now();
-    if (!force && now - lastSyncRef.current < DB_SYNC_INTERVAL) return;
+  const updateSession = useCallback(
+    async (
+      data: {
+        stops?: TourStop[];
+        totalDistanceKm?: number;
+        gpsPoints?: Array<{ lat: number; lng: number; timestamp: number; accuracy: number }>;
+        pendingStop?: any;
+      },
+      force = false,
+    ) => {
+      const now = Date.now();
+      if (!force && now - lastSyncRef.current < DB_SYNC_INTERVAL) return;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const updatePayload: Record<string, any> = {
-      last_activity: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      const updatePayload: Record<string, any> = {
+        last_activity: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    if (data.stops) {
-      updatePayload.stops = data.stops.map(s => ({
-        ...s,
-        timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
-      }));
-    }
-    if (data.totalDistanceKm !== undefined) {
-      updatePayload.total_distance_km = data.totalDistanceKm;
-    }
-    if (data.gpsPoints) {
-      // Keep last 500 GPS points BUT always preserve the very first point
-      // (origin/start of tour) so it's never lost to truncation.
-      const pts = data.gpsPoints;
-      if (pts.length <= 500) {
-        updatePayload.gps_points = pts;
-      } else {
-        updatePayload.gps_points = [pts[0], ...pts.slice(-499)];
+      if (data.stops) {
+        updatePayload.stops = data.stops.map((s) => ({
+          ...s,
+          timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
+        }));
       }
-    }
-    if (data.pendingStop !== undefined) {
-      updatePayload.pending_stop = data.pendingStop;
-    }
+      if (data.totalDistanceKm !== undefined) {
+        updatePayload.total_distance_km = data.totalDistanceKm;
+      }
+      if (data.gpsPoints) {
+        // Keep last 500 GPS points BUT always preserve the very first point
+        // (origin/start of tour) so it's never lost to truncation.
+        const pts = data.gpsPoints;
+        if (pts.length <= 500) {
+          updatePayload.gps_points = pts;
+        } else {
+          updatePayload.gps_points = [pts[0], ...pts.slice(-499)];
+        }
+      }
+      if (data.pendingStop !== undefined) {
+        updatePayload.pending_stop = data.pendingStop;
+      }
 
-    const { error } = await supabase
-      .from('tour_sessions')
-      .update(updatePayload as any)
-      .eq('user_id', user.id)
-      .eq('is_active', true);
+      const { error } = await supabase
+        .from("tour_sessions")
+        .update(updatePayload as any)
+        .eq("user_id", user.id)
+        .eq("is_active", true);
 
-    if (error) {
-      console.warn('[TourSessionDB] Failed to update session:', error.message);
-    } else {
-      lastSyncRef.current = now;
-    }
-  }, []);
+      if (error) {
+        console.warn("[TourSessionDB] Failed to update session:", error.message);
+      } else {
+        lastSyncRef.current = now;
+      }
+    },
+    [],
+  );
 
   /**
    * End the active session in DB
    */
   const endSession = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     await supabase
-      .from('tour_sessions')
+      .from("tour_sessions")
       .update({ is_active: false, updated_at: new Date().toISOString() } as any)
-      .eq('user_id', user.id)
-      .eq('is_active', true);
+      .eq("user_id", user.id)
+      .eq("is_active", true);
 
     sessionIdRef.current = null;
-    console.log('[TourSessionDB] Session ended');
+    console.log("[TourSessionDB] Session ended");
   }, []);
 
   /**
    * Fetch the active session from DB (called on app startup)
    */
   const fetchActiveSession = useCallback(async (): Promise<TourSessionDB | null> => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return null;
 
     const { data, error } = await supabase
-      .from('tour_sessions')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
+      .from("tour_sessions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 

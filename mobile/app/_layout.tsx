@@ -1,21 +1,21 @@
-import React from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider } from '@/hooks/useAuth';
-import { colors } from '@/theme';
-import { StartupBoundary } from '@/components/StartupBoundary';
-import { StartupErrorScreen } from '@/components/StartupErrorScreen';
-import { checkBackendConfig, describeRuntimeError, type StartupIssue } from '@/lib/startup-checks';
-import { captureStartupError } from '@/lib/monitoring';
+import React from "react";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthProvider } from "@/hooks/useAuth";
+import { colors } from "@/theme";
+import { StartupBoundary } from "@/components/StartupBoundary";
+import { StartupErrorScreen } from "@/components/StartupErrorScreen";
+import { checkBackendConfig, describeRuntimeError, type StartupIssue } from "@/lib/startup-checks";
+import { captureStartupError } from "@/lib/monitoring";
 
 // Enregistrement de la tâche GPS background : ne doit jamais faire crasher le boot.
 let taskIssue: StartupIssue | null = null;
 try {
-  require('@/lib/tour-tracking');
+  require("@/lib/tour-tracking");
 } catch (error) {
   taskIssue = describeRuntimeError(error);
-  captureStartupError(error, 'background-task-registration');
+  captureStartupError(error, "background-task-registration");
 }
 
 export default function RootLayout() {

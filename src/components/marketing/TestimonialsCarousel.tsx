@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, memo } from 'react';
-import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useCallback, memo } from "react";
+import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface Testimonial {
   quote: string;
@@ -71,7 +71,7 @@ function Stars({ count }: { count: number }) {
           key={i}
           className={cn(
             "h-3.5 w-3.5",
-            i < count ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
+            i < count ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30",
           )}
         />
       ))}
@@ -81,22 +81,22 @@ function Stars({ count }: { count: number }) {
 
 function TestimonialsCarouselComponent() {
   const [current, setCurrent] = useState(0);
-  const visibleCount = typeof window !== 'undefined' && window.innerWidth >= 768 ? 3 : 1;
+  const visibleCount = typeof window !== "undefined" && window.innerWidth >= 768 ? 3 : 1;
   const maxIndex = testimonials.length - visibleCount;
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrent(prev => (prev >= maxIndex ? 0 : prev + 1));
+      setCurrent((prev) => (prev >= maxIndex ? 0 : prev + 1));
     }, 4000);
     return () => clearInterval(timer);
   }, [maxIndex]);
 
   const prev = useCallback(() => {
-    setCurrent(c => (c <= 0 ? maxIndex : c - 1));
+    setCurrent((c) => (c <= 0 ? maxIndex : c - 1));
   }, [maxIndex]);
 
   const next = useCallback(() => {
-    setCurrent(c => (c >= maxIndex ? 0 : c + 1));
+    setCurrent((c) => (c >= maxIndex ? 0 : c + 1));
   }, [maxIndex]);
 
   return (
@@ -126,7 +126,9 @@ function TestimonialsCarouselComponent() {
                     <div className="flex items-center justify-between pt-2 border-t border-border/50">
                       <div>
                         <span className="font-semibold text-sm text-foreground">{t.name}</span>
-                        <p className="text-xs text-muted-foreground">{t.job} · {t.city}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t.job} · {t.city}
+                        </p>
                       </div>
                       <Stars count={t.stars} />
                     </div>
@@ -168,7 +170,9 @@ function TestimonialsCarouselComponent() {
                 <span
                   className={cn(
                     "block h-2 rounded-full transition-all duration-300 pointer-events-none",
-                    i === current ? "bg-primary w-6" : "bg-muted w-2 group-hover:bg-muted-foreground/50"
+                    i === current
+                      ? "bg-primary w-6"
+                      : "bg-muted w-2 group-hover:bg-muted-foreground/50",
                   )}
                 />
               </button>

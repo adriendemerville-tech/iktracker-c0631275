@@ -1,16 +1,16 @@
-import { Helmet } from '@/lib/helmet-compat';
-import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react';
-import { useNavigate, Link } from '@/lib/router-compat';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import founderImage from '@/assets/founder-adrien-optimized.webp';
-import { Breadcrumb } from '@/components/Breadcrumb';
+import { Helmet } from "@/lib/helmet-compat";
+import { ArrowLeft, Mail, MessageSquare, Send } from "lucide-react";
+import { useNavigate, Link } from "@/lib/router-compat";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import founderImage from "@/assets/founder-adrien-optimized.webp";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Contact = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,10 +44,10 @@ const Contact = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('feedback').insert({
+      const { error } = await supabase.from("feedback").insert({
         message: `[CONTACT] ${name} (${email})\n\n${message}`,
-        user_id: user?.id || '00000000-0000-0000-0000-000000000000',
-        device_info: { source: 'contact_page', name, email },
+        user_id: user?.id || "00000000-0000-0000-0000-000000000000",
+        device_info: { source: "contact_page", name, email },
       });
 
       if (error) throw error;
@@ -55,7 +55,11 @@ const Contact = () => {
       setSent(true);
       toast({ title: "Message envoyé !", description: "Nous vous répondrons rapidement." });
     } catch {
-      toast({ title: "Erreur lors de l'envoi", description: "Réessayez ou écrivez-nous à contact@iktracker.fr", variant: "destructive" });
+      toast({
+        title: "Erreur lors de l'envoi",
+        description: "Réessayez ou écrivez-nous à contact@iktracker.fr",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -64,27 +68,26 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            "name": "Contact IKtracker",
-            "description": "Page de contact d'IKtracker",
-            "url": "https://iktracker.fr/contact",
-            "inLanguage": "fr-FR",
-            "mainEntity": {
+            name: "Contact IKtracker",
+            description: "Page de contact d'IKtracker",
+            url: "https://iktracker.fr/contact",
+            inLanguage: "fr-FR",
+            mainEntity: {
               "@type": "Organization",
-              "name": "IKtracker",
-              "url": "https://iktracker.fr",
-              "email": "contact@iktracker.fr",
-              "contactPoint": {
+              name: "IKtracker",
+              url: "https://iktracker.fr",
+              email: "contact@iktracker.fr",
+              contactPoint: {
                 "@type": "ContactPoint",
-                "contactType": "customer support",
-                "email": "contact@iktracker.fr",
-                "availableLanguage": "French"
-              }
-            }
+                contactType: "customer support",
+                email: "contact@iktracker.fr",
+                availableLanguage: "French",
+              },
+            },
           })}
         </script>
       </Helmet>
@@ -94,24 +97,40 @@ const Contact = () => {
         className="skip-link"
         onClick={(e) => {
           e.preventDefault();
-          const main = document.getElementById('main-content');
-          if (main) { main.focus(); main.scrollIntoView({ behavior: 'smooth' }); }
+          const main = document.getElementById("main-content");
+          if (main) {
+            main.focus();
+            main.scrollIntoView({ behavior: "smooth" });
+          }
         }}
       >
         Aller au contenu principal
       </a>
 
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xs border-b border-border" role="banner">
-        <nav className="container mx-auto px-4 py-4 flex items-center gap-4" aria-label="Navigation">
+      <header
+        className="sticky top-0 z-10 bg-background/80 backdrop-blur-xs border-b border-border"
+        role="banner"
+      >
+        <nav
+          className="container mx-auto px-4 py-4 flex items-center gap-4"
+          aria-label="Navigation"
+        >
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Retour">
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Button>
-          <h1 className="text-xl font-semibold" id="page-heading">Contact</h1>
+          <h1 className="text-xl font-semibold" id="page-heading">
+            Contact
+          </h1>
         </nav>
       </header>
 
-      <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-xl outline-hidden" aria-labelledby="page-heading">
-        <Breadcrumb items={[{ label: 'Contact' }]} />
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="container mx-auto px-4 py-8 max-w-xl outline-hidden"
+        aria-labelledby="page-heading"
+      >
+        <Breadcrumb items={[{ label: "Contact" }]} />
 
         {/* Direct email */}
         <div className="bg-muted/50 rounded-xl p-5 mb-8 flex items-start gap-3">
@@ -130,10 +149,19 @@ const Contact = () => {
               <MessageSquare className="h-8 w-8 text-primary" />
             </div>
             <h2 className="text-lg font-semibold text-foreground">Message envoyé !</h2>
-            <p className="text-sm text-muted-foreground">Nous vous répondrons dans les plus brefs délais.</p>
+            <p className="text-sm text-muted-foreground">
+              Nous vous répondrons dans les plus brefs délais.
+            </p>
             <div className="flex gap-3 justify-center pt-4">
-              <Button variant="outline" onClick={() => navigate('/')}>Retour à l'accueil</Button>
-              <Button onClick={() => { setSent(false); setForm({ name: '', email: '', message: '' }); }}>
+              <Button variant="outline" onClick={() => navigate("/")}>
+                Retour à l'accueil
+              </Button>
+              <Button
+                onClick={() => {
+                  setSent(false);
+                  setForm({ name: "", email: "", message: "" });
+                }}
+              >
                 Envoyer un autre message
               </Button>
             </div>
@@ -146,7 +174,7 @@ const Contact = () => {
                 id="contact-name"
                 placeholder="Votre nom"
                 value={form.name}
-                onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 maxLength={100}
                 required
                 autoComplete="name"
@@ -160,7 +188,7 @@ const Contact = () => {
                 type="email"
                 placeholder="votre@email.com"
                 value={form.email}
-                onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 maxLength={255}
                 required
                 autoComplete="email"
@@ -173,7 +201,7 @@ const Contact = () => {
                 id="contact-message"
                 placeholder="Comment pouvons-nous vous aider ?"
                 value={form.message}
-                onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                 maxLength={2000}
                 rows={5}
                 required
@@ -212,19 +240,33 @@ const Contact = () => {
               />
               <figcaption className="text-center sm:text-left">
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  IKtracker est développé par <strong className="text-foreground">Adrien de Volontat</strong>, 
-                  entrepreneur et fondateur d'Avenir Rénovations. Chaque message est lu personnellement.
+                  IKtracker est développé par{" "}
+                  <strong className="text-foreground">Adrien de Volontat</strong>, entrepreneur et
+                  fondateur d'Avenir Rénovations. Chaque message est lu personnellement.
                 </p>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
-                  <Link to="/mentions-legales" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    to="/mentions-legales"
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Mentions légales
                   </Link>
-                  <span className="text-muted-foreground/50" aria-hidden="true">•</span>
-                  <Link to="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                  <span className="text-muted-foreground/50" aria-hidden="true">
+                    •
+                  </span>
+                  <Link
+                    to="/privacy"
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Confidentialité
                   </Link>
-                  <span className="text-muted-foreground/50" aria-hidden="true">•</span>
-                  <Link to="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                  <span className="text-muted-foreground/50" aria-hidden="true">
+                    •
+                  </span>
+                  <Link
+                    to="/"
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Accueil
                   </Link>
                 </div>

@@ -1,15 +1,21 @@
-import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, subDays } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format, subDays } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   Activity,
   AlertTriangle,
@@ -21,8 +27,8 @@ import {
   Users,
   Zap,
   ExternalLink,
-} from 'lucide-react';
-import { useNavigate } from '@/lib/router-compat';
+} from "lucide-react";
+import { useNavigate } from "@/lib/router-compat";
 
 interface Partner {
   id: string;
@@ -50,45 +56,46 @@ interface RequestLog {
 }
 
 const PERIODS = [
-  { value: '1', label: '24h' },
-  { value: '7', label: '7 jours' },
-  { value: '30', label: '30 jours' },
-  { value: '90', label: '90 jours' },
+  { value: "1", label: "24h" },
+  { value: "7", label: "7 jours" },
+  { value: "30", label: "30 jours" },
+  { value: "90", label: "90 jours" },
 ];
 
 export function AdminApiPartners() {
   const navigate = useNavigate();
-  const [period, setPeriod] = useState('7');
-  const [selectedPartnerId, setSelectedPartnerId] = useState<string>('all');
+  const [period, setPeriod] = useState("7");
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string>("all");
 
   const { data: partners = [], refetch: refetchPartners } = useQuery({
-    queryKey: ['admin-api-partners-list'],
+    queryKey: ["admin-api-partners-list"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('partner_api_keys_safe')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("partner_api_keys_safe")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as Partner[];
     },
     refetchInterval: 60_000,
   });
 
-  const sinceIso = useMemo(
-    () => subDays(new Date(), parseInt(period, 10)).toISOString(),
-    [period],
-  );
+  const sinceIso = useMemo(() => subDays(new Date(), parseInt(period, 10)).toISOString(), [period]);
 
-  const { data: logs = [], isLoading: logsLoading, refetch: refetchLogs } = useQuery({
-    queryKey: ['admin-api-partner-logs', period, selectedPartnerId],
+  const {
+    data: logs = [],
+    isLoading: logsLoading,
+    refetch: refetchLogs,
+  } = useQuery({
+    queryKey: ["admin-api-partner-logs", period, selectedPartnerId],
     queryFn: async () => {
       let q = supabase
-        .from('partner_request_logs')
-        .select('*')
-        .gte('created_at', sinceIso)
-        .order('created_at', { ascending: false })
+        .from("partner_request_logs")
+        .select("*")
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: false })
         .limit(500);
-      if (selectedPartnerId !== 'all') q = q.eq('partner_id', selectedPartnerId);
+      if (selectedPartnerId !== "all") q = q.eq("partner_id", selectedPartnerId);
       const { data, error } = await q;
       if (error) throw error;
       return (data || []) as RequestLog[];
@@ -110,16 +117,17 @@ export function AdminApiPartners() {
     const errorRate = total > 0 ? (errors / total) * 100 : 0;
     const avgLatency =
       total > 0
-        ? Math.round(
-            logs.reduce((sum, l) => sum + (l.response_time_ms || 0), 0) / total,
-          )
+        ? Math.round(logs.reduce((sum, l) => sum + (l.response_time_ms || 0), 0) / total)
         : 0;
     const uniqueUsers = new Set(
       logs.map((l) => l.external_user_id || l.iktracker_user_id).filter(Boolean),
     ).size;
 
     // By endpoint
-    const byEndpoint = new Map<string, { total: number; errors: number; avgMs: number; sumMs: number }>();
+    const byEndpoint = new Map<
+      string,
+      { total: number; errors: number; avgMs: number; sumMs: number }
+    >();
     for (const l of logs) {
       const key = `${l.method} ${l.path}`;
       const cur = byEndpoint.get(key) || { total: 0, errors: 0, avgMs: 0, sumMs: 0 };
@@ -147,10 +155,7 @@ export function AdminApiPartners() {
     return { total, errors, success, errorRate, avgLatency, uniqueUsers, endpoints, statuses };
   }, [logs]);
 
-  const errorLogs = useMemo(
-    () => logs.filter((l) => l.status_code >= 400),
-    [logs],
-  );
+  const errorLogs = useMemo(() => logs.filter((l) => l.status_code >= 400), [logs]);
 
   const refresh = () => {
     refetchPartners();
@@ -158,16 +163,16 @@ export function AdminApiPartners() {
   };
 
   const getStatusColor = (code: number) => {
-    if (code >= 500) return 'text-destructive';
-    if (code >= 400) return 'text-orange-500';
-    if (code >= 300) return 'text-blue-500';
-    return 'text-emerald-600';
+    if (code >= 500) return "text-destructive";
+    if (code >= 400) return "text-orange-500";
+    if (code >= 300) return "text-blue-500";
+    return "text-emerald-600";
   };
 
   const getStatusBadge = (code: number) => {
-    if (code >= 500) return 'destructive';
-    if (code >= 400) return 'secondary';
-    return 'outline';
+    if (code >= 500) return "destructive";
+    if (code >= 400) return "secondary";
+    return "outline";
   };
 
   return (
@@ -215,11 +220,7 @@ export function AdminApiPartners() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Actualiser
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/app/admin/partners')}
-              >
+              <Button variant="outline" size="sm" onClick={() => navigate("/app/admin/partners")}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Gérer les clés
               </Button>
@@ -233,15 +234,15 @@ export function AdminApiPartners() {
         <KpiCard
           icon={Activity}
           label="Requêtes"
-          value={stats.total.toLocaleString('fr-FR')}
+          value={stats.total.toLocaleString("fr-FR")}
           loading={logsLoading}
         />
         <KpiCard
           icon={AlertTriangle}
           label="Erreurs"
-          value={stats.errors.toLocaleString('fr-FR')}
+          value={stats.errors.toLocaleString("fr-FR")}
           sub={`${stats.errorRate.toFixed(1)}%`}
-          tone={stats.errors > 0 ? 'destructive' : 'success'}
+          tone={stats.errors > 0 ? "destructive" : "success"}
           loading={logsLoading}
         />
         <KpiCard
@@ -253,13 +254,13 @@ export function AdminApiPartners() {
         <KpiCard
           icon={Users}
           label="Utilisateurs"
-          value={stats.uniqueUsers.toLocaleString('fr-FR')}
+          value={stats.uniqueUsers.toLocaleString("fr-FR")}
           loading={logsLoading}
         />
       </div>
 
       {/* Active partners summary */}
-      {selectedPartnerId === 'all' && partners.length > 0 && (
+      {selectedPartnerId === "all" && partners.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Quotas mensuels</CardTitle>
@@ -267,20 +268,26 @@ export function AdminApiPartners() {
           <CardContent className="space-y-2">
             {partners.map((p) => {
               const pct = p.monthly_quota > 0 ? (p.usage_current_month / p.monthly_quota) * 100 : 0;
-              const tone = pct >= 90 ? 'bg-destructive' : pct >= 70 ? 'bg-orange-500' : 'bg-emerald-500';
+              const tone =
+                pct >= 90 ? "bg-destructive" : pct >= 70 ? "bg-orange-500" : "bg-emerald-500";
               return (
                 <div key={p.id} className="space-y-1">
                   <div className="flex items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="font-medium truncate">{p.partner_name}</span>
                       {p.is_active ? (
-                        <Badge variant="outline" className="text-[10px] h-4">Active</Badge>
+                        <Badge variant="outline" className="text-[10px] h-4">
+                          Active
+                        </Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px] h-4">Désactivée</Badge>
+                        <Badge variant="secondary" className="text-[10px] h-4">
+                          Désactivée
+                        </Badge>
                       )}
                     </div>
                     <span className="text-muted-foreground tabular-nums shrink-0">
-                      {p.usage_current_month.toLocaleString('fr-FR')} / {p.monthly_quota.toLocaleString('fr-FR')}
+                      {p.usage_current_month.toLocaleString("fr-FR")} /{" "}
+                      {p.monthly_quota.toLocaleString("fr-FR")}
                     </span>
                   </div>
                   <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -349,7 +356,7 @@ export function AdminApiPartners() {
                           </Badge>
                         )}
                         <span className="font-semibold tabular-nums w-16 text-right">
-                          {e.total.toLocaleString('fr-FR')}
+                          {e.total.toLocaleString("fr-FR")}
                         </span>
                       </div>
                     );
@@ -377,7 +384,7 @@ export function AdminApiPartners() {
                         {s.code}
                       </span>
                       <span className="text-muted-foreground tabular-nums">
-                        {s.count.toLocaleString('fr-FR')}
+                        {s.count.toLocaleString("fr-FR")}
                       </span>
                     </div>
                   ))}
@@ -423,14 +430,17 @@ export function AdminApiPartners() {
                           className="border rounded-md p-3 space-y-1.5 bg-destructive/5"
                         >
                           <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant={getStatusBadge(log.status_code)} className="font-mono text-xs">
+                            <Badge
+                              variant={getStatusBadge(log.status_code)}
+                              className="font-mono text-xs"
+                            >
                               {log.status_code}
                             </Badge>
                             <span className="font-mono text-xs font-semibold">{log.method}</span>
                             <code className="text-xs flex-1 min-w-0 truncate">{log.path}</code>
                             <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                               <Clock className="w-3 h-3 inline mr-0.5 -mt-0.5" />
-                              {format(new Date(log.created_at), 'dd MMM HH:mm:ss', { locale: fr })}
+                              {format(new Date(log.created_at), "dd MMM HH:mm:ss", { locale: fr })}
                             </span>
                           </div>
                           {log.error_message && (
@@ -441,13 +451,17 @@ export function AdminApiPartners() {
                             </div>
                           )}
                           <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
-                            {partner && <span>Partenaire : <strong>{partner.partner_name}</strong></span>}
+                            {partner && (
+                              <span>
+                                Partenaire : <strong>{partner.partner_name}</strong>
+                              </span>
+                            )}
                             {log.external_user_id && (
-                              <span>Ext. user : <code>{log.external_user_id}</code></span>
+                              <span>
+                                Ext. user : <code>{log.external_user_id}</code>
+                              </span>
                             )}
-                            {log.response_time_ms != null && (
-                              <span>{log.response_time_ms}ms</span>
-                            )}
+                            {log.response_time_ms != null && <span>{log.response_time_ms}ms</span>}
                           </div>
                         </div>
                       );
@@ -463,9 +477,7 @@ export function AdminApiPartners() {
         <TabsContent value="logs" className="mt-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">
-                Tous les appels ({logs.length})
-              </CardTitle>
+              <CardTitle className="text-sm">Tous les appels ({logs.length})</CardTitle>
             </CardHeader>
             <CardContent>
               {logsLoading ? (
@@ -485,7 +497,7 @@ export function AdminApiPartners() {
                           className="flex items-center gap-2 border-b py-1.5 last:border-0"
                         >
                           <span className="text-muted-foreground w-20 truncate text-[10px]">
-                            {format(new Date(log.created_at), 'HH:mm:ss')}
+                            {format(new Date(log.created_at), "HH:mm:ss")}
                           </span>
                           <span className={`w-10 font-bold ${getStatusColor(log.status_code)}`}>
                             {log.status_code}
@@ -493,10 +505,10 @@ export function AdminApiPartners() {
                           <span className="w-14">{log.method}</span>
                           <span className="flex-1 truncate">{log.path}</span>
                           <span className="text-muted-foreground w-20 truncate text-[10px]">
-                            {partner?.partner_name || '—'}
+                            {partner?.partner_name || "—"}
                           </span>
                           <span className="text-muted-foreground w-12 text-right tabular-nums text-[10px]">
-                            {log.response_time_ms ?? '—'}ms
+                            {log.response_time_ms ?? "—"}ms
                           </span>
                         </div>
                       );
@@ -524,15 +536,15 @@ function KpiCard({
   label: string;
   value: string;
   sub?: string;
-  tone?: 'destructive' | 'success';
+  tone?: "destructive" | "success";
   loading?: boolean;
 }) {
   const toneClass =
-    tone === 'destructive'
-      ? 'text-destructive'
-      : tone === 'success'
-      ? 'text-emerald-600'
-      : 'text-foreground';
+    tone === "destructive"
+      ? "text-destructive"
+      : tone === "success"
+        ? "text-emerald-600"
+        : "text-foreground";
   return (
     <Card>
       <CardContent className="p-4">

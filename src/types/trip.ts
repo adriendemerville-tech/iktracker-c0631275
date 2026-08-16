@@ -43,7 +43,7 @@ export interface Trip {
   ikAmount: number; // calculated IK in euros (preserved even if vehicle deleted)
   tourStops?: TourStopData[]; // For tours: array of intermediate stops
   calendarEventId?: string | null; // If trip was created from a calendar event
-  status: 'validated' | 'pending_location'; // Trip status
+  status: "validated" | "pending_location"; // Trip status
 }
 
 export interface TripDraft {
@@ -65,11 +65,36 @@ export interface IKBareme {
 }
 
 export const IK_BAREME_2024: IKBareme[] = [
-  { cv: '3', upTo5000: { rate: 0.529 }, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: { rate: 0.370 } },
-  { cv: '4', upTo5000: { rate: 0.606 }, from5001To20000: { rate: 0.340, fixed: 1330 }, over20000: { rate: 0.407 } },
-  { cv: '5', upTo5000: { rate: 0.636 }, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: { rate: 0.427 } },
-  { cv: '6', upTo5000: { rate: 0.665 }, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: { rate: 0.447 } },
-  { cv: '7+', upTo5000: { rate: 0.697 }, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: { rate: 0.470 } },
+  {
+    cv: "3",
+    upTo5000: { rate: 0.529 },
+    from5001To20000: { rate: 0.316, fixed: 1065 },
+    over20000: { rate: 0.37 },
+  },
+  {
+    cv: "4",
+    upTo5000: { rate: 0.606 },
+    from5001To20000: { rate: 0.34, fixed: 1330 },
+    over20000: { rate: 0.407 },
+  },
+  {
+    cv: "5",
+    upTo5000: { rate: 0.636 },
+    from5001To20000: { rate: 0.357, fixed: 1395 },
+    over20000: { rate: 0.427 },
+  },
+  {
+    cv: "6",
+    upTo5000: { rate: 0.665 },
+    from5001To20000: { rate: 0.374, fixed: 1457 },
+    over20000: { rate: 0.447 },
+  },
+  {
+    cv: "7+",
+    upTo5000: { rate: 0.697 },
+    from5001To20000: { rate: 0.394, fixed: 1515 },
+    over20000: { rate: 0.47 },
+  },
 ];
 
 export function getIKBareme(fiscalPower: number): IKBareme {
@@ -80,14 +105,17 @@ export function getIKBareme(fiscalPower: number): IKBareme {
   return IK_BAREME_2024[4]; // 7 CV et plus
 }
 
-export type IKRateOverride = 'auto' | 'tier2' | 'tier3';
+export type IKRateOverride = "auto" | "tier2" | "tier3";
 
 // Returns the forced €/km rate for a given override, or null if 'auto'
-export function getForcedRate(fiscalPower: number, override: IKRateOverride | undefined | null): number | null {
-  if (!override || override === 'auto') return null;
+export function getForcedRate(
+  fiscalPower: number,
+  override: IKRateOverride | undefined | null,
+): number | null {
+  if (!override || override === "auto") return null;
   const bareme = getIKBareme(fiscalPower);
-  if (override === 'tier2') return bareme.from5001To20000.rate;
-  if (override === 'tier3') return bareme.over20000.rate;
+  if (override === "tier2") return bareme.from5001To20000.rate;
+  if (override === "tier3") return bareme.over20000.rate;
   return null;
 }
 
@@ -122,9 +150,8 @@ export function calculateTotalAnnualIK(
   if (totalAnnualKm <= 5000) {
     return totalAnnualKm * bareme.upTo5000.rate;
   } else if (totalAnnualKm <= 20000) {
-    return (totalAnnualKm * bareme.from5001To20000.rate) + bareme.from5001To20000.fixed;
+    return totalAnnualKm * bareme.from5001To20000.rate + bareme.from5001To20000.fixed;
   } else {
     return totalAnnualKm * bareme.over20000.rate;
   }
 }
-

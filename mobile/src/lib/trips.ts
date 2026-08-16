@@ -1,5 +1,5 @@
-import { supabase } from './supabase';
-import { calculateTripIK } from './ik';
+import { supabase } from "./supabase";
+import { calculateTripIK } from "./ik";
 
 export interface Vehicle {
   id: string;
@@ -23,30 +23,33 @@ export interface TripRow {
 
 export async function fetchVehicles(): Promise<Vehicle[]> {
   const { data, error } = await supabase
-    .from('vehicles')
-    .select('id, make, model, license_plate, fiscal_power, is_electric')
-    .order('created_at', { ascending: true });
+    .from("vehicles")
+    .select("id, make, model, license_plate, fiscal_power, is_electric")
+    .order("created_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as Vehicle[];
 }
 
 export async function fetchTrips(limit = 100): Promise<TripRow[]> {
   const { data, error } = await supabase
-    .from('trips')
-    .select('id, date, distance, ik_amount, purpose, start_address, end_address, vehicle_id')
-    .order('date', { ascending: false })
+    .from("trips")
+    .select("id, date, distance, ik_amount, purpose, start_address, end_address, vehicle_id")
+    .order("date", { ascending: false })
     .limit(limit);
   if (error) throw error;
   return (data ?? []) as TripRow[];
 }
 
-export async function getAnnualKm(vehicleId: string, year = new Date().getFullYear()): Promise<number> {
+export async function getAnnualKm(
+  vehicleId: string,
+  year = new Date().getFullYear(),
+): Promise<number> {
   const { data, error } = await supabase
-    .from('trips')
-    .select('distance')
-    .eq('vehicle_id', vehicleId)
-    .gte('date', `${year}-01-01`)
-    .lte('date', `${year}-12-31`);
+    .from("trips")
+    .select("distance")
+    .eq("vehicle_id", vehicleId)
+    .gte("date", `${year}-01-01`)
+    .lte("date", `${year}-12-31`);
   if (error) throw error;
   return (data ?? []).reduce((sum, t: { distance: number }) => sum + (t.distance ?? 0), 0);
 }
@@ -62,7 +65,7 @@ export async function createTrip(input: {
 }): Promise<TripRow> {
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData.user?.id;
-  if (!userId) throw new Error('Session expirée');
+  if (!userId) throw new Error("Session expirée");
 
   const totalAnnualKmBefore = await getAnnualKm(input.vehicle.id);
   const ikAmount = calculateTripIK({
@@ -73,7 +76,7 @@ export async function createTrip(input: {
   });
 
   const { data, error } = await supabase
-    .from('trips')
+    .from("trips")
     .insert({
       user_id: userId,
       vehicle_id: input.vehicle.id,
@@ -84,9 +87,9 @@ export async function createTrip(input: {
       start_address: input.startAddress,
       end_address: input.endAddress,
       tour_stops: input.tourStops ?? null,
-      status: 'validated',
+      status: "validated",
     })
-    .select('id, date, distance, ik_amount, purpose, start_address, end_address, vehicle_id')
+    .select("id, date, distance, ik_amount, purpose, start_address, end_address, vehicle_id")
     .single();
 
   if (error) throw error;

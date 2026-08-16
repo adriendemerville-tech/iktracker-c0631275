@@ -32,15 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Plus,
-  Handshake,
-  Trash2,
-  MousePointerClick,
-  TrendingUp,
-  Euro,
-  Pencil,
-} from "lucide-react";
+import { Plus, Handshake, Trash2, MousePointerClick, TrendingUp, Euro, Pencil } from "lucide-react";
 
 interface Partner {
   id: string;
@@ -124,7 +116,8 @@ export function AdminPartners() {
     mutationFn: async () => {
       const payload = {
         ...form,
-        category: form.category as "neobank" | "accounting" | "insurance" | "fuel_card" | "leasing" | "other",
+        category: form.category as
+          "neobank" | "accounting" | "insurance" | "fuel_card" | "leasing" | "other",
         commission_model: form.commission_model as "cpa" | "cps" | "cpc",
         logo_url: form.logo_url?.trim() || null,
         tagline: form.tagline?.trim() || null,
@@ -137,9 +130,7 @@ export function AdminPartners() {
           .eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("outbound_partners")
-          .insert(payload);
+        const { error } = await supabase.from("outbound_partners").insert(payload);
         if (error) throw error;
       }
     },
@@ -160,10 +151,7 @@ export function AdminPartners() {
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from("outbound_partners")
-        .update({ is_active })
-        .eq("id", id);
+      const { error } = await supabase.from("outbound_partners").update({ is_active }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-partners"] }),
@@ -171,10 +159,7 @@ export function AdminPartners() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("outbound_partners")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("outbound_partners").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -210,10 +195,7 @@ export function AdminPartners() {
   };
 
   const totalClicks = stats.reduce((s, p) => s + (p.total_clicks ?? 0), 0);
-  const totalRevenue = stats.reduce(
-    (s, p) => s + Number(p.estimated_revenue ?? 0),
-    0,
-  );
+  const totalRevenue = stats.reduce((s, p) => s + Number(p.estimated_revenue ?? 0), 0);
   const activeCount = partners.filter((p) => p.is_active).length;
 
   return (
@@ -244,8 +226,12 @@ export function AdminPartners() {
               <Euro className="h-5 w-5 text-emerald-500" />
             </div>
             <p className="text-2xl font-bold">{totalRevenue.toFixed(0)}€</p>
-            <p className="text-xs text-muted-foreground" title="Estimation basée sur un taux de conversion forfaitaire de 4% appliqué aux clics">Revenu estimé 30j (conv. 4%)</p>
-
+            <p
+              className="text-xs text-muted-foreground"
+              title="Estimation basée sur un taux de conversion forfaitaire de 4% appliqué aux clics"
+            >
+              Revenu estimé 30j (conv. 4%)
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -298,9 +284,7 @@ export function AdminPartners() {
                             )}
                             <div>
                               <p className="text-sm font-medium">{p.name}</p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {p.slug}
-                              </p>
+                              <p className="text-[10px] text-muted-foreground">{p.slug}</p>
                             </div>
                           </div>
                         </TableCell>
@@ -372,9 +356,7 @@ export function AdminPartners() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editing ? `Modifier ${editing.name}` : "Nouveau partenaire"}
-            </DialogTitle>
+            <DialogTitle>{editing ? `Modifier ${editing.name}` : "Nouveau partenaire"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-3">
@@ -382,9 +364,7 @@ export function AdminPartners() {
                 <Label>Slug *</Label>
                 <Input
                   value={form.slug}
-                  onChange={(e) =>
-                    setForm({ ...form, slug: e.target.value.toLowerCase() })
-                  }
+                  onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase() })}
                   placeholder="qonto"
                 />
               </div>
@@ -402,9 +382,7 @@ export function AdminPartners() {
               <Label>URL d'affiliation *</Label>
               <Input
                 value={form.target_url}
-                onChange={(e) =>
-                  setForm({ ...form, target_url: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, target_url: e.target.value })}
                 placeholder="https://qonto.com/?ref=iktracker"
               />
             </div>
@@ -413,9 +391,7 @@ export function AdminPartners() {
               <Label>URL du logo</Label>
               <Input
                 value={form.logo_url ?? ""}
-                onChange={(e) =>
-                  setForm({ ...form, logo_url: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
                 placeholder="https://..."
               />
             </div>
@@ -433,9 +409,7 @@ export function AdminPartners() {
               <Label>Description</Label>
               <Textarea
                 value={form.description ?? ""}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Comptabilité auto des notes de frais, cartes virtuelles…"
                 rows={3}
               />
@@ -527,9 +501,7 @@ export function AdminPartners() {
                   }
                   placeholder="all"
                 />
-                <p className="text-[10px] text-muted-foreground">
-                  "all" = tous personas
-                </p>
+                <p className="text-[10px] text-muted-foreground">"all" = tous personas</p>
               </div>
             </div>
 
@@ -558,12 +530,7 @@ export function AdminPartners() {
 
             <Button
               onClick={() => saveMutation.mutate()}
-              disabled={
-                !form.slug ||
-                !form.name ||
-                !form.target_url ||
-                saveMutation.isPending
-              }
+              disabled={!form.slug || !form.name || !form.target_url || saveMutation.isPending}
               className="w-full"
             >
               {saveMutation.isPending

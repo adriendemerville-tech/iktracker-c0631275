@@ -66,7 +66,11 @@ function computeWindow(daysBack: number, daysForward: number) {
 
 async function refreshGoogleIfNeeded(connection: CalendarConnectionRow, supabase: any) {
   if (!connection.access_token) {
-    return { access_token: null as string | null, refreshed: false, refresh_error: "missing_access_token" };
+    return {
+      access_token: null as string | null,
+      refreshed: false,
+      refresh_error: "missing_access_token",
+    };
   }
 
   const safetyWindowMs = 60_000;
@@ -78,11 +82,19 @@ async function refreshGoogleIfNeeded(connection: CalendarConnectionRow, supabase
   }
 
   if (!connection.refresh_token) {
-    return { access_token: connection.access_token, refreshed: false, refresh_error: "missing_refresh_token" };
+    return {
+      access_token: connection.access_token,
+      refreshed: false,
+      refresh_error: "missing_refresh_token",
+    };
   }
 
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-    return { access_token: connection.access_token, refreshed: false, refresh_error: "missing_google_client_credentials" };
+    return {
+      access_token: connection.access_token,
+      refreshed: false,
+      refresh_error: "missing_google_client_credentials",
+    };
   }
 
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -132,7 +144,11 @@ async function refreshGoogleIfNeeded(connection: CalendarConnectionRow, supabase
 
 async function refreshOutlookIfNeeded(connection: CalendarConnectionRow, supabase: any) {
   if (!connection.access_token) {
-    return { access_token: null as string | null, refreshed: false, refresh_error: "missing_access_token" };
+    return {
+      access_token: null as string | null,
+      refreshed: false,
+      refresh_error: "missing_access_token",
+    };
   }
 
   const safetyWindowMs = 60_000;
@@ -144,11 +160,19 @@ async function refreshOutlookIfNeeded(connection: CalendarConnectionRow, supabas
   }
 
   if (!connection.refresh_token) {
-    return { access_token: connection.access_token, refreshed: false, refresh_error: "missing_refresh_token" };
+    return {
+      access_token: connection.access_token,
+      refreshed: false,
+      refresh_error: "missing_refresh_token",
+    };
   }
 
   if (!MICROSOFT_CLIENT_ID || !MICROSOFT_CLIENT_SECRET) {
-    return { access_token: connection.access_token, refreshed: false, refresh_error: "missing_microsoft_client_credentials" };
+    return {
+      access_token: connection.access_token,
+      refreshed: false,
+      refresh_error: "missing_microsoft_client_credentials",
+    };
   }
 
   const tokenResponse = await fetch("https://login.microsoftonline.com/common/oauth2/v2.0/token", {
@@ -206,12 +230,13 @@ async function fetchGoogleEvents(accessToken: string, timeMin: string, timeMax: 
     maxResults: "2500",
   });
 
-  const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params.toString()}`,
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    }
+    },
   );
 
   const text = await response.text();
@@ -227,7 +252,9 @@ async function fetchGoogleEvents(accessToken: string, timeMin: string, timeMax: 
 }
 
 async function fetchGoogleTokenInfo(accessToken: string) {
-  const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
+  const response = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`,
+  );
   const text = await response.text();
   const parsed = safeJsonParse(text);
   return {
@@ -279,7 +306,7 @@ serve(async (req) => {
           requestId,
           error: "Missing backend configuration (SUPABASE_URL or SUPABASE_ANON_KEY)",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -291,7 +318,7 @@ serve(async (req) => {
           requestId,
           error: "Missing Authorization header",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -312,7 +339,7 @@ serve(async (req) => {
           error: "Unable to resolve user from token",
           userError,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -329,7 +356,7 @@ serve(async (req) => {
           error: "Invalid provider. Expected 'google' or 'outlook'.",
           provider,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -353,7 +380,7 @@ serve(async (req) => {
           error: "No calendar connection found for user/provider",
           connectionError,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -378,7 +405,7 @@ serve(async (req) => {
           eventsCount: 0,
           events: [],
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -401,7 +428,7 @@ serve(async (req) => {
           error: "No usable access token",
           refreshResult,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -411,7 +438,7 @@ serve(async (req) => {
         fetchGoogleEvents(accessToken, timeMin, timeMax),
       ]);
 
-      const items = (eventsRes.ok && (eventsRes.body?.items ?? null)) ? eventsRes.body.items : [];
+      const items = eventsRes.ok && (eventsRes.body?.items ?? null) ? eventsRes.body.items : [];
 
       return json(
         {
@@ -443,7 +470,7 @@ serve(async (req) => {
             eventsResponse: eventsRes.body,
           },
         },
-        { status: eventsRes.ok ? 200 : eventsRes.status }
+        { status: eventsRes.ok ? 200 : eventsRes.status },
       );
     }
 
@@ -479,17 +506,17 @@ serve(async (req) => {
           eventsResponse: eventsRes.body,
         },
       },
-      { status: eventsRes.ok ? 200 : eventsRes.status }
+      { status: eventsRes.ok ? 200 : eventsRes.status },
     );
   } catch (error) {
-    console.error('[calendar-debug] Unhandled error:', error);
+    console.error("[calendar-debug] Unhandled error:", error);
     return json(
       {
         ok: false,
         requestId,
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

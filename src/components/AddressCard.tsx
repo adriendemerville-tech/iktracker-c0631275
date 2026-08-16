@@ -1,13 +1,18 @@
-import { memo } from 'react';
-import { Home, Building2, MapPin, MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import { memo } from "react";
+import { Home, Building2, MapPin, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface Location {
   id: string;
   name: string;
   address?: string;
-  type: 'home' | 'office' | 'other';
+  type: "home" | "office" | "other";
 }
 
 interface AddressCardProps {
@@ -18,9 +23,9 @@ interface AddressCardProps {
 
 const getTypeIcon = (type: string) => {
   switch (type) {
-    case 'home':
+    case "home":
       return <Home className="w-4 h-4 text-primary" />;
-    case 'office':
+    case "office":
       return <Building2 className="w-4 h-4 text-orange-500" />;
     default:
       return <MapPin className="w-4 h-4 text-muted-foreground" />;
@@ -29,16 +34,20 @@ const getTypeIcon = (type: string) => {
 
 const getTypeLabel = (type: string) => {
   switch (type) {
-    case 'home':
-      return 'Domicile';
-    case 'office':
-      return 'Bureau';
+    case "home":
+      return "Domicile";
+    case "office":
+      return "Bureau";
     default:
-      return 'Autre';
+      return "Autre";
   }
 };
 
-export const AddressCard = memo(function AddressCard({ location, onEdit, onDelete }: AddressCardProps) {
+export const AddressCard = memo(function AddressCard({
+  location,
+  onEdit,
+  onDelete,
+}: AddressCardProps) {
   return (
     <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border/50">
       <div className="w-10 h-10 bg-background rounded-full flex items-center justify-center border border-border/50">
@@ -61,7 +70,12 @@ export const AddressCard = memo(function AddressCard({ location, onEdit, onDelet
       {(onEdit || onDelete) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" aria-label="Options de l'adresse">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 flex-shrink-0"
+              aria-label="Options de l'adresse"
+            >
               <MoreVertical className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -73,7 +87,10 @@ export const AddressCard = memo(function AddressCard({ location, onEdit, onDelet
               </DropdownMenuItem>
             )}
             {onDelete && (
-              <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-destructive focus:text-destructive"
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Supprimer
               </DropdownMenuItem>

@@ -86,7 +86,6 @@ export const TRUST_SIGNALS = {
   distribution: IKTRACKER_DISAMBIGUATION,
 };
 
-
 /** Comprehensive Organization + SoftwareApplication schema for landing pages */
 export function buildSoftwareApplicationSchema(opts?: {
   pageUrl?: string;
@@ -101,7 +100,8 @@ export function buildSoftwareApplicationSchema(opts?: {
     alternateName: "IK tracker",
     url: opts?.pageUrl ?? SITE_URL,
     applicationCategory: "BusinessApplication",
-    applicationSubCategory: "Indemnités kilométriques, suivi de trajets professionnels, comptabilité automobile",
+    applicationSubCategory:
+      "Indemnités kilométriques, suivi de trajets professionnels, comptabilité automobile",
     operatingSystem: "Web, iOS (PWA), Android (PWA)",
     inLanguage: "fr-FR",
     isAccessibleForFree: true,
@@ -156,10 +156,7 @@ export function buildSoftwareApplicationSchema(opts?: {
         url: `${SITE_URL}/contact`,
         availableLanguage: ["fr", "en"],
       },
-      sameAs: [
-        "https://iktracker.fr",
-        "https://www.linkedin.com/in/adrien-de-volontat",
-      ],
+      sameAs: ["https://iktracker.fr", "https://www.linkedin.com/in/adrien-de-volontat"],
     },
     aggregateRating: undefined, // Intentionally omitted — never fabricate ratings
     audience: {

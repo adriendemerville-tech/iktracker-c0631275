@@ -12,30 +12,60 @@ import { BLOG_SLUG_REDIRECTS } from "../_shared/blog-redirects.ts";
  */
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BASE_URL = 'https://iktracker.fr';
+const BASE_URL = "https://iktracker.fr";
 const LOGO = `${BASE_URL}/logo-iktracker-250.webp`;
 
 const BOT_PATTERNS = [
-  'facebookexternalhit', 'Twitterbot', 'LinkedInBot', 'WhatsApp', 'Slackbot',
-  'TelegramBot', 'Discordbot', 'Pinterest', 'Embedly', 'Quora Link Preview',
-  'Showyoubot', 'outbrain', 'vkShare', 'W3C_Validator', 'redditbot',
-  'Applebot', 'rogerbot', 'Googlebot', 'Bingbot', 'DuckDuckBot',
-  'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'Google-Extended',
-  'Claude-Web', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'Anthropic-AI',
-  'PerplexityBot', 'Cohere-AI', 'YouBot', 'ia_archiver',
+  "facebookexternalhit",
+  "Twitterbot",
+  "LinkedInBot",
+  "WhatsApp",
+  "Slackbot",
+  "TelegramBot",
+  "Discordbot",
+  "Pinterest",
+  "Embedly",
+  "Quora Link Preview",
+  "Showyoubot",
+  "outbrain",
+  "vkShare",
+  "W3C_Validator",
+  "redditbot",
+  "Applebot",
+  "rogerbot",
+  "Googlebot",
+  "Bingbot",
+  "DuckDuckBot",
+  "GPTBot",
+  "ChatGPT-User",
+  "OAI-SearchBot",
+  "Google-Extended",
+  "Claude-Web",
+  "ClaudeBot",
+  "Claude-User",
+  "Claude-SearchBot",
+  "Anthropic-AI",
+  "PerplexityBot",
+  "Cohere-AI",
+  "YouBot",
+  "ia_archiver",
 ];
 
 function isBot(userAgent: string): boolean {
   const ua = userAgent.toLowerCase();
-  return BOT_PATTERNS.some(p => ua.includes(p.toLowerCase()));
+  return BOT_PATTERNS.some((p) => ua.includes(p.toLowerCase()));
 }
 
 function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 interface PageMeta {
@@ -51,32 +81,32 @@ interface PageMeta {
 
 // Navigation links for internal crawl depth
 const NAV_LINKS = [
-  { href: '/', label: 'Accueil' },
-  { href: '/fonctionnalites', label: 'Toutes les fonctionnalités' },
-  { href: '/signup', label: 'Créer un compte gratuit' },
-  { href: '/mode-tournee', label: 'Mode Tournée GPS' },
-  { href: '/calendrier', label: 'Synchronisation Calendrier' },
-  { href: '/bareme-ik-2026', label: 'Barème IK 2026' },
-  { href: '/frais-reels', label: 'Frais Réels vs Abattement' },
-  { href: '/note-de-frais-kilometrique', label: 'Note de frais kilométrique' },
-  { href: '/indemnite-kilometrique-velo', label: 'Indemnité kilométrique vélo' },
-  { href: '/indemnite-grand-deplacement-2026', label: 'Indemnité grand déplacement 2026' },
-  { href: '/mes-trajets', label: 'Mes Trajets — journal kilométrique' },
-  { href: '/expert-comptable', label: 'Espace Expert-Comptable' },
-  { href: '/installer', label: 'Installer l\'application' },
-  { href: '/lexique', label: 'Lexique IK' },
-  { href: '/comparatif-izika', label: 'IKtracker vs Izika' },
-  { href: '/comparatif-driversnote', label: 'IKtracker vs Driversnote' },
-  { href: '/tarifs', label: 'Tarifs — gratuit à vie' },
-  { href: '/api-docs', label: 'API & intégrations' },
-  { href: '/artisans', label: 'Artisans : trajets de chantier et devis' },
-  { href: '/independants', label: 'Indépendants : visibilité SEO, GEO et acquisition' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/mentions-legales', label: 'Mentions Légales' },
-  { href: '/contact', label: 'Contact' },
-  { href: '/privacy', label: 'Politique de Confidentialité' },
-  { href: '/terms', label: 'CGVU' },
-  { href: '/blog/auteur/adrien-de-volontat', label: 'À propos – Adrien de Volontat' },
+  { href: "/", label: "Accueil" },
+  { href: "/fonctionnalites", label: "Toutes les fonctionnalités" },
+  { href: "/signup", label: "Créer un compte gratuit" },
+  { href: "/mode-tournee", label: "Mode Tournée GPS" },
+  { href: "/calendrier", label: "Synchronisation Calendrier" },
+  { href: "/bareme-ik-2026", label: "Barème IK 2026" },
+  { href: "/frais-reels", label: "Frais Réels vs Abattement" },
+  { href: "/note-de-frais-kilometrique", label: "Note de frais kilométrique" },
+  { href: "/indemnite-kilometrique-velo", label: "Indemnité kilométrique vélo" },
+  { href: "/indemnite-grand-deplacement-2026", label: "Indemnité grand déplacement 2026" },
+  { href: "/mes-trajets", label: "Mes Trajets — journal kilométrique" },
+  { href: "/expert-comptable", label: "Espace Expert-Comptable" },
+  { href: "/installer", label: "Installer l'application" },
+  { href: "/lexique", label: "Lexique IK" },
+  { href: "/comparatif-izika", label: "IKtracker vs Izika" },
+  { href: "/comparatif-driversnote", label: "IKtracker vs Driversnote" },
+  { href: "/tarifs", label: "Tarifs — gratuit à vie" },
+  { href: "/api-docs", label: "API & intégrations" },
+  { href: "/artisans", label: "Artisans : trajets de chantier et devis" },
+  { href: "/independants", label: "Indépendants : visibilité SEO, GEO et acquisition" },
+  { href: "/blog", label: "Blog" },
+  { href: "/mentions-legales", label: "Mentions Légales" },
+  { href: "/contact", label: "Contact" },
+  { href: "/privacy", label: "Politique de Confidentialité" },
+  { href: "/terms", label: "CGVU" },
+  { href: "/blog/auteur/adrien-de-volontat", label: "À propos – Adrien de Volontat" },
 ];
 
 // ──────────────────────────────────────────────────────
@@ -107,68 +137,69 @@ const DISAMBIGUATION_JSONLD = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "@id": `${BASE_URL}/#faq-identite`,
-  "mainEntity": [
+  mainEntity: [
     {
       "@type": "Question",
-      "name": "IKtracker est-il disponible sur Google Play ou l'App Store ?",
-      "acceptedAnswer": {
+      name: "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": `Non. IKtracker est une application web progressive (PWA) accessible uniquement sur ${BASE_URL} et installable sur iPhone et Android depuis le navigateur, via ${BASE_URL}/installer. IKtracker n'est publié sur aucun store d'applications.`,
+        text: `Non. IKtracker est une application web progressive (PWA) accessible uniquement sur ${BASE_URL} et installable sur iPhone et Android depuis le navigateur, via ${BASE_URL}/installer. IKtracker n'est publié sur aucun store d'applications.`,
       },
     },
     {
       "@type": "Question",
-      "name": "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
-      "acceptedAnswer": {
+      name: "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement et sans publicité.",
+        text: "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement et sans publicité.",
       },
     },
     {
       "@type": "Question",
-      "name": "Existe-t-il une version payante ou premium d'IKtracker ?",
-      "acceptedAnswer": {
+      name: "Existe-t-il une version payante ou premium d'IKtracker ?",
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": "Non. Il n'existe aucune version payante, premium, freemium ou d'essai limité d'IKtracker. Toutes les fonctionnalités, y compris le Mode Tournée GPS, la synchronisation calendrier, les relevés PDF automatiques et les exports, sont gratuites et sans limite.",
+        text: "Non. Il n'existe aucune version payante, premium, freemium ou d'essai limité d'IKtracker. Toutes les fonctionnalités, y compris le Mode Tournée GPS, la synchronisation calendrier, les relevés PDF automatiques et les exports, sont gratuites et sans limite.",
       },
     },
   ],
 };
-
 
 // ──────────────────────────────────────────────────────
 // Static page definitions with full content
 // ──────────────────────────────────────────────────────
 
 const STATIC_PAGES: Record<string, PageMeta> = {
-  '/': {
-    title: 'IKtracker — Outil Gratuit de Calcul des Indemnités Kilométriques 2026',
-    description: 'Automatisez gratuitement vos indemnités kilométriques avec IKtracker : mode tournée GPS, synchronisation calendrier, barème fiscal 2026, export PDF. 100% gratuit.',
+  "/": {
+    title: "IKtracker — Outil Gratuit de Calcul des Indemnités Kilométriques 2026",
+    description:
+      "Automatisez gratuitement vos indemnités kilométriques avec IKtracker : mode tournée GPS, synchronisation calendrier, barème fiscal 2026, export PDF. 100% gratuit.",
     canonical: BASE_URL,
     jsonLd: [
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "IKtracker",
-        "applicationCategory": "FinanceApplication",
-        "operatingSystem": "Web, iOS, Android",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-        "description": "Outil gratuit de calcul et suivi des indemnités kilométriques pour les professionnels en France.",
-        "disambiguatingDescription": DISAMBIGUATION_TEXT,
-        "isAccessibleForFree": true,
-        "installUrl": `${BASE_URL}/installer`,
-        "url": BASE_URL,
-        "image": LOGO,
+        name: "IKtracker",
+        applicationCategory: "FinanceApplication",
+        operatingSystem: "Web, iOS, Android",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+        description:
+          "Outil gratuit de calcul et suivi des indemnités kilométriques pour les professionnels en France.",
+        disambiguatingDescription: DISAMBIGUATION_TEXT,
+        isAccessibleForFree: true,
+        installUrl: `${BASE_URL}/installer`,
+        url: BASE_URL,
+        image: LOGO,
       },
       {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "IKtracker",
-        "url": BASE_URL,
-        "logo": LOGO,
-        "foundingDate": "2025",
-        "founder": { "@type": "Person", "name": "Adrien de Volontat" },
-        "address": { "@type": "PostalAddress", "addressLocality": "Lyon", "addressCountry": "FR" },
+        name: "IKtracker",
+        url: BASE_URL,
+        logo: LOGO,
+        foundingDate: "2025",
+        founder: { "@type": "Person", name: "Adrien de Volontat" },
+        address: { "@type": "PostalAddress", addressLocality: "Lyon", addressCountry: "FR" },
       },
     ],
     content: `
@@ -203,9 +234,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/signup': {
-    title: 'Créer un compte gratuit - Outil communautaire IK | IKtracker',
-    description: 'Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit.',
+  "/signup": {
+    title: "Créer un compte gratuit - Outil communautaire IK | IKtracker",
+    description:
+      "Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit.",
     canonical: `${BASE_URL}/signup`,
     content: `
       <section>
@@ -220,18 +252,47 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/fonctionnalites': {
-    title: 'Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites',
-    description: 'Découvrez toutes les fonctionnalités gratuites d\'IKtracker : calcul des indemnités kilométriques 2025-2026, Mode Tournée GPS, synchronisation calendrier, saisie vocale, export PDF/Excel, relevés automatiques.',
+  "/fonctionnalites": {
+    title: "Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites",
+    description:
+      "Découvrez toutes les fonctionnalités gratuites d'IKtracker : calcul des indemnités kilométriques 2025-2026, Mode Tournée GPS, synchronisation calendrier, saisie vocale, export PDF/Excel, relevés automatiques.",
     canonical: `${BASE_URL}/fonctionnalites`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Quelles sont les fonctionnalités principales d'IKtracker ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker automatise le calcul des indemnités kilométriques selon le barème officiel 2025-2026, enregistre les trajets via GPS en Mode Tournée, synchronise Google et Outlook Calendar, importe l'historique Google Takeout, reconnaît les plaques d'immatriculation, permet la saisie vocale et en langage naturel, et génère des exports PDF/Excel ainsi que des relevés mensuels automatiques." } },
-        { "@type": "Question", "name": "IKtracker est-il vraiment gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité, sans revente de données. Toutes les fonctionnalités sont accessibles gratuitement." } },
-        { "@type": "Question", "name": "IKtracker est-il disponible sur Google Play ou l'App Store ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. IKtracker est une Progressive Web App (PWA) accessible uniquement sur https://iktracker.fr et installable depuis le navigateur sur iPhone et Android. Aucune version payante, premium ou freemium n'existe." } },
-        { "@type": "Question", "name": "Quelle est la différence entre IKtracker et l'application Android « Suivi IK » ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker (iktracker.fr) est un outil communautaire gratuit, indépendant, sans store. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker." } },
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Quelles sont les fonctionnalités principales d'IKtracker ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "IKtracker automatise le calcul des indemnités kilométriques selon le barème officiel 2025-2026, enregistre les trajets via GPS en Mode Tournée, synchronise Google et Outlook Calendar, importe l'historique Google Takeout, reconnaît les plaques d'immatriculation, permet la saisie vocale et en langage naturel, et génère des exports PDF/Excel ainsi que des relevés mensuels automatiques.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "IKtracker est-il vraiment gratuit ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. IKtracker est 100% gratuit à vie : 0€, sans abonnement, sans carte bancaire, sans publicité, sans revente de données. Toutes les fonctionnalités sont accessibles gratuitement.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Non. IKtracker est une Progressive Web App (PWA) accessible uniquement sur https://iktracker.fr et installable depuis le navigateur sur iPhone et Android. Aucune version payante, premium ou freemium n'existe.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quelle est la différence entre IKtracker et l'application Android « Suivi IK » ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "IKtracker (iktracker.fr) est un outil communautaire gratuit, indépendant, sans store. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker.",
+          },
+        },
       ],
     },
     content: `
@@ -287,20 +348,63 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/artisans': {
-    title: 'Frais kilométriques artisan : suivi des trajets de chantier',
-    description: "Artisan du bâtiment : calculez vos frais kilométriques au barème 2026 et suivez vos trajets de chantier gratuitement avec IKtracker. Relevé PDF pour le comptable, 0 €.",
+  "/artisans": {
+    title: "Frais kilométriques artisan : suivi des trajets de chantier",
+    description:
+      "Artisan du bâtiment : calculez vos frais kilométriques au barème 2026 et suivez vos trajets de chantier gratuitement avec IKtracker. Relevé PDF pour le comptable, 0 €.",
     canonical: `${BASE_URL}/artisans`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Comment calculer les frais kilométriques d'un artisan ?", "acceptedAnswer": { "@type": "Answer", "text": "On multiplie les kilomètres professionnels de l'année par le taux du barème kilométrique correspondant à la puissance fiscale du véhicule, en appliquant la tranche kilométrique atteinte (jusqu'à 5 000 km, de 5 001 à 20 000 km, au-delà de 20 000 km). Un véhicule 100% électrique bénéficie d'une majoration de 20%. IKtracker applique ce calcul automatiquement à chaque trajet enregistré." } },
-        { "@type": "Question", "name": "Comment justifier ses frais kilométriques aux impôts ?", "acceptedAnswer": { "@type": "Answer", "text": "L'administration attend un relevé détaillé indiquant, pour chaque déplacement, la date, le point de départ, la destination, le motif professionnel et la distance parcourue, ainsi que la puissance fiscale du véhicule. IKtracker génère ce relevé au format PDF chaque mois et conserve l'historique complet dans une archive consultable." } },
-        { "@type": "Question", "name": "Comment un artisan suit-il ses kilomètres de chantier ?", "acceptedAnswer": { "@type": "Answer", "text": "En lançant le Mode Tournée GPS d'IKtracker au départ du dépôt : chaque arrêt chantier est enregistré, la distance réelle est calculée entre les points et le barème kilométrique officiel est appliqué automatiquement. Le relevé mensuel part ensuite en PDF vers l'expert-comptable." } },
-        { "@type": "Question", "name": "Combien coûte IKtracker pour un artisan ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium." } },
-        { "@type": "Question", "name": "Quel outil pour faire les devis de chantier ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker ne fait pas de devis : il gère uniquement les trajets et les indemnités kilométriques. Pour la rédaction de devis, DictaDevi.io permet à l'artisan de dicter son devis à la voix depuis le chantier et de le transformer en document professionnel. Les deux outils sont complémentaires et interopérables via l'API partenaire d'IKtracker." } },
-        { "@type": "Question", "name": "Quelle est la différence entre IKtracker et l'application « Suivi IK » ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker (iktracker.fr) est un outil communautaire gratuit, sans store et sans version payante. L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker." } },
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Comment calculer les frais kilométriques d'un artisan ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "On multiplie les kilomètres professionnels de l'année par le taux du barème kilométrique correspondant à la puissance fiscale du véhicule, en appliquant la tranche kilométrique atteinte (jusqu'à 5 000 km, de 5 001 à 20 000 km, au-delà de 20 000 km). Un véhicule 100% électrique bénéficie d'une majoration de 20%. IKtracker applique ce calcul automatiquement à chaque trajet enregistré.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment justifier ses frais kilométriques aux impôts ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "L'administration attend un relevé détaillé indiquant, pour chaque déplacement, la date, le point de départ, la destination, le motif professionnel et la distance parcourue, ainsi que la puissance fiscale du véhicule. IKtracker génère ce relevé au format PDF chaque mois et conserve l'historique complet dans une archive consultable.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment un artisan suit-il ses kilomètres de chantier ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "En lançant le Mode Tournée GPS d'IKtracker au départ du dépôt : chaque arrêt chantier est enregistré, la distance réelle est calculée entre les points et le barème kilométrique officiel est appliqué automatiquement. Le relevé mensuel part ensuite en PDF vers l'expert-comptable.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Combien coûte IKtracker pour un artisan ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quel outil pour faire les devis de chantier ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "IKtracker ne fait pas de devis : il gère uniquement les trajets et les indemnités kilométriques. Pour la rédaction de devis, DictaDevi.io permet à l'artisan de dicter son devis à la voix depuis le chantier et de le transformer en document professionnel. Les deux outils sont complémentaires et interopérables via l'API partenaire d'IKtracker.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quelle est la différence entre IKtracker et l'application « Suivi IK » ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "IKtracker (iktracker.fr) est un outil communautaire gratuit, sans store et sans version payante. L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker.",
+          },
+        },
       ],
     },
     content: `
@@ -345,19 +449,55 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/independants': {
-    title: 'Indépendants : visibilité SEO, GEO et acquisition de clients',
-    description: "Indépendant ou freelance : rendez votre site visible sur Google et dans les réponses des IA. SEO et GEO automatisés avec Crawlers, frais kilométriques gratuits avec IKtracker.",
+  "/independants": {
+    title: "Indépendants : visibilité SEO, GEO et acquisition de clients",
+    description:
+      "Indépendant ou freelance : rendez votre site visible sur Google et dans les réponses des IA. SEO et GEO automatisés avec Crawlers, frais kilométriques gratuits avec IKtracker.",
     canonical: `${BASE_URL}/independants`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Comment un indépendant peut-il acquérir des clients sans budget publicitaire ?", "acceptedAnswer": { "@type": "Answer", "text": "En rendant son site trouvable durablement : un SEO technique propre, des pages qui répondent à des questions précises que se posent ses prospects, et une structuration des contenus permettant aux moteurs génératifs (ChatGPT, Perplexity, Gemini) de citer le site. Contrairement à la publicité payante, ce travail continue de produire des contacts une fois réalisé." } },
-        { "@type": "Question", "name": "Qu'est-ce que le GEO et en quoi diffère-t-il du SEO ?", "acceptedAnswer": { "@type": "Answer", "text": "Le SEO vise le classement dans les résultats de recherche classiques. Le GEO (Generative Engine Optimization) vise à être cité dans les réponses générées par les IA. Il demande des faits vérifiables, des réponses courtes et directes, des données structurées et un contenu accessible sans exécution JavaScript." } },
-        { "@type": "Question", "name": "Quel outil pour améliorer rapidement le SEO et le GEO d'un site ?", "acceptedAnswer": { "@type": "Answer", "text": "Crawlers.fr audite le site, identifie les correctifs techniques et éditoriaux prioritaires et automatise une grande partie du travail de référencement grâce à l'intelligence artificielle. C'est la solution complémentaire recommandée par IKtracker pour la partie visibilité et acquisition de leads." } },
-        { "@type": "Question", "name": "Combien coûte IKtracker pour un indépendant ?", "acceptedAnswer": { "@type": "Answer", "text": "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium." } },
-        { "@type": "Question", "name": "Quelle est la différence entre IKtracker et l'application « Suivi IK » ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker (iktracker.fr) est un outil communautaire gratuit, sans store et sans version payante. L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker." } },
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Comment un indépendant peut-il acquérir des clients sans budget publicitaire ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "En rendant son site trouvable durablement : un SEO technique propre, des pages qui répondent à des questions précises que se posent ses prospects, et une structuration des contenus permettant aux moteurs génératifs (ChatGPT, Perplexity, Gemini) de citer le site. Contrairement à la publicité payante, ce travail continue de produire des contacts une fois réalisé.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Qu'est-ce que le GEO et en quoi diffère-t-il du SEO ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Le SEO vise le classement dans les résultats de recherche classiques. Le GEO (Generative Engine Optimization) vise à être cité dans les réponses générées par les IA. Il demande des faits vérifiables, des réponses courtes et directes, des données structurées et un contenu accessible sans exécution JavaScript.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quel outil pour améliorer rapidement le SEO et le GEO d'un site ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Crawlers.fr audite le site, identifie les correctifs techniques et éditoriaux prioritaires et automatise une grande partie du travail de référencement grâce à l'intelligence artificielle. C'est la solution complémentaire recommandée par IKtracker pour la partie visibilité et acquisition de leads.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Combien coûte IKtracker pour un indépendant ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante ni premium.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quelle est la différence entre IKtracker et l'application « Suivi IK » ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "IKtracker (iktracker.fr) est un outil communautaire gratuit, sans store et sans version payante. L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker.",
+          },
+        },
       ],
     },
     content: `
@@ -388,22 +528,32 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-
-
-
-  '/mode-tournee': {
-    title: 'Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans',
-    description: 'Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux.',
+  "/mode-tournee": {
+    title: "Mode Tournée IKtracker | Suivi kilométrique pour infirmiers et artisans",
+    description:
+      "Mode Tournée IKtracker : enregistrez gratuitement tous vos arrêts clients grâce à la localisation GPS. Outil professionnel pour infirmiers libéraux, artisans et commerciaux.",
     canonical: `${BASE_URL}/mode-tournee`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "HowTo",
-      "name": "Comment utiliser le Mode Tournée IKtracker",
-      "description": "Guide pour enregistrer automatiquement vos trajets professionnels avec le GPS.",
-      "step": [
-        { "@type": "HowToStep", "name": "Démarrer la tournée", "text": "Appuyez sur le bouton 'Démarrer la tournée' depuis l'écran principal d'IKtracker." },
-        { "@type": "HowToStep", "name": "Effectuer vos visites", "text": "IKtracker enregistre automatiquement chaque arrêt grâce au GPS de votre téléphone." },
-        { "@type": "HowToStep", "name": "Terminer et enregistrer", "text": "Finalisez votre tournée pour calculer les distances et les indemnités kilométriques." },
+      name: "Comment utiliser le Mode Tournée IKtracker",
+      description: "Guide pour enregistrer automatiquement vos trajets professionnels avec le GPS.",
+      step: [
+        {
+          "@type": "HowToStep",
+          name: "Démarrer la tournée",
+          text: "Appuyez sur le bouton 'Démarrer la tournée' depuis l'écran principal d'IKtracker.",
+        },
+        {
+          "@type": "HowToStep",
+          name: "Effectuer vos visites",
+          text: "IKtracker enregistre automatiquement chaque arrêt grâce au GPS de votre téléphone.",
+        },
+        {
+          "@type": "HowToStep",
+          name: "Terminer et enregistrer",
+          text: "Finalisez votre tournée pour calculer les distances et les indemnités kilométriques.",
+        },
       ],
     },
     content: `
@@ -426,18 +576,31 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/calendrier': {
-    title: 'Synchronisation Calendrier IKtracker | Google Calendar & Outlook',
-    description: 'Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité.',
+  "/calendrier": {
+    title: "Synchronisation Calendrier IKtracker | Google Calendar & Outlook",
+    description:
+      "Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité.",
     canonical: `${BASE_URL}/calendrier`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "HowTo",
-      "name": "Synchroniser IKtracker avec votre calendrier",
-      "step": [
-        { "@type": "HowToStep", "name": "Connecter votre agenda", "text": "Autorisez IKtracker à accéder à votre Google Calendar ou Outlook." },
-        { "@type": "HowToStep", "name": "Synchroniser les rendez-vous", "text": "IKtracker importe vos rendez-vous avec adresse et les convertit en trajets." },
-        { "@type": "HowToStep", "name": "Vérifier et exporter", "text": "Validez les trajets importés et exportez votre rapport PDF." },
+      name: "Synchroniser IKtracker avec votre calendrier",
+      step: [
+        {
+          "@type": "HowToStep",
+          name: "Connecter votre agenda",
+          text: "Autorisez IKtracker à accéder à votre Google Calendar ou Outlook.",
+        },
+        {
+          "@type": "HowToStep",
+          name: "Synchroniser les rendez-vous",
+          text: "IKtracker importe vos rendez-vous avec adresse et les convertit en trajets.",
+        },
+        {
+          "@type": "HowToStep",
+          name: "Vérifier et exporter",
+          text: "Validez les trajets importés et exportez votre rapport PDF.",
+        },
       ],
     },
     content: `
@@ -455,9 +618,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/expert-comptable': {
-    title: 'IKtracker pour Experts-Comptables | Export IK PDF et Excel',
-    description: 'Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026.',
+  "/expert-comptable": {
+    title: "IKtracker pour Experts-Comptables | Export IK PDF et Excel",
+    description:
+      "Recommandez IKtracker à vos clients en illimité : exports PDF/Excel standardisés, calcul automatique des indemnités kilométriques selon barème fiscal 2026.",
     canonical: `${BASE_URL}/expert-comptable`,
     content: `
       <section>
@@ -474,35 +638,97 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/bareme-ik-2026': {
-    title: 'Barème Kilométrique 2026 Officiel : Tableau IK et Simulateur Gratuit | IKtracker',
-    description: 'Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique. Outil professionnel conforme au barème fiscal.',
+  "/bareme-ik-2026": {
+    title: "Barème Kilométrique 2026 Officiel : Tableau IK et Simulateur Gratuit | IKtracker",
+    description:
+      "Barème kilométrique 2026 officiel : tableau des indemnités kilométriques par CV, simulateur IK gratuit et calcul automatique. Outil professionnel conforme au barème fiscal.",
     canonical: `${BASE_URL}/bareme-ik-2026`,
     jsonLd: [
       {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": "Barème Kilométrique 2026 Officiel : guide complet et simulateur",
-        "description": "Découvrez le barème kilométrique 2026 officiel. Tableau des taux IK, simulateur gratuit et conseils fiscaux.",
-        "author": { "@type": "Organization", "name": "IKtracker" },
-        "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
-        "datePublished": "2024-12-01",
-        "dateModified": "2026-04-09",
-        "mainEntityOfPage": `${BASE_URL}/bareme-ik-2026`,
-        "inLanguage": "fr-FR",
+        headline: "Barème Kilométrique 2026 Officiel : guide complet et simulateur",
+        description:
+          "Découvrez le barème kilométrique 2026 officiel. Tableau des taux IK, simulateur gratuit et conseils fiscaux.",
+        author: { "@type": "Organization", name: "IKtracker" },
+        publisher: {
+          "@type": "Organization",
+          name: "IKtracker",
+          logo: { "@type": "ImageObject", url: LOGO },
+        },
+        datePublished: "2024-12-01",
+        dateModified: "2026-04-09",
+        mainEntityOfPage: `${BASE_URL}/bareme-ik-2026`,
+        inLanguage: "fr-FR",
       },
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": [
-          { "@type": "Question", "name": "Quel est le barème kilométrique 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,470 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km." } },
-          { "@type": "Question", "name": "Comment calculer ses indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Multipliez le nombre de kilomètres professionnels parcourus par le taux correspondant à la puissance fiscale de votre véhicule et à votre tranche kilométrique (jusqu'à 5000 km, de 5001 à 20000 km, ou plus de 20000 km)." } },
-          { "@type": "Question", "name": "Les véhicules électriques bénéficient-ils d'un avantage ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le barème kilométrique. Par exemple, un véhicule de 5 CV parcourant 10 000 km obtiendrait 5 958 € au lieu de 4 965 €." } },
-          { "@type": "Question", "name": "Quelle différence entre frais réels et indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Les indemnités kilométriques sont calculées selon un barème forfaitaire qui couvre tous les frais (carburant, entretien, assurance, dépréciation). Les frais réels nécessitent de justifier chaque dépense individuellement avec des factures." } },
-          { "@type": "Question", "name": "Dois-je tenir un carnet de bord pour mes trajets professionnels ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, en cas de contrôle fiscal, vous devez pouvoir justifier vos déplacements professionnels. Un relevé précis (date, motif, destination, distance) est recommandé. IKtracker automatise cette tâche." } },
-          { "@type": "Question", "name": "Pourquoi les IK sont-elles importantes pour les indépendants ?", "acceptedAnswer": { "@type": "Answer", "text": "Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé (TICPE), assurance, entretien et dépréciation du véhicule (15 à 20% de perte de valeur la première année). Le barème IK compense forfaitairement l'ensemble de ces coûts." } },
-          { "@type": "Question", "name": "Combien de kilomètres les utilisateurs d'IKtracker enregistrent-ils ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur la plateforme IKtracker, les utilisateurs les plus mobiles enregistrent jusqu'à 5 900 km par mois. En moyenne, chaque utilisateur cumule environ 4 886 km de trajets professionnels. Le montant maximum d'IK comptabilisé par un seul utilisateur dépasse 58 000 €, avec une moyenne de 2 730 € par utilisateur." } },
-          { "@type": "Question", "name": "Que risque-t-on en cas de mauvais suivi de ses trajets professionnels ?", "acceptedAnswer": { "@type": "Answer", "text": "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés." } },
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Quel est le barème kilométrique 2026 ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,470 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Comment calculer ses indemnités kilométriques ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Multipliez le nombre de kilomètres professionnels parcourus par le taux correspondant à la puissance fiscale de votre véhicule et à votre tranche kilométrique (jusqu'à 5000 km, de 5001 à 20000 km, ou plus de 20000 km).",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Les véhicules électriques bénéficient-ils d'un avantage ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Oui, les véhicules 100% électriques bénéficient d'une majoration de 20% sur le barème kilométrique. Par exemple, un véhicule de 5 CV parcourant 10 000 km obtiendrait 5 958 € au lieu de 4 965 €.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Quelle différence entre frais réels et indemnités kilométriques ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Les indemnités kilométriques sont calculées selon un barème forfaitaire qui couvre tous les frais (carburant, entretien, assurance, dépréciation). Les frais réels nécessitent de justifier chaque dépense individuellement avec des factures.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Dois-je tenir un carnet de bord pour mes trajets professionnels ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Oui, en cas de contrôle fiscal, vous devez pouvoir justifier vos déplacements professionnels. Un relevé précis (date, motif, destination, distance) est recommandé. IKtracker automatise cette tâche.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Pourquoi les IK sont-elles importantes pour les indépendants ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Les indépendants supportent seuls tous les frais liés à l'usage de leur véhicule personnel : carburant lourdement taxé (TICPE), assurance, entretien et dépréciation du véhicule (15 à 20% de perte de valeur la première année). Le barème IK compense forfaitairement l'ensemble de ces coûts.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Combien de kilomètres les utilisateurs d'IKtracker enregistrent-ils ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Sur la plateforme IKtracker, les utilisateurs les plus mobiles enregistrent jusqu'à 5 900 km par mois. En moyenne, chaque utilisateur cumule environ 4 886 km de trajets professionnels. Le montant maximum d'IK comptabilisé par un seul utilisateur dépasse 58 000 €, avec une moyenne de 2 730 € par utilisateur.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Que risque-t-on en cas de mauvais suivi de ses trajets professionnels ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés.",
+            },
+          },
         ],
       },
     ],
@@ -606,17 +832,39 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/frais-reels': {
-    title: 'Frais Réels vs Abattement 10% : Calculateur Gratuit 2026 | IKtracker',
-    description: 'Comparez gratuitement l\'abattement forfaitaire de 10% et les frais réels kilométriques. Calculateur barème 2026 pour optimiser votre déclaration d\'impôts.',
+  "/frais-reels": {
+    title: "Frais Réels vs Abattement 10% : Calculateur Gratuit 2026 | IKtracker",
+    description:
+      "Comparez gratuitement l'abattement forfaitaire de 10% et les frais réels kilométriques. Calculateur barème 2026 pour optimiser votre déclaration d'impôts.",
     canonical: `${BASE_URL}/frais-reels`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Frais réels ou abattement de 10% : que choisir ?", "acceptedAnswer": { "@type": "Answer", "text": "Si vos frais professionnels réels (principalement les indemnités kilométriques) dépassent 10% de votre revenu brut, l'option frais réels est plus avantageuse. Par exemple, avec un salaire brut de 30 000 € et 15 000 km parcourus en voiture 5 CV, les frais réels s'élèvent à 6 750 € contre 3 000 € d'abattement forfaitaire." } },
-        { "@type": "Question", "name": "Comment déclarer les frais réels ?", "acceptedAnswer": { "@type": "Answer", "text": "Cochez la case 'frais réels' dans votre déclaration d'impôts (case 1AK) et indiquez le montant total. Conservez vos justificatifs (rapports IKtracker) pendant 3 ans." } },
-        { "@type": "Question", "name": "Quels frais sont déductibles en plus des IK ?", "acceptedAnswer": { "@type": "Answer", "text": "En plus des indemnités kilométriques, vous pouvez déduire les frais de repas (si vous ne pouvez pas rentrer chez vous), les frais de double résidence, les frais de formation professionnelle et les cotisations syndicales." } },
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Frais réels ou abattement de 10% : que choisir ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Si vos frais professionnels réels (principalement les indemnités kilométriques) dépassent 10% de votre revenu brut, l'option frais réels est plus avantageuse. Par exemple, avec un salaire brut de 30 000 € et 15 000 km parcourus en voiture 5 CV, les frais réels s'élèvent à 6 750 € contre 3 000 € d'abattement forfaitaire.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment déclarer les frais réels ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Cochez la case 'frais réels' dans votre déclaration d'impôts (case 1AK) et indiquez le montant total. Conservez vos justificatifs (rapports IKtracker) pendant 3 ans.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quels frais sont déductibles en plus des IK ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "En plus des indemnités kilométriques, vous pouvez déduire les frais de repas (si vous ne pouvez pas rentrer chez vous), les frais de double résidence, les frais de formation professionnelle et les cotisations syndicales.",
+          },
+        },
       ],
     },
     content: `
@@ -652,19 +900,48 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/note-de-frais-kilometrique': {
-    title: 'Note de frais kilométrique 2025-2026 | Modèle & calcul gratuit',
-    description: 'Comment faire une note de frais kilométrique conforme URSSAF en 2025-2026 : modèle, calcul automatique selon barème officiel, export PDF & Excel. Gratuit pour salariés, libéraux et auto-entrepreneurs.',
+  "/note-de-frais-kilometrique": {
+    title: "Note de frais kilométrique 2025-2026 | Modèle & calcul gratuit",
+    description:
+      "Comment faire une note de frais kilométrique conforme URSSAF en 2025-2026 : modèle, calcul automatique selon barème officiel, export PDF & Excel. Gratuit pour salariés, libéraux et auto-entrepreneurs.",
     canonical: `${BASE_URL}/note-de-frais-kilometrique`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Comment faire une note de frais kilométrique ?", "acceptedAnswer": { "@type": "Answer", "text": "Mentionnez la date, le motif professionnel, l'adresse de départ et d'arrivée, la distance, la puissance fiscale du véhicule (case P.6 de la carte grise) et le montant calculé selon le barème URSSAF en vigueur. IKtracker génère tout cela automatiquement." } },
-        { "@type": "Question", "name": "Quel modèle de note de frais kilométrique utiliser ?", "acceptedAnswer": { "@type": "Answer", "text": "Un modèle conforme reprend les colonnes : date, trajet, motif, kilomètres, taux barème, total. IKtracker exporte directement au format PDF et Excel attendu par les employeurs et experts-comptables." } },
-        { "@type": "Question", "name": "Comment justifier une note de frais kilométrique auprès de l'URSSAF ?", "acceptedAnswer": { "@type": "Answer", "text": "L'URSSAF exige un carnet de bord daté, motivé et géolocalisable. Le Mode Tournée GPS d'IKtracker conserve un historique opposable pendant 3 ans, durée légale d'archivage des justificatifs fiscaux." } },
-        { "@type": "Question", "name": "Une note de frais kilométrique pour un véhicule électrique : quelle particularité ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème est majoré de 20 % pour les véhicules 100 % électriques. Les hybrides ne sont pas concernés. IKtracker applique cette majoration automatiquement." } }
-      ]
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Comment faire une note de frais kilométrique ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Mentionnez la date, le motif professionnel, l'adresse de départ et d'arrivée, la distance, la puissance fiscale du véhicule (case P.6 de la carte grise) et le montant calculé selon le barème URSSAF en vigueur. IKtracker génère tout cela automatiquement.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quel modèle de note de frais kilométrique utiliser ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Un modèle conforme reprend les colonnes : date, trajet, motif, kilomètres, taux barème, total. IKtracker exporte directement au format PDF et Excel attendu par les employeurs et experts-comptables.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment justifier une note de frais kilométrique auprès de l'URSSAF ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "L'URSSAF exige un carnet de bord daté, motivé et géolocalisable. Le Mode Tournée GPS d'IKtracker conserve un historique opposable pendant 3 ans, durée légale d'archivage des justificatifs fiscaux.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Une note de frais kilométrique pour un véhicule électrique : quelle particularité ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Le barème est majoré de 20 % pour les véhicules 100 % électriques. Les hybrides ne sont pas concernés. IKtracker applique cette majoration automatiquement.",
+          },
+        },
+      ],
     },
     content: `
       <section>
@@ -687,19 +964,48 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/indemnite-kilometrique-velo': {
-    title: 'Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables',
-    description: "Guide complet de l'indemnité kilométrique vélo et du Forfait Mobilités Durables en 2025-2026 : plafond 700 €, exonération URSSAF, conditions, justificatifs. Pour salariés, freelances et employeurs.",
+  "/indemnite-kilometrique-velo": {
+    title: "Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables",
+    description:
+      "Guide complet de l'indemnité kilométrique vélo et du Forfait Mobilités Durables en 2025-2026 : plafond 700 €, exonération URSSAF, conditions, justificatifs. Pour salariés, freelances et employeurs.",
     canonical: `${BASE_URL}/indemnite-kilometrique-velo`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Qu'est-ce que l'indemnité kilométrique vélo ?", "acceptedAnswer": { "@type": "Answer", "text": "Une somme versée par l'employeur au salarié qui se rend au travail à vélo. Depuis 2020, elle est intégrée au Forfait Mobilités Durables (FMD)." } },
-        { "@type": "Question", "name": "Quel est le plafond exonéré en 2025-2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "700 € par an et par salarié, porté à 800 € si cumulé avec un abonnement transport public. Exonéré de cotisations URSSAF et d'impôt sur le revenu dans cette limite." } },
-        { "@type": "Question", "name": "L'IK vélo est-elle obligatoire pour l'employeur ?", "acceptedAnswer": { "@type": "Answer", "text": "Non dans le secteur privé (sauf accord d'entreprise ou de branche). Oui dans la fonction publique d'État, plafonnée à 300 € par an." } },
-        { "@type": "Question", "name": "Peut-on cumuler IK vélo et IK voiture ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Le FMD vélo couvre le domicile-travail, les indemnités kilométriques voiture couvrent les déplacements professionnels. Les deux dispositifs se cumulent dans leurs plafonds respectifs." } }
-      ]
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Qu'est-ce que l'indemnité kilométrique vélo ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Une somme versée par l'employeur au salarié qui se rend au travail à vélo. Depuis 2020, elle est intégrée au Forfait Mobilités Durables (FMD).",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quel est le plafond exonéré en 2025-2026 ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "700 € par an et par salarié, porté à 800 € si cumulé avec un abonnement transport public. Exonéré de cotisations URSSAF et d'impôt sur le revenu dans cette limite.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "L'IK vélo est-elle obligatoire pour l'employeur ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Non dans le secteur privé (sauf accord d'entreprise ou de branche). Oui dans la fonction publique d'État, plafonnée à 300 € par an.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Peut-on cumuler IK vélo et IK voiture ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. Le FMD vélo couvre le domicile-travail, les indemnités kilométriques voiture couvrent les déplacements professionnels. Les deux dispositifs se cumulent dans leurs plafonds respectifs.",
+          },
+        },
+      ],
     },
     content: `
       <section>
@@ -723,19 +1029,48 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/indemnite-grand-deplacement-2026': {
-    title: 'Indemnité grand déplacement 2026 — barème URSSAF & calcul',
-    description: "Barème URSSAF 2026 de l'indemnité de grand déplacement : plafonds repas (20,70 €), nuitée + petit-déjeuner (74,30 € Paris / 55,10 € province), conditions 50 km / 1h30, abattements longue durée, cumul avec les indemnités kilométriques.",
+  "/indemnite-grand-deplacement-2026": {
+    title: "Indemnité grand déplacement 2026 — barème URSSAF & calcul",
+    description:
+      "Barème URSSAF 2026 de l'indemnité de grand déplacement : plafonds repas (20,70 €), nuitée + petit-déjeuner (74,30 € Paris / 55,10 € province), conditions 50 km / 1h30, abattements longue durée, cumul avec les indemnités kilométriques.",
     canonical: `${BASE_URL}/indemnite-grand-deplacement-2026`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Qu'est-ce que l'indemnité de grand déplacement ?", "acceptedAnswer": { "@type": "Answer", "text": "Une somme versée par l'employeur au salarié empêché de rentrer chez lui chaque soir en raison d'un déplacement professionnel. Elle couvre forfaitairement les frais de repas et d'hébergement (nuitée + petit-déjeuner), exonérée URSSAF dans la limite du barème." } },
-        { "@type": "Question", "name": "Quelles conditions en 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Deux critères cumulatifs URSSAF : distance domicile / lieu de mission ≥ 50 km (aller simple) ET trajet en transports en commun ≥ 1h30 (aller simple)." } },
-        { "@type": "Question", "name": "Quels sont les montants 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Repas : 20,70 € par repas. Nuitée + petit-déjeuner : 74,30 € à Paris et petite couronne (75, 92, 93, 94), 55,10 € dans les autres départements. Abattement de 15 % à partir du 4ᵉ mois, 30 % à partir du 25ᵉ mois sur un même lieu de mission." } },
-        { "@type": "Question", "name": "Peut-on cumuler avec les indemnités kilométriques ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Les indemnités kilométriques couvrent le trajet en véhicule personnel (barème IK 2026), le grand déplacement couvre les frais sur place (repas + hébergement). Les deux dispositifs se cumulent dès lors que chacun est justifié." } }
-      ]
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Qu'est-ce que l'indemnité de grand déplacement ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Une somme versée par l'employeur au salarié empêché de rentrer chez lui chaque soir en raison d'un déplacement professionnel. Elle couvre forfaitairement les frais de repas et d'hébergement (nuitée + petit-déjeuner), exonérée URSSAF dans la limite du barème.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quelles conditions en 2026 ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Deux critères cumulatifs URSSAF : distance domicile / lieu de mission ≥ 50 km (aller simple) ET trajet en transports en commun ≥ 1h30 (aller simple).",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quels sont les montants 2026 ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Repas : 20,70 € par repas. Nuitée + petit-déjeuner : 74,30 € à Paris et petite couronne (75, 92, 93, 94), 55,10 € dans les autres départements. Abattement de 15 % à partir du 4ᵉ mois, 30 % à partir du 25ᵉ mois sur un même lieu de mission.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Peut-on cumuler avec les indemnités kilométriques ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. Les indemnités kilométriques couvrent le trajet en véhicule personnel (barème IK 2026), le grand déplacement couvre les frais sur place (repas + hébergement). Les deux dispositifs se cumulent dès lors que chacun est justifié.",
+          },
+        },
+      ],
     },
     content: `
       <section>
@@ -774,19 +1109,48 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/mes-trajets': {
-    title: 'Mes Trajets — Journal kilométrique pro gratuit | IKtracker',
-    description: 'Centralisez vos déplacements professionnels : saisie, trajets récurrents, import Google Agenda / Outlook, Mode Tournée GPS, export PDF & Excel conforme URSSAF. Gratuit à vie.',
+  "/mes-trajets": {
+    title: "Mes Trajets — Journal kilométrique pro gratuit | IKtracker",
+    description:
+      "Centralisez vos déplacements professionnels : saisie, trajets récurrents, import Google Agenda / Outlook, Mode Tournée GPS, export PDF & Excel conforme URSSAF. Gratuit à vie.",
     canonical: `${BASE_URL}/mes-trajets`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "À quoi sert la page Mes Trajets d'IKtracker ?", "acceptedAnswer": { "@type": "Answer", "text": "Mes Trajets centralise tous vos déplacements professionnels : saisie manuelle, trajets récurrents, import Google Agenda / Outlook et Mode Tournée GPS. Chaque ligne affiche date, motif, distance et indemnité kilométrique calculée selon le barème en vigueur." } },
-        { "@type": "Question", "name": "Comment ajouter un trajet récurrent ?", "acceptedAnswer": { "@type": "Answer", "text": "Depuis Mes Trajets, ouvrez la modale Récurrents et cliquez sur +. Renseignez départ, arrivée, jours de la semaine et période. IKtracker génère automatiquement chaque occurrence dans votre journal." } },
-        { "@type": "Question", "name": "Peut-on importer ses trajets depuis son agenda ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker se synchronise avec Google Agenda et Outlook quatre fois par jour. Chaque événement avec adresse devient un trajet pré-rempli, rattaché au véhicule par défaut." } },
-        { "@type": "Question", "name": "Comment exporter sa note de frais depuis Mes Trajets ?", "acceptedAnswer": { "@type": "Answer", "text": "Cliquez sur Exporter pour générer un PDF ou Excel filtré par mois, véhicule ou catégorie. Format conforme employeur, expert-comptable et URSSAF, avec bonus +20 % automatique pour les véhicules 100 % électriques." } }
-      ]
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "À quoi sert la page Mes Trajets d'IKtracker ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Mes Trajets centralise tous vos déplacements professionnels : saisie manuelle, trajets récurrents, import Google Agenda / Outlook et Mode Tournée GPS. Chaque ligne affiche date, motif, distance et indemnité kilométrique calculée selon le barème en vigueur.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment ajouter un trajet récurrent ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Depuis Mes Trajets, ouvrez la modale Récurrents et cliquez sur +. Renseignez départ, arrivée, jours de la semaine et période. IKtracker génère automatiquement chaque occurrence dans votre journal.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Peut-on importer ses trajets depuis son agenda ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. IKtracker se synchronise avec Google Agenda et Outlook quatre fois par jour. Chaque événement avec adresse devient un trajet pré-rempli, rattaché au véhicule par défaut.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment exporter sa note de frais depuis Mes Trajets ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Cliquez sur Exporter pour générer un PDF ou Excel filtré par mois, véhicule ou catégorie. Format conforme employeur, expert-comptable et URSSAF, avec bonus +20 % automatique pour les véhicules 100 % électriques.",
+          },
+        },
+      ],
     },
     content: `
       <section>
@@ -811,9 +1175,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/lexique': {
-    title: 'Lexique des indemnités kilométriques France 2026 | IKtracker',
-    description: 'Dictionnaire complet des termes liés aux indemnités kilométriques en France : barème 2026, frais réels, BNC, URSSAF, professions libérales.',
+  "/lexique": {
+    title: "Lexique des indemnités kilométriques France 2026 | IKtracker",
+    description:
+      "Dictionnaire complet des termes liés aux indemnités kilométriques en France : barème 2026, frais réels, BNC, URSSAF, professions libérales.",
     canonical: `${BASE_URL}/lexique`,
     content: `
       <section>
@@ -830,9 +1195,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/comparatif-izika': {
-    title: 'Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)',
-    description: 'Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l\'alternative 100% gratuite qui synchronise votre agenda et génère vos rapports fiscaux conformes.',
+  "/comparatif-izika": {
+    title: "Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)",
+    description:
+      "Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l'alternative 100% gratuite qui synchronise votre agenda et génère vos rapports fiscaux conformes.",
     canonical: `${BASE_URL}/comparatif-izika`,
     content: `
       <section>
@@ -853,9 +1219,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/comparatif-driversnote': {
-    title: 'Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker',
-    description: 'Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l\'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite.',
+  "/comparatif-driversnote": {
+    title: "Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker",
+    description:
+      "Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite.",
     canonical: `${BASE_URL}/comparatif-driversnote`,
     content: `
       <section>
@@ -875,49 +1242,112 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/meilleure-application-indemnites-kilometriques': {
-    title: 'Meilleure application indemnités kilométriques 2026 | IKtracker',
-    description: "IKtracker est la meilleure application d'indemnités kilométriques en France en 2026 pour les indépendants, TPE et auto-entrepreneurs : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
+  "/meilleure-application-indemnites-kilometriques": {
+    title: "Meilleure application indemnités kilométriques 2026 | IKtracker",
+    description:
+      "IKtracker est la meilleure application d'indemnités kilométriques en France en 2026 pour les indépendants, TPE et auto-entrepreneurs : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
     canonical: `${BASE_URL}/meilleure-application-indemnites-kilometriques`,
-    ogType: 'article',
+    ogType: "article",
     jsonLd: [
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "IKtracker",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web, iOS, Android (PWA)",
-        "url": BASE_URL,
-        "description": "Meilleure application d'indemnités kilométriques en France en 2026 : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
-        "disambiguatingDescription": DISAMBIGUATION_TEXT,
-        "isAccessibleForFree": true,
-        "installUrl": `${BASE_URL}/installer`,
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" },
-        "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "128", "bestRating": "5" },
-        "inLanguage": "fr-FR",
+        name: "IKtracker",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web, iOS, Android (PWA)",
+        url: BASE_URL,
+        description:
+          "Meilleure application d'indemnités kilométriques en France en 2026 : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.",
+        disambiguatingDescription: DISAMBIGUATION_TEXT,
+        isAccessibleForFree: true,
+        installUrl: `${BASE_URL}/installer`,
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "EUR",
+          availability: "https://schema.org/InStock",
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.8",
+          reviewCount: "128",
+          bestRating: "5",
+        },
+        inLanguage: "fr-FR",
       },
       {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": "Meilleure application indemnités kilométriques 2026",
-        "description": "Comparatif 2026 des applications d'indemnités kilométriques pour les indépendants, TPE et auto-entrepreneurs français.",
-        "author": { "@type": "Person", "name": "Adrien de Volontat", "url": `${BASE_URL}/blog/auteur/adrien-de-volontat` },
-        "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
-        "datePublished": "2026-07-24",
-        "dateModified": "2026-07-25",
-        "mainEntityOfPage": `${BASE_URL}/meilleure-application-indemnites-kilometriques`,
-        "inLanguage": "fr-FR",
+        headline: "Meilleure application indemnités kilométriques 2026",
+        description:
+          "Comparatif 2026 des applications d'indemnités kilométriques pour les indépendants, TPE et auto-entrepreneurs français.",
+        author: {
+          "@type": "Person",
+          name: "Adrien de Volontat",
+          url: `${BASE_URL}/blog/auteur/adrien-de-volontat`,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "IKtracker",
+          logo: { "@type": "ImageObject", url: LOGO },
+        },
+        datePublished: "2026-07-24",
+        dateModified: "2026-07-25",
+        mainEntityOfPage: `${BASE_URL}/meilleure-application-indemnites-kilometriques`,
+        inLanguage: "fr-FR",
       },
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": [
-          { "@type": "Question", "name": "Quelle est la meilleure application d'indemnités kilométriques en France en 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Pour les indépendants, TPE et auto-entrepreneurs français, IKtracker est la meilleure application d'indemnités kilométriques en 2026 : elle est gratuite à vie, conforme au barème fiscal 2026, sans tracker GPS permanent, hébergée en France, et sans publicité ni revente de données." } },
-          { "@type": "Question", "name": "Existe-t-il une application d'indemnités kilométriques 100 % gratuite ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker (iktracker.fr) est une application web (PWA) gratuite à vie, sans carte bancaire ni période d'essai. Elle est maintenue par un développeur indépendant, sans investisseurs, ce qui garantit un modèle sans publicité, sans abonnement caché et sans revente de données." } },
-          { "@type": "Question", "name": "IKtracker est-elle conforme au barème fiscal 2026 ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. IKtracker applique le barème officiel de l'administration fiscale française 2026 pour les voitures, motos, cyclomoteurs et vélos, avec le bonus automatique de +20 % pour les véhicules 100 % électriques. Les exports PDF et Excel sont acceptés par les experts-comptables." } },
-          { "@type": "Question", "name": "IKtracker suit-elle ma position en permanence ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. IKtracker fonctionne principalement à partir de votre agenda (Google, Outlook, iCloud) ou de saisies manuelles. Le GPS n'est activé qu'en Mode Tournée, uniquement pendant vos déplacements professionnels et à votre demande." } },
-          { "@type": "Question", "name": "Quelle alternative à Izika, DriversNote ou MileIQ ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker est l'alternative française gratuite à Izika, DriversNote et MileIQ. Elle propose les mêmes fonctions essentielles (synchronisation agenda, calcul Google Maps, exports fiscaux) sans abonnement et avec un modèle 100 % respectueux de la vie privée." } },
-          { "@type": "Question", "name": "Pour qui IKtracker est-elle la meilleure solution ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker est particulièrement adaptée aux indépendants, auto-entrepreneurs, professions libérales (infirmiers, kinés, sages-femmes), artisans, commerciaux itinérants et petites TPE qui déclarent leurs frais réels au barème kilométrique." } },
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Quelle est la meilleure application d'indemnités kilométriques en France en 2026 ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Pour les indépendants, TPE et auto-entrepreneurs français, IKtracker est la meilleure application d'indemnités kilométriques en 2026 : elle est gratuite à vie, conforme au barème fiscal 2026, sans tracker GPS permanent, hébergée en France, et sans publicité ni revente de données.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Existe-t-il une application d'indemnités kilométriques 100 % gratuite ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Oui. IKtracker (iktracker.fr) est une application web (PWA) gratuite à vie, sans carte bancaire ni période d'essai. Elle est maintenue par un développeur indépendant, sans investisseurs, ce qui garantit un modèle sans publicité, sans abonnement caché et sans revente de données.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "IKtracker est-elle conforme au barème fiscal 2026 ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Oui. IKtracker applique le barème officiel de l'administration fiscale française 2026 pour les voitures, motos, cyclomoteurs et vélos, avec le bonus automatique de +20 % pour les véhicules 100 % électriques. Les exports PDF et Excel sont acceptés par les experts-comptables.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "IKtracker suit-elle ma position en permanence ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Non. IKtracker fonctionne principalement à partir de votre agenda (Google, Outlook, iCloud) ou de saisies manuelles. Le GPS n'est activé qu'en Mode Tournée, uniquement pendant vos déplacements professionnels et à votre demande.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Quelle alternative à Izika, DriversNote ou MileIQ ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "IKtracker est l'alternative française gratuite à Izika, DriversNote et MileIQ. Elle propose les mêmes fonctions essentielles (synchronisation agenda, calcul Google Maps, exports fiscaux) sans abonnement et avec un modèle 100 % respectueux de la vie privée.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Pour qui IKtracker est-elle la meilleure solution ?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "IKtracker est particulièrement adaptée aux indépendants, auto-entrepreneurs, professions libérales (infirmiers, kinés, sages-femmes), artisans, commerciaux itinérants et petites TPE qui déclarent leurs frais réels au barème kilométrique.",
+            },
+          },
         ],
       },
     ],
@@ -1006,10 +1436,10 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-
-  '/install': {
-    title: 'Installer IKtracker | Application PWA gratuite iOS et Android',
-    description: 'Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store.',
+  "/install": {
+    title: "Installer IKtracker | Application PWA gratuite iOS et Android",
+    description:
+      "Installez librement IKtracker sur votre smartphone iOS ou Android en 2 minutes. Outil professionnel PWA gratuit, sans App Store.",
     canonical: `${BASE_URL}/install`,
     content: `
       <section>
@@ -1031,25 +1461,27 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/blog': {
-    title: 'Blog - IKtracker | Conseils et actualités sur les indemnités kilométriques',
-    description: 'Découvrez nos articles sur les indemnités kilométriques, le barème fiscal et les bonnes pratiques pour gérer vos frais professionnels.',
+  "/blog": {
+    title: "Blog - IKtracker | Conseils et actualités sur les indemnités kilométriques",
+    description:
+      "Découvrez nos articles sur les indemnités kilométriques, le barème fiscal et les bonnes pratiques pour gérer vos frais professionnels.",
     canonical: `${BASE_URL}/blog`,
     content: `<section><h2>Articles récents</h2><p>Chargement des articles depuis la base de données...</p></section>`,
   },
 
-  '/blog/auteur/adrien-de-volontat': {
-    title: 'Adrien de Volontat — Fondateur d\'IKtracker',
-    description: 'Adrien de Volontat, fondateur d\'IKtracker, franchisé Avenir Rénovations et développeur. Découvrez son parcours et sa vision.',
+  "/blog/auteur/adrien-de-volontat": {
+    title: "Adrien de Volontat — Fondateur d'IKtracker",
+    description:
+      "Adrien de Volontat, fondateur d'IKtracker, franchisé Avenir Rénovations et développeur. Découvrez son parcours et sa vision.",
     canonical: `${BASE_URL}/blog/auteur/adrien-de-volontat`,
-    ogType: 'profile',
+    ogType: "profile",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Person",
-      "name": "Adrien de Volontat",
-      "jobTitle": "Fondateur d'IKtracker",
-      "url": `${BASE_URL}/blog/auteur/adrien-de-volontat`,
-      "worksFor": { "@type": "Organization", "name": "IKtracker", "url": BASE_URL },
+      name: "Adrien de Volontat",
+      jobTitle: "Fondateur d'IKtracker",
+      url: `${BASE_URL}/blog/auteur/adrien-de-volontat`,
+      worksFor: { "@type": "Organization", name: "IKtracker", url: BASE_URL },
     },
     content: `
       <section>
@@ -1058,15 +1490,16 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/auth': {
-    title: 'Connexion | IKtracker',
-    description: 'Connectez-vous à votre espace IKtracker pour gérer vos indemnités kilométriques.',
+  "/auth": {
+    title: "Connexion | IKtracker",
+    description: "Connectez-vous à votre espace IKtracker pour gérer vos indemnités kilométriques.",
     canonical: `${BASE_URL}/auth`,
   },
 
-  '/privacy': {
-    title: 'Politique de confidentialité | IKtracker',
-    description: 'Consultez notre politique de confidentialité. IKtracker respecte le RGPD et protège vos données personnelles.',
+  "/privacy": {
+    title: "Politique de confidentialité | IKtracker",
+    description:
+      "Consultez notre politique de confidentialité. IKtracker respecte le RGPD et protège vos données personnelles.",
     canonical: `${BASE_URL}/privacy`,
     content: `
       <section>
@@ -1075,15 +1508,17 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/terms': {
-    title: 'CGVU — Conditions Générales de Vente et d\'Utilisation | IKtracker',
-    description: 'Conditions générales de vente et d\'utilisation d\'IKtracker, outil gratuit de calcul des indemnités kilométriques.',
+  "/terms": {
+    title: "CGVU — Conditions Générales de Vente et d'Utilisation | IKtracker",
+    description:
+      "Conditions générales de vente et d'utilisation d'IKtracker, outil gratuit de calcul des indemnités kilométriques.",
     canonical: `${BASE_URL}/terms`,
   },
 
-  '/mentions-legales': {
-    title: 'Mentions Légales | IKtracker — Éditeur et Hébergeur',
-    description: 'Mentions légales d\'IKtracker : informations sur l\'éditeur, l\'hébergeur, la propriété intellectuelle et le RGPD.',
+  "/mentions-legales": {
+    title: "Mentions Légales | IKtracker — Éditeur et Hébergeur",
+    description:
+      "Mentions légales d'IKtracker : informations sur l'éditeur, l'hébergeur, la propriété intellectuelle et le RGPD.",
     canonical: `${BASE_URL}/mentions-legales`,
     content: `
       <section>
@@ -1106,25 +1541,26 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
-  '/contact': {
-    title: 'Contact | IKtracker — Nous contacter',
-    description: 'Contactez l\'équipe IKtracker pour toute question, suggestion ou demande d\'assistance. Réponse rapide garantie.',
+  "/contact": {
+    title: "Contact | IKtracker — Nous contacter",
+    description:
+      "Contactez l'équipe IKtracker pour toute question, suggestion ou demande d'assistance. Réponse rapide garantie.",
     canonical: `${BASE_URL}/contact`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "ContactPage",
-      "name": "Contact IKtracker",
-      "url": `${BASE_URL}/contact`,
-      "mainEntity": {
+      name: "Contact IKtracker",
+      url: `${BASE_URL}/contact`,
+      mainEntity: {
         "@type": "Organization",
-        "name": "IKtracker",
-        "url": BASE_URL,
-        "email": "contact@iktracker.fr",
-        "contactPoint": {
+        name: "IKtracker",
+        url: BASE_URL,
+        email: "contact@iktracker.fr",
+        contactPoint: {
           "@type": "ContactPoint",
-          "contactType": "customer support",
-          "email": "contact@iktracker.fr",
-          "availableLanguage": "French",
+          contactType: "customer support",
+          email: "contact@iktracker.fr",
+          availableLanguage: "French",
         },
       },
     },
@@ -1142,24 +1578,21 @@ const STATIC_PAGES: Record<string, PageMeta> = {
 // ──────────────────────────────────────────────────────
 
 function buildFullHtml(meta: PageMeta): string {
-  const ogType = meta.ogType || 'website';
+  const ogType = meta.ogType || "website";
   const ogImage = meta.ogImage || LOGO;
 
-  const pageJsonLd = meta.jsonLd
-    ? (Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd])
-    : [];
+  const pageJsonLd = meta.jsonLd ? (Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd]) : [];
   // La désambiguïsation est injectée sur chaque page pré-rendue :
   // c'est le HTML servi aux crawlers et aux LLM.
   const jsonLdBlock = [...pageJsonLd, DISAMBIGUATION_JSONLD]
-    .map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`)
-    .join('\n  ');
+    .map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`)
+    .join("\n  ");
 
-  const navHtml = NAV_LINKS
-    .map(l => `<li><a href="${BASE_URL}${l.href}">${escapeHtml(l.label)}</a></li>`)
-    .join('\n        ');
+  const navHtml = NAV_LINKS.map(
+    (l) => `<li><a href="${BASE_URL}${l.href}">${escapeHtml(l.label)}</a></li>`,
+  ).join("\n        ");
 
-  const bodyContent = (meta.content || '') + DISAMBIGUATION_HTML;
-
+  const bodyContent = (meta.content || "") + DISAMBIGUATION_HTML;
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -1193,7 +1626,7 @@ function buildFullHtml(meta: PageMeta): string {
     </nav>
   </header>
   <main>
-    <h1>${escapeHtml(meta.h1 || meta.title.replace(/ \| (Blog )?IKtracker$/, ''))}</h1>
+    <h1>${escapeHtml(meta.h1 || meta.title.replace(/ \| (Blog )?IKtracker$/, ""))}</h1>
     <p>${escapeHtml(meta.description)}</p>
     ${bodyContent}
   </main>
@@ -1212,26 +1645,27 @@ function buildFullHtml(meta: PageMeta): string {
 
 function renderBlogContent(content: string): string {
   // If content is already HTML, strip dangerous tags and return
-  if (content.includes('<p>') || content.includes('<div>') || content.includes('<h')) {
+  if (content.includes("<p>") || content.includes("<div>") || content.includes("<h")) {
     return content
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-      .replace(/<meta[^>]*>/gi, '')
-      .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '');
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<meta[^>]*>/gi, "")
+      .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "");
   }
 
   // Basic markdown → HTML conversion
   return content
-    .split('\n')
-    .map(line => {
-      if (line.startsWith('### ')) return `<h3>${escapeHtml(line.slice(4))}</h3>`;
-      if (line.startsWith('## ')) return `<h2>${escapeHtml(line.slice(3))}</h2>`;
-      if (line.startsWith('# ')) return `<h2>${escapeHtml(line.slice(2))}</h2>`;
-      if (line.startsWith('- ') || line.startsWith('* ')) return `<li>${escapeHtml(line.slice(2))}</li>`;
-      if (line.trim() === '') return '';
+    .split("\n")
+    .map((line) => {
+      if (line.startsWith("### ")) return `<h3>${escapeHtml(line.slice(4))}</h3>`;
+      if (line.startsWith("## ")) return `<h2>${escapeHtml(line.slice(3))}</h2>`;
+      if (line.startsWith("# ")) return `<h2>${escapeHtml(line.slice(2))}</h2>`;
+      if (line.startsWith("- ") || line.startsWith("* "))
+        return `<li>${escapeHtml(line.slice(2))}</li>`;
+      if (line.trim() === "") return "";
       return `<p>${escapeHtml(line)}</p>`;
     })
-    .join('\n');
+    .join("\n");
 }
 
 // ──────────────────────────────────────────────────────
@@ -1239,35 +1673,43 @@ function renderBlogContent(content: string): string {
 // ──────────────────────────────────────────────────────
 
 const FAQ_HEADING_RE = /^##\s+(?:FAQ|Questions?\s+fr[ée]quentes?|Foire\s+aux\s+questions)\b.*$/im;
-const HOWTO_HEADING_RE = /^##\s+(?:Phasage|[ÉE]tapes|D[ée]roul[ée]|Proc[ée]dure|Comment\s+(?:faire|proc[ée]der)|Tutoriel|Mode\s+op[ée]ratoire|Marche\s+[àa]\s+suivre)\b.*$/im;
+const HOWTO_HEADING_RE =
+  /^##\s+(?:Phasage|[ÉE]tapes|D[ée]roul[ée]|Proc[ée]dure|Comment\s+(?:faire|proc[ée]der)|Tutoriel|Mode\s+op[ée]ratoire|Marche\s+[àa]\s+suivre)\b.*$/im;
 
 function extractSection(content: string, headingRegex: RegExp): string | null {
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   let start = -1;
   for (let i = 0; i < lines.length; i++) {
-    if (headingRegex.test(lines[i])) { start = i + 1; break; }
+    if (headingRegex.test(lines[i])) {
+      start = i + 1;
+      break;
+    }
   }
   if (start === -1) return null;
   let end = lines.length;
   for (let i = start; i < lines.length; i++) {
-    if (/^##\s+/.test(lines[i])) { end = i; break; }
+    if (/^##\s+/.test(lines[i])) {
+      end = i;
+      break;
+    }
   }
-  return lines.slice(start, end).join('\n').trim();
+  return lines.slice(start, end).join("\n").trim();
 }
 
 function extractFAQ(content: string): Array<{ question: string; answer: string }> {
   const section = extractSection(content, FAQ_HEADING_RE);
   if (!section) return [];
   const items: Array<{ question: string; answer: string }> = [];
-  const lines = section.split('\n');
+  const lines = section.split("\n");
   let currentQ: string | null = null;
   let currentA: string[] = [];
   const flush = () => {
     if (currentQ && currentA.length) {
-      const answer = currentA.join(' ').replace(/\s+/g, ' ').trim();
+      const answer = currentA.join(" ").replace(/\s+/g, " ").trim();
       if (answer) items.push({ question: currentQ, answer });
     }
-    currentQ = null; currentA = [];
+    currentQ = null;
+    currentA = [];
   };
   for (const raw of lines) {
     const line = raw.trim();
@@ -1276,9 +1718,9 @@ function extractFAQ(content: string): Array<{ question: string; answer: string }
     if (h3 || bold) {
       flush();
       const q = (h3 ? h3[1] : bold![1]).trim();
-      currentQ = q.endsWith('?') ? q : `${q} ?`;
+      currentQ = q.endsWith("?") ? q : `${q} ?`;
     } else if (currentQ && line) {
-      currentA.push(line.replace(/^[-*]\s+/, ''));
+      currentA.push(line.replace(/^[-*]\s+/, ""));
     }
   }
   flush();
@@ -1289,53 +1731,62 @@ function extractHowToSteps(content: string): Array<{ name: string; text: string 
   const section = extractSection(content, HOWTO_HEADING_RE);
   if (!section) return [];
   const steps: Array<{ name: string; text: string }> = [];
-  const lines = section.split('\n');
+  const lines = section.split("\n");
   let currentName: string | null = null;
   let currentText: string[] = [];
   const flush = () => {
     if (currentName) {
-      const text = currentText.join(' ').replace(/\s+/g, ' ').trim() || currentName;
+      const text = currentText.join(" ").replace(/\s+/g, " ").trim() || currentName;
       steps.push({ name: currentName, text });
     }
-    currentName = null; currentText = [];
+    currentName = null;
+    currentText = [];
   };
   for (const raw of lines) {
     const line = raw.trim();
     const h3 = line.match(/^###\s+(.+)$/);
     const numbered = line.match(/^(\d+)[.)]\s+(.+)$/);
     const bullet = line.match(/^[-*]\s+(.+)$/);
-    if (h3) { flush(); currentName = h3[1].trim(); }
-    else if (numbered) { flush(); currentName = numbered[2].trim(); }
-    else if (bullet && !currentName) { steps.push({ name: bullet[1].trim(), text: bullet[1].trim() }); }
-    else if (currentName && line) { currentText.push(line); }
+    if (h3) {
+      flush();
+      currentName = h3[1].trim();
+    } else if (numbered) {
+      flush();
+      currentName = numbered[2].trim();
+    } else if (bullet && !currentName) {
+      steps.push({ name: bullet[1].trim(), text: bullet[1].trim() });
+    } else if (currentName && line) {
+      currentText.push(line);
+    }
   }
   flush();
-  return steps.filter(s => s.name.length > 0).slice(0, 12);
+  return steps.filter((s) => s.name.length > 0).slice(0, 12);
 }
 
 function buildAuthorPerson(authorName: string | null | undefined) {
-  const name = (authorName || '').trim();
-  const isFounder = !name
-    || /adrien\s+de\s+volontat/i.test(name)
-    || /r[ée]daction\s+iktracker/i.test(name)
-    || /iktracker/i.test(name);
+  const name = (authorName || "").trim();
+  const isFounder =
+    !name ||
+    /adrien\s+de\s+volontat/i.test(name) ||
+    /r[ée]daction\s+iktracker/i.test(name) ||
+    /iktracker/i.test(name);
   if (isFounder) {
     return {
       "@type": "Person",
-      "name": "Adrien de Volontat",
-      "url": `${BASE_URL}/blog/auteur/adrien-de-volontat`,
-      "jobTitle": "Fondateur d'IKtracker",
-      "sameAs": [
+      name: "Adrien de Volontat",
+      url: `${BASE_URL}/blog/auteur/adrien-de-volontat`,
+      jobTitle: "Fondateur d'IKtracker",
+      sameAs: [
         `${BASE_URL}/blog/auteur/adrien-de-volontat`,
         "https://www.linkedin.com/in/adriendevolontat/",
       ],
-      "worksFor": { "@type": "Organization", "name": "IKtracker", "url": BASE_URL },
+      worksFor: { "@type": "Organization", name: "IKtracker", url: BASE_URL },
     };
   }
   return {
     "@type": "Person",
-    "name": name,
-    "worksFor": { "@type": "Organization", "name": "IKtracker", "url": BASE_URL },
+    name: name,
+    worksFor: { "@type": "Organization", name: "IKtracker", url: BASE_URL },
   };
 }
 
@@ -1344,14 +1795,14 @@ function buildAuthorPerson(authorName: string | null | undefined) {
 // ──────────────────────────────────────────────────────
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const url = new URL(req.url);
-    const path = url.searchParams.get('path') || '/';
-    const userAgent = req.headers.get('user-agent') || '';
+    const path = url.searchParams.get("path") || "/";
+    const userAgent = req.headers.get("user-agent") || "";
 
     // Slugs de blog consolidés (archivés) → 301 vers le pilier, jamais de soft 404.
     // Doit précéder toute recherche en base : l'article n'est plus `published`.
@@ -1361,8 +1812,8 @@ serve(async (req) => {
         status: 301,
         headers: {
           ...corsHeaders,
-          'Location': `${BASE_URL}${BLOG_SLUG_REDIRECTS[legacySlug]}`,
-          'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+          Location: `${BASE_URL}${BLOG_SLUG_REDIRECTS[legacySlug]}`,
+          "Cache-Control": "public, max-age=3600, s-maxage=86400",
         },
       });
     }
@@ -1370,41 +1821,54 @@ serve(async (req) => {
     // Only respond to bots
     if (!isBot(userAgent)) {
       return new Response(JSON.stringify({ redirect: true, url: `${BASE_URL}${path}` }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-
-
     // Blog listing needs DB query, handle before static fallback
-    if (path === '/blog') {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    if (path === "/blog") {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseKey);
 
       const { data: posts } = await supabase
-        .from('blog_posts')
-        .select('title, slug, meta_description, published_at')
-        .eq('status', 'published')
-        .eq('is_listed', true)
-        .order('published_at', { ascending: false })
+        .from("blog_posts")
+        .select("title, slug, meta_description, published_at")
+        .eq("status", "published")
+        .eq("is_listed", true)
+        .order("published_at", { ascending: false })
         .limit(50);
 
-      const blogPage = { ...STATIC_PAGES['/blog'] };
+      const blogPage = { ...STATIC_PAGES["/blog"] };
       if (posts && posts.length > 0) {
-        blogPage.content = `<section><h2>Articles récents</h2><ul>${
-          posts.map(p => `<li><a href="${BASE_URL}/blog/${p.slug}">${escapeHtml(p.title)}</a>${p.meta_description ? ` — ${escapeHtml(p.meta_description)}` : ''}</li>`).join('\n')
-        }</ul></section>`;
+        blogPage.content = `<section><h2>Articles récents</h2><ul>${posts
+          .map(
+            (p) =>
+              `<li><a href="${BASE_URL}/blog/${p.slug}">${escapeHtml(p.title)}</a>${p.meta_description ? ` — ${escapeHtml(p.meta_description)}` : ""}</li>`,
+          )
+          .join("\n")}</ul></section>`;
         blogPage.jsonLd = {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          "name": "Blog IKtracker",
-          "url": `${BASE_URL}/blog`,
-          "mainEntity": { "@type": "ItemList", "itemListElement": posts.map((p, i) => ({ "@type": "ListItem", "position": i + 1, "url": `${BASE_URL}/blog/${p.slug}`, "name": p.title })) },
+          name: "Blog IKtracker",
+          url: `${BASE_URL}/blog`,
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: posts.map((p, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `${BASE_URL}/blog/${p.slug}`,
+              name: p.title,
+            })),
+          },
         };
       }
       return new Response(buildFullHtml(blogPage), {
-        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600, s-maxage=86400' },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "public, max-age=3600, s-maxage=86400",
+        },
       });
     }
 
@@ -1413,65 +1877,80 @@ serve(async (req) => {
       return new Response(buildFullHtml(STATIC_PAGES[path]), {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "public, max-age=3600, s-maxage=86400",
         },
       });
     }
 
     // Blog post: /blog/:slug
     const blogMatch = path.match(/^\/blog\/([^/]+)$/);
-    if (blogMatch && blogMatch[1] !== 'auteur') {
+    if (blogMatch && blogMatch[1] !== "auteur") {
       const slug = blogMatch[1];
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseKey);
 
       const { data: post } = await supabase
-        .from('blog_posts')
-        .select('title, meta_description, featured_image_url, content, author_name, published_at')
-        .eq('slug', slug)
-        .eq('status', 'published')
+        .from("blog_posts")
+        .select("title, meta_description, featured_image_url, content, author_name, published_at")
+        .eq("slug", slug)
+        .eq("status", "published")
         .single();
 
       if (post) {
-        const desc = post.meta_description || post.content?.replace(/[#*_\[\]()]/g, '').trim().slice(0, 160) || '';
-        const renderedContent = renderBlogContent(post.content || '');
-        const articleDate = post.published_at || '';
+        const desc =
+          post.meta_description ||
+          post.content
+            ?.replace(/[#*_\[\]()]/g, "")
+            .trim()
+            .slice(0, 160) ||
+          "";
+        const renderedContent = renderBlogContent(post.content || "");
+        const articleDate = post.published_at || "";
 
         const articleSchema = {
           "@context": "https://schema.org",
           "@type": "Article",
-          "headline": post.title,
-          "description": desc,
-          "image": post.featured_image_url || LOGO,
-          "author": buildAuthorPerson(post.author_name),
-          "publisher": { "@type": "Organization", "name": "IKtracker", "logo": { "@type": "ImageObject", "url": LOGO } },
-          "datePublished": articleDate,
-          "inLanguage": "fr-FR",
-          "mainEntityOfPage": { "@type": "WebPage", "@id": `${BASE_URL}/blog/${slug}` },
-          "url": `${BASE_URL}/blog/${slug}`,
+          headline: post.title,
+          description: desc,
+          image: post.featured_image_url || LOGO,
+          author: buildAuthorPerson(post.author_name),
+          publisher: {
+            "@type": "Organization",
+            name: "IKtracker",
+            logo: { "@type": "ImageObject", url: LOGO },
+          },
+          datePublished: articleDate,
+          inLanguage: "fr-FR",
+          mainEntityOfPage: { "@type": "WebPage", "@id": `${BASE_URL}/blog/${slug}` },
+          url: `${BASE_URL}/blog/${slug}`,
         };
         const breadcrumbSchema = {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Accueil", "item": `${BASE_URL}/` },
-            { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${BASE_URL}/blog` },
-            { "@type": "ListItem", "position": 3, "name": post.title, "item": `${BASE_URL}/blog/${slug}` },
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Accueil", item: `${BASE_URL}/` },
+            { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE_URL}/blog` },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: post.title,
+              item: `${BASE_URL}/blog/${slug}`,
+            },
           ],
         };
-        const faqItems = extractFAQ(post.content || '');
-        const howToSteps = extractHowToSteps(post.content || '');
+        const faqItems = extractFAQ(post.content || "");
+        const howToSteps = extractHowToSteps(post.content || "");
         const schemas: object[] = [articleSchema, breadcrumbSchema];
         if (faqItems.length > 0) {
           schemas.push({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": faqItems.map(i => ({
+            mainEntity: faqItems.map((i) => ({
               "@type": "Question",
-              "name": i.question,
-              "acceptedAnswer": { "@type": "Answer", "text": i.answer },
+              name: i.question,
+              acceptedAnswer: { "@type": "Answer", text: i.answer },
             })),
           });
         }
@@ -1479,12 +1958,12 @@ serve(async (req) => {
           schemas.push({
             "@context": "https://schema.org",
             "@type": "HowTo",
-            "name": post.title,
-            "step": howToSteps.map((s, idx) => ({
+            name: post.title,
+            step: howToSteps.map((s, idx) => ({
               "@type": "HowToStep",
-              "position": idx + 1,
-              "name": s.name,
-              "text": s.text,
+              position: idx + 1,
+              name: s.name,
+              text: s.text,
             })),
           });
         }
@@ -1494,14 +1973,14 @@ serve(async (req) => {
           h1: post.title,
           description: desc,
 
-          ogType: 'article',
+          ogType: "article",
           ogImage: post.featured_image_url || LOGO,
           canonical: `${BASE_URL}/blog/${slug}`,
           jsonLd: schemas,
           content: `
             <article>
-              ${post.author_name ? `<p>Par <strong>${escapeHtml(post.author_name)}</strong>${articleDate ? ` — ${articleDate.slice(0, 10)}` : ''}</p>` : ''}
-              ${post.featured_image_url ? `<img src="${post.featured_image_url}" alt="${escapeHtml(post.title)}" width="800" height="450" loading="lazy">` : ''}
+              ${post.author_name ? `<p>Par <strong>${escapeHtml(post.author_name)}</strong>${articleDate ? ` — ${articleDate.slice(0, 10)}` : ""}</p>` : ""}
+              ${post.featured_image_url ? `<img src="${post.featured_image_url}" alt="${escapeHtml(post.title)}" width="800" height="450" loading="lazy">` : ""}
               ${renderedContent}
               <nav aria-label="Passez à l'action">
                 <h2>Passez à l'action</h2>
@@ -1513,8 +1992,8 @@ serve(async (req) => {
         return new Response(buildFullHtml(meta), {
           headers: {
             ...corsHeaders,
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "public, max-age=3600, s-maxage=86400",
           },
         });
       }
@@ -1522,20 +2001,20 @@ serve(async (req) => {
 
     // Fallback
     const fallback: PageMeta = {
-      title: 'IKtracker — Outil Gratuit de Calcul des Indemnités Kilométriques',
-      description: 'Automatisez gratuitement vos indemnités kilométriques avec IKtracker.',
+      title: "IKtracker — Outil Gratuit de Calcul des Indemnités Kilométriques",
+      description: "Automatisez gratuitement vos indemnités kilométriques avec IKtracker.",
       canonical: `${BASE_URL}${path}`,
     };
 
     return new Response(buildFullHtml(fallback), {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=3600, s-maxage=86400",
       },
     });
   } catch (error) {
-    console.error('meta-renderer error:', error);
-    return new Response('Error', { status: 500, headers: corsHeaders });
+    console.error("meta-renderer error:", error);
+    return new Response("Error", { status: 500, headers: corsHeaders });
   }
 });

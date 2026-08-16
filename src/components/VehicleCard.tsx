@@ -1,15 +1,15 @@
-import { memo } from 'react';
-import { Vehicle, getIKBareme } from '@/types/trip';
-import { Car, Edit2, X, MoreVertical, Zap } from 'lucide-react';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { memo } from "react";
+import { Vehicle, getIKBareme } from "@/types/trip";
+import { Car, Edit2, X, MoreVertical, Zap } from "lucide-react";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+} from "./ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -20,9 +20,16 @@ interface VehicleCardProps {
   totalKm?: number;
 }
 
-export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSelect, onEdit, onDelete, totalKm }: VehicleCardProps) {
+export const VehicleCard = memo(function VehicleCard({
+  vehicle,
+  selected,
+  onSelect,
+  onEdit,
+  onDelete,
+  totalKm,
+}: VehicleCardProps) {
   const bareme = getIKBareme(vehicle.fiscalPower);
-  
+
   const getCurrentRate = () => {
     let rate = bareme.upTo5000.rate;
     if (totalKm && totalKm > 5000 && totalKm <= 20000) {
@@ -44,19 +51,23 @@ export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSele
         "relative px-3 py-3 rounded-lg border-2 transition-all cursor-pointer",
         selected
           ? "border-primary bg-primary/5 shadow-md"
-          : "border-border bg-card hover:border-primary/50"
+          : "border-border bg-card hover:border-primary/50",
       )}
     >
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2 min-w-0 w-2/3">
-          <div className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center shrink-0 relative",
-            selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-          )}>
+          <div
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center shrink-0 relative",
+              selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+            )}
+          >
             <Car className="w-4 h-4" />
           </div>
-          <span className="font-semibold truncate font-display">{vehicle.make} {vehicle.model}</span>
-          
+          <span className="font-semibold truncate font-display">
+            {vehicle.make} {vehicle.model}
+          </span>
+
           {/* Electric badge */}
           {vehicle.isElectric && (
             <Tooltip>
@@ -70,42 +81,61 @@ export const VehicleCard = memo(function VehicleCard({ vehicle, selected, onSele
               </TooltipContent>
             </Tooltip>
           )}
-          
-          <span className={cn(
-            "px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
-            vehicle.isElectric 
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-              : "bg-primary/10 text-primary"
-          )}>
+
+          <span
+            className={cn(
+              "px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
+              vehicle.isElectric
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                : "bg-primary/10 text-primary",
+            )}
+          >
             {vehicle.fiscalPower} CV
           </span>
         </div>
-        
-        <span className={cn(
-          "text-xs shrink-0",
-          vehicle.isElectric ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-muted-foreground"
-        )}>
+
+        <span
+          className={cn(
+            "text-xs shrink-0",
+            vehicle.isElectric
+              ? "text-emerald-600 dark:text-emerald-400 font-medium"
+              : "text-muted-foreground",
+          )}
+        >
           {getCurrentRate().toFixed(3)} €/km
         </span>
-        
+
         {(onEdit || onDelete) && (
           <div className="ml-auto shrink-0">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" aria-label="Options du véhicule">
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  aria-label="Options du véhicule"
+                >
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-popover">
                 {onEdit && (
-                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(); }}>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit();
+                    }}
+                  >
                     <Edit2 className="w-4 h-4 mr-2" />
                     Modifier
                   </DropdownMenuItem>
                 )}
                 {onDelete && (
-                  <DropdownMenuItem 
-                    onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
                     className="text-destructive"
                   >
                     <X className="w-4 h-4 mr-2" />

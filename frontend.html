@@ -1,184 +1,323 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>IKTracker Frontend</title>
-  <style>
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>IKTracker Frontend</title>
+    <style>
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      div.columns {
+        display: flex;
+        gap: min(4vw, 1.5em);
+      }
+      div.column {
+        flex: auto;
+        overflow-x: auto;
+      }
+      div.hanging-indent {
+        margin-left: 1.5em;
+        text-indent: -1.5em;
+      }
+      /* The extra [class] is a hack that increases specificity enough to
        override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
+      ul.task-list[class] {
+        list-style: none;
+      }
+      ul.task-list li input[type="checkbox"] {
+        font-size: inherit;
+        width: 0.8em;
+        margin: 0 0.8em 0.2em -1.6em;
+        vertical-align: middle;
+      }
+      .display.math {
+        display: block;
+        text-align: center;
+        margin: 0.5rem auto;
+      }
+      /* CSS for syntax highlighting */
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      pre > code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      pre > code.sourceCode > span {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      pre > code.sourceCode > span:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode > span {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        pre > code.sourceCode {
+          white-space: pre-wrap;
+        }
+        pre > code.sourceCode > span {
+          text-indent: -5em;
+          padding-left: 5em;
+        }
+      }
+      pre.numberSource code {
+        counter-reset: source-line 0;
+      }
+      pre.numberSource code > span {
+        position: relative;
+        left: -4em;
+        counter-increment: source-line;
+      }
+      pre.numberSource code > span > a:first-child::before {
+        content: counter(source-line);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
         color: #aaaaaa;
       }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css" />
-</head>
-<body>
-<header id="title-block-header">
-<h1 class="title">IKTracker Frontend</h1>
-</header>
-<h1 id="iktracker-documentation-technique-frontend">IKTracker —
-Documentation Technique Frontend</h1>
-<blockquote>
-<p>Version 1.3 — 4 mai 2026</p>
-</blockquote>
-<h2 id="table-des-matières">Table des matières</h2>
-<ol type="1">
-<li><a href="#1-stack--architecture">Stack &amp; Architecture</a></li>
-<li><a href="#2-pages--routing">Pages &amp; Routing</a></li>
-<li><a href="#3-composants">Composants</a></li>
-<li><a href="#4-hooks">Hooks</a></li>
-<li><a href="#5-librairies-utilitaires">Librairies utilitaires</a></li>
-<li><a href="#6-design-system">Design System</a></li>
-<li><a href="#7-performance">Performance</a></li>
-</ol>
-<hr />
-<h2 id="stack-architecture">1. Stack &amp; Architecture</h2>
-<h3 id="technologies">Technologies</h3>
-<table>
-<thead>
-<tr>
-<th>Technologie</th>
-<th>Version</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>React</td>
-<td>18</td>
-<td>UI framework</td>
-</tr>
-<tr>
-<td>TypeScript</td>
-<td>5</td>
-<td>Typage statique</td>
-</tr>
-<tr>
-<td>Vite</td>
-<td>5</td>
-<td>Bundler &amp; dev server</td>
-</tr>
-<tr>
-<td>Tailwind CSS</td>
-<td>3</td>
-<td>Utility-first CSS</td>
-</tr>
-<tr>
-<td>shadcn/ui</td>
-<td>-</td>
-<td>Composants UI (Radix-based)</td>
-</tr>
-<tr>
-<td>React Router</td>
-<td>6</td>
-<td>Routing SPA</td>
-</tr>
-<tr>
-<td>TanStack Query</td>
-<td>5</td>
-<td>Data fetching &amp; cache</td>
-</tr>
-<tr>
-<td>Framer Motion</td>
-<td>-</td>
-<td>Animations</td>
-</tr>
-<tr>
-<td>Helmet Async</td>
-<td>-</td>
-<td>SEO meta tags</td>
-</tr>
-<tr>
-<td>Lucide React</td>
-<td>-</td>
-<td>Icônes</td>
-</tr>
-<tr>
-<td>Recharts</td>
-<td>-</td>
-<td>Graphiques (lazy)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="architecture">Architecture</h3>
-<pre><code>src/
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        pre > code.sourceCode > span > a:first-child::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+        color: #008000;
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+        color: #008000;
+        font-weight: bold;
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"
+    />
+  </head>
+  <body>
+    <header id="title-block-header">
+      <h1 class="title">IKTracker Frontend</h1>
+    </header>
+    <h1 id="iktracker-documentation-technique-frontend">
+      IKTracker — Documentation Technique Frontend
+    </h1>
+    <blockquote>
+      <p>Version 1.3 — 4 mai 2026</p>
+    </blockquote>
+    <h2 id="table-des-matières">Table des matières</h2>
+    <ol type="1">
+      <li><a href="#1-stack--architecture">Stack &amp; Architecture</a></li>
+      <li><a href="#2-pages--routing">Pages &amp; Routing</a></li>
+      <li><a href="#3-composants">Composants</a></li>
+      <li><a href="#4-hooks">Hooks</a></li>
+      <li><a href="#5-librairies-utilitaires">Librairies utilitaires</a></li>
+      <li><a href="#6-design-system">Design System</a></li>
+      <li><a href="#7-performance">Performance</a></li>
+    </ol>
+    <hr />
+    <h2 id="stack-architecture">1. Stack &amp; Architecture</h2>
+    <h3 id="technologies">Technologies</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Technologie</th>
+          <th>Version</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>React</td>
+          <td>18</td>
+          <td>UI framework</td>
+        </tr>
+        <tr>
+          <td>TypeScript</td>
+          <td>5</td>
+          <td>Typage statique</td>
+        </tr>
+        <tr>
+          <td>Vite</td>
+          <td>5</td>
+          <td>Bundler &amp; dev server</td>
+        </tr>
+        <tr>
+          <td>Tailwind CSS</td>
+          <td>3</td>
+          <td>Utility-first CSS</td>
+        </tr>
+        <tr>
+          <td>shadcn/ui</td>
+          <td>-</td>
+          <td>Composants UI (Radix-based)</td>
+        </tr>
+        <tr>
+          <td>React Router</td>
+          <td>6</td>
+          <td>Routing SPA</td>
+        </tr>
+        <tr>
+          <td>TanStack Query</td>
+          <td>5</td>
+          <td>Data fetching &amp; cache</td>
+        </tr>
+        <tr>
+          <td>Framer Motion</td>
+          <td>-</td>
+          <td>Animations</td>
+        </tr>
+        <tr>
+          <td>Helmet Async</td>
+          <td>-</td>
+          <td>SEO meta tags</td>
+        </tr>
+        <tr>
+          <td>Lucide React</td>
+          <td>-</td>
+          <td>Icônes</td>
+        </tr>
+        <tr>
+          <td>Recharts</td>
+          <td>-</td>
+          <td>Graphiques (lazy)</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="architecture">Architecture</h3>
+    <pre><code>src/
 ├── main.tsx              → Point d&#39;entrée, rendu React, preload différé
 ├── App.tsx               → Providers globaux, routing, guards d&#39;auth
 ├── App.css               → Styles globaux
@@ -197,8 +336,8 @@ Documentation Technique Frontend</h1>
 ├── types/                → Types TypeScript
 ├── integrations/supabase → Client &amp; types auto-générés
 └── assets/               → Images &amp; assets statiques</code></pre>
-<h3 id="providers-globaux-app.tsx">Providers globaux (App.tsx)</h3>
-<pre><code>QueryClientProvider (React Query, staleTime: 5min, retry: 2)
+    <h3 id="providers-globaux-app.tsx">Providers globaux (App.tsx)</h3>
+    <pre><code>QueryClientProvider (React Query, staleTime: 5min, retry: 2)
   → ErrorBoundary
     → Suspense
       → TooltipProvider (shadcn)
@@ -210,957 +349,963 @@ Documentation Technique Frontend</h1>
               → GoogleMapsPreloader (idle)
               → GlobalTourRecovery
               → &lt;Routes&gt;</code></pre>
-<hr />
-<h2 id="pages-routing">2. Pages &amp; Routing</h2>
-<h3 id="routes-publiques-marketingseo">Routes publiques
-(marketing/SEO)</h3>
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr>
-<th>Route</th>
-<th>Page</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>/</code></td>
-<td><code>Landing</code></td>
-<td>Page d’accueil (smart redirect si auth)</td>
-</tr>
-<tr>
-<td><code>/auth</code></td>
-<td><code>Auth</code></td>
-<td>Connexion (smart redirect si auth)</td>
-</tr>
-<tr>
-<td><code>/signup</code></td>
-<td><code>Signup</code></td>
-<td>Inscription (smart redirect si auth)</td>
-</tr>
-<tr>
-<td><code>/blog</code></td>
-<td><code>Blog</code></td>
-<td>Liste des articles</td>
-</tr>
-<tr>
-<td><code>/blog/:slug</code></td>
-<td><code>BlogPost</code></td>
-<td>Article de blog</td>
-</tr>
-<tr>
-<td><code>/blog/auteur/:slug</code></td>
-<td><code>AuthorPage</code></td>
-<td>Page auteur</td>
-</tr>
-<tr>
-<td><code>/privacy</code></td>
-<td><code>Privacy</code></td>
-<td>Politique de confidentialité</td>
-</tr>
-<tr>
-<td><code>/terms</code></td>
-<td><code>Terms</code></td>
-<td>CGVU (Conditions Générales de Vente et d’Utilisation)</td>
-</tr>
-<tr>
-<td><code>/mentions-legales</code></td>
-<td><code>MentionsLegales</code></td>
-<td>Mentions légales</td>
-</tr>
-<tr>
-<td><code>/rgpd</code></td>
-<td><code>Rgpd</code></td>
-<td>Conformité RGPD (droits, sécurité, hébergement)</td>
-</tr>
-<tr>
-<td><code>/contact</code></td>
-<td><code>Contact</code></td>
-<td>Page contact</td>
-</tr>
-<tr>
-<td><code>/installer</code></td>
-<td><code>Install</code></td>
-<td>Guide d’installation PWA</td>
-</tr>
-<tr>
-<td><code>/expert-comptable</code></td>
-<td><code>ExpertComptable</code></td>
-<td>Landing expert-comptable</td>
-</tr>
-<tr>
-<td><code>/mode-tournee</code></td>
-<td><code>ModeTournee</code></td>
-<td>Landing mode tournée</td>
-</tr>
-<tr>
-<td><code>/calendrier</code></td>
-<td><code>Calendrier</code></td>
-<td>Landing sync calendrier</td>
-</tr>
-<tr>
-<td><code>/bareme-ik-2026</code></td>
-<td><code>BaremeIK2026</code></td>
-<td>Simulateur barème IK</td>
-</tr>
-<tr>
-<td><code>/frais-reels</code></td>
-<td><code>FraisReels</code></td>
-<td>Guide frais réels</td>
-</tr>
-<tr>
-<td><code>/lexique</code></td>
-<td><code>Lexique</code></td>
-<td>Lexique IK</td>
-</tr>
-<tr>
-<td><code>/comparatif-izika</code></td>
-<td><code>ComparatifIzika</code></td>
-<td>Comparatif vs Izika</td>
-</tr>
-<tr>
-<td><code>/comparatif-driversnote</code></td>
-<td><code>ComparatifDriversNote</code></td>
-<td>Comparatif vs Driver’s Note</td>
-</tr>
-<tr>
-<td><code>/marina</code></td>
-<td><code>MarinaAnalyze</code></td>
-<td>Analyse IA documents</td>
-</tr>
-<tr>
-<td><code>/offline</code></td>
-<td><code>Offline</code></td>
-<td>Page hors-ligne</td>
-</tr>
-<tr>
-<td><code>/temporaryreport/:id</code></td>
-<td><code>TemporaryReport</code></td>
-<td>Rapport partagé (public)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="routes-protégées-app">Routes protégées
-(<code>/app/*</code>)</h3>
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr>
-<th>Route</th>
-<th>Page</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>/app</code></td>
-<td><code>Index</code></td>
-<td>Dashboard principal (ajout trajet)</td>
-</tr>
-<tr>
-<td><code>/app/mestrajets</code></td>
-<td><code>MesTrajets</code></td>
-<td>Historique des trajets</td>
-</tr>
-<tr>
-<td><code>/app/profile</code></td>
-<td><code>Profile</code></td>
-<td>Profil utilisateur</td>
-</tr>
-<tr>
-<td><code>/app/admin</code></td>
-<td><code>Admin</code></td>
-<td>Dashboard admin</td>
-</tr>
-<tr>
-<td><code>/app/admin/blog</code></td>
-<td><code>BlogAdmin</code></td>
-<td>Gestion articles blog (onglets : Articles, Brouillons,
-<strong>Corbeille</strong>, Journal API, <strong>Liste noire</strong>).
-Sélection multiple par checkbox + actions groupées (publier, dépublier,
-mettre à la corbeille, restaurer, supprimer définitivement) sur les
-onglets Articles et Corbeille.</td>
-</tr>
-<tr>
-<td><code>/app/admin/blog/edit/:id?</code></td>
-<td><code>BlogEditor</code></td>
-<td>Éditeur d’article</td>
-</tr>
-<tr>
-<td><code>/app/blog/edit/:id?</code></td>
-<td><code>BlogEditor</code></td>
-<td>Éditeur (alias)</td>
-</tr>
-<tr>
-<td><code>/app/theme-onboarding</code></td>
-<td><code>ThemeOnboarding</code></td>
-<td>Choix du thème</td>
-</tr>
-<tr>
-<td><code>/app/recovery</code></td>
-<td><code>RecoveryWizard</code></td>
-<td>Récupération tournée</td>
-</tr>
-</tbody>
-</table>
-<h3 id="redirections-anciennes-urls">Redirections (anciennes URLs)</h3>
-<table>
-<thead>
-<tr>
-<th>Ancien path</th>
-<th>Nouveau path</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>/mestrajets</code></td>
-<td><code>/app/mestrajets</code></td>
-</tr>
-<tr>
-<td><code>/report</code></td>
-<td><code>/app/mestrajets</code></td>
-</tr>
-<tr>
-<td><code>/profile</code></td>
-<td><code>/app/profile</code></td>
-</tr>
-<tr>
-<td><code>/admin</code></td>
-<td><code>/app/admin</code></td>
-</tr>
-<tr>
-<td><code>/admin/blog</code></td>
-<td><code>/app/admin/blog</code></td>
-</tr>
-<tr>
-<td><code>/recovery</code></td>
-<td><code>/app/recovery</code></td>
-</tr>
-<tr>
-<td><code>/theme-onboarding</code></td>
-<td><code>/app/theme-onboarding</code></td>
-</tr>
-<tr>
-<td><code>/install</code></td>
-<td><code>/installer</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="guards-smart-components">Guards &amp; Smart Components</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>Composant</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ProtectedRoute</code></td>
-<td>Redirige vers <code>/auth</code> si non authentifié</td>
-</tr>
-<tr>
-<td><code>SmartLanding</code></td>
-<td>Redirige les users auth vers <code>/app</code> (sauf
-<code>?from=app</code>)</td>
-</tr>
-<tr>
-<td><code>SmartAuth</code></td>
-<td>Redirige les users auth vers <code>/app</code></td>
-</tr>
-<tr>
-<td><code>SmartSignup</code></td>
-<td>Redirige les users auth vers <code>/app</code></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="composants">3. Composants</h2>
-<h3 id="composants-principaux-40">Composants principaux (~40)</h3>
-<h4 id="application-core">Application core</h4>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>AddressCard.tsx</code></td>
-<td>Carte d’adresse (domicile/travail)</td>
-</tr>
-<tr>
-<td><code>AddressForm.tsx</code></td>
-<td>Formulaire d’ajout/édition d’adresse</td>
-</tr>
-<tr>
-<td><code>AnalyticsTracker.tsx</code></td>
-<td>Tracking analytics (page views, events)</td>
-</tr>
-<tr>
-<td><code>ArchivedTripsSection.tsx</code></td>
-<td>Section trajets archivés</td>
-</tr>
-<tr>
-<td><code>AuthForm.tsx</code></td>
-<td>Formulaire connexion/inscription (inclut scopes calendrier au
-sign-in OAuth)</td>
-</tr>
-<tr>
-<td><code>AuthLoadingScreen.tsx</code></td>
-<td>Écran de chargement auth</td>
-</tr>
-<tr>
-<td><code>BodyEndInjections.tsx</code></td>
-<td>Injections de code (scripts tracking)</td>
-</tr>
-<tr>
-<td><code>Breadcrumb.tsx</code></td>
-<td>Fil d’Ariane SEO</td>
-</tr>
-<tr>
-<td><code>CalendarConnections.tsx</code></td>
-<td>Gestion connexions calendrier</td>
-</tr>
-<tr>
-<td><code>CalendarSyncNotification.tsx</code></td>
-<td>Notification de sync calendrier</td>
-</tr>
-<tr>
-<td><code>CompleteAddressSheet.tsx</code></td>
-<td>Sheet de complétion d’adresse</td>
-</tr>
-<tr>
-<td><code>Counter.tsx</code></td>
-<td>Compteur animé</td>
-</tr>
-<tr>
-<td><code>DesktopSidebar.tsx</code></td>
-<td>Sidebar desktop (navigation, véhicules, feedback, section « Par le
-même fondateur »)</td>
-</tr>
-<tr>
-<td><code>ErrorBoundary.tsx</code></td>
-<td>Boundary d’erreur global</td>
-</tr>
-<tr>
-<td><code>FeedbackForm.tsx</code></td>
-<td>Formulaire de feedback (avec image)</td>
-</tr>
-<tr>
-<td><code>FloatingActionButton.tsx</code></td>
-<td>FAB mobile</td>
-</tr>
-<tr>
-<td><code>FocusTourView.tsx</code></td>
-<td>Vue focus mode tournée (minimize, refresh km, signal GPS)</td>
-</tr>
-<tr>
-<td><code>GeolocationBanner.tsx</code></td>
-<td>Bannière permission géolocalisation</td>
-</tr>
-<tr>
-<td><code>GeolocationTutorialModal.tsx</code></td>
-<td>Tutoriel activation GPS</td>
-</tr>
-<tr>
-<td><code>GlobalTourRecovery.tsx</code></td>
-<td>Récupération globale de tournée</td>
-</tr>
-<tr>
-<td><code>InstallBanner.tsx</code></td>
-<td>Bannière installation PWA</td>
-</tr>
-<tr>
-<td><code>LocationPicker.tsx</code></td>
-<td>Sélecteur d’adresse (Google Places)</td>
-</tr>
-<tr>
-<td><code>LogoutOverlay.tsx</code></td>
-<td>Overlay animé de déconnexion</td>
-</tr>
-<tr>
-<td><code>NavLink.tsx</code></td>
-<td>Lien de navigation</td>
-</tr>
-<tr>
-<td><code>NewTripSheet.tsx</code></td>
-<td>Sheet d’ajout de trajet</td>
-</tr>
-<tr>
-<td><code>OnboardingTutorial.tsx</code></td>
-<td>Tutoriel premier lancement</td>
-</tr>
-<tr>
-<td><code>PWAPromoSection.tsx</code></td>
-<td>Section promo PWA</td>
-</tr>
-<tr>
-<td><code>PersonaPicker.tsx</code></td>
-<td>Sélecteur de persona</td>
-</tr>
-<tr>
-<td><code>PreferencesContent.tsx</code></td>
-<td>Contenu des préférences</td>
-</tr>
-<tr>
-<td><code>QueryErrorBoundary.tsx</code></td>
-<td>Boundary d’erreur React Query</td>
-</tr>
-<tr>
-<td><code>ReferralSourceModal.tsx</code></td>
-<td>Modal source de découverte</td>
-</tr>
-<tr>
-<td><code>ThresholdAlert.tsx</code></td>
-<td>Alerte seuil kilométrique</td>
-</tr>
-<tr>
-<td><code>TourButton.tsx</code></td>
-<td>Bouton démarrage tournée</td>
-</tr>
-<tr>
-<td><code>TourDetailSheet.tsx</code></td>
-<td>Détail d’une tournée</td>
-</tr>
-<tr>
-<td><code>TourLogSheet.tsx</code></td>
-<td>Log GPS de tournée</td>
-</tr>
-<tr>
-<td><code>TourRecoveryModal.tsx</code></td>
-<td>Modal récupération tournée</td>
-</tr>
-<tr>
-<td><code>TripCard.tsx</code></td>
-<td>Carte de trajet</td>
-</tr>
-<tr>
-<td><code>TripViewSheet.tsx</code></td>
-<td>Vue détaillée d’un trajet</td>
-</tr>
-<tr>
-<td><code>VehicleCard.tsx</code></td>
-<td>Carte de véhicule</td>
-</tr>
-<tr>
-<td><code>VehicleForm.tsx</code></td>
-<td>Formulaire véhicule (avec recherche plaque)</td>
-</tr>
-</tbody>
-</table>
-<h4 id="composants-admin-componentsadmin">Composants Admin
-(<code>components/admin/</code>)</h4>
-<table>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>AdaptiveChart.tsx</code></td>
-<td>Graphique adaptatif (responsive)</td>
-</tr>
-<tr>
-<td><code>AdminAffiliation.tsx</code></td>
-<td>Gestion des codes d’affiliation</td>
-</tr>
-<tr>
-<td><code>AdminAutopilot.tsx</code></td>
-<td>Monitoring autopilot</td>
-</tr>
-<tr>
-<td><code>AdminCosts.tsx</code></td>
-<td>Dashboard coûts API</td>
-</tr>
-<tr>
-<td><code>AdminDocumentation.tsx</code></td>
-<td>Documentation technique intégrée</td>
-</tr>
-<tr>
-<td><code>AdminMonitoring.tsx</code></td>
-<td>Monitoring erreurs &amp; logs</td>
-</tr>
-<tr>
-<td><code>AdminSurveys.tsx</code></td>
-<td>Gestion des sondages A/B</td>
-</tr>
-<tr>
-<td><code>AutopilotCounters.tsx</code></td>
-<td>Compteurs autopilot</td>
-</tr>
-<tr>
-<td><code>DraggableMarketingCards.tsx</code></td>
-<td>Cards marketing (drag &amp; drop)</td>
-</tr>
-<tr>
-<td><code>DraggableStatsSection.tsx</code></td>
-<td>Section stats (drag &amp; drop)</td>
-</tr>
-<tr>
-<td><code>UserKPISheet.tsx</code></td>
-<td>KPI détaillés par utilisateur</td>
-</tr>
-</tbody>
-</table>
-<h4 id="composants-blog-componentsblog">Composants Blog
-(<code>components/blog/</code>)</h4>
-<table>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ArticleSummary.tsx</code></td>
-<td>Résumé automatique d’article</td>
-</tr>
-<tr>
-<td><code>BlogContentWithRelated.tsx</code></td>
-<td>Contenu blog avec articles liés</td>
-</tr>
-<tr>
-<td><code>BlogKpiDashboard.tsx</code></td>
-<td>KPI du blog (admin)</td>
-</tr>
-<tr>
-<td><code>ContentBlockEditor.tsx</code></td>
-<td>Éditeur de blocs (drag &amp; drop)</td>
-</tr>
-<tr>
-<td><code>ContentEditor.tsx</code></td>
-<td>Éditeur Markdown (images, liens)</td>
-</tr>
-<tr>
-<td><code>RelatedArticle.tsx</code></td>
-<td>Carte article lié</td>
-</tr>
-<tr>
-<td><code>RelatedArticleMarker.tsx</code></td>
-<td>Marqueur position article lié</td>
-</tr>
-</tbody>
-</table>
-<h4 id="composants-marketing-componentsmarketing">Composants Marketing
-(<code>components/marketing/</code>)</h4>
-<table>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>AnimatedPhoneMockup.tsx</code></td>
-<td>Mockup téléphone animé</td>
-</tr>
-<tr>
-<td><code>AppCarousel.tsx</code></td>
-<td>Carrousel de screenshots</td>
-</tr>
-<tr>
-<td><code>CalendarSyncDemo.tsx</code></td>
-<td>Démo sync calendrier</td>
-</tr>
-<tr>
-<td><code>CrawlersBanner.tsx</code></td>
-<td>Bannière crawlers IA</td>
-</tr>
-<tr>
-<td><code>EnhancedMarketingFooter.tsx</code></td>
-<td>Footer marketing enrichi</td>
-</tr>
-<tr>
-<td><code>MarketingFooter.tsx</code></td>
-<td>Footer marketing simple</td>
-</tr>
-<tr>
-<td><code>MarketingNav.tsx</code></td>
-<td>Navigation marketing</td>
-</tr>
-<tr>
-<td><code>MarketingPWANotification.tsx</code></td>
-<td>Notification PWA marketing</td>
-</tr>
-<tr>
-<td><code>TestimonialsCarousel.tsx</code></td>
-<td>Carrousel témoignages</td>
-</tr>
-<tr>
-<td><code>TourModeDemo.tsx</code></td>
-<td>Démo mode tournée</td>
-</tr>
-<tr>
-<td><code>TourModeMockup.tsx</code></td>
-<td>Mockup mode tournée</td>
-</tr>
-</tbody>
-</table>
-<h4 id="composants-charts-componentscharts">Composants Charts
-(<code>components/charts/</code>)</h4>
-<table>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>LazyCharts.tsx</code></td>
-<td>Wrapper lazy-load Recharts</td>
-</tr>
-<tr>
-<td><code>ProfileKmChart.tsx</code></td>
-<td>Graphique km mensuels (profil)</td>
-</tr>
-</tbody>
-</table>
-<h4 id="composants-trip-componentstrip">Composants Trip
-(<code>components/trip/</code>)</h4>
-<table>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>DetailsStepContent.tsx</code></td>
-<td>Contenu de l’étape détails d’un trajet</td>
-</tr>
-</tbody>
-</table>
-<h4 id="composants-ui-shadcnui-35-primitives">Composants UI (shadcn/ui —
-35 primitives)</h4>
-<p><code>accordion</code>, <code>alert</code>,
-<code>alert-dialog</code>, <code>avatar</code>, <code>badge</code>,
-<code>button</code>, <code>calendar</code>, <code>card</code>,
-<code>checkbox</code>, <code>dialog</code>, <code>drawer</code>,
-<code>dropdown-menu</code>, <code>form</code>, <code>input</code>,
-<code>label</code>, <code>optimized-image</code>, <code>popover</code>,
-<code>progress</code>, <code>radio-group</code>,
-<code>scroll-area</code>, <code>select</code>, <code>separator</code>,
-<code>sheet</code>, <code>skeleton</code>, <code>slider</code>,
-<code>sonner</code>, <code>switch</code>, <code>table</code>,
-<code>tabs</code>, <code>textarea</code>, <code>toast</code>,
-<code>toaster</code>, <code>toggle</code>, <code>toggle-group</code>,
-<code>tooltip</code></p>
-<p>Custom UI : <code>optimized-image.tsx</code> (chargement lazy avec
-blurhash).</p>
-<hr />
-<h2 id="hooks">4. Hooks</h2>
-<h3 id="hooks-dauthentification-autorisation">Hooks d’authentification
-&amp; autorisation</h3>
-<table>
-<thead>
-<tr>
-<th>Hook</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>useAuth.ts</code></td>
-<td>Auth state (user, loading, signOut, requiresAuth)</td>
-</tr>
-<tr>
-<td><code>useAuthLazy.ts</code></td>
-<td>Auth lazy-loaded (pour composants non critiques)</td>
-</tr>
-<tr>
-<td><code>useAdmin.ts</code></td>
-<td>Vérifie rôle admin (via <code>has_role</code>)</td>
-</tr>
-<tr>
-<td><code>useAdminLazy.ts</code></td>
-<td>Admin check lazy-loaded</td>
-</tr>
-</tbody>
-</table>
-<h3 id="hooks-de-données">Hooks de données</h3>
-<table>
-<thead>
-<tr>
-<th>Hook</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>useTrips.ts</code></td>
-<td>CRUD trajets (Supabase + React Query)</td>
-</tr>
-<tr>
-<td><code>usePreferences.ts</code></td>
-<td>Préférences utilisateur</td>
-</tr>
-<tr>
-<td><code>useFeedback.ts</code></td>
-<td>Envoi/lecture feedback</td>
-</tr>
-<tr>
-<td><code>useCalendarConnections.ts</code></td>
-<td>Connexions calendrier</td>
-</tr>
-<tr>
-<td><code>useDistanceCache.ts</code></td>
-<td>Cache des distances</td>
-</tr>
-</tbody>
-</table>
-<h3 id="hooks-dui-ux">Hooks d’UI &amp; UX</h3>
-<table>
-<thead>
-<tr>
-<th>Hook</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>use-mobile.tsx</code></td>
-<td>Détection mobile (media query)</td>
-</tr>
-<tr>
-<td><code>use-toast.ts</code></td>
-<td>Système de toasts (shadcn)</td>
-</tr>
-<tr>
-<td><code>useTheme.ts</code></td>
-<td>Thème clair/sombre</td>
-</tr>
-<tr>
-<td><code>useNightMode.ts</code></td>
-<td>Mode nuit automatique</td>
-</tr>
-<tr>
-<td><code>useContainerWidth.ts</code></td>
-<td>Largeur du container (responsive charts)</td>
-</tr>
-<tr>
-<td><code>useScrollAnimation.ts</code></td>
-<td>Animations au scroll</td>
-</tr>
-<tr>
-<td><code>useTutorial.ts</code></td>
-<td>État du tutoriel onboarding</td>
-</tr>
-</tbody>
-</table>
-<h3 id="hooks-techniques">Hooks techniques</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>Hook</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>useGoogleMaps.ts</code></td>
-<td>Chargement Google Maps SDK</td>
-</tr>
-<tr>
-<td><code>useGeolocation.ts</code></td>
-<td>Position GPS</td>
-</tr>
-<tr>
-<td><code>useGeolocationPermission.ts</code></td>
-<td>Permission géolocalisation</td>
-</tr>
-<tr>
-<td><code>useOnlineStatus.ts</code></td>
-<td>Détection connectivité</td>
-</tr>
-<tr>
-<td><code>useWakeLock.ts</code></td>
-<td>Wake Lock API (écran allumé)</td>
-</tr>
-<tr>
-<td><code>useMarketingTracker.ts</code></td>
-<td>Tracking événements marketing. Délègue à l’edge function
-<code>track-event</code> (IP captée server-side via headers Cloudflare —
-plus de dépendance à <code>api.ipify.org</code>, bloqué par
-uBlock/Brave/Pi-hole). Filtre bots + admins (double filtre
-client+serveur, cache session sur <code>is_admin_user</code>).
-Session/device/admin helpers factorisés dans
-<code>src/lib/tracking-shared.ts</code>.</td>
-</tr>
-<tr>
-<td><code>signup-tracking.ts</code> (lib)</td>
-<td>Événements funnel signup (<code>signup_view</code>,
-<code>signup_oauth_start</code>, <code>signup_form_submit</code>,
-<code>signup_error</code>, <code>signup_success</code>). Passe par
-<code>track-event</code>. Déduplication de <code>signup_view</code> par
-session via <code>sessionStorage</code> (un rechargement de
-<code>/signup</code> ne compte plus double).</td>
-</tr>
-<tr>
-<td><code>tracking-shared.ts</code> (lib)</td>
-<td>Helpers communs <code>getSessionId()</code>,
-<code>getDeviceType()</code>, <code>checkIsAdmin()</code> (cache
-session) partagés entre <code>useMarketingTracker</code> et
-<code>signup-tracking</code>.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="hooks-mode-tournée">Hooks mode tournée</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>Hook</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>useTourTracker.ts</code></td>
-<td>Logique principale de tournée GPS. Gap-filling sérialisé (pas de
-double comptage). Expose <code>forceRefreshDistance()</code> pour mise à
-jour manuelle du compteur</td>
-</tr>
-<tr>
-<td><code>useTourSessionDB.ts</code></td>
-<td>Persistence sessions tournée (Supabase)</td>
-</tr>
-<tr>
-<td><code>useTourSessionRecovery.ts</code></td>
-<td>Récupération de session interrompue</td>
-</tr>
-</tbody>
-</table>
-<h3 id="mode-tournée-architecture-résumée-v1.3">Mode tournée —
-Architecture résumée (v1.3)</h3>
-<h4 id="minimisation-restauration">Minimisation / Restauration</h4>
-<ul>
-<li><code>Index.tsx</code> gère un état <code>tourMinimized</code> :
-quand activé, <code>FocusTourView</code> est masqué et remplacé par un
-pill flottant orange (icône <code>Car</code> + distance) en haut à
-droite</li>
-<li>Cliquer sur le pill restaure la vue focus. La tournée continue en
-arrière-plan (GPS tracking actif)</li>
-</ul>
-<h4 id="anti-double-comptage-fix-mai-2026">Anti double-comptage (fix mai
-2026)</h4>
-<ul>
-<li>Le <code>visibilitychange</code> handler dans
-<code>useTourTracker</code> est <strong>sérialisé</strong> :
-<code>watchPosition</code> ne redémarre qu’<strong>après</strong> la fin
-du gap-filling (<code>getCurrentPosition</code>) et la mise à jour de
-<code>lastPositionRef.current</code></li>
-<li>Le listener redondant dans <code>Index.tsx</code> a été supprimé —
-<code>useTourTracker</code> est la source unique de vérité pour la
-récupération de distance foreground/background</li>
-</ul>
-<h4 id="rafraîchissement-manuel">Rafraîchissement manuel</h4>
-<ul>
-<li>Bouton <code>RotateCw</code> dans <code>FocusTourView</code> :
-appelle <code>forceRefreshDistance()</code> qui récupère la position GPS
-courante et met à jour le compteur</li>
-</ul>
-<h4 id="estimation-ik-en-fin-de-tournée">Estimation IK en fin de
-tournée</h4>
-<ul>
-<li><code>handleConvertToTrips</code> utilise la Distance Matrix API
-(route réelle) entre les stops pour le calcul final IK, indépendamment
-du compteur GPS temps réel</li>
-</ul>
-<hr />
-<h2 id="librairies-utilitaires">5. Librairies utilitaires</h2>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Rôle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>lib/utils.ts</code></td>
-<td><code>cn()</code> (clsx + tailwind-merge), helpers divers</td>
-</tr>
-<tr>
-<td><code>lib/distance.ts</code></td>
-<td>Calcul de distances, barème IK</td>
-</tr>
-<tr>
-<td><code>lib/geocoding.ts</code></td>
-<td>Géocodage (Google Maps API)</td>
-</tr>
-<tr>
-<td><code>lib/idle-callback.ts</code></td>
-<td><code>deferTask()</code>, <code>whenInteractive()</code>,
-<code>preloadModule()</code></td>
-</tr>
-<tr>
-<td><code>lib/image-transform.ts</code></td>
-<td>Conversion images (WebP)</td>
-</tr>
-<tr>
-<td><code>lib/image-utils.ts</code></td>
-<td>Helpers images</td>
-</tr>
-<tr>
-<td><code>lib/pdf-utils.ts</code></td>
-<td>Génération PDF (html2pdf)</td>
-</tr>
-<tr>
-<td><code>lib/print-utils.ts</code></td>
-<td>Impression (window.print)</td>
-</tr>
-<tr>
-<td><code>lib/sounds.ts</code></td>
-<td>Sons UI (feedback sonore)</td>
-</tr>
-<tr>
-<td><code>lib/ssr-utils.ts</code></td>
-<td>Helpers SSR (détection server/client)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="design-system">6. Design System</h2>
-<h3 id="tokens-css-index.css">Tokens CSS (index.css)</h3>
-<p>Le thème est défini via des CSS custom properties HSL :</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode css"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+    <hr />
+    <h2 id="pages-routing">2. Pages &amp; Routing</h2>
+    <h3 id="routes-publiques-marketingseo">Routes publiques (marketing/SEO)</h3>
+    <table>
+      <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Route</th>
+          <th>Page</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/</code></td>
+          <td><code>Landing</code></td>
+          <td>Page d’accueil (smart redirect si auth)</td>
+        </tr>
+        <tr>
+          <td><code>/auth</code></td>
+          <td><code>Auth</code></td>
+          <td>Connexion (smart redirect si auth)</td>
+        </tr>
+        <tr>
+          <td><code>/signup</code></td>
+          <td><code>Signup</code></td>
+          <td>Inscription (smart redirect si auth)</td>
+        </tr>
+        <tr>
+          <td><code>/blog</code></td>
+          <td><code>Blog</code></td>
+          <td>Liste des articles</td>
+        </tr>
+        <tr>
+          <td><code>/blog/:slug</code></td>
+          <td><code>BlogPost</code></td>
+          <td>Article de blog</td>
+        </tr>
+        <tr>
+          <td><code>/blog/auteur/:slug</code></td>
+          <td><code>AuthorPage</code></td>
+          <td>Page auteur</td>
+        </tr>
+        <tr>
+          <td><code>/privacy</code></td>
+          <td><code>Privacy</code></td>
+          <td>Politique de confidentialité</td>
+        </tr>
+        <tr>
+          <td><code>/terms</code></td>
+          <td><code>Terms</code></td>
+          <td>CGVU (Conditions Générales de Vente et d’Utilisation)</td>
+        </tr>
+        <tr>
+          <td><code>/mentions-legales</code></td>
+          <td><code>MentionsLegales</code></td>
+          <td>Mentions légales</td>
+        </tr>
+        <tr>
+          <td><code>/rgpd</code></td>
+          <td><code>Rgpd</code></td>
+          <td>Conformité RGPD (droits, sécurité, hébergement)</td>
+        </tr>
+        <tr>
+          <td><code>/contact</code></td>
+          <td><code>Contact</code></td>
+          <td>Page contact</td>
+        </tr>
+        <tr>
+          <td><code>/installer</code></td>
+          <td><code>Install</code></td>
+          <td>Guide d’installation PWA</td>
+        </tr>
+        <tr>
+          <td><code>/expert-comptable</code></td>
+          <td><code>ExpertComptable</code></td>
+          <td>Landing expert-comptable</td>
+        </tr>
+        <tr>
+          <td><code>/mode-tournee</code></td>
+          <td><code>ModeTournee</code></td>
+          <td>Landing mode tournée</td>
+        </tr>
+        <tr>
+          <td><code>/calendrier</code></td>
+          <td><code>Calendrier</code></td>
+          <td>Landing sync calendrier</td>
+        </tr>
+        <tr>
+          <td><code>/bareme-ik-2026</code></td>
+          <td><code>BaremeIK2026</code></td>
+          <td>Simulateur barème IK</td>
+        </tr>
+        <tr>
+          <td><code>/frais-reels</code></td>
+          <td><code>FraisReels</code></td>
+          <td>Guide frais réels</td>
+        </tr>
+        <tr>
+          <td><code>/lexique</code></td>
+          <td><code>Lexique</code></td>
+          <td>Lexique IK</td>
+        </tr>
+        <tr>
+          <td><code>/comparatif-izika</code></td>
+          <td><code>ComparatifIzika</code></td>
+          <td>Comparatif vs Izika</td>
+        </tr>
+        <tr>
+          <td><code>/comparatif-driversnote</code></td>
+          <td><code>ComparatifDriversNote</code></td>
+          <td>Comparatif vs Driver’s Note</td>
+        </tr>
+        <tr>
+          <td><code>/marina</code></td>
+          <td><code>MarinaAnalyze</code></td>
+          <td>Analyse IA documents</td>
+        </tr>
+        <tr>
+          <td><code>/offline</code></td>
+          <td><code>Offline</code></td>
+          <td>Page hors-ligne</td>
+        </tr>
+        <tr>
+          <td><code>/temporaryreport/:id</code></td>
+          <td><code>TemporaryReport</code></td>
+          <td>Rapport partagé (public)</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="routes-protégées-app">Routes protégées (<code>/app/*</code>)</h3>
+    <table>
+      <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Route</th>
+          <th>Page</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/app</code></td>
+          <td><code>Index</code></td>
+          <td>Dashboard principal (ajout trajet)</td>
+        </tr>
+        <tr>
+          <td><code>/app/mestrajets</code></td>
+          <td><code>MesTrajets</code></td>
+          <td>Historique des trajets</td>
+        </tr>
+        <tr>
+          <td><code>/app/profile</code></td>
+          <td><code>Profile</code></td>
+          <td>Profil utilisateur</td>
+        </tr>
+        <tr>
+          <td><code>/app/admin</code></td>
+          <td><code>Admin</code></td>
+          <td>Dashboard admin</td>
+        </tr>
+        <tr>
+          <td><code>/app/admin/blog</code></td>
+          <td><code>BlogAdmin</code></td>
+          <td>
+            Gestion articles blog (onglets : Articles, Brouillons, <strong>Corbeille</strong>,
+            Journal API, <strong>Liste noire</strong>). Sélection multiple par checkbox + actions
+            groupées (publier, dépublier, mettre à la corbeille, restaurer, supprimer
+            définitivement) sur les onglets Articles et Corbeille.
+          </td>
+        </tr>
+        <tr>
+          <td><code>/app/admin/blog/edit/:id?</code></td>
+          <td><code>BlogEditor</code></td>
+          <td>Éditeur d’article</td>
+        </tr>
+        <tr>
+          <td><code>/app/blog/edit/:id?</code></td>
+          <td><code>BlogEditor</code></td>
+          <td>Éditeur (alias)</td>
+        </tr>
+        <tr>
+          <td><code>/app/theme-onboarding</code></td>
+          <td><code>ThemeOnboarding</code></td>
+          <td>Choix du thème</td>
+        </tr>
+        <tr>
+          <td><code>/app/recovery</code></td>
+          <td><code>RecoveryWizard</code></td>
+          <td>Récupération tournée</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="redirections-anciennes-urls">Redirections (anciennes URLs)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ancien path</th>
+          <th>Nouveau path</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/mestrajets</code></td>
+          <td><code>/app/mestrajets</code></td>
+        </tr>
+        <tr>
+          <td><code>/report</code></td>
+          <td><code>/app/mestrajets</code></td>
+        </tr>
+        <tr>
+          <td><code>/profile</code></td>
+          <td><code>/app/profile</code></td>
+        </tr>
+        <tr>
+          <td><code>/admin</code></td>
+          <td><code>/app/admin</code></td>
+        </tr>
+        <tr>
+          <td><code>/admin/blog</code></td>
+          <td><code>/app/admin/blog</code></td>
+        </tr>
+        <tr>
+          <td><code>/recovery</code></td>
+          <td><code>/app/recovery</code></td>
+        </tr>
+        <tr>
+          <td><code>/theme-onboarding</code></td>
+          <td><code>/app/theme-onboarding</code></td>
+        </tr>
+        <tr>
+          <td><code>/install</code></td>
+          <td><code>/installer</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="guards-smart-components">Guards &amp; Smart Components</h3>
+    <table>
+      <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Composant</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ProtectedRoute</code></td>
+          <td>Redirige vers <code>/auth</code> si non authentifié</td>
+        </tr>
+        <tr>
+          <td><code>SmartLanding</code></td>
+          <td>Redirige les users auth vers <code>/app</code> (sauf <code>?from=app</code>)</td>
+        </tr>
+        <tr>
+          <td><code>SmartAuth</code></td>
+          <td>Redirige les users auth vers <code>/app</code></td>
+        </tr>
+        <tr>
+          <td><code>SmartSignup</code></td>
+          <td>Redirige les users auth vers <code>/app</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2 id="composants">3. Composants</h2>
+    <h3 id="composants-principaux-40">Composants principaux (~40)</h3>
+    <h4 id="application-core">Application core</h4>
+    <table>
+      <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>AddressCard.tsx</code></td>
+          <td>Carte d’adresse (domicile/travail)</td>
+        </tr>
+        <tr>
+          <td><code>AddressForm.tsx</code></td>
+          <td>Formulaire d’ajout/édition d’adresse</td>
+        </tr>
+        <tr>
+          <td><code>AnalyticsTracker.tsx</code></td>
+          <td>Tracking analytics (page views, events)</td>
+        </tr>
+        <tr>
+          <td><code>ArchivedTripsSection.tsx</code></td>
+          <td>Section trajets archivés</td>
+        </tr>
+        <tr>
+          <td><code>AuthForm.tsx</code></td>
+          <td>Formulaire connexion/inscription (inclut scopes calendrier au sign-in OAuth)</td>
+        </tr>
+        <tr>
+          <td><code>AuthLoadingScreen.tsx</code></td>
+          <td>Écran de chargement auth</td>
+        </tr>
+        <tr>
+          <td><code>BodyEndInjections.tsx</code></td>
+          <td>Injections de code (scripts tracking)</td>
+        </tr>
+        <tr>
+          <td><code>Breadcrumb.tsx</code></td>
+          <td>Fil d’Ariane SEO</td>
+        </tr>
+        <tr>
+          <td><code>CalendarConnections.tsx</code></td>
+          <td>Gestion connexions calendrier</td>
+        </tr>
+        <tr>
+          <td><code>CalendarSyncNotification.tsx</code></td>
+          <td>Notification de sync calendrier</td>
+        </tr>
+        <tr>
+          <td><code>CompleteAddressSheet.tsx</code></td>
+          <td>Sheet de complétion d’adresse</td>
+        </tr>
+        <tr>
+          <td><code>Counter.tsx</code></td>
+          <td>Compteur animé</td>
+        </tr>
+        <tr>
+          <td><code>DesktopSidebar.tsx</code></td>
+          <td>
+            Sidebar desktop (navigation, véhicules, feedback, section « Par le même fondateur »)
+          </td>
+        </tr>
+        <tr>
+          <td><code>ErrorBoundary.tsx</code></td>
+          <td>Boundary d’erreur global</td>
+        </tr>
+        <tr>
+          <td><code>FeedbackForm.tsx</code></td>
+          <td>Formulaire de feedback (avec image)</td>
+        </tr>
+        <tr>
+          <td><code>FloatingActionButton.tsx</code></td>
+          <td>FAB mobile</td>
+        </tr>
+        <tr>
+          <td><code>FocusTourView.tsx</code></td>
+          <td>Vue focus mode tournée (minimize, refresh km, signal GPS)</td>
+        </tr>
+        <tr>
+          <td><code>GeolocationBanner.tsx</code></td>
+          <td>Bannière permission géolocalisation</td>
+        </tr>
+        <tr>
+          <td><code>GeolocationTutorialModal.tsx</code></td>
+          <td>Tutoriel activation GPS</td>
+        </tr>
+        <tr>
+          <td><code>GlobalTourRecovery.tsx</code></td>
+          <td>Récupération globale de tournée</td>
+        </tr>
+        <tr>
+          <td><code>InstallBanner.tsx</code></td>
+          <td>Bannière installation PWA</td>
+        </tr>
+        <tr>
+          <td><code>LocationPicker.tsx</code></td>
+          <td>Sélecteur d’adresse (Google Places)</td>
+        </tr>
+        <tr>
+          <td><code>LogoutOverlay.tsx</code></td>
+          <td>Overlay animé de déconnexion</td>
+        </tr>
+        <tr>
+          <td><code>NavLink.tsx</code></td>
+          <td>Lien de navigation</td>
+        </tr>
+        <tr>
+          <td><code>NewTripSheet.tsx</code></td>
+          <td>Sheet d’ajout de trajet</td>
+        </tr>
+        <tr>
+          <td><code>OnboardingTutorial.tsx</code></td>
+          <td>Tutoriel premier lancement</td>
+        </tr>
+        <tr>
+          <td><code>PWAPromoSection.tsx</code></td>
+          <td>Section promo PWA</td>
+        </tr>
+        <tr>
+          <td><code>PersonaPicker.tsx</code></td>
+          <td>Sélecteur de persona</td>
+        </tr>
+        <tr>
+          <td><code>PreferencesContent.tsx</code></td>
+          <td>Contenu des préférences</td>
+        </tr>
+        <tr>
+          <td><code>QueryErrorBoundary.tsx</code></td>
+          <td>Boundary d’erreur React Query</td>
+        </tr>
+        <tr>
+          <td><code>ReferralSourceModal.tsx</code></td>
+          <td>Modal source de découverte</td>
+        </tr>
+        <tr>
+          <td><code>ThresholdAlert.tsx</code></td>
+          <td>Alerte seuil kilométrique</td>
+        </tr>
+        <tr>
+          <td><code>TourButton.tsx</code></td>
+          <td>Bouton démarrage tournée</td>
+        </tr>
+        <tr>
+          <td><code>TourDetailSheet.tsx</code></td>
+          <td>Détail d’une tournée</td>
+        </tr>
+        <tr>
+          <td><code>TourLogSheet.tsx</code></td>
+          <td>Log GPS de tournée</td>
+        </tr>
+        <tr>
+          <td><code>TourRecoveryModal.tsx</code></td>
+          <td>Modal récupération tournée</td>
+        </tr>
+        <tr>
+          <td><code>TripCard.tsx</code></td>
+          <td>Carte de trajet</td>
+        </tr>
+        <tr>
+          <td><code>TripViewSheet.tsx</code></td>
+          <td>Vue détaillée d’un trajet</td>
+        </tr>
+        <tr>
+          <td><code>VehicleCard.tsx</code></td>
+          <td>Carte de véhicule</td>
+        </tr>
+        <tr>
+          <td><code>VehicleForm.tsx</code></td>
+          <td>Formulaire véhicule (avec recherche plaque)</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="composants-admin-componentsadmin">Composants Admin (<code>components/admin/</code>)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>AdaptiveChart.tsx</code></td>
+          <td>Graphique adaptatif (responsive)</td>
+        </tr>
+        <tr>
+          <td><code>AdminAffiliation.tsx</code></td>
+          <td>Gestion des codes d’affiliation</td>
+        </tr>
+        <tr>
+          <td><code>AdminAutopilot.tsx</code></td>
+          <td>Monitoring autopilot</td>
+        </tr>
+        <tr>
+          <td><code>AdminCosts.tsx</code></td>
+          <td>Dashboard coûts API</td>
+        </tr>
+        <tr>
+          <td><code>AdminDocumentation.tsx</code></td>
+          <td>Documentation technique intégrée</td>
+        </tr>
+        <tr>
+          <td><code>AdminMonitoring.tsx</code></td>
+          <td>Monitoring erreurs &amp; logs</td>
+        </tr>
+        <tr>
+          <td><code>AdminSurveys.tsx</code></td>
+          <td>Gestion des sondages A/B</td>
+        </tr>
+        <tr>
+          <td><code>AutopilotCounters.tsx</code></td>
+          <td>Compteurs autopilot</td>
+        </tr>
+        <tr>
+          <td><code>DraggableMarketingCards.tsx</code></td>
+          <td>Cards marketing (drag &amp; drop)</td>
+        </tr>
+        <tr>
+          <td><code>DraggableStatsSection.tsx</code></td>
+          <td>Section stats (drag &amp; drop)</td>
+        </tr>
+        <tr>
+          <td><code>UserKPISheet.tsx</code></td>
+          <td>KPI détaillés par utilisateur</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="composants-blog-componentsblog">Composants Blog (<code>components/blog/</code>)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ArticleSummary.tsx</code></td>
+          <td>Résumé automatique d’article</td>
+        </tr>
+        <tr>
+          <td><code>BlogContentWithRelated.tsx</code></td>
+          <td>Contenu blog avec articles liés</td>
+        </tr>
+        <tr>
+          <td><code>BlogKpiDashboard.tsx</code></td>
+          <td>KPI du blog (admin)</td>
+        </tr>
+        <tr>
+          <td><code>ContentBlockEditor.tsx</code></td>
+          <td>Éditeur de blocs (drag &amp; drop)</td>
+        </tr>
+        <tr>
+          <td><code>ContentEditor.tsx</code></td>
+          <td>Éditeur Markdown (images, liens)</td>
+        </tr>
+        <tr>
+          <td><code>RelatedArticle.tsx</code></td>
+          <td>Carte article lié</td>
+        </tr>
+        <tr>
+          <td><code>RelatedArticleMarker.tsx</code></td>
+          <td>Marqueur position article lié</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="composants-marketing-componentsmarketing">
+      Composants Marketing (<code>components/marketing/</code>)
+    </h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>AnimatedPhoneMockup.tsx</code></td>
+          <td>Mockup téléphone animé</td>
+        </tr>
+        <tr>
+          <td><code>AppCarousel.tsx</code></td>
+          <td>Carrousel de screenshots</td>
+        </tr>
+        <tr>
+          <td><code>CalendarSyncDemo.tsx</code></td>
+          <td>Démo sync calendrier</td>
+        </tr>
+        <tr>
+          <td><code>CrawlersBanner.tsx</code></td>
+          <td>Bannière crawlers IA</td>
+        </tr>
+        <tr>
+          <td><code>EnhancedMarketingFooter.tsx</code></td>
+          <td>Footer marketing enrichi</td>
+        </tr>
+        <tr>
+          <td><code>MarketingFooter.tsx</code></td>
+          <td>Footer marketing simple</td>
+        </tr>
+        <tr>
+          <td><code>MarketingNav.tsx</code></td>
+          <td>Navigation marketing</td>
+        </tr>
+        <tr>
+          <td><code>MarketingPWANotification.tsx</code></td>
+          <td>Notification PWA marketing</td>
+        </tr>
+        <tr>
+          <td><code>TestimonialsCarousel.tsx</code></td>
+          <td>Carrousel témoignages</td>
+        </tr>
+        <tr>
+          <td><code>TourModeDemo.tsx</code></td>
+          <td>Démo mode tournée</td>
+        </tr>
+        <tr>
+          <td><code>TourModeMockup.tsx</code></td>
+          <td>Mockup mode tournée</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="composants-charts-componentscharts">
+      Composants Charts (<code>components/charts/</code>)
+    </h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>LazyCharts.tsx</code></td>
+          <td>Wrapper lazy-load Recharts</td>
+        </tr>
+        <tr>
+          <td><code>ProfileKmChart.tsx</code></td>
+          <td>Graphique km mensuels (profil)</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="composants-trip-componentstrip">Composants Trip (<code>components/trip/</code>)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>DetailsStepContent.tsx</code></td>
+          <td>Contenu de l’étape détails d’un trajet</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="composants-ui-shadcnui-35-primitives">Composants UI (shadcn/ui — 35 primitives)</h4>
+    <p>
+      <code>accordion</code>, <code>alert</code>, <code>alert-dialog</code>, <code>avatar</code>,
+      <code>badge</code>, <code>button</code>, <code>calendar</code>, <code>card</code>,
+      <code>checkbox</code>, <code>dialog</code>, <code>drawer</code>, <code>dropdown-menu</code>,
+      <code>form</code>, <code>input</code>, <code>label</code>, <code>optimized-image</code>,
+      <code>popover</code>, <code>progress</code>, <code>radio-group</code>,
+      <code>scroll-area</code>, <code>select</code>, <code>separator</code>, <code>sheet</code>,
+      <code>skeleton</code>, <code>slider</code>, <code>sonner</code>, <code>switch</code>,
+      <code>table</code>, <code>tabs</code>, <code>textarea</code>, <code>toast</code>,
+      <code>toaster</code>, <code>toggle</code>, <code>toggle-group</code>, <code>tooltip</code>
+    </p>
+    <p>Custom UI : <code>optimized-image.tsx</code> (chargement lazy avec blurhash).</p>
+    <hr />
+    <h2 id="hooks">4. Hooks</h2>
+    <h3 id="hooks-dauthentification-autorisation">Hooks d’authentification &amp; autorisation</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Hook</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>useAuth.ts</code></td>
+          <td>Auth state (user, loading, signOut, requiresAuth)</td>
+        </tr>
+        <tr>
+          <td><code>useAuthLazy.ts</code></td>
+          <td>Auth lazy-loaded (pour composants non critiques)</td>
+        </tr>
+        <tr>
+          <td><code>useAdmin.ts</code></td>
+          <td>Vérifie rôle admin (via <code>has_role</code>)</td>
+        </tr>
+        <tr>
+          <td><code>useAdminLazy.ts</code></td>
+          <td>Admin check lazy-loaded</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="hooks-de-données">Hooks de données</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Hook</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>useTrips.ts</code></td>
+          <td>CRUD trajets (Supabase + React Query)</td>
+        </tr>
+        <tr>
+          <td><code>usePreferences.ts</code></td>
+          <td>Préférences utilisateur</td>
+        </tr>
+        <tr>
+          <td><code>useFeedback.ts</code></td>
+          <td>Envoi/lecture feedback</td>
+        </tr>
+        <tr>
+          <td><code>useCalendarConnections.ts</code></td>
+          <td>Connexions calendrier</td>
+        </tr>
+        <tr>
+          <td><code>useDistanceCache.ts</code></td>
+          <td>Cache des distances</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="hooks-dui-ux">Hooks d’UI &amp; UX</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Hook</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>use-mobile.tsx</code></td>
+          <td>Détection mobile (media query)</td>
+        </tr>
+        <tr>
+          <td><code>use-toast.ts</code></td>
+          <td>Système de toasts (shadcn)</td>
+        </tr>
+        <tr>
+          <td><code>useTheme.ts</code></td>
+          <td>Thème clair/sombre</td>
+        </tr>
+        <tr>
+          <td><code>useNightMode.ts</code></td>
+          <td>Mode nuit automatique</td>
+        </tr>
+        <tr>
+          <td><code>useContainerWidth.ts</code></td>
+          <td>Largeur du container (responsive charts)</td>
+        </tr>
+        <tr>
+          <td><code>useScrollAnimation.ts</code></td>
+          <td>Animations au scroll</td>
+        </tr>
+        <tr>
+          <td><code>useTutorial.ts</code></td>
+          <td>État du tutoriel onboarding</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="hooks-techniques">Hooks techniques</h3>
+    <table>
+      <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Hook</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>useGoogleMaps.ts</code></td>
+          <td>Chargement Google Maps SDK</td>
+        </tr>
+        <tr>
+          <td><code>useGeolocation.ts</code></td>
+          <td>Position GPS</td>
+        </tr>
+        <tr>
+          <td><code>useGeolocationPermission.ts</code></td>
+          <td>Permission géolocalisation</td>
+        </tr>
+        <tr>
+          <td><code>useOnlineStatus.ts</code></td>
+          <td>Détection connectivité</td>
+        </tr>
+        <tr>
+          <td><code>useWakeLock.ts</code></td>
+          <td>Wake Lock API (écran allumé)</td>
+        </tr>
+        <tr>
+          <td><code>useMarketingTracker.ts</code></td>
+          <td>
+            Tracking événements marketing. Délègue à l’edge function <code>track-event</code> (IP
+            captée server-side via headers Cloudflare — plus de dépendance à
+            <code>api.ipify.org</code>, bloqué par uBlock/Brave/Pi-hole). Filtre bots + admins
+            (double filtre client+serveur, cache session sur <code>is_admin_user</code>).
+            Session/device/admin helpers factorisés dans <code>src/lib/tracking-shared.ts</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>signup-tracking.ts</code> (lib)</td>
+          <td>
+            Événements funnel signup (<code>signup_view</code>, <code>signup_oauth_start</code>,
+            <code>signup_form_submit</code>, <code>signup_error</code>,
+            <code>signup_success</code>). Passe par <code>track-event</code>. Déduplication de
+            <code>signup_view</code> par session via <code>sessionStorage</code> (un rechargement de
+            <code>/signup</code> ne compte plus double).
+          </td>
+        </tr>
+        <tr>
+          <td><code>tracking-shared.ts</code> (lib)</td>
+          <td>
+            Helpers communs <code>getSessionId()</code>, <code>getDeviceType()</code>,
+            <code>checkIsAdmin()</code> (cache session) partagés entre
+            <code>useMarketingTracker</code> et <code>signup-tracking</code>.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="hooks-mode-tournée">Hooks mode tournée</h3>
+    <table>
+      <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Hook</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>useTourTracker.ts</code></td>
+          <td>
+            Logique principale de tournée GPS. Gap-filling sérialisé (pas de double comptage).
+            Expose <code>forceRefreshDistance()</code> pour mise à jour manuelle du compteur
+          </td>
+        </tr>
+        <tr>
+          <td><code>useTourSessionDB.ts</code></td>
+          <td>Persistence sessions tournée (Supabase)</td>
+        </tr>
+        <tr>
+          <td><code>useTourSessionRecovery.ts</code></td>
+          <td>Récupération de session interrompue</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="mode-tournée-architecture-résumée-v1.3">Mode tournée — Architecture résumée (v1.3)</h3>
+    <h4 id="minimisation-restauration">Minimisation / Restauration</h4>
+    <ul>
+      <li>
+        <code>Index.tsx</code> gère un état <code>tourMinimized</code> : quand activé,
+        <code>FocusTourView</code> est masqué et remplacé par un pill flottant orange (icône
+        <code>Car</code> + distance) en haut à droite
+      </li>
+      <li>
+        Cliquer sur le pill restaure la vue focus. La tournée continue en arrière-plan (GPS tracking
+        actif)
+      </li>
+    </ul>
+    <h4 id="anti-double-comptage-fix-mai-2026">Anti double-comptage (fix mai 2026)</h4>
+    <ul>
+      <li>
+        Le <code>visibilitychange</code> handler dans <code>useTourTracker</code> est
+        <strong>sérialisé</strong> : <code>watchPosition</code> ne redémarre qu’<strong
+          >après</strong
+        >
+        la fin du gap-filling (<code>getCurrentPosition</code>) et la mise à jour de
+        <code>lastPositionRef.current</code>
+      </li>
+      <li>
+        Le listener redondant dans <code>Index.tsx</code> a été supprimé —
+        <code>useTourTracker</code> est la source unique de vérité pour la récupération de distance
+        foreground/background
+      </li>
+    </ul>
+    <h4 id="rafraîchissement-manuel">Rafraîchissement manuel</h4>
+    <ul>
+      <li>
+        Bouton <code>RotateCw</code> dans <code>FocusTourView</code> : appelle
+        <code>forceRefreshDistance()</code> qui récupère la position GPS courante et met à jour le
+        compteur
+      </li>
+    </ul>
+    <h4 id="estimation-ik-en-fin-de-tournée">Estimation IK en fin de tournée</h4>
+    <ul>
+      <li>
+        <code>handleConvertToTrips</code> utilise la Distance Matrix API (route réelle) entre les
+        stops pour le calcul final IK, indépendamment du compteur GPS temps réel
+      </li>
+    </ul>
+    <hr />
+    <h2 id="librairies-utilitaires">5. Librairies utilitaires</h2>
+    <table>
+      <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>lib/utils.ts</code></td>
+          <td><code>cn()</code> (clsx + tailwind-merge), helpers divers</td>
+        </tr>
+        <tr>
+          <td><code>lib/distance.ts</code></td>
+          <td>Calcul de distances, barème IK</td>
+        </tr>
+        <tr>
+          <td><code>lib/geocoding.ts</code></td>
+          <td>Géocodage (Google Maps API)</td>
+        </tr>
+        <tr>
+          <td><code>lib/idle-callback.ts</code></td>
+          <td>
+            <code>deferTask()</code>, <code>whenInteractive()</code>, <code>preloadModule()</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>lib/image-transform.ts</code></td>
+          <td>Conversion images (WebP)</td>
+        </tr>
+        <tr>
+          <td><code>lib/image-utils.ts</code></td>
+          <td>Helpers images</td>
+        </tr>
+        <tr>
+          <td><code>lib/pdf-utils.ts</code></td>
+          <td>Génération PDF (html2pdf)</td>
+        </tr>
+        <tr>
+          <td><code>lib/print-utils.ts</code></td>
+          <td>Impression (window.print)</td>
+        </tr>
+        <tr>
+          <td><code>lib/sounds.ts</code></td>
+          <td>Sons UI (feedback sonore)</td>
+        </tr>
+        <tr>
+          <td><code>lib/ssr-utils.ts</code></td>
+          <td>Helpers SSR (détection server/client)</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2 id="design-system">6. Design System</h2>
+    <h3 id="tokens-css-index.css">Tokens CSS (index.css)</h3>
+    <p>Le thème est défini via des CSS custom properties HSL :</p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode css"
+      ><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">--background</span><span class="op">,</span> --foreground</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  --card<span class="op">,</span> --card-foreground</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  --popover<span class="op">,</span> --popover-foreground</span>
@@ -1172,118 +1317,123 @@ class="sourceCode css"><code class="sourceCode css"><span id="cb3-1"><a href="#c
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  --border<span class="op">,</span> --input<span class="op">,</span> --ring</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  --sidebar-<span class="op">*</span>  <span class="in">(</span>tokens sidebar<span class="in">)</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  --chart-1.<span class="fu">.5</span> <span class="in">(</span>couleurs graphiques<span class="in">)</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Mode sombre via <code>.dark { ... }</code>.</p>
-<h3 id="tailwind-config">Tailwind Config</h3>
-<ul>
-<li><code>tailwind.config.ts</code> : mapping des tokens CSS vers les
-classes Tailwind</li>
-<li>Base color : <code>slate</code></li>
-<li>Prefix : aucun</li>
-<li>Plugins : <code>tailwindcss-animate</code></li>
-</ul>
-<h3 id="composants-shadcnui">Composants shadcn/ui</h3>
-<ul>
-<li>Config : <code>components.json</code> (style <code>default</code>,
-<code>rsc: false</code>)</li>
-<li>Aliases : <code>@/components</code>, <code>@/lib</code>,
-<code>@/hooks</code>, <code>@/components/ui</code></li>
-</ul>
-<hr />
-<h2 id="performance">7. Performance</h2>
-<h3 id="lazy-loading">Lazy loading</h3>
-<ul>
-<li><strong>Toutes les pages</strong> sont lazy-loaded via
-<code>React.lazy()</code> + <code>Suspense</code></li>
-<li>Les composants UI non critiques (<code>Toaster</code>,
-<code>Sonner</code>, <code>TooltipProvider</code>) sont lazy</li>
-<li><code>Recharts</code> est lazy via <code>LazyCharts.tsx</code></li>
-<li><code>ProfileKmChart</code> est lazy dans
-<code>Profile.tsx</code></li>
-</ul>
-<h3 id="preloading-stratégique-main.tsx">Preloading stratégique
-(main.tsx)</h3>
-<pre><code>whenInteractive() → si /app :
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre>
+    </div>
+    <p>Mode sombre via <code>.dark { ... }</code>.</p>
+    <h3 id="tailwind-config">Tailwind Config</h3>
+    <ul>
+      <li><code>tailwind.config.ts</code> : mapping des tokens CSS vers les classes Tailwind</li>
+      <li>Base color : <code>slate</code></li>
+      <li>Prefix : aucun</li>
+      <li>Plugins : <code>tailwindcss-animate</code></li>
+    </ul>
+    <h3 id="composants-shadcnui">Composants shadcn/ui</h3>
+    <ul>
+      <li>
+        Config : <code>components.json</code> (style <code>default</code>, <code>rsc: false</code>)
+      </li>
+      <li>
+        Aliases : <code>@/components</code>, <code>@/lib</code>, <code>@/hooks</code>,
+        <code>@/components/ui</code>
+      </li>
+    </ul>
+    <hr />
+    <h2 id="performance">7. Performance</h2>
+    <h3 id="lazy-loading">Lazy loading</h3>
+    <ul>
+      <li>
+        <strong>Toutes les pages</strong> sont lazy-loaded via <code>React.lazy()</code> +
+        <code>Suspense</code>
+      </li>
+      <li>
+        Les composants UI non critiques (<code>Toaster</code>, <code>Sonner</code>,
+        <code>TooltipProvider</code>) sont lazy
+      </li>
+      <li><code>Recharts</code> est lazy via <code>LazyCharts.tsx</code></li>
+      <li><code>ProfileKmChart</code> est lazy dans <code>Profile.tsx</code></li>
+    </ul>
+    <h3 id="preloading-stratégique-main.tsx">Preloading stratégique (main.tsx)</h3>
+    <pre><code>whenInteractive() → si /app :
   - preload MesTrajets
   - preload Profile
 
 deferAnalytics() → fonts.ready → classe CSS</code></pre>
-<h3 id="google-maps">Google Maps</h3>
-<ul>
-<li>Preload différé via <code>requestIdleCallback</code> (seulement sur
-<code>/app/*</code>)</li>
-<li>SDK chargé à la demande via <code>useGoogleMaps</code></li>
-</ul>
-<h3 id="optimisations">Optimisations</h3>
-<table>
-<thead>
-<tr>
-<th>Technique</th>
-<th>Détail</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>React Query</td>
-<td>staleTime 5min, retry 2, pas de refetch on focus</td>
-</tr>
-<tr>
-<td>Code splitting</td>
-<td>Chaque page = chunk séparé</td>
-</tr>
-<tr>
-<td>Image lazy</td>
-<td><code>OptimizedImage</code> avec loading lazy</td>
-</tr>
-<tr>
-<td>Wake Lock</td>
-<td>Écran allumé en mode tournée</td>
-</tr>
-<tr>
-<td>Idle callback</td>
-<td>Tâches non critiques différées</td>
-</tr>
-<tr>
-<td>Fallback <code>null</code></td>
-<td><code>PageLoader = () =&gt; null</code> (pas de flash)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="fichiers-de-test">Fichiers de test</h3>
-<table>
-<thead>
-<tr>
-<th>Fichier</th>
-<th>Cible</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>components/AuthForm.test.tsx</code></td>
-<td>AuthForm</td>
-</tr>
-<tr>
-<td><code>components/ThresholdAlert.test.tsx</code></td>
-<td>ThresholdAlert</td>
-</tr>
-<tr>
-<td><code>components/VehicleCard.test.tsx</code></td>
-<td>VehicleCard</td>
-</tr>
-<tr>
-<td><code>types/trip.test.ts</code></td>
-<td>Types Trip</td>
-</tr>
-<tr>
-<td><code>test/setup.ts</code></td>
-<td>Config Vitest</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="annexe-structure-des-fichiers">Annexe — Structure des
-fichiers</h2>
-<pre><code>src/
+    <h3 id="google-maps">Google Maps</h3>
+    <ul>
+      <li>
+        Preload différé via <code>requestIdleCallback</code> (seulement sur <code>/app/*</code>)
+      </li>
+      <li>SDK chargé à la demande via <code>useGoogleMaps</code></li>
+    </ul>
+    <h3 id="optimisations">Optimisations</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Technique</th>
+          <th>Détail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>React Query</td>
+          <td>staleTime 5min, retry 2, pas de refetch on focus</td>
+        </tr>
+        <tr>
+          <td>Code splitting</td>
+          <td>Chaque page = chunk séparé</td>
+        </tr>
+        <tr>
+          <td>Image lazy</td>
+          <td><code>OptimizedImage</code> avec loading lazy</td>
+        </tr>
+        <tr>
+          <td>Wake Lock</td>
+          <td>Écran allumé en mode tournée</td>
+        </tr>
+        <tr>
+          <td>Idle callback</td>
+          <td>Tâches non critiques différées</td>
+        </tr>
+        <tr>
+          <td>Fallback <code>null</code></td>
+          <td><code>PageLoader = () =&gt; null</code> (pas de flash)</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 id="fichiers-de-test">Fichiers de test</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Cible</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>components/AuthForm.test.tsx</code></td>
+          <td>AuthForm</td>
+        </tr>
+        <tr>
+          <td><code>components/ThresholdAlert.test.tsx</code></td>
+          <td>ThresholdAlert</td>
+        </tr>
+        <tr>
+          <td><code>components/VehicleCard.test.tsx</code></td>
+          <td>VehicleCard</td>
+        </tr>
+        <tr>
+          <td><code>types/trip.test.ts</code></td>
+          <td>Types Trip</td>
+        </tr>
+        <tr>
+          <td><code>test/setup.ts</code></td>
+          <td>Config Vitest</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2 id="annexe-structure-des-fichiers">Annexe — Structure des fichiers</h2>
+    <pre><code>src/
 ├── main.tsx
 ├── App.tsx
 ├── App.css
@@ -1305,85 +1455,108 @@ fichiers</h2>
 │   ├── client.ts        (auto-généré)
 │   └── types.ts         (auto-généré)
 └── assets/</code></pre>
-<h2 id="trajets-récurrents-ui">Trajets récurrents (UI)</h2>
-<ul>
-<li><code>src/components/NewTripSheet.tsx</code> : toggle
-<strong>Récurrent</strong> sous le motif, expose checkboxes jours, durée
-en semaines, mois actifs. Mode <code>recurringOnly</code> pour création
-directe d’une récurrence sans trip ponctuel.</li>
-<li><code>src/components/RecurringTripsModal.tsx</code> :
-liste/édition/suppression des récurrences (jours,
-<code>weeks_duration</code>, <code>active_months</code>). Bouton
-<strong>+</strong> ouvrant <code>NewTripSheet</code> en mode
-<code>recurringOnly</code>.</li>
-<li><code>src/hooks/useRecurringTrips.ts</code> : CRUD via React Query
-sur <code>recurring_trips</code>.</li>
-<li><code>src/pages/MesTrajets.tsx</code> : footer 3 colonnes (Adresses
-/ Récurrents / Nouveau), bouton “Récurrents” icône seule sur mobile.
-Support <code>?tab=RECURRENT</code> pour auto-ouvrir la modal.</li>
-<li><code>src/pages/MesTrajetsLanding.tsx</code> : landing SEO/GEO
-<code>/mes-trajets</code> avec JSON-LD <code>FAQPage</code> +
-<code>HowTo</code> + <code>SoftwareApplication</code>.</li>
-<li><code>src/components/marketing/IKSimulator.tsx</code> : simulateur
-IK réutilisable (lead magnet) embarqué sur <code>Landing.tsx</code> et
-<code>BaremeIK2026.tsx</code>.</li>
-</ul>
-<h2 id="sécurité-front-juin-2026">Sécurité front (juin 2026)</h2>
-<ul>
-<li><code>src/lib/print-utils.ts</code> : helper <code>esc()</code> pour
-échapper toutes les données utilisateur dans le HTML/JS des rapports
-imprimables (XSS).</li>
-<li><code>useAuth</code> : nettoyage explicite du token Supabase en
-<code>localStorage</code> au signOut pour éviter les sessions fantômes
-après 403 serveur.</li>
-</ul>
-<h2 id="partenaires-sortants-ui">Partenaires sortants (UI)</h2>
-<ul>
-<li><code>src/hooks/usePartners.ts</code> : React Query, filtre
-<code>is_active</code>, ciblage <code>target_pages</code> +
-<code>target_personas</code>. Helper
-<code>buildPartnerRedirectUrl()</code> qui construit l’URL via
-<code>partner-redirect</code> edge function avec UTM auto.</li>
-<li><code>src/components/marketing/PartnerCard.tsx</code> : bloc inline
-(variant <code>inline</code>/<code>compact</code>). Retourne
-<code>null</code> si aucun partenaire actif ne match → invisible par
-défaut.</li>
-<li><code>src/components/marketing/PartnerStrip.tsx</code> : bandeau
-multi-logos placé en bas des landings (<code>/</code>,
-<code>/frais-reels</code>, <code>/tarifs</code>).</li>
-<li><code>src/components/admin/AdminPartners.tsx</code> : CRUD admin
-(onglet <strong>Admin → Coûts → Partenaires</strong>) avec KPIs (clics,
-sessions uniques, revenu estimé, courbe 7j).</li>
-<li>Intégrations actuelles : <code>Landing.tsx</code> (sous
-<code>&lt;IKSimulator /&gt;</code> + footer strip),
-<code>FraisReels.tsx</code> (strip), <code>Tarifs.tsx</code>
-(strip).</li>
-<li>Tous les liens sortants : <code>target="_blank"</code> +
-<code>rel="sponsored nofollow noopener"</code>.</li>
-</ul>
-<h2 id="tournées-étapes-horodatées-audit-juillet-2026">Tournées — étapes
-horodatées &amp; audit (juillet 2026)</h2>
-<ul>
-<li><code>src/types/trip.ts</code> : <code>TourStopData.timestamp</code>
-(Date d’arrivée à l’étape) — source de vérité pour l’audit, alimentée
-par les 3 origines de tournée (GPS live, import Calendar mode
-<code>tour</code>, regroupement manuel).</li>
-<li><code>src/components/TripCard.tsx</code> : détection tournée unifiée
-sur <code>tourStops.length &gt;= 2</code> (indépendante du
-<code>purpose</code>). Sur desktop, boutons <strong>édition</strong>
-(crayon) et <strong>suppression</strong> (croix) toujours montés mais
-révélés au survol/focus clavier via <code>group-hover</code> +
-<code>group-focus-within</code> (<code>opacity-0 → opacity-100</code>),
-évitant le layout shift et préservant l’accessibilité clavier. Sur
-mobile, comportement inchangé (sélection multi).</li>
-<li><code>src/lib/print-utils.ts</code> : rapport PDF affiche pour
-chaque tournée le détail des étapes avec heure d’arrivée
-(<code>Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris' })</code>),
-fallback explicite <code>(heure non enregistrée)</code> si absent,
-suffixe <code>· heures Europe/Paris</code> dans l’en-tête pour lever
-toute ambiguïté d’audit. Trip parent + détail regroupés dans un
-<code>&lt;tbody style="page-break-inside: avoid"&gt;</code> pour
-empêcher l’orphelinage lors des sauts de page.</li>
-</ul>
-</body>
+    <h2 id="trajets-récurrents-ui">Trajets récurrents (UI)</h2>
+    <ul>
+      <li>
+        <code>src/components/NewTripSheet.tsx</code> : toggle <strong>Récurrent</strong> sous le
+        motif, expose checkboxes jours, durée en semaines, mois actifs. Mode
+        <code>recurringOnly</code> pour création directe d’une récurrence sans trip ponctuel.
+      </li>
+      <li>
+        <code>src/components/RecurringTripsModal.tsx</code> : liste/édition/suppression des
+        récurrences (jours, <code>weeks_duration</code>, <code>active_months</code>). Bouton
+        <strong>+</strong> ouvrant <code>NewTripSheet</code> en mode <code>recurringOnly</code>.
+      </li>
+      <li>
+        <code>src/hooks/useRecurringTrips.ts</code> : CRUD via React Query sur
+        <code>recurring_trips</code>.
+      </li>
+      <li>
+        <code>src/pages/MesTrajets.tsx</code> : footer 3 colonnes (Adresses / Récurrents / Nouveau),
+        bouton “Récurrents” icône seule sur mobile. Support <code>?tab=RECURRENT</code> pour
+        auto-ouvrir la modal.
+      </li>
+      <li>
+        <code>src/pages/MesTrajetsLanding.tsx</code> : landing SEO/GEO
+        <code>/mes-trajets</code> avec JSON-LD <code>FAQPage</code> + <code>HowTo</code> +
+        <code>SoftwareApplication</code>.
+      </li>
+      <li>
+        <code>src/components/marketing/IKSimulator.tsx</code> : simulateur IK réutilisable (lead
+        magnet) embarqué sur <code>Landing.tsx</code> et <code>BaremeIK2026.tsx</code>.
+      </li>
+    </ul>
+    <h2 id="sécurité-front-juin-2026">Sécurité front (juin 2026)</h2>
+    <ul>
+      <li>
+        <code>src/lib/print-utils.ts</code> : helper <code>esc()</code> pour échapper toutes les
+        données utilisateur dans le HTML/JS des rapports imprimables (XSS).
+      </li>
+      <li>
+        <code>useAuth</code> : nettoyage explicite du token Supabase en <code>localStorage</code> au
+        signOut pour éviter les sessions fantômes après 403 serveur.
+      </li>
+    </ul>
+    <h2 id="partenaires-sortants-ui">Partenaires sortants (UI)</h2>
+    <ul>
+      <li>
+        <code>src/hooks/usePartners.ts</code> : React Query, filtre <code>is_active</code>, ciblage
+        <code>target_pages</code> + <code>target_personas</code>. Helper
+        <code>buildPartnerRedirectUrl()</code> qui construit l’URL via
+        <code>partner-redirect</code> edge function avec UTM auto.
+      </li>
+      <li>
+        <code>src/components/marketing/PartnerCard.tsx</code> : bloc inline (variant
+        <code>inline</code>/<code>compact</code>). Retourne <code>null</code> si aucun partenaire
+        actif ne match → invisible par défaut.
+      </li>
+      <li>
+        <code>src/components/marketing/PartnerStrip.tsx</code> : bandeau multi-logos placé en bas
+        des landings (<code>/</code>, <code>/frais-reels</code>, <code>/tarifs</code>).
+      </li>
+      <li>
+        <code>src/components/admin/AdminPartners.tsx</code> : CRUD admin (onglet
+        <strong>Admin → Coûts → Partenaires</strong>) avec KPIs (clics, sessions uniques, revenu
+        estimé, courbe 7j).
+      </li>
+      <li>
+        Intégrations actuelles : <code>Landing.tsx</code> (sous <code>&lt;IKSimulator /&gt;</code> +
+        footer strip), <code>FraisReels.tsx</code> (strip), <code>Tarifs.tsx</code> (strip).
+      </li>
+      <li>
+        Tous les liens sortants : <code>target="_blank"</code> +
+        <code>rel="sponsored nofollow noopener"</code>.
+      </li>
+    </ul>
+    <h2 id="tournées-étapes-horodatées-audit-juillet-2026">
+      Tournées — étapes horodatées &amp; audit (juillet 2026)
+    </h2>
+    <ul>
+      <li>
+        <code>src/types/trip.ts</code> : <code>TourStopData.timestamp</code>
+        (Date d’arrivée à l’étape) — source de vérité pour l’audit, alimentée par les 3 origines de
+        tournée (GPS live, import Calendar mode
+        <code>tour</code>, regroupement manuel).
+      </li>
+      <li>
+        <code>src/components/TripCard.tsx</code> : détection tournée unifiée sur
+        <code>tourStops.length &gt;= 2</code> (indépendante du <code>purpose</code>). Sur desktop,
+        boutons <strong>édition</strong> (crayon) et <strong>suppression</strong> (croix) toujours
+        montés mais révélés au survol/focus clavier via <code>group-hover</code> +
+        <code>group-focus-within</code> (<code>opacity-0 → opacity-100</code>), évitant le layout
+        shift et préservant l’accessibilité clavier. Sur mobile, comportement inchangé (sélection
+        multi).
+      </li>
+      <li>
+        <code>src/lib/print-utils.ts</code> : rapport PDF affiche pour chaque tournée le détail des
+        étapes avec heure d’arrivée (<code
+          >Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris' })</code
+        >), fallback explicite <code>(heure non enregistrée)</code> si absent, suffixe
+        <code>· heures Europe/Paris</code> dans l’en-tête pour lever toute ambiguïté d’audit. Trip
+        parent + détail regroupés dans un
+        <code>&lt;tbody style="page-break-inside: avoid"&gt;</code> pour empêcher l’orphelinage lors
+        des sauts de page.
+      </li>
+    </ul>
+  </body>
 </html>

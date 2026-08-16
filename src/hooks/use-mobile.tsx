@@ -11,8 +11,10 @@ export function useIsMobile() {
     const width = getWindowWidth();
     if (width > 0) return width < MOBILE_BREAKPOINT;
     // Fallback: check touch support and user agent
-    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
     return hasTouch && mobileUA;
   };
 

@@ -1,0 +1,30 @@
+# Fichiers générés — ne jamais reformater
+src/routeTree.gen.ts
+src/integrations/supabase/types.ts
+src/integrations/supabase/client.ts
+src/integrations/supabase/client.server.ts
+src/integrations/supabase/auth-middleware.ts
+src/integrations/supabase/auth-attacher.ts
+supabase/config.toml
+
+# Build / dépendances
+node_modules
+dist
+build
+.output
+.nitro
+.tanstack
+coverage
+mobile/node_modules
+mobile/ios
+mobile/android
+
+# Contenu non-code
+*.md
+*.pdf
+*.svg
+*.lock
+package-lock.json
+bun.lockb
+public
+docs

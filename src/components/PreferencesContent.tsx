@@ -1,12 +1,22 @@
-import { useTheme } from '@/hooks/useTheme';
-import { usePreferences } from '@/hooks/usePreferences';
-import { Switch } from './ui/switch';
-import { Label } from './ui/label';
-import { Slider } from './ui/slider';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Input } from './ui/input';
-import { Moon, Sun, Clock, Timer, MapPin, Route, CalendarClock, Calculator, Mail } from 'lucide-react';
+import { useTheme } from "@/hooks/useTheme";
+import { usePreferences } from "@/hooks/usePreferences";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import { Slider } from "./ui/slider";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Input } from "./ui/input";
+import {
+  Moon,
+  Sun,
+  Clock,
+  Timer,
+  MapPin,
+  Route,
+  CalendarClock,
+  Calculator,
+  Mail,
+} from "lucide-react";
 
 export const PreferencesContent = () => {
   const { theme, toggleTheme } = useTheme();
@@ -17,7 +27,7 @@ export const PreferencesContent = () => {
       {/* Dark Mode */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {theme === 'dark' ? (
+          {theme === "dark" ? (
             <Moon className="w-5 h-5 text-muted-foreground" />
           ) : (
             <Sun className="w-5 h-5 text-muted-foreground" />
@@ -26,11 +36,7 @@ export const PreferencesContent = () => {
             Mode sombre
           </Label>
         </div>
-        <Switch
-          id="dark-mode-pref"
-          checked={theme === 'dark'}
-          onCheckedChange={toggleTheme}
-        />
+        <Switch id="dark-mode-pref" checked={theme === "dark"} onCheckedChange={toggleTheme} />
       </div>
 
       {/* Show Trip Time */}
@@ -44,7 +50,7 @@ export const PreferencesContent = () => {
         <Switch
           id="show-time-pref"
           checked={preferences.showTripTime}
-          onCheckedChange={(checked) => updatePreference('showTripTime', checked)}
+          onCheckedChange={(checked) => updatePreference("showTripTime", checked)}
         />
       </div>
 
@@ -54,15 +60,13 @@ export const PreferencesContent = () => {
           <Timer className="w-5 h-5 text-muted-foreground" />
           <div>
             <Label>Détection des étapes</Label>
-            <p className="text-xs text-muted-foreground">
-              Durée d'arrêt pour créer une étape
-            </p>
+            <p className="text-xs text-muted-foreground">Durée d'arrêt pour créer une étape</p>
           </div>
         </div>
         <div className="flex items-center gap-4 pl-8">
           <Slider
             value={[preferences.stopDetectionMinutes]}
-            onValueChange={([value]) => updatePreference('stopDetectionMinutes', value)}
+            onValueChange={([value]) => updatePreference("stopDetectionMinutes", value)}
             min={1}
             max={15}
             step={1}
@@ -80,15 +84,13 @@ export const PreferencesContent = () => {
           <MapPin className="w-5 h-5 text-muted-foreground" />
           <div>
             <Label>Rayon de détection</Label>
-            <p className="text-xs text-muted-foreground">
-              Distance pour considérer un même lieu
-            </p>
+            <p className="text-xs text-muted-foreground">Distance pour considérer un même lieu</p>
           </div>
         </div>
         <div className="flex items-center gap-4 pl-8">
           <Slider
             value={[preferences.locationRadiusMeters]}
-            onValueChange={([value]) => updatePreference('locationRadiusMeters', value)}
+            onValueChange={([value]) => updatePreference("locationRadiusMeters", value)}
             min={50}
             max={300}
             step={25}
@@ -106,19 +108,17 @@ export const PreferencesContent = () => {
           <Route className="w-5 h-5 text-muted-foreground" />
           <div>
             <Label>Distance minimum</Label>
-            <p className="text-xs text-muted-foreground">
-              Seuil pour enregistrer un trajet
-            </p>
+            <p className="text-xs text-muted-foreground">Seuil pour enregistrer un trajet</p>
           </div>
         </div>
         <div className="flex items-center gap-4 pl-8">
           <Slider
             value={[preferences.minDistanceKm]}
-            onValueChange={([value]) => updatePreference('minDistanceKm', value)}
+            onValueChange={([value]) => updatePreference("minDistanceKm", value)}
             min={0}
             max={5}
             step={0.5}
-            className={`flex-1 ${preferences.minDistanceKm === 0 ? '[&_span[role=slider]]:border-amber-500 [&_span[role=slider]]:bg-amber-500 [&_[data-radix-slider-range]]:bg-amber-500' : ''}`}
+            className={`flex-1 ${preferences.minDistanceKm === 0 ? "[&_span[role=slider]]:border-amber-500 [&_span[role=slider]]:bg-amber-500 [&_[data-radix-slider-range]]:bg-amber-500" : ""}`}
           />
           <span className="text-sm font-medium w-16 text-right">
             {preferences.minDistanceKm} km
@@ -137,19 +137,20 @@ export const PreferencesContent = () => {
           <CalendarClock className="w-5 h-5 text-muted-foreground" />
           <div>
             <Label>Import calendrier</Label>
-            <p className="text-xs text-muted-foreground">
-              Comportement lors de la synchronisation
-            </p>
+            <p className="text-xs text-muted-foreground">Comportement lors de la synchronisation</p>
           </div>
         </div>
         <RadioGroup
           value={preferences.calendarImportMode}
-          onValueChange={(v) => updatePreference('calendarImportMode', v as 'individual' | 'tour')}
+          onValueChange={(v) => updatePreference("calendarImportMode", v as "individual" | "tour")}
           className="pl-8 space-y-2"
         >
           <div className="flex items-start gap-2">
             <RadioGroupItem value="individual" id="cal-mode-individual" className="mt-1" />
-            <Label htmlFor="cal-mode-individual" className="cursor-pointer font-normal leading-snug">
+            <Label
+              htmlFor="cal-mode-individual"
+              className="cursor-pointer font-normal leading-snug"
+            >
               <span className="block text-sm font-medium">Trajets individuels</span>
               <span className="block text-xs text-muted-foreground">
                 Chaque événement devient un aller-retour depuis mon domicile
@@ -161,7 +162,8 @@ export const PreferencesContent = () => {
             <Label htmlFor="cal-mode-tour" className="cursor-pointer font-normal leading-snug">
               <span className="block text-sm font-medium">Tournée journalière</span>
               <span className="block text-xs text-muted-foreground">
-                Tous mes rendez-vous d'une même journée sont regroupés : domicile → étapes → domicile
+                Tous mes rendez-vous d'une même journée sont regroupés : domicile → étapes →
+                domicile
               </span>
             </Label>
           </div>
@@ -182,7 +184,9 @@ export const PreferencesContent = () => {
         <div className="pl-8">
           <Select
             value={preferences.ikRateOverride}
-            onValueChange={(v) => updatePreference('ikRateOverride', v as 'auto' | 'tier2' | 'tier3')}
+            onValueChange={(v) =>
+              updatePreference("ikRateOverride", v as "auto" | "tier2" | "tier3")
+            }
           >
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -195,7 +199,8 @@ export const PreferencesContent = () => {
           </Select>
         </div>
         <p className="pl-8 text-[11px] text-muted-foreground italic">
-          Le changement ne recalcule pas les trajets déjà enregistrés. Les nouveaux trajets et exports utiliseront ce taux.
+          Le changement ne recalcule pas les trajets déjà enregistrés. Les nouveaux trajets et
+          exports utiliseront ce taux.
         </p>
       </div>
 
@@ -214,7 +219,7 @@ export const PreferencesContent = () => {
           <Switch
             id="accountant-auto"
             checked={preferences.accountantAutoSend}
-            onCheckedChange={(checked) => updatePreference('accountantAutoSend', checked)}
+            onCheckedChange={(checked) => updatePreference("accountantAutoSend", checked)}
           />
         </div>
 
@@ -229,7 +234,7 @@ export const PreferencesContent = () => {
                 type="email"
                 placeholder="comptable@cabinet.fr"
                 value={preferences.accountantEmail}
-                onChange={(e) => updatePreference('accountantEmail', e.target.value)}
+                onChange={(e) => updatePreference("accountantEmail", e.target.value)}
               />
             </div>
 
@@ -238,9 +243,11 @@ export const PreferencesContent = () => {
                 <Label className="text-xs text-muted-foreground">Fréquence</Label>
                 <Select
                   value={preferences.accountantFrequency}
-                  onValueChange={(v) => updatePreference('accountantFrequency', v as any)}
+                  onValueChange={(v) => updatePreference("accountantFrequency", v as any)}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="monthly">Chaque mois</SelectItem>
                     <SelectItem value="quarterly">Chaque trimestre</SelectItem>
@@ -252,12 +259,16 @@ export const PreferencesContent = () => {
                 <Label className="text-xs text-muted-foreground">Jour d'envoi</Label>
                 <Select
                   value={String(preferences.accountantSendDay)}
-                  onValueChange={(v) => updatePreference('accountantSendDay', parseInt(v, 10))}
+                  onValueChange={(v) => updatePreference("accountantSendDay", parseInt(v, 10))}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
-                      <SelectItem key={d} value={String(d)}>{d} du mois</SelectItem>
+                      <SelectItem key={d} value={String(d)}>
+                        {d} du mois
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -265,8 +276,8 @@ export const PreferencesContent = () => {
             </div>
 
             <p className="text-[11px] text-muted-foreground italic">
-              L'email contient deux liens sécurisés (période écoulée + cumul annuel), valides 7 jours.
-              Aucune pièce jointe : votre comptable consulte le relevé en ligne.
+              L'email contient deux liens sécurisés (période écoulée + cumul annuel), valides 7
+              jours. Aucune pièce jointe : votre comptable consulte le relevé en ligne.
             </p>
           </div>
         )}
@@ -280,18 +291,18 @@ export const PreferencesContent = () => {
             <div>
               <Label htmlFor="user-monthly-report">Relevé mensuel automatique</Label>
               <p className="text-xs text-muted-foreground">
-                Chaque 15 du mois : PDF du mois précédent + cumul annuel + profil véhicule, envoyé sur votre email.
+                Chaque 15 du mois : PDF du mois précédent + cumul annuel + profil véhicule, envoyé
+                sur votre email.
               </p>
             </div>
           </div>
           <Switch
             id="user-monthly-report"
             checked={preferences.userMonthlyReportEnabled}
-            onCheckedChange={(checked) => updatePreference('userMonthlyReportEnabled', checked)}
+            onCheckedChange={(checked) => updatePreference("userMonthlyReportEnabled", checked)}
           />
         </div>
       </div>
     </div>
   );
 };
-

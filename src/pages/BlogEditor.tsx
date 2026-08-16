@@ -1,33 +1,39 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { useAdmin } from '@/hooks/useAdmin';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
-import { convertToWebP } from '@/lib/image-utils';
-import { ContentBlockEditor } from '@/components/blog/ContentBlockEditor';
-import { 
-  ArrowLeft, Save, Eye, EyeOff, RefreshCw, 
-  Image as ImageIcon, X, ExternalLink
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { convertToWebP } from "@/lib/image-utils";
+import { ContentBlockEditor } from "@/components/blog/ContentBlockEditor";
+import {
+  ArrowLeft,
+  Save,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Image as ImageIcon,
+  X,
+  ExternalLink,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
-type BlogPostStatus = 'draft' | 'published' | 'archived';
+type BlogPostStatus = "draft" | "published" | "archived";
 
 interface BlogPost {
   id: string;
@@ -50,22 +56,22 @@ export default function BlogEditor() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
-  
+
   const [loading, setLoading] = useState(!!id);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [existingPost, setExistingPost] = useState<BlogPost | null>(null);
   const [relatedArticlePosition, setRelatedArticlePosition] = useState(2); // Default: after 2nd paragraph
-  
+
   const [form, setForm] = useState({
-    title: '',
-    slug: '',
-    subtitle: '',
-    content: '',
-    meta_description: '',
-    featured_image_url: '',
-    author_name: '',
-    status: 'draft' as BlogPostStatus,
+    title: "",
+    slug: "",
+    subtitle: "",
+    content: "",
+    meta_description: "",
+    featured_image_url: "",
+    author_name: "",
+    status: "draft" as BlogPostStatus,
     is_listed: true,
   });
 
@@ -74,12 +80,12 @@ export default function BlogEditor() {
     if (adminLoading) return;
 
     if (!user) {
-      navigate('/auth', { replace: true });
+      navigate("/auth", { replace: true });
       return;
     }
 
     if (!isAdmin) {
-      navigate('/blog', { replace: true });
+      navigate("/blog", { replace: true });
     }
   }, [adminLoading, user, isAdmin, navigate]);
 
@@ -92,15 +98,11 @@ export default function BlogEditor() {
 
   const loadPost = async (postId: string) => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('id', postId)
-      .single();
+    const { data, error } = await supabase.from("blog_posts").select("*").eq("id", postId).single();
 
     if (error || !data) {
-      toast.error('Article non trouvé');
-      navigate('/blog');
+      toast.error("Article non trouvé");
+      navigate("/blog");
       return;
     }
 
@@ -108,11 +110,11 @@ export default function BlogEditor() {
     setForm({
       title: data.title,
       slug: data.slug,
-      subtitle: data.subtitle || '',
+      subtitle: data.subtitle || "",
       content: data.content,
-      meta_description: data.meta_description || '',
-      featured_image_url: data.featured_image_url || '',
-      author_name: data.author_name || '',
+      meta_description: data.meta_description || "",
+      featured_image_url: data.featured_image_url || "",
+      author_name: data.author_name || "",
       status: data.status as BlogPostStatus,
       is_listed: data.is_listed ?? true,
     });
@@ -123,13 +125,13 @@ export default function BlogEditor() {
     if (!existingPost) {
       const slug = title
         .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      setForm(prev => ({ ...prev, title, slug }));
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      setForm((prev) => ({ ...prev, title, slug }));
     } else {
-      setForm(prev => ({ ...prev, title }));
+      setForm((prev) => ({ ...prev, title }));
     }
   };
 
@@ -137,13 +139,13 @@ export default function BlogEditor() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Veuillez sélectionner une image');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez sélectionner une image");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('L\'image ne doit pas dépasser 5MB');
+      toast.error("L'image ne doit pas dépasser 5MB");
       return;
     }
 
@@ -152,47 +154,45 @@ export default function BlogEditor() {
     try {
       // Convert image to WebP with 80% quality
       const webpFile = await convertToWebP(file, 0.8);
-      
+
       // Generate unique filename with .webp extension
       const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
 
       const { data, error } = await supabase.storage
-        .from('blog-images')
+        .from("blog-images")
         .upload(filename, webpFile, {
-          cacheControl: '31536000',
+          cacheControl: "31536000",
           upsert: false,
-          contentType: 'image/webp',
+          contentType: "image/webp",
         });
 
       if (error) throw error;
 
-      const { data: urlData } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(data.path);
+      const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(data.path);
 
-      setForm(prev => ({ ...prev, featured_image_url: urlData.publicUrl }));
-      toast.success('Image convertie en WebP et uploadée');
+      setForm((prev) => ({ ...prev, featured_image_url: urlData.publicUrl }));
+      toast.success("Image convertie en WebP et uploadée");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Erreur inconnue';
-      toast.error('Erreur upload: ' + message);
+      const message = error instanceof Error ? error.message : "Erreur inconnue";
+      toast.error("Erreur upload: " + message);
     } finally {
       setUploadingImage(false);
     }
   };
 
   const removeImage = () => {
-    setForm(prev => ({ ...prev, featured_image_url: '' }));
+    setForm((prev) => ({ ...prev, featured_image_url: "" }));
   };
 
   const savePost = async (publishNow = false) => {
     if (!form.title || !form.slug) {
-      toast.error('Le titre et le slug sont requis');
+      toast.error("Le titre et le slug sont requis");
       return;
     }
 
     setSaving(true);
 
-    const status = publishNow ? 'published' : form.status;
+    const status = publishNow ? "published" : form.status;
     const postData = {
       title: form.title,
       slug: form.slug,
@@ -203,64 +203,61 @@ export default function BlogEditor() {
       author_name: form.author_name || null,
       status,
       is_listed: form.is_listed,
-      ...(status === 'published' && !existingPost?.published_at 
-        ? { published_at: new Date().toISOString() } 
+      ...(status === "published" && !existingPost?.published_at
+        ? { published_at: new Date().toISOString() }
         : {}),
     };
 
     let error;
     if (existingPost) {
-      const result = await supabase
-        .from('blog_posts')
-        .update(postData)
-        .eq('id', existingPost.id);
+      const result = await supabase.from("blog_posts").update(postData).eq("id", existingPost.id);
       error = result.error;
     } else {
-      const result = await supabase
-        .from('blog_posts')
-        .insert(postData);
+      const result = await supabase.from("blog_posts").insert(postData);
       error = result.error;
     }
 
     setSaving(false);
 
     if (error) {
-      toast.error('Erreur: ' + error.message);
+      toast.error("Erreur: " + error.message);
       return;
     }
 
-    toast.success(publishNow ? 'Article publié !' : (existingPost ? 'Article sauvegardé' : 'Brouillon créé'));
-    
+    toast.success(
+      publishNow ? "Article publié !" : existingPost ? "Article sauvegardé" : "Brouillon créé",
+    );
+
     if (publishNow) {
       navigate(`/blog/${form.slug}`);
     } else {
-      navigate('/blog');
+      navigate("/blog");
     }
   };
 
   const togglePublish = async () => {
     if (!existingPost) return;
-    
-    const newStatus: BlogPostStatus = existingPost.status === 'published' ? 'draft' : 'published';
+
+    const newStatus: BlogPostStatus = existingPost.status === "published" ? "draft" : "published";
     const updateData: { status: BlogPostStatus; published_at?: string } = { status: newStatus };
-    
-    if (newStatus === 'published' && !existingPost.published_at) {
+
+    if (newStatus === "published" && !existingPost.published_at) {
       updateData.published_at = new Date().toISOString();
     }
 
     const { error } = await supabase
-      .from('blog_posts')
+      .from("blog_posts")
       .update(updateData)
-      .eq('id', existingPost.id);
+      .eq("id", existingPost.id);
 
     if (error) {
-      toast.error('Erreur lors du changement de statut');
+      toast.error("Erreur lors du changement de statut");
       return;
     }
 
-    toast.success(newStatus === 'published' ? 'Article publié' : 'Article dépublié');
+    toast.success(newStatus === "published" ? "Article publié" : "Article dépublié");
     setExistingPost({ ...existingPost, status: newStatus });
-    setForm(prev => ({ ...prev, status: newStatus }));
+    setForm((prev) => ({ ...prev, status: newStatus }));
   };
 
   if (adminLoading) {
@@ -292,7 +289,7 @@ export default function BlogEditor() {
     <>
       <Helmet>
         <title>{existingPost ? "Modifier l'article" : "Nouvel article"} - Blog IKtracker</title>
-        <link rel="canonical" href={`https://iktracker.fr/blog/edit${id ? `/${id}` : ''}`} />
+        <link rel="canonical" href={`https://iktracker.fr/blog/edit${id ? `/${id}` : ""}`} />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -300,37 +297,34 @@ export default function BlogEditor() {
           {/* Header */}
           <header className="mb-8 flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/blog')}
-              >
+              <Button variant="ghost" onClick={() => navigate("/blog")}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour
               </Button>
               {existingPost && (
-                <Badge variant={form.status === 'published' ? 'default' : 'secondary'}>
-                  {form.status === 'published' ? 'Publié' : form.status === 'draft' ? 'Brouillon' : 'Archivé'}
+                <Badge variant={form.status === "published" ? "default" : "secondary"}>
+                  {form.status === "published"
+                    ? "Publié"
+                    : form.status === "draft"
+                      ? "Brouillon"
+                      : "Archivé"}
                 </Badge>
               )}
             </div>
             <div className="flex items-center gap-2">
-              {existingPost?.status === 'published' && (
-                <Button 
-                  variant="outline" 
+              {existingPost?.status === "published" && (
+                <Button
+                  variant="outline"
                   size="sm"
-                  onClick={() => window.open(`/blog/${existingPost.slug}`, '_blank')}
+                  onClick={() => window.open(`/blog/${existingPost.slug}`, "_blank")}
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Voir
                 </Button>
               )}
               {existingPost && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={togglePublish}
-                >
-                  {form.status === 'published' ? (
+                <Button variant="outline" size="sm" onClick={togglePublish}>
+                  {form.status === "published" ? (
                     <>
                       <EyeOff className="mr-2 h-4 w-4" />
                       Dépublier
@@ -347,7 +341,7 @@ export default function BlogEditor() {
           </header>
 
           <h1 className="text-3xl font-bold text-foreground mb-8">
-            {existingPost ? 'Modifier l\'article' : 'Nouvel article'}
+            {existingPost ? "Modifier l'article" : "Nouvel article"}
           </h1>
 
           {/* Editor Form */}
@@ -370,7 +364,7 @@ export default function BlogEditor() {
                   <Input
                     id="slug"
                     value={form.slug}
-                    onChange={(e) => setForm(prev => ({ ...prev, slug: e.target.value }))}
+                    onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
                     placeholder="url-de-l-article"
                   />
                 </div>
@@ -382,7 +376,7 @@ export default function BlogEditor() {
                 <Input
                   id="subtitle"
                   value={form.subtitle}
-                  onChange={(e) => setForm(prev => ({ ...prev, subtitle: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, subtitle: e.target.value }))}
                   placeholder="Sous-titre optionnel"
                 />
               </div>
@@ -394,15 +388,17 @@ export default function BlogEditor() {
                   <Input
                     id="author"
                     value={form.author_name}
-                    onChange={(e) => setForm(prev => ({ ...prev, author_name: e.target.value }))}
+                    onChange={(e) => setForm((prev) => ({ ...prev, author_name: e.target.value }))}
                     placeholder="Nom de l'auteur"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status">Statut</Label>
-                  <Select 
-                    value={form.status} 
-                    onValueChange={(value: BlogPostStatus) => setForm(prev => ({ ...prev, status: value }))}
+                  <Select
+                    value={form.status}
+                    onValueChange={(value: BlogPostStatus) =>
+                      setForm((prev) => ({ ...prev, status: value }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -423,13 +419,16 @@ export default function BlogEditor() {
                     Afficher dans la liste du blog
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Si désactivé, l'article sera accessible via son URL mais n'apparaîtra pas sur /blog
+                    Si désactivé, l'article sera accessible via son URL mais n'apparaîtra pas sur
+                    /blog
                   </p>
                 </div>
                 <Switch
                   id="is_listed"
                   checked={form.is_listed}
-                  onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_listed: checked }))}
+                  onCheckedChange={(checked) =>
+                    setForm((prev) => ({ ...prev, is_listed: checked }))
+                  }
                 />
               </div>
 
@@ -438,9 +437,9 @@ export default function BlogEditor() {
                 <Label>Image de couverture</Label>
                 {form.featured_image_url ? (
                   <div className="relative">
-                    <img 
-                      src={form.featured_image_url} 
-                      alt="Preview" 
+                    <img
+                      src={form.featured_image_url}
+                      alt="Preview"
                       className="w-full h-48 object-cover rounded-lg border"
                     />
                     <Button
@@ -463,8 +462,8 @@ export default function BlogEditor() {
                       className="hidden"
                       disabled={uploadingImage}
                     />
-                    <label 
-                      htmlFor="image-upload" 
+                    <label
+                      htmlFor="image-upload"
                       className="cursor-pointer flex flex-col items-center gap-2"
                     >
                       {uploadingImage ? (
@@ -473,7 +472,7 @@ export default function BlogEditor() {
                         <ImageIcon className="h-8 w-8 text-muted-foreground" />
                       )}
                       <span className="text-sm text-muted-foreground">
-                        {uploadingImage ? 'Upload en cours...' : 'Cliquez pour uploader une image'}
+                        {uploadingImage ? "Upload en cours..." : "Cliquez pour uploader une image"}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         PNG, JPG, WebP (max 5MB)
@@ -483,7 +482,9 @@ export default function BlogEditor() {
                 )}
                 <Input
                   value={form.featured_image_url}
-                  onChange={(e) => setForm(prev => ({ ...prev, featured_image_url: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, featured_image_url: e.target.value }))
+                  }
                   placeholder="Ou collez une URL..."
                   className="mt-2"
                 />
@@ -495,7 +496,9 @@ export default function BlogEditor() {
                 <Textarea
                   id="meta"
                   value={form.meta_description}
-                  onChange={(e) => setForm(prev => ({ ...prev, meta_description: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, meta_description: e.target.value }))
+                  }
                   placeholder="Description pour les moteurs de recherche (max 160 caractères)"
                   rows={2}
                 />
@@ -509,7 +512,7 @@ export default function BlogEditor() {
                 <Label htmlFor="content">Contenu (Markdown/HTML)</Label>
                 <ContentBlockEditor
                   value={form.content}
-                  onChange={(content) => setForm(prev => ({ ...prev, content }))}
+                  onChange={(content) => setForm((prev) => ({ ...prev, content }))}
                   relatedArticlePosition={relatedArticlePosition}
                   onRelatedArticlePositionChange={setRelatedArticlePosition}
                   placeholder="Contenu de l'article en Markdown ou HTML..."
@@ -518,9 +521,9 @@ export default function BlogEditor() {
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-                <Button 
-                  variant="outline" 
-                  onClick={() => savePost(false)} 
+                <Button
+                  variant="outline"
+                  onClick={() => savePost(false)}
                   disabled={saving}
                   className="flex-1"
                 >
@@ -531,11 +534,7 @@ export default function BlogEditor() {
                   )}
                   Enregistrer en brouillon
                 </Button>
-                <Button 
-                  onClick={() => savePost(true)} 
-                  disabled={saving}
-                  className="flex-1"
-                >
+                <Button onClick={() => savePost(true)} disabled={saving} className="flex-1">
                   {saving ? (
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   ) : (

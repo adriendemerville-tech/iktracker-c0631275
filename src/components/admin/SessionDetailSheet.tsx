@@ -1,14 +1,35 @@
-import { useMemo } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent } from '@/components/ui/card';
-import { format, formatDistanceStrict } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Clock, Layers, FileText, Globe, Code2, Settings, ArrowRight, Zap, AlertTriangle, XCircle, Info, CheckCircle2, RotateCcw, Download } from 'lucide-react';
-import type { AuditSession } from './AuditSessionGroup';
-import { auditLogsToCsv, downloadCsv } from '@/lib/autopilot-export';
+import { useMemo } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
+import { format, formatDistanceStrict } from "date-fns";
+import { fr } from "date-fns/locale";
+import {
+  Clock,
+  Layers,
+  FileText,
+  Globe,
+  Code2,
+  Settings,
+  ArrowRight,
+  Zap,
+  AlertTriangle,
+  XCircle,
+  Info,
+  CheckCircle2,
+  RotateCcw,
+  Download,
+} from "lucide-react";
+import type { AuditSession } from "./AuditSessionGroup";
+import { auditLogsToCsv, downloadCsv } from "@/lib/autopilot-export";
 
 interface AuditLog {
   id: string;
@@ -46,16 +67,16 @@ const RESOURCE_ICONS: Record<string, typeof FileText> = {
 };
 
 const SEVERITY_ICONS: Record<string, { icon: typeof Info; color: string }> = {
-  info: { icon: Info, color: 'text-muted-foreground' },
-  warning: { icon: AlertTriangle, color: 'text-warning' },
-  critical: { icon: XCircle, color: 'text-destructive' },
+  info: { icon: Info, color: "text-muted-foreground" },
+  warning: { icon: AlertTriangle, color: "text-warning" },
+  critical: { icon: XCircle, color: "text-destructive" },
 };
 
 const ACTION_BADGE: Record<string, string> = {
-  create: 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30',
-  update: 'bg-blue-500/15 text-blue-700 border-blue-500/30',
-  delete: 'bg-red-500/15 text-red-700 border-red-500/30',
-  upsert: 'bg-blue-500/15 text-blue-700 border-blue-500/30',
+  create: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+  update: "bg-blue-500/15 text-blue-700 border-blue-500/30",
+  delete: "bg-red-500/15 text-red-700 border-red-500/30",
+  upsert: "bg-blue-500/15 text-blue-700 border-blue-500/30",
 };
 
 export function SessionDetailSheet({
@@ -71,19 +92,21 @@ export function SessionDetailSheet({
 }) {
   const stats = useMemo(() => {
     if (!session) return null;
-    const logIds = new Set(session.logs.map(l => l.id));
-    const linkedEvents = events.filter(e => e.audit_log_id && logIds.has(e.audit_log_id));
-    const uniqueResources = new Set(session.logs.map(l => `${l.resource_type}/${l.resource_id}`));
-    const reverted = session.logs.filter(l => l.reverted).length;
-    const duration = formatDistanceStrict(new Date(session.startedAt), new Date(session.endedAt), { locale: fr });
+    const logIds = new Set(session.logs.map((l) => l.id));
+    const linkedEvents = events.filter((e) => e.audit_log_id && logIds.has(e.audit_log_id));
+    const uniqueResources = new Set(session.logs.map((l) => `${l.resource_type}/${l.resource_id}`));
+    const reverted = session.logs.filter((l) => l.reverted).length;
+    const duration = formatDistanceStrict(new Date(session.startedAt), new Date(session.endedAt), {
+      locale: fr,
+    });
     return {
       totalActions: session.logs.length,
       uniqueResources: uniqueResources.size,
       linkedEvents,
       reverted,
       duration,
-      criticalCount: linkedEvents.filter(e => e.severity === 'critical').length,
-      warningCount: linkedEvents.filter(e => e.severity === 'warning').length,
+      criticalCount: linkedEvents.filter((e) => e.severity === "critical").length,
+      warningCount: linkedEvents.filter((e) => e.severity === "warning").length,
     };
   }, [session, events]);
 
@@ -91,7 +114,7 @@ export function SessionDetailSheet({
 
   // Chronological asc for timeline
   const chronoLogs = [...session.logs].sort(
-    (a, b) => +new Date(a.created_at) - +new Date(b.created_at)
+    (a, b) => +new Date(a.created_at) - +new Date(b.created_at),
   );
 
   return (
@@ -102,13 +125,13 @@ export function SessionDetailSheet({
             <div className="min-w-0 flex-1">
               <SheetTitle className="flex items-center gap-2">
                 <Layers className="w-5 h-5 text-primary" />
-                Session {session.api_key_name ?? 'sans clé'}
+                Session {session.api_key_name ?? "sans clé"}
               </SheetTitle>
               <SheetDescription className="flex items-center gap-2 text-xs flex-wrap">
                 <Clock className="w-3 h-3" />
-                {format(new Date(session.startedAt), 'dd MMM yyyy HH:mm', { locale: fr })}
-                {' → '}
-                {format(new Date(session.endedAt), 'HH:mm', { locale: fr })}
+                {format(new Date(session.startedAt), "dd MMM yyyy HH:mm", { locale: fr })}
+                {" → "}
+                {format(new Date(session.endedAt), "HH:mm", { locale: fr })}
                 <span>·</span>
                 <span>{stats.duration}</span>
               </SheetDescription>
@@ -118,8 +141,8 @@ export function SessionDetailSheet({
               size="sm"
               className="shrink-0 h-8"
               onClick={() => {
-                const stamp = format(new Date(session.startedAt), 'yyyy-MM-dd_HHmm');
-                const key = (session.api_key_name ?? 'no-key').replace(/[^a-z0-9_-]/gi, '_');
+                const stamp = format(new Date(session.startedAt), "yyyy-MM-dd_HHmm");
+                const key = (session.api_key_name ?? "no-key").replace(/[^a-z0-9_-]/gi, "_");
                 downloadCsv(`session_${key}_${stamp}.csv`, auditLogsToCsv(session.logs));
               }}
               title="Exporter cette session en CSV"
@@ -141,13 +164,17 @@ export function SessionDetailSheet({
             </Card>
             <Card>
               <CardContent className="p-3">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Ressources</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Ressources
+                </p>
                 <p className="text-2xl font-bold">{stats.uniqueResources}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-3">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Événements</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Événements
+                </p>
                 <p className="text-2xl font-bold">
                   {stats.linkedEvents.length}
                   {stats.criticalCount > 0 && (
@@ -166,10 +193,16 @@ export function SessionDetailSheet({
 
           {/* By action */}
           <div className="mb-4">
-            <p className="text-xs font-semibold text-muted-foreground mb-2">Répartition par action</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-2">
+              Répartition par action
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(session.byAction).map(([action, count]) => (
-                <Badge key={action} variant="outline" className={`text-[11px] ${ACTION_BADGE[action] || ''}`}>
+                <Badge
+                  key={action}
+                  variant="outline"
+                  className={`text-[11px] ${ACTION_BADGE[action] || ""}`}
+                >
                   {action} ×{count}
                 </Badge>
               ))}
@@ -199,17 +232,20 @@ export function SessionDetailSheet({
                 <Zap className="w-3 h-3" /> Événements générés ({stats.linkedEvents.length})
               </p>
               <div className="space-y-1.5">
-                {stats.linkedEvents.map(evt => {
+                {stats.linkedEvents.map((evt) => {
                   const sev = SEVERITY_ICONS[evt.severity] || SEVERITY_ICONS.info;
                   const SevIcon = sev.icon;
                   return (
-                    <div key={evt.id} className="flex items-start gap-2 p-2 rounded-md bg-muted/40 text-xs">
+                    <div
+                      key={evt.id}
+                      className="flex items-start gap-2 p-2 rounded-md bg-muted/40 text-xs"
+                    >
                       <SevIcon className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${sev.color}`} />
                       <div className="flex-1 min-w-0">
                         <p className="leading-snug">{evt.message}</p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {format(new Date(evt.created_at), 'HH:mm:ss', { locale: fr })}
-                          {evt.resolved && ' · ✓ résolu'}
+                          {format(new Date(evt.created_at), "HH:mm:ss", { locale: fr })}
+                          {evt.resolved && " · ✓ résolu"}
                         </p>
                       </div>
                     </div>
@@ -222,7 +258,7 @@ export function SessionDetailSheet({
           {/* Chronological timeline */}
           <div>
             <p className="text-xs font-semibold text-muted-foreground mb-2">
-              Chronologie ({chronoLogs.length} action{chronoLogs.length > 1 ? 's' : ''})
+              Chronologie ({chronoLogs.length} action{chronoLogs.length > 1 ? "s" : ""})
             </p>
             <div className="relative pl-5 space-y-2 border-l-2 border-muted ml-1">
               {chronoLogs.map((log, idx) => {
@@ -240,19 +276,26 @@ export function SessionDetailSheet({
                         +{gapSec < 60 ? `${gapSec}s` : `${Math.round(gapSec / 60)}min`}
                       </p>
                     )}
-                    <div className={`p-2 rounded-md border bg-card ${log.reverted ? 'opacity-60 border-dashed' : ''}`}>
+                    <div
+                      className={`p-2 rounded-md border bg-card ${log.reverted ? "opacity-60 border-dashed" : ""}`}
+                    >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className={`text-[10px] ${ACTION_BADGE[log.action] || ''}`}>
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] ${ACTION_BADGE[log.action] || ""}`}
+                        >
                           {log.action}
                         </Badge>
-                        <Badge variant="secondary" className="text-[10px]">{log.resource_type}</Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {log.resource_type}
+                        </Badge>
                         {log.reverted && (
                           <Badge variant="secondary" className="text-[10px] gap-1">
                             <RotateCcw className="w-2.5 h-2.5" /> annulé
                           </Badge>
                         )}
                         <span className="text-[10px] text-muted-foreground ml-auto font-mono">
-                          {format(new Date(log.created_at), 'HH:mm:ss', { locale: fr })}
+                          {format(new Date(log.created_at), "HH:mm:ss", { locale: fr })}
                         </span>
                       </div>
                       <p className="text-xs font-mono mt-1 truncate" title={log.resource_id}>
@@ -269,7 +312,8 @@ export function SessionDetailSheet({
           <div className="mt-4 p-3 rounded-md bg-muted/40 text-[11px] text-muted-foreground">
             {stats.criticalCount > 0 ? (
               <p className="flex items-center gap-1 text-destructive font-medium">
-                <XCircle className="w-3 h-3" /> {stats.criticalCount} événement(s) critique(s) à examiner
+                <XCircle className="w-3 h-3" /> {stats.criticalCount} événement(s) critique(s) à
+                examiner
               </p>
             ) : stats.warningCount > 0 ? (
               <p className="flex items-center gap-1 text-warning font-medium">

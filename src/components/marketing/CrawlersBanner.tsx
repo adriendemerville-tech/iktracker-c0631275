@@ -1,21 +1,25 @@
-import { memo, useCallback } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { isBrowser, isBot } from '@/lib/ssr-utils';
-import crawlersLogo from '@/assets/crawlers-logo.webp';
+import { memo, useCallback } from "react";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { isBrowser, isBot } from "@/lib/ssr-utils";
+import crawlersLogo from "@/assets/crawlers-logo.webp";
 
 function CrawlersBannerComponent() {
   const trackClick = useCallback(() => {
     if (!isBrowser() || isBot()) return;
-    supabase.from('marketing_analytics').insert({
-      event_type: 'crawlers_click',
-      page: 'landing',
-      device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
-      session_id: sessionStorage.getItem('marketing_session_id') || undefined,
-      referrer: document?.referrer || null,
-      user_agent: navigator?.userAgent || 'unknown',
-    }).then(() => {});
+    supabase
+      .from("marketing_analytics")
+      .insert({
+        event_type: "crawlers_click",
+        page: "landing",
+        device_type:
+          window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
+        session_id: sessionStorage.getItem("marketing_session_id") || undefined,
+        referrer: document?.referrer || null,
+        user_agent: navigator?.userAgent || "unknown",
+      })
+      .then(() => {});
   }, []);
 
   return (
@@ -62,7 +66,8 @@ function CrawlersBannerComponent() {
                   Crawlers — SEO piloté par l'IA
                 </h3>
                 <p className="text-sm md:text-base text-white/80 max-w-xl leading-relaxed">
-                  Automatisez votre référencement avec l'intelligence artificielle. Audits, contenus et optimisations techniques, le tout en autopilot.
+                  Automatisez votre référencement avec l'intelligence artificielle. Audits, contenus
+                  et optimisations techniques, le tout en autopilot.
                 </p>
               </div>
 

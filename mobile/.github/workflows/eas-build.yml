@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
   workflow_dispatch:
     inputs:
       profile:
-        description: 'Profil EAS (development | preview | production)'
+        description: "Profil EAS (development | preview | production)"
         required: true
-        default: 'preview'
+        default: "preview"
       platform:
-        description: 'Plateforme (ios | android | all)'
+        description: "Plateforme (ios | android | all)"
         required: true
-        default: 'ios'
+        default: "ios"
 
 jobs:
   build:

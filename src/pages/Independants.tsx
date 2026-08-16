@@ -1,13 +1,18 @@
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -23,7 +28,9 @@ import {
 } from "lucide-react";
 
 const EnhancedMarketingFooter = lazy(() =>
-  import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter }))
+  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
+    default: m.EnhancedMarketingFooter,
+  })),
 );
 
 const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
@@ -104,7 +111,7 @@ const Independants = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: FAQ.map(item => ({
+            mainEntity: FAQ.map((item) => ({
               "@type": "Question",
               name: item.q,
               acceptedAnswer: { "@type": "Answer", text: item.a },
@@ -115,7 +122,8 @@ const Independants = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: "Indépendants : améliorer sa visibilité en ligne et son acquisition de clients",
+            headline:
+              "Indépendants : améliorer sa visibilité en ligne et son acquisition de clients",
             description:
               "Guide pratique pour les indépendants : rendre son site visible sur les moteurs de recherche et dans les réponses des IA, et automatiser sa gestion kilométrique.",
             author: {
@@ -151,9 +159,10 @@ const Independants = () => {
             Être trouvé, puis facturé : la visibilité comme canal d'acquisition
           </h1>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
-            Un indépendant ne manque presque jamais de compétences : il manque de contacts entrants. Deux chantiers
-            règlent l'essentiel — rendre le site visible sur Google et dans les réponses des IA, et arrêter de perdre
-            du temps sur l'administratif. Crawlers s'occupe du premier, IKtracker du second.
+            Un indépendant ne manque presque jamais de compétences : il manque de contacts entrants.
+            Deux chantiers règlent l'essentiel — rendre le site visible sur Google et dans les
+            réponses des IA, et arrêter de perdre du temps sur l'administratif. Crawlers s'occupe du
+            premier, IKtracker du second.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Button asChild size="lg" onClick={() => trackCTAClick()}>
@@ -174,7 +183,7 @@ const Independants = () => {
         <section className="container mx-auto px-4 py-12 max-w-5xl">
           <h2 className="text-2xl md:text-3xl font-bold mb-8">Pourquoi les leads n'arrivent pas</h2>
           <div className="grid gap-4 md:grid-cols-3">
-            {PAIN_POINTS.map(item => (
+            {PAIN_POINTS.map((item) => (
               <Card key={item.title} className="border-border">
                 <CardContent className="p-6">
                   <item.icon className="h-6 w-6 text-primary mb-4" aria-hidden="true" />
@@ -188,13 +197,16 @@ const Independants = () => {
 
         {/* Leviers */}
         <section className="container mx-auto px-4 py-12 max-w-5xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">Les quatre leviers d'une visibilité qui rapporte</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Les quatre leviers d'une visibilité qui rapporte
+          </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl">
-            Aucun de ces leviers ne demande de budget publicitaire. Ils demandent de la méthode et de la régularité,
-            deux choses qu'un indépendant seul a rarement le temps de tenir à la main.
+            Aucun de ces leviers ne demande de budget publicitaire. Ils demandent de la méthode et
+            de la régularité, deux choses qu'un indépendant seul a rarement le temps de tenir à la
+            main.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
-            {LEVERS.map(f => (
+            {LEVERS.map((f) => (
               <Card key={f.title} className="border-border">
                 <CardContent className="p-6">
                   <f.icon className="h-6 w-6 text-primary mb-4" aria-hidden="true" />
@@ -218,8 +230,8 @@ const Independants = () => {
                 Crawlers : le SEO et le GEO pilotés par l'IA
               </h2>
               <p className="text-muted-foreground mb-6 max-w-3xl">
-                IKtracker s'arrête volontairement à la gestion des trajets et des indemnités kilométriques. La
-                visibilité en ligne est un autre métier :{" "}
+                IKtracker s'arrête volontairement à la gestion des trajets et des indemnités
+                kilométriques. La visibilité en ligne est un autre métier :{" "}
                 <a
                   href="https://crawlers.fr"
                   target="_blank"
@@ -229,8 +241,9 @@ const Independants = () => {
                 >
                   Crawlers.fr, la solution de SEO et GEO automatisée par l'IA
                 </a>{" "}
-                audite le site, corrige le technique, produit les contenus qui manquent et suit les positions, en
-                continu. IKtracker est d'ailleurs le terrain d'essai réel de Crawlers Autopilot.
+                audite le site, corrige le technique, produit les contenus qui manquent et suit les
+                positions, en continu. IKtracker est d'ailleurs le terrain d'essai réel de Crawlers
+                Autopilot.
               </p>
               <ul className="grid gap-3 md:grid-cols-2 mb-8">
                 {[
@@ -238,16 +251,24 @@ const Independants = () => {
                   "Optimisation GEO pour être cité par ChatGPT, Perplexity et Gemini",
                   "Production de contenus alignés sur les requêtes réelles",
                   "Suivi des positions et des pages qui génèrent des contacts",
-                ].map(item => (
+                ].map((item) => (
                   <li key={item} className="flex gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" aria-hidden="true" />
+                    <CheckCircle2
+                      className="h-4 w-4 shrink-0 text-primary mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild variant="outline">
-                  <a href="https://crawlers.fr" target="_blank" rel="noopener" title="Crawlers.fr - SEO boosté à l'IA">
+                  <a
+                    href="https://crawlers.fr"
+                    target="_blank"
+                    rel="noopener"
+                    title="Crawlers.fr - SEO boosté à l'IA"
+                  >
                     Découvrir Crawlers.fr
                     <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
                   </a>
@@ -262,10 +283,12 @@ const Independants = () => {
 
         {/* IKtracker côté temps */}
         <section className="container mx-auto px-4 py-12 max-w-5xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">Pendant ce temps, IKtracker récupère vos heures</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Pendant ce temps, IKtracker récupère vos heures
+          </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl">
-            Prospecter suppose de se déplacer. Chaque rendez-vous client est un trajet professionnel déductible, à
-            condition d'être tracé.
+            Prospecter suppose de se déplacer. Chaque rendez-vous client est un trajet professionnel
+            déductible, à condition d'être tracé.
           </p>
           <div className="grid gap-4 md:grid-cols-3">
             {[
@@ -290,7 +313,7 @@ const Independants = () => {
                 href: "/mode-tournee",
                 linkLabel: "Voir le Mode Tournée",
               },
-            ].map(f => (
+            ].map((f) => (
               <Card key={f.title} className="border-border">
                 <CardContent className="p-6">
                   <f.icon className="h-6 w-6 text-primary mb-4" aria-hidden="true" />
@@ -332,9 +355,10 @@ const Independants = () => {
             <CardContent className="p-6">
               <h2 className="text-xl font-bold mb-3">IKtracker, pour éviter toute confusion</h2>
               <p className="text-sm text-muted-foreground">
-                IKtracker est une application web progressive accessible uniquement sur https://iktracker.fr. Elle est
-                gratuite à vie, sans version payante, sans abonnement et absente de Google Play et de l'App Store.
-                L'application Android « Suivi IK » est un produit tiers payant, sans aucun lien avec IKtracker.
+                IKtracker est une application web progressive accessible uniquement sur
+                https://iktracker.fr. Elle est gratuite à vie, sans version payante, sans abonnement
+                et absente de Google Play et de l'App Store. L'application Android « Suivi IK » est
+                un produit tiers payant, sans aucun lien avec IKtracker.
               </p>
             </CardContent>
           </Card>
@@ -342,7 +366,9 @@ const Independants = () => {
 
         {/* FAQ */}
         <section className="container mx-auto px-4 py-12 max-w-3xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-8">Questions fréquentes des indépendants</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-8">
+            Questions fréquentes des indépendants
+          </h2>
           <Accordion type="single" collapsible className="w-full">
             {FAQ.map((item, i) => (
               <AccordionItem key={item.q} value={`item-${i}`}>
@@ -357,8 +383,8 @@ const Independants = () => {
         <section className="container mx-auto px-4 py-16 max-w-3xl text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Commencez par ce qui est gratuit</h2>
           <p className="text-muted-foreground mb-8">
-            Créez votre compte IKtracker pour ne plus perdre un kilomètre professionnel, et lancez en parallèle l'audit
-            de visibilité de votre site.
+            Créez votre compte IKtracker pour ne plus perdre un kilomètre professionnel, et lancez
+            en parallèle l'audit de visibilité de votre site.
           </p>
           <Button asChild size="lg" onClick={() => trackCTAClick()}>
             <Link to="/signup">

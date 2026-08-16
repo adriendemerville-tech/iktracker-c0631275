@@ -1,10 +1,14 @@
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
-import type { TripRow } from './trips';
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
+import type { TripRow } from "./trips";
 
-const euro = (n: number) => `${n.toFixed(2).replace('.', ',')} €`;
+const euro = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
 
-export function buildReportHtml(params: { trips: TripRow[]; periodLabel: string; ownerName: string }): string {
+export function buildReportHtml(params: {
+  trips: TripRow[];
+  periodLabel: string;
+  ownerName: string;
+}): string {
   const { trips, periodLabel, ownerName } = params;
   const totalKm = trips.reduce((s, t) => s + (t.distance ?? 0), 0);
   const totalIk = trips.reduce((s, t) => s + (t.ik_amount ?? 0), 0);
@@ -13,14 +17,14 @@ export function buildReportHtml(params: { trips: TripRow[]; periodLabel: string;
     .map(
       (t) => `<tr>
         <td>${t.date}</td>
-        <td>${t.start_address ?? '-'}</td>
-        <td>${t.end_address ?? '-'}</td>
-        <td>${t.purpose ?? '-'}</td>
+        <td>${t.start_address ?? "-"}</td>
+        <td>${t.end_address ?? "-"}</td>
+        <td>${t.purpose ?? "-"}</td>
         <td class="num">${t.distance.toFixed(1)}</td>
         <td class="num">${euro(t.ik_amount ?? 0)}</td>
       </tr>`,
     )
-    .join('');
+    .join("");
 
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8" />
   <style>
@@ -45,11 +49,15 @@ export function buildReportHtml(params: { trips: TripRow[]; periodLabel: string;
   </body></html>`;
 }
 
-export async function exportReportPdf(params: { trips: TripRow[]; periodLabel: string; ownerName: string }) {
+export async function exportReportPdf(params: {
+  trips: TripRow[];
+  periodLabel: string;
+  ownerName: string;
+}) {
   const html = buildReportHtml(params);
   const { uri } = await Print.printToFileAsync({ html });
   if (await Sharing.isAvailableAsync()) {
-    await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf' });
+    await Sharing.shareAsync(uri, { mimeType: "application/pdf", UTI: "com.adobe.pdf" });
   }
   return uri;
 }

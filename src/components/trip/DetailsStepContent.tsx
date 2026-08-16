@@ -1,28 +1,30 @@
-import { useRef, useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Location, TripDraft, Vehicle } from '@/types/trip';
-import { MapPin, Car, CalendarIcon, RefreshCw, Pencil, Repeat } from 'lucide-react';
-import { DAYS_FR } from '@/hooks/useRecurringTrips';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
-import { calculateDrivingDistance } from '@/hooks/useGeolocation';
-import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
-import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
-import wazeLogo from '@/assets/waze-logo.webp';
-import googleMapsLogo from '@/assets/google-maps-logo.webp';
+import { useRef, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Location, TripDraft, Vehicle } from "@/types/trip";
+import { MapPin, Car, CalendarIcon, RefreshCw, Pencil, Repeat } from "lucide-react";
+import { DAYS_FR } from "@/hooks/useRecurringTrips";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { geocodeAddress, reverseGeocode } from "@/lib/geocoding";
+import { calculateDrivingDistance } from "@/hooks/useGeolocation";
+import { AddressAutocompleteInput } from "@/components/AddressAutocompleteInput";
+import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
+import wazeLogo from "@/assets/waze-logo.webp";
+import googleMapsLogo from "@/assets/google-maps-logo.webp";
 
 type Coords = { lat: number; lng: number };
 
 const hasValidCoords = (lat?: number, lng?: number): boolean =>
-  typeof lat === 'number' && typeof lng === 'number'
-  && Number.isFinite(lat) && Number.isFinite(lng)
-  && !(lat === 0 && lng === 0);
+  typeof lat === "number" &&
+  typeof lng === "number" &&
+  Number.isFinite(lat) &&
+  Number.isFinite(lng) &&
+  !(lat === 0 && lng === 0);
 
 // Use stored coordinates when they are trustworthy, otherwise geocode the address.
 async function resolveCoords(loc?: Location | null): Promise<Coords | null> {
@@ -38,14 +40,12 @@ async function resolveSuggestionCoords(s: AddressSuggestion): Promise<Coords | n
   return await geocodeAddress(s.fulltext);
 }
 
-
-
 interface DetailsStepContentProps {
   draft: TripDraft;
   setDraft: React.Dispatch<React.SetStateAction<TripDraft>>;
   isEditing: boolean;
   selectedVehicle?: Vehicle;
-  setStep: (step: 'vehicle' | 'start' | 'end' | 'details') => void;
+  setStep: (step: "vehicle" | "start" | "end" | "details") => void;
   handleNavigateWithWaze: () => void;
   handleNavigateWithMaps: () => void;
   isNavigating: boolean;
@@ -107,19 +107,27 @@ export function DetailsStepContent({
   const endInputRef = useRef<HTMLInputElement>(null);
   const toggleDay = (d: number) => {
     if (!setRecurringDays) return;
-    setRecurringDays(recurringDays.includes(d) ? recurringDays.filter(x => x !== d) : [...recurringDays, d].sort());
+    setRecurringDays(
+      recurringDays.includes(d)
+        ? recurringDays.filter((x) => x !== d)
+        : [...recurringDays, d].sort(),
+    );
   };
-  
-  const [startAddress, setStartAddress] = useState(draft.startLocation?.address || draft.startLocation?.name || '');
-  const [endAddress, setEndAddress] = useState(draft.endLocation?.address || draft.endLocation?.name || '');
+
+  const [startAddress, setStartAddress] = useState(
+    draft.startLocation?.address || draft.startLocation?.name || "",
+  );
+  const [endAddress, setEndAddress] = useState(
+    draft.endLocation?.address || draft.endLocation?.name || "",
+  );
 
   // Sync local state with draft
   useEffect(() => {
-    setStartAddress(draft.startLocation?.address || draft.startLocation?.name || '');
+    setStartAddress(draft.startLocation?.address || draft.startLocation?.name || "");
   }, [draft.startLocation]);
-  
+
   useEffect(() => {
-    setEndAddress(draft.endLocation?.address || draft.endLocation?.name || '');
+    setEndAddress(draft.endLocation?.address || draft.endLocation?.name || "");
   }, [draft.endLocation]);
 
   // Auto-recalcul de la distance à l'ouverture d'un trajet existant :
@@ -130,7 +138,7 @@ export function DetailsStepContent({
   const autoRecalcKey = useRef<string | null>(null);
   const autoRecalcDone = useRef(false);
   useEffect(() => {
-    const key = `${(draft as any).id ?? ''}|${draft.startLocation?.address || draft.startLocation?.name || ''}|${draft.endLocation?.address || draft.endLocation?.name || ''}`;
+    const key = `${(draft as any).id ?? ""}|${draft.startLocation?.address || draft.startLocation?.name || ""}|${draft.endLocation?.address || draft.endLocation?.name || ""}`;
     if (autoRecalcKey.current !== key) {
       autoRecalcKey.current = key;
       autoRecalcDone.current = false;
@@ -146,10 +154,7 @@ export function DetailsStepContent({
 
     (async () => {
       try {
-        const [sc, ec] = await Promise.all([
-          resolveCoords(start),
-          resolveCoords(end),
-        ]);
+        const [sc, ec] = await Promise.all([resolveCoords(start), resolveCoords(end)]);
         if (!sc || !ec) return;
         const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
         if (!dist || dist <= 0) return;
@@ -163,7 +168,7 @@ export function DetailsStepContent({
           setTimeout(() => setIsBlinking(false), 650);
         }
       } catch (e) {
-        console.warn('Auto-recalc distance failed:', e);
+        console.warn("Auto-recalc distance failed:", e);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -177,28 +182,32 @@ export function DetailsStepContent({
     const coords = await resolveSuggestionCoords(suggestion);
     const newLocation: Location = {
       id: draft.startLocation?.id || `temp-${crypto.randomUUID()}`,
-      name: city || 'Lieu',
+      name: city || "Lieu",
       address: fulltext,
       lat: coords?.lat,
       lng: coords?.lng,
-      type: draft.startLocation?.type || 'other',
+      type: draft.startLocation?.type || "other",
     };
     setStartAddress(fulltext);
-    setDraft(d => ({ ...d, startLocation: newLocation }));
+    setDraft((d) => ({ ...d, startLocation: newLocation }));
 
     if (coords) {
       try {
         const endCoords = await resolveCoords(draft.endLocation);
         if (!endCoords) return;
-        const distance = await calculateDrivingDistance(coords.lat, coords.lng, endCoords.lat, endCoords.lng);
+        const distance = await calculateDrivingDistance(
+          coords.lat,
+          coords.lng,
+          endCoords.lat,
+          endCoords.lng,
+        );
         if (!distance || distance <= 0) return;
         setCalculatedDistance(distance);
         setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
       } catch (e) {
-        console.error('Error calculating distance:', e);
+        console.error("Error calculating distance:", e);
       }
     }
-
   };
 
   // Handle Géoplateforme suggestion selection for end
@@ -207,30 +216,33 @@ export function DetailsStepContent({
     const coords = await resolveSuggestionCoords(suggestion);
     const newLocation: Location = {
       id: draft.endLocation?.id || `temp-${crypto.randomUUID()}`,
-      name: city || 'Lieu',
+      name: city || "Lieu",
       address: fulltext,
       lat: coords?.lat,
       lng: coords?.lng,
-      type: draft.endLocation?.type || 'other',
+      type: draft.endLocation?.type || "other",
     };
     setEndAddress(fulltext);
-    setDraft(d => ({ ...d, endLocation: newLocation }));
+    setDraft((d) => ({ ...d, endLocation: newLocation }));
 
     if (coords) {
       try {
         const startCoords = await resolveCoords(draft.startLocation);
         if (!startCoords) return;
-        const distance = await calculateDrivingDistance(startCoords.lat, startCoords.lng, coords.lat, coords.lng);
+        const distance = await calculateDrivingDistance(
+          startCoords.lat,
+          startCoords.lng,
+          coords.lat,
+          coords.lng,
+        );
         if (!distance || distance <= 0) return;
         setCalculatedDistance(distance);
         setManualDistance(roundTrip ? (distance * 2).toFixed(1) : distance.toFixed(1));
       } catch (e) {
-        console.error('Error calculating distance:', e);
+        console.error("Error calculating distance:", e);
       }
     }
-
   };
-
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -271,11 +283,13 @@ export function DetailsStepContent({
 
       {/* Vehicle row */}
       <button
-        onClick={() => setStep('vehicle')}
+        onClick={() => setStep("vehicle")}
         className="flex items-center gap-3 text-sm p-3 bg-muted/50 rounded-lg w-full hover:bg-muted transition-colors group"
       >
         <Car className="w-4 h-4 text-primary" />
-        <span className="font-medium">{selectedVehicle?.make} {selectedVehicle?.model}</span>
+        <span className="font-medium">
+          {selectedVehicle?.make} {selectedVehicle?.model}
+        </span>
         <span className="text-muted-foreground">• {selectedVehicle?.fiscalPower} CV</span>
         {selectedVehicle?.licensePlate && (
           <span className="ml-auto bg-foreground text-background px-2 py-0.5 rounded text-xs font-mono font-bold tracking-wider">
@@ -298,7 +312,11 @@ export function DetailsStepContent({
               disabled:opacity-50 disabled:cursor-not-allowed
               group flex-1 min-w-[120px] max-w-[160px]"
           >
-            <img src={wazeLogo} alt="Waze" className="w-6 h-6 sm:w-7 sm:h-7 rounded group-hover:scale-110 transition-transform" />
+            <img
+              src={wazeLogo}
+              alt="Waze"
+              className="w-6 h-6 sm:w-7 sm:h-7 rounded group-hover:scale-110 transition-transform"
+            />
             <span>Waze</span>
           </button>
           <button
@@ -311,7 +329,11 @@ export function DetailsStepContent({
               disabled:opacity-50 disabled:cursor-not-allowed
               group flex-1 min-w-[120px] max-w-[160px]"
           >
-            <img src={googleMapsLogo} alt="Google Maps" className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
+            <img
+              src={googleMapsLogo}
+              alt="Google Maps"
+              className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform"
+            />
             <span>Maps</span>
           </button>
         </div>
@@ -320,12 +342,21 @@ export function DetailsStepContent({
       {/* Ligne compacte : Aller-retour / Date / Distance */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
         {/* Aller-retour */}
-        <div className={cn(
-          "flex items-center justify-between px-3 h-12 rounded-md transition-colors outline-hidden ring-0",
-          roundTrip ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
-        )}>
+        <div
+          className={cn(
+            "flex items-center justify-between px-3 h-12 rounded-md transition-colors outline-hidden ring-0",
+            roundTrip
+              ? "bg-primary/5 border-2 border-primary dark:bg-white/10"
+              : "bg-muted border-0 dark:bg-white/5",
+          )}
+        >
           <div className="flex items-center gap-2 min-w-0">
-            <RefreshCw className={cn("w-4 h-4 shrink-0", roundTrip ? "text-primary" : "text-muted-foreground")} />
+            <RefreshCw
+              className={cn(
+                "w-4 h-4 shrink-0",
+                roundTrip ? "text-primary" : "text-muted-foreground",
+              )}
+            />
             <p className="font-medium text-sm truncate">Aller-retour</p>
           </div>
           <Switch
@@ -382,23 +413,31 @@ export function DetailsStepContent({
               type="text"
               inputMode="decimal"
               placeholder="Ex: 25.5 km"
-              className={cn("flex-1 h-12", isBlinking ? 'animate-blink-orange' : '')}
-              value={manualDistance ? `${manualDistance} km` : ''}
+              className={cn("flex-1 h-12", isBlinking ? "animate-blink-orange" : "")}
+              value={manualDistance ? `${manualDistance} km` : ""}
               onChange={(e) => {
-                let value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-                const parts = value.split('.');
+                let value = e.target.value.replace(/[^0-9.,]/g, "").replace(",", ".");
+                const parts = value.split(".");
                 if (parts.length > 1) {
-                  value = parts[0] + '.' + parts[1].slice(0, 1);
+                  value = parts[0] + "." + parts[1].slice(0, 1);
                 }
                 setManualDistance(value);
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
-                  const expectedDistance = calculatedDistance ? (roundTrip ? calculatedDistance * 2 : calculatedDistance) : null;
+                  const expectedDistance = calculatedDistance
+                    ? roundTrip
+                      ? calculatedDistance * 2
+                      : calculatedDistance
+                    : null;
                   const enteredDistance = parseFloat(manualDistance) || 0;
                   const tolerance = 0.15;
-                  if (expectedDistance && enteredDistance > 0 && Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance) {
+                  if (
+                    expectedDistance &&
+                    enteredDistance > 0 &&
+                    Math.abs(enteredDistance - expectedDistance) > expectedDistance * tolerance
+                  ) {
                     setManualDistance(expectedDistance.toFixed(1));
                     setIsBlinking(true);
                     setTimeout(() => setIsBlinking(false), 650);
@@ -420,7 +459,8 @@ export function DetailsStepContent({
                 if (!start || !end) return;
                 try {
                   const resolveCoords = async (loc: Location) => {
-                    if (typeof loc.lat === 'number' && typeof loc.lng === 'number') return { lat: loc.lat, lng: loc.lng };
+                    if (typeof loc.lat === "number" && typeof loc.lng === "number")
+                      return { lat: loc.lat, lng: loc.lng };
                     if (loc.address) return await geocodeAddress(loc.address);
                     return null;
                   };
@@ -428,11 +468,11 @@ export function DetailsStepContent({
                   if (sc && ec) {
                     const dist = await calculateDrivingDistance(sc.lat, sc.lng, ec.lat, ec.lng);
                     setCalculatedDistance(dist);
-                    const finalDist = roundTrip ? (dist * 2) : dist;
+                    const finalDist = roundTrip ? dist * 2 : dist;
                     setManualDistance(finalDist.toFixed(1));
                   }
                 } catch (err) {
-                  console.error('Error recalculating distance:', err);
+                  console.error("Error recalculating distance:", err);
                 }
               }}
             >
@@ -442,7 +482,6 @@ export function DetailsStepContent({
         </div>
       </div>
 
-
       <div className="space-y-2">
         <label className="text-sm font-medium">Motif *</label>
         <Input
@@ -451,7 +490,7 @@ export function DetailsStepContent({
           value={purpose}
           onChange={(e) => setPurpose(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               e.preventDefault();
               handleConfirm();
             }
@@ -461,12 +500,18 @@ export function DetailsStepContent({
 
       {showRecurring && setIsRecurring && (
         <div className="space-y-3">
-          <div className={cn(
-            "flex items-center justify-between p-4 rounded-md transition-colors w-[85%] mx-auto",
-            isRecurring ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
-          )}>
+          <div
+            className={cn(
+              "flex items-center justify-between p-4 rounded-md transition-colors w-[85%] mx-auto",
+              isRecurring
+                ? "bg-primary/5 border-2 border-primary dark:bg-white/10"
+                : "bg-muted border-0 dark:bg-white/5",
+            )}
+          >
             <div className="flex items-center gap-3">
-              <Repeat className={cn("w-5 h-5", isRecurring ? "text-primary" : "text-muted-foreground")} />
+              <Repeat
+                className={cn("w-5 h-5", isRecurring ? "text-primary" : "text-muted-foreground")}
+              />
               <p className="font-medium">Récurrent</p>
             </div>
             <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
@@ -475,7 +520,7 @@ export function DetailsStepContent({
             <div className="space-y-2 w-[85%] mx-auto">
               <p className="text-xs text-muted-foreground">Jours de la semaine</p>
               <div className="grid grid-cols-7 gap-1.5">
-                {[1, 2, 3, 4, 5, 6, 0].map(d => {
+                {[1, 2, 3, 4, 5, 6, 0].map((d) => {
                   const active = recurringDays.includes(d);
                   return (
                     <button
@@ -484,7 +529,9 @@ export function DetailsStepContent({
                       onClick={() => toggleDay(d)}
                       className={cn(
                         "py-2 rounded-md text-xs font-medium transition-colors",
-                        active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/70",
                       )}
                     >
                       {DAYS_FR[d]}
@@ -499,7 +546,6 @@ export function DetailsStepContent({
           )}
         </div>
       )}
-
 
       <div className="flex justify-center">
         <Button

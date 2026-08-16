@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { isBrowser, isBot } from '@/lib/ssr-utils';
-import { getSessionId, getDeviceType, checkIsAdmin } from '@/lib/tracking-shared';
+import { useCallback, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { isBrowser, isBot } from "@/lib/ssr-utils";
+import { getSessionId, getDeviceType, checkIsAdmin } from "@/lib/tracking-shared";
 
 // IP is captured server-side by the track-event edge function (CF headers),
 // so we no longer call api.ipify.org (blocked by uBlock/Brave/Pi-hole).
@@ -9,7 +9,7 @@ import { getSessionId, getDeviceType, checkIsAdmin } from '@/lib/tracking-shared
 
 interface TrackEventOptions {
   page: string;
-  eventType: 'page_view' | 'cta_click' | 'ik_simulation' | 'signup_click' | 'crawlers_click';
+  eventType: "page_view" | "cta_click" | "ik_simulation" | "signup_click" | "crawlers_click";
 }
 
 export function useMarketingTracker(page: string) {
@@ -19,19 +19,22 @@ export function useMarketingTracker(page: string) {
   useEffect(() => {
     // Skip tracking for bots and SSR
     if (!isBrowser() || isBot()) return;
-    
+
     if (hasTrackedPageView.current) return;
     hasTrackedPageView.current = true;
-    
+
     // Use requestIdleCallback to defer tracking until browser is idle
     // Falls back to setTimeout for browsers without support
     const scheduleTracking = () => {
-      trackEvent({ page, eventType: 'page_view' });
+      trackEvent({ page, eventType: "page_view" });
     };
-    
-    if ('requestIdleCallback' in window) {
-      (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number })
-        .requestIdleCallback(scheduleTracking, { timeout: 5000 });
+
+    if ("requestIdleCallback" in window) {
+      (
+        window as Window & {
+          requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
+        }
+      ).requestIdleCallback(scheduleTracking, { timeout: 5000 });
     } else {
       setTimeout(scheduleTracking, 2000);
     }
@@ -46,38 +49,38 @@ export function useMarketingTracker(page: string) {
       // avoid an unnecessary network round-trip when we already know.
       const isAdmin = await checkIsAdmin();
       if (isAdmin) {
-        console.debug('Skipping marketing tracking for admin user');
+        console.debug("Skipping marketing tracking for admin user");
         return;
       }
 
       // Delegate to edge function so IP is captured from CF headers server-side
       // (ipify was blocked by uBlock/Brave/Pi-hole for a large share of users).
-      await supabase.functions.invoke('track-event', {
+      await supabase.functions.invoke("track-event", {
         body: {
           event_type: options.eventType,
           page: options.page,
           device_type: getDeviceType(),
           session_id: getSessionId(),
           referrer: document?.referrer || null,
-          user_agent: navigator?.userAgent || 'unknown',
+          user_agent: navigator?.userAgent || "unknown",
         },
       });
     } catch (error) {
       // Silently fail - don't impact user experience
-      console.debug('Marketing tracking error:', error);
+      console.debug("Marketing tracking error:", error);
     }
   }, []);
 
   const trackCTAClick = useCallback(() => {
-    trackEvent({ page, eventType: 'cta_click' });
+    trackEvent({ page, eventType: "cta_click" });
   }, [page, trackEvent]);
 
   const trackIKSimulation = useCallback(() => {
-    trackEvent({ page, eventType: 'ik_simulation' });
+    trackEvent({ page, eventType: "ik_simulation" });
   }, [page, trackEvent]);
 
   const trackSignupClick = useCallback(() => {
-    trackEvent({ page, eventType: 'signup_click' });
+    trackEvent({ page, eventType: "signup_click" });
   }, [page, trackEvent]);
 
   return { trackCTAClick, trackIKSimulation, trackSignupClick };

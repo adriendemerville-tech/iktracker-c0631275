@@ -28,12 +28,11 @@ const WS_MISTRAL_MODEL = "mistral/mistral-large-latest";
 const LI_VERSION = "202506";
 
 // Conditions d'arrêt de la boucle d'amélioration.
-const SCORE_THRESHOLD = 85;   // score composite /100
-const HOOK_THRESHOLD = 8;     // hook /10
-const MAX_ATTEMPTS = 3;       // itérations maximum par lignée de post
-const MIN_GAIN = 3;           // gain minimum de score, sinon plateau => arrêt
-const FACTUAL_THRESHOLD = 8;  // vérifiabilité doc /10, bloquante
-
+const SCORE_THRESHOLD = 85; // score composite /100
+const HOOK_THRESHOLD = 8; // hook /10
+const MAX_ATTEMPTS = 3; // itérations maximum par lignée de post
+const MIN_GAIN = 3; // gain minimum de score, sinon plateau => arrêt
+const FACTUAL_THRESHOLD = 8; // vérifiabilité doc /10, bloquante
 
 // ─── LinkedIn gateway ───────────────────────────────────────────────────────
 
@@ -46,7 +45,7 @@ async function gatewayFetch(path: string, init: RequestInit = {}): Promise<Respo
   return fetch(url, {
     ...init,
     headers: {
-      ...(init.headers as Record<string, string> || {}),
+      ...((init.headers as Record<string, string>) || {}),
       Authorization: `Bearer ${lovableKey}`,
       "X-Connection-Api-Key": linkedinKey,
     },
@@ -76,8 +75,7 @@ async function fetchPublishedText(postId: string): Promise<string | null> {
     });
     if (res.ok) {
       const json = await res.json();
-      const text =
-        json?.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text;
+      const text = json?.specificContent?.["com.linkedin.ugc.ShareContent"]?.shareCommentary?.text;
       if (typeof text === "string" && text.trim()) return text.trim();
     } else {
       console.warn(`[audit] v2/ugcPosts ${res.status}: ${(await res.text()).slice(0, 200)}`);
@@ -90,7 +88,9 @@ async function fetchPublishedText(postId: string): Promise<string | null> {
 
 // Engagement précoce : likes + commentaires (proxy d'impressions disponible pour
 // un post membre ; les impressions brutes ne sont exposées que côté organisation).
-async function fetchEarlyEngagement(postId: string): Promise<{ likes: number; comments: number } | null> {
+async function fetchEarlyEngagement(
+  postId: string,
+): Promise<{ likes: number; comments: number } | null> {
   try {
     const encoded = encodeURIComponent(postId);
     const res = await gatewayFetch(`/v2/socialActions/${encoded}`, {
@@ -103,7 +103,11 @@ async function fetchEarlyEngagement(postId: string): Promise<{ likes: number; co
     const json = await res.json();
     return {
       likes: Number(json?.likesSummary?.totalLikes ?? 0),
-      comments: Number(json?.commentsSummary?.aggregatedTotalComments ?? json?.commentsSummary?.totalFirstLevelComments ?? 0),
+      comments: Number(
+        json?.commentsSummary?.aggregatedTotalComments ??
+          json?.commentsSummary?.totalFirstLevelComments ??
+          0,
+      ),
     };
   } catch {
     return null;
@@ -128,7 +132,8 @@ async function callMistral(system: string, userMsg: string): Promise<string> {
       response_format: { type: "json_object" },
     }),
   });
-  if (!res.ok) throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const raw = await res.json();
   const direct = raw?.choices?.[0]?.message?.content ?? raw?.data?.choices?.[0]?.message?.content;
   if (direct) return String(direct).trim();
@@ -162,13 +167,19 @@ async function callLLM(system: string, userMsg: string): Promise<{ text: string;
   try {
     return { text: await callMistral(system, userMsg), source: "mistral" };
   } catch (err) {
-    console.warn("[audit] Mistral failed, fallback Gemini:", err instanceof Error ? err.message : String(err));
+    console.warn(
+      "[audit] Mistral failed, fallback Gemini:",
+      err instanceof Error ? err.message : String(err),
+    );
     return { text: await callGemini(system, userMsg), source: "gemini" };
   }
 }
 
 function parseJson(text: string): any {
-  const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const cleaned = text
+    .replace(/^```(?:json)?/i, "")
+    .replace(/```$/, "")
+    .trim();
   try {
     return JSON.parse(cleaned);
   } catch {
@@ -187,7 +198,10 @@ const BANNED_CHARS = /[()@\[\]{}<>\\*_~|]/g;
 const GEO_QUESTION_RE = /^(?:Pourquoi|Qui|Quand|Quoi|Comment|Combien)\b.*\?$/i;
 
 function countGeoBlocks(text: string): { count: number } {
-  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
   if (lines.length < 3) return { count: 0 };
   let count = 0;
   for (let i = 1; i < lines.length - 1; i++) {
@@ -215,7 +229,10 @@ type Deterministic = {
 
 function runDeterministicChecks(text: string): Deterministic {
   const banned = Array.from(new Set(text.match(BANNED_CHARS) ?? []));
-  const paragraphs = text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const paragraphs = text
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
   const firstLine = (text.split("\n")[0] ?? "").trim();
   const longParagraphs = paragraphs.filter((p) => p.length > 300).length;
   return {
@@ -245,12 +262,18 @@ function computeCompositeScore(
     chars: !checks.dashes && checks.bannedChars.length === 0 ? 10 : 0,
     aeration: checks.aerationOk ? 10 : 0,
     hook_form: checks.hookIsSingleLine ? 10 : 0,
-    hook_quality: Math.round(hookScore * 3),        // /30
-    impressions: Math.round(impressionsScore * 2),  // /20
-    content: Math.round(contentScore / 2),          // /5
-    factual: Math.round(factualScore / 2),          // /5
+    hook_quality: Math.round(hookScore * 3), // /30
+    impressions: Math.round(impressionsScore * 2), // /20
+    content: Math.round(contentScore / 2), // /5
+    factual: Math.round(factualScore / 2), // /5
   };
-  const total = Math.max(0, Math.min(100, Object.values(breakdown).reduce((a, b) => a + b, 0)));
+  const total = Math.max(
+    0,
+    Math.min(
+      100,
+      Object.values(breakdown).reduce((a, b) => a + b, 0),
+    ),
+  );
   return { total, breakdown };
 }
 
@@ -261,9 +284,24 @@ function computeCompositeScore(
 
 const DOC_KEYWORDS: Record<string, string[]> = {
   simulateur: ["simulateur", "barème", "ik", "calcul", "indemnité", "cv fiscaux"],
-  "mode-tournee": ["tournée", "tour", "gps", "géolocalisation", "haversine", "distance matrix", "stop"],
+  "mode-tournee": [
+    "tournée",
+    "tour",
+    "gps",
+    "géolocalisation",
+    "haversine",
+    "distance matrix",
+    "stop",
+  ],
   "import-takeout": ["takeout", "recovery", "import", "wizard", "historique"],
-  "sync-calendrier": ["calendar", "calendrier", "sync-calendar-trips", "google calendar", "outlook", "oauth"],
+  "sync-calendrier": [
+    "calendar",
+    "calendrier",
+    "sync-calendar-trips",
+    "google calendar",
+    "outlook",
+    "oauth",
+  ],
   "detection-plaque": ["plaque", "vehicle-lookup", "immatriculation", "véhicule", "carburant"],
   "bareme-progressif": ["barème", "tranche", "5 000", "20 000", "calcul", "ik"],
   "bonus-electrique": ["électrique", "bonus", "20%", "multiplicateur", "véhicule"],
@@ -275,7 +313,10 @@ const DOC_KEYWORDS: Record<string, string[]> = {
 };
 
 function normalizeForMatch(s: string): string {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 // Sélection par score de mots-clés : slug du topic + mots longs du titre + mots
@@ -286,12 +327,12 @@ function docContextForAudit(
   text: string,
   maxChars = 4500,
 ): string {
-  const fromText = Array.from(new Set(
-    text.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 7),
-  )).slice(0, 40);
+  const fromText = Array.from(
+    new Set(text.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 7)),
+  ).slice(0, 40);
   const keys = [
-    ...(slug ? DOC_KEYWORDS[slug] ?? [] : []),
-    ...((title ?? "").split(/\s+/).filter((w) => w.length > 5)),
+    ...(slug ? (DOC_KEYWORDS[slug] ?? []) : []),
+    ...(title ?? "").split(/\s+/).filter((w) => w.length > 5),
     ...fromText,
   ].map(normalizeForMatch);
   if (!keys.length) return "";
@@ -320,9 +361,6 @@ function docContextForAudit(
 }
 
 // ─── Prompt d'audit ─────────────────────────────────────────────────────────
-
-
-
 
 const AUDIT_SYSTEM = `Tu es directeur éditorial LinkedIn pour IKtracker, application française de suivi des indemnités kilométriques. Tu audites un post DÉJÀ PUBLIÉ par le fondateur, puis tu le réécris si nécessaire.
 
@@ -364,16 +402,17 @@ Deno.serve(async (req) => {
   const cronSecret = Deno.env.get("CRON_SECRET");
   const altCronSecret = Deno.env.get("SYNC_CRON_TOKEN");
   const xCronSecret = req.headers.get("x-cron-secret");
-  const isCron = !!xCronSecret && (
-    (cronSecret && xCronSecret === cronSecret) ||
-    (altCronSecret && xCronSecret === altCronSecret)
-  );
+  const isCron =
+    !!xCronSecret &&
+    ((cronSecret && xCronSecret === cronSecret) ||
+      (altCronSecret && xCronSecret === altCronSecret));
 
   if (!isCron) {
     const authHeader = req.headers.get("Authorization") || "";
     if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const supabaseAuthed = createClient(
@@ -384,15 +423,18 @@ Deno.serve(async (req) => {
     const { data, error } = await supabaseAuthed.auth.getUser(authHeader.replace("Bearer ", ""));
     if (error || !data.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const { data: isAdmin } = await supabaseAuthed.rpc("has_role", {
-      _user_id: data.user.id, _role: "admin",
+      _user_id: data.user.id,
+      _role: "admin",
     });
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
   }
@@ -406,7 +448,9 @@ Deno.serve(async (req) => {
     // 1) Sélection du post à auditer
     let query = admin
       .from("linkedin_post_log")
-      .select("id, topic_slug, topic_title, post_text, linkedin_post_id, linkedin_asset_urn, media_type, posted_at, audit_status, audit_attempts, audit_report")
+      .select(
+        "id, topic_slug, topic_title, post_text, linkedin_post_id, linkedin_asset_urn, media_type, posted_at, audit_status, audit_attempts, audit_report",
+      )
       .eq("status", "success")
       .not("linkedin_post_id", "is", null)
       .order("posted_at", { ascending: false })
@@ -477,7 +521,10 @@ Deno.serve(async (req) => {
 
     const hookScore = Math.max(0, Math.min(10, Number(audit.hook_score ?? 0)));
     const impressionsScore = Math.max(0, Math.min(10, Number(audit.impressions_score ?? 0)));
-    const contentScore = Math.max(0, Math.min(10, Number(audit.content_score ?? audit.score ?? 0) || 0));
+    const contentScore = Math.max(
+      0,
+      Math.min(10, Number(audit.content_score ?? audit.score ?? 0) || 0),
+    );
     // Sans doc pertinente, on neutralise la note de vérifiabilité (10) pour ne
     // pas pénaliser un post sur un module non documenté.
     const factualScore = docBlock
@@ -489,11 +536,20 @@ Deno.serve(async (req) => {
     const improvedText = String(audit.improved_text ?? "").trim();
 
     const { total: score, breakdown } = computeCompositeScore(
-      checks, hookScore, impressionsScore, contentScore, factualScore,
+      checks,
+      hookScore,
+      impressionsScore,
+      contentScore,
+      factualScore,
     );
 
     const hardFail =
-      !checks.lengthOk || checks.bannedChars.length > 0 || checks.dashes || !checks.aerationOk || !checks.hookIsSingleLine || !checks.geoBlockOk;
+      !checks.lengthOk ||
+      checks.bannedChars.length > 0 ||
+      checks.dashes ||
+      !checks.aerationOk ||
+      !checks.hookIsSingleLine ||
+      !checks.geoBlockOk;
 
     // Score de l'itération précédente dans la même lignée de post.
     const previousScore = Number((run.audit_report as any)?.previous_score ?? NaN);
@@ -501,7 +557,8 @@ Deno.serve(async (req) => {
 
     // Conditions d'arrêt de la boucle. Un post factuellement douteux ne peut
     // pas être validé, même avec un bon score de forme.
-    const meetsTarget = !hardFail &&
+    const meetsTarget =
+      !hardFail &&
       score >= SCORE_THRESHOLD &&
       hookScore >= HOOK_THRESHOLD &&
       factualScore >= FACTUAL_THRESHOLD;
@@ -510,7 +567,8 @@ Deno.serve(async (req) => {
 
     // Le texte réécrit doit lui même passer les contrôles déterministes.
     const improvedChecks = improvedText ? runDeterministicChecks(improvedText) : null;
-    const improvedIsValid = !!improvedChecks &&
+    const improvedIsValid =
+      !!improvedChecks &&
       improvedChecks.lengthOk &&
       improvedChecks.bannedChars.length === 0 &&
       !improvedChecks.dashes &&
@@ -537,7 +595,13 @@ Deno.serve(async (req) => {
       iteration: attempts + 1,
       previous_score: Number.isFinite(previousScore) ? previousScore : null,
       gain,
-      thresholds: { score: SCORE_THRESHOLD, hook: HOOK_THRESHOLD, factual: FACTUAL_THRESHOLD, max_attempts: MAX_ATTEMPTS, min_gain: MIN_GAIN },
+      thresholds: {
+        score: SCORE_THRESHOLD,
+        hook: HOOK_THRESHOLD,
+        factual: FACTUAL_THRESHOLD,
+        max_attempts: MAX_ATTEMPTS,
+        min_gain: MIN_GAIN,
+      },
       verdict: meetsTarget ? "conforme" : "a_corriger",
       issues: Array.isArray(audit.issues) ? audit.issues.slice(0, 10) : [],
       hook_analysis: String(audit.hook_analysis ?? "").slice(0, 500),
@@ -618,7 +682,6 @@ Deno.serve(async (req) => {
       })
       .eq("id", run.id);
 
-
     return new Response(
       JSON.stringify({
         ok: true,
@@ -637,16 +700,15 @@ Deno.serve(async (req) => {
         issues: report.issues,
         needs_fix: needsFix,
         repost: repostResult,
-
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[audit] failed:", message);
-    return new Response(
-      JSON.stringify({ ok: false, error: message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ ok: false, error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

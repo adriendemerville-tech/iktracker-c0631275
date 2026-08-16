@@ -1,15 +1,15 @@
-import { Helmet } from '@/lib/helmet-compat';
-import { Link } from '@/lib/router-compat';
-import { useEffect, useState } from 'react';
-import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink, BadgeCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Breadcrumb } from '@/components/Breadcrumb';
-import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
-import { supabase } from '@/integrations/supabase/client';
-const founderPhoto = '/founder-adrien.jpg';
+import { Helmet } from "@/lib/helmet-compat";
+import { Link } from "@/lib/router-compat";
+import { useEffect, useState } from "react";
+import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink, BadgeCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
+import { supabase } from "@/integrations/supabase/client";
+const founderPhoto = "/founder-adrien.jpg";
 
 type LinkedInProfile = {
   name?: string;
@@ -19,13 +19,13 @@ type LinkedInProfile = {
 };
 
 export default function AuthorPage() {
-  const canonicalUrl = 'https://iktracker.fr/blog/auteur/adrien-de-volontat';
+  const canonicalUrl = "https://iktracker.fr/blog/auteur/adrien-de-volontat";
   const [linkedInProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     supabase.functions
-      .invoke('linkedin-profile')
+      .invoke("linkedin-profile")
       .then(({ data, error }) => {
         if (cancelled || error || !data) return;
         setLinkedInProfile(data as LinkedInProfile);
@@ -42,64 +42,56 @@ export default function AuthorPage() {
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "name": "Adrien de Volontat",
-    "givenName": "Adrien",
-    "familyName": "de Volontat",
-    "jobTitle": "Fondateur",
-    "url": canonicalUrl,
-    "image": linkedInProfile?.picture || founderPhoto,
-    "worksFor": {
+    name: "Adrien de Volontat",
+    givenName: "Adrien",
+    familyName: "de Volontat",
+    jobTitle: "Fondateur",
+    url: canonicalUrl,
+    image: linkedInProfile?.picture || founderPhoto,
+    worksFor: {
       "@type": "Organization",
-      "name": "Avenir Rénovations",
-      "address": {
+      name: "Avenir Rénovations",
+      address: {
         "@type": "PostalAddress",
-        "addressLocality": "Saint-Rémy-de-Provence",
-        "addressCountry": "FR"
-      }
+        addressLocality: "Saint-Rémy-de-Provence",
+        addressCountry: "FR",
+      },
     },
-    "description": "Dirigeant de l'agence Avenir Rénovations et créateur d'IKtracker, outil de suivi des indemnités kilométriques.",
-    "knowsAbout": [
+    description:
+      "Dirigeant de l'agence Avenir Rénovations et créateur d'IKtracker, outil de suivi des indemnités kilométriques.",
+    knowsAbout: [
       "Indemnités kilométriques",
       "Fiscalité automobile professionnelle",
-      "Suivi des déplacements professionnels"
+      "Suivi des déplacements professionnels",
     ],
-    "sameAs": [
-      "https://www.linkedin.com/in/adrien-de-volontat"
-    ],
-    "identifier": {
+    sameAs: ["https://www.linkedin.com/in/adrien-de-volontat"],
+    identifier: {
       "@type": "PropertyValue",
-      "propertyID": "LinkedIn",
-      "value": "adrien-de-volontat",
-      "url": "https://www.linkedin.com/in/adrien-de-volontat"
-    }
+      propertyID: "LinkedIn",
+      value: "adrien-de-volontat",
+      url: "https://www.linkedin.com/in/adrien-de-volontat",
+    },
   };
 
   return (
     <>
       <Helmet>
         <link rel="canonical" href={canonicalUrl} />
-        
+
         {/* Open Graph */}
         <meta property="og:url" content={canonicalUrl} />
-        
+
         {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify(personSchema)}
-        </script>
+        <script type="application/ld+json">{JSON.stringify(personSchema)}</script>
       </Helmet>
 
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-4 py-12 max-w-3xl">
           {/* Breadcrumb with Schema.org */}
-          <Breadcrumb 
-            items={[
-              { label: 'Blog', href: '/blog' },
-              { label: 'Adrien de Volontat' }
-            ]} 
-          />
+          <Breadcrumb items={[{ label: "Blog", href: "/blog" }, { label: "Adrien de Volontat" }]} />
 
-          <Link 
-            to="/blog" 
+          <Link
+            to="/blog"
             className="inline-flex items-center text-primary hover:underline text-sm mb-8"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -110,7 +102,7 @@ export default function AuthorPage() {
             <CardContent className="p-0">
               {/* Header with gradient */}
               <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent h-32" />
-              
+
               {/* Author info */}
               <div className="px-6 pb-8 -mt-16">
                 <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -132,7 +124,10 @@ export default function AuthorPage() {
                       </h1>
                       {linkedInProfile?.verified && (
                         <a
-                          href={linkedInProfile.profile_url || 'https://www.linkedin.com/in/adrien-de-volontat'}
+                          href={
+                            linkedInProfile.profile_url ||
+                            "https://www.linkedin.com/in/adrien-de-volontat"
+                          }
                           target="_blank"
                           rel="noopener noreferrer me author"
                           aria-label="Profil LinkedIn vérifié d'Adrien de Volontat"
@@ -148,9 +143,7 @@ export default function AuthorPage() {
                         </a>
                       )}
                     </div>
-                    <p className="text-lg text-primary font-medium mb-3">
-                      Fondateur d'IKtracker
-                    </p>
+                    <p className="text-lg text-primary font-medium mb-3">Fondateur d'IKtracker</p>
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
@@ -167,32 +160,31 @@ export default function AuthorPage() {
                 {/* Bio */}
                 <div className="mt-8 space-y-4 text-foreground/90 leading-relaxed">
                   <p>
-                    <strong>Dirigeant de l'agence Avenir Rénovations</strong> à Saint-Rémy-de-Provence, 
-                    je n'ai trouvé aucune solution techniquement satisfaisante pour automatiser 
-                    le suivi de mes indemnités kilométriques.
+                    <strong>Dirigeant de l'agence Avenir Rénovations</strong> à
+                    Saint-Rémy-de-Provence, je n'ai trouvé aucune solution techniquement
+                    satisfaisante pour automatiser le suivi de mes indemnités kilométriques.
                   </p>
                   <p>
-                    J'ai donc fait développer <strong>IKtracker</strong> pour répondre à mes propres 
-                    besoins de terrain. L'infrastructure étant en place et opérationnelle pour mon 
+                    J'ai donc fait développer <strong>IKtracker</strong> pour répondre à mes propres
+                    besoins de terrain. L'infrastructure étant en place et opérationnelle pour mon
                     équipe, je la partage gratuitement avec la communauté.
                   </p>
                   <p className="text-muted-foreground italic">
-                    Pas d'abonnement, pas de frais cachés, pas d'exploitation commerciale de vos données. 
-                    Juste un outil professionnel créé par un professionnel pour les professionnels.
+                    Pas d'abonnement, pas de frais cachés, pas d'exploitation commerciale de vos
+                    données. Juste un outil professionnel créé par un professionnel pour les
+                    professionnels.
                   </p>
                 </div>
 
                 {/* CTA */}
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Button asChild>
-                    <Link to="/signup">
-                      Essayer IKtracker gratuitement
-                    </Link>
+                    <Link to="/signup">Essayer IKtracker gratuitement</Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <a 
-                      href="https://www.linkedin.com/in/adrien-de-volontat" 
-                      target="_blank" 
+                    <a
+                      href="https://www.linkedin.com/in/adrien-de-volontat"
+                      target="_blank"
                       rel="noopener noreferrer"
                     >
                       <Linkedin className="mr-2 h-4 w-4" />
@@ -211,14 +203,15 @@ export default function AuthorPage() {
               Articles de Adrien de Volontat
             </h2>
             <p className="text-muted-foreground">
-              Retrouvez tous les articles rédigés par Adrien sur{' '}
+              Retrouvez tous les articles rédigés par Adrien sur{" "}
               <Link to="/blog" className="text-primary hover:underline">
                 le blog IKtracker
-              </Link>.
+              </Link>
+              .
             </p>
           </section>
         </main>
-        
+
         <EnhancedMarketingFooter />
       </div>
     </>

@@ -1,6 +1,6 @@
 import { useLocation, Link } from "@/lib/router-compat";
 import { useEffect } from "react";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,7 +19,7 @@ const NotFound = () => {
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://iktracker.fr/404" />
       </Helmet>
-      
+
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="text-center max-w-md">
           <div className="text-8xl font-bold text-primary mb-4">404</div>

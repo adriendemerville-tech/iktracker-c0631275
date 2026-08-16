@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { cn } from '@/lib/utils';
-import { Car, Signal, Moon, Sun } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { Car, Signal, Moon, Sun } from "lucide-react";
 
 interface TourModeMockupProps {
   className?: string;
@@ -12,11 +12,11 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
   const [isPulsing, setIsPulsing] = useState(false);
   const [isKmPulsing, setIsKmPulsing] = useState(false);
   const prevStopsRef = useRef(stopsCount);
-  
+
   // Animate stops count with pulse
   useEffect(() => {
     const timer = setInterval(() => {
-      setStopsCount(prev => (prev % 4) + 1);
+      setStopsCount((prev) => (prev % 4) + 1);
     }, 2500);
     return () => clearInterval(timer);
   }, []);
@@ -52,9 +52,9 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
       const progress = Math.min(elapsed / duration, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const current = startValue + (targetKm - startValue) * easeOut;
-      
+
       setDisplayedKm(current);
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
@@ -72,7 +72,7 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
         <div className="absolute -left-[2px] top-36 w-1 h-12 bg-zinc-700 rounded-l-full" />
         <div className="absolute -left-[2px] top-52 w-1 h-12 bg-zinc-700 rounded-l-full" />
         <div className="absolute -right-[2px] top-32 w-1 h-16 bg-zinc-700 rounded-r-full" />
-        
+
         {/* Screen */}
         <div className="w-full h-full bg-black rounded-[2.5rem] overflow-hidden relative">
           {/* Notch */}
@@ -82,7 +82,7 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
               <div className="w-1 h-1 rounded-full bg-zinc-700" />
             </div>
           </div>
-          
+
           {/* Focus Tour View Content */}
           <div className="w-full h-full flex flex-col items-center py-10 px-4">
             {/* Top indicators */}
@@ -107,45 +107,44 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
             <div className="flex-1 flex flex-col items-center justify-center">
               <div className="relative w-28 h-28 rounded-full flex items-center justify-center">
                 {/* Rotating gradient border */}
-                <span 
+                <span
                   className="absolute inset-[-4px] rounded-full overflow-hidden"
                   style={{
-                    background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-                    animation: 'rotate-gradient 2s linear infinite',
+                    background:
+                      "conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)",
+                    animation: "rotate-gradient 2s linear infinite",
                   }}
                 >
                   <span className="absolute inset-[4px] rounded-full bg-gradient-to-br from-blue-900 to-blue-800" />
                 </span>
-                
+
                 {/* Speed lines */}
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
                   <span className="w-4 h-1 bg-orange-500 opacity-60 rounded-full" />
                   <span className="w-6 h-1 bg-orange-500 opacity-40 rounded-full -ml-1" />
                   <span className="w-3 h-1 bg-orange-500 opacity-50 rounded-full" />
                 </span>
-                
+
                 {/* Car icon */}
-                <Car 
+                <Car
                   className="w-14 h-14 text-orange-500 relative z-10"
                   style={{
-                    animation: 'car-drive 0.2s ease-in-out infinite',
+                    animation: "car-drive 0.2s ease-in-out infinite",
                   }}
                 />
               </div>
-              
-              <span className="text-zinc-500 text-xs font-urbanist mt-3">
-                Mode nuit actif
-              </span>
+
+              <span className="text-zinc-500 text-xs font-urbanist mt-3">Mode nuit actif</span>
             </div>
 
             {/* Bottom counters with fixed widths for tabular numbers */}
             <div className="flex items-end justify-center gap-10 w-full pb-4">
               {/* KM Counter - fixed min-width to prevent CLS */}
               <div className="flex flex-col items-center min-w-[70px]">
-                <span 
+                <span
                   className={cn(
                     "font-urbanist text-3xl font-bold text-zinc-400 tabular-nums transition-all duration-700 ease-out",
-                    isKmPulsing && "scale-110 text-zinc-300"
+                    isKmPulsing && "scale-110 text-zinc-300",
                   )}
                 >
                   {displayedKm.toFixed(1)}
@@ -160,21 +159,22 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
 
               {/* Stops Counter - fixed min-width to prevent CLS */}
               <div className="flex flex-col items-center min-w-[70px]">
-                <span 
+                <span
                   className={cn(
                     "font-urbanist text-3xl font-bold tabular-nums bg-clip-text text-transparent transition-transform duration-300",
-                    isPulsing && "scale-125"
+                    isPulsing && "scale-125",
                   )}
                   style={{
-                    backgroundImage: 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-                    backgroundSize: '100% 300%',
-                    animation: 'gradient-scroll 6s linear infinite',
+                    backgroundImage:
+                      "linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)",
+                    backgroundSize: "100% 300%",
+                    animation: "gradient-scroll 6s linear infinite",
                   }}
                 >
                   {stopsCount}
                 </span>
                 <span className="font-urbanist text-xs text-white uppercase tracking-widest font-bold">
-                  {stopsCount === 1 ? 'ÉTAPE' : 'ÉTAPES'}
+                  {stopsCount === 1 ? "ÉTAPE" : "ÉTAPES"}
                 </span>
               </div>
             </div>
@@ -187,11 +187,20 @@ export function TourModeMockup({ className }: TourModeMockupProps) {
 
       {/* Decorative glow effects */}
       <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/30 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-accent/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      
+      <div
+        className="absolute -bottom-8 -left-8 w-24 h-24 bg-accent/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: "1s" }}
+      />
+
       {/* Floating particles */}
-      <div className="absolute top-10 right-0 w-2 h-2 bg-orange-500/50 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }} />
-      <div className="absolute bottom-20 left-0 w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '1s' }} />
+      <div
+        className="absolute top-10 right-0 w-2 h-2 bg-orange-500/50 rounded-full animate-bounce"
+        style={{ animationDelay: "0.5s" }}
+      />
+      <div
+        className="absolute bottom-20 left-0 w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce"
+        style={{ animationDelay: "1s" }}
+      />
     </div>
   );
 }

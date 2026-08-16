@@ -1,25 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from '@/lib/router-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
-import { trackSignupEvent } from '@/lib/signup-tracking';
-import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from '@/lib/oauth-return-tracking';
-
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { trackSignupEvent } from "@/lib/signup-tracking";
+import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from "@/lib/oauth-return-tracking";
 
 // Validate a `next` search-param as a same-origin relative path so we can safely
 // redirect after login/signup/OAuth (used by the OAuth consent route).
 function safeNextPath(raw: string | null): string | null {
   if (!raw) return null;
-  if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
   return raw;
 }
 
-type AuthMode = 'login' | 'signup' | 'forgot-password';
+type AuthMode = "login" | "signup" | "forgot-password";
 
 interface AuthFormProps {
   className?: string;
@@ -29,12 +28,20 @@ interface AuthFormProps {
   onSuccess?: () => void;
 }
 
-export const AuthForm = ({ className, compact = false, multilineCta = false, defaultMode = 'login', onSuccess }: AuthFormProps) => {
+export const AuthForm = ({
+  className,
+  compact = false,
+  multilineCta = false,
+  defaultMode = "login",
+  onSuccess,
+}: AuthFormProps) => {
   const [mode, setMode] = useState<AuthMode>(defaultMode);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('ik_remember_me') === 'true');
+  const [rememberMe, setRememberMe] = useState(
+    () => localStorage.getItem("ik_remember_me") === "true",
+  );
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
@@ -44,16 +51,16 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
     return () => clearTimeout(t);
   }, [cooldown]);
-  const [oauthLoading, setOauthLoading] = useState<'google' | 'azure' | 'apple' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "azure" | "apple" | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const nextPath = safeNextPath(searchParams.get('next'));
+  const nextPath = safeNextPath(searchParams.get("next"));
   const { toast } = useToast();
 
   // Track signup_view when the form is in signup mode
   useEffect(() => {
-    if (mode === 'signup') {
-      trackSignupEvent('signup_view', undefined, 'auth');
+    if (mode === "signup") {
+      trackSignupEvent("signup_view", undefined, "auth");
     }
   }, [mode]);
 
@@ -63,34 +70,34 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     let cancelled = false;
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!cancelled) resolveOAuthReturn(!!data.session, 'auth');
+      if (!cancelled) resolveOAuthReturn(!!data.session, "auth");
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const handleOAuthLogin = async (provider: 'google' | 'azure' | 'apple') => {
+  const handleOAuthLogin = async (provider: "google" | "azure" | "apple") => {
     setOauthLoading(provider);
     // Track OAuth start as a signup funnel event (OAuth on /auth can create accounts)
-    trackSignupEvent('signup_oauth_start', provider, 'auth');
-    markOAuthStart(provider, 'auth');
+    trackSignupEvent("signup_oauth_start", provider, "auth");
+    markOAuthStart(provider, "auth");
 
     try {
       // Google/Apple passent par le broker OAuth managé (identifiants gérés côté plateforme).
-      if (provider === 'google' || provider === 'apple') {
-        const { lovable } = await import('@/integrations/lovable/index');
+      if (provider === "google" || provider === "apple") {
+        const { lovable } = await import("@/integrations/lovable/index");
         const result = await lovable.auth.signInWithOAuth(provider, {
           redirect_uri: window.location.origin,
         });
-        if (result.error) throw new Error(result.error.message ?? 'oauth_error');
+        if (result.error) throw new Error(result.error.message ?? "oauth_error");
         if (result.redirected) return;
         if (nextPath) window.location.href = nextPath;
         return;
       }
       const options: any = {};
-      if (provider === 'azure') {
-        options.scopes = 'email offline_access Calendars.Read';
+      if (provider === "azure") {
+        options.scopes = "email offline_access Calendars.Read";
       }
       if (nextPath) {
         options.redirectTo = `${window.location.origin}${nextPath}`;
@@ -100,10 +107,9 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         options,
       });
       if (error) throw error;
-
     } catch (error: any) {
-      trackSignupEvent('signup_error', error?.message ?? 'oauth_error', 'auth');
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      trackSignupEvent("signup_error", error?.message ?? "oauth_error", "auth");
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
       setOauthLoading(null);
     }
   };
@@ -114,66 +120,69 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
     setLoading(true);
 
     try {
-      if (mode === 'login') {
+      if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
         clearOAuthPending();
-        toast({ title: 'Connexion réussie', description: 'Bienvenue !' });
+        toast({ title: "Connexion réussie", description: "Bienvenue !" });
 
         onSuccess?.();
-        navigate(nextPath ?? '/app');
-      } else if (mode === 'signup') {
-        trackSignupEvent('signup_form_submit', 'email', 'auth');
+        navigate(nextPath ?? "/app");
+      } else if (mode === "signup") {
+        trackSignupEvent("signup_form_submit", "email", "auth");
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}${nextPath ?? '/app'}`,
+            emailRedirectTo: `${window.location.origin}${nextPath ?? "/app"}`,
           },
         });
         if (error) throw error;
-        trackSignupEvent('signup_success', 'email', 'auth');
-        toast({ title: 'Inscription réussie', description: 'Vous pouvez maintenant utiliser l\'application.' });
+        trackSignupEvent("signup_success", "email", "auth");
+        toast({
+          title: "Inscription réussie",
+          description: "Vous pouvez maintenant utiliser l'application.",
+        });
         onSuccess?.();
-        navigate(nextPath ?? '/app');
-      } else if (mode === 'forgot-password') {
+        navigate(nextPath ?? "/app");
+      } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''}`,
+          redirectTo: `${window.location.origin}/auth${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`,
         });
         if (error) throw error;
-        toast({ 
-          title: 'Email envoyé', 
-          description: 'Vérifiez votre boîte mail pour réinitialiser votre mot de passe.' 
+        toast({
+          title: "Email envoyé",
+          description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
         });
-        setMode('login');
+        setMode("login");
       }
     } catch (error: any) {
       let message = error.message;
-      const rawMsg: string = error.message || '';
+      const rawMsg: string = error.message || "";
       // Rate limit Supabase Auth : "For security purposes, you can only request this after N seconds"
       const rateMatch = rawMsg.match(/after (\d+) seconds?/i);
       if (rateMatch || /rate limit|too many requests|over_email_send_rate_limit/i.test(rawMsg)) {
         const secs = rateMatch ? parseInt(rateMatch[1], 10) : 30;
         setCooldown(secs);
         message = `Merci de patienter ${secs}s avant une nouvelle tentative (protection anti-spam).`;
-      } else if (rawMsg.includes('Invalid login credentials')) {
-        message = 'Email ou mot de passe incorrect';
-      } else if (rawMsg.includes('User already registered')) {
-        message = 'Cet email est déjà utilisé';
-      } else if (rawMsg.includes('Password should be at least')) {
-        message = 'Le mot de passe doit contenir au moins 6 caractères';
+      } else if (rawMsg.includes("Invalid login credentials")) {
+        message = "Email ou mot de passe incorrect";
+      } else if (rawMsg.includes("User already registered")) {
+        message = "Cet email est déjà utilisé";
+      } else if (rawMsg.includes("Password should be at least")) {
+        message = "Le mot de passe doit contenir au moins 6 caractères";
       } else if (/known to be weak|pwned|compromised/i.test(rawMsg)) {
-        message = 'Ce mot de passe apparaît dans une fuite publique. Choisissez-en un autre.';
-      } else if (rawMsg.includes('User not found')) {
-        message = 'Aucun compte trouvé avec cet email';
+        message = "Ce mot de passe apparaît dans une fuite publique. Choisissez-en un autre.";
+      } else if (rawMsg.includes("User not found")) {
+        message = "Aucun compte trouvé avec cet email";
       }
-      if (mode === 'signup') {
-        trackSignupEvent('signup_error', message, 'auth');
+      if (mode === "signup") {
+        trackSignupEvent("signup_error", message, "auth");
       }
-      toast({ title: 'Erreur', description: message, variant: 'destructive' });
+      toast({ title: "Erreur", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -181,46 +190,58 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
 
   const getButtonText = () => {
     switch (mode) {
-      case 'login': return 'Se connecter';
-      case 'signup': return 'Créer mon compte';
-      case 'forgot-password': return 'Envoyer le lien';
+      case "login":
+        return "Se connecter";
+      case "signup":
+        return "Créer mon compte";
+      case "forgot-password":
+        return "Envoyer le lien";
     }
   };
 
   return (
     // Fixed min-height to prevent CLS during mode transitions
-    <div className={cn("w-full", className)} style={{ minHeight: compact ? 'auto' : '420px', minWidth: '300px' }}>
-      <div className={cn(
-        "bg-card/80 backdrop-blur-xs border border-border rounded-2xl",
-        compact ? "p-5" : "p-6 md:p-8"
-      )}>
+    <div
+      className={cn("w-full", className)}
+      style={{ minHeight: compact ? "auto" : "420px", minWidth: "300px" }}
+    >
+      <div
+        className={cn(
+          "bg-card/80 backdrop-blur-xs border border-border rounded-2xl",
+          compact ? "p-5" : "p-6 md:p-8",
+        )}
+      >
         {!compact && (
           <div className="text-center mb-6">
             <h3 className="text-xl font-bold text-foreground mb-1">
-              {mode === 'login' ? 'Connexion' : mode === 'signup' ? 'Créer un compte' : 'Mot de passe oublié'}
+              {mode === "login"
+                ? "Connexion"
+                : mode === "signup"
+                  ? "Créer un compte"
+                  : "Mot de passe oublié"}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {mode === 'login' 
-                ? 'Accédez à votre tableau de bord' 
-                : mode === 'signup' 
-                ? 'Créez votre compte en 2 minutes'
-                : 'Recevez un lien de réinitialisation'}
+              {mode === "login"
+                ? "Accédez à votre tableau de bord"
+                : mode === "signup"
+                  ? "Créez votre compte en 2 minutes"
+                  : "Recevez un lien de réinitialisation"}
             </p>
           </div>
         )}
 
         {/* OAuth button */}
-        {(mode === 'login' || mode === 'signup') && (
+        {(mode === "login" || mode === "signup") && (
           <div className="space-y-3 mb-4">
             <Button
               type="button"
               variant="outline"
               className="w-full bg-background/50 focus-visible-ring"
-              onClick={() => handleOAuthLogin('google')}
+              onClick={() => handleOAuthLogin("google")}
               disabled={oauthLoading !== null}
               aria-label="Se connecter avec Google"
             >
-              {oauthLoading === 'google' ? (
+              {oauthLoading === "google" ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
               ) : (
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" aria-hidden="true" role="img">
@@ -250,21 +271,26 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
               type="button"
               variant="outline"
               className="w-full bg-background/50 focus-visible-ring"
-              onClick={() => handleOAuthLogin('apple')}
+              onClick={() => handleOAuthLogin("apple")}
               disabled={oauthLoading !== null}
               aria-label="Se connecter avec Apple"
             >
-              {oauthLoading === 'apple' ? (
+              {oauthLoading === "apple" ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
               ) : (
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" aria-hidden="true" role="img" fill="currentColor">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  role="img"
+                  fill="currentColor"
+                >
                   <title>Logo Apple</title>
-                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                 </svg>
               )}
               Continuer avec Apple
             </Button>
-
 
             <div className="relative" role="separator" aria-orientation="horizontal">
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -277,12 +303,21 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-3" aria-label="Formulaire d'authentification">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3"
+          aria-label="Formulaire d'authentification"
+        >
           {/* Email field */}
-          {mode !== 'forgot-password' || mode === 'forgot-password' ? (
+          {mode !== "forgot-password" || mode === "forgot-password" ? (
             <div className="relative">
-              <label htmlFor="auth-email" className="sr-only">Adresse email</label>
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <label htmlFor="auth-email" className="sr-only">
+                Adresse email
+              </label>
+              <Mail
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+                aria-hidden="true"
+              />
               <Input
                 id="auth-email"
                 type="email"
@@ -298,13 +333,18 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
           ) : null}
 
           {/* Password field */}
-          {(mode === 'login' || mode === 'signup') && (
+          {(mode === "login" || mode === "signup") && (
             <div className="relative">
-              <label htmlFor="auth-password" className="sr-only">Mot de passe</label>
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <label htmlFor="auth-password" className="sr-only">
+                Mot de passe
+              </label>
+              <Lock
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+                aria-hidden="true"
+              />
               <Input
                 id="auth-password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -312,22 +352,26 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
                 minLength={6}
                 required
                 aria-required="true"
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                 aria-pressed={showPassword}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-5 h-5" aria-hidden="true" />
+                )}
               </button>
             </div>
           )}
 
           {/* Remember me checkbox */}
-          {(mode === 'login') && (
+          {mode === "login" && (
             <div className="flex items-center gap-2">
               <Checkbox
                 id="remember-me"
@@ -335,27 +379,35 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
                 onCheckedChange={(checked) => {
                   const val = checked === true;
                   setRememberMe(val);
-                  localStorage.setItem('ik_remember_me', String(val));
+                  localStorage.setItem("ik_remember_me", String(val));
                 }}
               />
-              <label htmlFor="remember-me" className="text-sm text-muted-foreground cursor-pointer select-none">
+              <label
+                htmlFor="remember-me"
+                className="text-sm text-muted-foreground cursor-pointer select-none"
+              >
                 Se souvenir de moi
               </label>
             </div>
           )}
 
-          <Button type="submit" className="w-full focus-visible-ring" variant="gradient" disabled={loading || cooldown > 0}>
+          <Button
+            type="submit"
+            className="w-full focus-visible-ring"
+            variant="gradient"
+            disabled={loading || cooldown > 0}
+          >
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />}
             {cooldown > 0 ? `Patientez ${cooldown}s…` : getButtonText()}
           </Button>
         </form>
 
         {/* Forgot password link */}
-        {mode === 'login' && (
+        {mode === "login" && (
           <div className="mt-3 text-center">
             <button
               type="button"
-              onClick={() => setMode('forgot-password')}
+              onClick={() => setMode("forgot-password")}
               className="text-xs text-muted-foreground hover:text-primary transition-colors focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
               Mot de passe oublié ?
@@ -364,11 +416,11 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         )}
 
         {/* Back button for forgot-password mode */}
-        {mode === 'forgot-password' && (
+        {mode === "forgot-password" && (
           <div className="mt-3 text-center">
             <button
               type="button"
-              onClick={() => setMode('login')}
+              onClick={() => setMode("login")}
               className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 focus-visible-ring rounded-xs"
             >
               <ArrowLeft className="w-3 h-3" aria-hidden="true" />
@@ -378,25 +430,29 @@ export const AuthForm = ({ className, compact = false, multilineCta = false, def
         )}
 
         {/* Toggle login/signup */}
-        {mode === 'login' && (
+        {mode === "login" && (
           <div className="mt-4 text-center">
             <button
               type="button"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate("/signup")}
               className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
-              {multilineCta 
-                ? <><span className="block">Pas encore de compte ?</span><span className="block">Rejoignez la communauté !</span></>
-                : 'Pas encore de compte ? Rejoignez la communauté !'
-              }
+              {multilineCta ? (
+                <>
+                  <span className="block">Pas encore de compte ?</span>
+                  <span className="block">Rejoignez la communauté !</span>
+                </>
+              ) : (
+                "Pas encore de compte ? Rejoignez la communauté !"
+              )}
             </button>
           </div>
         )}
-        {mode === 'signup' && (
+        {mode === "signup" && (
           <div className="mt-4 text-center">
             <button
               type="button"
-              onClick={() => setMode('login')}
+              onClick={() => setMode("login")}
               className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
               Déjà un compte ? Connectez-vous

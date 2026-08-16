@@ -10,25 +10,25 @@ function getAudioContext(): AudioContext {
   return audioContext;
 }
 
-export function playNotificationSound(type: 'success' | 'subtle' | 'alert' = 'subtle') {
+export function playNotificationSound(type: "success" | "subtle" | "alert" = "subtle") {
   try {
     const ctx = getAudioContext();
-    
+
     // Resume context if suspended (required for mobile)
-    if (ctx.state === 'suspended') {
+    if (ctx.state === "suspended") {
       ctx.resume();
     }
 
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
 
     const now = ctx.currentTime;
 
     switch (type) {
-      case 'success':
+      case "success":
         // Two-tone ascending chime
         oscillator.frequency.setValueAtTime(523.25, now); // C5
         oscillator.frequency.setValueAtTime(659.25, now + 0.1); // E5
@@ -38,7 +38,7 @@ export function playNotificationSound(type: 'success' | 'subtle' | 'alert' = 'su
         oscillator.stop(now + 0.3);
         break;
 
-      case 'alert':
+      case "alert":
         // Attention-grabbing double beep
         oscillator.frequency.setValueAtTime(880, now); // A5
         gainNode.gain.setValueAtTime(0.2, now);
@@ -49,17 +49,17 @@ export function playNotificationSound(type: 'success' | 'subtle' | 'alert' = 'su
         oscillator.stop(now + 0.3);
         break;
 
-      case 'subtle':
+      case "subtle":
       default:
         // Soft, gentle notification tone
-        oscillator.type = 'sine';
+        oscillator.type = "sine";
         oscillator.frequency.setValueAtTime(587.33, now); // D5 - pleasant frequency
-        
+
         // Soft attack and decay envelope
         gainNode.gain.setValueAtTime(0, now);
         gainNode.gain.linearRampToValueAtTime(0.08, now + 0.05); // Soft attack
         gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.25); // Gentle decay
-        
+
         oscillator.start(now);
         oscillator.stop(now + 0.3);
         break;
@@ -70,9 +70,8 @@ export function playNotificationSound(type: 'success' | 'subtle' | 'alert' = 'su
       oscillator.disconnect();
       gainNode.disconnect();
     };
-
   } catch (error) {
-    console.warn('Could not play notification sound:', error);
+    console.warn("Could not play notification sound:", error);
   }
 }
 
@@ -80,24 +79,24 @@ export function playNotificationSound(type: 'success' | 'subtle' | 'alert' = 'su
 export function playTone(frequency: number, duration: number = 0.2, volume: number = 0.1) {
   try {
     const ctx = getAudioContext();
-    
-    if (ctx.state === 'suspended') {
+
+    if (ctx.state === "suspended") {
       ctx.resume();
     }
 
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
-    
-    oscillator.type = 'sine';
+
+    oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
-    
+
     gainNode.gain.setValueAtTime(0, ctx.currentTime);
     gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.02);
     gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-    
+
     oscillator.start(ctx.currentTime);
     oscillator.stop(ctx.currentTime + duration);
 
@@ -106,6 +105,6 @@ export function playTone(frequency: number, duration: number = 0.2, volume: numb
       gainNode.disconnect();
     };
   } catch (error) {
-    console.warn('Could not play tone:', error);
+    console.warn("Could not play tone:", error);
   }
 }

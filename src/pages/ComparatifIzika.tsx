@@ -1,32 +1,39 @@
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
-import { 
-  ArrowRight, 
-  CheckCircle2,
-  XCircle,
-  Zap,
-  HelpCircle,
-  Minus
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, XCircle, Zap, HelpCircle, Minus } from "lucide-react";
 
-const EnhancedMarketingFooter = lazy(() => import("@/components/marketing/EnhancedMarketingFooter").then(m => ({ default: m.EnhancedMarketingFooter })));
+const EnhancedMarketingFooter = lazy(() =>
+  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
+    default: m.EnhancedMarketingFooter,
+  })),
+);
 
-const FooterPlaceholder = memo(() => (
-  <div className="min-h-[600px] bg-muted/30 animate-pulse" />
-));
+const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 
 const ComparatifIzika = () => {
   const { user, loading } = useAuthLazy();
-  const { trackCTAClick } = useMarketingTracker('comparatif-izika');
+  const { trackCTAClick } = useMarketingTracker("comparatif-izika");
 
   const comparisonData = [
     { feature: "Application", izika: true, iktracker: "pwa", isPwa: true },
@@ -47,25 +54,26 @@ const ComparatifIzika = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": "Alternative Izika 2026 : Comparatif avec IKtracker",
-            "description": "Comparatif détaillé entre Izika et IKtracker pour le calcul des indemnités kilométriques.",
-            "author": {
+            headline: "Alternative Izika 2026 : Comparatif avec IKtracker",
+            description:
+              "Comparatif détaillé entre Izika et IKtracker pour le calcul des indemnités kilométriques.",
+            author: {
               "@type": "Person",
-              "name": "Adrien de Volontat",
-              "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat"
+              name: "Adrien de Volontat",
+              url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
             },
-            "publisher": {
+            publisher: {
               "@type": "Organization",
-              "name": "IKtracker",
-              "logo": {
+              name: "IKtracker",
+              logo: {
                 "@type": "ImageObject",
-                "url": "https://iktracker.fr/logo-iktracker-250.webp"
-              }
+                url: "https://iktracker.fr/logo-iktracker-250.webp",
+              },
             },
-            "datePublished": "2026-02-03",
-            "dateModified": "2026-02-03",
-            "mainEntityOfPage": "https://iktracker.fr/comparatif-izika",
-            "inLanguage": "fr-FR"
+            datePublished: "2026-02-03",
+            dateModified: "2026-02-03",
+            mainEntityOfPage: "https://iktracker.fr/comparatif-izika",
+            inLanguage: "fr-FR",
           })}
         </script>
         {/* FAQ Schema */}
@@ -73,9 +81,16 @@ const ComparatifIzika = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": [
-              { "@type": "Question", "name": "Où est le piège ? Pourquoi IKtracker est gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "IKtracker a été créé par un développeur indépendant pour son propre usage. Pas d'investisseurs, pas de gros frais de structure. C'est un outil communautaire maintenu par passion. Aucune publicité, aucune revente de données, aucun abonnement caché." }}
-            ]
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "Où est le piège ? Pourquoi IKtracker est gratuit ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "IKtracker a été créé par un développeur indépendant pour son propre usage. Pas d'investisseurs, pas de gros frais de structure. C'est un outil communautaire maintenu par passion. Aucune publicité, aucune revente de données, aucun abonnement caché.",
+                },
+              },
+            ],
           })}
         </script>
       </Helmet>
@@ -86,11 +101,14 @@ const ComparatifIzika = () => {
         <main id="main-content" tabIndex={-1} className="outline-hidden">
           {/* Breadcrumb */}
           <div className="container mx-auto px-4 pt-24">
-            <Breadcrumb items={[{ label: 'Comparatif Izika vs IKtracker' }]} />
+            <Breadcrumb items={[{ label: "Comparatif Izika vs IKtracker" }]} />
           </div>
 
           {/* Hero Section */}
-          <section className="pb-12 md:pb-16 px-4 relative overflow-hidden" aria-labelledby="hero-heading">
+          <section
+            className="pb-12 md:pb-16 px-4 relative overflow-hidden"
+            aria-labelledby="hero-heading"
+          >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
             <div className="container mx-auto relative z-10 max-w-4xl">
               <div className="text-center">
@@ -98,12 +116,18 @@ const ComparatifIzika = () => {
                   <Zap className="h-4 w-4" />
                   Alternative Izika 2026
                 </div>
-                <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight mb-6">
-                  Arrêtez de payer pour vos<br />
+                <h1
+                  id="hero-heading"
+                  className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight mb-6"
+                >
+                  Arrêtez de payer pour vos
+                  <br />
                   <span className="text-gradient">Indemnités Kilométriques</span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
-                  Le comparatif honnête : <strong className="text-foreground">Izika est excellent</strong>, mais IKtracker fait le même travail{" "}
+                  Le comparatif honnête :{" "}
+                  <strong className="text-foreground">Izika est excellent</strong>, mais IKtracker
+                  fait le même travail{" "}
                   <strong className="text-success font-bold">100% Gratuitement</strong>.
                 </p>
               </div>
@@ -116,7 +140,7 @@ const ComparatifIzika = () => {
               <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
                 Izika vs IKtracker : le comparatif fonctionnel
               </h2>
-              
+
               <Card className="overflow-hidden border-primary/20 shadow-lg">
                 <CardContent className="p-0">
                   <Table>
@@ -126,13 +150,19 @@ const ComparatifIzika = () => {
                         <TableHead className="font-semibold text-center">
                           <div className="flex flex-col items-center gap-1">
                             <span>Izika</span>
-                            <span className="text-xs text-muted-foreground font-normal">(Payant)</span>
+                            <span className="text-xs text-muted-foreground font-normal">
+                              (Payant)
+                            </span>
                           </div>
                         </TableHead>
                         <TableHead className="font-semibold text-center bg-primary/10">
                           <div className="flex flex-col items-center gap-1">
                             <div className="flex items-center gap-2">
-                              <img src="/logo-iktracker-250.webp" alt="IKtracker" className="h-5 w-5" />
+                              <img
+                                src="/logo-iktracker-250.webp"
+                                alt="IKtracker"
+                                className="h-5 w-5"
+                              />
                               <span>IKtracker</span>
                             </div>
                             <span className="text-xs text-success font-bold">(Gratuit)</span>
@@ -154,7 +184,7 @@ const ComparatifIzika = () => {
                             )}
                           </TableCell>
                           <TableCell className="text-center bg-primary/5">
-                            {typeof row.iktracker === 'boolean' ? (
+                            {typeof row.iktracker === "boolean" ? (
                               <CheckCircle2 className="h-5 w-5 text-success mx-auto" />
                             ) : row.isPwa ? (
                               <div className="flex flex-col items-center gap-1">
@@ -162,7 +192,9 @@ const ComparatifIzika = () => {
                                 <span className="text-xs text-muted-foreground">PWA (web)</span>
                               </div>
                             ) : row.highlight ? (
-                              <span className="text-lg font-bold text-success">{row.iktracker}</span>
+                              <span className="text-lg font-bold text-success">
+                                {row.iktracker}
+                              </span>
                             ) : (
                               <span className="text-sm">{row.iktracker}</span>
                             )}
@@ -176,12 +208,22 @@ const ComparatifIzika = () => {
 
               <p className="text-center text-sm text-muted-foreground mt-4">
                 Sources : sites officiels{" "}
-                <a href="https://izika.com" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
+                <a
+                  href="https://izika.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline hover:text-primary/80"
+                >
                   izika.com
-                </a>{" "}et{" "}
-                <a href="https://iktracker.fr" className="text-primary underline hover:text-primary/80">
+                </a>{" "}
+                et{" "}
+                <a
+                  href="https://iktracker.fr"
+                  className="text-primary underline hover:text-primary/80"
+                >
                   iktracker.fr
-                </a>{" "}— Février 2026
+                </a>{" "}
+                — Février 2026
               </p>
             </div>
           </section>
@@ -191,9 +233,7 @@ const ComparatifIzika = () => {
             <div className="container mx-auto max-w-2xl text-center">
               <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-bold mb-4">
-                    Prêt à économiser chaque mois ?
-                  </h2>
+                  <h2 className="text-2xl font-bold mb-4">Prêt à économiser chaque mois ?</h2>
                   <p className="text-muted-foreground mb-6">
                     Créez votre compte en 30 secondes. Aucune carte bancaire, aucun engagement.
                   </p>
@@ -216,25 +256,67 @@ const ComparatifIzika = () => {
               </h3>
               <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed">
                 <p>
-                  Soyons clairs : <strong className="text-foreground">Izika est une excellente application</strong>. Elle a été pionnière sur le marché français des indemnités kilométriques et a aidé des milliers de professionnels à simplifier leur gestion administrative. L'interface est soignée, le support client réactif, et les fonctionnalités répondent parfaitement aux besoins des indépendants et des entreprises.
+                  Soyons clairs :{" "}
+                  <strong className="text-foreground">Izika est une excellente application</strong>.
+                  Elle a été pionnière sur le marché français des indemnités kilométriques et a aidé
+                  des milliers de professionnels à simplifier leur gestion administrative.
+                  L'interface est soignée, le support client réactif, et les fonctionnalités
+                  répondent parfaitement aux besoins des indépendants et des entreprises.
                 </p>
                 <p>
-                  Le modèle économique d'Izika repose sur un abonnement mensuel qui peut représenter un coût non négligeable sur l'année, particulièrement pour les{" "}
-                  <Link to="/blog/indemnites-kilometriques-infirmier-liberal" className="text-primary underline hover:text-primary/80">infirmiers libéraux</Link>,{" "}
-                  <Link to="/blog/indemnites-kilometriques-artisan-batiment" className="text-primary underline hover:text-primary/80">artisans</Link>{" "}ou{" "}
-                  <Link to="/blog/indemnites-kilometriques-commercial-itinerant" className="text-primary underline hover:text-primary/80">commerciaux</Link>{" "}
+                  Le modèle économique d'Izika repose sur un abonnement mensuel qui peut représenter
+                  un coût non négligeable sur l'année, particulièrement pour les{" "}
+                  <Link
+                    to="/blog/indemnites-kilometriques-infirmier-liberal"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    infirmiers libéraux
+                  </Link>
+                  ,{" "}
+                  <Link
+                    to="/blog/indemnites-kilometriques-artisan-batiment"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    artisans
+                  </Link>{" "}
+                  ou{" "}
+                  <Link
+                    to="/blog/indemnites-kilometriques-commercial-itinerant"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    commerciaux
+                  </Link>{" "}
                   qui débutent leur activité.
                 </p>
                 <p>
-                  <strong className="text-foreground">IKtracker a été créé pour offrir une alternative accessible à tous</strong>. Nous proposons les mêmes fonctionnalités essentielles — synchronisation calendrier, calcul automatique via Google Maps, export conforme au{" "}
-                  <Link to="/bareme-ik-2026" className="text-primary underline hover:text-primary/80">barème fiscal 2026</Link>{" "}— sans aucun frais.
+                  <strong className="text-foreground">
+                    IKtracker a été créé pour offrir une alternative accessible à tous
+                  </strong>
+                  . Nous proposons les mêmes fonctionnalités essentielles — synchronisation
+                  calendrier, calcul automatique via Google Maps, export conforme au{" "}
+                  <Link
+                    to="/bareme-ik-2026"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    barème fiscal 2026
+                  </Link>{" "}
+                  — sans aucun frais.
                 </p>
                 <p>
-                  Cependant, IKtracker va plus loin en proposant la <strong className="text-foreground">création manuelle de trajets</strong>, 
-                  parce que le quotidien des indépendants est fait d'imprévus. Notre application dispose également d'une{" "}
-                  <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">fonction avancée sur mobile</Link>{" "}
-                  utilisant la géolocalisation et l'IA pour générer automatiquement les trajets à la fin de la journée. 
-                  <strong className="text-foreground"> IKtracker fait gagner du temps et de l'argent à ses utilisateurs</strong>.
+                  Cependant, IKtracker va plus loin en proposant la{" "}
+                  <strong className="text-foreground">création manuelle de trajets</strong>, parce
+                  que le quotidien des indépendants est fait d'imprévus. Notre application dispose
+                  également d'une{" "}
+                  <Link to="/mode-tournee" className="text-primary underline hover:text-primary/80">
+                    fonction avancée sur mobile
+                  </Link>{" "}
+                  utilisant la géolocalisation et l'IA pour générer automatiquement les trajets à la
+                  fin de la journée.
+                  <strong className="text-foreground">
+                    {" "}
+                    IKtracker fait gagner du temps et de l'argent à ses utilisateurs
+                  </strong>
+                  .
                 </p>
               </div>
             </div>
@@ -249,7 +331,7 @@ const ComparatifIzika = () => {
                   Question légitime
                 </h3>
               </div>
-              
+
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="why-free" className="border rounded-lg px-4 bg-card">
                   <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline">
@@ -257,13 +339,22 @@ const ComparatifIzika = () => {
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
                     <p>
-                      IKtracker a été créé par un développeur indépendant pour son propre usage. Pas d'investisseurs à rembourser, pas de gros frais de structure. C'est un outil communautaire maintenu par passion. Les coûts d'hébergement sont minimes et couverts par le fondateur. Il n'y a pas de publicité, pas de revente de données, et pas d'abonnement caché. C'est aussi simple que ça.
+                      IKtracker a été créé par un développeur indépendant pour son propre usage. Pas
+                      d'investisseurs à rembourser, pas de gros frais de structure. C'est un outil
+                      communautaire maintenu par passion. Les coûts d'hébergement sont minimes et
+                      couverts par le fondateur. Il n'y a pas de publicité, pas de revente de
+                      données, et pas d'abonnement caché. C'est aussi simple que ça.
                     </p>
                     <p className="mt-3">
                       Pour en savoir plus, consultez notre{" "}
-                      <Link to="/privacy" className="text-primary underline hover:text-primary/80">politique de confidentialité</Link>{" "}
+                      <Link to="/privacy" className="text-primary underline hover:text-primary/80">
+                        politique de confidentialité
+                      </Link>{" "}
                       et nos{" "}
-                      <Link to="/terms" className="text-primary underline hover:text-primary/80">conditions d'utilisation</Link>.
+                      <Link to="/terms" className="text-primary underline hover:text-primary/80">
+                        conditions d'utilisation
+                      </Link>
+                      .
                     </p>
                   </AccordionContent>
                 </AccordionItem>
@@ -274,20 +365,23 @@ const ComparatifIzika = () => {
           {/* Final CTA */}
           <section className="py-16 px-4 bg-gradient-to-br from-primary/10 via-background to-accent/10">
             <div className="container mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Prêt à simplifier vos IK ?
-              </h2>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Prêt à simplifier vos IK ?</h2>
               <p className="text-lg text-muted-foreground mb-8">
                 Rejoignez les professionnels qui économisent du temps et de l'argent avec IKtracker.
               </p>
               <Link to="/signup" onClick={trackCTAClick}>
-                <Button variant="gradient" size="lg" className="gap-2 text-xl px-10 py-7 shadow-xl hover:shadow-2xl transition-shadow">
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  className="gap-2 text-xl px-10 py-7 shadow-xl hover:shadow-2xl transition-shadow"
+                >
                   Commencer mes calculs gratuitement
                   <ArrowRight className="h-6 w-6" />
                 </Button>
               </Link>
               <p className="text-sm text-muted-foreground mt-6">
-                ✓ Aucune carte bancaire requise &nbsp;•&nbsp; ✓ Données hébergées en France &nbsp;•&nbsp; ✓ Support réactif
+                ✓ Aucune carte bancaire requise &nbsp;•&nbsp; ✓ Données hébergées en France
+                &nbsp;•&nbsp; ✓ Support réactif
               </p>
             </div>
           </section>

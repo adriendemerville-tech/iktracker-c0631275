@@ -5,9 +5,9 @@
 // components from either the namespace itself or its `.default` interop slot.
 // All app code must import Helmet / HelmetProvider from here, never from
 // 'react-helmet-async' directly.
-import * as pkg from 'react-helmet-async';
+import * as pkg from "react-helmet-async";
 
-type HelmetModule = typeof import('react-helmet-async');
+type HelmetModule = typeof import("react-helmet-async");
 
 const ns = pkg as unknown as HelmetModule & { default?: HelmetModule };
 const resolved: HelmetModule = ns.Helmet ? ns : (ns.default as HelmetModule);

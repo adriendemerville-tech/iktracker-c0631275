@@ -1,26 +1,43 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { useAdmin } from '@/hooks/useAdmin';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
-import { convertToWebP } from '@/lib/image-utils';
-import { ContentEditor } from '@/components/blog/ContentEditor';
-import { BlogKpiDashboard } from '@/components/blog/BlogKpiDashboard';
-import { BlogBlacklistManager } from '@/components/admin/BlogBlacklistManager';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, 
-  Key, Copy, RefreshCw, Save, X, Image as ImageIcon, GripVertical, FileText, Code2, History, Undo2, Search, Ban
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdmin } from "@/hooks/useAdmin";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { convertToWebP } from "@/lib/image-utils";
+import { ContentEditor } from "@/components/blog/ContentEditor";
+import { BlogKpiDashboard } from "@/components/blog/BlogKpiDashboard";
+import { BlogBlacklistManager } from "@/components/admin/BlogBlacklistManager";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ArrowLeft,
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  EyeOff,
+  Key,
+  Copy,
+  RefreshCw,
+  Save,
+  X,
+  Image as ImageIcon,
+  GripVertical,
+  FileText,
+  Code2,
+  History,
+  Undo2,
+  Search,
+  Ban,
+} from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -29,15 +46,15 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +63,7 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,18 +74,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-type BlogPostStatus = 'draft' | 'published' | 'archived';
+type BlogPostStatus = "draft" | "published" | "archived";
 
 interface AuditLog {
   id: string;
@@ -100,16 +117,16 @@ interface BlogPost {
 }
 
 // Sortable post card component
-function SortablePostCard({ 
-  post, 
-  onEdit, 
-  onToggleStatus, 
+function SortablePostCard({
+  post,
+  onEdit,
+  onToggleStatus,
   onDelete,
   getStatusBadge,
   selected,
   onSelectChange,
-}: { 
-  post: BlogPost; 
+}: {
+  post: BlogPost;
   onEdit: (post: BlogPost) => void;
   onToggleStatus: (post: BlogPost) => void;
   onDelete: (id: string) => void;
@@ -117,14 +134,9 @@ function SortablePostCard({
   selected: boolean;
   onSelectChange: (id: string, checked: boolean) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: post.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: post.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -133,7 +145,11 @@ function SortablePostCard({
   };
 
   return (
-    <Card ref={setNodeRef} style={style} className={isDragging ? 'ring-2 ring-primary' : selected ? 'ring-2 ring-primary/50' : ''}>
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? "ring-2 ring-primary" : selected ? "ring-2 ring-primary/50" : ""}
+    >
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-4">
           <Checkbox
@@ -141,8 +157,8 @@ function SortablePostCard({
             onCheckedChange={(c) => onSelectChange(post.id, !!c)}
             aria-label={`Sélectionner ${post.title}`}
           />
-          <div 
-            {...attributes} 
+          <div
+            {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
           >
@@ -150,13 +166,11 @@ function SortablePostCard({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <h3 className="font-medium text-foreground truncate">
-                {post.title}
-              </h3>
+              <h3 className="font-medium text-foreground truncate">{post.title}</h3>
               {getStatusBadge(post.status)}
             </div>
             <p className="text-sm text-muted-foreground">
-              /{post.slug} • {format(new Date(post.created_at), 'dd MMM yyyy', { locale: fr })}
+              /{post.slug} • {format(new Date(post.created_at), "dd MMM yyyy", { locale: fr })}
               {post.author_name && ` • ${post.author_name}`}
             </p>
           </div>
@@ -165,19 +179,15 @@ function SortablePostCard({
               variant="ghost"
               size="icon"
               onClick={() => onToggleStatus(post)}
-              title={post.status === 'published' ? 'Dépublier' : 'Publier'}
+              title={post.status === "published" ? "Dépublier" : "Publier"}
             >
-              {post.status === 'published' ? (
+              {post.status === "published" ? (
                 <EyeOff className="h-4 w-4" />
               ) : (
                 <Eye className="h-4 w-4" />
               )}
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(post)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => onEdit(post)}>
               <Pencil className="h-4 w-4" />
             </Button>
             <AlertDialog>
@@ -190,14 +200,13 @@ function SortablePostCard({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Supprimer l'article ?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Cette action est irréversible. L'article "{post.title}" sera définitivement supprimé.
+                    Cette action est irréversible. L'article "{post.title}" sera définitivement
+                    supprimé.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDelete(post.id)}>
-                    Supprimer
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={() => onDelete(post.id)}>Supprimer</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -221,8 +230,8 @@ interface ApiKey {
 }
 
 const generateApiKey = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = 'ik_';
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "ik_";
   for (let i = 0; i < 32; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -236,24 +245,24 @@ export default function BlogAdmin() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [loadingKeys, setLoadingKeys] = useState(true);
-  
+
   // Post form state
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [postForm, setPostForm] = useState({
-    title: '',
-    slug: '',
-    subtitle: '',
-    content: '',
-    meta_description: '',
-    featured_image_url: '',
-    author_name: '',
-    status: 'draft' as BlogPostStatus,
+    title: "",
+    slug: "",
+    subtitle: "",
+    content: "",
+    meta_description: "",
+    featured_image_url: "",
+    author_name: "",
+    status: "draft" as BlogPostStatus,
   });
   const [savingPost, setSavingPost] = useState(false);
   const [postDialogOpen, setPostDialogOpen] = useState(false);
 
   // API Key form state
-  const [newKeyName, setNewKeyName] = useState('');
+  const [newKeyName, setNewKeyName] = useState("");
   const [creatingKey, setCreatingKey] = useState(false);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
@@ -266,8 +275,8 @@ export default function BlogAdmin() {
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // Posts list filters
-  const [statusFilter, setStatusFilter] = useState<'all' | BlogPostStatus>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<"all" | BlogPostStatus>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Bulk selection state
   const [selectedPostIds, setSelectedPostIds] = useState<Set<string>>(new Set());
@@ -277,14 +286,16 @@ export default function BlogAdmin() {
   const toggleSelectPost = (id: string, checked: boolean) => {
     setSelectedPostIds((prev) => {
       const next = new Set(prev);
-      if (checked) next.add(id); else next.delete(id);
+      if (checked) next.add(id);
+      else next.delete(id);
       return next;
     });
   };
   const toggleSelectTrash = (id: string, checked: boolean) => {
     setSelectedTrashIds((prev) => {
       const next = new Set(prev);
-      if (checked) next.add(id); else next.delete(id);
+      if (checked) next.add(id);
+      else next.delete(id);
       return next;
     });
   };
@@ -293,7 +304,7 @@ export default function BlogAdmin() {
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
-      navigate('/app');
+      navigate("/app");
       return;
     }
     if (isAdmin) {
@@ -308,15 +319,15 @@ export default function BlogAdmin() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const fetchPosts = async () => {
     setLoadingPosts(true);
     const { data, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .order('display_order', { ascending: true });
+      .from("blog_posts")
+      .select("*")
+      .order("display_order", { ascending: true });
 
     if (!error && data) {
       setPosts(data as BlogPost[]);
@@ -326,37 +337,37 @@ export default function BlogAdmin() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (over && active.id !== over.id) {
       const oldIndex = posts.findIndex((p) => p.id === active.id);
       const newIndex = posts.findIndex((p) => p.id === over.id);
-      
+
       const newPosts = arrayMove(posts, oldIndex, newIndex);
       setPosts(newPosts);
-      
+
       // Update display_order in database
       const updates = newPosts.map((post, index) => ({
         id: post.id,
         display_order: index + 1,
       }));
-      
+
       for (const update of updates) {
         await supabase
-          .from('blog_posts')
+          .from("blog_posts")
           .update({ display_order: update.display_order } as any)
-          .eq('id', update.id);
+          .eq("id", update.id);
       }
-      
-      toast.success('Ordre mis à jour');
+
+      toast.success("Ordre mis à jour");
     }
   };
 
   const fetchAuditLogs = async () => {
     setLoadingAudit(true);
     const { data, error } = await supabase
-      .from('api_audit_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
+      .from("api_audit_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
       .limit(100);
     if (!error && data) {
       setAuditLogs(data as AuditLog[]);
@@ -371,23 +382,23 @@ export default function BlogAdmin() {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/blog-api/audit/revert/${logId}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKeys.find(k => k.is_active)?.api_key || '',
+            "Content-Type": "application/json",
+            "x-api-key": apiKeys.find((k) => k.is_active)?.api_key || "",
           },
-        }
+        },
       );
       const result = await response.json();
       if (!response.ok) {
-        toast.error('Erreur revert: ' + (result.error || 'Erreur inconnue'));
+        toast.error("Erreur revert: " + (result.error || "Erreur inconnue"));
       } else {
-        toast.success('Modification annulée avec succès');
+        toast.success("Modification annulée avec succès");
         fetchAuditLogs();
         fetchPosts();
       }
     } catch (e) {
-      toast.error('Erreur réseau');
+      toast.error("Erreur réseau");
     }
     setRevertingId(null);
   };
@@ -395,9 +406,9 @@ export default function BlogAdmin() {
   const fetchApiKeys = async () => {
     setLoadingKeys(true);
     const { data, error } = await supabase
-      .from('blog_api_keys')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("blog_api_keys")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
       setApiKeys(data);
@@ -407,14 +418,14 @@ export default function BlogAdmin() {
 
   const resetPostForm = () => {
     setPostForm({
-      title: '',
-      slug: '',
-      subtitle: '',
-      content: '',
-      meta_description: '',
-      featured_image_url: '',
-      author_name: '',
-      status: 'draft',
+      title: "",
+      slug: "",
+      subtitle: "",
+      content: "",
+      meta_description: "",
+      featured_image_url: "",
+      author_name: "",
+      status: "draft",
     });
     setEditingPost(null);
   };
@@ -424,11 +435,11 @@ export default function BlogAdmin() {
     setPostForm({
       title: post.title,
       slug: post.slug,
-      subtitle: post.subtitle || '',
+      subtitle: post.subtitle || "",
       content: post.content,
-      meta_description: post.meta_description || '',
-      featured_image_url: post.featured_image_url || '',
-      author_name: post.author_name || '',
+      meta_description: post.meta_description || "",
+      featured_image_url: post.featured_image_url || "",
+      author_name: post.author_name || "",
       status: post.status,
     });
     setPostDialogOpen(true);
@@ -438,19 +449,19 @@ export default function BlogAdmin() {
     if (!editingPost) {
       const slug = title
         .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      setPostForm(prev => ({ ...prev, title, slug }));
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      setPostForm((prev) => ({ ...prev, title, slug }));
     } else {
-      setPostForm(prev => ({ ...prev, title }));
+      setPostForm((prev) => ({ ...prev, title }));
     }
   };
 
   const savePost = async () => {
     if (!postForm.title || !postForm.slug) {
-      toast.error('Le titre et le slug sont requis');
+      toast.error("Le titre et le slug sont requis");
       return;
     }
 
@@ -465,33 +476,28 @@ export default function BlogAdmin() {
       featured_image_url: postForm.featured_image_url || null,
       author_name: postForm.author_name || null,
       status: postForm.status,
-      ...(postForm.status === 'published' && !editingPost?.published_at 
-        ? { published_at: new Date().toISOString() } 
+      ...(postForm.status === "published" && !editingPost?.published_at
+        ? { published_at: new Date().toISOString() }
         : {}),
     };
 
     let error;
     if (editingPost) {
-      const result = await supabase
-        .from('blog_posts')
-        .update(postData)
-        .eq('id', editingPost.id);
+      const result = await supabase.from("blog_posts").update(postData).eq("id", editingPost.id);
       error = result.error;
     } else {
-      const result = await supabase
-        .from('blog_posts')
-        .insert(postData);
+      const result = await supabase.from("blog_posts").insert(postData);
       error = result.error;
     }
 
     setSavingPost(false);
 
     if (error) {
-      toast.error('Erreur lors de la sauvegarde: ' + error.message);
+      toast.error("Erreur lors de la sauvegarde: " + error.message);
       return;
     }
 
-    toast.success(editingPost ? 'Article modifié' : 'Article créé');
+    toast.success(editingPost ? "Article modifié" : "Article créé");
     setPostDialogOpen(false);
     resetPostForm();
     fetchPosts();
@@ -500,33 +506,39 @@ export default function BlogAdmin() {
   const deletePost = async (id: string) => {
     // Soft-delete: move to trash instead of permanent delete
     const { error } = await supabase
-      .from('blog_posts')
-      .update({ status: 'deleted' as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
-      .eq('id', id);
+      .from("blog_posts")
+      .update({ status: "deleted" as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
+      .eq("id", id);
 
     if (error) {
-      toast.error('Erreur lors de la suppression');
+      toast.error("Erreur lors de la suppression");
       return;
     }
 
-    toast.success('Article déplacé dans la corbeille');
+    toast.success("Article déplacé dans la corbeille");
     fetchPosts();
   };
 
   const restorePost = async (id: string) => {
     const { error } = await supabase
-      .from('blog_posts')
-      .update({ status: 'draft' as BlogPostStatus, deleted_at: null } as any)
-      .eq('id', id);
-    if (error) { toast.error('Erreur lors de la restauration'); return; }
-    toast.success('Article restauré en brouillon');
+      .from("blog_posts")
+      .update({ status: "draft" as BlogPostStatus, deleted_at: null } as any)
+      .eq("id", id);
+    if (error) {
+      toast.error("Erreur lors de la restauration");
+      return;
+    }
+    toast.success("Article restauré en brouillon");
     fetchPosts();
   };
 
   const purgePost = async (id: string) => {
-    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
-    if (error) { toast.error('Erreur lors de la purge'); return; }
-    toast.success('Article supprimé définitivement');
+    const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+    if (error) {
+      toast.error("Erreur lors de la purge");
+      return;
+    }
+    toast.success("Article supprimé définitivement");
     fetchPosts();
   };
 
@@ -535,12 +547,17 @@ export default function BlogAdmin() {
     const ids = Array.from(selectedPostIds);
     if (ids.length === 0) return;
     setBulkActionLoading(true);
-    const updateData: { status: BlogPostStatus; published_at?: string } = { status: publish ? "published" : "draft" };
+    const updateData: { status: BlogPostStatus; published_at?: string } = {
+      status: publish ? "published" : "draft",
+    };
     if (publish) updateData.published_at = new Date().toISOString();
-    const { error } = await supabase.from('blog_posts').update(updateData).in('id', ids);
+    const { error } = await supabase.from("blog_posts").update(updateData).in("id", ids);
     setBulkActionLoading(false);
-    if (error) { toast.error('Erreur lors de la mise à jour groupée'); return; }
-    toast.success(`${ids.length} article(s) ${publish ? 'publié(s)' : 'dépublié(s)'}`);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour groupée");
+      return;
+    }
+    toast.success(`${ids.length} article(s) ${publish ? "publié(s)" : "dépublié(s)"}`);
     clearPostSelection();
     fetchPosts();
   };
@@ -550,11 +567,14 @@ export default function BlogAdmin() {
     if (ids.length === 0) return;
     setBulkActionLoading(true);
     const { error } = await supabase
-      .from('blog_posts')
-      .update({ status: 'deleted' as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
-      .in('id', ids);
+      .from("blog_posts")
+      .update({ status: "deleted" as BlogPostStatus, deleted_at: new Date().toISOString() } as any)
+      .in("id", ids);
     setBulkActionLoading(false);
-    if (error) { toast.error('Erreur lors de la suppression groupée'); return; }
+    if (error) {
+      toast.error("Erreur lors de la suppression groupée");
+      return;
+    }
     toast.success(`${ids.length} article(s) déplacé(s) dans la corbeille`);
     clearPostSelection();
     fetchPosts();
@@ -566,11 +586,14 @@ export default function BlogAdmin() {
     if (ids.length === 0) return;
     setBulkActionLoading(true);
     const { error } = await supabase
-      .from('blog_posts')
-      .update({ status: 'draft' as BlogPostStatus, deleted_at: null } as any)
-      .in('id', ids);
+      .from("blog_posts")
+      .update({ status: "draft" as BlogPostStatus, deleted_at: null } as any)
+      .in("id", ids);
     setBulkActionLoading(false);
-    if (error) { toast.error('Erreur lors de la restauration groupée'); return; }
+    if (error) {
+      toast.error("Erreur lors de la restauration groupée");
+      return;
+    }
     toast.success(`${ids.length} article(s) restauré(s) en brouillon`);
     clearTrashSelection();
     fetchPosts();
@@ -580,98 +603,93 @@ export default function BlogAdmin() {
     const ids = Array.from(selectedTrashIds);
     if (ids.length === 0) return;
     setBulkActionLoading(true);
-    const { error } = await supabase.from('blog_posts').delete().in('id', ids);
+    const { error } = await supabase.from("blog_posts").delete().in("id", ids);
     setBulkActionLoading(false);
-    if (error) { toast.error('Erreur lors de la purge groupée'); return; }
+    if (error) {
+      toast.error("Erreur lors de la purge groupée");
+      return;
+    }
     toast.success(`${ids.length} article(s) supprimé(s) définitivement`);
     clearTrashSelection();
     fetchPosts();
   };
 
   const togglePostStatus = async (post: BlogPost) => {
-    const newStatus: BlogPostStatus = post.status === 'published' ? 'draft' : 'published';
+    const newStatus: BlogPostStatus = post.status === "published" ? "draft" : "published";
     const updateData: { status: BlogPostStatus; published_at?: string } = { status: newStatus };
-    
-    if (newStatus === 'published' && !post.published_at) {
+
+    if (newStatus === "published" && !post.published_at) {
       updateData.published_at = new Date().toISOString();
     }
 
-    const { error } = await supabase
-      .from('blog_posts')
-      .update(updateData)
-      .eq('id', post.id);
+    const { error } = await supabase.from("blog_posts").update(updateData).eq("id", post.id);
 
     if (error) {
-      toast.error('Erreur lors du changement de statut');
+      toast.error("Erreur lors du changement de statut");
       return;
     }
 
-    toast.success(newStatus === 'published' ? 'Article publié' : 'Article dépublié');
+    toast.success(newStatus === "published" ? "Article publié" : "Article dépublié");
     fetchPosts();
   };
 
   const createApiKey = async () => {
     if (!newKeyName.trim()) {
-      toast.error('Le nom de la clé est requis');
+      toast.error("Le nom de la clé est requis");
       return;
     }
 
     setCreatingKey(true);
     const apiKey = generateApiKey();
 
-    const { error } = await supabase
-      .from('blog_api_keys')
-      .insert({
-        name: newKeyName.trim(),
-        api_key: apiKey,
-      });
+    const { error } = await supabase.from("blog_api_keys").insert({
+      name: newKeyName.trim(),
+      api_key: apiKey,
+    });
 
     setCreatingKey(false);
 
     if (error) {
-      toast.error('Erreur lors de la création: ' + error.message);
+      toast.error("Erreur lors de la création: " + error.message);
       return;
     }
 
-    toast.success('Clé API créée');
+    toast.success("Clé API créée");
     setKeyDialogOpen(false);
-    setNewKeyName('');
+    setNewKeyName("");
     fetchApiKeys();
   };
 
   const toggleKeyStatus = async (key: ApiKey) => {
     const { error } = await supabase
-      .from('blog_api_keys')
+      .from("blog_api_keys")
       .update({ is_active: !key.is_active })
-      .eq('id', key.id);
+      .eq("id", key.id);
 
     if (error) {
-      toast.error('Erreur lors du changement de statut');
+      toast.error("Erreur lors du changement de statut");
       return;
     }
 
-    toast.success(key.is_active ? 'Clé désactivée' : 'Clé activée');
+    toast.success(key.is_active ? "Clé désactivée" : "Clé activée");
     fetchApiKeys();
   };
 
   const deleteApiKey = async (id: string) => {
-    const { error } = await supabase
-      .from('blog_api_keys')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from("blog_api_keys").delete().eq("id", id);
 
     if (error) {
-      toast.error('Erreur lors de la suppression');
+      toast.error("Erreur lors de la suppression");
       return;
     }
 
-    toast.success('Clé API supprimée');
+    toast.success("Clé API supprimée");
     fetchApiKeys();
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copié dans le presse-papier');
+    toast.success("Copié dans le presse-papier");
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -679,14 +697,14 @@ export default function BlogAdmin() {
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Veuillez sélectionner une image');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez sélectionner une image");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('L\'image ne doit pas dépasser 5MB');
+      toast.error("L'image ne doit pas dépasser 5MB");
       return;
     }
 
@@ -695,37 +713,35 @@ export default function BlogAdmin() {
     try {
       // Convert image to WebP with 80% quality
       const webpFile = await convertToWebP(file, 0.8);
-      
+
       // Generate unique filename with .webp extension
       const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
 
       const { data, error } = await supabase.storage
-        .from('blog-images')
+        .from("blog-images")
         .upload(filename, webpFile, {
-          cacheControl: '31536000',
+          cacheControl: "31536000",
           upsert: false,
-          contentType: 'image/webp',
+          contentType: "image/webp",
         });
 
       if (error) throw error;
 
       // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(data.path);
+      const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(data.path);
 
-      setPostForm(prev => ({ ...prev, featured_image_url: urlData.publicUrl }));
-      toast.success('Image convertie en WebP et uploadée');
+      setPostForm((prev) => ({ ...prev, featured_image_url: urlData.publicUrl }));
+      toast.success("Image convertie en WebP et uploadée");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Erreur inconnue';
-      toast.error('Erreur upload: ' + message);
+      const message = error instanceof Error ? error.message : "Erreur inconnue";
+      toast.error("Erreur upload: " + message);
     } finally {
       setUploadingImage(false);
     }
   };
 
   const removeImage = () => {
-    setPostForm(prev => ({ ...prev, featured_image_url: '' }));
+    setPostForm((prev) => ({ ...prev, featured_image_url: "" }));
   };
 
   if (adminLoading) {
@@ -742,56 +758,51 @@ export default function BlogAdmin() {
 
   const getStatusBadge = (status: BlogPostStatus) => {
     switch (status) {
-      case 'published':
+      case "published":
         return <Badge className="bg-green-500">Publié</Badge>;
-      case 'draft':
+      case "draft":
         return <Badge variant="secondary">Brouillon</Badge>;
-      case 'archived':
+      case "archived":
         return <Badge variant="outline">Archivé</Badge>;
-      case 'deleted' as BlogPostStatus:
+      case "deleted" as BlogPostStatus:
         return <Badge variant="destructive">Corbeille</Badge>;
     }
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   // Main listing always excludes the trash; deleted posts are managed in the dedicated tab
-  const visiblePosts = posts.filter((p) => (p.status as string) !== 'deleted');
-  const trashedPosts = posts.filter((p) => (p.status as string) === 'deleted');
+  const visiblePosts = posts.filter((p) => (p.status as string) !== "deleted");
+  const trashedPosts = posts.filter((p) => (p.status as string) === "deleted");
   const filteredPosts = visiblePosts.filter((post) => {
-    if (statusFilter !== 'all' && post.status !== statusFilter) return false;
+    if (statusFilter !== "all" && post.status !== statusFilter) return false;
     if (!normalizedQuery) return true;
     const haystack = [
       post.title,
-      post.subtitle ?? '',
+      post.subtitle ?? "",
       post.slug,
-      post.author_name ?? '',
-      post.meta_description ?? '',
+      post.author_name ?? "",
+      post.meta_description ?? "",
     ]
-      .join(' ')
+      .join(" ")
       .toLowerCase();
     return haystack.includes(normalizedQuery);
   });
-  const isFiltering = statusFilter !== 'all' || normalizedQuery.length > 0;
+  const isFiltering = statusFilter !== "all" || normalizedQuery.length > 0;
   const statusCounts = {
     all: visiblePosts.length,
-    published: visiblePosts.filter((p) => p.status === 'published').length,
-    draft: visiblePosts.filter((p) => p.status === 'draft').length,
-    archived: visiblePosts.filter((p) => p.status === 'archived').length,
+    published: visiblePosts.filter((p) => p.status === "published").length,
+    draft: visiblePosts.filter((p) => p.status === "draft").length,
+    archived: visiblePosts.filter((p) => p.status === "archived").length,
   };
 
   return (
     <>
-      <Helmet>
-      </Helmet>
+      <Helmet></Helmet>
 
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <header className="mb-8">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/app/admin')}
-              className="mb-4"
-            >
+            <Button variant="ghost" onClick={() => navigate("/app/admin")} className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour admin
             </Button>
@@ -824,8 +835,11 @@ export default function BlogAdmin() {
               </TabsTrigger>
               <TabsTrigger value="trash" className="gap-2">
                 <Trash2 className="h-4 w-4" />
-                Corbeille{trashedPosts.length > 0 && (
-                  <Badge variant="secondary" className="ml-1">{trashedPosts.length}</Badge>
+                Corbeille
+                {trashedPosts.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {trashedPosts.length}
+                  </Badge>
                 )}
               </TabsTrigger>
             </TabsList>
@@ -834,12 +848,19 @@ export default function BlogAdmin() {
             <TabsContent value="posts" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">
-                  Articles ({isFiltering ? `${filteredPosts.length}/${visiblePosts.length}` : visiblePosts.length})
+                  Articles (
+                  {isFiltering
+                    ? `${filteredPosts.length}/${visiblePosts.length}`
+                    : visiblePosts.length}
+                  )
                 </h2>
-                <Dialog open={postDialogOpen} onOpenChange={(open) => {
-                  setPostDialogOpen(open);
-                  if (!open) resetPostForm();
-                }}>
+                <Dialog
+                  open={postDialogOpen}
+                  onOpenChange={(open) => {
+                    setPostDialogOpen(open);
+                    if (!open) resetPostForm();
+                  }}
+                >
                   <DialogTrigger asChild>
                     <Button>
                       <Plus className="mr-2 h-4 w-4" />
@@ -849,7 +870,7 @@ export default function BlogAdmin() {
                   <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingPost ? 'Modifier l\'article' : 'Nouvel article'}
+                        {editingPost ? "Modifier l'article" : "Nouvel article"}
                       </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
@@ -868,7 +889,9 @@ export default function BlogAdmin() {
                           <Input
                             id="slug"
                             value={postForm.slug}
-                            onChange={(e) => setPostForm(prev => ({ ...prev, slug: e.target.value }))}
+                            onChange={(e) =>
+                              setPostForm((prev) => ({ ...prev, slug: e.target.value }))
+                            }
                             placeholder="url-de-l-article"
                           />
                         </div>
@@ -878,7 +901,9 @@ export default function BlogAdmin() {
                         <Input
                           id="subtitle"
                           value={postForm.subtitle}
-                          onChange={(e) => setPostForm(prev => ({ ...prev, subtitle: e.target.value }))}
+                          onChange={(e) =>
+                            setPostForm((prev) => ({ ...prev, subtitle: e.target.value }))
+                          }
                           placeholder="Sous-titre optionnel"
                         />
                       </div>
@@ -888,15 +913,19 @@ export default function BlogAdmin() {
                           <Input
                             id="author"
                             value={postForm.author_name}
-                            onChange={(e) => setPostForm(prev => ({ ...prev, author_name: e.target.value }))}
+                            onChange={(e) =>
+                              setPostForm((prev) => ({ ...prev, author_name: e.target.value }))
+                            }
                             placeholder="Nom de l'auteur"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="status">Statut</Label>
-                          <Select 
-                            value={postForm.status} 
-                            onValueChange={(value: BlogPostStatus) => setPostForm(prev => ({ ...prev, status: value }))}
+                          <Select
+                            value={postForm.status}
+                            onValueChange={(value: BlogPostStatus) =>
+                              setPostForm((prev) => ({ ...prev, status: value }))
+                            }
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -913,9 +942,9 @@ export default function BlogAdmin() {
                         <Label>Image de couverture</Label>
                         {postForm.featured_image_url ? (
                           <div className="relative">
-                            <img 
-                              src={postForm.featured_image_url} 
-                              alt="Preview" 
+                            <img
+                              src={postForm.featured_image_url}
+                              alt="Preview"
                               className="w-full h-48 object-cover rounded-lg border"
                             />
                             <Button
@@ -938,8 +967,8 @@ export default function BlogAdmin() {
                               className="hidden"
                               disabled={uploadingImage}
                             />
-                            <label 
-                              htmlFor="image-upload" 
+                            <label
+                              htmlFor="image-upload"
                               className="cursor-pointer flex flex-col items-center gap-2"
                             >
                               {uploadingImage ? (
@@ -948,7 +977,9 @@ export default function BlogAdmin() {
                                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
                               )}
                               <span className="text-sm text-muted-foreground">
-                                {uploadingImage ? 'Upload en cours...' : 'Cliquez pour uploader une image'}
+                                {uploadingImage
+                                  ? "Upload en cours..."
+                                  : "Cliquez pour uploader une image"}
                               </span>
                               <span className="text-xs text-muted-foreground">
                                 PNG, JPG, WebP (max 5MB)
@@ -958,7 +989,9 @@ export default function BlogAdmin() {
                         )}
                         <Input
                           value={postForm.featured_image_url}
-                          onChange={(e) => setPostForm(prev => ({ ...prev, featured_image_url: e.target.value }))}
+                          onChange={(e) =>
+                            setPostForm((prev) => ({ ...prev, featured_image_url: e.target.value }))
+                          }
                           placeholder="Ou collez une URL..."
                           className="mt-2"
                         />
@@ -968,7 +1001,9 @@ export default function BlogAdmin() {
                         <Textarea
                           id="meta"
                           value={postForm.meta_description}
-                          onChange={(e) => setPostForm(prev => ({ ...prev, meta_description: e.target.value }))}
+                          onChange={(e) =>
+                            setPostForm((prev) => ({ ...prev, meta_description: e.target.value }))
+                          }
                           placeholder="Description pour les moteurs de recherche (max 160 caractères)"
                           rows={2}
                         />
@@ -977,7 +1012,7 @@ export default function BlogAdmin() {
                         <Label>Contenu (Markdown/HTML)</Label>
                         <ContentEditor
                           value={postForm.content}
-                          onChange={(value) => setPostForm(prev => ({ ...prev, content: value }))}
+                          onChange={(value) => setPostForm((prev) => ({ ...prev, content: value }))}
                           placeholder="Contenu de l'article... Glissez des images pour les insérer automatiquement en WebP."
                           rows={12}
                         />
@@ -993,7 +1028,7 @@ export default function BlogAdmin() {
                         ) : (
                           <Save className="mr-2 h-4 w-4" />
                         )}
-                        {editingPost ? 'Sauvegarder' : 'Créer'}
+                        {editingPost ? "Sauvegarder" : "Créer"}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -1014,7 +1049,7 @@ export default function BlogAdmin() {
                   {searchQuery && (
                     <button
                       type="button"
-                      onClick={() => setSearchQuery('')}
+                      onClick={() => setSearchQuery("")}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground"
                       aria-label="Effacer la recherche"
                     >
@@ -1024,7 +1059,7 @@ export default function BlogAdmin() {
                 </div>
                 <Select
                   value={statusFilter}
-                  onValueChange={(value) => setStatusFilter(value as 'all' | BlogPostStatus)}
+                  onValueChange={(value) => setStatusFilter(value as "all" | BlogPostStatus)}
                 >
                   <SelectTrigger className="w-full sm:w-[220px]" aria-label="Filtrer par statut">
                     <SelectValue />
@@ -1045,7 +1080,9 @@ export default function BlogAdmin() {
                     <Checkbox
                       checked={
                         (isFiltering ? filteredPosts : visiblePosts).length > 0 &&
-                        (isFiltering ? filteredPosts : visiblePosts).every((p) => selectedPostIds.has(p.id))
+                        (isFiltering ? filteredPosts : visiblePosts).every((p) =>
+                          selectedPostIds.has(p.id),
+                        )
                       }
                       onCheckedChange={(c) => {
                         const list = isFiltering ? filteredPosts : visiblePosts;
@@ -1060,7 +1097,7 @@ export default function BlogAdmin() {
                     <span className="text-sm text-muted-foreground">
                       {selectedPostIds.size > 0
                         ? `${selectedPostIds.size} sélectionné(s)`
-                        : 'Tout sélectionner'}
+                        : "Tout sélectionner"}
                     </span>
                   </div>
                   <div className="ml-auto flex flex-wrap gap-2">
@@ -1092,9 +1129,13 @@ export default function BlogAdmin() {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Déplacer {selectedPostIds.size} article(s) à la corbeille ?</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            Déplacer {selectedPostIds.size} article(s) à la corbeille ?
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
-                            Les articles sélectionnés seront déplacés dans la corbeille. Vous pourrez les restaurer ou les supprimer définitivement depuis l'onglet « Corbeille ».
+                            Les articles sélectionnés seront déplacés dans la corbeille. Vous
+                            pourrez les restaurer ou les supprimer définitivement depuis l'onglet «
+                            Corbeille ».
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -1136,8 +1177,8 @@ export default function BlogAdmin() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        setStatusFilter('all');
-                        setSearchQuery('');
+                        setStatusFilter("all");
+                        setSearchQuery("");
                       }}
                     >
                       Réinitialiser les filtres
@@ -1149,7 +1190,10 @@ export default function BlogAdmin() {
                 // reordering against an incomplete list.
                 <div className="space-y-3">
                   {filteredPosts.map((post) => (
-                    <Card key={post.id} className={selectedPostIds.has(post.id) ? 'ring-2 ring-primary/50' : ''}>
+                    <Card
+                      key={post.id}
+                      className={selectedPostIds.has(post.id) ? "ring-2 ring-primary/50" : ""}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between gap-4">
                           <Checkbox
@@ -1163,7 +1207,8 @@ export default function BlogAdmin() {
                               {getStatusBadge(post.status)}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              /{post.slug} • {format(new Date(post.created_at), 'dd MMM yyyy', { locale: fr })}
+                              /{post.slug} •{" "}
+                              {format(new Date(post.created_at), "dd MMM yyyy", { locale: fr })}
                               {post.author_name && ` • ${post.author_name}`}
                             </p>
                           </div>
@@ -1172,9 +1217,9 @@ export default function BlogAdmin() {
                               variant="ghost"
                               size="icon"
                               onClick={() => togglePostStatus(post)}
-                              title={post.status === 'published' ? 'Dépublier' : 'Publier'}
+                              title={post.status === "published" ? "Dépublier" : "Publier"}
                             >
-                              {post.status === 'published' ? (
+                              {post.status === "published" ? (
                                 <EyeOff className="h-4 w-4" />
                               ) : (
                                 <Eye className="h-4 w-4" />
@@ -1193,7 +1238,8 @@ export default function BlogAdmin() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Supprimer l'article ?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Cette action est irréversible. L'article "{post.title}" sera définitivement supprimé.
+                                    Cette action est irréversible. L'article "{post.title}" sera
+                                    définitivement supprimé.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -1216,7 +1262,10 @@ export default function BlogAdmin() {
                   collisionDetection={closestCenter}
                   onDragEnd={handleDragEnd}
                 >
-                  <SortableContext items={visiblePosts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <SortableContext
+                    items={visiblePosts.map((p) => p.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
                     <div className="space-y-3">
                       {visiblePosts.map((post) => (
                         <SortablePostCard
@@ -1283,7 +1332,8 @@ export default function BlogAdmin() {
                 <CardContent className="p-4 text-sm text-muted-foreground">
                   <p className="font-medium mb-2">Comment utiliser l'API :</p>
                   <code className="block bg-background p-2 rounded text-xs">
-                    curl -H "x-api-key: VOTRE_CLE" {import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api/posts
+                    curl -H "x-api-key: VOTRE_CLE" {import.meta.env.VITE_SUPABASE_URL}
+                    /functions/v1/blog-api/posts
                   </code>
                 </CardContent>
               </Card>
@@ -1313,11 +1363,9 @@ export default function BlogAdmin() {
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-1">
-                              <h3 className="font-medium text-foreground">
-                                {key.name}
-                              </h3>
-                              <Badge variant={key.is_active ? 'default' : 'secondary'}>
-                                {key.is_active ? 'Active' : 'Inactive'}
+                              <h3 className="font-medium text-foreground">{key.name}</h3>
+                              <Badge variant={key.is_active ? "default" : "secondary"}>
+                                {key.is_active ? "Active" : "Inactive"}
                               </Badge>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -1333,11 +1381,15 @@ export default function BlogAdmin() {
                                 <Copy className="h-3 w-3" />
                               </Button>
                               <span>
-                                • Créée le {format(new Date(key.created_at), 'dd MMM yyyy', { locale: fr })}
+                                • Créée le{" "}
+                                {format(new Date(key.created_at), "dd MMM yyyy", { locale: fr })}
                               </span>
                               {key.last_used_at && (
                                 <span>
-                                  • Dernière utilisation: {format(new Date(key.last_used_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                                  • Dernière utilisation:{" "}
+                                  {format(new Date(key.last_used_at), "dd MMM yyyy HH:mm", {
+                                    locale: fr,
+                                  })}
                                 </span>
                               )}
                             </div>
@@ -1347,15 +1399,27 @@ export default function BlogAdmin() {
                                 const usage = key.usage_current_month ?? 0;
                                 const quota = key.monthly_quota ?? 10000;
                                 const pct = Math.min(100, Math.round((usage / quota) * 100));
-                                const colorClass = pct >= 90 ? 'bg-destructive' : pct >= 70 ? 'bg-orange-500' : 'bg-primary';
+                                const colorClass =
+                                  pct >= 90
+                                    ? "bg-destructive"
+                                    : pct >= 70
+                                      ? "bg-orange-500"
+                                      : "bg-primary";
                                 return (
                                   <>
                                     <div className="flex items-center justify-between text-xs">
                                       <span className="text-muted-foreground">
-                                        Quota mensuel : <strong className="text-foreground">{usage.toLocaleString()}</strong> / {quota.toLocaleString()} écritures
+                                        Quota mensuel :{" "}
+                                        <strong className="text-foreground">
+                                          {usage.toLocaleString()}
+                                        </strong>{" "}
+                                        / {quota.toLocaleString()} écritures
                                       </span>
                                       <span className="text-muted-foreground">
-                                        Reset : {format(new Date(key.usage_reset_at), 'dd MMM', { locale: fr })}
+                                        Reset :{" "}
+                                        {format(new Date(key.usage_reset_at), "dd MMM", {
+                                          locale: fr,
+                                        })}
                                       </span>
                                     </div>
                                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -1374,7 +1438,7 @@ export default function BlogAdmin() {
                               variant="ghost"
                               size="icon"
                               onClick={() => toggleKeyStatus(key)}
-                              title={key.is_active ? 'Désactiver' : 'Activer'}
+                              title={key.is_active ? "Désactiver" : "Activer"}
                             >
                               {key.is_active ? (
                                 <EyeOff className="h-4 w-4" />
@@ -1392,7 +1456,8 @@ export default function BlogAdmin() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Supprimer la clé API ?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Cette action est irréversible. Toutes les applications utilisant cette clé perdront l'accès.
+                                    Cette action est irréversible. Toutes les applications utilisant
+                                    cette clé perdront l'accès.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -1417,34 +1482,45 @@ export default function BlogAdmin() {
               <Card>
                 <CardContent className="p-6 space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2">API Content — Spécification technique</h2>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">
+                      API Content — Spécification technique
+                    </h2>
                     <p className="text-muted-foreground">
-                      Cette API REST permet à des services externes (ex: crawlers.fr) de lire et modifier l'intégralité des contenus du site IKtracker : articles de blog et pages statiques.
+                      Cette API REST permet à des services externes (ex: crawlers.fr) de lire et
+                      modifier l'intégralité des contenus du site IKtracker : articles de blog et
+                      pages statiques.
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">🔐 Authentification</h3>
-                    <p className="text-sm text-muted-foreground">Toutes les requêtes en écriture (POST, PUT, DELETE) nécessitent une clé API active.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Toutes les requêtes en écriture (POST, PUT, DELETE) nécessitent une clé API
+                      active.
+                    </p>
                     <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
-{`Header requis :
+                      {`Header requis :
 x-api-key: <votre_clé_api>
 
 Ou bien :
 Authorization: Bearer <webhook_token>`}
                     </pre>
-                    <p className="text-sm text-muted-foreground">Les clés API se gèrent dans l'onglet « Clés API » ci-dessus.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Les clés API se gèrent dans l'onglet « Clés API » ci-dessus.
+                    </p>
                   </div>
 
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">🌐 Base URL</h3>
                     <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
-{`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api`}
+                      {`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api`}
                     </pre>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">📝 Endpoints — Articles de blog</h3>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      📝 Endpoints — Articles de blog
+                    </h3>
                     <div className="space-y-3">
                       <div className="border border-border rounded-lg p-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -1452,7 +1528,10 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/posts</code>
                           <Badge variant="outline">Public</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Liste les articles publiés. Params: <code>limit</code>, <code>offset</code></p>
+                        <p className="text-sm text-muted-foreground">
+                          Liste les articles publiés. Params: <code>limit</code>,{" "}
+                          <code>offset</code>
+                        </p>
                       </div>
 
                       <div className="border border-border rounded-lg p-4">
@@ -1461,7 +1540,9 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/posts/:slug</code>
                           <Badge variant="outline">Public</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Récupère un article publié par son slug</p>
+                        <p className="text-sm text-muted-foreground">
+                          Récupère un article publié par son slug
+                        </p>
                       </div>
 
                       <div className="border border-border rounded-lg p-4">
@@ -1470,9 +1551,11 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/posts</code>
                           <Badge variant="destructive">Auth</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">Crée ou met à jour un article (upsert par slug)</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Crée ou met à jour un article (upsert par slug)
+                        </p>
                         <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-{`{
+                          {`{
   "title": "Mon article",
   "slug": "mon-article",
   "content": "# Contenu Markdown...",
@@ -1490,7 +1573,10 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/posts/:slug</code>
                           <Badge variant="destructive">Auth</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Mise à jour partielle d'un article (seuls les champs envoyés sont modifiés)</p>
+                        <p className="text-sm text-muted-foreground">
+                          Mise à jour partielle d'un article (seuls les champs envoyés sont
+                          modifiés)
+                        </p>
                       </div>
 
                       <div className="border border-border rounded-lg p-4">
@@ -1505,7 +1591,9 @@ Authorization: Bearer <webhook_token>`}
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">📄 Endpoints — Pages statiques</h3>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      📄 Endpoints — Pages statiques
+                    </h3>
                     <div className="space-y-3">
                       <div className="border border-border rounded-lg p-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -1513,7 +1601,9 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/pages</code>
                           <Badge variant="outline">Public</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Liste toutes les pages et leur contenu</p>
+                        <p className="text-sm text-muted-foreground">
+                          Liste toutes les pages et leur contenu
+                        </p>
                       </div>
 
                       <div className="border border-border rounded-lg p-4">
@@ -1522,7 +1612,9 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/pages/:page_key</code>
                           <Badge variant="outline">Public</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Récupère le contenu d'une page par sa clé</p>
+                        <p className="text-sm text-muted-foreground">
+                          Récupère le contenu d'une page par sa clé
+                        </p>
                       </div>
 
                       <div className="border border-border rounded-lg p-4">
@@ -1531,9 +1623,11 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/pages/:page_key</code>
                           <Badge variant="destructive">Auth</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">Met à jour le contenu d'une page existante</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Met à jour le contenu d'une page existante
+                        </p>
                         <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-{`{
+                          {`{
   "title": "Nouveau titre",
   "meta_title": "Title SEO",
   "meta_description": "Description SEO",
@@ -1554,7 +1648,10 @@ Authorization: Bearer <webhook_token>`}
                           <code className="text-sm font-mono">/pages</code>
                           <Badge variant="destructive">Auth</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Crée ou met à jour une page (upsert par page_key). Champ requis: <code>page_key</code></p>
+                        <p className="text-sm text-muted-foreground">
+                          Crée ou met à jour une page (upsert par page_key). Champ requis:{" "}
+                          <code>page_key</code>
+                        </p>
                       </div>
 
                       <div className="border border-border rounded-lg p-4">
@@ -1569,10 +1666,27 @@ Authorization: Bearer <webhook_token>`}
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">📋 Pages disponibles (page_key)</h3>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      📋 Pages disponibles (page_key)
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {['landing', 'mode-tournee', 'calendrier', 'expert-comptable', 'bareme-ik-2026', 'frais-reels', 'lexique', 'comparatif-izika', 'comparatif-drivers-note', 'install', 'privacy', 'terms'].map(key => (
-                        <code key={key} className="bg-muted px-3 py-1.5 rounded text-xs font-mono">{key}</code>
+                      {[
+                        "landing",
+                        "mode-tournee",
+                        "calendrier",
+                        "expert-comptable",
+                        "bareme-ik-2026",
+                        "frais-reels",
+                        "lexique",
+                        "comparatif-izika",
+                        "comparatif-drivers-note",
+                        "install",
+                        "privacy",
+                        "terms",
+                      ].map((key) => (
+                        <code key={key} className="bg-muted px-3 py-1.5 rounded text-xs font-mono">
+                          {key}
+                        </code>
                       ))}
                     </div>
                   </div>
@@ -1580,7 +1694,7 @@ Authorization: Bearer <webhook_token>`}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">💡 Exemple cURL</h3>
                     <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap">
-{`# Modifier la page "barème IK 2026"
+                      {`# Modifier la page "barème IK 2026"
 curl -X PUT \\
   ${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-api/pages/bareme-ik-2026 \\
   -H "Content-Type: application/json" \\
@@ -1613,12 +1727,24 @@ curl -X POST \\
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">⚠️ Codes de retour</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-center gap-2"><Badge className="bg-green-600 text-white">200</Badge> Succès</div>
-                      <div className="flex items-center gap-2"><Badge className="bg-green-600 text-white">201</Badge> Créé avec succès</div>
-                      <div className="flex items-center gap-2"><Badge className="bg-yellow-600 text-white">400</Badge> Paramètres manquants</div>
-                      <div className="flex items-center gap-2"><Badge className="bg-red-600 text-white">401</Badge> Clé API invalide</div>
-                      <div className="flex items-center gap-2"><Badge className="bg-red-600 text-white">404</Badge> Ressource non trouvée</div>
-                      <div className="flex items-center gap-2"><Badge className="bg-red-600 text-white">500</Badge> Erreur serveur</div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-green-600 text-white">200</Badge> Succès
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-green-600 text-white">201</Badge> Créé avec succès
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-yellow-600 text-white">400</Badge> Paramètres manquants
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-red-600 text-white">401</Badge> Clé API invalide
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-red-600 text-white">404</Badge> Ressource non trouvée
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-red-600 text-white">500</Badge> Erreur serveur
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -1628,22 +1754,33 @@ curl -X POST \\
             <TabsContent value="audit" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Journal des modifications API</h2>
-                <Button variant="outline" size="sm" onClick={fetchAuditLogs} disabled={loadingAudit}>
-                  <RefreshCw className={`mr-2 h-4 w-4 ${loadingAudit ? 'animate-spin' : ''}`} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchAuditLogs}
+                  disabled={loadingAudit}
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${loadingAudit ? "animate-spin" : ""}`} />
                   Rafraîchir
                 </Button>
               </div>
 
               <Card className="bg-muted/50">
                 <CardContent className="p-4 text-sm text-muted-foreground">
-                  Toutes les modifications effectuées via l'API externe sont tracées ici. Vous pouvez annuler une modification pour restaurer l'état précédent.
+                  Toutes les modifications effectuées via l'API externe sont tracées ici. Vous
+                  pouvez annuler une modification pour restaurer l'état précédent.
                 </CardContent>
               </Card>
 
               {loadingAudit ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <Card key={i}><CardContent className="p-4"><Skeleton className="h-6 w-full mb-2" /><Skeleton className="h-4 w-2/3" /></CardContent></Card>
+                    <Card key={i}>
+                      <CardContent className="p-4">
+                        <Skeleton className="h-6 w-full mb-2" />
+                        <Skeleton className="h-4 w-2/3" />
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               ) : auditLogs.length === 0 ? (
@@ -1655,46 +1792,76 @@ curl -X POST \\
               ) : (
                 <div className="space-y-3">
                   {auditLogs.map((log) => {
-                    const actionLabels: Record<string, string> = { create: 'Création', update: 'Modification', delete: 'Suppression' };
-                    const actionColors: Record<string, string> = { create: 'bg-green-600 text-white', update: 'bg-yellow-600 text-white', delete: 'bg-red-600 text-white' };
-                    const resourceLabels: Record<string, string> = { post: 'Article', page: 'Page' };
+                    const actionLabels: Record<string, string> = {
+                      create: "Création",
+                      update: "Modification",
+                      delete: "Suppression",
+                    };
+                    const actionColors: Record<string, string> = {
+                      create: "bg-green-600 text-white",
+                      update: "bg-yellow-600 text-white",
+                      delete: "bg-red-600 text-white",
+                    };
+                    const resourceLabels: Record<string, string> = {
+                      post: "Article",
+                      page: "Page",
+                    };
 
                     return (
-                      <Card key={log.id} className={log.reverted ? 'opacity-60' : ''}>
+                      <Card key={log.id} className={log.reverted ? "opacity-60" : ""}>
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <Badge className={actionColors[log.action] || 'bg-muted'}>
+                                <Badge className={actionColors[log.action] || "bg-muted"}>
                                   {actionLabels[log.action] || log.action}
                                 </Badge>
                                 <Badge variant="outline">
                                   {resourceLabels[log.resource_type] || log.resource_type}
                                 </Badge>
-                                <code className="bg-muted px-2 py-0.5 rounded text-xs font-mono">{log.resource_id}</code>
+                                <code className="bg-muted px-2 py-0.5 rounded text-xs font-mono">
+                                  {log.resource_id}
+                                </code>
                                 {log.reverted && <Badge variant="secondary">Annulé</Badge>}
                               </div>
                               <div className="text-sm text-muted-foreground mt-1">
-                                {format(new Date(log.created_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
-                                {log.api_key_name && <span> • via <strong>{log.api_key_name}</strong></span>}
+                                {format(new Date(log.created_at), "dd MMM yyyy à HH:mm", {
+                                  locale: fr,
+                                })}
+                                {log.api_key_name && (
+                                  <span>
+                                    {" "}
+                                    • via <strong>{log.api_key_name}</strong>
+                                  </span>
+                                )}
                                 {log.reverted && log.reverted_at && (
-                                  <span> • Annulé le {format(new Date(log.reverted_at), 'dd MMM yyyy à HH:mm', { locale: fr })}</span>
+                                  <span>
+                                    {" "}
+                                    • Annulé le{" "}
+                                    {format(new Date(log.reverted_at), "dd MMM yyyy à HH:mm", {
+                                      locale: fr,
+                                    })}
+                                  </span>
                                 )}
                               </div>
-                              {log.action === 'update' && log.previous_data && log.new_data && (
+                              {log.action === "update" && log.previous_data && log.new_data && (
                                 <details className="mt-2">
                                   <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
                                     Voir les changements
                                   </summary>
                                   <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                                     <div>
-                                      <p className="font-medium text-muted-foreground mb-1">Avant</p>
+                                      <p className="font-medium text-muted-foreground mb-1">
+                                        Avant
+                                      </p>
                                       <pre className="bg-muted p-2 rounded overflow-x-auto max-h-40">
                                         {JSON.stringify(log.previous_data, null, 2)}
                                       </pre>
                                     </div>
                                     <div>
-                                      <p className="font-medium text-muted-foreground mb-1">Après</p>
+                                      <p className="font-medium text-muted-foreground mb-1">
+                                        Après
+                                      </p>
                                       <pre className="bg-muted p-2 rounded overflow-x-auto max-h-40">
                                         {JSON.stringify(log.new_data, null, 2)}
                                       </pre>
@@ -1706,7 +1873,11 @@ curl -X POST \\
                             {!log.reverted && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button variant="outline" size="sm" disabled={revertingId === log.id}>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={revertingId === log.id}
+                                  >
                                     {revertingId === log.id ? (
                                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                                     ) : (
@@ -1717,11 +1888,16 @@ curl -X POST \\
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Annuler cette modification ?</AlertDialogTitle>
+                                    <AlertDialogTitle>
+                                      Annuler cette modification ?
+                                    </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      {log.action === 'create' && `L'élément "${log.resource_id}" sera supprimé.`}
-                                      {log.action === 'update' && `L'élément "${log.resource_id}" sera restauré à son état précédent.`}
-                                      {log.action === 'delete' && `L'élément "${log.resource_id}" sera recréé avec ses données précédentes.`}
+                                      {log.action === "create" &&
+                                        `L'élément "${log.resource_id}" sera supprimé.`}
+                                      {log.action === "update" &&
+                                        `L'élément "${log.resource_id}" sera restauré à son état précédent.`}
+                                      {log.action === "delete" &&
+                                        `L'élément "${log.resource_id}" sera recréé avec ses données précédentes.`}
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
@@ -1756,18 +1932,24 @@ curl -X POST \\
                     <h3 className="font-semibold">Corbeille ({trashedPosts.length})</h3>
                   </div>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Les articles supprimés sont conservés ici. L'API blog refuse leur recréation tant qu'ils sont en corbeille.
-                    Restaurez-les en brouillon, ou supprimez-les définitivement.
+                    Les articles supprimés sont conservés ici. L'API blog refuse leur recréation
+                    tant qu'ils sont en corbeille. Restaurez-les en brouillon, ou supprimez-les
+                    définitivement.
                   </p>
                   {trashedPosts.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Aucun article dans la corbeille.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Aucun article dans la corbeille.
+                    </p>
                   ) : (
                     <>
                       {/* Bulk actions bar - trash */}
                       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3 mb-3">
                         <div className="flex items-center gap-2">
                           <Checkbox
-                            checked={trashedPosts.length > 0 && trashedPosts.every((p) => selectedTrashIds.has(p.id))}
+                            checked={
+                              trashedPosts.length > 0 &&
+                              trashedPosts.every((p) => selectedTrashIds.has(p.id))
+                            }
                             onCheckedChange={(c) => {
                               if (c) setSelectedTrashIds(new Set(trashedPosts.map((p) => p.id)));
                               else clearTrashSelection();
@@ -1777,7 +1959,7 @@ curl -X POST \\
                           <span className="text-sm text-muted-foreground">
                             {selectedTrashIds.size > 0
                               ? `${selectedTrashIds.size} sélectionné(s)`
-                              : 'Tout sélectionner'}
+                              : "Tout sélectionner"}
                           </span>
                         </div>
                         <div className="ml-auto flex flex-wrap gap-2">
@@ -1796,19 +1978,26 @@ curl -X POST \\
                                 variant="outline"
                                 disabled={selectedTrashIds.size === 0 || bulkActionLoading}
                               >
-                                <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Supprimer définitivement
+                                <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Supprimer
+                                définitivement
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Supprimer définitivement {selectedTrashIds.size} article(s) ?</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Supprimer définitivement {selectedTrashIds.size} article(s) ?
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Les articles sélectionnés seront supprimés de la base de données. Cette action est irréversible. Pensez à ajouter les slugs à la liste noire pour empêcher leur recréation par l'API.
+                                  Les articles sélectionnés seront supprimés de la base de données.
+                                  Cette action est irréversible. Pensez à ajouter les slugs à la
+                                  liste noire pour empêcher leur recréation par l'API.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction onClick={bulkPurge}>Supprimer définitivement</AlertDialogAction>
+                                <AlertDialogAction onClick={bulkPurge}>
+                                  Supprimer définitivement
+                                </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -1824,7 +2013,7 @@ curl -X POST \\
                         {trashedPosts.map((p) => (
                           <div
                             key={p.id}
-                            className={`border rounded-lg p-3 flex items-center justify-between gap-3 ${selectedTrashIds.has(p.id) ? 'ring-2 ring-primary/50' : ''}`}
+                            className={`border rounded-lg p-3 flex items-center justify-between gap-3 ${selectedTrashIds.has(p.id) ? "ring-2 ring-primary/50" : ""}`}
                           >
                             <Checkbox
                               checked={selectedTrashIds.has(p.id)}
@@ -1836,20 +2025,32 @@ curl -X POST \\
                                 <span className="font-medium truncate">{p.title}</span>
                                 <Badge variant="destructive">Corbeille</Badge>
                               </div>
-                              <code className="text-xs text-muted-foreground break-all">{p.slug}</code>
+                              <code className="text-xs text-muted-foreground break-all">
+                                {p.slug}
+                              </code>
                               {(p as any).deleted_at && (
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  Supprimé le {new Date((p as any).deleted_at).toLocaleString('fr-FR')}
+                                  Supprimé le{" "}
+                                  {new Date((p as any).deleted_at).toLocaleString("fr-FR")}
                                 </p>
                               )}
                             </div>
                             <div className="flex gap-2 shrink-0">
-                              <Button size="sm" variant="outline" onClick={() => restorePost(p.id)} title="Restaurer en brouillon">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => restorePost(p.id)}
+                                title="Restaurer en brouillon"
+                              >
                                 <Undo2 className="h-4 w-4" />
                               </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button size="sm" variant="outline" title="Supprimer définitivement">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    title="Supprimer définitivement"
+                                  >
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                   </Button>
                                 </AlertDialogTrigger>
@@ -1857,8 +2058,10 @@ curl -X POST \\
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Suppression définitive ?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      L'article « {p.title} » sera supprimé définitivement de la base. Cette action est irréversible.
-                                      Pensez à ajouter le slug à la liste noire si vous voulez empêcher sa recréation par l'API.
+                                      L'article « {p.title} » sera supprimé définitivement de la
+                                      base. Cette action est irréversible. Pensez à ajouter le slug
+                                      à la liste noire si vous voulez empêcher sa recréation par
+                                      l'API.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>

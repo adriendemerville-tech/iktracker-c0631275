@@ -1,29 +1,37 @@
-import { useState, useEffect, lazy, Suspense, memo } from 'react';
-import { Link, useNavigate } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from '@/hooks/useEmailGate';
-import { useTrips } from '@/hooks/useTrips';
-import { useTourTracker, TourStop, getInterruptedTour, clearInterruptedTour, TOUR_STORAGE_KEYS, loadTourData, saveTourData } from '@/hooks/useTourTracker';
-import { usePreferences } from '@/hooks/usePreferences';
-import { useFeedback } from '@/hooks/useFeedback';
-import { useAdmin } from '@/hooks/useAdmin';
-import { useGeolocationPermission } from '@/hooks/useGeolocationPermission';
-import { calculateDrivingDistance } from '@/hooks/useGeolocation';
-import { reverseGeocode } from '@/lib/geocoding';
-import { detectLoop } from '@/lib/loop-detection';
-import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from '@/types/trip';
-import { Counter } from '@/components/Counter';
-import { TripCard } from '@/components/TripCard';
-import { VehicleCard } from '@/components/VehicleCard';
-import { TourButton } from '@/components/TourButton';
-import { GeolocationBanner } from '@/components/GeolocationBanner';
-import { ThresholdAlert } from '@/components/ThresholdAlert';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { InstallBanner } from '@/components/InstallBanner';
-import { QuickTripTracker } from '@/components/QuickTripTracker';
+import { useState, useEffect, lazy, Suspense, memo } from "react";
+import { Link, useNavigate } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
+import { useTrips } from "@/hooks/useTrips";
+import {
+  useTourTracker,
+  TourStop,
+  getInterruptedTour,
+  clearInterruptedTour,
+  TOUR_STORAGE_KEYS,
+  loadTourData,
+  saveTourData,
+} from "@/hooks/useTourTracker";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useFeedback } from "@/hooks/useFeedback";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useGeolocationPermission } from "@/hooks/useGeolocationPermission";
+import { calculateDrivingDistance } from "@/hooks/useGeolocation";
+import { reverseGeocode } from "@/lib/geocoding";
+import { detectLoop } from "@/lib/loop-detection";
+import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from "@/types/trip";
+import { Counter } from "@/components/Counter";
+import { TripCard } from "@/components/TripCard";
+import { VehicleCard } from "@/components/VehicleCard";
+import { TourButton } from "@/components/TourButton";
+import { GeolocationBanner } from "@/components/GeolocationBanner";
+import { ThresholdAlert } from "@/components/ThresholdAlert";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { InstallBanner } from "@/components/InstallBanner";
+import { QuickTripTracker } from "@/components/QuickTripTracker";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,25 +41,59 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { FileText, Plus, Car, MapPin, ChevronRight, UserCircle, Download, Shield, MessageSquareMore, BarChart3, Smartphone, Minus, ChevronDown } from 'lucide-react';
-import { DesktopSidebar } from '@/components/DesktopSidebar';
-import { useTutorial } from '@/hooks/useTutorial';
-import { toast } from '@/components/ui/sonner';
+} from "@/components/ui/alert-dialog";
+import {
+  FileText,
+  Plus,
+  Car,
+  MapPin,
+  ChevronRight,
+  UserCircle,
+  Download,
+  Shield,
+  MessageSquareMore,
+  BarChart3,
+  Smartphone,
+  Minus,
+  ChevronDown,
+} from "lucide-react";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
+import { useTutorial } from "@/hooks/useTutorial";
+import { toast } from "@/components/ui/sonner";
 // PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Lazy loaded components - not needed for initial render
-const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
-const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
-const TourLogSheet = lazy(() => import('@/components/TourLogSheet').then(m => ({ default: m.TourLogSheet })));
-const FocusTourView = lazy(() => import('@/components/FocusTourView').then(m => ({ default: m.FocusTourView })));
-const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
-const OnboardingTutorial = lazy(() => import('@/components/OnboardingTutorial').then(m => ({ default: m.OnboardingTutorial })));
-const GeolocationTutorialModal = lazy(() => import('@/components/GeolocationTutorialModal').then(m => ({ default: m.GeolocationTutorialModal })));
-const TourRecoveryModal = lazy(() => import('@/components/TourRecoveryModal').then(m => ({ default: m.TourRecoveryModal })));
-const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
-const ReferralSourceModal = lazy(() => import('@/components/ReferralSourceModal').then(m => ({ default: m.ReferralSourceModal })));
+const NewTripSheet = lazy(() =>
+  import("@/components/NewTripSheet").then((m) => ({ default: m.NewTripSheet })),
+);
+const VehicleForm = lazy(() =>
+  import("@/components/VehicleForm").then((m) => ({ default: m.VehicleForm })),
+);
+const TourLogSheet = lazy(() =>
+  import("@/components/TourLogSheet").then((m) => ({ default: m.TourLogSheet })),
+);
+const FocusTourView = lazy(() =>
+  import("@/components/FocusTourView").then((m) => ({ default: m.FocusTourView })),
+);
+const ArchivedTripsSection = lazy(() =>
+  import("@/components/ArchivedTripsSection").then((m) => ({ default: m.ArchivedTripsSection })),
+);
+const OnboardingTutorial = lazy(() =>
+  import("@/components/OnboardingTutorial").then((m) => ({ default: m.OnboardingTutorial })),
+);
+const GeolocationTutorialModal = lazy(() =>
+  import("@/components/GeolocationTutorialModal").then((m) => ({
+    default: m.GeolocationTutorialModal,
+  })),
+);
+const TourRecoveryModal = lazy(() =>
+  import("@/components/TourRecoveryModal").then((m) => ({ default: m.TourRecoveryModal })),
+);
+const QRCodeSVG = lazy(() => import("qrcode.react").then((m) => ({ default: m.QRCodeSVG })));
+const ReferralSourceModal = lazy(() =>
+  import("@/components/ReferralSourceModal").then((m) => ({ default: m.ReferralSourceModal })),
+);
 
 // Minimal loading fallback for sheets/modals
 const SheetLoader = memo(() => null);
@@ -76,29 +118,29 @@ const Index = () => {
     closeTutorialModal,
     markTourStarted,
   } = useGeolocationPermission();
-  
+
   // Fetch pending feedbacks count for admins
   const { data: pendingFeedbacksCount = 0 } = useQuery({
-    queryKey: ['pending-feedbacks-count'],
+    queryKey: ["pending-feedbacks-count"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('feedback')
-        .select('id', { count: 'exact' })
-        .is('response', null);
-      
+        .from("feedback")
+        .select("id", { count: "exact" })
+        .is("response", null);
+
       if (error) return 0;
       return data?.length || 0;
     },
     enabled: isAdmin,
   });
   const { emailVerified, blockFeature } = useEmailGate();
-  const { 
-    trips, 
+  const {
+    trips,
     archivedTrips,
-    savedLocations, 
+    savedLocations,
     vehicles,
-    totalKm, 
-    totalIK, 
+    totalKm,
+    totalIK,
     getTotalAnnualKm,
     addTrip,
     deleteTrip,
@@ -111,7 +153,7 @@ const Index = () => {
     updateVehicle,
     deleteVehicle,
   } = useTrips();
-  
+
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [showTourLog, setShowTourLog] = useState(false);
@@ -123,20 +165,20 @@ const Index = () => {
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [lastTour, setLastTour] = useState<TourStop[] | null>(null);
-  
+
   const [hidePendingTrips, setHidePendingTrips] = useState(() => {
-    return localStorage.getItem('iktracker_hide_pending') === 'true';
+    return localStorage.getItem("iktracker_hide_pending") === "true";
   });
   const isMobile = useIsMobile();
-  
+
   // Persist hide pending preference
   const toggleHidePendingTrips = () => {
     const newValue = !hidePendingTrips;
     setHidePendingTrips(newValue);
-    localStorage.setItem('iktracker_hide_pending', String(newValue));
+    localStorage.setItem("iktracker_hide_pending", String(newValue));
   };
   const { showTutorial, completeTutorial, startTutorial } = useTutorial();
-  
+
   const {
     isActive: isTourActive,
     isLoading: isTourLoading,
@@ -168,8 +210,11 @@ const Index = () => {
 
   // Session recovery state
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
-  const [recoveryInactivity, setRecoveryInactivity] = useState('');
-  const [recoveryData, setRecoveryData] = useState<{ stops: TourStop[]; totalDistanceKm: number } | null>(null);
+  const [recoveryInactivity, setRecoveryInactivity] = useState("");
+  const [recoveryData, setRecoveryData] = useState<{
+    stops: TourStop[];
+    totalDistanceKm: number;
+  } | null>(null);
   const [isRecoveryProcessing, setIsRecoveryProcessing] = useState(false);
 
   // Time thresholds for local recovery (aligned with GlobalTourRecovery)
@@ -184,7 +229,7 @@ const Index = () => {
       const remainingMinutes = minutes % 60;
       return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
     }
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
   };
 
   // Track if we've already recovered an interrupted tour this session
@@ -194,45 +239,67 @@ const Index = () => {
   // Also handles foreground return (visibilitychange) to prevent false Case B/C
   useEffect(() => {
     if (hasRecoveredTour || isTourActive) return;
-    
+
     const checkSessionRecovery = async () => {
       const isActive = loadTourData(TOUR_STORAGE_KEYS.TOUR_ACTIVE, false);
-      console.log('[Recovery] isActive:', isActive);
+      console.log("[Recovery] isActive:", isActive);
       if (!isActive) return;
 
       // NOTE: tour_force_resume is handled exclusively by the event listener below
       // to prevent double calls to resumeTour(). Do NOT read the flag here.
-      const forceResume = sessionStorage.getItem('tour_force_resume') === 'true';
+      const forceResume = sessionStorage.getItem("tour_force_resume") === "true";
       if (forceResume) {
-        console.log('[Recovery] Force resume flag present — handled by event listener, skipping mount check');
+        console.log(
+          "[Recovery] Force resume flag present — handled by event listener, skipping mount check",
+        );
         return;
       }
-      const lastActivityStr = loadTourData<string | null>(TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY, null);
-      console.log('[Recovery] lastActivityStr:', lastActivityStr, 'type:', typeof lastActivityStr);
+      const lastActivityStr = loadTourData<string | null>(
+        TOUR_STORAGE_KEYS.TOUR_LAST_ACTIVITY,
+        null,
+      );
+      console.log("[Recovery] lastActivityStr:", lastActivityStr, "type:", typeof lastActivityStr);
       if (!lastActivityStr) return;
-      
+
       const lastActivity = new Date(lastActivityStr).getTime();
-      console.log('[Recovery] lastActivity timestamp:', lastActivity, 'isNaN:', isNaN(lastActivity));
+      console.log(
+        "[Recovery] lastActivity timestamp:",
+        lastActivity,
+        "isNaN:",
+        isNaN(lastActivity),
+      );
       if (isNaN(lastActivity)) return;
       const inactivity = Date.now() - lastActivity;
-      console.log('[Recovery] inactivity:', inactivity, 'ms (~', Math.round(inactivity / 60000), 'min)', 
-        '| TRANSPARENT_THRESHOLD:', TRANSPARENT_THRESHOLD, '| MODAL_THRESHOLD:', MODAL_THRESHOLD);
-      
+      console.log(
+        "[Recovery] inactivity:",
+        inactivity,
+        "ms (~",
+        Math.round(inactivity / 60000),
+        "min)",
+        "| TRANSPARENT_THRESHOLD:",
+        TRANSPARENT_THRESHOLD,
+        "| MODAL_THRESHOLD:",
+        MODAL_THRESHOLD,
+      );
+
       const savedData = getSavedTourData();
-      console.log('[Recovery] savedData:', savedData ? `${savedData.stops.length} stops, ${savedData.totalDistanceKm}km` : 'null');
+      console.log(
+        "[Recovery] savedData:",
+        savedData ? `${savedData.stops.length} stops, ${savedData.totalDistanceKm}km` : "null",
+      );
       if (!savedData) return;
-      
+
       if (inactivity < TRANSPARENT_THRESHOLD) {
-        console.log('[Recovery] → Case A: transparent resume (inactivity < threshold)');
+        console.log("[Recovery] → Case A: transparent resume (inactivity < threshold)");
         setTourStartRequested(true);
         await resumeTour();
       } else if (inactivity < MODAL_THRESHOLD) {
-        console.log('[Recovery] → Case B: show modal');
+        console.log("[Recovery] → Case B: show modal");
         setRecoveryData({ stops: savedData.stops, totalDistanceKm: savedData.totalDistanceKm });
         setRecoveryInactivity(formatInactivity(inactivity));
         setShowRecoveryModal(true);
       } else {
-        console.log('[Recovery] → Case C: auto finalize (inactivity > 2h)');
+        console.log("[Recovery] → Case C: auto finalize (inactivity > 2h)");
         setHasRecoveredTour(true);
         if (savedData.stops.length >= 1 && vehicles.length > 0) {
           await handleConvertToTrips(savedData.stops);
@@ -240,7 +307,7 @@ const Index = () => {
         clearTour();
       }
     };
-    
+
     checkSessionRecovery();
   }, [vehicles.length]);
 
@@ -249,18 +316,18 @@ const Index = () => {
   // to avoid double gap-filling. Only the force-resume event bridge is kept here.
   useEffect(() => {
     const handleForceResumeEvent = async () => {
-      const forceResume = sessionStorage.getItem('tour_force_resume') === 'true';
+      const forceResume = sessionStorage.getItem("tour_force_resume") === "true";
       if (forceResume) {
-        sessionStorage.removeItem('tour_force_resume');
-        console.log('[Recovery] → Force resume event received');
+        sessionStorage.removeItem("tour_force_resume");
+        console.log("[Recovery] → Force resume event received");
         setTourStartRequested(true);
         await resumeTour();
       }
     };
-    
-    window.addEventListener('tour_force_resume', handleForceResumeEvent);
+
+    window.addEventListener("tour_force_resume", handleForceResumeEvent);
     return () => {
-      window.removeEventListener('tour_force_resume', handleForceResumeEvent);
+      window.removeEventListener("tour_force_resume", handleForceResumeEvent);
     };
   }, [resumeTour]);
 
@@ -275,7 +342,7 @@ const Index = () => {
     setIsRecoveryProcessing(true);
     setShowRecoveryModal(false);
     setHasRecoveredTour(true);
-    
+
     if (recoveryData && recoveryData.stops.length >= 1 && vehicles.length > 0) {
       await handleConvertToTrips(recoveryData.stops);
     }
@@ -287,32 +354,35 @@ const Index = () => {
   useEffect(() => {
     // Don't recover if already done this session or no vehicles
     if (hasRecoveredTour || vehicles.length === 0) return;
-    
+
     const recoverInterruptedTour = async () => {
       const interrupted = getInterruptedTour();
       if (!interrupted) return;
-      
+
       // Mark as recovered BEFORE processing to prevent duplicates
       setHasRecoveredTour(true);
       // Clear the interrupted tour data immediately to prevent re-processing
       clearInterruptedTour();
-      
+
       // Only recover if we have at least one stop
       if (interrupted.stops && interrupted.stops.length >= 1) {
         const firstStop = interrupted.stops[0];
         const vehicleId = vehicles[0].id;
         const isTour = interrupted.stops.length >= 2;
-        
+
         // Convert TourStop[] to TourStopData[] for storage
-        const tourStopsData = isTour ? interrupted.stops.map((stop: TourStop) => ({
-          id: stop.id,
-          timestamp: stop.timestamp instanceof Date ? stop.timestamp.toISOString() : stop.timestamp,
-          lat: stop.lat,
-          lng: stop.lng,
-          address: stop.address,
-          city: stop.city,
-          duration: stop.duration,
-        })) : undefined;
+        const tourStopsData = isTour
+          ? interrupted.stops.map((stop: TourStop) => ({
+              id: stop.id,
+              timestamp:
+                stop.timestamp instanceof Date ? stop.timestamp.toISOString() : stop.timestamp,
+              lat: stop.lat,
+              lng: stop.lng,
+              address: stop.address,
+              city: stop.city,
+              duration: stop.duration,
+            }))
+          : undefined;
 
         try {
           // Create a trip with pending_location status
@@ -320,33 +390,36 @@ const Index = () => {
             vehicleId,
             startLocation: {
               id: firstStop.id,
-              name: firstStop.city || firstStop.address || '',
-              address: firstStop.address || '',
+              name: firstStop.city || firstStop.address || "",
+              address: firstStop.address || "",
               lat: firstStop.lat,
               lng: firstStop.lng,
-              type: 'other',
+              type: "other",
             },
             endLocation: {
               id: crypto.randomUUID(),
-              name: 'À compléter',
-              address: '',
-              type: 'other',
+              name: "À compléter",
+              address: "",
+              type: "other",
             },
             distance: interrupted.totalDistance || 0,
             baseDistance: interrupted.totalDistance || 0,
             roundTrip: false,
-            purpose: isTour ? 'Tournée interrompue' : 'Trajet interrompu',
-            startTime: firstStop.timestamp instanceof Date ? firstStop.timestamp : new Date(firstStop.timestamp),
+            purpose: isTour ? "Tournée interrompue" : "Trajet interrompu",
+            startTime:
+              firstStop.timestamp instanceof Date
+                ? firstStop.timestamp
+                : new Date(firstStop.timestamp),
             endTime: new Date(),
             tourStops: tourStopsData,
-            status: 'pending_location', // Mark as pending so user can complete it
+            status: "pending_location", // Mark as pending so user can complete it
           });
-          
+
           toast.info("Tournée récupérée", { duration: 3000 });
-          
-          console.log('Interrupted tour recovered as pending trip');
+
+          console.log("Interrupted tour recovered as pending trip");
         } catch (e) {
-          console.error('Failed to recover interrupted tour:', e);
+          console.error("Failed to recover interrupted tour:", e);
         }
       }
     };
@@ -356,24 +429,24 @@ const Index = () => {
 
   // Check for saved trip on reconnection
   useEffect(() => {
-    const lastTripSaved = localStorage.getItem('iktracker_last_trip_saved');
+    const lastTripSaved = localStorage.getItem("iktracker_last_trip_saved");
     if (lastTripSaved) {
       try {
         const tripInfo = JSON.parse(lastTripSaved);
         // Only show notification if saved within the last 24 hours
         const savedAt = new Date(tripInfo.savedAt);
         const hoursAgo = (Date.now() - savedAt.getTime()) / (1000 * 60 * 60);
-        
+
         if (hoursAgo < 24) {
           toast.success("Dernier trajet enregistré", {
-            description: `${tripInfo.distance.toFixed(1)} km${tripInfo.isTour ? ` - ${tripInfo.stopsCount} étapes` : ''}`,
+            description: `${tripInfo.distance.toFixed(1)} km${tripInfo.isTour ? ` - ${tripInfo.stopsCount} étapes` : ""}`,
             duration: 5000,
           });
         }
         // Clear after showing
-        localStorage.removeItem('iktracker_last_trip_saved');
+        localStorage.removeItem("iktracker_last_trip_saved");
       } catch (e) {
-        localStorage.removeItem('iktracker_last_trip_saved');
+        localStorage.removeItem("iktracker_last_trip_saved");
       }
     }
   }, []);
@@ -384,11 +457,11 @@ const Index = () => {
 
     if (isTourActive) {
       // Skip toast if this is a resume (GlobalTourRecovery handles its own messaging)
-      const isResume = sessionStorage.getItem('tour_is_resuming') === 'true';
+      const isResume = sessionStorage.getItem("tour_is_resuming") === "true";
       if (!isResume) {
         toast.success("Tournée démarrée", { duration: 2000 });
       }
-      sessionStorage.removeItem('tour_is_resuming');
+      sessionStorage.removeItem("tour_is_resuming");
       setTourStartRequested(false);
       // Mark tour as started to hide geolocation banner for this session
       markTourStarted();
@@ -420,8 +493,11 @@ const Index = () => {
     }
 
     // Unverified accounts: only 1 tour allowed
-    if (!emailVerified && trips.filter(t => t.tourStops?.length).length >= UNVERIFIED_TOUR_LIMIT) {
-      blockFeature('tour');
+    if (
+      !emailVerified &&
+      trips.filter((t) => t.tourStops?.length).length >= UNVERIFIED_TOUR_LIMIT
+    ) {
+      blockFeature("tour");
       return;
     }
 
@@ -456,24 +532,22 @@ const Index = () => {
   };
 
   const handleConvertToTrips = async (stops: TourStop[]) => {
-    console.log('handleConvertToTrips called with stops:', stops);
-    console.log('vehicles:', vehicles);
-    
+    console.log("handleConvertToTrips called with stops:", stops);
+    console.log("vehicles:", vehicles);
+
     if (stops.length < 1) {
       toast.error("Impossible de créer le trajet", {
         description: "Aucune étape détectée",
       });
       return;
     }
-    
+
     if (vehicles.length === 0) {
       toast.error("Impossible de créer le trajet", {
         description: "Ajoutez d'abord un véhicule",
       });
       return;
     }
-
-    
 
     const firstStop = stops[0];
     const vehicleId = vehicles[0].id;
@@ -490,10 +564,10 @@ const Index = () => {
           firstAddress = geo.fullAddress || firstAddress;
         }
       } catch (e) {
-        console.warn('Failed to reverse-geocode first stop:', e);
+        console.warn("Failed to reverse-geocode first stop:", e);
       }
     }
-    
+
     let totalDistance = 0;
     let endLocation: { lat: number; lng: number; address?: string; city?: string };
 
@@ -503,15 +577,10 @@ const Index = () => {
         const start = stops[i];
         const end = stops[i + 1];
         try {
-          const distance = await calculateDrivingDistance(
-            start.lat,
-            start.lng,
-            end.lat,
-            end.lng
-          );
+          const distance = await calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng);
           totalDistance += distance;
         } catch (e) {
-          console.warn('Failed to calculate distance segment:', e);
+          console.warn("Failed to calculate distance segment:", e);
         }
       }
       const lastStop = stops[stops.length - 1];
@@ -526,7 +595,7 @@ const Index = () => {
             lastAddress = geo.fullAddress || lastAddress;
           }
         } catch (e) {
-          console.warn('Failed to reverse-geocode last stop:', e);
+          console.warn("Failed to reverse-geocode last stop:", e);
         }
       }
       endLocation = {
@@ -543,7 +612,7 @@ const Index = () => {
             firstStop.lat,
             firstStop.lng,
             currentPosition.lat,
-            currentPosition.lng
+            currentPosition.lng,
           );
           // Get address for current position
           const geocodeResult = await reverseGeocode(currentPosition.lat, currentPosition.lng);
@@ -554,7 +623,7 @@ const Index = () => {
             city: geocodeResult?.city,
           };
         } catch (e) {
-          console.warn('Failed to calculate distance:', e);
+          console.warn("Failed to calculate distance:", e);
           // Fallback to tracked distance
           totalDistance = totalDistanceKm;
           endLocation = {
@@ -587,27 +656,29 @@ const Index = () => {
     }
 
     // Convert TourStop[] to TourStopData[] for storage (only for tours)
-    const tourStopsData = isTour ? stops.map(stop => ({
-      id: stop.id,
-      timestamp: stop.timestamp.toISOString(),
-      lat: stop.lat,
-      lng: stop.lng,
-      address: stop.address,
-      city: stop.city,
-      duration: stop.duration,
-    })) : undefined;
+    const tourStopsData = isTour
+      ? stops.map((stop) => ({
+          id: stop.id,
+          timestamp: stop.timestamp.toISOString(),
+          lat: stop.lat,
+          lng: stop.lng,
+          address: stop.address,
+          city: stop.city,
+          duration: stop.duration,
+        }))
+      : undefined;
 
     // Auto-detect loop (start ≈ end with real excursion in between)
     // Only meaningful for tours (≥2 stops)
     let detectedRoundTrip = false;
     if (isTour) {
       const loopResult = detectLoop(
-        stops.map(s => ({ lat: s.lat, lng: s.lng })),
+        stops.map((s) => ({ lat: s.lat, lng: s.lng })),
         totalDistance,
       );
       detectedRoundTrip = loopResult.isLoop;
       if (detectedRoundTrip) {
-        console.log('[Loop detection] Aller-retour détecté', loopResult);
+        console.log("[Loop detection] Aller-retour détecté", loopResult);
       }
     }
 
@@ -616,41 +687,44 @@ const Index = () => {
         vehicleId,
         startLocation: {
           id: firstStop.id,
-          name: firstCity || firstAddress || '',
-          address: firstAddress || '',
+          name: firstCity || firstAddress || "",
+          address: firstAddress || "",
           lat: firstStop.lat,
           lng: firstStop.lng,
-          type: 'other',
+          type: "other",
         },
         endLocation: {
           id: crypto.randomUUID(),
-          name: endLocation.city || endLocation.address || '',
-          address: endLocation.address || '',
+          name: endLocation.city || endLocation.address || "",
+          address: endLocation.address || "",
           lat: endLocation.lat,
           lng: endLocation.lng,
-          type: 'other',
+          type: "other",
         },
         distance: totalDistance,
         baseDistance: totalDistance,
         roundTrip: detectedRoundTrip,
-        purpose: isTour ? (detectedRoundTrip ? 'Tournée (aller-retour)' : 'Tournée') : 'Trajet',
+        purpose: isTour ? (detectedRoundTrip ? "Tournée (aller-retour)" : "Tournée") : "Trajet",
         startTime: firstStop.timestamp,
         endTime: new Date(),
         tourStops: tourStopsData,
-        status: 'validated',
+        status: "validated",
       });
-      
-      console.log('Trip created:', result);
-      
+
+      console.log("Trip created:", result);
+
       if (result) {
         // Store last trip info in localStorage for reconnection notification
-        localStorage.setItem('iktracker_last_trip_saved', JSON.stringify({
-          distance: totalDistance,
-          isTour,
-          stopsCount: stops.length,
-          savedAt: new Date().toISOString(),
-        }));
-        
+        localStorage.setItem(
+          "iktracker_last_trip_saved",
+          JSON.stringify({
+            distance: totalDistance,
+            isTour,
+            stopsCount: stops.length,
+            savedAt: new Date().toISOString(),
+          }),
+        );
+
         // Close sheet first, wait for it to fully disappear, then stop tour and show notification
         setShowTourLog(false);
         setTimeout(() => {
@@ -659,13 +733,13 @@ const Index = () => {
           // Show green "Enregistré" notification for 4 seconds
           toast.success("Enregistré", { duration: 4000 });
           // Clear the stored trip info since user saw the notification
-          localStorage.removeItem('iktracker_last_trip_saved');
+          localStorage.removeItem("iktracker_last_trip_saved");
         }, 800);
       } else {
         toast.error("Erreur lors de l'enregistrement");
       }
     } catch (e) {
-      console.error('Failed to create trip:', e);
+      console.error("Failed to create trip:", e);
       toast.error("Erreur lors de l'enregistrement");
     }
   };
@@ -682,10 +756,10 @@ const Index = () => {
     setShowVehicleForm(true);
   };
 
-  const getVehicle = (vehicleId: string | null) => vehicles.find(v => v.id === vehicleId);
+  const getVehicle = (vehicleId: string | null) => vehicles.find((v) => v.id === vehicleId);
 
   // Export functions
-  const IKTRACKER_URL = 'https://iktracker.fr';
+  const IKTRACKER_URL = "https://iktracker.fr";
   const IKTRACKER_MENTION = `Généré conformément à la législation par IKtracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
 
   const generateReadmeContent = () => {
@@ -713,29 +787,38 @@ ${IKTRACKER_MENTION}
   const generateCSVContent = () => {
     // Calculate recalculated trips with cumulative km
     const grouped = new Map<string, typeof trips>();
-    trips.forEach(trip => {
+    trips.forEach((trip) => {
       const year = new Date(trip.startTime).getFullYear();
       const key = `${trip.vehicleId}-${year}`;
       if (!grouped.has(key)) grouped.set(key, []);
       grouped.get(key)!.push(trip);
     });
 
-    const recalculatedTrips: (typeof trips[0] & { recalculatedIK: number; cumulativeKm: number; appliedRate: number })[] = [];
+    const recalculatedTrips: ((typeof trips)[0] & {
+      recalculatedIK: number;
+      cumulativeKm: number;
+      appliedRate: number;
+    })[] = [];
 
     grouped.forEach((vehicleTrips, key) => {
-      const vehicleId = key.split('-')[0];
+      const vehicleId = key.split("-")[0];
       const vehicle = getVehicle(vehicleId);
       const sorted = [...vehicleTrips].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       );
       let cumulativeKm = 0;
 
-      sorted.forEach(trip => {
+      sorted.forEach((trip) => {
         const prevCumulativeKm = cumulativeKm;
         cumulativeKm += trip.distance;
 
         if (!vehicle) {
-          recalculatedTrips.push({ ...trip, recalculatedIK: trip.ikAmount, cumulativeKm, appliedRate: 0 });
+          recalculatedTrips.push({
+            ...trip,
+            recalculatedIK: trip.ikAmount,
+            cumulativeKm,
+            appliedRate: 0,
+          });
           return;
         }
 
@@ -747,8 +830,8 @@ ${IKTRACKER_MENTION}
 
         const bareme = getIKBareme(vehicle.fiscalPower);
         let appliedRate: number;
-        if (override === 'tier2') appliedRate = bareme.from5001To20000.rate;
-        else if (override === 'tier3') appliedRate = bareme.over20000.rate;
+        if (override === "tier2") appliedRate = bareme.from5001To20000.rate;
+        else if (override === "tier3") appliedRate = bareme.over20000.rate;
         else {
           appliedRate = bareme.upTo5000.rate;
           if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
@@ -760,39 +843,65 @@ ${IKTRACKER_MENTION}
     });
 
     const headers = [
-      'Date', 'Propriétaire', 'Véhicule', 'Immatriculation', 'Puissance fiscale (CV)',
-      'Lieu de départ', "Lieu d'arrivée", 'Distance (km)', 'Cumul annuel (km)',
-      'Motif', 'Taux appliqué (€/km)', 'Montant IK (€)',
+      "Date",
+      "Propriétaire",
+      "Véhicule",
+      "Immatriculation",
+      "Puissance fiscale (CV)",
+      "Lieu de départ",
+      "Lieu d'arrivée",
+      "Distance (km)",
+      "Cumul annuel (km)",
+      "Motif",
+      "Taux appliqué (€/km)",
+      "Montant IK (€)",
     ];
 
     const sortedTrips = [...recalculatedTrips].sort(
-      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
     );
 
     const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
-    const rows = sortedTrips.map(t => {
+    const rows = sortedTrips.map((t) => {
       const vehicle = getVehicle(t.vehicleId);
       return [
-        new Date(t.startTime).toLocaleDateString('fr-FR'),
-        vehicle ? `${vehicle.ownerFirstName} ${vehicle.ownerLastName}` : '',
-        vehicle ? `${vehicle.make} ${vehicle.model}` : '',
-        vehicle?.licensePlate || '',
-        vehicle?.fiscalPower?.toString() || '',
-        t.startLocation.name, t.endLocation.name,
-        t.distance.toFixed(1), t.cumulativeKm.toFixed(1), t.purpose,
-        t.appliedRate.toFixed(3), t.recalculatedIK.toFixed(2),
+        new Date(t.startTime).toLocaleDateString("fr-FR"),
+        vehicle ? `${vehicle.ownerFirstName} ${vehicle.ownerLastName}` : "",
+        vehicle ? `${vehicle.make} ${vehicle.model}` : "",
+        vehicle?.licensePlate || "",
+        vehicle?.fiscalPower?.toString() || "",
+        t.startLocation.name,
+        t.endLocation.name,
+        t.distance.toFixed(1),
+        t.cumulativeKm.toFixed(1),
+        t.purpose,
+        t.appliedRate.toFixed(3),
+        t.recalculatedIK.toFixed(2),
       ];
     });
 
     rows.push([]);
-    rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
+    rows.push([
+      "TOTAL",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      totalKm.toFixed(1),
+      "",
+      "",
+      "",
+      recalculatedTotalIK.toFixed(2),
+    ]);
     rows.push([]);
-    rows.push(['Barème kilométrique fiscal 2026']);
-    rows.push(['CV', "Jusqu'à 5000 km", '5001 à 20000 km', 'Au-delà de 20000 km']);
-    IK_BAREME_2024.forEach(b => {
+    rows.push(["Barème kilométrique fiscal 2026"]);
+    rows.push(["CV", "Jusqu'à 5000 km", "5001 à 20000 km", "Au-delà de 20000 km"]);
+    IK_BAREME_2024.forEach((b) => {
       rows.push([
-        b.cv === '7+' ? '7 CV et plus' : `${b.cv} CV`,
+        b.cv === "7+" ? "7 CV et plus" : `${b.cv} CV`,
         `d × ${b.upTo5000.rate}`,
         `(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed}`,
         `d × ${b.over20000.rate}`,
@@ -802,40 +911,42 @@ ${IKTRACKER_MENTION}
     rows.push([IKTRACKER_MENTION]);
     rows.push([IKTRACKER_URL]);
 
-    const csv = [IKTRACKER_MENTION, '', headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
-    return '\uFEFF' + csv;
+    const csv = [IKTRACKER_MENTION, "", headers.join(";"), ...rows.map((r) => r.join(";"))].join(
+      "\n",
+    );
+    return "\uFEFF" + csv;
   };
 
   // Generate HTML content for interactive preview (with action bar)
   const generateHTMLContent = async () => {
-    const { generatePrintableHTML } = await import('@/lib/print-utils');
+    const { generatePrintableHTML } = await import("@/lib/print-utils");
     return generatePrintableHTML({
       trips,
       vehicles,
       totalKm,
-      logoUrl: '/logo-iktracker-250.webp',
+      logoUrl: "/logo-iktracker-250.webp",
     });
   };
 
   // Generate clean HTML for PDF export (without action bar, optimized for html2pdf)
   const generateCleanHTMLForPdf = async () => {
-    const { generateCleanPdfHTML } = await import('@/lib/print-utils');
+    const { generateCleanPdfHTML } = await import("@/lib/print-utils");
     return generateCleanPdfHTML({
       trips,
       vehicles,
       totalKm,
-      logoUrl: 'https://iktracker.fr/logo-iktracker-250.webp',
+      logoUrl: "https://iktracker.fr/logo-iktracker-250.webp",
     });
   };
 
   // Direct print function (opens browser print dialog)
   const handlePrint = async () => {
-    const { printReport } = await import('@/lib/print-utils');
+    const { printReport } = await import("@/lib/print-utils");
     printReport({
       trips,
       vehicles,
       totalKm,
-      logoUrl: '/logo-iktracker-250.webp',
+      logoUrl: "/logo-iktracker-250.webp",
     });
   };
 
@@ -843,9 +954,11 @@ ${IKTRACKER_MENTION}
   const previewHTMLReport = async () => {
     try {
       const htmlContent = await generateHTMLContent();
-      const w = window.open('', '_blank');
+      const w = window.open("", "_blank");
       if (!w) {
-        toast.error("Popup bloqué", { description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé" });
+        toast.error("Popup bloqué", {
+          description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé",
+        });
         return;
       }
       w.document.open();
@@ -863,58 +976,63 @@ ${IKTRACKER_MENTION}
       toast.error("Aucun trajet à exporter");
       return;
     }
-    
+
     const toastId = toast.loading("Génération du PDF...");
-    
+
     try {
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         throw new Error("Vous devez être connecté");
       }
-      
+
       // 1. Create temporary share to get report HTML
       const htmlContent = await generateCleanHTMLForPdf();
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
-      
+
       const { data: shareData, error: shareError } = await supabase
-        .from('report_shares')
+        .from("report_shares")
         .insert({ html_content: htmlContent, expires_at: expiresAt, user_id: user.id })
-        .select('id')
+        .select("id")
         .single();
-      
+
       if (shareError || !shareData) {
         throw new Error("Impossible de préparer le relevé");
       }
-      
+
       // 2. Fetch the formatted HTML from view-report edge function
-      const { data: reportHtml, error: fetchError } = await supabase.functions.invoke("view-report", {
-        body: { id: shareData.id },
-        headers: { Accept: "text/html" },
-      });
-      
+      const { data: reportHtml, error: fetchError } = await supabase.functions.invoke(
+        "view-report",
+        {
+          body: { id: shareData.id },
+          headers: { Accept: "text/html" },
+        },
+      );
+
       if (fetchError || !reportHtml) {
         throw new Error("Impossible de charger le contenu du relevé");
       }
-      
+
       // 3. Convert HTML to PDF
-      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
+      const { htmlToPdfBlob } = await import("@/lib/pdf-utils");
       const pdfBlob = await htmlToPdfBlob(reportHtml);
-      const dateStr = new Date().toISOString().split('T')[0];
-      
+      const dateStr = new Date().toISOString().split("T")[0];
+
       // 4. Download PDF
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(pdfBlob);
       link.download = `releve-ik-${dateStr}.pdf`;
       link.click();
       URL.revokeObjectURL(link.href);
-      
+
       // 5. Cleanup temporary share
-      await supabase.from('report_shares').delete().eq('id', shareData.id);
+      await supabase.from("report_shares").delete().eq("id", shareData.id);
 
       toast.success("PDF téléchargé", { id: toastId });
     } catch (error) {
-      console.error('PDF export error:', error);
+      console.error("PDF export error:", error);
       const message = error instanceof Error ? error.message : "Erreur lors de l'export";
       toast.error("Erreur lors de l'export", { id: toastId, description: message });
     }
@@ -922,26 +1040,32 @@ ${IKTRACKER_MENTION}
 
   return (
     <>
-      <Suspense fallback={null}><ReferralSourceModal /></Suspense>
+      <Suspense fallback={null}>
+        <ReferralSourceModal />
+      </Suspense>
       <AlertDialog open={showTourMobileOnly} onOpenChange={setShowTourMobileOnly}>
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader className="text-center">
             <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-2">
               <Smartphone className="w-7 h-7 text-accent" />
             </div>
-            <p className="text-lg font-semibold mb-1 text-center text-primary">Mode tournée : automatisez la détection GPS des trajets</p>
-            <AlertDialogTitle className="text-accent text-base font-medium text-center">Réservé à l'usage mobile</AlertDialogTitle>
+            <p className="text-lg font-semibold mb-1 text-center text-primary">
+              Mode tournée : automatisez la détection GPS des trajets
+            </p>
+            <AlertDialogTitle className="text-accent text-base font-medium text-center">
+              Réservé à l'usage mobile
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
+
           {/* QR Code */}
           <div className="flex justify-center py-4">
             <div className="bg-card p-3 rounded-xl">
               <Suspense fallback={<QRPlaceholder />}>
-                <QRCodeSVG 
-                  value="https://iktracker.fr/install" 
+                <QRCodeSVG
+                  value="https://iktracker.fr/install"
                   size={140}
                   level="M"
                   includeMargin={false}
@@ -952,7 +1076,7 @@ ${IKTRACKER_MENTION}
           <p className="text-center text-xs text-muted-foreground -mt-2">
             Scannez ce QR code avec votre téléphone
           </p>
-          
+
           <AlertDialogFooter className="sm:justify-center gap-2">
             <AlertDialogCancel>Fermer</AlertDialogCancel>
           </AlertDialogFooter>
@@ -997,7 +1121,7 @@ ${IKTRACKER_MENTION}
       )}
 
       {/* Desktop Sidebar - hidden on mobile */}
-      <DesktopSidebar 
+      <DesktopSidebar
         vehicles={vehicles}
         onAddVehicle={addVehicle}
         onEditVehicle={updateVehicle}
@@ -1012,363 +1136,354 @@ ${IKTRACKER_MENTION}
       {/* Onboarding Tutorial - Desktop only */}
       {!isMobile && (
         <Suspense fallback={<SheetLoader />}>
-          <OnboardingTutorial 
-            isVisible={showTutorial} 
-            onComplete={completeTutorial} 
-          />
+          <OnboardingTutorial isVisible={showTutorial} onComplete={completeTutorial} />
         </Suspense>
       )}
 
       {/* SEO for protected app page */}
-      <Helmet>
-      </Helmet>
+      <Helmet></Helmet>
 
-      <div className={`min-h-screen bg-background font-urbanist cursor-default select-none transition-[padding] duration-200 ${sidebarExpanded ? 'md:pl-56' : 'md:pl-24'}`}>
-      {/* Header - Primary gradient light / Dark slate dark */}
-      <header 
-        className="text-foreground px-4 pt-4 pb-4 md:pt-8 md:pb-8 relative overflow-hidden 
+      <div
+        className={`min-h-screen bg-background font-urbanist cursor-default select-none transition-[padding] duration-200 ${sidebarExpanded ? "md:pl-56" : "md:pl-24"}`}
+      >
+        {/* Header - Primary gradient light / Dark slate dark */}
+        <header
+          className="text-foreground px-4 pt-4 pb-4 md:pt-8 md:pb-8 relative overflow-hidden 
           mx-3 sm:mx-4 mt-3 sm:mt-4 rounded-2xl 
           border border-border/70
           shadow-[0_4px_12px_-2px_hsl(30_15%_20%/0.08),0_2px_4px_-2px_hsl(30_15%_20%/0.04)] 
           dark:shadow-none 
           bg-[hsl(38_35%_96%)] 
           dark:bg-gradient-to-b dark:from-[#0F172A] dark:to-[#1E293B]"
-      >
-        {/* Animated gradient - top left */}
-        <div 
-          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite] dark:hidden"
-          style={{
-            background: 'radial-gradient(ellipse 80% 50% at 10% 20%, rgba(245, 158, 11, 0.06) 0%, transparent 50%)'
-          }}
-        />
-        <div 
-          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite] hidden dark:block"
-          style={{
-            background: 'radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)'
-          }}
-        />
-        {/* Animated gradient - bottom right */}
-        <div 
-          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s] dark:hidden"
-          style={{
-            background: 'radial-gradient(ellipse 60% 40% at 90% 85%, rgba(245, 158, 11, 0.04) 0%, transparent 50%)'
-          }}
-        />
-        <div 
-          className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s] hidden dark:block"
-          style={{
-            background: 'radial-gradient(ellipse 60% 40% at 90% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 50%)'
-          }}
-        />
-        {/* Noise texture overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.035] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-          }}
-        />
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
-          <div className="flex items-center gap-3 mb-3 md:mb-6">
-            {/* Desktop: Text + subtitle (logo is in sidebar) */}
-            <div className="flex-1 hidden md:block">
-              <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-foreground">IKtracker</h1>
-              <p className="text-xs text-muted-foreground font-urbanist">Outil communautaire.</p>
-            </div>
-            {/* Mobile: Text only */}
-            <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-foreground">IKtracker</h1>
-            {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => navigate('/app/admin?tab=stats')}
-                className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15"
-                title="Dashboard statistiques"
-                aria-label="Dashboard statistiques"
-              >
-                <BarChart3 className="w-5 h-5" />
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={previewHTMLReport}
-              onMouseEnter={() => { import('@/lib/pdf-utils'); }}
-              disabled={trips.length === 0}
-              className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15"
-              aria-label="Aperçu du relevé"
-              title="Aperçu du relevé"
-            >
-              <Download className="w-5 h-5" />
-            </Button>
-            <div className="relative" data-tutorial="profile">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => navigate('/app/profile')}
-                className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15 w-10 h-10"
-                aria-label="Accéder au profil"
-              >
-                <UserCircle className="w-20 h-20" />
-              </Button>
-              {unreadResponsesCount > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
-                >
-                  {unreadResponsesCount}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* KPI Cards - Glassmorphism */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <Counter key={`km-${preferences.counterResetDate}`} value={totalKm} label="Distance totale" unit="km" />
-            <Counter key={`ik-${preferences.counterResetDate}`} value={totalIK} label="Indemnités" unit="€" variant="accent" decimals={2} />
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36 md:pb-4">
-        {/* Trajet en direct — mobile uniquement, en tête de la home */}
-        {isMobile && !isTourActive && (
-          <QuickTripTracker vehicles={vehicles} onSave={addTrip} />
-        )}
-
-        {/* Geolocation Banner - hide if tour is active (permission already granted) */}
-        {showGeoBanner && !isTourActive && (
-          <GeolocationBanner
-            onActivate={requestPermission}
-            onDismiss={dismissBanner}
-            isLoading={geoPermissionLoading}
-          />
-        )}
-
-        {/* Pending trips section - "À compléter" */}
-        {trips.filter(t => t.status === 'pending_location').length > 0 && (
-          <section
-            className="rounded-lg p-4 border border-border/70 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(0,0,0,0.12)] bg-card dark:border-[hsl(270,50%,35%)]/40 dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]"
+        >
+          {/* Animated gradient - top left */}
+          <div
+            className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite] dark:hidden"
             style={{
-              backgroundImage:
-                'linear-gradient(135deg, hsl(var(--pending-bg-from, 38 35% 96%)) 0%, hsl(var(--pending-bg-to, 40 30% 94%)) 100%)',
+              background:
+                "radial-gradient(ellipse 80% 50% at 10% 20%, rgba(245, 158, 11, 0.06) 0%, transparent 50%)",
             }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <Link
-                to="/app/mestrajets#pending"
-                className="flex items-center gap-2 rounded-md hover:opacity-80 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
-                aria-label="Voir tous les trajets à compléter"
+          />
+          <div
+            className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite] hidden dark:block"
+            style={{
+              background:
+                "radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
+            }}
+          />
+          {/* Animated gradient - bottom right */}
+          <div
+            className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s] dark:hidden"
+            style={{
+              background:
+                "radial-gradient(ellipse 60% 40% at 90% 85%, rgba(245, 158, 11, 0.04) 0%, transparent 50%)",
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none animate-[pulse-gradient_4s_ease-in-out_infinite_1s] hidden dark:block"
+            style={{
+              background:
+                "radial-gradient(ellipse 60% 40% at 90% 85%, rgba(59, 130, 246, 0.10) 0%, transparent 50%)",
+            }}
+          />
+          {/* Noise texture overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.035] pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            }}
+          />
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
+            <div className="flex items-center gap-3 mb-3 md:mb-6">
+              {/* Desktop: Text + subtitle (logo is in sidebar) */}
+              <div className="flex-1 hidden md:block">
+                <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-foreground">
+                  IKtracker
+                </h1>
+                <p className="text-xs text-muted-foreground font-urbanist">Outil communautaire.</p>
+              </div>
+              {/* Mobile: Text only */}
+              <h1 className="flex-1 md:hidden text-xl sm:text-2xl font-extrabold font-urbanist text-foreground">
+                IKtracker
+              </h1>
+              {isAdmin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/app/admin?tab=stats")}
+                  className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15"
+                  title="Dashboard statistiques"
+                  aria-label="Dashboard statistiques"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={previewHTMLReport}
+                onMouseEnter={() => {
+                  import("@/lib/pdf-utils");
+                }}
+                disabled={trips.length === 0}
+                className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15"
+                aria-label="Aperçu du relevé"
+                title="Aperçu du relevé"
               >
-                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 dark:text-purple-100">
-                  Trajets à compléter
-                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
-                    {trips.filter(t => t.status === 'pending_location').length}
-                  </span>
-                </h2>
-              </Link>
-              <button
-                onClick={toggleHidePendingTrips}
-                className="ml-auto p-1.5 rounded-md bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors dark:bg-purple-400/20 dark:hover:bg-purple-400/30 dark:text-purple-200"
-                title={hidePendingTrips ? "Afficher les trajets" : "Masquer les trajets"}
-              >
-                {hidePendingTrips ? <ChevronDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
-              </button>
+                <Download className="w-5 h-5" />
+              </Button>
+              <div className="relative" data-tutorial="profile">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/app/profile")}
+                  className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15 w-10 h-10"
+                  aria-label="Accéder au profil"
+                >
+                  <UserCircle className="w-20 h-20" />
+                </Button>
+                {unreadResponsesCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
+                  >
+                    {unreadResponsesCount}
+                  </Badge>
+                )}
+              </div>
             </div>
 
-            {!hidePendingTrips && (
+            {/* KPI Cards - Glassmorphism */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <Counter
+                key={`km-${preferences.counterResetDate}`}
+                value={totalKm}
+                label="Distance totale"
+                unit="km"
+              />
+              <Counter
+                key={`ik-${preferences.counterResetDate}`}
+                value={totalIK}
+                label="Indemnités"
+                unit="€"
+                variant="accent"
+                decimals={2}
+              />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36 md:pb-4">
+          {/* Trajet en direct — mobile uniquement, en tête de la home */}
+          {isMobile && !isTourActive && <QuickTripTracker vehicles={vehicles} onSave={addTrip} />}
+
+          {/* Geolocation Banner - hide if tour is active (permission already granted) */}
+          {showGeoBanner && !isTourActive && (
+            <GeolocationBanner
+              onActivate={requestPermission}
+              onDismiss={dismissBanner}
+              isLoading={geoPermissionLoading}
+            />
+          )}
+
+          {/* Pending trips section - "À compléter" */}
+          {trips.filter((t) => t.status === "pending_location").length > 0 && (
+            <section
+              className="rounded-lg p-4 border border-border/70 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(0,0,0,0.12)] bg-card dark:border-[hsl(270,50%,35%)]/40 dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg, hsl(var(--pending-bg-from, 38 35% 96%)) 0%, hsl(var(--pending-bg-to, 40 30% 94%)) 100%)",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Link
+                  to="/app/mestrajets#pending"
+                  className="flex items-center gap-2 rounded-md hover:opacity-80 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label="Voir tous les trajets à compléter"
+                >
+                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 dark:text-purple-100">
+                    Trajets à compléter
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
+                      {trips.filter((t) => t.status === "pending_location").length}
+                    </span>
+                  </h2>
+                </Link>
+                <button
+                  onClick={toggleHidePendingTrips}
+                  className="ml-auto p-1.5 rounded-md bg-foreground/10 hover:bg-foreground/15 text-foreground transition-colors dark:bg-purple-400/20 dark:hover:bg-purple-400/30 dark:text-purple-200"
+                  title={hidePendingTrips ? "Afficher les trajets" : "Masquer les trajets"}
+                >
+                  {hidePendingTrips ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <Minus className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+
+              {!hidePendingTrips && (
+                <div className="space-y-3">
+                  {trips
+                    .filter((t) => t.status === "pending_location")
+                    .slice(0, 4)
+                    .map((trip) => (
+                      <TripCard
+                        key={trip.id}
+                        trip={trip}
+                        vehicle={getVehicle(trip.vehicleId)}
+                        savedLocations={savedLocations}
+                        showTripTime={preferences.showTripTime}
+                        onTripUpdated={() => {
+                          // Reload page to refresh trips after completion
+                          window.location.reload();
+                        }}
+                      />
+                    ))}
+                  {trips.filter((t) => t.status === "pending_location").length > 4 && (
+                    <Link
+                      to="/app/mestrajets#pending"
+                      className="block text-center text-sm font-medium text-primary hover:underline pt-1"
+                    >
+                      Voir les {trips.filter((t) => t.status === "pending_location").length} trajets
+                      à compléter →
+                    </Link>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Vehicles section */}
+          <section>
+            {/* Title hidden on mobile */}
+            <div className="hidden md:flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Mes véhicules</h2>
+              <Button variant="ghost" size="sm" onClick={handleAddVehicle}>
+                <Plus className="w-4 h-4 mr-1" />
+                Ajouter
+              </Button>
+            </div>
+
+            {vehicles.length === 0 ? (
+              <div className="text-center py-8 bg-card rounded-md">
+                <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">Aucun véhicule enregistré</p>
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  Ajoutez votre véhicule pour commencer
+                </p>
+                <Button onClick={handleAddVehicle} className="hidden md:inline-flex">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter un véhicule
+                </Button>
+              </div>
+            ) : (
               <div className="space-y-3">
-                {trips
-                  .filter(t => t.status === 'pending_location')
-                  .slice(0, 4)
-                  .map((trip) => (
-                    <TripCard 
-                      key={trip.id} 
-                      trip={trip} 
-                      vehicle={getVehicle(trip.vehicleId)}
-                      savedLocations={savedLocations}
-                      showTripTime={preferences.showTripTime}
-                      onTripUpdated={() => {
-                        // Reload page to refresh trips after completion
-                        window.location.reload();
-                      }}
-                    />
-                  ))}
-                {trips.filter(t => t.status === 'pending_location').length > 4 && (
-                  <Link
-                    to="/app/mestrajets#pending"
-                    className="block text-center text-sm font-medium text-primary hover:underline pt-1"
-                  >
-                    Voir les {trips.filter(t => t.status === 'pending_location').length} trajets à compléter →
-                  </Link>
-                )}
+                {vehicles.map((vehicle) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    totalKm={getTotalAnnualKm(vehicle.id)}
+                    onEdit={() => handleEditVehicle(vehicle.id)}
+                    onDelete={() => setVehicleToDelete(vehicle.id)}
+                  />
+                ))}
               </div>
             )}
           </section>
+
+          {/* PWA Install Banner */}
+          <InstallBanner />
+
+          {/* Recent trips */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base md:text-lg font-semibold">Derniers trajets</h2>
+              {trips.length > 3 && (
+                <Link
+                  to="/app/mestrajets"
+                  className="text-sm text-primary font-medium flex items-center"
+                >
+                  Voir tout
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
+
+            {recentTrips.length === 0 ? (
+              <div className="text-center py-12 bg-card rounded-md">
+                <MapPin className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">Aucun trajet enregistré</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {vehicles.length === 0
+                    ? "Ajoutez d'abord un véhicule"
+                    : "Commencez par créer votre premier trajet"}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentTrips
+                  .filter((t) => t.status !== "pending_location")
+                  .map((trip) => (
+                    <TripCard
+                      key={trip.id}
+                      trip={trip}
+                      vehicle={getVehicle(trip.vehicleId)}
+                      showTripTime={preferences.showTripTime}
+                    />
+                  ))}
+              </div>
+            )}
+
+            {/* Threshold Alert - Home variant (gray) */}
+            {vehicles.length > 0 && (
+              <ThresholdAlert
+                totalKm={totalKm}
+                fiscalPower={vehicles[0].fiscalPower}
+                variant="home"
+              />
+            )}
+
+            {/* Archived trips section */}
+            <Suspense fallback={<SheetLoader />}>
+              <ArchivedTripsSection
+                archivedTrips={archivedTrips}
+                vehicles={vehicles}
+                onRestore={restoreTrip}
+                onPermanentDelete={permanentlyDeleteTrip}
+              />
+            </Suspense>
+          </section>
+        </main>
+
+        {/* Tour button - floating above mobile nav (hidden on desktop, now in sidebar) */}
+        {/* Only show when tour is NOT active (FocusTourView takes over when active) */}
+        {!isTourActive && (
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-10 md:hidden flex flex-col items-center gap-3">
+            <TourButton
+              isActive={isTourActive}
+              isLoading={isTourLoading}
+              totalDistanceKm={totalDistanceKm}
+              stopsCount={tourStops.length}
+              onClick={handleTourButtonClick}
+            />
+          </div>
         )}
 
-
-        {/* Vehicles section */}
-        <section>
-          {/* Title hidden on mobile */}
-          <div className="hidden md:flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Mes véhicules</h2>
-            <Button variant="ghost" size="sm" onClick={handleAddVehicle}>
-              <Plus className="w-4 h-4 mr-1" />
-              Ajouter
-            </Button>
-          </div>
-
-          {vehicles.length === 0 ? (
-            <div className="text-center py-8 bg-card rounded-md">
-              <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">Aucun véhicule enregistré</p>
-              <p className="text-sm text-muted-foreground mt-1 mb-4">
-                Ajoutez votre véhicule pour commencer
-              </p>
-              <Button onClick={handleAddVehicle} className="hidden md:inline-flex">
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter un véhicule
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {vehicles.map(vehicle => (
-                <VehicleCard
-                  key={vehicle.id}
-                  vehicle={vehicle}
-                  totalKm={getTotalAnnualKm(vehicle.id)}
-                  onEdit={() => handleEditVehicle(vehicle.id)}
-                  onDelete={() => setVehicleToDelete(vehicle.id)}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* PWA Install Banner */}
-        <InstallBanner />
-
-        {/* Recent trips */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base md:text-lg font-semibold">Derniers trajets</h2>
-            {trips.length > 3 && (
-              <Link to="/app/mestrajets" className="text-sm text-primary font-medium flex items-center">
-                Voir tout
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            )}
-          </div>
-
-          {recentTrips.length === 0 ? (
-            <div className="text-center py-12 bg-card rounded-md">
-              <MapPin className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">Aucun trajet enregistré</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {vehicles.length === 0 
-                  ? "Ajoutez d'abord un véhicule" 
-                  : "Commencez par créer votre premier trajet"}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentTrips.filter(t => t.status !== 'pending_location').map((trip) => (
-                <TripCard 
-                  key={trip.id} 
-                  trip={trip} 
-                  vehicle={getVehicle(trip.vehicleId)}
-                  showTripTime={preferences.showTripTime}
-                />
-              ))}
-            </div>
-          )}
-          
-          {/* Threshold Alert - Home variant (gray) */}
-          {vehicles.length > 0 && (
-            <ThresholdAlert 
-              totalKm={totalKm} 
-              fiscalPower={vehicles[0].fiscalPower} 
-              variant="home" 
-            />
-          )}
-
-          {/* Archived trips section */}
-          <Suspense fallback={<SheetLoader />}>
-            <ArchivedTripsSection
-              archivedTrips={archivedTrips}
-              vehicles={vehicles}
-              onRestore={restoreTrip}
-              onPermanentDelete={permanentlyDeleteTrip}
-            />
-          </Suspense>
-        </section>
-      </main>
-
-      {/* Tour button - floating above mobile nav (hidden on desktop, now in sidebar) */}
-      {/* Only show when tour is NOT active (FocusTourView takes over when active) */}
-      {!isTourActive && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-10 md:hidden flex flex-col items-center gap-3">
-          <TourButton
-            isActive={isTourActive}
-            isLoading={isTourLoading}
-            totalDistanceKm={totalDistanceKm}
-            stopsCount={tourStops.length}
-            onClick={handleTourButtonClick}
-          />
-        </div>
-      )}
-
-      {/* Desktop: Bottom action buttons - floating */}
-      <div className="hidden md:fixed md:flex bottom-6 left-1/2 -translate-x-1/2 z-10">
-        <div className="flex gap-3">
-          {/* Voir le relevé */}
-           <Link to="/app/mestrajets" data-tutorial="report">
-            <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
-              <FileText className="w-4 h-4" />
-              Mes Trajets
-            </Button>
-          </Link>
-
-          {/* Nouveau trajet */}
-          <Button
-            variant="gradient"
-            size="default"
-            className="shadow-lg shadow-primary/30"
-            data-tutorial="add-trip"
-            onClick={() => {
-              if (vehicles.length === 0) {
-                toast.info("Ajoutez d'abord un véhicule", {
-                  description: "Un véhicule est nécessaire pour enregistrer les trajets",
-                  action: {
-                    label: "Ajouter",
-                    onClick: handleAddVehicle,
-                  },
-                });
-              } else {
-                setShowNewTrip(true);
-              }
-            }}
-            disabled={vehicles.length === 0}
-          >
-            <Plus className="w-4 h-4" />
-            Nouveau
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile: Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-xs shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
-        <div className="max-w-lg mx-auto flex justify-center">
+        {/* Desktop: Bottom action buttons - floating */}
+        <div className="hidden md:fixed md:flex bottom-6 left-1/2 -translate-x-1/2 z-10">
           <div className="flex gap-3">
+            {/* Voir le relevé */}
             <Link to="/app/mestrajets" data-tutorial="report">
               <Button variant="outline" size="default" className="shadow-lg bg-card border-border">
                 <FileText className="w-4 h-4" />
                 Mes Trajets
               </Button>
             </Link>
-            <Button 
-              variant="gradient" 
+
+            {/* Nouveau trajet */}
+            <Button
+              variant="gradient"
               size="default"
               className="shadow-lg shadow-primary/30"
               data-tutorial="add-trip"
@@ -1392,142 +1507,186 @@ ${IKTRACKER_MENTION}
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* New trip sheet */}
-      <Suspense fallback={<SheetLoader />}>
-        <NewTripSheet
-          open={showNewTrip}
-          onOpenChange={setShowNewTrip}
-          savedLocations={savedLocations}
-          vehicles={vehicles}
-          onAddLocation={addLocation}
-          onDeleteLocation={deleteLocation}
-          onUpdateLocation={updateLocation}
-          onAddVehicle={handleAddVehicle}
-          onCreateTrip={(t) => { void addTrip({ ...t, status: "validated" }); }}
-          getTotalAnnualKm={getTotalAnnualKm}
-        />
-      </Suspense>
-
-      {/* Vehicle form */}
-      <Suspense fallback={<SheetLoader />}>
-        <VehicleForm
-          open={showVehicleForm}
-          onOpenChange={setShowVehicleForm}
-          editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
-          onSave={(vehicleData, options) => {
-            if (editingVehicle) {
-              updateVehicle(editingVehicle, vehicleData, options);
-            } else {
-              addVehicle(vehicleData);
-            }
-          }}
-        />
-      </Suspense>
-
-      {/* Tour log sheet */}
-      <Suspense fallback={<SheetLoader />}>
-        <TourLogSheet
-          open={showTourLog}
-          onOpenChange={setShowTourLog}
-          isActive={isTourActive}
-          isLoading={isTourLoading}
-          stops={tourStops}
-          totalDistanceKm={totalDistanceKm}
-          wakeLockActive={wakeLockActive}
-          lowBattery={lowBattery}
-          onStart={startTour}
-          onFinish={handleFinishTour}
-          onClear={clearTour}
-          hasHistory={!!lastTour}
-          onShowHistory={() => {
-            setShowTourLog(false);
-            setShowTourHistory(true);
-          }}
-        />
-      </Suspense>
-
-      {/* Tour history sheet */}
-      <Suspense fallback={<SheetLoader />}>
-        <TourLogSheet
-          open={showTourHistory}
-          onOpenChange={setShowTourHistory}
-          isActive={false}
-          isLoading={false}
-          stops={lastTour || []}
-          onStart={() => {}}
-          onFinish={() => {}}
-          onClear={() => setLastTour(null)}
-          isHistory
-        />
-      </Suspense>
-
-      {/* Delete vehicle confirmation */}
-      <AlertDialog open={!!vehicleToDelete} onOpenChange={(open) => !open && setVehicleToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. Les trajets associés seront conservés avec leurs indemnités déjà calculées.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                if (vehicleToDelete) {
-                  const result = await deleteVehicle(vehicleToDelete);
-                  setVehicleToDelete(null);
-                  if (result.success) {
-                    toast.success("Véhicule supprimé");
+        {/* Mobile: Bottom action buttons */}
+        <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-xs shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] md:hidden safe-area-pb">
+          <div className="max-w-lg mx-auto flex justify-center">
+            <div className="flex gap-3">
+              <Link to="/app/mestrajets" data-tutorial="report">
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="shadow-lg bg-card border-border"
+                >
+                  <FileText className="w-4 h-4" />
+                  Mes Trajets
+                </Button>
+              </Link>
+              <Button
+                variant="gradient"
+                size="default"
+                className="shadow-lg shadow-primary/30"
+                data-tutorial="add-trip"
+                onClick={() => {
+                  if (vehicles.length === 0) {
+                    toast.info("Ajoutez d'abord un véhicule", {
+                      description: "Un véhicule est nécessaire pour enregistrer les trajets",
+                      action: {
+                        label: "Ajouter",
+                        onClick: handleAddVehicle,
+                      },
+                    });
                   } else {
-                    toast.error(result.error || "Impossible de supprimer ce véhicule");
+                    setShowNewTrip(true);
                   }
-                }
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                }}
+                disabled={vehicles.length === 0}
+              >
+                <Plus className="w-4 h-4" />
+                Nouveau
+              </Button>
+            </div>
+          </div>
+        </div>
 
-      {/* Stop tour confirmation */}
-      <AlertDialog open={showStopTourConfirm} onOpenChange={setShowStopTourConfirm}>
-        <AlertDialogContent className="max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Terminer la tournée ?</AlertDialogTitle>
-            <AlertDialogDescription className="text-base">
-              Le trajet sera enregistré avec {Math.max(0, tourStops.length - 1)} étape{tourStops.length !== 2 ? 's' : ''} et {totalDistanceKm.toFixed(1)} km.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row gap-3">
-            <AlertDialogCancel className="flex-1 h-14 text-base">
-              Continuer
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmStopTour}
-              className="flex-1 h-14 text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Terminer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* New trip sheet */}
+        <Suspense fallback={<SheetLoader />}>
+          <NewTripSheet
+            open={showNewTrip}
+            onOpenChange={setShowNewTrip}
+            savedLocations={savedLocations}
+            vehicles={vehicles}
+            onAddLocation={addLocation}
+            onDeleteLocation={deleteLocation}
+            onUpdateLocation={updateLocation}
+            onAddVehicle={handleAddVehicle}
+            onCreateTrip={(t) => {
+              void addTrip({ ...t, status: "validated" });
+            }}
+            getTotalAnnualKm={getTotalAnnualKm}
+          />
+        </Suspense>
 
-      {/* Geolocation Tutorial Modal */}
-      <Suspense fallback={<SheetLoader />}>
-        <GeolocationTutorialModal
-          open={showTutorialModal}
-          onClose={closeTutorialModal}
-          isGpsDisabled={isGpsDisabled}
-        />
-      </Suspense>
-    </div>
+        {/* Vehicle form */}
+        <Suspense fallback={<SheetLoader />}>
+          <VehicleForm
+            open={showVehicleForm}
+            onOpenChange={setShowVehicleForm}
+            editVehicle={editingVehicle ? vehicles.find((v) => v.id === editingVehicle) : undefined}
+            onSave={(vehicleData, options) => {
+              if (editingVehicle) {
+                updateVehicle(editingVehicle, vehicleData, options);
+              } else {
+                addVehicle(vehicleData);
+              }
+            }}
+          />
+        </Suspense>
+
+        {/* Tour log sheet */}
+        <Suspense fallback={<SheetLoader />}>
+          <TourLogSheet
+            open={showTourLog}
+            onOpenChange={setShowTourLog}
+            isActive={isTourActive}
+            isLoading={isTourLoading}
+            stops={tourStops}
+            totalDistanceKm={totalDistanceKm}
+            wakeLockActive={wakeLockActive}
+            lowBattery={lowBattery}
+            onStart={startTour}
+            onFinish={handleFinishTour}
+            onClear={clearTour}
+            hasHistory={!!lastTour}
+            onShowHistory={() => {
+              setShowTourLog(false);
+              setShowTourHistory(true);
+            }}
+          />
+        </Suspense>
+
+        {/* Tour history sheet */}
+        <Suspense fallback={<SheetLoader />}>
+          <TourLogSheet
+            open={showTourHistory}
+            onOpenChange={setShowTourHistory}
+            isActive={false}
+            isLoading={false}
+            stops={lastTour || []}
+            onStart={() => {}}
+            onFinish={() => {}}
+            onClear={() => setLastTour(null)}
+            isHistory
+          />
+        </Suspense>
+
+        {/* Delete vehicle confirmation */}
+        <AlertDialog
+          open={!!vehicleToDelete}
+          onOpenChange={(open) => !open && setVehicleToDelete(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Cette action est irréversible. Les trajets associés seront conservés avec leurs
+                indemnités déjà calculées.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  if (vehicleToDelete) {
+                    const result = await deleteVehicle(vehicleToDelete);
+                    setVehicleToDelete(null);
+                    if (result.success) {
+                      toast.success("Véhicule supprimé");
+                    } else {
+                      toast.error(result.error || "Impossible de supprimer ce véhicule");
+                    }
+                  }
+                }}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Stop tour confirmation */}
+        <AlertDialog open={showStopTourConfirm} onOpenChange={setShowStopTourConfirm}>
+          <AlertDialogContent className="max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">Terminer la tournée ?</AlertDialogTitle>
+              <AlertDialogDescription className="text-base">
+                Le trajet sera enregistré avec {Math.max(0, tourStops.length - 1)} étape
+                {tourStops.length !== 2 ? "s" : ""} et {totalDistanceKm.toFixed(1)} km.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row gap-3">
+              <AlertDialogCancel className="flex-1 h-14 text-base">Continuer</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleConfirmStopTour}
+                className="flex-1 h-14 text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Terminer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Geolocation Tutorial Modal */}
+        <Suspense fallback={<SheetLoader />}>
+          <GeolocationTutorialModal
+            open={showTutorialModal}
+            onClose={closeTutorialModal}
+            isGpsDisabled={isGpsDisabled}
+          />
+        </Suspense>
+      </div>
     </>
-
   );
 };
 

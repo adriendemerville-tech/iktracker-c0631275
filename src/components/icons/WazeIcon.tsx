@@ -1,12 +1,7 @@
-import { SVGProps } from 'react';
+import { SVGProps } from "react";
 
 export const WazeIcon = (props: SVGProps<SVGSVGElement>) => (
-  <svg
-    viewBox="0 0 512 512"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
+  <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
     <path
       d="M256 48C141.1 48 48 141.1 48 256c0 63.1 28.1 119.6 72.5 157.8 8.4 7.3 19.7 10.5 30.6 8.5 10.9-2 20-9.3 24.6-19.5 11.9-26.4 38.5-43.5 68.3-43.5s56.4 17.1 68.3 43.5c4.6 10.2 13.7 17.5 24.6 19.5 10.9 2 22.2-1.2 30.6-8.5C411.9 375.6 440 319.1 440 256c0-114.9-93.1-208-208-208z"
       fill="#33CCFF"

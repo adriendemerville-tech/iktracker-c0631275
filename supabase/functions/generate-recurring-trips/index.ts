@@ -9,12 +9,15 @@ const corsHeaders = {
 };
 
 // Mirror of IK_BAREME_2024
-const IK_BAREME: Record<string, { upTo5000: number; from5001To20000: { rate: number; fixed: number }; over20000: number }> = {
-  "3":  { upTo5000: 0.529, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: 0.370 },
-  "4":  { upTo5000: 0.606, from5001To20000: { rate: 0.340, fixed: 1330 }, over20000: 0.407 },
-  "5":  { upTo5000: 0.636, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: 0.427 },
-  "6":  { upTo5000: 0.665, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: 0.447 },
-  "7+": { upTo5000: 0.697, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: 0.470 },
+const IK_BAREME: Record<
+  string,
+  { upTo5000: number; from5001To20000: { rate: number; fixed: number }; over20000: number }
+> = {
+  "3": { upTo5000: 0.529, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: 0.37 },
+  "4": { upTo5000: 0.606, from5001To20000: { rate: 0.34, fixed: 1330 }, over20000: 0.407 },
+  "5": { upTo5000: 0.636, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: 0.427 },
+  "6": { upTo5000: 0.665, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: 0.447 },
+  "7+": { upTo5000: 0.697, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: 0.47 },
 };
 
 function getBareme(cv: number) {
@@ -51,27 +54,29 @@ Deno.serve(async (req) => {
       if (!payload) return "";
       const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
       return String(json.role ?? "");
-    } catch { return ""; }
+    } catch {
+      return "";
+    }
   };
   const machineRole = (r: string) => r === "anon" || r === "service_role";
 
   const authorized =
-    (bearer && (bearer === serviceRoleKey || (cronToken && bearer === cronToken) || machineRole(jwtRole(bearer)))) ||
+    (bearer &&
+      (bearer === serviceRoleKey ||
+        (cronToken && bearer === cronToken) ||
+        machineRole(jwtRole(bearer)))) ||
     (apiKeyHeader && machineRole(jwtRole(apiKeyHeader))) ||
     (cronSecret && xCronSecret === cronSecret) ||
     (cronToken && xCronSecret === cronToken);
 
   if (!authorized) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    serviceRoleKey,
-  );
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, serviceRoleKey);
 
   try {
     const today = new Date();
@@ -91,18 +96,28 @@ Deno.serve(async (req) => {
 
     for (const r of recurring ?? []) {
       const days: number[] = r.days_of_week ?? [];
-      if (!days.includes(dow)) { skipped++; continue; }
-      if (r.last_generated_date === todayStr) { skipped++; continue; }
+      if (!days.includes(dow)) {
+        skipped++;
+        continue;
+      }
+      if (r.last_generated_date === todayStr) {
+        skipped++;
+        continue;
+      }
 
       const activeMonths: number[] | null = r.active_months ?? null;
       if (activeMonths && activeMonths.length > 0 && !activeMonths.includes(month)) {
-        skipped++; continue;
+        skipped++;
+        continue;
       }
 
       if (r.weeks_duration && r.created_at) {
         const createdAt = new Date(r.created_at);
         const endDate = new Date(createdAt.getTime() + r.weeks_duration * 7 * 24 * 3600 * 1000);
-        if (today > endDate) { skipped++; continue; }
+        if (today > endDate) {
+          skipped++;
+          continue;
+        }
       }
 
       // Sum annual km for vehicle this fiscal year (simple: from Jan 1)

@@ -1,8 +1,19 @@
-import { useState, useEffect, memo } from 'react';
-import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Plus, CheckCircle2, ArrowRight, Navigation, Car, Signal, Moon, Sun } from 'lucide-react';
+import { useState, useEffect, memo } from "react";
+import { cn } from "@/lib/utils";
+import {
+  MapPin,
+  Calendar,
+  Plus,
+  CheckCircle2,
+  ArrowRight,
+  Navigation,
+  Car,
+  Signal,
+  Moon,
+  Sun,
+} from "lucide-react";
 
-type MockupScreen = 'dashboard' | 'newTrip' | 'tour' | 'tourFocus' | 'calendar';
+type MockupScreen = "dashboard" | "newTrip" | "tour" | "tourFocus" | "calendar";
 
 interface AnimatedPhoneMockupProps {
   screen?: MockupScreen;
@@ -10,14 +21,18 @@ interface AnimatedPhoneMockupProps {
   className?: string;
 }
 
-export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false, className }: AnimatedPhoneMockupProps) {
+export function AnimatedPhoneMockup({
+  screen = "dashboard",
+  autoAnimate = false,
+  className,
+}: AnimatedPhoneMockupProps) {
   const [currentScreen, setCurrentScreen] = useState(screen);
   const [animationStep, setAnimationStep] = useState(0);
 
   useEffect(() => {
     if (!autoAnimate) return;
 
-    const screens: MockupScreen[] = ['dashboard', 'newTrip', 'tour', 'calendar'];
+    const screens: MockupScreen[] = ["dashboard", "newTrip", "tour", "calendar"];
     let screenIndex = 0;
 
     const timer = setInterval(() => {
@@ -35,7 +50,7 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
 
   // Animation steps for tour mode
   useEffect(() => {
-    if (currentScreen !== 'tour') return;
+    if (currentScreen !== "tour") return;
 
     const stepTimer = setInterval(() => {
       setAnimationStep((prev) => (prev + 1) % 4);
@@ -48,12 +63,12 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
     <div className="p-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <img 
-            src="/logo-iktracker-250.webp" 
-            alt="IKtracker" 
+          <img
+            src="/logo-iktracker-250.webp"
+            alt="IKtracker"
             width={32}
             height={32}
-            className="w-8 h-8 rounded-lg" 
+            className="w-8 h-8 rounded-lg"
             loading="lazy"
             decoding="async"
           />
@@ -72,9 +87,9 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
       {[
         { date: "Aujourd'hui", route: "Paris → Versailles", km: 42 },
         { date: "Hier", route: "Domicile → Client A", km: 35 },
-        { date: "Lundi", route: "Bureau → Réunion", km: 28 }
+        { date: "Lundi", route: "Bureau → Réunion", km: 28 },
       ].map((trip, i) => (
-        <div 
+        <div
           key={i}
           className="bg-card border border-border rounded-lg p-3 mb-2 animate-fade-in"
           style={{ animationDelay: `${i * 100}ms` }}
@@ -113,7 +128,10 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
           <ArrowRight className="w-5 h-5 text-muted-foreground animate-bounce" />
         </div>
 
-        <div className="bg-muted rounded-lg p-3 animate-scale-in" style={{ animationDelay: '200ms' }}>
+        <div
+          className="bg-muted rounded-lg p-3 animate-scale-in"
+          style={{ animationDelay: "200ms" }}
+        >
           <p className="text-xs text-muted-foreground mb-1">Arrivée</p>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-accent" />
@@ -121,7 +139,10 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
           </div>
         </div>
 
-        <div className="bg-primary/10 rounded-lg p-3 text-center animate-fade-in" style={{ animationDelay: '400ms' }}>
+        <div
+          className="bg-primary/10 rounded-lg p-3 text-center animate-fade-in"
+          style={{ animationDelay: "400ms" }}
+        >
           <p className="text-2xl font-bold text-primary">42 km</p>
           <p className="text-sm text-muted-foreground">Distance calculée</p>
         </div>
@@ -131,10 +152,30 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
 
   const renderTour = () => {
     const stops = [
-      { name: "Départ", location: "Cabinet", active: animationStep >= 0, completed: animationStep > 0 },
-      { name: "Client 1", location: "Mme Dupont", active: animationStep >= 1, completed: animationStep > 1 },
-      { name: "Client 2", location: "M. Martin", active: animationStep >= 2, completed: animationStep > 2 },
-      { name: "Client 3", location: "Mme Bernard", active: animationStep >= 3, completed: animationStep > 3 },
+      {
+        name: "Départ",
+        location: "Cabinet",
+        active: animationStep >= 0,
+        completed: animationStep > 0,
+      },
+      {
+        name: "Client 1",
+        location: "Mme Dupont",
+        active: animationStep >= 1,
+        completed: animationStep > 1,
+      },
+      {
+        name: "Client 2",
+        location: "M. Martin",
+        active: animationStep >= 2,
+        completed: animationStep > 2,
+      },
+      {
+        name: "Client 3",
+        location: "Mme Bernard",
+        active: animationStep >= 3,
+        completed: animationStep > 3,
+      },
     ];
 
     return (
@@ -155,12 +196,16 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
           {stops.map((stop, i) => (
             <div key={i} className="flex items-start gap-3 mb-4">
               <div className="flex flex-col items-center">
-                <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500",
-                  stop.completed ? "bg-success text-success-foreground" :
-                  stop.active ? "bg-primary text-primary-foreground animate-pulse" :
-                  "bg-muted text-muted-foreground"
-                )}>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500",
+                    stop.completed
+                      ? "bg-success text-success-foreground"
+                      : stop.active
+                        ? "bg-primary text-primary-foreground animate-pulse"
+                        : "bg-muted text-muted-foreground",
+                  )}
+                >
                   {stop.completed ? (
                     <CheckCircle2 className="w-4 h-4" />
                   ) : (
@@ -168,16 +213,20 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
                   )}
                 </div>
                 {i < stops.length - 1 && (
-                  <div className={cn(
-                    "w-0.5 h-8 transition-all duration-500",
-                    stop.completed ? "bg-success" : "bg-muted"
-                  )} />
+                  <div
+                    className={cn(
+                      "w-0.5 h-8 transition-all duration-500",
+                      stop.completed ? "bg-success" : "bg-muted",
+                    )}
+                  />
                 )}
               </div>
-              <div className={cn(
-                "transition-all duration-300",
-                stop.active ? "opacity-100" : "opacity-50"
-              )}>
+              <div
+                className={cn(
+                  "transition-all duration-300",
+                  stop.active ? "opacity-100" : "opacity-50",
+                )}
+              >
                 <p className="text-sm font-medium text-foreground">{stop.name}</p>
                 <p className="text-xs text-muted-foreground">{stop.location}</p>
               </div>
@@ -203,56 +252,48 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
 
       {/* Time */}
       <div className="flex flex-col items-center mt-2">
-        <span className="text-3xl font-bold text-zinc-400 tracking-tight">
-          15:37
-        </span>
+        <span className="text-3xl font-bold text-zinc-400 tracking-tight">15:37</span>
       </div>
 
       {/* Central button - car icon */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="relative w-24 h-24 rounded-full flex items-center justify-center">
           {/* Rotating gradient border */}
-          <span 
+          <span
             className="absolute inset-[-4px] rounded-full overflow-hidden"
             style={{
-              background: 'conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-              animation: 'rotate-gradient 2s linear infinite',
+              background: "conic-gradient(from 0deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)",
+              animation: "rotate-gradient 2s linear infinite",
             }}
           >
             <span className="absolute inset-[4px] rounded-full bg-gradient-to-br from-blue-900 to-blue-800" />
           </span>
-          
+
           {/* Speed lines */}
           <span className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-10">
             <span className="w-3 h-0.5 bg-orange-500 opacity-60 rounded-full" />
             <span className="w-5 h-0.5 bg-orange-500 opacity-40 rounded-full -ml-1" />
             <span className="w-2 h-0.5 bg-orange-500 opacity-50 rounded-full" />
           </span>
-          
+
           {/* Car icon */}
-          <Car 
+          <Car
             className="w-12 h-12 text-orange-500 relative z-10"
             style={{
-              animation: 'car-drive 0.2s ease-in-out infinite',
+              animation: "car-drive 0.2s ease-in-out infinite",
             }}
           />
         </div>
-        
-        <span className="text-zinc-500 text-xs mt-3">
-          Tournée en cours
-        </span>
+
+        <span className="text-zinc-500 text-xs mt-3">Tournée en cours</span>
       </div>
 
       {/* Bottom counters with fixed width for tabular numbers */}
       <div className="flex items-end justify-center gap-8 w-full pb-2">
         {/* KM Counter - fixed width to prevent CLS from number changes */}
         <div className="flex flex-col items-center min-w-[60px]">
-          <span className="text-2xl font-bold text-zinc-400 tabular-nums">
-            47.5
-          </span>
-          <span className="text-xs text-zinc-500 uppercase tracking-widest">
-            KM
-          </span>
+          <span className="text-2xl font-bold text-zinc-400 tabular-nums">47.5</span>
+          <span className="text-xs text-zinc-500 uppercase tracking-widest">KM</span>
         </div>
 
         {/* Separator */}
@@ -260,17 +301,16 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
 
         {/* Stops Counter - fixed width to prevent CLS */}
         <div className="flex flex-col items-center min-w-[60px]">
-          <span 
+          <span
             className="text-2xl font-bold tabular-nums bg-clip-text text-transparent"
             style={{
-              backgroundImage: 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
+              backgroundImage:
+                "linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)",
             }}
           >
             3
           </span>
-          <span className="text-xs text-white uppercase tracking-widest font-bold">
-            ÉTAPES
-          </span>
+          <span className="text-xs text-white uppercase tracking-widest font-bold">ÉTAPES</span>
         </div>
       </div>
     </div>
@@ -293,18 +333,20 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
             <span className="text-xs text-muted-foreground">Synchro</span>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-7 gap-1 text-center text-xs">
-          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => (
-            <span key={i} className="text-muted-foreground">{d}</span>
+          {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => (
+            <span key={i} className="text-muted-foreground">
+              {d}
+            </span>
           ))}
           {Array.from({ length: 14 }).map((_, i) => (
-            <div 
+            <div
               key={i}
               className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center text-xs",
                 i === 10 && "bg-primary text-primary-foreground",
-                [3, 7, 11].includes(i) && "bg-accent/20 text-accent"
+                [3, 7, 11].includes(i) && "bg-accent/20 text-accent",
               )}
             >
               {i + 1}
@@ -317,13 +359,13 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
         {[
           { time: "9:00", title: "Mme Dupont", synced: true },
           { time: "11:30", title: "M. Bernard", synced: true },
-          { time: "14:00", title: "Cabinet Martin", synced: false }
+          { time: "14:00", title: "Cabinet Martin", synced: false },
         ].map((event, i) => (
-          <div 
+          <div
             key={i}
             className={cn(
               "flex items-center gap-3 p-2 rounded-lg animate-fade-in",
-              event.synced ? "bg-success/10 border border-success/20" : "bg-muted"
+              event.synced ? "bg-success/10 border border-success/20" : "bg-muted",
             )}
             style={{ animationDelay: `${i * 100}ms` }}
           >
@@ -341,7 +383,7 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
     newTrip: renderNewTrip,
     tour: renderTour,
     tourFocus: renderTourFocus,
-    calendar: renderCalendar
+    calendar: renderCalendar,
   };
 
   return (
@@ -354,11 +396,9 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
           <div className="h-12 bg-primary/5 flex items-center justify-center">
             <div className="w-20 h-6 bg-foreground/10 rounded-full" />
           </div>
-          
+
           {/* Content */}
-          <div className="h-[calc(100%-4rem)] overflow-hidden">
-            {screens[currentScreen]()}
-          </div>
+          <div className="h-[calc(100%-4rem)] overflow-hidden">{screens[currentScreen]()}</div>
 
           {/* Home indicator */}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-foreground/20 rounded-full" />
@@ -367,7 +407,10 @@ export function AnimatedPhoneMockup({ screen = 'dashboard', autoAnimate = false,
 
       {/* Decorative elements - using CSS instead of images */}
       <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full blur-2xl animate-pulse" />
-      <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div
+        className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent/20 rounded-full blur-2xl animate-pulse"
+        style={{ animationDelay: "1s" }}
+      />
     </div>
   );
 }

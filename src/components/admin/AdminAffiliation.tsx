@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -15,17 +15,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Plus, Copy, Trash2, Link2, Users, Percent } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Plus, Copy, Trash2, Link2, Users, Percent } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AffiliateCode {
   id: string;
@@ -38,8 +38,8 @@ interface AffiliateCode {
 }
 
 function generateCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
   for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
 }
@@ -50,27 +50,27 @@ export function AdminAffiliation() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [newCode, setNewCode] = useState(generateCode());
-  const [newLabel, setNewLabel] = useState('');
-  const [newCommission, setNewCommission] = useState('10');
+  const [newLabel, setNewLabel] = useState("");
+  const [newCommission, setNewCommission] = useState("10");
 
   const { data: codes = [], isLoading } = useQuery({
-    queryKey: ['affiliate-codes'],
+    queryKey: ["affiliate-codes"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('affiliate_codes')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("affiliate_codes")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data as AffiliateCode[];
     },
   });
 
   const { data: usesData = [] } = useQuery({
-    queryKey: ['affiliate-uses-summary'],
+    queryKey: ["affiliate-uses-summary"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('affiliate_uses')
-        .select('affiliate_code_id, created_at');
+        .from("affiliate_uses")
+        .select("affiliate_code_id, created_at");
       if (error) throw error;
       return data;
     },
@@ -78,7 +78,7 @@ export function AdminAffiliation() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from('affiliate_codes').insert({
+      const { error } = await supabase.from("affiliate_codes").insert({
         code: newCode.toUpperCase().trim(),
         label: newLabel.trim() || null,
         commission_pct: parseFloat(newCommission) || 10,
@@ -87,43 +87,43 @@ export function AdminAffiliation() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['affiliate-codes'] });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-codes"] });
       setOpen(false);
       setNewCode(generateCode());
-      setNewLabel('');
-      setNewCommission('10');
-      toast({ title: 'Code créé', description: `Code ${newCode} ajouté avec succès` });
+      setNewLabel("");
+      setNewCommission("10");
+      toast({ title: "Code créé", description: `Code ${newCode} ajouté avec succès` });
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
     },
   });
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase
-        .from('affiliate_codes')
+        .from("affiliate_codes")
         .update({ is_active, updated_at: new Date().toISOString() })
-        .eq('id', id);
+        .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['affiliate-codes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["affiliate-codes"] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('affiliate_codes').delete().eq('id', id);
+      const { error } = await supabase.from("affiliate_codes").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['affiliate-codes'] });
-      toast({ title: 'Code supprimé' });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-codes"] });
+      toast({ title: "Code supprimé" });
     },
   });
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast({ title: 'Copié', description: `${code} copié dans le presse-papier` });
+    toast({ title: "Copié", description: `${code} copié dans le presse-papier` });
   };
 
   const totalUses = codes.reduce((sum, c) => sum + c.uses_count, 0);
@@ -224,7 +224,7 @@ export function AdminAffiliation() {
                   disabled={!newCode.trim() || createMutation.isPending}
                   className="w-full"
                 >
-                  {createMutation.isPending ? 'Création...' : 'Créer le code'}
+                  {createMutation.isPending ? "Création..." : "Créer le code"}
                 </Button>
               </div>
             </DialogContent>
@@ -267,16 +267,14 @@ export function AdminAffiliation() {
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {c.label || '—'}
+                        {c.label || "—"}
                       </TableCell>
                       <TableCell className="text-right">
                         <Badge variant="outline" className="text-xs">
                           {c.commission_pct}%
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {c.uses_count}
-                      </TableCell>
+                      <TableCell className="text-right font-medium">{c.uses_count}</TableCell>
                       <TableCell className="text-center">
                         <Switch
                           checked={c.is_active}

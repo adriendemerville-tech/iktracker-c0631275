@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   Server,
   Monitor,
@@ -19,12 +19,12 @@ import {
   XCircle,
   Clock,
   Info,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ErrorLog {
   id: string;
   created_at: string;
-  source: 'backend' | 'frontend';
+  source: "backend" | "frontend";
   error_type: string;
   message: string;
   description: string | null;
@@ -34,79 +34,93 @@ interface ErrorLog {
   resolved_at: string | null;
 }
 
-const ERROR_TYPE_INFO: Record<string, { icon: typeof AlertTriangle; color: string; label: string; explanation: string }> = {
+const ERROR_TYPE_INFO: Record<
+  string,
+  { icon: typeof AlertTriangle; color: string; label: string; explanation: string }
+> = {
   // Backend errors
-  'rls_violation': {
+  rls_violation: {
     icon: XCircle,
-    color: 'text-destructive',
-    label: 'Violation RLS',
-    explanation: 'Une opération en base de données a été bloquée par les règles de sécurité (Row Level Security). Cela signifie qu\'un utilisateur a tenté d\'accéder à des données qui ne lui appartiennent pas.',
+    color: "text-destructive",
+    label: "Violation RLS",
+    explanation:
+      "Une opération en base de données a été bloquée par les règles de sécurité (Row Level Security). Cela signifie qu'un utilisateur a tenté d'accéder à des données qui ne lui appartiennent pas.",
   },
-  'edge_function_error': {
+  edge_function_error: {
     icon: Server,
-    color: 'text-destructive',
-    label: 'Erreur Edge Function',
-    explanation: 'Une fonction serveur (Edge Function) a rencontré une erreur pendant son exécution. Cela peut être dû à un timeout, une API externe indisponible, ou un bug dans le code.',
+    color: "text-destructive",
+    label: "Erreur Edge Function",
+    explanation:
+      "Une fonction serveur (Edge Function) a rencontré une erreur pendant son exécution. Cela peut être dû à un timeout, une API externe indisponible, ou un bug dans le code.",
   },
-  'db_constraint': {
+  db_constraint: {
     icon: AlertTriangle,
-    color: 'text-warning',
-    label: 'Contrainte DB',
-    explanation: 'Une insertion ou modification en base a violé une contrainte (unicité, clé étrangère, format). Les données envoyées ne respectent pas le schéma attendu.',
+    color: "text-warning",
+    label: "Contrainte DB",
+    explanation:
+      "Une insertion ou modification en base a violé une contrainte (unicité, clé étrangère, format). Les données envoyées ne respectent pas le schéma attendu.",
   },
-  'auth_error': {
+  auth_error: {
     icon: AlertTriangle,
-    color: 'text-warning',
-    label: 'Erreur Auth',
-    explanation: 'Un problème d\'authentification : token expiré, session invalide, ou tentative d\'accès non autorisée. L\'utilisateur doit se reconnecter.',
+    color: "text-warning",
+    label: "Erreur Auth",
+    explanation:
+      "Un problème d'authentification : token expiré, session invalide, ou tentative d'accès non autorisée. L'utilisateur doit se reconnecter.",
   },
-  'timeout': {
+  timeout: {
     icon: Clock,
-    color: 'text-warning',
-    label: 'Timeout',
-    explanation: 'Une opération a dépassé le délai maximum autorisé. Cela peut indiquer une requête trop lourde, un service externe lent, ou un problème réseau.',
+    color: "text-warning",
+    label: "Timeout",
+    explanation:
+      "Une opération a dépassé le délai maximum autorisé. Cela peut indiquer une requête trop lourde, un service externe lent, ou un problème réseau.",
   },
   // Frontend errors
-  'js_error': {
+  js_error: {
     icon: XCircle,
-    color: 'text-destructive',
-    label: 'Erreur JS',
-    explanation: 'Une erreur JavaScript non interceptée s\'est produite dans le navigateur du client. Cela provoque généralement un écran blanc ou un composant qui ne s\'affiche pas.',
+    color: "text-destructive",
+    label: "Erreur JS",
+    explanation:
+      "Une erreur JavaScript non interceptée s'est produite dans le navigateur du client. Cela provoque généralement un écran blanc ou un composant qui ne s'affiche pas.",
   },
-  'network_error': {
+  network_error: {
     icon: AlertTriangle,
-    color: 'text-warning',
-    label: 'Erreur Réseau',
-    explanation: 'Le client n\'a pas pu communiquer avec le serveur. Causes possibles : perte de connexion internet, serveur indisponible, ou requête bloquée par un pare-feu.',
+    color: "text-warning",
+    label: "Erreur Réseau",
+    explanation:
+      "Le client n'a pas pu communiquer avec le serveur. Causes possibles : perte de connexion internet, serveur indisponible, ou requête bloquée par un pare-feu.",
   },
-  'api_error': {
+  api_error: {
     icon: AlertTriangle,
-    color: 'text-warning',
-    label: 'Erreur API',
-    explanation: 'L\'appel à une API a retourné une réponse inattendue (erreur 4xx/5xx). Le client a reçu une réponse d\'erreur du serveur.',
+    color: "text-warning",
+    label: "Erreur API",
+    explanation:
+      "L'appel à une API a retourné une réponse inattendue (erreur 4xx/5xx). Le client a reçu une réponse d'erreur du serveur.",
   },
-  'gps_error': {
+  gps_error: {
     icon: Info,
-    color: 'text-muted-foreground',
-    label: 'Erreur GPS',
-    explanation: 'La géolocalisation a échoué ou été refusée par l\'utilisateur. Le mode tournée ne peut pas fonctionner sans accès à la position GPS.',
+    color: "text-muted-foreground",
+    label: "Erreur GPS",
+    explanation:
+      "La géolocalisation a échoué ou été refusée par l'utilisateur. Le mode tournée ne peut pas fonctionner sans accès à la position GPS.",
   },
-  'storage_error': {
+  storage_error: {
     icon: AlertTriangle,
-    color: 'text-warning',
-    label: 'Erreur Stockage',
-    explanation: 'Échec de lecture/écriture dans le localStorage ou le stockage du navigateur. Cela peut empêcher la sauvegarde des préférences ou la récupération de session.',
+    color: "text-warning",
+    label: "Erreur Stockage",
+    explanation:
+      "Échec de lecture/écriture dans le localStorage ou le stockage du navigateur. Cela peut empêcher la sauvegarde des préférences ou la récupération de session.",
   },
-  'unknown': {
+  unknown: {
     icon: Info,
-    color: 'text-muted-foreground',
-    label: 'Autre',
-    explanation: 'Erreur non catégorisée. Consultez le message et les métadonnées pour plus de détails.',
+    color: "text-muted-foreground",
+    label: "Autre",
+    explanation:
+      "Erreur non catégorisée. Consultez le message et les métadonnées pour plus de détails.",
   },
 };
 
 function getErrorInfo(errorType: string) {
-  return ERROR_TYPE_INFO[errorType] || ERROR_TYPE_INFO['unknown'];
+  return ERROR_TYPE_INFO[errorType] || ERROR_TYPE_INFO["unknown"];
 }
 
 function ErrorCard({ error, onResolve }: { error: ErrorLog; onResolve: (id: string) => void }) {
@@ -115,7 +129,7 @@ function ErrorCard({ error, onResolve }: { error: ErrorLog; onResolve: (id: stri
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <Card className={`transition-all ${error.resolved ? 'opacity-60' : ''}`}>
+    <Card className={`transition-all ${error.resolved ? "opacity-60" : ""}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className={`mt-0.5 ${info.color}`}>
@@ -123,16 +137,20 @@ function ErrorCard({ error, onResolve }: { error: ErrorLog; onResolve: (id: stri
           </div>
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="text-xs">{info.label}</Badge>
+              <Badge variant="outline" className="text-xs">
+                {info.label}
+              </Badge>
               {error.resolved ? (
                 <Badge variant="secondary" className="text-xs gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Résolu
                 </Badge>
               ) : (
-                <Badge variant="destructive" className="text-xs">Actif</Badge>
+                <Badge variant="destructive" className="text-xs">
+                  Actif
+                </Badge>
               )}
               <span className="text-xs text-muted-foreground ml-auto">
-                {format(new Date(error.created_at), 'dd MMM HH:mm', { locale: fr })}
+                {format(new Date(error.created_at), "dd MMM HH:mm", { locale: fr })}
               </span>
             </div>
 
@@ -147,7 +165,10 @@ function ErrorCard({ error, onResolve }: { error: ErrorLog; onResolve: (id: stri
 
             {error.user_id && (
               <p className="text-xs text-muted-foreground">
-                Utilisateur : <code className="bg-muted px-1 rounded text-[10px]">{error.user_id.slice(0, 8)}…</code>
+                Utilisateur :{" "}
+                <code className="bg-muted px-1 rounded text-[10px]">
+                  {error.user_id.slice(0, 8)}…
+                </code>
               </p>
             )}
 
@@ -157,7 +178,7 @@ function ErrorCard({ error, onResolve }: { error: ErrorLog; onResolve: (id: stri
                   onClick={() => setShowDetails(!showDetails)}
                   className="text-xs text-primary hover:underline"
                 >
-                  {showDetails ? 'Masquer' : 'Voir'} les détails
+                  {showDetails ? "Masquer" : "Voir"} les détails
                 </button>
                 {showDetails && (
                   <pre className="text-[10px] bg-muted p-2 rounded-md overflow-x-auto max-h-32">
@@ -186,17 +207,17 @@ function ErrorCard({ error, onResolve }: { error: ErrorLog; onResolve: (id: stri
 }
 
 export function AdminMonitoring() {
-  const [tab, setTab] = useState<'backend' | 'frontend'>('backend');
+  const [tab, setTab] = useState<"backend" | "frontend">("backend");
   const [showResolved, setShowResolved] = useState(false);
   const { toast } = useToast();
 
   const { data: lastOccurrences = {} } = useQuery({
-    queryKey: ['admin-error-last-occurrences'],
+    queryKey: ["admin-error-last-occurrences"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('error_logs')
-        .select('error_type, created_at')
-        .order('created_at', { ascending: false })
+        .from("error_logs")
+        .select("error_type, created_at")
+        .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
       const map: Record<string, string> = {};
@@ -212,17 +233,17 @@ export function AdminMonitoring() {
   const queryClient = useQueryClient();
 
   const { data: errors = [], isLoading } = useQuery({
-    queryKey: ['admin-error-logs', tab, showResolved],
+    queryKey: ["admin-error-logs", tab, showResolved],
     queryFn: async () => {
       let query = supabase
-        .from('error_logs')
-        .select('*')
-        .eq('source', tab)
-        .order('created_at', { ascending: false })
+        .from("error_logs")
+        .select("*")
+        .eq("source", tab)
+        .order("created_at", { ascending: false })
         .limit(100);
 
       if (!showResolved) {
-        query = query.eq('resolved', false);
+        query = query.eq("resolved", false);
       }
 
       const { data, error } = await query;
@@ -235,38 +256,38 @@ export function AdminMonitoring() {
   const resolveMutation = useMutation({
     mutationFn: async (errorId: string) => {
       const { error } = await supabase
-        .from('error_logs')
+        .from("error_logs")
         .update({ resolved: true, resolved_at: new Date().toISOString() })
-        .eq('id', errorId);
+        .eq("id", errorId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-error-logs'] });
-      toast({ title: 'Erreur marquée comme résolue' });
+      queryClient.invalidateQueries({ queryKey: ["admin-error-logs"] });
+      toast({ title: "Erreur marquée comme résolue" });
     },
   });
 
   const backendCount = useQuery({
-    queryKey: ['admin-error-count-backend'],
+    queryKey: ["admin-error-count-backend"],
     queryFn: async () => {
       const { count } = await supabase
-        .from('error_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('source', 'backend')
-        .eq('resolved', false);
+        .from("error_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("source", "backend")
+        .eq("resolved", false);
       return count || 0;
     },
     refetchInterval: 60_000,
   });
 
   const frontendCount = useQuery({
-    queryKey: ['admin-error-count-frontend'],
+    queryKey: ["admin-error-count-frontend"],
     queryFn: async () => {
       const { count } = await supabase
-        .from('error_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('source', 'frontend')
-        .eq('resolved', false);
+        .from("error_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("source", "frontend")
+        .eq("resolved", false);
       return count || 0;
     },
     refetchInterval: 60_000,
@@ -287,9 +308,9 @@ export function AdminMonitoring() {
               variant="outline"
               size="sm"
               onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ['admin-error-logs'] });
-                queryClient.invalidateQueries({ queryKey: ['admin-error-count-backend'] });
-                queryClient.invalidateQueries({ queryKey: ['admin-error-count-frontend'] });
+                queryClient.invalidateQueries({ queryKey: ["admin-error-logs"] });
+                queryClient.invalidateQueries({ queryKey: ["admin-error-count-backend"] });
+                queryClient.invalidateQueries({ queryKey: ["admin-error-count-frontend"] });
               }}
             >
               <RefreshCw className="w-4 h-4 mr-2" />
@@ -298,7 +319,7 @@ export function AdminMonitoring() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={tab} onValueChange={(v) => setTab(v as 'backend' | 'frontend')}>
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "backend" | "frontend")}>
             <div className="flex items-center gap-3 mb-4">
               <TabsList>
                 <TabsTrigger value="backend" className="gap-2">
@@ -333,10 +354,20 @@ export function AdminMonitoring() {
             </div>
 
             <TabsContent value="backend" className="mt-0">
-              <ErrorList errors={errors} isLoading={isLoading} onResolve={(id) => resolveMutation.mutate(id)} source="backend" />
+              <ErrorList
+                errors={errors}
+                isLoading={isLoading}
+                onResolve={(id) => resolveMutation.mutate(id)}
+                source="backend"
+              />
             </TabsContent>
             <TabsContent value="frontend" className="mt-0">
-              <ErrorList errors={errors} isLoading={isLoading} onResolve={(id) => resolveMutation.mutate(id)} source="frontend" />
+              <ErrorList
+                errors={errors}
+                isLoading={isLoading}
+                onResolve={(id) => resolveMutation.mutate(id)}
+                source="frontend"
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -350,7 +381,7 @@ export function AdminMonitoring() {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {Object.entries(ERROR_TYPE_INFO)
-              .filter(([key]) => key !== 'unknown')
+              .filter(([key]) => key !== "unknown")
               .map(([key, info]) => {
                 const Icon = info.icon;
                 const lastSeen = lastOccurrences[key];
@@ -363,13 +394,15 @@ export function AdminMonitoring() {
                         {lastSeen ? (
                           <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                             <Clock className="w-3 h-3 inline mr-0.5 -mt-0.5" />
-                            {format(new Date(lastSeen), 'dd MMM yyyy HH:mm', { locale: fr })}
+                            {format(new Date(lastSeen), "dd MMM yyyy HH:mm", { locale: fr })}
                           </span>
                         ) : (
                           <span className="text-[10px] text-muted-foreground italic">Aucune</span>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">{info.explanation}</p>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        {info.explanation}
+                      </p>
                     </div>
                   </div>
                 );
@@ -406,7 +439,7 @@ function ErrorList({
     return (
       <div className="text-center py-12 text-muted-foreground">
         <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-emerald-500 opacity-50" />
-        <p className="font-medium">Aucune erreur {source === 'backend' ? 'serveur' : 'client'}</p>
+        <p className="font-medium">Aucune erreur {source === "backend" ? "serveur" : "client"}</p>
         <p className="text-xs mt-1">Tout fonctionne normalement 🎉</p>
       </div>
     );

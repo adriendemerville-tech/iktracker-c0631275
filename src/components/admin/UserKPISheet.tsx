@@ -1,23 +1,23 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from '@/components/ui/sheet';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Route, 
-  Navigation, 
-  Euro, 
-  Car, 
-  Map, 
-  Share2, 
+} from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import {
+  Route,
+  Navigation,
+  Euro,
+  Car,
+  Map,
+  Share2,
   Calendar,
   User,
   Crown,
@@ -30,11 +30,11 @@ import {
   Target,
   LogIn,
   Clock,
-  Briefcase
-} from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+  Briefcase,
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface UserKPISheetProps {
   user: {
@@ -81,15 +81,20 @@ interface UserStats {
 }
 
 export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
-  const { data: stats, isLoading, isError, error } = useQuery({
-    queryKey: ['admin-user-stats', user?.user_id],
+  const {
+    data: stats,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["admin-user-stats", user?.user_id],
     queryFn: async () => {
       if (!user) return null;
-      const { data, error } = await supabase.rpc('get_user_stats', {
+      const { data, error } = await supabase.rpc("get_user_stats", {
         _user_id: user.user_id,
       });
       if (error) {
-        console.error('get_user_stats error:', error);
+        console.error("get_user_stats error:", error);
         throw error;
       }
       return data as unknown as UserStats;
@@ -98,9 +103,10 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
     retry: false,
   });
 
-  const displayName = user?.first_name || user?.last_name 
-    ? `${user?.first_name} ${user?.last_name}`.trim() 
-    : user?.email || 'Utilisateur';
+  const displayName =
+    user?.first_name || user?.last_name
+      ? `${user?.first_name} ${user?.last_name}`.trim()
+      : user?.email || "Utilisateur";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -125,7 +131,10 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
             )}
             <span className="flex items-center gap-2 text-sm">
               <Calendar className="w-3 h-3" />
-              Inscrit le {user?.created_at ? format(new Date(user.created_at), 'dd MMMM yyyy', { locale: fr }) : '-'}
+              Inscrit le{" "}
+              {user?.created_at
+                ? format(new Date(user.created_at), "dd MMMM yyyy", { locale: fr })
+                : "-"}
             </span>
           </SheetDescription>
         </SheetHeader>
@@ -140,7 +149,7 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
           <div className="text-center py-8">
             <p className="text-destructive font-medium mb-2">Erreur lors du chargement</p>
             <p className="text-sm text-muted-foreground">
-              {(error as Error)?.message || 'Une erreur est survenue'}
+              {(error as Error)?.message || "Une erreur est survenue"}
             </p>
           </div>
         ) : stats ? (
@@ -153,7 +162,7 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     <Route className="w-4 h-4" />
                     <span className="text-xs font-medium uppercase">Trajets</span>
                   </div>
-                  <p className="text-2xl font-bold">{stats.total_trips.toLocaleString('fr-FR')}</p>
+                  <p className="text-2xl font-bold">{stats.total_trips.toLocaleString("fr-FR")}</p>
                 </CardContent>
               </Card>
 
@@ -163,7 +172,10 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     <Navigation className="w-4 h-4" />
                     <span className="text-xs font-medium uppercase">Distance</span>
                   </div>
-                  <p className="text-2xl font-bold">{stats.total_km.toLocaleString('fr-FR')} <span className="text-sm font-normal">km</span></p>
+                  <p className="text-2xl font-bold">
+                    {stats.total_km.toLocaleString("fr-FR")}{" "}
+                    <span className="text-sm font-normal">km</span>
+                  </p>
                 </CardContent>
               </Card>
 
@@ -173,7 +185,10 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     <Euro className="w-4 h-4" />
                     <span className="text-xs font-medium uppercase">IK</span>
                   </div>
-                  <p className="text-2xl font-bold">{stats.total_ik.toLocaleString('fr-FR')} <span className="text-sm font-normal">€</span></p>
+                  <p className="text-2xl font-bold">
+                    {stats.total_ik.toLocaleString("fr-FR")}{" "}
+                    <span className="text-sm font-normal">€</span>
+                  </p>
                 </CardContent>
               </Card>
 
@@ -210,7 +225,7 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     <Eye className="w-4 h-4" />
                     Jours d'activité
                   </span>
-                  <span className="font-semibold">{stats.page_views.toLocaleString('fr-FR')}</span>
+                  <span className="font-semibold">{stats.page_views.toLocaleString("fr-FR")}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -218,9 +233,9 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     Dernière connexion
                   </span>
                   <span className="font-semibold text-xs">
-                    {stats.last_sign_in 
-                      ? format(new Date(stats.last_sign_in), 'dd MMM yyyy HH:mm', { locale: fr })
-                      : '-'}
+                    {stats.last_sign_in
+                      ? format(new Date(stats.last_sign_in), "dd MMM yyyy HH:mm", { locale: fr })
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -229,11 +244,11 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     Durée dernière session
                   </span>
                   <span className="font-semibold">
-                    {stats.last_session_minutes > 0 
-                      ? stats.last_session_minutes >= 60 
-                        ? `${Math.floor(stats.last_session_minutes / 60)}h${(stats.last_session_minutes % 60).toString().padStart(2, '0')}`
+                    {stats.last_session_minutes > 0
+                      ? stats.last_session_minutes >= 60
+                        ? `${Math.floor(stats.last_session_minutes / 60)}h${(stats.last_session_minutes % 60).toString().padStart(2, "0")}`
                         : `${stats.last_session_minutes} min`
-                      : '-'}
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -242,9 +257,10 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     Persona
                   </span>
                   {(() => {
-                    const personaOption = stats.persona && stats.persona !== 'undefined'
-                      ? PERSONA_OPTIONS.find(p => p.value === stats.persona)
-                      : null;
+                    const personaOption =
+                      stats.persona && stats.persona !== "undefined"
+                        ? PERSONA_OPTIONS.find((p) => p.value === stats.persona)
+                        : null;
                     if (!personaOption) {
                       return <span className="text-xs text-muted-foreground">Non défini</span>;
                     }
@@ -292,7 +308,7 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                   <p className="text-xs font-medium uppercase text-muted-foreground">
                     Répartition des trajets
                   </p>
-                  
+
                   {/* Calendar trips */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-sm">
@@ -303,7 +319,9 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                       <span className="font-semibold">{stats.calendar_pct}%</span>
                     </div>
                     <Progress value={stats.calendar_pct} className="h-2 [&>div]:bg-blue-500" />
-                    <p className="text-xs text-muted-foreground">{stats.calendar_trips_count} trajets</p>
+                    <p className="text-xs text-muted-foreground">
+                      {stats.calendar_trips_count} trajets
+                    </p>
                   </div>
 
                   {/* Manual trips */}
@@ -316,7 +334,9 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                       <span className="font-semibold">{stats.manual_pct}%</span>
                     </div>
                     <Progress value={stats.manual_pct} className="h-2 [&>div]:bg-orange-500" />
-                    <p className="text-xs text-muted-foreground">{stats.manual_trips_count} trajets</p>
+                    <p className="text-xs text-muted-foreground">
+                      {stats.manual_trips_count} trajets
+                    </p>
                   </div>
 
                   {/* Tour trips */}
@@ -329,7 +349,9 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                       <span className="font-semibold">{stats.tour_pct}%</span>
                     </div>
                     <Progress value={stats.tour_pct} className="h-2 [&>div]:bg-purple-500" />
-                    <p className="text-xs text-muted-foreground">{stats.tour_trips_count} trajets</p>
+                    <p className="text-xs text-muted-foreground">
+                      {stats.tour_trips_count} trajets
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -350,7 +372,9 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                       </p>
                       {stats.takeout_import_date && (
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(stats.takeout_import_date), 'dd MMMM yyyy', { locale: fr })}
+                          {format(new Date(stats.takeout_import_date), "dd MMMM yyyy", {
+                            locale: fr,
+                          })}
                         </p>
                       )}
                     </div>
@@ -370,17 +394,17 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
                     <div>
                       <p className="text-muted-foreground">Premier trajet</p>
                       <p className="font-medium">
-                        {stats.first_trip_date 
-                          ? format(new Date(stats.first_trip_date), 'dd MMM yyyy', { locale: fr })
-                          : '-'}
+                        {stats.first_trip_date
+                          ? format(new Date(stats.first_trip_date), "dd MMM yyyy", { locale: fr })
+                          : "-"}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-muted-foreground">Dernier trajet</p>
                       <p className="font-medium">
-                        {stats.last_trip_date 
-                          ? format(new Date(stats.last_trip_date), 'dd MMM yyyy', { locale: fr })
-                          : '-'}
+                        {stats.last_trip_date
+                          ? format(new Date(stats.last_trip_date), "dd MMM yyyy", { locale: fr })
+                          : "-"}
                       </p>
                     </div>
                   </div>
@@ -396,9 +420,7 @@ export function UserKPISheet({ user, open, onOpenChange }: UserKPISheetProps) {
             </div>
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-8">
-            Aucune donnée disponible
-          </p>
+          <p className="text-center text-muted-foreground py-8">Aucune donnée disponible</p>
         )}
       </SheetContent>
     </Sheet>

@@ -6,70 +6,89 @@
 //
 // Also supports on-demand invocation with { user_id, dry_run? } from admin/UI.
 
-import { createClient } from 'npm:@supabase/supabase-js@2'
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
-import { authorizeReportCaller } from '../_shared/auth-guard.ts'
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { authorizeReportCaller } from "../_shared/auth-guard.ts";
 import {
-  buildReportBody, escapeHtml, fetchTripsForPeriod, fmt, renderPdf, wrapForPdf,
-} from '../_shared/report-pdf.ts'
+  buildReportBody,
+  escapeHtml,
+  fetchTripsForPeriod,
+  fmt,
+  renderPdf,
+  wrapForPdf,
+} from "../_shared/report-pdf.ts";
 import {
-  FRONTEND_URL, FROM_EMAIL, REPLY_TO, RESEND_GATEWAY, SHARE_TTL_DAYS,
-} from '../_shared/config.ts'
+  FRONTEND_URL,
+  FROM_EMAIL,
+  REPLY_TO,
+  RESEND_GATEWAY,
+  SHARE_TTL_DAYS,
+} from "../_shared/config.ts";
 
 interface UserPrefs {
-  user_id: string
-  accountant_email: string | null
-  accountant_frequency: 'monthly' | 'quarterly' | 'yearly'
-  accountant_send_day: number
-  accountant_last_sent_at: string | null
-  fiscal_year_start_month?: number | null
-  fiscal_year_start_day?: number | null
+  user_id: string;
+  accountant_email: string | null;
+  accountant_frequency: "monthly" | "quarterly" | "yearly";
+  accountant_send_day: number;
+  accountant_last_sent_at: string | null;
+  fiscal_year_start_month?: number | null;
+  fiscal_year_start_day?: number | null;
 }
 
 interface Trip {
-  date: string
-  distance: number | null
-  ik_amount: number | null
-  start_location: string | null
-  end_location: string | null
-  purpose: string | null
+  date: string;
+  distance: number | null;
+  ik_amount: number | null;
+  start_location: string | null;
+  end_location: string | null;
+  purpose: string | null;
 }
 
 // ------------ Period helpers ------------
 
 function frenchMonthName(month0: number): string {
   return [
-    'Janvier','Février','Mars','Avril','Mai','Juin',
-    'Juillet','Août','Septembre','Octobre','Novembre','Décembre',
-  ][month0]
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+  ][month0];
 }
 
 function computePeriod(
   today: Date,
-  frequency: 'monthly' | 'quarterly' | 'yearly',
+  frequency: "monthly" | "quarterly" | "yearly",
 ): { start: Date; end: Date; label: string } {
-  const y = today.getUTCFullYear()
-  const m = today.getUTCMonth()
-  if (frequency === 'monthly') {
-    const start = new Date(Date.UTC(y, m - 1, 1))
-    const end = new Date(Date.UTC(y, m, 1))
+  const y = today.getUTCFullYear();
+  const m = today.getUTCMonth();
+  if (frequency === "monthly") {
+    const start = new Date(Date.UTC(y, m - 1, 1));
+    const end = new Date(Date.UTC(y, m, 1));
     return {
       start,
       end,
       label: `${frenchMonthName(start.getUTCMonth())} ${start.getUTCFullYear()}`,
-    }
+    };
   }
-  if (frequency === 'quarterly') {
-    const currentQ = Math.floor(m / 3)
-    const prevQ = currentQ === 0 ? 3 : currentQ - 1
-    const year = currentQ === 0 ? y - 1 : y
-    const start = new Date(Date.UTC(year, prevQ * 3, 1))
-    const end = new Date(Date.UTC(year, prevQ * 3 + 3, 1))
-    return { start, end, label: `T${prevQ + 1} ${year}` }
+  if (frequency === "quarterly") {
+    const currentQ = Math.floor(m / 3);
+    const prevQ = currentQ === 0 ? 3 : currentQ - 1;
+    const year = currentQ === 0 ? y - 1 : y;
+    const start = new Date(Date.UTC(year, prevQ * 3, 1));
+    const end = new Date(Date.UTC(year, prevQ * 3 + 3, 1));
+    return { start, end, label: `T${prevQ + 1} ${year}` };
   }
-  const start = new Date(Date.UTC(y - 1, 0, 1))
-  const end = new Date(Date.UTC(y, 0, 1))
-  return { start, end, label: `Année ${y - 1}` }
+  const start = new Date(Date.UTC(y - 1, 0, 1));
+  const end = new Date(Date.UTC(y, 0, 1));
+  return { start, end, label: `Année ${y - 1}` };
 }
 
 function computeYtd(
@@ -77,50 +96,56 @@ function computeYtd(
   fyMonth: number,
   fyDay: number,
 ): { start: Date; end: Date; label: string } {
-  const y = today.getUTCFullYear()
-  const candidate = new Date(Date.UTC(y, fyMonth - 1, fyDay))
-  const start = today >= candidate ? candidate : new Date(Date.UTC(y - 1, fyMonth - 1, fyDay))
-  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1))
-  return { start, end, label: `Cumul depuis le ${start.getUTCDate()}/${start.getUTCMonth() + 1}/${start.getUTCFullYear()}` }
+  const y = today.getUTCFullYear();
+  const candidate = new Date(Date.UTC(y, fyMonth - 1, fyDay));
+  const start = today >= candidate ? candidate : new Date(Date.UTC(y - 1, fyMonth - 1, fyDay));
+  const end = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1),
+  );
+  return {
+    start,
+    end,
+    label: `Cumul depuis le ${start.getUTCDate()}/${start.getUTCMonth() + 1}/${start.getUTCFullYear()}`,
+  };
 }
 
 // ------------ HTML report ------------
 
 function toBase64(bytes: Uint8Array): string {
-  let bin = ''
-  const chunk = 0x8000
+  let bin = "";
+  const chunk = 0x8000;
   for (let i = 0; i < bytes.length; i += chunk) {
-    bin += String.fromCharCode(...bytes.subarray(i, i + chunk))
+    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
-  return btoa(bin)
+  return btoa(bin);
 }
 
 // ------------ Resend ------------
 
 interface Attachment {
-  filename: string
-  content: string // base64
+  filename: string;
+  content: string; // base64
 }
 
 async function sendResendEmail(params: {
-  to: string
-  subject: string
-  html: string
-  attachments: Attachment[]
-  idempotencyKey: string
+  to: string;
+  subject: string;
+  html: string;
+  attachments: Attachment[];
+  idempotencyKey: string;
 }) {
-  const lovableKey = Deno.env.get('LOVABLE_API_KEY')
-  const resendKey = Deno.env.get('RESEND_API_KEY')
+  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+  const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!lovableKey || !resendKey) {
-    throw new Error('LOVABLE_API_KEY / RESEND_API_KEY missing')
+    throw new Error("LOVABLE_API_KEY / RESEND_API_KEY missing");
   }
   const res = await fetch(`${RESEND_GATEWAY}/emails`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${lovableKey}`,
-      'X-Connection-Api-Key': resendKey,
-      'Idempotency-Key': params.idempotencyKey,
+      "X-Connection-Api-Key": resendKey,
+      "Idempotency-Key": params.idempotencyKey,
     },
     body: JSON.stringify({
       from: FROM_EMAIL,
@@ -130,27 +155,27 @@ async function sendResendEmail(params: {
       html: params.html,
       attachments: params.attachments,
     }),
-  })
+  });
   if (!res.ok) {
-    const txt = await res.text().catch(() => '')
-    throw new Error(`resend send failed [${res.status}]: ${txt.slice(0, 500)}`)
+    const txt = await res.text().catch(() => "");
+    throw new Error(`resend send failed [${res.status}]: ${txt.slice(0, 500)}`);
   }
-  return res.json().catch(() => ({}))
+  return res.json().catch(() => ({}));
 }
 
 function buildEmailHtml(args: {
-  userName: string
-  periodLabel: string
-  periodTripsCount: number
-  periodDistanceKm: number
-  periodIkAmount: number
-  ytdLabel: string
-  ytdTripsCount: number
-  ytdDistanceKm: number
-  ytdIkAmount: number
-  periodReportUrl: string
-  ytdReportUrl: string
-  expiresLabel: string
+  userName: string;
+  periodLabel: string;
+  periodTripsCount: number;
+  periodDistanceKm: number;
+  periodIkAmount: number;
+  ytdLabel: string;
+  ytdTripsCount: number;
+  ytdDistanceKm: number;
+  ytdIkAmount: number;
+  periodReportUrl: string;
+  ytdReportUrl: string;
+  expiresLabel: string;
 }) {
   return `<!doctype html><html lang="fr"><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f8fafc;margin:0;padding:24px;color:#1a1a2e;">
   <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;padding:28px;border:1px solid #e2e8f0;">
@@ -172,184 +197,185 @@ function buildEmailHtml(args: {
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
     <p style="font-size:12px;color:#64748b;margin:0;">Envoyé automatiquement par <a href="${FRONTEND_URL}" style="color:#4f46e5;">IKtracker</a>. Pour ne plus recevoir ces relevés, l'utilisateur peut désactiver l'envoi automatique dans ses préférences.</p>
   </div>
-</body></html>`
+</body></html>`;
 }
 
 // ------------ Main ------------
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  const supabase = createClient(supabaseUrl, serviceKey)
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, serviceKey);
 
-  let onlyUserId: string | null = null
-  let dryRun = false
+  let onlyUserId: string | null = null;
+  let dryRun = false;
   try {
-    if (req.method === 'POST') {
-      const body = await req.json().catch(() => ({}))
-      onlyUserId = body?.user_id ?? null
-      dryRun = Boolean(body?.dry_run)
+    if (req.method === "POST") {
+      const body = await req.json().catch(() => ({}));
+      onlyUserId = body?.user_id ?? null;
+      dryRun = Boolean(body?.dry_run);
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   // --- Caller authorization (cron secret | self | admin) ---
-  const auth = await authorizeReportCaller(req, supabase, onlyUserId)
+  const auth = await authorizeReportCaller(req, supabase, onlyUserId);
   if (!auth.ok) {
-    return new Response(JSON.stringify({ error: auth.error ?? 'Unauthorized' }), {
+    return new Response(JSON.stringify({ error: auth.error ?? "Unauthorized" }), {
       status: auth.status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
   // Batch mode (no user_id) is reserved for cron/admin callers.
-  if (!onlyUserId && auth.kind === 'self') {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+  if (!onlyUserId && auth.kind === "self") {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
-  console.log('[send-accountant-report] triggered', {
+  console.log("[send-accountant-report] triggered", {
     caller_kind: auth.kind,
     caller_id: auth.callerId,
     target_user_id: onlyUserId,
     dry_run: dryRun,
-  })
+  });
 
-
-  const today = new Date()
-  const todayDay = today.getUTCDate()
+  const today = new Date();
+  const todayDay = today.getUTCDate();
 
   let query = supabase
-    .from('user_preferences')
-    .select('user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at')
+    .from("user_preferences")
+    .select(
+      "user_id, accountant_email, accountant_frequency, accountant_send_day, accountant_last_sent_at",
+    );
 
   if (onlyUserId) {
     // On-demand: skip the auto_send/day filters so admin/UI can force a send.
-    query = query.eq('user_id', onlyUserId)
+    query = query.eq("user_id", onlyUserId);
   } else {
-    query = query
-      .eq('accountant_auto_send', true)
-      .eq('accountant_send_day', todayDay)
+    query = query.eq("accountant_auto_send", true).eq("accountant_send_day", todayDay);
   }
 
-  const { data: prefs, error: prefsErr } = await query
+  const { data: prefs, error: prefsErr } = await query;
   if (prefsErr) {
-    console.error('prefs query failed', prefsErr)
+    console.error("prefs query failed", prefsErr);
     return new Response(JSON.stringify({ error: prefsErr.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
-  const results: Array<{ user_id: string; status: string; detail?: string }> = []
+  const results: Array<{ user_id: string; status: string; detail?: string }> = [];
 
   for (const p of (prefs ?? []) as UserPrefs[]) {
     try {
       if (!p.accountant_email) {
-        results.push({ user_id: p.user_id, status: 'skipped_no_email' })
-        continue
+        results.push({ user_id: p.user_id, status: "skipped_no_email" });
+        continue;
       }
 
       if (!onlyUserId && p.accountant_last_sent_at) {
-        const last = new Date(p.accountant_last_sent_at)
+        const last = new Date(p.accountant_last_sent_at);
         const minInterval =
-          p.accountant_frequency === 'monthly' ? 25 :
-          p.accountant_frequency === 'quarterly' ? 80 : 340
-        const daysSince = (today.getTime() - last.getTime()) / 86400000
+          p.accountant_frequency === "monthly"
+            ? 25
+            : p.accountant_frequency === "quarterly"
+              ? 80
+              : 340;
+        const daysSince = (today.getTime() - last.getTime()) / 86400000;
         if (daysSince < minInterval) {
-          results.push({ user_id: p.user_id, status: 'skipped_recent' })
-          continue
+          results.push({ user_id: p.user_id, status: "skipped_recent" });
+          continue;
         }
       }
 
-      const period = computePeriod(today, p.accountant_frequency)
-      const ytd = computeYtd(
-        today,
-        p.fiscal_year_start_month ?? 1,
-        p.fiscal_year_start_day ?? 1,
-      )
+      const period = computePeriod(today, p.accountant_frequency);
+      const ytd = computeYtd(today, p.fiscal_year_start_month ?? 1, p.fiscal_year_start_day ?? 1);
 
-      const { data: authUser } = await supabase.auth.admin.getUserById(p.user_id)
-      const meta = (authUser?.user?.user_metadata ?? {}) as Record<string, string>
-      const userName = [meta.first_name, meta.last_name].filter(Boolean).join(' ')
-        || authUser?.user?.email
-        || 'Utilisateur IKtracker'
+      const { data: authUser } = await supabase.auth.admin.getUserById(p.user_id);
+      const meta = (authUser?.user?.user_metadata ?? {}) as Record<string, string>;
+      const userName =
+        [meta.first_name, meta.last_name].filter(Boolean).join(" ") ||
+        authUser?.user?.email ||
+        "Utilisateur IKtracker";
 
-      const windowStart = ytd.start < period.start ? ytd.start : period.start
-      const windowEnd = ytd.end > period.end ? ytd.end : period.end
-      const trips = await fetchTripsForPeriod(
+      const windowStart = ytd.start < period.start ? ytd.start : period.start;
+      const windowEnd = ytd.end > period.end ? ytd.end : period.end;
+      const trips = (await fetchTripsForPeriod(
         supabase as never,
         p.user_id,
         windowStart.toISOString().slice(0, 10),
         windowEnd.toISOString().slice(0, 10),
-      ) as Trip[]
+      )) as Trip[];
       const periodTrips = trips.filter(
         (t) =>
           t.date >= period.start.toISOString().slice(0, 10) &&
           t.date < period.end.toISOString().slice(0, 10),
-      )
+      );
       const ytdTrips = trips.filter(
         (t) =>
           t.date >= ytd.start.toISOString().slice(0, 10) &&
           t.date < ytd.end.toISOString().slice(0, 10),
-      )
+      );
 
       if (periodTrips.length === 0) {
-        results.push({ user_id: p.user_id, status: 'skipped_no_trips' })
-        continue
+        results.push({ user_id: p.user_id, status: "skipped_no_trips" });
+        continue;
       }
 
-      const expiresAt = new Date(Date.now() + SHARE_TTL_DAYS * 86400_000).toISOString()
+      const expiresAt = new Date(Date.now() + SHARE_TTL_DAYS * 86400_000).toISOString();
 
-      const periodTitle = `Relevé kilométrique — ${period.label}`
-      const ytdTitle = `Relevé kilométrique — ${ytd.label}`
-      const periodBody = buildReportBody(periodTitle, userName, periodTrips, [])
-      const ytdBody = buildReportBody(ytdTitle, userName, ytdTrips, [])
-      const periodDocHtml = wrapForPdf(periodTitle, periodBody)
-      const ytdDocHtml = wrapForPdf(ytdTitle, ytdBody)
+      const periodTitle = `Relevé kilométrique — ${period.label}`;
+      const ytdTitle = `Relevé kilométrique — ${ytd.label}`;
+      const periodBody = buildReportBody(periodTitle, userName, periodTrips, []);
+      const ytdBody = buildReportBody(ytdTitle, userName, ytdTrips, []);
+      const periodDocHtml = wrapForPdf(periodTitle, periodBody);
+      const ytdDocHtml = wrapForPdf(ytdTitle, ytdBody);
 
       if (dryRun) {
         results.push({
           user_id: p.user_id,
-          status: 'dry_run',
+          status: "dry_run",
           detail: `${periodTrips.length} trips (period) / ${ytdTrips.length} (ytd)`,
-        })
-        continue
+        });
+        continue;
       }
 
       // Create secure online view shares (using the wrapped doc HTML so the
       // view-report page renders the same layout)
       const { data: periodShare, error: sErr1 } = await supabase
-        .from('report_shares')
+        .from("report_shares")
         .insert({ user_id: p.user_id, html_content: periodBody, expires_at: expiresAt })
-        .select('id')
-        .single()
-      if (sErr1 || !periodShare) throw sErr1 ?? new Error('period share failed')
+        .select("id")
+        .single();
+      if (sErr1 || !periodShare) throw sErr1 ?? new Error("period share failed");
 
       const { data: ytdShare, error: sErr2 } = await supabase
-        .from('report_shares')
+        .from("report_shares")
         .insert({ user_id: p.user_id, html_content: ytdBody, expires_at: expiresAt })
-        .select('id')
-        .single()
-      if (sErr2 || !ytdShare) throw sErr2 ?? new Error('ytd share failed')
+        .select("id")
+        .single();
+      if (sErr2 || !ytdShare) throw sErr2 ?? new Error("ytd share failed");
 
-      const periodUrl = `${FRONTEND_URL}/temporaryreport/${periodShare.id}`
-      const ytdUrl = `${FRONTEND_URL}/temporaryreport/${ytdShare.id}`
+      const periodUrl = `${FRONTEND_URL}/temporaryreport/${periodShare.id}`;
+      const ytdUrl = `${FRONTEND_URL}/temporaryreport/${ytdShare.id}`;
 
       // Render PDFs
       const [periodPdf, ytdPdf] = await Promise.all([
         renderPdf(periodDocHtml),
         renderPdf(ytdDocHtml),
-      ])
+      ]);
 
-      const safe = (s: string) => s.replace(/[^a-z0-9-]+/gi, '-').toLowerCase()
-      const periodFilename = `iktracker-${safe(period.label)}.pdf`
-      const ytdFilename = `iktracker-cumul-${safe(String(ytd.start.getUTCFullYear()))}.pdf`
+      const safe = (s: string) => s.replace(/[^a-z0-9-]+/gi, "-").toLowerCase();
+      const periodFilename = `iktracker-${safe(period.label)}.pdf`;
+      const ytdFilename = `iktracker-cumul-${safe(String(ytd.start.getUTCFullYear()))}.pdf`;
 
-      const idempotencyKey = `accountant-${p.user_id}-${period.start.toISOString().slice(0, 10)}`
+      const idempotencyKey = `accountant-${p.user_id}-${period.start.toISOString().slice(0, 10)}`;
 
       await sendResendEmail({
         to: p.accountant_email,
@@ -373,26 +399,26 @@ Deno.serve(async (req) => {
           { filename: ytdFilename, content: toBase64(ytdPdf) },
         ],
         idempotencyKey,
-      })
+      });
 
       await supabase
-        .from('user_preferences')
+        .from("user_preferences")
         .update({ accountant_last_sent_at: new Date().toISOString() })
-        .eq('user_id', p.user_id)
+        .eq("user_id", p.user_id);
 
-      results.push({ user_id: p.user_id, status: 'sent', detail: p.accountant_email })
+      results.push({ user_id: p.user_id, status: "sent", detail: p.accountant_email });
     } catch (e) {
-      console.error('accountant send failed', p.user_id, e)
+      console.error("accountant send failed", p.user_id, e);
       results.push({
         user_id: p.user_id,
-        status: 'error',
+        status: "error",
         detail: e instanceof Error ? e.message : String(e),
-      })
+      });
     }
   }
 
   return new Response(
     JSON.stringify({ processed: results.length, results, frontend_url: FRONTEND_URL }),
-    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-  )
-})
+    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+});

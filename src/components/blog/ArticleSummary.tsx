@@ -1,6 +1,6 @@
-import { ListChecks, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { ListChecks, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface ArticleSummaryProps {
   content: string;
@@ -9,10 +9,10 @@ interface ArticleSummaryProps {
 // Decode common HTML entities without relying on the DOM (SSR-safe)
 function decodeEntities(text: string): string {
   return text
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;|&apos;|&rsquo;/g, "'");
 }
@@ -38,7 +38,10 @@ function extractFromHtml(content: string): string[] {
     const paraRe = /<p[^>]*>([\s\S]*?)<\/p>/gi;
     let match: RegExpExecArray | null;
     while ((match = paraRe.exec(content)) !== null && points.length < 3) {
-      const sentence = cleanText(match[1]).split(/(?<=[.!?])\s/)[0]?.trim() ?? '';
+      const sentence =
+        cleanText(match[1])
+          .split(/(?<=[.!?])\s/)[0]
+          ?.trim() ?? "";
       if (sentence.length > 20 && sentence.length < 160 && !points.includes(sentence)) {
         points.push(sentence);
       }
@@ -59,19 +62,17 @@ function extractKeyPoints(content: string): string[] {
   // Try to find bullet points in the content first
   const bulletMatches = content.match(/^[-•*]\s+(.+)$/gm);
   if (bulletMatches && bulletMatches.length >= 3) {
-    return bulletMatches
-      .slice(0, 3)
-      .map(line => cleanText(line.replace(/^[-•*]\s+/, '').trim()));
+    return bulletMatches.slice(0, 3).map((line) => cleanText(line.replace(/^[-•*]\s+/, "").trim()));
   }
 
   // Otherwise extract from headings or first sentences
-  const lines = content.split('\n').filter(line => line.trim());
+  const lines = content.split("\n").filter((line) => line.trim());
   const keyPoints: string[] = [];
 
   // Look for H2 headings first
   for (const line of lines) {
-    if (line.startsWith('## ') && keyPoints.length < 3) {
-      const heading = line.replace(/^##\s+/, '').trim();
+    if (line.startsWith("## ") && keyPoints.length < 3) {
+      const heading = line.replace(/^##\s+/, "").trim();
       if (heading.length > 10 && heading.length < 100) {
         keyPoints.push(cleanText(heading));
       }
@@ -81,10 +82,8 @@ function extractKeyPoints(content: string): string[] {
   // If not enough headings, extract from paragraphs
   if (keyPoints.length < 3) {
     const paragraphs = lines.filter(
-      line => !line.startsWith('#') && 
-              !line.startsWith('-') && 
-              !line.startsWith('*') &&
-              line.length > 50
+      (line) =>
+        !line.startsWith("#") && !line.startsWith("-") && !line.startsWith("*") && line.length > 50,
     );
 
     for (const para of paragraphs) {
@@ -105,7 +104,7 @@ function extractKeyPoints(content: string): string[] {
     return [
       "Informations pratiques sur les indemnités kilométriques",
       "Conseils pour optimiser vos déclarations",
-      "Outils et méthodes pour un suivi efficace"
+      "Outils et méthodes pour un suivi efficace",
     ];
   }
 
@@ -117,27 +116,26 @@ function cleanText(text: string): string {
   return decodeEntities(
     text
       // Strip HTML tags
-      .replace(/<[^>]+>/g, ' ')
+      .replace(/<[^>]+>/g, " ")
       // Remove bold
-      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
       // Remove italic
-      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, "$1")
       // Remove links - keep only the text part
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
       // Remove inline code
-      .replace(/`([^`]+)`/g, '$1')
+      .replace(/`([^`]+)`/g, "$1"),
   )
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, " ")
     .trim();
 }
-
 
 export function ArticleSummary({ content }: ArticleSummaryProps) {
   const keyPoints = extractKeyPoints(content);
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
 
   return (
-    <div 
+    <div
       ref={ref}
       className={cn(
         "relative overflow-hidden rounded-2xl mb-8",
@@ -145,12 +143,12 @@ export function ArticleSummary({ content }: ArticleSummaryProps) {
         "border border-primary/10",
         "shadow-[0_4px_24px_-4px] shadow-primary/5",
         "dark:from-primary/[0.06] dark:via-slate-900/80 dark:to-primary/[0.08]",
-        "dark:border-primary/15"
+        "dark:border-primary/15",
       )}
     >
       {/* Subtle gradient accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      
+
       <div className="p-5">
         {/* Header */}
         <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground mb-4">
@@ -163,17 +161,17 @@ export function ArticleSummary({ content }: ArticleSummaryProps) {
         {/* Key Points List - reduced spacing */}
         <ul className="space-y-1">
           {keyPoints.map((point, index) => (
-            <li 
-              key={index} 
+            <li
+              key={index}
               className={cn(
                 "group flex items-start gap-2.5 py-1.5 px-2 -mx-2 rounded-lg",
                 "transition-all duration-200 ease-out",
                 "hover:bg-primary/5",
                 // Staggered animation
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
               )}
               style={{
-                transitionDelay: isVisible ? `${index * 80 + 80}ms` : '0ms'
+                transitionDelay: isVisible ? `${index * 80 + 80}ms` : "0ms",
               }}
             >
               <div className="flex-shrink-0 mt-0.5">

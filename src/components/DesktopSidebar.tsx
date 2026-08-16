@@ -1,20 +1,26 @@
-import { useState } from 'react';
-import { Link, useNavigate } from '@/lib/router-compat';
-import { useAppAuth } from '@/components/AppChrome';
-import { Button } from '@/components/ui/button';
-import { CalendarConnections } from '@/components/CalendarConnections';
-import { FeedbackForm } from '@/components/FeedbackForm';
-import { VehicleCard } from '@/components/VehicleCard';
-import { VehicleForm } from '@/components/VehicleForm';
-import { PreferencesContent } from '@/components/PreferencesContent';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Separator } from '@/components/ui/separator';
+import { useState } from "react";
+import { Link, useNavigate } from "@/lib/router-compat";
+import { useAppAuth } from "@/components/AppChrome";
+import { Button } from "@/components/ui/button";
+import { CalendarConnections } from "@/components/CalendarConnections";
+import { FeedbackForm } from "@/components/FeedbackForm";
+import { VehicleCard } from "@/components/VehicleCard";
+import { VehicleForm } from "@/components/VehicleForm";
+import { PreferencesContent } from "@/components/PreferencesContent";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from "@/components/ui/accordion";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -23,32 +29,55 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Car, Calendar, Settings, MessageSquare, LogOut, Route, Sparkles, HelpCircle, User, PlayCircle, Plus, Smartphone, ChevronRight, ChevronLeft, FolderArchive } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
-import founderImage from '@/assets/founder-adrien-optimized.webp';
-import { Vehicle } from '@/types/trip';
+} from "@/components/ui/alert-dialog";
+import {
+  Car,
+  Calendar,
+  Settings,
+  MessageSquare,
+  LogOut,
+  Route,
+  Sparkles,
+  HelpCircle,
+  User,
+  PlayCircle,
+  Plus,
+  Smartphone,
+  ChevronRight,
+  ChevronLeft,
+  FolderArchive,
+} from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import founderImage from "@/assets/founder-adrien-optimized.webp";
+import { Vehicle } from "@/types/trip";
 
 // FAQ items
 const FAQ_ITEMS = [
   {
     question: "Comment sont calculées mes indemnités kilométriques ?",
-    answer: "Les indemnités sont calculées selon le barème fiscal officiel 2024, basé sur la puissance fiscale de votre véhicule et le nombre de kilomètres parcourus. Le calcul prend en compte les trois tranches : jusqu'à 5 000 km, de 5 001 à 20 000 km, et au-delà de 20 000 km. Un bonus de 20% est appliqué pour les véhicules électriques."
+    answer:
+      "Les indemnités sont calculées selon le barème fiscal officiel 2024, basé sur la puissance fiscale de votre véhicule et le nombre de kilomètres parcourus. Le calcul prend en compte les trois tranches : jusqu'à 5 000 km, de 5 001 à 20 000 km, et au-delà de 20 000 km. Un bonus de 20% est appliqué pour les véhicules électriques.",
   },
   {
     question: "Comment synchroniser mon calendrier professionnel ?",
-    answer: "Rendez-vous dans la section Calendriers (icône calendrier dans la barre latérale). Vous pouvez connecter Google Calendar ou Outlook pour importer automatiquement vos rendez-vous professionnels. L'application créera un trajet pour chaque événement avec une adresse détectée."
+    answer:
+      "Rendez-vous dans la section Calendriers (icône calendrier dans la barre latérale). Vous pouvez connecter Google Calendar ou Outlook pour importer automatiquement vos rendez-vous professionnels. L'application créera un trajet pour chaque événement avec une adresse détectée.",
   },
   {
     question: "Comment récupérer mes trajets passés depuis Google Maps ?",
-    answer: "Utilisez la fonction 'Récupération Auto' (icône étoile dorée dans la barre latérale). Exportez votre historique de positions depuis Google Takeout, puis importez le fichier JSON. L'application détectera automatiquement vos trajets professionnels et calculera les indemnités correspondantes."
+    answer:
+      "Utilisez la fonction 'Récupération Auto' (icône étoile dorée dans la barre latérale). Exportez votre historique de positions depuis Google Takeout, puis importez le fichier JSON. L'application détectera automatiquement vos trajets professionnels et calculera les indemnités correspondantes.",
   },
 ];
 
 interface DesktopSidebarProps {
   vehicles?: Vehicle[];
-  onAddVehicle?: (vehicleData: Omit<Vehicle, 'id'>) => void;
-  onEditVehicle?: (vehicleId: string, vehicleData: Partial<Vehicle>, options?: { updatePastTrips?: boolean }) => void;
+  onAddVehicle?: (vehicleData: Omit<Vehicle, "id">) => void;
+  onEditVehicle?: (
+    vehicleId: string,
+    vehicleData: Partial<Vehicle>,
+    options?: { updatePastTrips?: boolean },
+  ) => void;
   onDeleteVehicle?: (vehicleId: string) => void;
   onTourClick?: () => void;
   isTourActive?: boolean;
@@ -57,13 +86,13 @@ interface DesktopSidebarProps {
   onExpandedChange?: (expanded: boolean) => void;
 }
 
-export const DesktopSidebar = ({ 
-  vehicles = [], 
-  onAddVehicle, 
+export const DesktopSidebar = ({
+  vehicles = [],
+  onAddVehicle,
   onEditVehicle,
   onDeleteVehicle,
-  onTourClick, 
-  isTourActive, 
+  onTourClick,
+  isTourActive,
   onStartTutorial,
   totalKm = 0,
   onExpandedChange,
@@ -100,7 +129,10 @@ export const DesktopSidebar = ({
     }
   };
 
-  const handleVehicleFormSubmit = (vehicleData: Omit<Vehicle, 'id'>, options?: { updatePastTrips?: boolean }) => {
+  const handleVehicleFormSubmit = (
+    vehicleData: Omit<Vehicle, "id">,
+    options?: { updatePastTrips?: boolean },
+  ) => {
     if (editingVehicleId && onEditVehicle) {
       onEditVehicle(editingVehicleId, vehicleData, options);
     } else {
@@ -110,81 +142,87 @@ export const DesktopSidebar = ({
     setEditingVehicleId(null);
   };
 
-  const editingVehicle = editingVehicleId ? vehicles.find(v => v.id === editingVehicleId) : undefined;
+  const editingVehicle = editingVehicleId
+    ? vehicles.find((v) => v.id === editingVehicleId)
+    : undefined;
 
   // Navigation items in order from top to bottom
   const navItems = [
-    { 
-      icon: Car, 
-      label: 'Véhicules', 
+    {
+      icon: Car,
+      label: "Véhicules",
       onClick: () => setShowVehicleSheet(true),
       active: false,
-      tutorialId: 'vehicles',
+      tutorialId: "vehicles",
       isRecovery: false,
     },
-    { 
-      icon: Calendar, 
-      label: 'Calendriers', 
+    {
+      icon: Calendar,
+      label: "Calendriers",
       onClick: () => setShowCalendarSheet(true),
       active: false,
-      tutorialId: 'calendar',
+      tutorialId: "calendar",
       isRecovery: false,
     },
-    { 
-      icon: Route, 
-      label: 'Mode tournée', 
+    {
+      icon: Route,
+      label: "Mode tournée",
       onClick: onTourClick || (() => setShowTourMobileOnly(true)),
       active: isTourActive,
-      tutorialId: 'tour',
+      tutorialId: "tour",
       isRecovery: false,
     },
-    { 
-      icon: Settings, 
-      label: 'Préférences', 
+    {
+      icon: Settings,
+      label: "Préférences",
       onClick: () => setShowPreferencesSheet(true),
       active: false,
-      tutorialId: 'settings',
+      tutorialId: "settings",
       isRecovery: false,
     },
-    { 
-      icon: Sparkles, 
-      label: 'Récupération Auto', 
-      onClick: () => navigate('/app/recovery'),
+    {
+      icon: Sparkles,
+      label: "Récupération Auto",
+      onClick: () => navigate("/app/recovery"),
       active: false,
-      tutorialId: 'recovery',
+      tutorialId: "recovery",
       isRecovery: true,
     },
     {
       icon: FolderArchive,
-      label: 'Archive relevés',
-      onClick: () => navigate('/app/archive'),
+      label: "Archive relevés",
+      onClick: () => navigate("/app/archive"),
       active: false,
-      tutorialId: 'archive',
+      tutorialId: "archive",
       isRecovery: false,
     },
 
-    { 
-      icon: MessageSquare, 
-      label: 'Aide & Avis', 
+    {
+      icon: MessageSquare,
+      label: "Aide & Avis",
       onClick: () => setShowFeedbackSheet(true),
       active: false,
-      tutorialId: 'feedback',
+      tutorialId: "feedback",
       isRecovery: false,
     },
   ];
 
   return (
     <>
-      <aside className={`fixed left-0 top-0 h-full ${expanded ? 'w-56' : 'w-24'} bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40 transition-all duration-200`}>
+      <aside
+        className={`fixed left-0 top-0 h-full ${expanded ? "w-56" : "w-24"} bg-card border-r border-border flex-col items-center py-6 hidden md:flex z-40 transition-all duration-200`}
+      >
         {/* Logo + expand toggle */}
-        <div className={`flex items-center ${expanded ? 'w-full px-4 justify-between' : 'justify-center'} mb-4`}>
+        <div
+          className={`flex items-center ${expanded ? "w-full px-4 justify-between" : "justify-center"} mb-4`}
+        >
           <Link to="/?from=app" data-tutorial="home" title="Accueil">
-            <img 
-              src="/logo-iktracker-250.webp" 
-              alt="IKtracker" 
+            <img
+              src="/logo-iktracker-250.webp"
+              alt="IKtracker"
               width={250}
               height={250}
-              className="h-14 w-14 transition-transform duration-300 hover:scale-110" 
+              className="h-14 w-14 transition-transform duration-300 hover:scale-110"
             />
           </Link>
           {expanded && (
@@ -198,7 +236,11 @@ export const DesktopSidebar = ({
             title={expanded ? "Réduire" : "Développer"}
             aria-label={expanded ? "Réduire la barre latérale" : "Développer la barre latérale"}
           >
-            {expanded ? <ChevronLeft className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+            {expanded ? (
+              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            )}
           </Button>
         </div>
 
@@ -206,34 +248,42 @@ export const DesktopSidebar = ({
         <div className="h-44" />
 
         {/* Navigation items */}
-        <nav className={`flex-1 flex flex-col ${expanded ? 'w-full px-3' : 'items-center'} gap-1`}>
+        <nav className={`flex-1 flex flex-col ${expanded ? "w-full px-3" : "items-center"} gap-1`}>
           {navItems.map((item) => (
             <Button
               key={item.label}
               variant="ghost"
-              className={`${expanded ? 'w-full justify-start gap-3 px-3' : 'w-12 justify-center'} h-11 rounded-xl transition-all duration-200 ${
-                item.isRecovery 
-                  ? 'hover:bg-wizard-amber/10 group' 
-                  : item.active 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-accent'
+              className={`${expanded ? "w-full justify-start gap-3 px-3" : "w-12 justify-center"} h-11 rounded-xl transition-all duration-200 ${
+                item.isRecovery
+                  ? "hover:bg-wizard-amber/10 group"
+                  : item.active
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-accent"
               }`}
               onClick={item.onClick}
               title={item.label}
               aria-label={item.label}
               data-tutorial={item.tutorialId}
             >
-              <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                item.isRecovery 
-                  ? 'text-wizard-amber group-hover:scale-110 transition-transform' 
-                  : item.active 
-                    ? 'text-primary' 
-                    : 'text-muted-foreground'
-              }`} />
+              <item.icon
+                className={`w-5 h-5 flex-shrink-0 transition-colors ${
+                  item.isRecovery
+                    ? "text-wizard-amber group-hover:scale-110 transition-transform"
+                    : item.active
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                }`}
+              />
               {expanded && (
-                <span className={`text-base truncate ${
-                  item.isRecovery ? 'text-wizard-amber' : item.active ? 'text-primary font-medium' : 'text-muted-foreground'
-                }`}>
+                <span
+                  className={`text-base truncate ${
+                    item.isRecovery
+                      ? "text-wizard-amber"
+                      : item.active
+                        ? "text-primary font-medium"
+                        : "text-muted-foreground"
+                  }`}
+                >
                   {item.label}
                 </span>
               )}
@@ -244,7 +294,7 @@ export const DesktopSidebar = ({
         {/* Logout at bottom */}
         <Button
           variant="ghost"
-          className={`${expanded ? 'w-[calc(100%-1.5rem)] mx-3 justify-start gap-3 px-3' : 'w-12 justify-center'} h-11 rounded-xl hover:bg-destructive/10`}
+          className={`${expanded ? "w-[calc(100%-1.5rem)] mx-3 justify-start gap-3 px-3" : "w-12 justify-center"} h-11 rounded-xl hover:bg-destructive/10`}
           onClick={handleSignOut}
           title="Déconnexion"
           aria-label="Se déconnecter"
@@ -314,9 +364,7 @@ export const DesktopSidebar = ({
         <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Connexions calendrier</SheetTitle>
-            <SheetDescription>
-              Synchronisez vos rendez-vous professionnels
-            </SheetDescription>
+            <SheetDescription>Synchronisez vos rendez-vous professionnels</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             <CalendarConnections />
@@ -330,10 +378,11 @@ export const DesktopSidebar = ({
           <SheetHeader>
             <SheetTitle>Besoin d'aide ? Un avis ?</SheetTitle>
             <SheetDescription>
-              Notre équipe vous répond rapidement. Vos retours nous aident à améliorer l'application.
+              Notre équipe vous répond rapidement. Vos retours nous aident à améliorer
+              l'application.
             </SheetDescription>
           </SheetHeader>
-          
+
           <div className="mt-6 space-y-6">
             {/* Tutorial restart button */}
             {onStartTutorial && (
@@ -363,7 +412,7 @@ export const DesktopSidebar = ({
                 <HelpCircle className="w-4 h-4 text-primary" />
                 Questions fréquentes
               </h4>
-              
+
               <Accordion type="single" collapsible className="w-full">
                 {FAQ_ITEMS.map((item, index) => (
                   <AccordionItem key={index} value={`faq-${index}`}>
@@ -382,14 +431,12 @@ export const DesktopSidebar = ({
 
             {/* Founder testimonial */}
             <div className="space-y-3">
-              <h4 className="text-sm font-medium">
-                Pourquoi IKTracker est gratuit ?
-              </h4>
-              
+              <h4 className="text-sm font-medium">Pourquoi IKTracker est gratuit ?</h4>
+
               <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-4 border border-primary/20">
                 <div className="flex gap-4">
-                  <img 
-                    src={founderImage} 
+                  <img
+                    src={founderImage}
                     srcSet={`${founderImage} 1x, ${founderImage} 2x`}
                     sizes="60px"
                     alt="Adrien, fondateur d'IKTracker"
@@ -399,15 +446,18 @@ export const DesktopSidebar = ({
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground italic leading-relaxed">
-                      "J'ai créé IKTracker parce que je perdais des heures à calculer mes indemnités kilométriques sur Excel. Aujourd'hui, je veux que chaque professionnel en déplacement puisse récupérer facilement ce qui lui est dû."
+                      "J'ai créé IKTracker parce que je perdais des heures à calculer mes indemnités
+                      kilométriques sur Excel. Aujourd'hui, je veux que chaque professionnel en
+                      déplacement puisse récupérer facilement ce qui lui est dû."
                     </p>
                     <div className="mt-3 flex items-center gap-2">
                       <User className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium">Adrien</span>
-                      <span className="text-xs text-muted-foreground">— Fondateur,{' '}
-                        <a 
-                          href="https://www.avenir-renovations.fr/actualite/nouvelle-ouverture-d-agence-avenir-renovations-a-saint-remy-de-provence-13/" 
-                          target="_blank" 
+                      <span className="text-xs text-muted-foreground">
+                        — Fondateur,{" "}
+                        <a
+                          href="https://www.avenir-renovations.fr/actualite/nouvelle-ouverture-d-agence-avenir-renovations-a-saint-remy-de-provence-13/"
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline"
                         >
@@ -421,15 +471,21 @@ export const DesktopSidebar = ({
 
               {/* Par le même fondateur */}
               <div className="mt-4 pt-3 border-t border-primary/10 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Par le même fondateur</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Par le même fondateur
+                </p>
                 <a
                   href="https://iktracker.fr"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">IKtracker.fr</span>
-                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">L'outil gratuit pour automatiser ses indemnités kilométriques</span>
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                    IKtracker.fr
+                  </span>
+                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">
+                    L'outil gratuit pour automatiser ses indemnités kilométriques
+                  </span>
                 </a>
                 <a
                   href="https://crawlers.fr"
@@ -437,8 +493,12 @@ export const DesktopSidebar = ({
                   rel="noopener noreferrer"
                   className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Crawlers.fr</span>
-                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">La plateforme SEO-GEO pour automatiser la maintenance des sites internet</span>
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                    Crawlers.fr
+                  </span>
+                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">
+                    La plateforme SEO-GEO pour automatiser la maintenance des sites internet
+                  </span>
                 </a>
                 <a
                   href="https://dictadevi.io"
@@ -446,8 +506,13 @@ export const DesktopSidebar = ({
                   rel="noopener noreferrer"
                   className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Dictadevi.io</span>
-                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">Gérez vos locations meublées : loyers, charges, fiscalité et fiscalité en toute simplicité</span>
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                    Dictadevi.io
+                  </span>
+                  <span className="block text-xs text-muted-foreground leading-snug mt-0.5">
+                    Gérez vos locations meublées : loyers, charges, fiscalité et fiscalité en toute
+                    simplicité
+                  </span>
                 </a>
               </div>
             </div>
@@ -460,9 +525,7 @@ export const DesktopSidebar = ({
         <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Préférences</SheetTitle>
-            <SheetDescription>
-              Personnalisez le comportement de l'application
-            </SheetDescription>
+            <SheetDescription>Personnalisez le comportement de l'application</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             <PreferencesContent />
@@ -477,18 +540,22 @@ export const DesktopSidebar = ({
             <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-2">
               <Smartphone className="w-7 h-7 text-accent" />
             </div>
-            <p className="text-lg font-semibold mb-1 text-center" style={{ color: '#5666D8' }}>Mode tournée : automatisez la détection GPS des trajets</p>
-            <AlertDialogTitle className="text-accent text-base font-medium text-center">Réservé à l'usage mobile</AlertDialogTitle>
+            <p className="text-lg font-semibold mb-1 text-center" style={{ color: "#5666D8" }}>
+              Mode tournée : automatisez la détection GPS des trajets
+            </p>
+            <AlertDialogTitle className="text-accent text-base font-medium text-center">
+              Réservé à l'usage mobile
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               Ouvrez iktracker.fr sur le navigateur de votre smartphone et téléchargez l'app.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
+
           {/* QR Code */}
           <div className="flex justify-center py-4">
             <div className="bg-white p-3 rounded-xl">
-              <QRCodeSVG 
-                value="https://iktracker.fr/install" 
+              <QRCodeSVG
+                value="https://iktracker.fr/install"
                 size={140}
                 level="M"
                 includeMargin={false}
@@ -498,7 +565,7 @@ export const DesktopSidebar = ({
           <p className="text-center text-xs text-muted-foreground -mt-2">
             Scannez ce QR code avec votre téléphone
           </p>
-          
+
           <AlertDialogFooter className="sm:justify-center gap-2">
             <AlertDialogCancel>Fermer</AlertDialogCancel>
           </AlertDialogFooter>

@@ -1,4 +1,4 @@
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -35,7 +35,6 @@ export default function NoteDeFraisKilometrique() {
   return (
     <>
       <Helmet>
-
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -46,10 +45,30 @@ export default function NoteDeFraisKilometrique() {
             totalTime: "PT3M",
             tool: [{ "@type": "HowToTool", name: "IKtracker — calculateur gratuit" }],
             step: [
-              { "@type": "HowToStep", position: 1, name: "Lister chaque trajet", text: "Notez la date, l'adresse de départ et d'arrivée, ainsi que le motif professionnel." },
-              { "@type": "HowToStep", position: 2, name: "Mesurer la distance", text: "Utilisez Google Maps ou la géolocalisation IKtracker pour obtenir une distance opposable." },
-              { "@type": "HowToStep", position: 3, name: "Appliquer le barème", text: "Multipliez la distance par le tarif du barème kilométrique 2025-2026 correspondant à la puissance fiscale du véhicule." },
-              { "@type": "HowToStep", position: 4, name: "Exporter et archiver", text: "Générez un PDF ou un Excel à remettre à l'employeur ou à l'expert-comptable, et conservez-le 3 ans." },
+              {
+                "@type": "HowToStep",
+                position: 1,
+                name: "Lister chaque trajet",
+                text: "Notez la date, l'adresse de départ et d'arrivée, ainsi que le motif professionnel.",
+              },
+              {
+                "@type": "HowToStep",
+                position: 2,
+                name: "Mesurer la distance",
+                text: "Utilisez Google Maps ou la géolocalisation IKtracker pour obtenir une distance opposable.",
+              },
+              {
+                "@type": "HowToStep",
+                position: 3,
+                name: "Appliquer le barème",
+                text: "Multipliez la distance par le tarif du barème kilométrique 2025-2026 correspondant à la puissance fiscale du véhicule.",
+              },
+              {
+                "@type": "HowToStep",
+                position: 4,
+                name: "Exporter et archiver",
+                text: "Générez un PDF ou un Excel à remettre à l'employeur ou à l'expert-comptable, et conservez-le 3 ans.",
+              },
             ],
           })}
         </script>
@@ -66,13 +85,23 @@ export default function NoteDeFraisKilometrique() {
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/note-de-frais-kilometrique", pageDescription: "Note de frais kilométrique 2025-2026 : modèle conforme URSSAF, calcul automatique selon barème officiel, export PDF/Excel. Gratuit, conçu par un entrepreneur indépendant pour les salariés, libéraux et auto-entrepreneurs." }))}
+          {JSON.stringify(
+            buildSoftwareApplicationSchema({
+              pageUrl: "https://iktracker.fr/note-de-frais-kilometrique",
+              pageDescription:
+                "Note de frais kilométrique 2025-2026 : modèle conforme URSSAF, calcul automatique selon barème officiel, export PDF/Excel. Gratuit, conçu par un entrepreneur indépendant pour les salariés, libéraux et auto-entrepreneurs.",
+            }),
+          )}
         </script>
       </Helmet>
 
       <MarketingNav />
 
-      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-hidden">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="min-h-screen bg-background pt-20 outline-hidden"
+      >
         <div className="container mx-auto px-4 pt-6">
           <Breadcrumb items={[{ label: "Note de frais kilométrique" }]} />
         </div>
@@ -85,8 +114,8 @@ export default function NoteDeFraisKilometrique() {
             <span className="text-primary">2025 - 2026</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed min-h-[7rem] sm:min-h-[5.5rem] md:min-h-[5rem]">
-            Le modèle conforme URSSAF, le calcul automatique selon le barème officiel,
-            et l'export PDF ou Excel prêt à transmettre à votre employeur ou expert-comptable.
+            Le modèle conforme URSSAF, le calcul automatique selon le barème officiel, et l'export
+            PDF ou Excel prêt à transmettre à votre employeur ou expert-comptable.
             <strong className="text-foreground"> Gratuit, sans abonnement.</strong>
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -110,10 +139,26 @@ export default function NoteDeFraisKilometrique() {
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: FileText, t: "Date et motif", d: "Chaque ligne identifie clairement le déplacement et son objet professionnel." },
-              { icon: ListChecks, t: "Trajet et kilomètres", d: "Adresse de départ, d'arrivée et distance opposable (Maps ou GPS)." },
-              { icon: ShieldCheck, t: "Véhicule et puissance fiscale", d: "Case P.6 de la carte grise. +20 % automatique pour les véhicules 100 % électriques." },
-              { icon: FileDown, t: "Montant calculé", d: "Application du barème URSSAF 2025-2026 selon la tranche kilométrique annuelle." },
+              {
+                icon: FileText,
+                t: "Date et motif",
+                d: "Chaque ligne identifie clairement le déplacement et son objet professionnel.",
+              },
+              {
+                icon: ListChecks,
+                t: "Trajet et kilomètres",
+                d: "Adresse de départ, d'arrivée et distance opposable (Maps ou GPS).",
+              },
+              {
+                icon: ShieldCheck,
+                t: "Véhicule et puissance fiscale",
+                d: "Case P.6 de la carte grise. +20 % automatique pour les véhicules 100 % électriques.",
+              },
+              {
+                icon: FileDown,
+                t: "Montant calculé",
+                d: "Application du barème URSSAF 2025-2026 selon la tranche kilométrique annuelle.",
+              },
             ].map(({ icon: Icon, t, d }) => (
               <Card key={t} className="border-border">
                 <CardContent className="p-5 flex gap-4">
@@ -137,10 +182,15 @@ export default function NoteDeFraisKilometrique() {
           </h2>
           <div className="space-y-4">
             {faqs.map((f) => (
-              <details key={f.q} className="group rounded-xl border border-border bg-card p-5 open:shadow-xs transition-shadow">
+              <details
+                key={f.q}
+                className="group rounded-xl border border-border bg-card p-5 open:shadow-xs transition-shadow"
+              >
                 <summary className="cursor-pointer font-semibold text-foreground list-none flex justify-between items-center">
                   {f.q}
-                  <span className="ml-4 text-primary transition-transform group-open:rotate-45">+</span>
+                  <span className="ml-4 text-primary transition-transform group-open:rotate-45">
+                    +
+                  </span>
                 </summary>
                 <p className="mt-3 text-muted-foreground leading-relaxed">{f.a}</p>
               </details>

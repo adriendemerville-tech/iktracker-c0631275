@@ -10,69 +10,73 @@
 //   GET|POST|... /wavespeed/<any-other-path>            -> generic passthrough
 //
 // Docs: https://wavespeed.ai/docs
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
-const WAVESPEED_API_KEY = Deno.env.get('WAVESPEED_API_KEY');
-const WAVESPEED_BASE = 'https://api.wavespeed.ai/api/v3';
+const WAVESPEED_API_KEY = Deno.env.get("WAVESPEED_API_KEY");
+const WAVESPEED_BASE = "https://api.wavespeed.ai/api/v3";
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
 async function requireAdmin(req: Request): Promise<{ userId: string } | Response> {
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader) return json({ error: 'Missing Authorization header' }, 401);
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return json({ error: "Missing Authorization header" }, 401);
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return json({ error: 'Unauthorized' }, 401);
-  const { data: isAdmin, error: roleErr } = await supabase.rpc('has_role', {
+  if (error || !data.user) return json({ error: "Unauthorized" }, 401);
+  const { data: isAdmin, error: roleErr } = await supabase.rpc("has_role", {
     _user_id: data.user.id,
-    _role: 'admin',
+    _role: "admin",
   });
-  if (roleErr || isAdmin !== true) return json({ error: 'Forbidden: admin role required' }, 403);
+  if (roleErr || isAdmin !== true) return json({ error: "Forbidden: admin role required" }, 403);
   return { userId: data.user.id };
 }
 
 async function upstream(path: string, init: RequestInit) {
-  const url = `${WAVESPEED_BASE}/${path.replace(/^\/+/, '')}`;
+  const url = `${WAVESPEED_BASE}/${path.replace(/^\/+/, "")}`;
   const headers = new Headers(init.headers ?? {});
-  headers.set('Authorization', `Bearer ${WAVESPEED_API_KEY}`);
-  if (init.body && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
+  headers.set("Authorization", `Bearer ${WAVESPEED_API_KEY}`);
+  if (init.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
   }
   const res = await fetch(url, { ...init, headers });
   const text = await res.text();
   let parsed: unknown = text;
-  try { parsed = JSON.parse(text); } catch { /* keep text */ }
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    /* keep text */
+  }
   return { ok: res.ok, status: res.status, body: parsed };
 }
 
 async function pollUntilDone(requestId: string, timeoutMs = 90_000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
-    const r = await upstream(`predictions/${requestId}/result`, { method: 'GET' });
+    const r = await upstream(`predictions/${requestId}/result`, { method: "GET" });
     if (!r.ok) return r;
     const d = r.body as any;
     const status = d?.data?.status ?? d?.status;
-    if (status === 'completed' || status === 'failed') return r;
+    if (status === "completed" || status === "failed") return r;
     await new Promise((res) => setTimeout(res, 1500));
   }
-  return { ok: false, status: 504, body: { error: 'Polling timeout' } };
+  return { ok: false, status: 504, body: { error: "Polling timeout" } };
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  if (!WAVESPEED_API_KEY) return json({ error: 'WAVESPEED_API_KEY not configured' }, 500);
+  if (!WAVESPEED_API_KEY) return json({ error: "WAVESPEED_API_KEY not configured" }, 500);
 
   const auth = await requireAdmin(req);
   if (auth instanceof Response) return auth;
@@ -80,47 +84,55 @@ Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
     // Strip the "/wavespeed" function prefix if present
-    const path = url.pathname.replace(/^\/+/, '').replace(/^wavespeed\/?/, '');
+    const path = url.pathname.replace(/^\/+/, "").replace(/^wavespeed\/?/, "");
     if (!path) {
-      return json({
-        error: 'Missing upstream path',
-        usage: {
-          submit: 'POST /wavespeed/<model_path> with JSON input body (append ?wait=1 to auto-poll)',
-          result: 'GET /wavespeed/predictions/<request_id>/result',
-          balance: 'GET /wavespeed/balance',
-          passthrough: 'Any other method/path is forwarded to https://api.wavespeed.ai/api/v3/<path>',
+      return json(
+        {
+          error: "Missing upstream path",
+          usage: {
+            submit:
+              "POST /wavespeed/<model_path> with JSON input body (append ?wait=1 to auto-poll)",
+            result: "GET /wavespeed/predictions/<request_id>/result",
+            balance: "GET /wavespeed/balance",
+            passthrough:
+              "Any other method/path is forwarded to https://api.wavespeed.ai/api/v3/<path>",
+          },
         },
-      }, 400);
+        400,
+      );
     }
 
     // Forward query params (minus our own `wait` control flag)
-    const wait = url.searchParams.get('wait');
-    url.searchParams.delete('wait');
+    const wait = url.searchParams.get("wait");
+    url.searchParams.delete("wait");
     const qs = url.searchParams.toString();
     const forwardPath = qs ? `${path}?${qs}` : path;
 
     const method = req.method.toUpperCase();
     const init: RequestInit = { method };
-    if (method !== 'GET' && method !== 'HEAD') {
+    if (method !== "GET" && method !== "HEAD") {
       const raw = await req.text();
       if (raw) init.body = raw;
-      const ct = req.headers.get('Content-Type');
-      if (ct) init.headers = { 'Content-Type': ct };
+      const ct = req.headers.get("Content-Type");
+      if (ct) init.headers = { "Content-Type": ct };
     }
 
     const r = await upstream(forwardPath, init);
     if (!r.ok) {
-      return json({ error: 'Wavespeed error', status: r.status, details: r.body }, r.status);
+      return json({ error: "Wavespeed error", status: r.status, details: r.body }, r.status);
     }
 
     // Convenience: if this was a submit + ?wait=1, poll for the result
-    if (wait && method === 'POST') {
+    if (wait && method === "POST") {
       const d = r.body as any;
       const requestId = d?.data?.id ?? d?.id;
       if (requestId) {
         const polled = await pollUntilDone(requestId);
         if (!polled.ok) {
-          return json({ error: 'Wavespeed polling failed', status: polled.status, details: polled.body }, polled.status);
+          return json(
+            { error: "Wavespeed polling failed", status: polled.status, details: polled.body },
+            polled.status,
+          );
         }
         return json(polled.body);
       }
@@ -128,7 +140,10 @@ Deno.serve(async (req) => {
 
     return json(r.body);
   } catch (e) {
-    console.error('wavespeed function error:', e);
-    return json({ error: 'Internal error', details: e instanceof Error ? e.message : String(e) }, 500);
+    console.error("wavespeed function error:", e);
+    return json(
+      { error: "Internal error", details: e instanceof Error ? e.message : String(e) },
+      500,
+    );
   }
 });
