@@ -63,6 +63,8 @@ const analysisMessages = [
 ];
 
 export default function RecoveryWizard() {
+  // Doit rester avant tout retour anticipé : les hooks ne peuvent pas être conditionnels.
+  const isMobile = useIsMobile();
   const [isDesktop, setIsDesktop] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [isExtracting, setIsExtracting] = useState(false);
@@ -508,8 +510,6 @@ export default function RecoveryWizard() {
       </div>
     );
   }
-
-  const isMobile = useIsMobile();
 
   return (
     <>

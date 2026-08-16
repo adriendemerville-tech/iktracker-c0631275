@@ -177,7 +177,11 @@ const Profile = () => {
       const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
       if (error) throw error;
       toast.success('Votre compte a été supprimé.');
-      try { await supabase.auth.signOut(); } catch (_) {}
+      try {
+        await supabase.auth.signOut();
+      } catch (signOutError) {
+        console.warn('Déconnexion après suppression du compte échouée', signOutError);
+      }
       setTimeout(() => { window.location.href = '/'; }, 800);
     } catch (e: any) {
       console.error('Delete account failed', e);

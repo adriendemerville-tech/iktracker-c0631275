@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { BrowserRouter } from "@/lib/router-compat";
+import { TestRouter } from "@/test/router";
 import { AuthForm } from "./AuthForm";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -12,7 +12,18 @@ vi.mock("@/integrations/supabase/client", () => ({
       signUp: vi.fn(),
       signInWithOAuth: vi.fn(),
       resetPasswordForEmail: vi.fn(),
+      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
     },
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    })),
+    functions: { invoke: vi.fn().mockResolvedValue({ data: null, error: null }) },
   },
 }));
 
@@ -22,11 +33,11 @@ vi.mock("@/hooks/use-toast", () => ({
 
 function renderAuth(props = {}) {
   return render(
-    <BrowserRouter>
+    <TestRouter>
       <TooltipProvider>
         <AuthForm {...props} />
       </TooltipProvider>
-    </BrowserRouter>
+    </TestRouter>
   );
 }
 

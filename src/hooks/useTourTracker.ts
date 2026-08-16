@@ -811,7 +811,12 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                 });
                 return;
               }
-            } catch {}
+            } catch (geocodeError) {
+              console.warn(
+                `[TourTracker] Géocodage inverse échoué (tentative ${attempt + 1})`,
+                geocodeError,
+              );
+            }
             retryGeocode(attempt + 1);
           };
           retryGeocode();
