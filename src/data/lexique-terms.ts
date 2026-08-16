@@ -12,6 +12,8 @@ export function termToSlug(term: string): string {
     .replace(/[\u0300-\u036f]/g, "") // Remove accents
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
 
 export const lexiqueTerms: Term[] = [
   // Acronymes
