@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { VehicleCard } from "./VehicleCard";
 import { Vehicle } from "@/types/trip";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter } from "@/lib/router-compat";
+import { TestRouter } from "@/test/router";
 
 const baseVehicle: Vehicle = {
   id: "v1",
@@ -17,11 +17,11 @@ const baseVehicle: Vehicle = {
 
 function renderCard(props: Partial<React.ComponentProps<typeof VehicleCard>> = {}) {
   return render(
-    <BrowserRouter>
+    <TestRouter>
       <TooltipProvider>
         <VehicleCard vehicle={baseVehicle} {...props} />
       </TooltipProvider>
-    </BrowserRouter>
+    </TestRouter>
   );
 }
 
@@ -53,11 +53,11 @@ describe("VehicleCard", () => {
   it("applies 20% electric bonus to rate", () => {
     const electricVehicle: Vehicle = { ...baseVehicle, isElectric: true };
     render(
-      <BrowserRouter>
+      <TestRouter>
         <TooltipProvider>
           <VehicleCard vehicle={electricVehicle} totalKm={3000} />
         </TooltipProvider>
-      </BrowserRouter>
+      </TestRouter>
     );
     // 0.636 * 1.2 = 0.7632
     expect(screen.getByText("0.763 €/km")).toBeInTheDocument();

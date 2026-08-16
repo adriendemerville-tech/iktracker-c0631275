@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { BrowserRouter } from "@/lib/router-compat";
+import { TestRouter } from "@/test/router";
 import { AuthForm } from "./AuthForm";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -22,11 +22,11 @@ vi.mock("@/hooks/use-toast", () => ({
 
 function renderAuth(props = {}) {
   return render(
-    <BrowserRouter>
+    <TestRouter>
       <TooltipProvider>
         <AuthForm {...props} />
       </TooltipProvider>
-    </BrowserRouter>
+    </TestRouter>
   );
 }
 
