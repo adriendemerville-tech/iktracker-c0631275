@@ -166,35 +166,7 @@ export function useTrips() {
         .order("deleted_at", { ascending: false });
 
       if (dbArchivedTrips) {
-        setArchivedTrips(
-          dbArchivedTrips.map((t) => ({
-            id: t.id,
-            vehicleId: t.vehicle_id,
-            startLocation: dbLocation(
-              t.start_location,
-              (t as any).start_address,
-              (t as any).start_lat,
-              (t as any).start_lng,
-            ),
-            endLocation: dbLocation(
-              t.end_location,
-              (t as any).end_address,
-              (t as any).end_lat,
-              (t as any).end_lng,
-            ),
-
-            distance: t.distance,
-            baseDistance: t.round_trip ? t.distance / 2 : t.distance,
-            roundTrip: t.round_trip,
-            purpose: t.purpose || "",
-            startTime: new Date(t.date),
-            endTime: new Date(t.date),
-            ikAmount: t.ik_amount,
-            tourStops: (t as any).tour_stops as TourStopData[] | undefined,
-            calendarEventId: t.calendar_event_id || undefined,
-            status: (t as any).status || "validated",
-          })),
-        );
+        setArchivedTrips(dbArchivedTrips.map(mapTripRow));
       }
     } catch (error) {
       console.error("Error loading from database:", error);
