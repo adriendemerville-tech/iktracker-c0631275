@@ -345,30 +345,26 @@ async function handleConfig(
       const updates = [];
       if (body.header !== undefined) {
         updates.push(
-          supabase
-            .from("site_config")
-            .upsert(
-              {
-                config_key: "navigation_header",
-                config_value: body.header,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: "config_key" },
-            ),
+          supabase.from("site_config").upsert(
+            {
+              config_key: "navigation_header",
+              config_value: body.header,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "config_key" },
+          ),
         );
       }
       if (body.footer !== undefined) {
         updates.push(
-          supabase
-            .from("site_config")
-            .upsert(
-              {
-                config_key: "navigation_footer",
-                config_value: body.footer,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: "config_key" },
-            ),
+          supabase.from("site_config").upsert(
+            {
+              config_key: "navigation_footer",
+              config_value: body.footer,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "config_key" },
+          ),
         );
       }
       await Promise.all(updates);

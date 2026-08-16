@@ -8,8 +8,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'mobile/**'
-      - '.github/workflows/sync-mobile.yml'
+      - "mobile/**"
+      - ".github/workflows/sync-mobile.yml"
   workflow_dispatch:
 
 jobs:

@@ -13,10 +13,7 @@
       "supportsTablet": true,
       "buildNumber": "1",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "location",
-          "fetch"
-        ],
+        "UIBackgroundModes": ["location", "fetch"],
         "NSLocationWhenInUseUsageDescription": "IKTracker utilise votre position pour enregistrer automatiquement la distance de vos trajets professionnels.",
         "NSLocationAlwaysUsageDescription": "Le Mode Tournée enregistre votre itinéraire en arrière-plan afin de calculer vos indemnités kilométriques, même écran éteint.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Le Mode Tournée enregistre votre itinéraire en arrière-plan afin de calculer vos indemnités kilométriques, même écran éteint.",

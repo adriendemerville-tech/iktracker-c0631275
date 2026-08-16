@@ -1,7 +1,7 @@
-import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing } from '@/theme';
-import type { StartupIssue } from '@/lib/startup-checks';
+import React from "react";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { colors, radius, spacing } from "@/theme";
+import type { StartupIssue } from "@/lib/startup-checks";
 
 interface Props {
   issue: StartupIssue;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function StartupErrorScreen({ issue, onRetry }: Props) {
-  const showSettings = issue.code === 'gps-denied' || issue.code === 'gps-background-denied';
+  const showSettings = issue.code === "gps-denied" || issue.code === "gps-background-denied";
 
   return (
     <View style={styles.root}>
@@ -49,7 +49,7 @@ export function StartupErrorScreen({ issue, onRetry }: Props) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  content: { flexGrow: 1, justifyContent: 'center', padding: spacing.lg },
+  content: { flexGrow: 1, justifyContent: "center", padding: spacing.lg },
   card: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.sm,
   },
-  badge: { color: colors.primary, fontWeight: '700', letterSpacing: 1, fontSize: 12 },
-  title: { color: colors.text, fontSize: 20, fontWeight: '700' },
+  badge: { color: colors.primary, fontWeight: "700", letterSpacing: 1, fontSize: 12 },
+  title: { color: colors.text, fontSize: 20, fontWeight: "700" },
   detail: { color: colors.muted, fontSize: 15, lineHeight: 22 },
   hintBox: {
     backgroundColor: colors.background,
@@ -67,13 +67,13 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginTop: spacing.sm,
   },
-  hintLabel: { color: colors.text, fontWeight: '600', marginBottom: 4 },
+  hintLabel: { color: colors.text, fontWeight: "600", marginBottom: 4 },
   hint: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   code: { color: colors.muted, fontSize: 12, marginTop: spacing.sm },
-  actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md, flexWrap: 'wrap' },
+  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md, flexWrap: "wrap" },
   button: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: radius.md },
   primary: { backgroundColor: colors.primary },
-  primaryLabel: { color: colors.primaryText, fontWeight: '600' },
+  primaryLabel: { color: colors.primaryText, fontWeight: "600" },
   secondary: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  secondaryLabel: { color: colors.text, fontWeight: '600' },
+  secondaryLabel: { color: colors.text, fontWeight: "600" },
 });

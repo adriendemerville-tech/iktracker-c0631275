@@ -1,11 +1,11 @@
-import * as Location from 'expo-location';
-import * as TaskManager from 'expo-task-manager';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { accumulateDistance, detectStops, type Point } from './geo';
+import * as Location from "expo-location";
+import * as TaskManager from "expo-task-manager";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { accumulateDistance, detectStops, type Point } from "./geo";
 
-export const TOUR_TASK = 'iktracker-tour-location';
-const STORAGE_KEY = 'iktracker.tour.points';
-const SESSION_KEY = 'iktracker.tour.session';
+export const TOUR_TASK = "iktracker-tour-location";
+const STORAGE_KEY = "iktracker.tour.points";
+const SESSION_KEY = "iktracker.tour.session";
 
 export interface TourSession {
   startedAt: number;
@@ -48,9 +48,9 @@ export async function getLocationPermissionStatus(): Promise<{
 
 export async function requestTourPermissions(): Promise<boolean> {
   const fg = await Location.requestForegroundPermissionsAsync();
-  if (fg.status !== 'granted') return false;
+  if (fg.status !== "granted") return false;
   const bg = await Location.requestBackgroundPermissionsAsync();
-  return bg.status === 'granted';
+  return bg.status === "granted";
 }
 
 export async function startTour(vehicleId: string | null): Promise<void> {
@@ -67,9 +67,9 @@ export async function startTour(vehicleId: string | null): Promise<void> {
     activityType: Location.ActivityType.AutomotiveNavigation,
     showsBackgroundLocationIndicator: true,
     foregroundService: {
-      notificationTitle: 'Mode Tournée actif',
-      notificationBody: 'IKTracker enregistre votre itinéraire professionnel.',
-      notificationColor: '#4F46E5',
+      notificationTitle: "Mode Tournée actif",
+      notificationBody: "IKTracker enregistre votre itinéraire professionnel.",
+      notificationColor: "#4F46E5",
     },
   });
 }
@@ -87,7 +87,12 @@ export async function getLiveDistance(): Promise<number> {
   return accumulateDistance(await readPoints());
 }
 
-export async function stopTour(): Promise<{ distance: number; points: Point[]; stops: Point[]; session: TourSession | null }> {
+export async function stopTour(): Promise<{
+  distance: number;
+  points: Point[];
+  stops: Point[];
+  session: TourSession | null;
+}> {
   if (await isTourRunning()) {
     await Location.stopLocationUpdatesAsync(TOUR_TASK);
   }

@@ -1,44 +1,244 @@
 {
   "functions": [
-    { "name": "blog-api", "classification": "external API", "signal": "headless CMS endpoint called by partners (Crawlers)", "outcome": "left" },
-    { "name": "calendar-debug", "classification": "internal-only", "signal": "invoked from src/; uses Google/Microsoft OAuth secrets held in Supabase — deferred", "outcome": "left" },
-    { "name": "convert-blog-images", "classification": "unknown", "signal": "no src/ call sites found", "outcome": "left" },
-    { "name": "delete-account", "classification": "internal-only", "signal": "invoked from src/; deferred to keep single secret store during migration", "outcome": "left" },
-    { "name": "docs", "classification": "custom response / fixed URL", "signal": "documentation endpoint, likely Worker-proxied", "outcome": "left" },
-    { "name": "generate-recurring-trips", "classification": "cron target", "signal": "referenced in 3 supabase/migrations files", "outcome": "left" },
-    { "name": "google-calendar-auth", "classification": "webhook receiver", "signal": "OAuth callback with fixed redirect URI registered at Google", "outcome": "left" },
-    { "name": "google-maps-key", "classification": "internal-only", "signal": "invoked from src/; proxies GOOGLE_MAPS_API_KEY secret — deferred", "outcome": "left" },
-    { "name": "gsc-analytics", "classification": "internal-only", "signal": "invoked from src/; uses connector gateway secrets — deferred", "outcome": "left" },
-    { "name": "handle-email-suppression", "classification": "webhook receiver", "signal": "Resend suppression webhook", "outcome": "left" },
-    { "name": "handle-email-unsubscribe", "classification": "custom response / fixed URL", "signal": "unsubscribe links embedded in sent emails", "outcome": "left" },
-    { "name": "linkedin-post-audit", "classification": "cron target", "signal": "referenced in supabase/migrations", "outcome": "left" },
-    { "name": "linkedin-profile", "classification": "unknown", "signal": "no src/ call sites found", "outcome": "left" },
-    { "name": "linkedin-weekly-post", "classification": "cron target", "signal": "referenced in 6 supabase/migrations files (monthly schedule)", "outcome": "left" },
-    { "name": "marina-analyze", "classification": "internal-only", "signal": "invoked from src/ with custom HTML response (srcDoc workaround) — deferred", "outcome": "left" },
-    { "name": "mcp", "classification": "MCP server", "signal": "JSON-RPC handler, fixed URL", "outcome": "left" },
-    { "name": "meta-renderer", "classification": "custom response / fixed URL", "signal": "Cloudflare Worker proxies this URL for bot pre-rendering", "outcome": "left" },
-    { "name": "outlook-calendar-auth", "classification": "webhook receiver", "signal": "OAuth callback with fixed redirect URI registered at Microsoft", "outcome": "left" },
-    { "name": "parse-takeout", "classification": "internal-only", "signal": "invoked from src/ (Recovery Wizard) — deferred", "outcome": "left" },
-    { "name": "parse-trip-prompt", "classification": "internal-only", "signal": "invoked from src/; uses WAVESPEED_API_KEY + LOVABLE_API_KEY — deferred", "outcome": "left" },
-    { "name": "partner-api", "classification": "cron target", "signal": "referenced in supabase/migrations; also external partner callers", "outcome": "left" },
-    { "name": "partner-redirect", "classification": "custom response / fixed URL", "signal": "redirect endpoint referenced by raw URL", "outcome": "left" },
-    { "name": "preview-transactional-email", "classification": "unknown", "signal": "no src/ call sites found (admin utility)", "outcome": "left" },
-    { "name": "process-email-queue", "classification": "cron target", "signal": "referenced in supabase/migrations", "outcome": "left" },
-    { "name": "purge-duplicate-trips", "classification": "unknown", "signal": "no src/ call sites found (admin utility)", "outcome": "left" },
-    { "name": "recalculate-distances", "classification": "internal-only", "signal": "invoked from src/ — deferred", "outcome": "left" },
-    { "name": "report-archive", "classification": "internal-only", "signal": "invoked from src/ (Archive page) — deferred", "outcome": "left" },
-    { "name": "send-accountant-report", "classification": "cron target", "signal": "monthly/annual accountant report automation", "outcome": "left" },
-    { "name": "send-accountant-report-manual", "classification": "unknown", "signal": "no direct src/ call site found", "outcome": "left" },
-    { "name": "send-transactional-email", "classification": "unknown", "signal": "called by other edge functions (email queue)", "outcome": "left" },
-    { "name": "send-user-monthly-report", "classification": "cron target", "signal": "monthly PDF report cron", "outcome": "left" },
-    { "name": "sitemap", "classification": "custom response / fixed URL", "signal": "Cloudflare Worker proxies this URL for /sitemap.xml", "outcome": "left" },
-    { "name": "sync-calendar-trips", "classification": "cron target", "signal": "4x-daily calendar sync (dashboard-created schedule; live state only visible in backend Cron view)", "outcome": "left" },
-    { "name": "test-bot-rendering", "classification": "internal-only", "signal": "invoked from src/ (admin diagnostics) — deferred", "outcome": "left" },
-    { "name": "track-event", "classification": "internal-only", "signal": "invoked from src/ (analytics) — deferred", "outcome": "left" },
-    { "name": "transcribe-audio", "classification": "internal-only", "signal": "invoked from src/; uses LOVABLE_API_KEY — deferred", "outcome": "left" },
-    { "name": "trips-guard", "classification": "cron target", "signal": "trips-guard-daily repair cron", "outcome": "left" },
-    { "name": "vehicle-lookup", "classification": "cron target", "signal": "invoked from src/ but also referenced in supabase/migrations", "outcome": "left" },
-    { "name": "view-report", "classification": "custom response / fixed URL", "signal": "secure report links emailed to accountants; referenced in migrations", "outcome": "left" },
-    { "name": "wavespeed", "classification": "internal-only", "signal": "invoked from src/; Wavespeed AI proxy — deferred", "outcome": "left" }
+    {
+      "name": "blog-api",
+      "classification": "external API",
+      "signal": "headless CMS endpoint called by partners (Crawlers)",
+      "outcome": "left"
+    },
+    {
+      "name": "calendar-debug",
+      "classification": "internal-only",
+      "signal": "invoked from src/; uses Google/Microsoft OAuth secrets held in Supabase — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "convert-blog-images",
+      "classification": "unknown",
+      "signal": "no src/ call sites found",
+      "outcome": "left"
+    },
+    {
+      "name": "delete-account",
+      "classification": "internal-only",
+      "signal": "invoked from src/; deferred to keep single secret store during migration",
+      "outcome": "left"
+    },
+    {
+      "name": "docs",
+      "classification": "custom response / fixed URL",
+      "signal": "documentation endpoint, likely Worker-proxied",
+      "outcome": "left"
+    },
+    {
+      "name": "generate-recurring-trips",
+      "classification": "cron target",
+      "signal": "referenced in 3 supabase/migrations files",
+      "outcome": "left"
+    },
+    {
+      "name": "google-calendar-auth",
+      "classification": "webhook receiver",
+      "signal": "OAuth callback with fixed redirect URI registered at Google",
+      "outcome": "left"
+    },
+    {
+      "name": "google-maps-key",
+      "classification": "internal-only",
+      "signal": "invoked from src/; proxies GOOGLE_MAPS_API_KEY secret — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "gsc-analytics",
+      "classification": "internal-only",
+      "signal": "invoked from src/; uses connector gateway secrets — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "handle-email-suppression",
+      "classification": "webhook receiver",
+      "signal": "Resend suppression webhook",
+      "outcome": "left"
+    },
+    {
+      "name": "handle-email-unsubscribe",
+      "classification": "custom response / fixed URL",
+      "signal": "unsubscribe links embedded in sent emails",
+      "outcome": "left"
+    },
+    {
+      "name": "linkedin-post-audit",
+      "classification": "cron target",
+      "signal": "referenced in supabase/migrations",
+      "outcome": "left"
+    },
+    {
+      "name": "linkedin-profile",
+      "classification": "unknown",
+      "signal": "no src/ call sites found",
+      "outcome": "left"
+    },
+    {
+      "name": "linkedin-weekly-post",
+      "classification": "cron target",
+      "signal": "referenced in 6 supabase/migrations files (monthly schedule)",
+      "outcome": "left"
+    },
+    {
+      "name": "marina-analyze",
+      "classification": "internal-only",
+      "signal": "invoked from src/ with custom HTML response (srcDoc workaround) — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "mcp",
+      "classification": "MCP server",
+      "signal": "JSON-RPC handler, fixed URL",
+      "outcome": "left"
+    },
+    {
+      "name": "meta-renderer",
+      "classification": "custom response / fixed URL",
+      "signal": "Cloudflare Worker proxies this URL for bot pre-rendering",
+      "outcome": "left"
+    },
+    {
+      "name": "outlook-calendar-auth",
+      "classification": "webhook receiver",
+      "signal": "OAuth callback with fixed redirect URI registered at Microsoft",
+      "outcome": "left"
+    },
+    {
+      "name": "parse-takeout",
+      "classification": "internal-only",
+      "signal": "invoked from src/ (Recovery Wizard) — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "parse-trip-prompt",
+      "classification": "internal-only",
+      "signal": "invoked from src/; uses WAVESPEED_API_KEY + LOVABLE_API_KEY — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "partner-api",
+      "classification": "cron target",
+      "signal": "referenced in supabase/migrations; also external partner callers",
+      "outcome": "left"
+    },
+    {
+      "name": "partner-redirect",
+      "classification": "custom response / fixed URL",
+      "signal": "redirect endpoint referenced by raw URL",
+      "outcome": "left"
+    },
+    {
+      "name": "preview-transactional-email",
+      "classification": "unknown",
+      "signal": "no src/ call sites found (admin utility)",
+      "outcome": "left"
+    },
+    {
+      "name": "process-email-queue",
+      "classification": "cron target",
+      "signal": "referenced in supabase/migrations",
+      "outcome": "left"
+    },
+    {
+      "name": "purge-duplicate-trips",
+      "classification": "unknown",
+      "signal": "no src/ call sites found (admin utility)",
+      "outcome": "left"
+    },
+    {
+      "name": "recalculate-distances",
+      "classification": "internal-only",
+      "signal": "invoked from src/ — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "report-archive",
+      "classification": "internal-only",
+      "signal": "invoked from src/ (Archive page) — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "send-accountant-report",
+      "classification": "cron target",
+      "signal": "monthly/annual accountant report automation",
+      "outcome": "left"
+    },
+    {
+      "name": "send-accountant-report-manual",
+      "classification": "unknown",
+      "signal": "no direct src/ call site found",
+      "outcome": "left"
+    },
+    {
+      "name": "send-transactional-email",
+      "classification": "unknown",
+      "signal": "called by other edge functions (email queue)",
+      "outcome": "left"
+    },
+    {
+      "name": "send-user-monthly-report",
+      "classification": "cron target",
+      "signal": "monthly PDF report cron",
+      "outcome": "left"
+    },
+    {
+      "name": "sitemap",
+      "classification": "custom response / fixed URL",
+      "signal": "Cloudflare Worker proxies this URL for /sitemap.xml",
+      "outcome": "left"
+    },
+    {
+      "name": "sync-calendar-trips",
+      "classification": "cron target",
+      "signal": "4x-daily calendar sync (dashboard-created schedule; live state only visible in backend Cron view)",
+      "outcome": "left"
+    },
+    {
+      "name": "test-bot-rendering",
+      "classification": "internal-only",
+      "signal": "invoked from src/ (admin diagnostics) — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "track-event",
+      "classification": "internal-only",
+      "signal": "invoked from src/ (analytics) — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "transcribe-audio",
+      "classification": "internal-only",
+      "signal": "invoked from src/; uses LOVABLE_API_KEY — deferred",
+      "outcome": "left"
+    },
+    {
+      "name": "trips-guard",
+      "classification": "cron target",
+      "signal": "trips-guard-daily repair cron",
+      "outcome": "left"
+    },
+    {
+      "name": "vehicle-lookup",
+      "classification": "cron target",
+      "signal": "invoked from src/ but also referenced in supabase/migrations",
+      "outcome": "left"
+    },
+    {
+      "name": "view-report",
+      "classification": "custom response / fixed URL",
+      "signal": "secure report links emailed to accountants; referenced in migrations",
+      "outcome": "left"
+    },
+    {
+      "name": "wavespeed",
+      "classification": "internal-only",
+      "signal": "invoked from src/; Wavespeed AI proxy — deferred",
+      "outcome": "left"
+    }
   ]
 }

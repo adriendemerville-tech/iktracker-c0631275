@@ -9,10 +9,10 @@ type Extra = Record<string, string>;
 const buffer: Array<{ stage: string; message: string; extra?: Extra; at: string }> = [];
 
 export function captureStartupError(error: unknown, stage: string, extra?: Extra) {
-  const message = error instanceof Error ? `${error.message}\n${error.stack ?? ''}` : String(error);
+  const message = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
   buffer.push({ stage, message, extra, at: new Date().toISOString() });
   if (buffer.length > 50) buffer.shift();
-  console.warn(`[startup:${stage}]`, message, extra ?? '');
+  console.warn(`[startup:${stage}]`, message, extra ?? "");
 }
 
 export function getStartupErrors() {

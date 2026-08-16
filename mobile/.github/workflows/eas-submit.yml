@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       platform:
-        description: 'Plateforme (ios | android)'
+        description: "Plateforme (ios | android)"
         required: true
-        default: 'ios'
+        default: "ios"
 
 jobs:
   submit:

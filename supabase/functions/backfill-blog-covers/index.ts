@@ -171,13 +171,11 @@ Deno.serve(async (req) => {
         if (!img.ok) throw new Error(`download ${img.status}`);
         const bytes = new Uint8Array(await img.arrayBuffer());
         const filename = `cover-${post.id.slice(0, 8)}-${Date.now()}.jpg`;
-        const { error: upErr } = await admin.storage
-          .from("blog-images")
-          .upload(filename, bytes, {
-            contentType: "image/jpeg",
-            cacheControl: "31536000",
-            upsert: false,
-          });
+        const { error: upErr } = await admin.storage.from("blog-images").upload(filename, bytes, {
+          contentType: "image/jpeg",
+          cacheControl: "31536000",
+          upsert: false,
+        });
         if (upErr) throw upErr;
         const { data: pub } = admin.storage.from("blog-images").getPublicUrl(filename);
         const { error: updErr } = await admin

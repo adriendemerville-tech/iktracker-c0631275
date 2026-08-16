@@ -1,7 +1,7 @@
-import React from 'react';
-import { Redirect, Tabs } from 'expo-router';
-import { useAuth } from '@/hooks/useAuth';
-import { colors } from '@/theme';
+import React from "react";
+import { Redirect, Tabs } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
+import { colors } from "@/theme";
 
 export default function AppLayout() {
   const { session, loading } = useAuth();
@@ -17,10 +17,10 @@ export default function AppLayout() {
         sceneStyle: { backgroundColor: colors.background },
       }}
     >
-      <Tabs.Screen name="trajet" options={{ title: 'Trajet' }} />
-      <Tabs.Screen name="tournee" options={{ title: 'Mode Tournée' }} />
-      <Tabs.Screen name="nouveau-trajet" options={{ title: 'Nouveau trajet' }} />
-      <Tabs.Screen name="rapports" options={{ title: 'Relevés' }} />
+      <Tabs.Screen name="trajet" options={{ title: "Trajet" }} />
+      <Tabs.Screen name="tournee" options={{ title: "Mode Tournée" }} />
+      <Tabs.Screen name="nouveau-trajet" options={{ title: "Nouveau trajet" }} />
+      <Tabs.Screen name="rapports" options={{ title: "Relevés" }} />
     </Tabs>
   );
 }

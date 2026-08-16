@@ -11,11 +11,11 @@
  * Exit code 1 si désynchronisation détectée.
  */
 
-const fs = require('fs');
+const fs = require("fs");
 
 function parseTsMap(filePath) {
-  const src = fs.readFileSync(filePath, 'utf-8');
-  const body = src.slice(src.indexOf('{', src.indexOf('BLOG_SLUG_REDIRECTS')));
+  const src = fs.readFileSync(filePath, "utf-8");
+  const body = src.slice(src.indexOf("{", src.indexOf("BLOG_SLUG_REDIRECTS")));
   const map = {};
   for (const m of body.matchAll(/"([^"]+)":\s*\n?\s*"([^"]+)"/g)) {
     map[m[1]] = m[2];
@@ -24,9 +24,9 @@ function parseTsMap(filePath) {
 }
 
 function parseWorkerMap(filePath) {
-  const src = fs.readFileSync(filePath, 'utf-8');
-  const start = src.indexOf('const LEGACY_REDIRECTS');
-  const body = src.slice(start, src.indexOf('};', start));
+  const src = fs.readFileSync(filePath, "utf-8");
+  const start = src.indexOf("const LEGACY_REDIRECTS");
+  const body = src.slice(start, src.indexOf("};", start));
   const map = {};
   for (const m of body.matchAll(/'\/blog\/([^']+)':\s*'([^']+)'/g)) {
     map[m[1]] = m[2];
@@ -34,9 +34,9 @@ function parseWorkerMap(filePath) {
   return map;
 }
 
-const shared = parseTsMap('supabase/functions/_shared/blog-redirects.ts');
-const ssr = parseTsMap('src/lib/blog-redirects.ts');
-const worker = parseWorkerMap('cloudflare-worker/iktracker-bot-router.js');
+const shared = parseTsMap("supabase/functions/_shared/blog-redirects.ts");
+const ssr = parseTsMap("src/lib/blog-redirects.ts");
+const worker = parseWorkerMap("cloudflare-worker/iktracker-bot-router.js");
 
 let failed = false;
 function compare(label, other) {
@@ -57,11 +57,13 @@ function compare(label, other) {
   }
 }
 
-compare('ssr', ssr);
-compare('worker', worker);
+compare("ssr", ssr);
+compare("worker", worker);
 
 if (failed) {
-  console.error('\nDésynchronisation des redirections blog détectée.');
+  console.error("\nDésynchronisation des redirections blog détectée.");
   process.exit(1);
 }
-console.log(`Redirections blog synchronisées : ${Object.keys(shared).length} slugs (ssr + worker).`);
+console.log(
+  `Redirections blog synchronisées : ${Object.keys(shared).length} slugs (ssr + worker).`,
+);

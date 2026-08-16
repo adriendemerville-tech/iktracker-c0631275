@@ -1,7 +1,7 @@
-import 'react-native-url-polyfill/auto';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { getSupabaseConfig } from './startup-checks';
+import "react-native-url-polyfill/auto";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseConfig } from "./startup-checks";
 
 // .env (dev) puis app.json > extra (build EAS) : la cle anon est publique.
 const { url, anonKey } = getSupabaseConfig();
@@ -23,7 +23,7 @@ export const supabase: SupabaseClient =
         {
           get() {
             throw new Error(
-              'Configuration backend manquante : EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY absentes.',
+              "Configuration backend manquante : EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY absentes.",
             );
           },
         },
