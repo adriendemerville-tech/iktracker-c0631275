@@ -181,7 +181,7 @@ export function useTrips() {
     if (stored) {
       const parsed = JSON.parse(stored);
       setTrips(
-        parsed.map((t: any) => ({
+        parsed.map((t: StoredTrip) => ({
           ...t,
           baseDistance: t.baseDistance || t.distance,
           roundTrip: t.roundTrip || false,
@@ -244,7 +244,7 @@ export function useTrips() {
               make: v.make,
               model: v.model,
               year: v.year || null,
-            } as any)
+            })
             .select()
             .single();
 
@@ -303,7 +303,7 @@ export function useTrips() {
               purpose: t.purpose || null,
               round_trip: false,
               ik_amount: t.ikAmount,
-            } as any);
+            });
             if (error) {
               tripFailure = true;
               console.error("Migration: trip insert failed", error);
@@ -426,7 +426,7 @@ export function useTrips() {
           round_trip: trip.roundTrip,
           ik_amount: ikAmount,
           tour_stops: trip.tourStops || null,
-        } as any)
+        })
         .select()
         .single();
 
@@ -443,7 +443,7 @@ export function useTrips() {
           startTime: new Date(data.date),
           endTime: new Date(data.date),
           ikAmount: data.ik_amount,
-          tourStops: (data as any).tour_stops as TourStopData[] | undefined,
+          tourStops: (data.tour_stops as TourStopData[] | null) ?? undefined,
           status: "validated",
         };
         setTrips((prev) => [newTrip, ...prev]);
@@ -516,7 +516,7 @@ export function useTrips() {
       const archived = storedArchived ? JSON.parse(storedArchived) : [];
       localStorage.setItem(
         "ik-tracker-archived-trips",
-        JSON.stringify(archived.filter((t: any) => t.id !== id)),
+        JSON.stringify(archived.filter((t: Trip) => t.id !== id)),
       );
 
       // Add back to active trips
@@ -536,7 +536,7 @@ export function useTrips() {
       const archived = storedArchived ? JSON.parse(storedArchived) : [];
       localStorage.setItem(
         "ik-tracker-archived-trips",
-        JSON.stringify(archived.filter((t: any) => t.id !== id)),
+        JSON.stringify(archived.filter((t: Trip) => t.id !== id)),
       );
       setArchivedTrips((prev) => prev.filter((t) => t.id !== id));
     }
