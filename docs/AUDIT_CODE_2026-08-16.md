@@ -8,7 +8,7 @@ Périmètre : `src/` (332 fichiers, 72 478 lignes), `supabase/functions/` (42 fo
 |---|---|---|
 | Typage TypeScript | Aucune erreur (`tsgo --noEmit` propre, mode strict activé) | Bon |
 | Build | Passe (Vite 7 / TanStack Start) | Bon |
-| Tests automatisés | **Cassés** : 24 échecs / 59, aucun script `test`, pas de config `vitest` | Critique |
+| Tests automatisés | **Corrigé le 16/08** : 59/59 au vert, `npm run test` disponible | Bon |
 | Lint (hors formatage) | 283 problèmes, dont 239 `any` | Moyen |
 | Formatage | 21 400 écarts Prettier non appliqués | Moyen |
 | Architecture routes | Duplications `/route` vs `/app/route` | Moyen |
@@ -48,12 +48,16 @@ Conclusion : l'app est **saine côté build** — un développeur peut ajouter u
 - **Fichiers monolithiques** : `linkedin-weekly-post/index.ts` (2 803 l.), `AdminStats.tsx` (2 208 l.), `BlogAdmin.tsx` (1 886 l.), `meta-renderer/index.ts` (1 541 l.), `Index.tsx` (1 534 l.), `MesTrajets.tsx` (1 495 l.). Au-delà de ~600 lignes, la relecture et le diff deviennent risqués.
 - **Barème IK dupliqué** web / mobile (`src/types/trip.ts` vs `mobile/src/lib/ik.ts`) — déjà documenté comme dette dans `mobile/README.md`.
 
-## 5. Plan de remise à niveau proposé
+## 5. Plan de remise à niveau
 
-**Lot 1 — filet de sécurité (impact fort, effort faible)**
-1. `vitest.config.ts` + script `test` → les 59 tests repassent.
-2. Corriger le hook conditionnel de `RecoveryWizard.tsx`.
-3. Remplir les deux `catch` vides avec un log.
+**Lot 1 — filet de sécurité — TERMINÉ (16/08/2026)**
+1. `vitest.config.ts` (environnement `jsdom`, alias `@`) + `src/test/setup.ts` (matchMedia, ResizeObserver, cleanup) + scripts `test` / `test:watch`.
+2. `src/test/router.tsx` : `TestRouter` basé sur `RouterContextProvider` remplace l'ancien `BrowserRouter` react-router-dom hérité de la migration.
+3. Mock backend complété dans `AuthForm.test.tsx` (`getSession`, `onAuthStateChange`, `from`, `functions`) — plus aucune promesse rejetée non gérée.
+4. Hook conditionnel corrigé : `useIsMobile()` remonté avant le retour anticipé dans `RecoveryWizard.tsx`.
+5. Blocs `catch` vides remplis avec un log explicite (`useTourTracker.ts`, `Profile.tsx`).
+
+Résultat : **59 tests / 59 au vert**, `tsgo --noEmit` propre.
 
 **Lot 2 — hygiène (effort faible)**
 4. `npm run format` une fois, puis Prettier en pre-commit.
