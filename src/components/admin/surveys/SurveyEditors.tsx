@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, Eye, ChevronDown, ChevronUp, ListChecks } from "lucide-react";
 import {
   type ContentBlock,
   type SurveyVariant,
