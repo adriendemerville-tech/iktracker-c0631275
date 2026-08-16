@@ -100,151 +100,29 @@ import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import { SignupFunnelCard } from "@/components/admin/SignupFunnelCard";
 import { SearchConsoleCard } from "@/components/admin/SearchConsoleCard";
 
-interface AdminStatsData {
-  total_users: number;
-  total_trips: number;
-  total_km: number;
-  total_ik: number;
-}
-
-interface DownloadStatsData {
-  total_clicks: number;
-  unique_users: number;
-  avg_clicks_per_user: number;
-  pct_users_clicked: number;
-}
-
-interface ShareStatsData {
-  total_shares: number;
-  unique_sharers: number;
-  pct_users_shared: number;
-}
-
-interface TakeoutImportStatsData {
-  total_attempts: number;
-  successful_imports: number;
-  unique_users_imported: number;
-}
-
-interface CalendarConnectionStatsData {
-  provider: string;
-  total_attempts: number;
-  successful_attempts: number;
-  failed_attempts: number;
-}
-
-interface MarketingStatsData {
-  total_views: number;
-  unique_sessions: number;
-  total_cta_clicks: number;
-  total_simulations: number;
-  total_signup_clicks: number;
-  total_crawlers_clicks: number;
-  mobile_views: number;
-  desktop_views: number;
-  tablet_views: number;
-  mobile_pct: number;
-  desktop_pct: number;
-}
-
-interface MarketingViewsByDay {
-  day: string;
-  views: number;
-  unique_visitors: number;
-}
-
-interface SignupClicksByDay {
-  day: string;
-  clicks: number;
-}
-
-interface MarketingStatsByPage {
-  page: string;
-  views: number;
-  cta_clicks: number;
-  simulations: number;
-}
-
-interface TopUser {
-  user_id: string;
-  total_trips: number;
-  total_km: number;
-  total_ik: number;
-}
-
-interface RecentSignup {
-  user_id: string;
-  email: string;
-  created_at: string;
-}
-
-interface MonthlyStats {
-  month: string;
-  total_users: number;
-  total_trips: number;
-  total_km: number;
-  total_ik: number;
-}
-
-type PeriodFilter = "week" | "month" | "year" | "all";
-type Granularity = "day" | "week" | "month";
-type TopUserSort = "trips" | "km" | "ik";
-
-const granularityConfig: Record<Granularity, { label: string; labelFr: string }> = {
-  day: { label: "Jour", labelFr: "par jour" },
-  week: { label: "Semaine", labelFr: "par semaine" },
-  month: { label: "Mois", labelFr: "par mois" },
-};
-
-const periodConfig: Record<
+import type {
+  AdminStatsData,
+  DownloadStatsData,
+  ShareStatsData,
+  TakeoutImportStatsData,
+  CalendarConnectionStatsData,
+  MarketingStatsData,
+  MarketingViewsByDay,
+  SignupClicksByDay,
+  MarketingStatsByPage,
+  TopUser,
+  RecentSignup,
+  MonthlyStats,
   PeriodFilter,
-  { label: string; daysBack: number; getStartDate: () => Date }
-> = {
-  week: {
-    label: "Semaine",
-    daysBack: 7,
-    getStartDate: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
-  },
-  month: {
-    label: "Mois",
-    daysBack: 30,
-    getStartDate: () => startOfMonth(new Date()),
-  },
-  year: {
-    label: "Année",
-    daysBack: 365,
-    getStartDate: () => startOfYear(new Date()),
-  },
-  all: {
-    label: "Tout",
-    daysBack: 3650,
-    getStartDate: () => new Date("2020-01-01"),
-  },
-};
-
-const DEFAULT_SECTION_ORDER = [
-  "main-stats",
-  "dau-chart",
-  "signup-funnel",
-  "search-console",
-  "recent-signups",
-  "persona-distribution",
-  "calendar-connection-stats",
-  "download-stats",
-  "share-stats",
-  "referral-sources",
-  "comparison-chart",
-  "registrations-chart",
-  "recurring-trips-stats",
-  "top-users",
-];
-
-const DEFAULT_MARKETING_SECTION_ORDER = [
-  "marketing-views-chart",
-  "marketing-signup-clicks-chart",
-  "bareme-simulations-chart",
-  "marketing-stats-by-page",
-];
+  Granularity,
+  TopUserSort,
+} from "@/components/admin/admin-stats-config";
+import {
+  granularityConfig,
+  periodConfig,
+  DEFAULT_SECTION_ORDER,
+  DEFAULT_MARKETING_SECTION_ORDER,
+} from "@/components/admin/admin-stats-config";
 
 export function AdminStats() {
   const queryClient = useQueryClient();

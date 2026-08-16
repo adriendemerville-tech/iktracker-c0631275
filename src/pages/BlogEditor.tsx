@@ -289,7 +289,11 @@ export default function BlogEditor() {
     <>
       <Helmet>
         <title>{existingPost ? "Modifier l'article" : "Nouvel article"} - Blog IKtracker</title>
-        <link rel="canonical" href={`https://iktracker.fr/blog/edit${id ? `/${id}` : ""}`} />
+        <meta name="robots" content="noindex, nofollow" />
+        <link
+          rel="canonical"
+          href={`https://iktracker.fr/app/admin/blog/edit${id ? `/${id}` : ""}`}
+        />
       </Helmet>
 
       <div className="min-h-screen bg-background">

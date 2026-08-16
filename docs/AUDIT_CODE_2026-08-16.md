@@ -92,3 +92,27 @@ Vérifications : `prettier --check .` propre sur tout le dépôt, `tsgo --noEmit
 Résultat : `tsgo --noEmit` propre, `prettier` propre, **59 tests / 59 au vert**.
 
 Reste au Lot 3 : les 22 avertissements `react-hooks/exhaustive-deps`, à traiter cas par cas (certains sont intentionnels et demandent un commentaire justificatif plutôt qu'un ajout de dépendance).
+
+## Lot 4 — structure (1re passe) — 16/08/2026
+
+**Routes dupliquées**
+
+1. Suppression de `src/routes/app/blog/edit/` (`index.tsx` et `$id.tsx`) : ces deux routes montaient le même composant `BlogEditor` que `/app/admin/blog/edit/*` et n'étaient référencées nulle part.
+2. `/blog/edit` et `/blog/edit/$id` redirigent désormais vers `/app/admin/blog/edit` (l'`$id` est conservé dans la redirection, il était perdu auparavant).
+3. `BlogEditor` : canonical corrigé vers `/app/admin/blog/edit/...` + `noindex, nofollow` (page d'administration).
+4. Vérifié : les autres paires (`/install` → `/installer`, `/experts-comptables` → `/expert-comptable`, `/indépendants` → `/independants`, `/mestrajets` → `/app/mestrajets`, `/recovery` → `/app/recovery`) sont des alias 301 volontaires et ont été conservés.
+
+**Fichiers > 1000 lignes découpés**
+
+| Fichier | Avant | Après | Modules extraits |
+| --- | --- | --- | --- |
+| `src/lib/print-utils.ts` | 1453 | 75 | `src/lib/print/report-shared.ts`, `report-html.ts`, `clean-pdf-html.ts` |
+| `src/components/admin/AdminSurveys.tsx` | 1600 | 809 | `admin/surveys/survey-types.ts`, `SurveyEditors.tsx`, `SurveyStats.tsx` |
+| `src/components/admin/AdminAutopilot.tsx` | 1418 | 498 | `admin/autopilot/types.ts`, `AutopilotCards.tsx`, `report.ts` |
+| `src/components/admin/AdminDocumentation.tsx` | 1201 | 728 | `admin/documentation/doc-data.tsx`, `doc-pdf-html.ts` |
+| `src/pages/Lexique.tsx` | 1252 | 961 | `src/data/lexique-terms.ts` |
+| `src/components/AdminStats.tsx` | 2633 | 2511 | `admin/admin-stats-config.ts` (types, périodes, ordres de sections) |
+
+Vérifications : `tsgo --noEmit` propre, `prettier` propre, 59 tests / 59 au vert, `/`, `/lexique` et `/blog/edit/:id` en HTTP 200.
+
+**Reste au Lot 4** (découpage lourd, JSX à extraire en sous-composants avec props) : `AdminStats.tsx` (2511), `BlogAdmin.tsx` (2089), `Index.tsx` (1693), `MesTrajets.tsx` (1650), `Admin.tsx` (1368), `Landing.tsx` (1278), `useTrips.ts` (1239), `useTourTracker.ts` (1234), `Profile.tsx` (1199), `BaremeIK2026.tsx` (1168), `RecoveryWizard.tsx` (1141), `TripSettingsModal.tsx` (1099).
