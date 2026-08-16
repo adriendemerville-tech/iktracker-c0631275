@@ -608,8 +608,8 @@ export function useTrips() {
           round_trip: updates.roundTrip,
           purpose: updates.purpose !== undefined ? updates.purpose || null : undefined,
           ik_amount: ikAmount,
-          ...(updates.tourStops !== undefined ? { tour_stops: updates.tourStops as any } : {}),
-        } as any)
+          ...(updates.tourStops !== undefined ? { tour_stops: toJson(updates.tourStops) } : {}),
+        })
         .eq("id", id);
 
       if (!error) {
@@ -752,7 +752,7 @@ export function useTrips() {
           model: vehicle.model,
           year: vehicle.year || null,
           is_electric: vehicle.isElectric || false,
-        } as any)
+        })
         .select()
         .single();
 
@@ -864,7 +864,7 @@ export function useTrips() {
           model: updates.model,
           year: updates.year || null,
           is_electric: updates.isElectric,
-        } as any)
+        })
         .eq("id", id);
 
       // If fiscal power or electric status changed, recalculate IK for all trips with this vehicle
