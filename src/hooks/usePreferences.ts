@@ -121,7 +121,7 @@ export function usePreferences() {
           }
 
           // Sync persona → profession
-          const persona = (data as any)?.persona as string | undefined;
+          const persona = data.persona as string | undefined;
           if (persona && persona !== "undefined") {
             const personaOption = PERSONA_OPTIONS.find((p) => p.value === persona);
             if (personaOption) {
@@ -132,30 +132,30 @@ export function usePreferences() {
           }
 
           // Sync calendar import mode
-          const mode = (data as any)?.calendar_import_mode as CalendarImportMode | undefined;
+          const mode = data.calendar_import_mode as CalendarImportMode | undefined;
           if (mode === "tour" || mode === "individual") {
             updates.calendarImportMode = mode;
           }
 
           // Sync IK rate override
-          const override = (data as any)?.ik_rate_override as IKRateOverride | undefined;
+          const override = data.ik_rate_override as IKRateOverride | undefined;
           if (override === "auto" || override === "tier2" || override === "tier3") {
             updates.ikRateOverride = override;
           }
 
-          if (typeof (data as any)?.accountant_auto_send === "boolean") {
-            updates.accountantAutoSend = (data as any).accountant_auto_send;
+          if (typeof data.accountant_auto_send === "boolean") {
+            updates.accountantAutoSend = data.accountant_auto_send;
           }
-          const freq = (data as any)?.accountant_frequency as AccountantFrequency | undefined;
+          const freq = data.accountant_frequency as AccountantFrequency | undefined;
           if (freq === "monthly" || freq === "quarterly" || freq === "yearly") {
             updates.accountantFrequency = freq;
           }
-          const day = (data as any)?.accountant_send_day as number | undefined;
+          const day = data.accountant_send_day as number | undefined;
           if (typeof day === "number" && day >= 1 && day <= 28) {
             updates.accountantSendDay = day;
           }
-          if (typeof (data as any)?.user_monthly_report_enabled === "boolean") {
-            updates.userMonthlyReportEnabled = (data as any).user_monthly_report_enabled;
+          if (typeof data.user_monthly_report_enabled === "boolean") {
+            updates.userMonthlyReportEnabled = data.user_monthly_report_enabled;
           }
 
           if (Object.keys(updates).length > 0) {
@@ -221,7 +221,7 @@ export function usePreferences() {
           {
             user_id: user.id,
             persona: personaValue,
-          } as any,
+          },
           { onConflict: "user_id" },
         );
       } catch (e) {
@@ -238,7 +238,7 @@ export function usePreferences() {
       try {
         const { error } = await supabase
           .from("user_preferences")
-          .upsert({ user_id: user.id, calendar_import_mode: mode } as any, {
+          .upsert({ user_id: user.id, calendar_import_mode: mode }, {
             onConflict: "user_id",
           });
         if (error) console.warn("Failed to save calendar_import_mode:", error);
@@ -256,7 +256,7 @@ export function usePreferences() {
       try {
         const { error } = await supabase
           .from("user_preferences")
-          .upsert({ user_id: user.id, ik_rate_override: override } as any, {
+          .upsert({ user_id: user.id, ik_rate_override: override }, {
             onConflict: "user_id",
           });
         if (error) console.warn("Failed to save ik_rate_override:", error);
@@ -273,12 +273,13 @@ export function usePreferences() {
       accountant_auto_send?: boolean;
       accountant_frequency?: AccountantFrequency;
       accountant_send_day?: number;
+      user_monthly_report_enabled?: boolean;
     }) => {
       if (!user) return;
       try {
         const { error } = await supabase
           .from("user_preferences")
-          .upsert({ user_id: user.id, ...patch } as any, { onConflict: "user_id" });
+          .upsert({ user_id: user.id, ...patch }, { onConflict: "user_id" });
         if (error) console.warn("Failed to save accountant schedule:", error);
       } catch (e) {
         console.warn("Failed to save accountant schedule:", e);
@@ -321,7 +322,7 @@ export function usePreferences() {
       saveAccountantScheduleToDatabase({ accountant_send_day: value as number });
     }
     if (key === "userMonthlyReportEnabled" && user) {
-      saveAccountantScheduleToDatabase({ user_monthly_report_enabled: value as boolean } as any);
+      saveAccountantScheduleToDatabase({ user_monthly_report_enabled: value as boolean });
     }
   };
 
