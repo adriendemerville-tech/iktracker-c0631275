@@ -23,6 +23,7 @@ import { ThresholdAlert } from '@/components/ThresholdAlert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { InstallBanner } from '@/components/InstallBanner';
+import { QuickTripTracker } from '@/components/QuickTripTracker';
 import {
   AlertDialog,
   AlertDialogAction,
