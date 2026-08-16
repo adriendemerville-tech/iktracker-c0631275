@@ -151,35 +151,7 @@ export function useTrips() {
         .order("date", { ascending: false });
 
       if (dbTrips) {
-        setTrips(
-          dbTrips.map((t) => ({
-            id: t.id,
-            vehicleId: t.vehicle_id,
-            startLocation: dbLocation(
-              t.start_location,
-              (t as any).start_address,
-              (t as any).start_lat,
-              (t as any).start_lng,
-            ),
-            endLocation: dbLocation(
-              t.end_location,
-              (t as any).end_address,
-              (t as any).end_lat,
-              (t as any).end_lng,
-            ),
-
-            distance: t.distance,
-            baseDistance: t.round_trip ? t.distance / 2 : t.distance,
-            roundTrip: t.round_trip,
-            purpose: t.purpose || "",
-            startTime: new Date(t.date),
-            endTime: new Date(t.date),
-            ikAmount: t.ik_amount,
-            tourStops: (t as any).tour_stops as TourStopData[] | undefined,
-            calendarEventId: t.calendar_event_id || undefined,
-            status: (t as any).status || "validated",
-          })),
-        );
+        setTrips(dbTrips.map(mapTripRow));
       }
 
       // Load archived trips (deleted within last 30 days)
