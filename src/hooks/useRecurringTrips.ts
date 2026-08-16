@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import type { Json, Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { Location } from "@/types/trip";
 
 export interface RecurringTrip {
@@ -20,12 +21,21 @@ export interface RecurringTrip {
   createdAt: string | null;
 }
 
-function mapRow(r: any): RecurringTrip {
+type RecurringTripRow = Tables<"recurring_trips">;
+type RecurringTripInsert = TablesInsert<"recurring_trips">;
+type RecurringTripUpdate = TablesUpdate<"recurring_trips">;
+
+// Les colonnes jsonb sont typées Json : on convertit explicitement plutôt que de caster en any.
+function toJson(value: unknown): Json {
+  return value as Json;
+}
+
+function mapRow(r: RecurringTripRow): RecurringTrip {
   return {
     id: r.id,
     vehicleId: r.vehicle_id,
-    startLocation: r.start_location,
-    endLocation: r.end_location,
+    startLocation: r.start_location as unknown as Location,
+    endLocation: r.end_location as unknown as Location,
     distance: r.distance,
     baseDistance: r.base_distance,
     roundTrip: r.round_trip,
@@ -52,10 +62,10 @@ export function useRecurringTrips() {
     }
     setLoading(true);
     const { data, error } = await supabase
-      .from("recurring_trips" as any)
+      .from("recurring_trips")
       .select("*")
       .order("created_at", { ascending: false });
-    if (!error && data) setItems((data as any[]).map(mapRow));
+    if (!error && data) setItems(data.map(mapRow));
     setLoading(false);
   }, [user]);
 
@@ -67,19 +77,19 @@ export function useRecurringTrips() {
     async (input: Omit<RecurringTrip, "id" | "lastGeneratedDate">) => {
       if (!user) return null;
       const { data, error } = await supabase
-        .from("recurring_trips" as any)
+        .from("recurring_trips")
         .insert({
           user_id: user.id,
           vehicle_id: input.vehicleId,
-          start_location: input.startLocation as any,
-          end_location: input.endLocation as any,
+          start_location: toJson(input.startLocation),
+          end_location: toJson(input.endLocation),
           distance: input.distance,
           base_distance: input.baseDistance,
           round_trip: input.roundTrip,
           purpose: input.purpose || null,
           days_of_week: input.daysOfWeek,
           is_active: input.isActive,
-        } as any)
+        } satisfies RecurringTripInsert)
         .select()
         .single();
       if (error || !data) return null;
@@ -91,10 +101,10 @@ export function useRecurringTrips() {
   );
 
   const update = useCallback(async (id: string, patch: Partial<Omit<RecurringTrip, "id">>) => {
-    const payload: any = {};
+    const payload: RecurringTripUpdate = {};
     if (patch.vehicleId !== undefined) payload.vehicle_id = patch.vehicleId;
-    if (patch.startLocation !== undefined) payload.start_location = patch.startLocation;
-    if (patch.endLocation !== undefined) payload.end_location = patch.endLocation;
+    if (patch.startLocation !== undefined) payload.start_location = toJson(patch.startLocation);
+    if (patch.endLocation !== undefined) payload.end_location = toJson(patch.endLocation);
     if (patch.distance !== undefined) payload.distance = patch.distance;
     if (patch.baseDistance !== undefined) payload.base_distance = patch.baseDistance;
     if (patch.roundTrip !== undefined) payload.round_trip = patch.roundTrip;
@@ -104,7 +114,7 @@ export function useRecurringTrips() {
     if (patch.weeksDuration !== undefined) payload.weeks_duration = patch.weeksDuration;
     if (patch.activeMonths !== undefined) payload.active_months = patch.activeMonths;
     const { data, error } = await supabase
-      .from("recurring_trips" as any)
+      .from("recurring_trips")
       .update(payload)
       .eq("id", id)
       .select()
@@ -116,10 +126,7 @@ export function useRecurringTrips() {
   }, []);
 
   const remove = useCallback(async (id: string) => {
-    const { error } = await supabase
-      .from("recurring_trips" as any)
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("recurring_trips").delete().eq("id", id);
     if (!error) setItems((p) => p.filter((x) => x.id !== id));
   }, []);
 

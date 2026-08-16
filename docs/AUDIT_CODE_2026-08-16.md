@@ -81,3 +81,14 @@ Résultat : **59 tests / 59 au vert**, `tsgo --noEmit` propre.
 5. Script `npm run format:check` ajouté pour verrouiller le style et permettre un contrôle en CI.
 
 Vérifications : `prettier --check .` propre sur tout le dépôt, `tsgo --noEmit` sans erreur, 59 tests / 59 au vert, preview HTTP 200.
+
+## Lot 3 — typage des hooks de données — TERMINÉ (16/08/2026)
+
+1. `src/hooks/useTrips.ts` : 0 `any` restant (42 avant). Types générés `Tables`/`TablesInsert` importés, alias `TripRow` / `TripInsert` / `VehicleRow`, mappers uniques `mapTripRow` et `mapVehicleRow` remplaçant les 4 blocs de mapping dupliqués (chargement actif, archives, rechargement après recalcul IK, véhicules).
+2. Type `StoredTrip` introduit pour la réhydratation localStorage (utilisateurs non connectés), et helper `toJson` pour les colonnes `jsonb` (`tour_stops`) au lieu d'un cast `any`.
+3. `src/hooks/usePreferences.ts` : 0 `any` restant. Les colonnes `persona`, `calendar_import_mode`, `ik_rate_override`, `accountant_*` et `user_monthly_report_enabled` existent désormais dans les types générés — les casts de lecture et les `upsert(... as any)` ont été supprimés, et le patch de planification comptable inclut `user_monthly_report_enabled`.
+4. `src/hooks/useRecurringTrips.ts` : 0 `any` restant. `from("recurring_trips" as any)` supprimé, `mapRow` typé sur `Tables<"recurring_trips">`, payload d'update typé `TablesUpdate`, insert validé par `satisfies TablesInsert`.
+
+Résultat : `tsgo --noEmit` propre, `prettier` propre, **59 tests / 59 au vert**.
+
+Reste au Lot 3 : les 22 avertissements `react-hooks/exhaustive-deps`, à traiter cas par cas (certains sont intentionnels et demandent un commentaire justificatif plutôt qu'un ajout de dépendance).
