@@ -72,8 +72,6 @@ import { Route as BlogEditIdRouteImport } from './routes/blog/edit/$id'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
-import { Route as AppBlogEditIndexRouteImport } from './routes/app/blog/edit/index'
-import { Route as AppBlogEditIdRouteImport } from './routes/app/blog/edit/$id'
 import { Route as AppAdminBlogEditIndexRouteImport } from './routes/app/admin/blog/edit/index'
 import { Route as AppAdminBlogEditIdRouteImport } from './routes/app/admin/blog/edit/$id'
 
@@ -395,16 +393,6 @@ const AppAdminBlogIndexRoute = AppAdminBlogIndexRouteImport.update({
   path: '/app/admin/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppBlogEditIndexRoute = AppBlogEditIndexRouteImport.update({
-  id: '/app/blog/edit/',
-  path: '/app/blog/edit/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppBlogEditIdRoute = AppBlogEditIdRouteImport.update({
-  id: '/app/blog/edit/$id',
-  path: '/app/blog/edit/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppAdminBlogEditIndexRoute = AppAdminBlogEditIndexRouteImport.update({
   id: '/app/admin/blog/edit/',
   path: '/app/admin/blog/edit/',
@@ -478,10 +466,8 @@ export interface FileRoutesByFullPath {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
-  '/app/blog/edit/$id': typeof AppBlogEditIdRoute
   '/admin/blog/edit/': typeof AdminBlogEditIndexRoute
   '/app/admin/blog/': typeof AppAdminBlogIndexRoute
-  '/app/blog/edit/': typeof AppBlogEditIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
   '/app/admin/blog/edit/': typeof AppAdminBlogEditIndexRoute
 }
@@ -547,10 +533,8 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
-  '/app/blog/edit/$id': typeof AppBlogEditIdRoute
   '/admin/blog/edit': typeof AdminBlogEditIndexRoute
   '/app/admin/blog': typeof AppAdminBlogIndexRoute
-  '/app/blog/edit': typeof AppBlogEditIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
   '/app/admin/blog/edit': typeof AppAdminBlogEditIndexRoute
 }
@@ -617,10 +601,8 @@ export interface FileRoutesById {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
-  '/app/blog/edit/$id': typeof AppBlogEditIdRoute
   '/admin/blog/edit/': typeof AdminBlogEditIndexRoute
   '/app/admin/blog/': typeof AppAdminBlogIndexRoute
-  '/app/blog/edit/': typeof AppBlogEditIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
   '/app/admin/blog/edit/': typeof AppAdminBlogEditIndexRoute
 }
@@ -688,10 +670,8 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
-    | '/app/blog/edit/$id'
     | '/admin/blog/edit/'
     | '/app/admin/blog/'
-    | '/app/blog/edit/'
     | '/app/admin/blog/edit/$id'
     | '/app/admin/blog/edit/'
   fileRoutesByTo: FileRoutesByTo
@@ -757,10 +737,8 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/blog/edit'
     | '/admin/blog/edit/$id'
-    | '/app/blog/edit/$id'
     | '/admin/blog/edit'
     | '/app/admin/blog'
-    | '/app/blog/edit'
     | '/app/admin/blog/edit/$id'
     | '/app/admin/blog/edit'
   id:
@@ -826,10 +804,8 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
-    | '/app/blog/edit/$id'
     | '/admin/blog/edit/'
     | '/app/admin/blog/'
-    | '/app/blog/edit/'
     | '/app/admin/blog/edit/$id'
     | '/app/admin/blog/edit/'
   fileRoutesById: FileRoutesById
@@ -896,10 +872,8 @@ export interface RootRouteChildren {
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
   AdminBlogEditIdRoute: typeof AdminBlogEditIdRoute
-  AppBlogEditIdRoute: typeof AppBlogEditIdRoute
   AdminBlogEditIndexRoute: typeof AdminBlogEditIndexRoute
   AppAdminBlogIndexRoute: typeof AppAdminBlogIndexRoute
-  AppBlogEditIndexRoute: typeof AppBlogEditIndexRoute
   AppAdminBlogEditIdRoute: typeof AppAdminBlogEditIdRoute
   AppAdminBlogEditIndexRoute: typeof AppAdminBlogEditIndexRoute
 }
@@ -1347,20 +1321,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminBlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/blog/edit/': {
-      id: '/app/blog/edit/'
-      path: '/app/blog/edit'
-      fullPath: '/app/blog/edit/'
-      preLoaderRoute: typeof AppBlogEditIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app/blog/edit/$id': {
-      id: '/app/blog/edit/$id'
-      path: '/app/blog/edit/$id'
-      fullPath: '/app/blog/edit/$id'
-      preLoaderRoute: typeof AppBlogEditIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app/admin/blog/edit/': {
       id: '/app/admin/blog/edit/'
       path: '/app/admin/blog/edit'
@@ -1441,10 +1401,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
   AdminBlogEditIdRoute: AdminBlogEditIdRoute,
-  AppBlogEditIdRoute: AppBlogEditIdRoute,
   AdminBlogEditIndexRoute: AdminBlogEditIndexRoute,
   AppAdminBlogIndexRoute: AppAdminBlogIndexRoute,
-  AppBlogEditIndexRoute: AppBlogEditIndexRoute,
   AppAdminBlogEditIdRoute: AppAdminBlogEditIdRoute,
   AppAdminBlogEditIndexRoute: AppAdminBlogEditIndexRoute,
 }
