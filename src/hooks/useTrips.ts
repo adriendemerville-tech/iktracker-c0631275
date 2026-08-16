@@ -425,7 +425,7 @@ export function useTrips() {
           purpose: trip.purpose || null,
           round_trip: trip.roundTrip,
           ik_amount: ikAmount,
-          tour_stops: trip.tourStops || null,
+          tour_stops: toJson(trip.tourStops),
         })
         .select()
         .single();
