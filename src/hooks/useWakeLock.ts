@@ -35,7 +35,7 @@ export function useWakeLock(): UseWakeLockReturn {
     const checkBattery = async () => {
       if ("getBattery" in navigator) {
         try {
-          // @ts-ignore - getBattery is not in TypeScript types
+          // @ts-expect-error - getBattery ne fait pas partie des types DOM standards
           const battery = await navigator.getBattery();
 
           const updateBatteryStatus = () => {

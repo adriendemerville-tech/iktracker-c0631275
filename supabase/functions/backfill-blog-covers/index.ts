@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
 
     console.log("backfill batch done", JSON.stringify(results));
   };
-  // @ts-ignore EdgeRuntime is available in Supabase edge functions
+  // @ts-expect-error EdgeRuntime est fourni par le runtime edge Supabase
   EdgeRuntime.waitUntil(run());
   return json({ started: batch.length, pending: todo.length });
 });
