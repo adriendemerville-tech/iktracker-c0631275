@@ -511,8 +511,6 @@ export default function RecoveryWizard() {
     );
   }
 
-  const isMobile = useIsMobile();
-
   return (
     <>
       <Helmet>
