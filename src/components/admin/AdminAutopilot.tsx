@@ -1,15 +1,15 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   RefreshCw,
   CheckCircle2,
@@ -31,11 +31,11 @@ import {
   FileCode,
   Download,
   Filter,
-} from 'lucide-react';
-import { AutopilotCounters } from './AutopilotCounters';
-import { AuditSessionGroup, buildAuditSessions, type AuditSession } from './AuditSessionGroup';
-import { SessionDetailSheet } from './SessionDetailSheet';
-import { auditLogsToCsv, eventsToCsv, downloadCsv } from '@/lib/autopilot-export';
+} from "lucide-react";
+import { AutopilotCounters } from "./AutopilotCounters";
+import { AuditSessionGroup, buildAuditSessions, type AuditSession } from "./AuditSessionGroup";
+import { SessionDetailSheet } from "./SessionDetailSheet";
+import { auditLogsToCsv, eventsToCsv, downloadCsv } from "@/lib/autopilot-export";
 
 // Types
 interface AuditLog {
@@ -65,53 +65,60 @@ interface AutopilotEvent {
 }
 
 // Health score calculation
-function getPageHealth(events: AutopilotEvent[], pageKey: string): { score: number; color: string; label: string } {
-  const pageEvents = events.filter(e => e.page_key === pageKey && !e.resolved);
-  const criticalCount = pageEvents.filter(e => e.severity === 'critical').length;
-  const warningCount = pageEvents.filter(e => e.severity === 'warning').length;
+function getPageHealth(
+  events: AutopilotEvent[],
+  pageKey: string,
+): { score: number; color: string; label: string } {
+  const pageEvents = events.filter((e) => e.page_key === pageKey && !e.resolved);
+  const criticalCount = pageEvents.filter((e) => e.severity === "critical").length;
+  const warningCount = pageEvents.filter((e) => e.severity === "warning").length;
 
-  if (criticalCount > 0) return { score: 0, color: 'text-destructive', label: 'Critique' };
-  if (warningCount > 0) return { score: 50, color: 'text-warning', label: 'Warning' };
-  return { score: 100, color: 'text-emerald-500', label: 'OK' };
+  if (criticalCount > 0) return { score: 0, color: "text-destructive", label: "Critique" };
+  if (warningCount > 0) return { score: 50, color: "text-warning", label: "Warning" };
+  return { score: 100, color: "text-emerald-500", label: "OK" };
 }
 
 // Resource type icons/labels
 const RESOURCE_LABELS: Record<string, { icon: typeof FileText; label: string }> = {
-  'post': { icon: FileText, label: 'Article' },
-  'page': { icon: Globe, label: 'Page' },
-  'seo': { icon: Globe, label: 'SEO' },
-  'injection': { icon: Code2, label: 'Injection' },
-  'config': { icon: Settings, label: 'Config' },
-  'media': { icon: FileText, label: 'Média' },
-  'redirect': { icon: ArrowRight, label: 'Redirect' },
+  post: { icon: FileText, label: "Article" },
+  page: { icon: Globe, label: "Page" },
+  seo: { icon: Globe, label: "SEO" },
+  injection: { icon: Code2, label: "Injection" },
+  config: { icon: Settings, label: "Config" },
+  media: { icon: FileText, label: "Média" },
+  redirect: { icon: ArrowRight, label: "Redirect" },
 };
 
 const SEVERITY_CONFIG: Record<string, { icon: typeof Info; color: string; bg: string }> = {
-  'info': { icon: Info, color: 'text-muted-foreground', bg: 'bg-muted/50' },
-  'warning': { icon: AlertTriangle, color: 'text-warning', bg: 'bg-yellow-500/10' },
-  'critical': { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10' },
+  info: { icon: Info, color: "text-muted-foreground", bg: "bg-muted/50" },
+  warning: { icon: AlertTriangle, color: "text-warning", bg: "bg-yellow-500/10" },
+  critical: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
 };
 
 // Diff viewer component
-function DiffView({ previous, current }: { previous: Record<string, unknown> | null; current: Record<string, unknown> | null }) {
+function DiffView({
+  previous,
+  current,
+}: {
+  previous: Record<string, unknown> | null;
+  current: Record<string, unknown> | null;
+}) {
   if (!previous && !current) return null;
 
-  const allKeys = new Set([
-    ...Object.keys(previous || {}),
-    ...Object.keys(current || {}),
-  ]);
+  const allKeys = new Set([...Object.keys(previous || {}), ...Object.keys(current || {})]);
 
-  const changedKeys = Array.from(allKeys).filter(key => {
+  const changedKeys = Array.from(allKeys).filter((key) => {
     const prev = JSON.stringify((previous || {})[key]);
     const curr = JSON.stringify((current || {})[key]);
     return prev !== curr;
   });
 
-  if (changedKeys.length === 0) return <p className="text-xs text-muted-foreground italic">Aucun changement détecté</p>;
+  if (changedKeys.length === 0)
+    return <p className="text-xs text-muted-foreground italic">Aucun changement détecté</p>;
 
   return (
     <div className="space-y-2 text-xs font-mono">
-      {changedKeys.map(key => (
+      {changedKeys.map((key) => (
         <div key={key} className="space-y-0.5">
           <p className="text-muted-foreground font-semibold">{key}</p>
           <div className="grid grid-cols-2 gap-2">
@@ -131,9 +138,9 @@ function DiffView({ previous, current }: { previous: Record<string, unknown> | n
 }
 
 function truncateValue(value: unknown): string {
-  const str = typeof value === 'string' ? value : JSON.stringify(value);
-  if (!str) return '(vide)';
-  return str.length > 120 ? str.slice(0, 120) + '…' : str;
+  const str = typeof value === "string" ? value : JSON.stringify(value);
+  if (!str) return "(vide)";
+  return str.length > 120 ? str.slice(0, 120) + "…" : str;
 }
 
 // Audit log card with linked events
@@ -149,12 +156,12 @@ function AuditCard({
   onResolveEvent: (id: string) => void;
 }) {
   const [showDiff, setShowDiff] = useState(false);
-  const linkedEvents = events.filter(e => e.audit_log_id === log.id);
-  const resourceInfo = RESOURCE_LABELS[log.resource_type] || RESOURCE_LABELS['post'];
+  const linkedEvents = events.filter((e) => e.audit_log_id === log.id);
+  const resourceInfo = RESOURCE_LABELS[log.resource_type] || RESOURCE_LABELS["post"];
   const Icon = resourceInfo.icon;
 
   return (
-    <Card className={`transition-all ${log.reverted ? 'opacity-60 border-dashed' : ''}`}>
+    <Card className={`transition-all ${log.reverted ? "opacity-60 border-dashed" : ""}`}>
       <CardContent className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-start gap-3">
@@ -163,8 +170,13 @@ function AuditCard({
           </div>
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="text-xs">{resourceInfo.label}</Badge>
-              <Badge variant={log.action === 'delete' ? 'destructive' : 'secondary'} className="text-xs">
+              <Badge variant="outline" className="text-xs">
+                {resourceInfo.label}
+              </Badge>
+              <Badge
+                variant={log.action === "delete" ? "destructive" : "secondary"}
+                className="text-xs"
+              >
                 {log.action.toUpperCase()}
               </Badge>
               {log.reverted && (
@@ -172,7 +184,7 @@ function AuditCard({
                   <RotateCcw className="w-3 h-3" /> Annulé
                 </Badge>
               )}
-              {classifySource(log) === 'parmenion' ? (
+              {classifySource(log) === "parmenion" ? (
                 <Badge className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100">
                   Parménion
                 </Badge>
@@ -187,7 +199,7 @@ function AuditCard({
                 </Badge>
               )}
               <span className="text-xs text-muted-foreground ml-auto">
-                {format(new Date(log.created_at), 'dd MMM HH:mm', { locale: fr })}
+                {format(new Date(log.created_at), "dd MMM HH:mm", { locale: fr })}
               </span>
             </div>
             <p className="text-sm font-medium truncate">
@@ -215,7 +227,7 @@ function AuditCard({
               onClick={() => setShowDiff(!showDiff)}
               className="text-xs text-primary hover:underline"
             >
-              {showDiff ? 'Masquer' : 'Voir'} le diff
+              {showDiff ? "Masquer" : "Voir"} le diff
             </button>
             {showDiff && (
               <div className="bg-muted/30 rounded-md p-3">
@@ -231,8 +243,8 @@ function AuditCard({
             <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
               <Zap className="w-3 h-3" /> Événements liés ({linkedEvents.length})
             </p>
-            {linkedEvents.map(evt => {
-              const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG['info'];
+            {linkedEvents.map((evt) => {
+              const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG["info"];
               const SevIcon = sev.icon;
               return (
                 <div key={evt.id} className={`flex items-start gap-2 p-2 rounded-md ${sev.bg}`}>
@@ -240,7 +252,7 @@ function AuditCard({
                   <div className="flex-1 min-w-0">
                     <p className="text-xs">{evt.message}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {format(new Date(evt.created_at), 'dd MMM HH:mm', { locale: fr })}
+                      {format(new Date(evt.created_at), "dd MMM HH:mm", { locale: fr })}
                     </p>
                   </div>
                   {!evt.resolved && (
@@ -265,12 +277,12 @@ function AuditCard({
 
 // Health dashboard
 function HealthDashboard({ events }: { events: AutopilotEvent[] }) {
-  const activeEvents = events.filter(e => !e.resolved);
-  const pages = [...new Set(activeEvents.map(e => e.page_key).filter(Boolean))] as string[];
+  const activeEvents = events.filter((e) => !e.resolved);
+  const pages = [...new Set(activeEvents.map((e) => e.page_key).filter(Boolean))] as string[];
 
-  const criticalCount = activeEvents.filter(e => e.severity === 'critical').length;
-  const warningCount = activeEvents.filter(e => e.severity === 'warning').length;
-  const infoCount = activeEvents.filter(e => e.severity === 'info').length;
+  const criticalCount = activeEvents.filter((e) => e.severity === "critical").length;
+  const warningCount = activeEvents.filter((e) => e.severity === "warning").length;
+  const infoCount = activeEvents.filter((e) => e.severity === "info").length;
 
   return (
     <Card>
@@ -304,11 +316,13 @@ function HealthDashboard({ events }: { events: AutopilotEvent[] }) {
           </div>
         ) : (
           <div className="space-y-2">
-            {pages.map(page => {
+            {pages.map((page) => {
               const health = getPageHealth(events, page);
               return (
                 <div key={page} className="flex items-center gap-2 p-2 rounded-md bg-muted/30">
-                  <div className={`w-2 h-2 rounded-full ${health.score === 100 ? 'bg-emerald-500' : health.score === 50 ? 'bg-yellow-500' : 'bg-destructive'}`} />
+                  <div
+                    className={`w-2 h-2 rounded-full ${health.score === 100 ? "bg-emerald-500" : health.score === 50 ? "bg-yellow-500" : "bg-destructive"}`}
+                  />
                   <code className="text-xs flex-1 truncate">{page}</code>
                   <Badge variant="outline" className={`text-[10px] ${health.color}`}>
                     {health.label}
@@ -324,22 +338,28 @@ function HealthDashboard({ events }: { events: AutopilotEvent[] }) {
 }
 
 // Helper to render structured detail sections
-function DetailSection({ icon: Icon, label, children }: { icon: typeof Info; label: string; children: React.ReactNode }) {
+function DetailSection({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: typeof Info;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1">
       <p className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">
         <Icon className="w-3 h-3" /> {label}
       </p>
-      <div className="bg-muted/30 rounded-md p-2 text-xs overflow-x-auto">
-        {children}
-      </div>
+      <div className="bg-muted/30 rounded-md p-2 text-xs overflow-x-auto">{children}</div>
     </div>
   );
 }
 
 function renderDetailValue(value: unknown): string {
-  if (value === null || value === undefined) return '(vide)';
-  if (typeof value === 'string') return value.length > 300 ? value.slice(0, 300) + '…' : value;
+  if (value === null || value === undefined) return "(vide)";
+  if (typeof value === "string") return value.length > 300 ? value.slice(0, 300) + "…" : value;
   return JSON.stringify(value, null, 2);
 }
 
@@ -362,56 +382,77 @@ function EventDetailCard({
   const [expanded, setExpanded] = useState(false);
 
   // Extract meaningful fields from details or linked log
-  const pageKey = evt.page_key || (details.page_key as string) || (linkedLog?.resource_type === 'page' ? linkedLog.resource_id : null);
+  const pageKey =
+    evt.page_key ||
+    (details.page_key as string) ||
+    (linkedLog?.resource_type === "page" ? linkedLog.resource_id : null);
   const resourceType = linkedLog?.resource_type || (details.resource_type as string) || null;
   const resourceId = linkedLog?.resource_id || (details.resource_id as string) || null;
   const action = linkedLog?.action || (details.action as string) || null;
 
-  const previousData = linkedLog?.previous_data || (details.previous_data as Record<string, unknown>) || null;
+  const previousData =
+    linkedLog?.previous_data || (details.previous_data as Record<string, unknown>) || null;
   const newData = linkedLog?.new_data || (details.new_data as Record<string, unknown>) || null;
 
   // Detect content fields
-  const contentField = newData ? (newData.content || newData.body || newData.html || null) : null;
-  const previousContent = previousData ? (previousData.content || previousData.body || previousData.html || null) : null;
+  const contentField = newData ? newData.content || newData.body || newData.html || null : null;
+  const previousContent = previousData
+    ? previousData.content || previousData.body || previousData.html || null
+    : null;
 
   // Detect schema_org / structured data
   const schemaOrg = newData?.schema_org || null;
   const previousSchemaOrg = previousData?.schema_org || null;
 
   // Detect code injection
-  const injectedCode = newData?.content && resourceType === 'injection' ? newData.content : (details.injected_code as string) || null;
-  const previousInjectedCode = previousData?.content && resourceType === 'injection' ? previousData.content : null;
+  const injectedCode =
+    newData?.content && resourceType === "injection"
+      ? newData.content
+      : (details.injected_code as string) || null;
+  const previousInjectedCode =
+    previousData?.content && resourceType === "injection" ? previousData.content : null;
 
-  const hasDetails = pageKey || resourceType || contentField || schemaOrg || injectedCode || previousData || newData || Object.keys(details).length > 0;
+  const hasDetails =
+    pageKey ||
+    resourceType ||
+    contentField ||
+    schemaOrg ||
+    injectedCode ||
+    previousData ||
+    newData ||
+    Object.keys(details).length > 0;
 
   return (
-    <Card className={`transition-all ${evt.resolved ? 'opacity-60' : ''}`}>
+    <Card className={`transition-all ${evt.resolved ? "opacity-60" : ""}`}>
       <CardContent className="p-3">
         <div className="flex items-start gap-3">
           <SevIcon className={`w-4 h-4 mt-0.5 shrink-0 ${sev.color}`} />
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="text-[10px]">{evt.event_type}</Badge>
+              <Badge variant="outline" className="text-[10px]">
+                {evt.event_type}
+              </Badge>
               {resourceType && (
                 <Badge variant="secondary" className="text-[10px]">
                   {(RESOURCE_LABELS[resourceType]?.label || resourceType).toUpperCase()}
                 </Badge>
               )}
               {action && (
-                <Badge variant={action === 'delete' ? 'destructive' : 'outline'} className="text-[10px]">
+                <Badge
+                  variant={action === "delete" ? "destructive" : "outline"}
+                  className="text-[10px]"
+                >
                   {action.toUpperCase()}
                 </Badge>
               )}
-              {pageKey && (
-                <code className="text-[10px] bg-muted px-1 rounded">{pageKey}</code>
-              )}
+              {pageKey && <code className="text-[10px] bg-muted px-1 rounded">{pageKey}</code>}
               {evt.resolved && (
                 <Badge variant="secondary" className="text-[10px] gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Résolu
                 </Badge>
               )}
               <span className="text-[10px] text-muted-foreground ml-auto">
-                {format(new Date(evt.created_at), 'dd MMM HH:mm', { locale: fr })}
+                {format(new Date(evt.created_at), "dd MMM HH:mm", { locale: fr })}
               </span>
             </div>
 
@@ -430,7 +471,7 @@ function EventDetailCard({
                 className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
               >
                 <Eye className="w-3 h-3" />
-                {expanded ? 'Masquer' : 'Voir'} les détails
+                {expanded ? "Masquer" : "Voir"} les détails
                 {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </button>
             )}
@@ -441,14 +482,26 @@ function EventDetailCard({
                 {pageKey && (
                   <DetailSection icon={Globe} label="Page modifiée">
                     <code className="text-xs">{pageKey}</code>
-                    {newData?.meta_title ? <p className="text-muted-foreground mt-1">Titre : {String(newData.meta_title)}</p> : null}
-                    {newData?.meta_description ? <p className="text-muted-foreground mt-1">Description : {String(newData.meta_description)}</p> : null}
-                    {newData?.canonical_url ? <p className="text-muted-foreground mt-1">URL canonique : {String(newData.canonical_url)}</p> : null}
+                    {newData?.meta_title ? (
+                      <p className="text-muted-foreground mt-1">
+                        Titre : {String(newData.meta_title)}
+                      </p>
+                    ) : null}
+                    {newData?.meta_description ? (
+                      <p className="text-muted-foreground mt-1">
+                        Description : {String(newData.meta_description)}
+                      </p>
+                    ) : null}
+                    {newData?.canonical_url ? (
+                      <p className="text-muted-foreground mt-1">
+                        URL canonique : {String(newData.canonical_url)}
+                      </p>
+                    ) : null}
                   </DetailSection>
                 )}
 
                 {/* Contenu modifié */}
-                {contentField && resourceType !== 'injection' && (
+                {contentField && resourceType !== "injection" && (
                   <DetailSection icon={FileText} label="Contenu modifié">
                     <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto">
                       {renderDetailValue(contentField)}
@@ -480,7 +533,7 @@ function EventDetailCard({
                     <div className="space-y-1">
                       {Object.entries(previousData).map(([key, val]) => (
                         <div key={key}>
-                          <span className="text-muted-foreground font-semibold">{key} :</span>{' '}
+                          <span className="text-muted-foreground font-semibold">{key} :</span>{" "}
                           <span className="text-[10px]">{truncateValue(val)}</span>
                         </div>
                       ))}
@@ -496,23 +549,23 @@ function EventDetailCard({
                 )}
 
                 {/* Fallback: raw details if no structured fields matched */}
-                {!pageKey && !contentField && !schemaOrg && !injectedCode && !previousData && Object.keys(details).length > 0 && (
-                  <DetailSection icon={Info} label="Détails bruts">
-                    <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto">
-                      {JSON.stringify(details, null, 2)}
-                    </pre>
-                  </DetailSection>
-                )}
+                {!pageKey &&
+                  !contentField &&
+                  !schemaOrg &&
+                  !injectedCode &&
+                  !previousData &&
+                  Object.keys(details).length > 0 && (
+                    <DetailSection icon={Info} label="Détails bruts">
+                      <pre className="whitespace-pre-wrap text-[10px] max-h-40 overflow-y-auto">
+                        {JSON.stringify(details, null, 2)}
+                      </pre>
+                    </DetailSection>
+                  )}
               </div>
             )}
           </div>
           {!evt.resolved && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0"
-              onClick={onResolve}
-            >
+            <Button variant="ghost" size="icon" className="shrink-0" onClick={onResolve}>
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             </Button>
           )}
@@ -522,18 +575,18 @@ function EventDetailCard({
   );
 }
 
-type ReportPeriod = '1d' | '7d' | '30d';
+type ReportPeriod = "1d" | "7d" | "30d";
 
 const REPORT_PERIOD_LABELS: Record<ReportPeriod, string> = {
-  '1d': 'Dernières 24h',
-  '7d': 'Derniers 7 jours',
-  '30d': 'Derniers 30 jours',
+  "1d": "Dernières 24h",
+  "7d": "Derniers 7 jours",
+  "30d": "Derniers 30 jours",
 };
 
 const REPORT_PERIOD_MS: Record<ReportPeriod, number> = {
-  '1d': 24 * 60 * 60 * 1000,
-  '7d': 7 * 24 * 60 * 60 * 1000,
-  '30d': 30 * 24 * 60 * 60 * 1000,
+  "1d": 24 * 60 * 60 * 1000,
+  "7d": 7 * 24 * 60 * 60 * 1000,
+  "30d": 30 * 24 * 60 * 60 * 1000,
 };
 
 // Generate the diagnostic paragraph for the report
@@ -541,30 +594,30 @@ function generateDiagnosticSection(
   recentLogs: AuditLog[],
   recentEvents: AutopilotEvent[],
   deduped: { log: AuditLog; count: number }[],
-  periodLabel: string
+  periodLabel: string,
 ): string {
   // --- Volume analysis ---
   const totalCalls = recentLogs.length;
   const uniqueResources = deduped.length;
-  const creates = recentLogs.filter(l => l.action === 'create').length;
-  const updates = recentLogs.filter(l => l.action === 'update' || l.action === 'upsert').length;
-  const deletes = recentLogs.filter(l => l.action === 'delete').length;
-  const reverted = recentLogs.filter(l => l.reverted).length;
+  const creates = recentLogs.filter((l) => l.action === "create").length;
+  const updates = recentLogs.filter((l) => l.action === "update" || l.action === "upsert").length;
+  const deletes = recentLogs.filter((l) => l.action === "delete").length;
+  const reverted = recentLogs.filter((l) => l.reverted).length;
   const revertRate = totalCalls > 0 ? Math.round((reverted / totalCalls) * 100) : 0;
 
   // Repeated modifications on same resource (potential churn)
-  const highChurn = deduped.filter(d => d.count >= 3);
+  const highChurn = deduped.filter((d) => d.count >= 3);
 
   // --- Events / friction analysis ---
-  const criticalEvents = recentEvents.filter(e => e.severity === 'critical');
-  const warningEvents = recentEvents.filter(e => e.severity === 'warning');
-  const unresolvedEvents = recentEvents.filter(e => !e.resolved);
-  const resolvedEvents = recentEvents.filter(e => e.resolved);
+  const criticalEvents = recentEvents.filter((e) => e.severity === "critical");
+  const warningEvents = recentEvents.filter((e) => e.severity === "warning");
+  const unresolvedEvents = recentEvents.filter((e) => !e.resolved);
+  const resolvedEvents = recentEvents.filter((e) => e.resolved);
 
   // Group events by page_key for friction map
   const frictionByPage = new Map<string, AutopilotEvent[]>();
   for (const evt of unresolvedEvents) {
-    const key = evt.page_key || '(global)';
+    const key = evt.page_key || "(global)";
     const arr = frictionByPage.get(key) || [];
     arr.push(evt);
     frictionByPage.set(key, arr);
@@ -577,10 +630,10 @@ function generateDiagnosticSection(
   }
 
   // --- SEO/GEO needs assessment ---
-  const seoLogs = recentLogs.filter(l => l.resource_type === 'seo' || l.resource_type === 'page');
-  const blogLogs = recentLogs.filter(l => l.resource_type === 'post');
-  const redirectLogs = recentLogs.filter(l => l.resource_type === 'redirect');
-  const injectionLogs = recentLogs.filter(l => l.resource_type === 'injection');
+  const seoLogs = recentLogs.filter((l) => l.resource_type === "seo" || l.resource_type === "page");
+  const blogLogs = recentLogs.filter((l) => l.resource_type === "post");
+  const redirectLogs = recentLogs.filter((l) => l.resource_type === "redirect");
+  const injectionLogs = recentLogs.filter((l) => l.resource_type === "injection");
 
   // Build diagnostic HTML
   let html = `<div class="diag"><h2>🔍 Diagnostic</h2>`;
@@ -592,35 +645,54 @@ function generateDiagnosticSection(
   } else {
     html += `<p>${totalCalls} appel(s) API sur ${uniqueResources} ressource(s) unique(s). `;
     html += `Répartition : ${creates} création(s), ${updates} modification(s), ${deletes} suppression(s).`;
-    if (reverted > 0) html += ` <span class="diag-warn">${reverted} action(s) annulée(s) (${revertRate}%)</span>.`;
+    if (reverted > 0)
+      html += ` <span class="diag-warn">${reverted} action(s) annulée(s) (${revertRate}%)</span>.`;
     html += `</p>`;
     // Type breakdown
     const typeEntries = Array.from(byType.entries()).sort((a, b) => b[1] - a[1]);
-    html += `<ul>${typeEntries.map(([type, count]) => `<li><strong>${type}</strong> : ${count} appel(s)</li>`).join('')}</ul>`;
+    html += `<ul>${typeEntries.map(([type, count]) => `<li><strong>${type}</strong> : ${count} appel(s)</li>`).join("")}</ul>`;
   }
   html += `</div>`;
 
   // 2. Friction / failures
   html += `<div class="diag-section"><h3>⚠️ Points de friction & échecs</h3>`;
-  if (criticalEvents.length === 0 && warningEvents.length === 0 && highChurn.length === 0 && reverted === 0) {
+  if (
+    criticalEvents.length === 0 &&
+    warningEvents.length === 0 &&
+    highChurn.length === 0 &&
+    reverted === 0
+  ) {
     html += `<p class="diag-ok">✅ Aucun incident, aucune friction détectée. Toutes les actions se sont déroulées normalement.</p>`;
   } else {
     const issues: string[] = [];
-    if (criticalEvents.length > 0) issues.push(`<span class="diag-crit">${criticalEvents.length} événement(s) critique(s)</span> nécessitant une attention immédiate`);
-    if (warningEvents.length > 0) issues.push(`<span class="diag-warn">${warningEvents.length} avertissement(s)</span> détecté(s)`);
-    if (reverted > 0) issues.push(`${reverted} action(s) annulée(s) — indiquant des modifications incorrectes ou non souhaitées`);
-    if (highChurn.length > 0) issues.push(`${highChurn.length} ressource(s) modifiée(s) ≥3 fois (churn) : ${highChurn.map(d => '"' + ((d.log.new_data as any)?.title || (d.log.new_data as any)?.slug || d.log.resource_id) + '" (×' + d.count + ')').join(', ')}`);
-    html += `<ul>${issues.map(i => `<li>${i}</li>`).join('')}</ul>`;
+    if (criticalEvents.length > 0)
+      issues.push(
+        `<span class="diag-crit">${criticalEvents.length} événement(s) critique(s)</span> nécessitant une attention immédiate`,
+      );
+    if (warningEvents.length > 0)
+      issues.push(
+        `<span class="diag-warn">${warningEvents.length} avertissement(s)</span> détecté(s)`,
+      );
+    if (reverted > 0)
+      issues.push(
+        `${reverted} action(s) annulée(s) — indiquant des modifications incorrectes ou non souhaitées`,
+      );
+    if (highChurn.length > 0)
+      issues.push(
+        `${highChurn.length} ressource(s) modifiée(s) ≥3 fois (churn) : ${highChurn.map((d) => '"' + ((d.log.new_data as any)?.title || (d.log.new_data as any)?.slug || d.log.resource_id) + '" (×' + d.count + ")").join(", ")}`,
+      );
+    html += `<ul>${issues.map((i) => `<li>${i}</li>`).join("")}</ul>`;
 
     // Friction map by page
     if (frictionByPage.size > 0) {
       html += `<p style="margin-top:8px;font-weight:600;font-size:12px;">Pages avec événements non résolus :</p><ul>`;
       for (const [page, evts] of frictionByPage) {
-        const crits = evts.filter(e => e.severity === 'critical').length;
-        const warns = evts.filter(e => e.severity === 'warning').length;
+        const crits = evts.filter((e) => e.severity === "critical").length;
+        const warns = evts.filter((e) => e.severity === "warning").length;
         html += `<li><strong>${page}</strong> : ${evts.length} événement(s)`;
         if (crits > 0) html += ` dont <span class="diag-crit">${crits} critique(s)</span>`;
-        if (warns > 0) html += `${crits > 0 ? ',' : ' dont'} <span class="diag-warn">${warns} warning(s)</span>`;
+        if (warns > 0)
+          html += `${crits > 0 ? "," : " dont"} <span class="diag-warn">${warns} warning(s)</span>`;
         html += `</li>`;
       }
       html += `</ul>`;
@@ -633,15 +705,23 @@ function generateDiagnosticSection(
   const seoInsights: string[] = [];
 
   if (seoLogs.length > 0) {
-    seoInsights.push(`${seoLogs.length} modification(s) SEO/pages — les métadonnées et le contenu statique sont activement optimisés`);
+    seoInsights.push(
+      `${seoLogs.length} modification(s) SEO/pages — les métadonnées et le contenu statique sont activement optimisés`,
+    );
   } else {
-    seoInsights.push(`Aucune modification SEO sur la période — vérifier si les balises meta, schema.org et les contenus statiques sont à jour`);
+    seoInsights.push(
+      `Aucune modification SEO sur la période — vérifier si les balises meta, schema.org et les contenus statiques sont à jour`,
+    );
   }
 
   if (blogLogs.length > 0) {
-    seoInsights.push(`${blogLogs.length} action(s) sur les articles de blog — le contenu éditorial est en mouvement`);
+    seoInsights.push(
+      `${blogLogs.length} action(s) sur les articles de blog — le contenu éditorial est en mouvement`,
+    );
   } else {
-    seoInsights.push(`Aucun article de blog créé ou modifié — le contenu frais est essentiel pour le référencement organique et la GEO`);
+    seoInsights.push(
+      `Aucun article de blog créé ou modifié — le contenu frais est essentiel pour le référencement organique et la GEO`,
+    );
   }
 
   if (redirectLogs.length > 0) {
@@ -649,14 +729,20 @@ function generateDiagnosticSection(
   }
 
   if (injectionLogs.length > 0) {
-    seoInsights.push(`${injectionLogs.length} injection(s) de code modifiée(s) — scripts de tracking ou partenaires mis à jour`);
+    seoInsights.push(
+      `${injectionLogs.length} injection(s) de code modifiée(s) — scripts de tracking ou partenaires mis à jour`,
+    );
   }
 
   // Static GEO recommendations
-  seoInsights.push(`<strong>Rappel GEO</strong> : les données critiques (barèmes IK, tableaux) doivent être rendues en HTML statique via le meta-renderer pour être indexables par les agents IA (ChatGPT, Perplexity, Claude)`);
-  seoInsights.push(`<strong>Rappel SEO</strong> : synchroniser la liste des User-Agents entre le Cloudflare Worker et le meta-renderer pour éviter les redirections fallback`);
+  seoInsights.push(
+    `<strong>Rappel GEO</strong> : les données critiques (barèmes IK, tableaux) doivent être rendues en HTML statique via le meta-renderer pour être indexables par les agents IA (ChatGPT, Perplexity, Claude)`,
+  );
+  seoInsights.push(
+    `<strong>Rappel SEO</strong> : synchroniser la liste des User-Agents entre le Cloudflare Worker et le meta-renderer pour éviter les redirections fallback`,
+  );
 
-  html += `<ul>${seoInsights.map(i => `<li>${i}</li>`).join('')}</ul>`;
+  html += `<ul>${seoInsights.map((i) => `<li>${i}</li>`).join("")}</ul>`;
   html += `</div>`;
 
   // Resolution summary
@@ -671,58 +757,75 @@ function generateDiagnosticSection(
 }
 
 // Heuristic: classify a log as deployed via Parménion or direct Crawlers tools
-function classifySource(log: AuditLog): 'parmenion' | 'crawlers_direct' {
+function classifySource(log: AuditLog): "parmenion" | "crawlers_direct" {
   // Parménion handles pages, SEO, injections, config, media, redirects
-  const parmenionTypes = ['page', 'seo', 'seo_config', 'injection', 'config', 'site_config', 'redirect', 'media'];
-  if (parmenionTypes.includes(log.resource_type)) return 'parmenion';
+  const parmenionTypes = [
+    "page",
+    "seo",
+    "seo_config",
+    "injection",
+    "config",
+    "site_config",
+    "redirect",
+    "media",
+  ];
+  if (parmenionTypes.includes(log.resource_type)) return "parmenion";
   // Everything else (posts) = direct Crawlers content tools
-  return 'crawlers_direct';
+  return "crawlers_direct";
 }
 
 // Generate report HTML for a configurable period
-function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: ReportPeriod = '1d'): string {
+function generateReportHTML(
+  logs: AuditLog[],
+  events: AutopilotEvent[],
+  period: ReportPeriod = "1d",
+): string {
   const now = new Date();
   const periodStart = new Date(now.getTime() - REPORT_PERIOD_MS[period]);
   const periodLabel = REPORT_PERIOD_LABELS[period];
   const recentLogs = logs
-    .filter(l => new Date(l.created_at) >= periodStart)
+    .filter((l) => new Date(l.created_at) >= periodStart)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  const recentEvents = events
-    .filter(e => new Date(e.created_at) >= periodStart);
+  const recentEvents = events.filter((e) => new Date(e.created_at) >= periodStart);
 
   const actionLabels: Record<string, string> = {
-    create: 'Création',
-    update: 'Modification',
-    delete: 'Suppression',
-    upsert: 'Création / Mise à jour',
+    create: "Création",
+    update: "Modification",
+    delete: "Suppression",
+    upsert: "Création / Mise à jour",
   };
 
   const resourceLabels: Record<string, string> = {
-    post: 'Article de blog',
-    page: 'Page statique',
-    seo: 'Configuration SEO',
-    injection: 'Injection de code',
-    config: 'Configuration site',
-    media: 'Média',
-    redirect: 'Redirection',
+    post: "Article de blog",
+    page: "Page statique",
+    seo: "Configuration SEO",
+    injection: "Injection de code",
+    config: "Configuration site",
+    media: "Média",
+    redirect: "Redirection",
   };
 
   function getDescription(log: AuditLog): string {
     const action = actionLabels[log.action] || log.action;
     const resource = resourceLabels[log.resource_type] || log.resource_type;
     const data = log.new_data || log.previous_data || {};
-    const title = (data as any).title || (data as any).meta_title || (data as any).slug || (data as any).page_key || log.resource_id;
+    const title =
+      (data as any).title ||
+      (data as any).meta_title ||
+      (data as any).slug ||
+      (data as any).page_key ||
+      log.resource_id;
     return `${action} de ${resource.toLowerCase()} : "${title}"`;
   }
 
   function getUrl(log: AuditLog): string {
     const data = log.new_data || log.previous_data || {};
-    const slug = (data as any).slug || (data as any).page_key || '';
-    if (log.resource_type === 'post' && slug) return `https://iktracker.fr/blog/${slug}`;
-    if (log.resource_type === 'page' && slug) return `https://iktracker.fr/${slug}`;
-    if (log.resource_type === 'seo') return `https://iktracker.fr/${slug || ''}`;
-    if (log.resource_type === 'redirect') return (data as any).source_path || '-';
-    return '-';
+    const slug = (data as any).slug || (data as any).page_key || "";
+    if (log.resource_type === "post" && slug) return `https://iktracker.fr/blog/${slug}`;
+    if (log.resource_type === "page" && slug) return `https://iktracker.fr/${slug}`;
+    if (log.resource_type === "seo") return `https://iktracker.fr/${slug || ""}`;
+    if (log.resource_type === "redirect") return (data as any).source_path || "-";
+    return "-";
   }
 
   // Deduplicate: group by resource_type + resource_id, keep most recent, count occurrences
@@ -740,39 +843,43 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
       }
     }
     return Array.from(grouped.values()).sort(
-      (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime()
+      (a, b) => new Date(b.log.created_at).getTime() - new Date(a.log.created_at).getTime(),
     );
   }
 
   // Split by source
-  const parmenionLogs = recentLogs.filter(l => classifySource(l) === 'parmenion');
-  const directLogs = recentLogs.filter(l => classifySource(l) === 'crawlers_direct');
+  const parmenionLogs = recentLogs.filter((l) => classifySource(l) === "parmenion");
+  const directLogs = recentLogs.filter((l) => classifySource(l) === "crawlers_direct");
   const parmenionDeduped = buildDedupedRows(parmenionLogs);
   const directDeduped = buildDedupedRows(directLogs);
   const allDeduped = buildDedupedRows(recentLogs);
 
-  const dateRange = `${format(periodStart, 'dd/MM/yyyy HH:mm', { locale: fr })} — ${format(now, 'dd/MM/yyyy HH:mm', { locale: fr })}`;
+  const dateRange = `${format(periodStart, "dd/MM/yyyy HH:mm", { locale: fr })} — ${format(now, "dd/MM/yyyy HH:mm", { locale: fr })}`;
 
   function buildTableRows(deduped: { log: AuditLog; count: number }[]): string {
-    return deduped.map(({ log, count }) => `
+    return deduped
+      .map(
+        ({ log, count }) => `
       <tr>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px;">
-          ${format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
+          ${format(new Date(log.created_at), "dd/MM/yyyy HH:mm", { locale: fr })}
         </td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
-          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${log.action === 'create' ? '#d1fae5' : log.action === 'delete' ? '#fee2e2' : '#dbeafe'};color:${log.action === 'create' ? '#065f46' : log.action === 'delete' ? '#991b1b' : '#1e40af'}">
+          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${log.action === "create" ? "#d1fae5" : log.action === "delete" ? "#fee2e2" : "#dbeafe"};color:${log.action === "create" ? "#065f46" : log.action === "delete" ? "#991b1b" : "#1e40af"}">
             ${(actionLabels[log.action] || log.action).toUpperCase()}
           </span>
         </td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">
-          ${getDescription(log)}${count > 1 ? ` <span style="color:#6b7280;font-size:11px;">(×${count})</span>` : ''}
+          ${getDescription(log)}${count > 1 ? ` <span style="color:#6b7280;font-size:11px;">(×${count})</span>` : ""}
         </td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280;word-break:break-all;">${getUrl(log)}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">
-          ${log.reverted ? '✅ Annulé' : '—'}
+          ${log.reverted ? "✅ Annulé" : "—"}
         </td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join("");
   }
 
   function buildTable(deduped: { log: AuditLog; count: number }[], emptyMsg: string): string {
@@ -831,9 +938,9 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
   <div class="stats">
     <div class="stat-box"><div class="value">${allDeduped.length}</div><div class="label">Ressources modifiées</div></div>
     <div class="stat-box"><div class="value">${recentLogs.length}</div><div class="label">Appels API totaux</div></div>
-    <div class="stat-box"><div class="value">${allDeduped.filter(d => d.log.action === 'create').length}</div><div class="label">Créations</div></div>
-    <div class="stat-box"><div class="value">${allDeduped.filter(d => d.log.action === 'update' || d.log.action === 'upsert').length}</div><div class="label">Modifications</div></div>
-    <div class="stat-box"><div class="value">${allDeduped.filter(d => d.log.action === 'delete').length}</div><div class="label">Suppressions</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.filter((d) => d.log.action === "create").length}</div><div class="label">Créations</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.filter((d) => d.log.action === "update" || d.log.action === "upsert").length}</div><div class="label">Modifications</div></div>
+    <div class="stat-box"><div class="value">${allDeduped.filter((d) => d.log.action === "delete").length}</div><div class="label">Suppressions</div></div>
   </div>
 
   <!-- Source split summary -->
@@ -852,11 +959,11 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
 
   <!-- Parménion section -->
   <h2 class="section-title"><span class="source-badge badge-parmenion">Parménion</span> Actions de l'orchestrateur</h2>
-  ${buildTable(parmenionDeduped, 'Aucune action Parménion sur cette période.')}
+  ${buildTable(parmenionDeduped, "Aucune action Parménion sur cette période.")}
 
   <!-- Crawlers Direct section -->
   <h2 class="section-title"><span class="source-badge badge-direct">Outils Crawlers</span> Actions des outils directs</h2>
-  ${buildTable(directDeduped, 'Aucune action directe Crawlers sur cette période.')}
+  ${buildTable(directDeduped, "Aucune action directe Crawlers sur cette période.")}
 
   ${generateDiagnosticSection(recentLogs, recentEvents, allDeduped, periodLabel)}
 
@@ -867,27 +974,27 @@ function generateReportHTML(logs: AuditLog[], events: AutopilotEvent[], period: 
 
 // Main component
 export function AdminAutopilot() {
-  const [tab, setTab] = useState<'timeline' | 'events'>('timeline');
+  const [tab, setTab] = useState<"timeline" | "events">("timeline");
   const [showReverted, setShowReverted] = useState(false);
-  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('1d');
+  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>("1d");
   const [apiKeyFilter, setApiKeyFilter] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'all';
-    return localStorage.getItem('autopilot:apiKeyFilter') || 'all';
+    if (typeof window === "undefined") return "all";
+    return localStorage.getItem("autopilot:apiKeyFilter") || "all";
   });
   const [groupBySession, setGroupBySession] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return true;
-    return localStorage.getItem('autopilot:groupBySession') !== 'false';
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("autopilot:groupBySession") !== "false";
   });
   const [detailSession, setDetailSession] = useState<AuditSession | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    localStorage.setItem('autopilot:apiKeyFilter', apiKeyFilter);
+    localStorage.setItem("autopilot:apiKeyFilter", apiKeyFilter);
   }, [apiKeyFilter]);
 
   useEffect(() => {
-    localStorage.setItem('autopilot:groupBySession', String(groupBySession));
+    localStorage.setItem("autopilot:groupBySession", String(groupBySession));
   }, [groupBySession]);
 
   // Realtime indicator
@@ -896,16 +1003,16 @@ export function AdminAutopilot() {
 
   // Fetch audit logs (changes by Crawlers) — fallback polling 5min, realtime drives updates
   const { data: auditLogs = [], isLoading: logsLoading } = useQuery({
-    queryKey: ['autopilot-audit-logs', showReverted],
+    queryKey: ["autopilot-audit-logs", showReverted],
     queryFn: async () => {
       let query = supabase
-        .from('api_audit_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("api_audit_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
         .limit(200);
 
       if (!showReverted) {
-        query = query.eq('reverted', false);
+        query = query.eq("reverted", false);
       }
 
       const { data, error } = await query;
@@ -917,12 +1024,12 @@ export function AdminAutopilot() {
 
   // Fetch autopilot events
   const { data: events = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['autopilot-events'],
+    queryKey: ["autopilot-events"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('autopilot_events')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("autopilot_events")
+        .select("*")
+        .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
       return (data || []) as AutopilotEvent[];
@@ -933,25 +1040,17 @@ export function AdminAutopilot() {
   // Realtime subscriptions
   useEffect(() => {
     const channel = supabase
-      .channel('autopilot-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'api_audit_logs' },
-        () => {
-          setLastRealtimeEvent(new Date());
-          queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
-        },
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'autopilot_events' },
-        () => {
-          setLastRealtimeEvent(new Date());
-          queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
-        },
-      )
+      .channel("autopilot-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "api_audit_logs" }, () => {
+        setLastRealtimeEvent(new Date());
+        queryClient.invalidateQueries({ queryKey: ["autopilot-audit-logs"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "autopilot_events" }, () => {
+        setLastRealtimeEvent(new Date());
+        queryClient.invalidateQueries({ queryKey: ["autopilot-events"] });
+      })
       .subscribe((status) => {
-        setRealtimeConnected(status === 'SUBSCRIBED');
+        setRealtimeConnected(status === "SUBSCRIBED");
       });
 
     return () => {
@@ -962,32 +1061,32 @@ export function AdminAutopilot() {
   // Revert mutation
   const revertMutation = useMutation({
     mutationFn: async (logId: string) => {
-      const log = auditLogs.find(l => l.id === logId);
-      if (!log || !log.previous_data) throw new Error('No previous data to revert');
+      const log = auditLogs.find((l) => l.id === logId);
+      if (!log || !log.previous_data) throw new Error("No previous data to revert");
 
       // Call the blog-api revert endpoint
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const resp = await fetch(`${supabaseUrl}/functions/v1/blog-api/audit/${logId}/revert`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': '', // Will fail — needs admin to use the API key
+          "Content-Type": "application/json",
+          "x-api-key": "", // Will fail — needs admin to use the API key
         },
       });
 
       // Fallback: mark as reverted directly
       const { error } = await supabase
-        .from('api_audit_logs')
+        .from("api_audit_logs")
         .update({ reverted: true, reverted_at: new Date().toISOString() })
-        .eq('id', logId);
+        .eq("id", logId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
-      toast({ title: 'Modification annulée' });
+      queryClient.invalidateQueries({ queryKey: ["autopilot-audit-logs"] });
+      toast({ title: "Modification annulée" });
     },
     onError: (err) => {
-      toast({ title: 'Erreur', description: String(err), variant: 'destructive' });
+      toast({ title: "Erreur", description: String(err), variant: "destructive" });
     },
   });
 
@@ -995,44 +1094,46 @@ export function AdminAutopilot() {
   const resolveEventMutation = useMutation({
     mutationFn: async (eventId: string) => {
       const { error } = await supabase
-        .from('autopilot_events')
+        .from("autopilot_events")
         .update({ resolved: true, resolved_at: new Date().toISOString() })
-        .eq('id', eventId);
+        .eq("id", eventId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
-      toast({ title: 'Événement résolu' });
+      queryClient.invalidateQueries({ queryKey: ["autopilot-events"] });
+      toast({ title: "Événement résolu" });
     },
   });
 
   // Distinct API key names for filter dropdown
   const apiKeyOptions = useMemo(() => {
     const set = new Set<string>();
-    auditLogs.forEach(l => { if (l.api_key_name) set.add(l.api_key_name); });
+    auditLogs.forEach((l) => {
+      if (l.api_key_name) set.add(l.api_key_name);
+    });
     return Array.from(set).sort();
   }, [auditLogs]);
 
   // Apply filter
   const filteredAuditLogs = useMemo(() => {
-    if (apiKeyFilter === 'all') return auditLogs;
-    if (apiKeyFilter === '__none__') return auditLogs.filter(l => !l.api_key_name);
-    return auditLogs.filter(l => l.api_key_name === apiKeyFilter);
+    if (apiKeyFilter === "all") return auditLogs;
+    if (apiKeyFilter === "__none__") return auditLogs.filter((l) => !l.api_key_name);
+    return auditLogs.filter((l) => l.api_key_name === apiKeyFilter);
   }, [auditLogs, apiKeyFilter]);
 
   const filteredEvents = useMemo(() => {
-    if (apiKeyFilter === 'all') return events;
-    const allowedLogIds = new Set(filteredAuditLogs.map(l => l.id));
-    return events.filter(e => {
+    if (apiKeyFilter === "all") return events;
+    const allowedLogIds = new Set(filteredAuditLogs.map((l) => l.id));
+    return events.filter((e) => {
       // Keep events linked to a filtered log, or events with matching api_key in details
       if (e.audit_log_id && allowedLogIds.has(e.audit_log_id)) return true;
       const detailKey = (e.details as Record<string, unknown> | null)?.api_key;
-      if (apiKeyFilter === '__none__') return !detailKey;
+      if (apiKeyFilter === "__none__") return !detailKey;
       return detailKey === apiKeyFilter;
     });
   }, [events, filteredAuditLogs, apiKeyFilter]);
 
-  const activeEventsCount = filteredEvents.filter(e => !e.resolved).length;
+  const activeEventsCount = filteredEvents.filter((e) => !e.resolved).length;
 
   return (
     <div className="space-y-4">
@@ -1052,19 +1153,19 @@ export function AdminAutopilot() {
             <div className="flex items-center gap-2">
               <Badge
                 variant="outline"
-                className={`text-[10px] gap-1 ${realtimeConnected ? 'border-emerald-500/40 text-emerald-700 bg-emerald-500/10' : 'border-muted text-muted-foreground'}`}
+                className={`text-[10px] gap-1 ${realtimeConnected ? "border-emerald-500/40 text-emerald-700 bg-emerald-500/10" : "border-muted text-muted-foreground"}`}
                 title={
                   lastRealtimeEvent
-                    ? `Dernier événement reçu : ${lastRealtimeEvent.toLocaleTimeString('fr-FR')}`
+                    ? `Dernier événement reçu : ${lastRealtimeEvent.toLocaleTimeString("fr-FR")}`
                     : realtimeConnected
-                    ? 'Connecté en temps réel, en attente d\'activité'
-                    : 'Realtime déconnecté — fallback polling 5 min'
+                      ? "Connecté en temps réel, en attente d'activité"
+                      : "Realtime déconnecté — fallback polling 5 min"
                 }
               >
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${realtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`}
+                  className={`w-1.5 h-1.5 rounded-full ${realtimeConnected ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"}`}
                 />
-                {realtimeConnected ? 'Live' : 'Polling'}
+                {realtimeConnected ? "Live" : "Polling"}
               </Badge>
               {apiKeyOptions.length > 0 && (
                 <div className="flex items-center gap-1">
@@ -1076,8 +1177,10 @@ export function AdminAutopilot() {
                     title="Filtrer par clé API"
                   >
                     <option value="all">Toutes les clés</option>
-                    {apiKeyOptions.map(k => (
-                      <option key={k} value={k}>{k}</option>
+                    {apiKeyOptions.map((k) => (
+                      <option key={k} value={k}>
+                        {k}
+                      </option>
                     ))}
                     <option value="__none__">Sans clé</option>
                   </select>
@@ -1096,13 +1199,14 @@ export function AdminAutopilot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const stamp = format(new Date(), 'yyyy-MM-dd_HHmm');
-                  const csv = tab === 'events'
-                    ? eventsToCsv(filteredEvents)
-                    : auditLogsToCsv(filteredAuditLogs);
-                  const base = tab === 'events' ? 'autopilot-events' : 'autopilot-audit';
+                  const stamp = format(new Date(), "yyyy-MM-dd_HHmm");
+                  const csv =
+                    tab === "events"
+                      ? eventsToCsv(filteredEvents)
+                      : auditLogsToCsv(filteredAuditLogs);
+                  const base = tab === "events" ? "autopilot-events" : "autopilot-audit";
                   downloadCsv(`${base}_${stamp}.csv`, csv);
-                  toast({ title: 'Export CSV téléchargé' });
+                  toast({ title: "Export CSV téléchargé" });
                 }}
                 title="Exporter la vue courante en CSV"
               >
@@ -1114,13 +1218,18 @@ export function AdminAutopilot() {
                 size="sm"
                 onClick={() => {
                   const html = generateReportHTML(filteredAuditLogs, filteredEvents, reportPeriod);
-                  const w = window.open('', '_blank');
-                  if (!w) { toast({ title: 'Autorisez les popups pour télécharger le rapport' }); return; }
+                  const w = window.open("", "_blank");
+                  if (!w) {
+                    toast({ title: "Autorisez les popups pour télécharger le rapport" });
+                    return;
+                  }
                   w.document.open();
                   w.document.write(html);
                   w.document.close();
-                  w.addEventListener('load', () => setTimeout(() => w.print(), 400));
-                  setTimeout(() => { if (!w.closed) w.print(); }, 2000);
+                  w.addEventListener("load", () => setTimeout(() => w.print(), 400));
+                  setTimeout(() => {
+                    if (!w.closed) w.print();
+                  }, 2000);
                 }}
               >
                 <Download className="w-4 h-4 mr-2" />
@@ -1130,8 +1239,8 @@ export function AdminAutopilot() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  queryClient.invalidateQueries({ queryKey: ['autopilot-audit-logs'] });
-                  queryClient.invalidateQueries({ queryKey: ['autopilot-events'] });
+                  queryClient.invalidateQueries({ queryKey: ["autopilot-audit-logs"] });
+                  queryClient.invalidateQueries({ queryKey: ["autopilot-events"] });
                 }}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
@@ -1148,7 +1257,11 @@ export function AdminAutopilot() {
           <HealthDashboard events={filteredEvents} />
 
           {/* Tabs */}
-          <Tabs value={tab} onValueChange={(v) => setTab(v as 'timeline' | 'events')} className="mt-4">
+          <Tabs
+            value={tab}
+            onValueChange={(v) => setTab(v as "timeline" | "events")}
+            className="mt-4"
+          >
             <div className="flex items-center gap-3 mb-4">
               <TabsList>
                 <TabsTrigger value="timeline" className="gap-2">
@@ -1193,14 +1306,16 @@ export function AdminAutopilot() {
             <TabsContent value="timeline" className="mt-0">
               {logsLoading ? (
                 <div className="space-y-3">
-                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full" />
+                  ))}
                 </div>
               ) : filteredAuditLogs.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
                   <p className="font-medium">Aucune modification Autopilot</p>
                   <p className="text-xs mt-1">
-                    {apiKeyFilter !== 'all'
+                    {apiKeyFilter !== "all"
                       ? `Aucun changement pour la clé "${apiKeyFilter}"`
                       : "Les changements effectués par Crawlers apparaîtront ici"}
                   </p>
@@ -1208,36 +1323,34 @@ export function AdminAutopilot() {
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-3 pr-2">
-                    {groupBySession ? (
-                      buildAuditSessions(filteredAuditLogs).map((session, idx) => (
-                        <AuditSessionGroup
-                          key={session.key}
-                          session={session}
-                          defaultOpen={idx === 0}
-                          onOpenDetails={(s) => setDetailSession(s)}
-                        >
-                          {session.logs.map(log => (
-                            <AuditCard
-                              key={log.id}
-                              log={log}
-                              events={filteredEvents}
-                              onRevert={(id) => revertMutation.mutate(id)}
-                              onResolveEvent={(id) => resolveEventMutation.mutate(id)}
-                            />
-                          ))}
-                        </AuditSessionGroup>
-                      ))
-                    ) : (
-                      filteredAuditLogs.map(log => (
-                        <AuditCard
-                          key={log.id}
-                          log={log}
-                          events={filteredEvents}
-                          onRevert={(id) => revertMutation.mutate(id)}
-                          onResolveEvent={(id) => resolveEventMutation.mutate(id)}
-                        />
-                      ))
-                    )}
+                    {groupBySession
+                      ? buildAuditSessions(filteredAuditLogs).map((session, idx) => (
+                          <AuditSessionGroup
+                            key={session.key}
+                            session={session}
+                            defaultOpen={idx === 0}
+                            onOpenDetails={(s) => setDetailSession(s)}
+                          >
+                            {session.logs.map((log) => (
+                              <AuditCard
+                                key={log.id}
+                                log={log}
+                                events={filteredEvents}
+                                onRevert={(id) => revertMutation.mutate(id)}
+                                onResolveEvent={(id) => resolveEventMutation.mutate(id)}
+                              />
+                            ))}
+                          </AuditSessionGroup>
+                        ))
+                      : filteredAuditLogs.map((log) => (
+                          <AuditCard
+                            key={log.id}
+                            log={log}
+                            events={filteredEvents}
+                            onRevert={(id) => revertMutation.mutate(id)}
+                            onResolveEvent={(id) => resolveEventMutation.mutate(id)}
+                          />
+                        ))}
                   </div>
                 </ScrollArea>
               )}
@@ -1247,25 +1360,29 @@ export function AdminAutopilot() {
             <TabsContent value="events" className="mt-0">
               {eventsLoading ? (
                 <div className="space-y-3">
-                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
                 </div>
               ) : filteredEvents.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-emerald-500 opacity-50" />
                   <p className="font-medium">Aucun événement détecté</p>
                   <p className="text-xs mt-1">
-                    {apiKeyFilter !== 'all'
+                    {apiKeyFilter !== "all"
                       ? `Aucun événement pour la clé "${apiKeyFilter}"`
-                      : 'Tout fonctionne normalement 🎉'}
+                      : "Tout fonctionne normalement 🎉"}
                   </p>
                 </div>
               ) : (
                 <ScrollArea className="max-h-[600px]">
                   <div className="space-y-2 pr-2">
-                    {filteredEvents.map(evt => {
-                      const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG['info'];
+                    {filteredEvents.map((evt) => {
+                      const sev = SEVERITY_CONFIG[evt.severity] || SEVERITY_CONFIG["info"];
                       const SevIcon = sev.icon;
-                      const linkedLog = evt.audit_log_id ? auditLogs.find(l => l.id === evt.audit_log_id) : null;
+                      const linkedLog = evt.audit_log_id
+                        ? auditLogs.find((l) => l.id === evt.audit_log_id)
+                        : null;
                       const details = evt.details || {};
                       return (
                         <EventDetailCard
@@ -1292,7 +1409,9 @@ export function AdminAutopilot() {
         session={detailSession}
         events={events}
         open={!!detailSession}
-        onOpenChange={(o) => { if (!o) setDetailSession(null); }}
+        onOpenChange={(o) => {
+          if (!o) setDetailSession(null);
+        }}
       />
     </div>
   );

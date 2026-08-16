@@ -12,7 +12,11 @@ export const Route = createFileRoute("/meilleure-application-indemnites-kilometr
       meta: [
         { title },
         { name: "description", content: description },
-        { name: "keywords", content: "meilleure application indemnités kilométriques, meilleure app frais kilométriques, calculatrice frais kilometrique 2026, application ik gratuite, alternative izika, alternative driversnote, alternative mileiq, indemnités kilométriques 2026, barème ik 2026" },
+        {
+          name: "keywords",
+          content:
+            "meilleure application indemnités kilométriques, meilleure app frais kilométriques, calculatrice frais kilometrique 2026, application ik gratuite, alternative izika, alternative driversnote, alternative mileiq, indemnités kilométriques 2026, barème ik 2026",
+        },
         { property: "og:title", content: pageTitle },
         { property: "og:description", content: description },
         { property: "og:url", content: url },

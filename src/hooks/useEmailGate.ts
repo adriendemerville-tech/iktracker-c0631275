@@ -1,8 +1,8 @@
-import { useCallback } from 'react';
-import { toast } from 'sonner';
-import { useAuth } from './useAuth';
+import { useCallback } from "react";
+import { toast } from "sonner";
+import { useAuth } from "./useAuth";
 
-export const EMAIL_GATE_EVENT = 'ik:open-email-gate';
+export const EMAIL_GATE_EVENT = "ik:open-email-gate";
 
 /** Limits applied while the email address is not verified */
 export const UNVERIFIED_TRIP_LIMIT = 3;
@@ -12,18 +12,17 @@ export const openEmailGate = () => {
   window.dispatchEvent(new CustomEvent(EMAIL_GATE_EVENT));
 };
 
-type GateFeature = 'export' | 'trip' | 'tour';
+type GateFeature = "export" | "trip" | "tour";
 
 const MESSAGES: Record<GateFeature, { title: string; description: string }> = {
   export: {
-    title: 'Vérifiez votre email pour exporter',
+    title: "Vérifiez votre email pour exporter",
     description:
       "L'export et l'envoi de relevés sont réservés aux comptes dont l'adresse email est confirmée.",
   },
   trip: {
     title: `Limite de ${UNVERIFIED_TRIP_LIMIT} trajets atteinte`,
-    description:
-      "Confirmez votre adresse email pour enregistrer un nombre illimité de trajets.",
+    description: "Confirmez votre adresse email pour enregistrer un nombre illimité de trajets.",
   },
   tour: {
     title: `Limite de ${UNVERIFIED_TOUR_LIMIT} tournée atteinte`,
@@ -42,7 +41,7 @@ export const useEmailGate = () => {
     toast.error(title, {
       description,
       action: {
-        label: 'Vérifier',
+        label: "Vérifier",
         onClick: () => openEmailGate(),
       },
     });

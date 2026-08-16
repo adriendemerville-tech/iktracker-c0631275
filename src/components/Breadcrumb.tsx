@@ -1,6 +1,6 @@
-import { Link, useLocation } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { ChevronRight, Home } from 'lucide-react';
+import { Link, useLocation } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { ChevronRight, Home } from "lucide-react";
 
 interface BreadcrumbItem {
   label: string;
@@ -12,44 +12,42 @@ interface BreadcrumbProps {
   className?: string;
 }
 
-const BASE_URL = 'https://iktracker.fr';
+const BASE_URL = "https://iktracker.fr";
 
-export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
+export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
   const location = useLocation();
 
   // Build schema.org BreadcrumbList – always include "item" URL
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
+    itemListElement: [
       {
         "@type": "ListItem",
-        "position": 1,
-        "name": "Accueil",
-        "item": `${BASE_URL}/`
+        position: 1,
+        name: "Accueil",
+        item: `${BASE_URL}/`,
       },
       ...items.map((item, index) => ({
         "@type": "ListItem",
-        "position": index + 2,
-        "name": item.label,
-        "item": `${BASE_URL}${item.href || location.pathname}`
-      }))
-    ]
+        position: index + 2,
+        name: item.label,
+        item: `${BASE_URL}${item.href || location.pathname}`,
+      })),
+    ],
   };
 
   return (
     <>
       <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
-      
+
       <nav aria-label="Fil d'Ariane" className={`mb-6 ${className}`}>
         <ol className="flex items-center gap-1.5 text-sm text-muted-foreground flex-wrap">
           <li>
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="hover:text-primary transition-colors inline-flex items-center gap-1"
               aria-label="Accueil"
             >
@@ -61,10 +59,7 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
             <li key={index} className="flex items-center gap-1.5">
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
               {item.href ? (
-                <Link 
-                  to={item.href} 
-                  className="hover:text-primary transition-colors"
-                >
+                <Link to={item.href} className="hover:text-primary transition-colors">
                   {item.label}
                 </Link>
               ) : (

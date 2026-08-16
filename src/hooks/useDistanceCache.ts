@@ -1,9 +1,9 @@
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 
 // Normalize address for consistent caching (lowercase, trim, remove extra spaces)
 function normalizeAddress(address: string): string {
-  return address.toLowerCase().trim().replace(/\s+/g, ' ');
+  return address.toLowerCase().trim().replace(/\s+/g, " ");
 }
 
 export function useDistanceCache() {
@@ -12,7 +12,7 @@ export function useDistanceCache() {
   // Get cached distance if it exists
   const getCachedDistance = async (
     startAddress: string,
-    endAddress: string
+    endAddress: string,
   ): Promise<number | null> => {
     if (!user) return null;
 
@@ -21,21 +21,21 @@ export function useDistanceCache() {
 
     try {
       const { data, error } = await supabase
-        .from('distance_cache')
-        .select('distance')
-        .eq('user_id', user.id)
-        .eq('start_address', normalizedStart)
-        .eq('end_address', normalizedEnd)
+        .from("distance_cache")
+        .select("distance")
+        .eq("user_id", user.id)
+        .eq("start_address", normalizedStart)
+        .eq("end_address", normalizedEnd)
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching cached distance:', error);
+        console.error("Error fetching cached distance:", error);
         return null;
       }
 
       return data?.distance ?? null;
     } catch (error) {
-      console.error('Error in getCachedDistance:', error);
+      console.error("Error in getCachedDistance:", error);
       return null;
     }
   };
@@ -44,7 +44,7 @@ export function useDistanceCache() {
   const cacheDistance = async (
     startAddress: string,
     endAddress: string,
-    distance: number
+    distance: number,
   ): Promise<void> => {
     if (!user) return;
 
@@ -53,22 +53,20 @@ export function useDistanceCache() {
 
     try {
       // Use upsert to avoid duplicates
-      await supabase
-        .from('distance_cache')
-        .upsert(
-          {
-            user_id: user.id,
-            start_address: normalizedStart,
-            end_address: normalizedEnd,
-            distance,
-          },
-          {
-            onConflict: 'user_id,start_address,end_address',
-            ignoreDuplicates: true,
-          }
-        );
+      await supabase.from("distance_cache").upsert(
+        {
+          user_id: user.id,
+          start_address: normalizedStart,
+          end_address: normalizedEnd,
+          distance,
+        },
+        {
+          onConflict: "user_id,start_address,end_address",
+          ignoreDuplicates: true,
+        },
+      );
     } catch (error) {
-      console.error('Error caching distance:', error);
+      console.error("Error caching distance:", error);
     }
   };
 
@@ -76,18 +74,18 @@ export function useDistanceCache() {
   const getDistanceWithCache = async (
     startAddress: string,
     endAddress: string,
-    fetchDistanceFn: () => Promise<number | null>
+    fetchDistanceFn: () => Promise<number | null>,
   ): Promise<number | null> => {
     // First check cache
     const cachedDistance = await getCachedDistance(startAddress, endAddress);
     if (cachedDistance !== null) {
-      console.log('Using cached distance:', cachedDistance);
+      console.log("Using cached distance:", cachedDistance);
       return cachedDistance;
     }
 
     // If not in cache, fetch from API
     const distance = await fetchDistanceFn();
-    
+
     // Cache the result if we got a valid distance
     if (distance !== null) {
       await cacheDistance(startAddress, endAddress, distance);

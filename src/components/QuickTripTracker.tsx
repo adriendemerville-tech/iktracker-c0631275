@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { MapPin, Play, Square, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/sonner';
-import { reverseGeocode } from '@/lib/geocoding';
-import { calculateDrivingDistance } from '@/lib/distance';
-import type { Trip, Vehicle, Location as TripLocation } from '@/types/trip';
+import { useEffect, useState } from "react";
+import { MapPin, Play, Square, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/sonner";
+import { reverseGeocode } from "@/lib/geocoding";
+import { calculateDrivingDistance } from "@/lib/distance";
+import type { Trip, Vehicle, Location as TripLocation } from "@/types/trip";
 
-const STORAGE_KEY = 'iktracker_quick_trip';
+const STORAGE_KEY = "iktracker_quick_trip";
 
 interface QuickPoint {
   lat: number;
@@ -18,11 +18,11 @@ interface QuickPoint {
 
 interface QuickTripTrackerProps {
   vehicles: Vehicle[];
-  onSave: (trip: Omit<Trip, 'id' | 'ikAmount'>) => Promise<unknown>;
+  onSave: (trip: Omit<Trip, "id" | "ikAmount">) => Promise<unknown>;
 }
 
 const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
 function getPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
@@ -64,7 +64,7 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
   const [end, setEnd] = useState<QuickPoint | null>(null);
   const [distance, setDistance] = useState(0);
   const [vehicleId, setVehicleId] = useState<string | null>(null);
-  const [purpose, setPurpose] = useState('');
+  const [purpose, setPurpose] = useState("");
   const [busy, setBusy] = useState(false);
 
   // Reprise après fermeture de l'app / rechargement
@@ -92,10 +92,10 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
       setEnd(null);
       setDistance(0);
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ start: point, vehicleId }));
-      toast.success('Trajet démarré', { description: `Départ à ${formatTime(point.at)}` });
+      toast.success("Trajet démarré", { description: `Départ à ${formatTime(point.at)}` });
     } catch (e) {
-      toast.error('Position indisponible', {
-        description: e instanceof Error ? e.message : 'Autorisez la localisation pour démarrer.',
+      toast.error("Position indisponible", {
+        description: e instanceof Error ? e.message : "Autorisez la localisation pour démarrer.",
       });
     } finally {
       setBusy(false);
@@ -111,8 +111,8 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
       setEnd(point);
       setDistance(Math.round(km * 100) / 100);
     } catch (e) {
-      toast.error('Position indisponible', {
-        description: e instanceof Error ? e.message : 'Impossible de terminer le trajet.',
+      toast.error("Position indisponible", {
+        description: e instanceof Error ? e.message : "Impossible de terminer le trajet.",
       });
     } finally {
       setBusy(false);
@@ -124,40 +124,42 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
     setStart(null);
     setEnd(null);
     setDistance(0);
-    setPurpose('');
+    setPurpose("");
   };
 
   const handleSave = async () => {
     if (!start || !end) return;
     if (!vehicleId) {
-      toast.error('Aucun véhicule', { description: 'Ajoutez un véhicule avant d’enregistrer.' });
+      toast.error("Aucun véhicule", { description: "Ajoutez un véhicule avant d’enregistrer." });
       return;
     }
     if (distance <= 0) {
-      toast.error('Distance nulle', { description: 'Le départ et l’arrivée sont au même endroit.' });
+      toast.error("Distance nulle", {
+        description: "Le départ et l’arrivée sont au même endroit.",
+      });
       return;
     }
     setBusy(true);
     try {
       const saved = await onSave({
         vehicleId,
-        startLocation: toLocation(start, 'other'),
-        endLocation: toLocation(end, 'other'),
+        startLocation: toLocation(start, "other"),
+        endLocation: toLocation(end, "other"),
         distance,
         baseDistance: distance,
         roundTrip: false,
-        purpose: purpose.trim() || 'Déplacement professionnel',
+        purpose: purpose.trim() || "Déplacement professionnel",
         startTime: new Date(start.at),
         endTime: new Date(end.at),
-        status: 'validated',
+        status: "validated",
       });
       if (saved) {
-        toast.success('Trajet enregistré', { description: `${distance.toFixed(1)} km` });
+        toast.success("Trajet enregistré", { description: `${distance.toFixed(1)} km` });
         reset();
       }
     } catch (e) {
-      toast.error('Enregistrement impossible', {
-        description: e instanceof Error ? e.message : 'Réessayez dans un instant.',
+      toast.error("Enregistrement impossible", {
+        description: e instanceof Error ? e.message : "Réessayez dans un instant.",
       });
     } finally {
       setBusy(false);
@@ -181,12 +183,12 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
       {start && (
         <div className="text-xs text-muted-foreground space-y-1">
           <p>
-            <span className="font-medium text-foreground">Départ</span> · {formatTime(start.at)} —{' '}
+            <span className="font-medium text-foreground">Départ</span> · {formatTime(start.at)} —{" "}
             {start.address}
           </p>
           {end && (
             <p>
-              <span className="font-medium text-foreground">Arrivée</span> · {formatTime(end.at)} —{' '}
+              <span className="font-medium text-foreground">Arrivée</span> · {formatTime(end.at)} —{" "}
               {end.address}
             </p>
           )}
@@ -198,7 +200,7 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
           <p className="text-2xl font-bold text-foreground">{distance.toFixed(1)} km</p>
           {vehicles.length > 1 && (
             <select
-              value={vehicleId ?? ''}
+              value={vehicleId ?? ""}
               onChange={(e) => setVehicleId(e.target.value)}
               className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
               aria-label="Véhicule"
@@ -235,7 +237,7 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
         {end && (
           <Button onClick={handleSave} disabled={busy} className="flex-1" variant="gradient">
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            <span className={busy ? 'ml-2' : ''}>Enregistrer</span>
+            <span className={busy ? "ml-2" : ""}>Enregistrer</span>
           </Button>
         )}
         {start && (

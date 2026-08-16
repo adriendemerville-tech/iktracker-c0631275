@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import { OptimizedImage } from '@/components/ui/optimized-image';
-import { RelatedArticle } from './RelatedArticle';
+import { useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { RelatedArticle } from "./RelatedArticle";
 
 interface BlogContentWithRelatedProps {
   content: string;
@@ -11,7 +11,7 @@ interface BlogContentWithRelatedProps {
 }
 
 function splitMarkdownContent(content: string) {
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   let paragraphCount = 0;
   let splitIndex = -1;
   let inCodeBlock = false;
@@ -19,17 +19,24 @@ function splitMarkdownContent(content: string) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    if (line.startsWith('```')) {
+    if (line.startsWith("```")) {
       inCodeBlock = !inCodeBlock;
       continue;
     }
 
     if (inCodeBlock) continue;
 
-    const isEmptyLine = line.trim() === '';
-    const prevLine = i > 0 ? lines[i - 1].trim() : '';
+    const isEmptyLine = line.trim() === "";
+    const prevLine = i > 0 ? lines[i - 1].trim() : "";
 
-    if (isEmptyLine && prevLine && !prevLine.startsWith('#') && !prevLine.startsWith('-') && !prevLine.startsWith('*') && !prevLine.startsWith('>')) {
+    if (
+      isEmptyLine &&
+      prevLine &&
+      !prevLine.startsWith("#") &&
+      !prevLine.startsWith("-") &&
+      !prevLine.startsWith("*") &&
+      !prevLine.startsWith(">")
+    ) {
       paragraphCount++;
 
       if (paragraphCount === 2) {
@@ -42,34 +49,36 @@ function splitMarkdownContent(content: string) {
   if (splitIndex === -1) {
     const thirdIndex = Math.max(1, Math.floor(lines.length / 3));
     return {
-      beforeParagraphs: lines.slice(0, thirdIndex).join('\n'),
-      afterParagraphs: lines.slice(thirdIndex).join('\n')
+      beforeParagraphs: lines.slice(0, thirdIndex).join("\n"),
+      afterParagraphs: lines.slice(thirdIndex).join("\n"),
     };
   }
 
   return {
-    beforeParagraphs: lines.slice(0, splitIndex).join('\n'),
-    afterParagraphs: lines.slice(splitIndex).join('\n')
+    beforeParagraphs: lines.slice(0, splitIndex).join("\n"),
+    afterParagraphs: lines.slice(splitIndex).join("\n"),
   };
 }
 
 function splitHtmlContent(content: string) {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(`<div>${content}</div>`, 'text/html');
+  const doc = parser.parseFromString(`<div>${content}</div>`, "text/html");
   const root = doc.body.firstElementChild;
 
   if (!root) {
     return splitMarkdownContent(content);
   }
 
-  root.querySelectorAll('meta, title, link, script, style').forEach((node) => node.remove());
+  root.querySelectorAll("meta, title, link, script, style").forEach((node) => node.remove());
 
-  const nodes = Array.from(root.childNodes).filter((node) => node.nodeType !== 3 || Boolean(node.textContent?.trim()));
+  const nodes = Array.from(root.childNodes).filter(
+    (node) => node.nodeType !== 3 || Boolean(node.textContent?.trim()),
+  );
 
   const serializeNodes = (items: ChildNode[]) =>
     items
-      .map((node) => (node.nodeType === 3 ? node.textContent ?? '' : (node as Element).outerHTML))
-      .join('');
+      .map((node) => (node.nodeType === 3 ? (node.textContent ?? "") : (node as Element).outerHTML))
+      .join("");
 
   let paragraphCount = 0;
   let splitIndex = -1;
@@ -80,7 +89,7 @@ function splitHtmlContent(content: string) {
     if (node.nodeType !== 1) continue;
 
     const tagName = (node as Element).tagName.toLowerCase();
-    if (tagName === 'p') {
+    if (tagName === "p") {
       paragraphCount++;
     }
 
@@ -94,13 +103,13 @@ function splitHtmlContent(content: string) {
     const fallbackIndex = Math.max(1, Math.floor(nodes.length / 3));
     return {
       beforeParagraphs: serializeNodes(nodes.slice(0, fallbackIndex)),
-      afterParagraphs: serializeNodes(nodes.slice(fallbackIndex))
+      afterParagraphs: serializeNodes(nodes.slice(fallbackIndex)),
     };
   }
 
   return {
     beforeParagraphs: serializeNodes(nodes.slice(0, splitIndex)),
-    afterParagraphs: serializeNodes(nodes.slice(splitIndex))
+    afterParagraphs: serializeNodes(nodes.slice(splitIndex)),
   };
 }
 
@@ -111,8 +120,8 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
   const { beforeParagraphs, afterParagraphs } = useMemo(() => {
     if (!normalizedContent) {
       return {
-        beforeParagraphs: '',
-        afterParagraphs: ''
+        beforeParagraphs: "",
+        afterParagraphs: "",
       };
     }
 
@@ -143,19 +152,19 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
   const markdownComponents = {
     img: ({ src, alt }: { src?: string; alt?: string }) => (
       <OptimizedImage
-        src={src || ''}
-        alt={alt || ''}
+        src={src || ""}
+        alt={alt || ""}
         className="rounded-lg my-6"
         aspectRatio="16/9"
       />
-    )
+    ),
   };
 
   return (
     <>
       {/* First part of content (before 2nd paragraph) */}
       <div className={proseClasses}>
-        <ReactMarkdown 
+        <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={markdownComponents}
@@ -169,7 +178,7 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
 
       {/* Rest of content */}
       <div className={proseClasses}>
-        <ReactMarkdown 
+        <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={markdownComponents}

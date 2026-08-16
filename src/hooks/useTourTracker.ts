@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { reverseGeocode } from '@/lib/geocoding';
-import { calculateDrivingDistance, getDistanceInMeters } from '@/lib/distance';
-import { useWakeLock } from '@/hooks/useWakeLock';
-import { playNotificationSound } from '@/lib/sounds';
-import { toast } from 'sonner';
-import { useTourSessionDB } from '@/hooks/useTourSessionDB';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { reverseGeocode } from "@/lib/geocoding";
+import { calculateDrivingDistance, getDistanceInMeters } from "@/lib/distance";
+import { useWakeLock } from "@/hooks/useWakeLock";
+import { playNotificationSound } from "@/lib/sounds";
+import { toast } from "sonner";
+import { useTourSessionDB } from "@/hooks/useTourSessionDB";
 
 export interface TourStop {
   id: string;
@@ -40,14 +40,14 @@ interface PendingStop {
 
 // LocalStorage keys
 const STORAGE_KEYS = {
-  TOUR_ACTIVE: 'tour_active',
-  TOUR_START_TIME: 'tour_start_time',
-  TOUR_STOPS: 'tour_stops',
-  TOUR_GPS_POINTS: 'tour_gps_points',
-  TOUR_TOTAL_DISTANCE: 'tour_total_distance',
-  TOUR_PENDING_STOP: 'tour_pending_stop',
-  TOUR_INTERRUPTED: 'tour_interrupted', // Flag for interrupted tours that need recovery
-  TOUR_LAST_ACTIVITY: 'tour_last_activity', // Timestamp of last activity for session recovery
+  TOUR_ACTIVE: "tour_active",
+  TOUR_START_TIME: "tour_start_time",
+  TOUR_STOPS: "tour_stops",
+  TOUR_GPS_POINTS: "tour_gps_points",
+  TOUR_TOTAL_DISTANCE: "tour_total_distance",
+  TOUR_PENDING_STOP: "tour_pending_stop",
+  TOUR_INTERRUPTED: "tour_interrupted", // Flag for interrupted tours that need recovery
+  TOUR_LAST_ACTIVITY: "tour_last_activity", // Timestamp of last activity for session recovery
 };
 
 // Save data to localStorage immediately for data persistence
@@ -55,7 +55,7 @@ function saveTourData(key: string, data: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (e) {
-    console.warn('Failed to save tour data to localStorage:', e);
+    console.warn("Failed to save tour data to localStorage:", e);
   }
 }
 
@@ -66,13 +66,13 @@ function loadTourData<T>(key: string, defaultValue: T): T {
       return JSON.parse(stored);
     }
   } catch (e) {
-    console.warn('Failed to load tour data from localStorage:', e);
+    console.warn("Failed to load tour data from localStorage:", e);
   }
   return defaultValue;
 }
 
 function clearTourStorage() {
-  Object.values(STORAGE_KEYS).forEach(key => {
+  Object.values(STORAGE_KEYS).forEach((key) => {
     localStorage.removeItem(key);
   });
 }
@@ -82,7 +82,7 @@ function markTourInterrupted(reason: string) {
   const stops = loadTourData(STORAGE_KEYS.TOUR_STOPS, []);
   const totalDistance = loadTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0);
   const startTime = loadTourData(STORAGE_KEYS.TOUR_START_TIME, null);
-  
+
   // Only save interrupted data if we have meaningful data
   if (startTime && (stops.length > 0 || totalDistance > 0)) {
     const interruptedData = {
@@ -94,16 +94,16 @@ function markTourInterrupted(reason: string) {
     };
     saveTourData(STORAGE_KEYS.TOUR_INTERRUPTED, interruptedData);
   }
-  
+
   // Always clear active state and tour data
   clearTourStorage();
 }
 
 // Check if there's an interrupted tour to recover
-export function getInterruptedTour(): { 
-  reason: string; 
-  timestamp: string; 
-  stops: TourStop[]; 
+export function getInterruptedTour(): {
+  reason: string;
+  timestamp: string;
+  stops: TourStop[];
   totalDistance: number;
   startTime: string | null;
 } | null {
@@ -120,7 +120,7 @@ export function getInterruptedTour(): {
       }
     }
   } catch (e) {
-    console.warn('Failed to get interrupted tour:', e);
+    console.warn("Failed to get interrupted tour:", e);
   }
   return null;
 }
@@ -149,10 +149,14 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('unknown');
+  const [permissionStatus, setPermissionStatus] = useState<
+    "granted" | "denied" | "prompt" | "unknown"
+  >("unknown");
   const [totalDistanceKm, setTotalDistanceKm] = useState<number>(0);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
-  const [gpsSignalStrength, setGpsSignalStrength] = useState<'excellent' | 'good' | 'poor' | 'lost'>('lost');
+  const [gpsSignalStrength, setGpsSignalStrength] = useState<
+    "excellent" | "good" | "poor" | "lost"
+  >("lost");
   const [tourStartTime, setTourStartTime] = useState<Date | null>(null);
 
   // Wake Lock integration
@@ -211,12 +215,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
     const flush = () => {
       saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-      updateSession({
-        stops,
-        totalDistanceKm,
-        gpsPoints,
-        pendingStop: pendingStopRef.current,
-      }, true).catch(e => console.warn('[TourTracker] DB sync failed:', e));
+      updateSession(
+        {
+          stops,
+          totalDistanceKm,
+          gpsPoints,
+          pendingStop: pendingStopRef.current,
+        },
+        true,
+      ).catch((e) => console.warn("[TourTracker] DB sync failed:", e));
     };
 
     // Periodic sync every 15 seconds
@@ -224,15 +231,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
     // Flush immediately when tab is hidden or page is being closed
     const onVisibility = () => {
-      if (document.visibilityState === 'hidden') flush();
+      if (document.visibilityState === "hidden") flush();
     };
-    document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('pagehide', flush);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", flush);
 
     return () => {
       clearInterval(intervalId);
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('pagehide', flush);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", flush);
     };
   }, [isActive, stops, totalDistanceKm, gpsPoints, updateSession]);
 
@@ -240,15 +247,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const updateGpsSignal = useCallback((accuracy: number | null) => {
     setGpsAccuracy(accuracy);
     if (accuracy === null) {
-      setGpsSignalStrength('lost');
+      setGpsSignalStrength("lost");
     } else if (accuracy <= 10) {
-      setGpsSignalStrength('excellent');
+      setGpsSignalStrength("excellent");
     } else if (accuracy <= 30) {
-      setGpsSignalStrength('good');
+      setGpsSignalStrength("good");
     } else if (accuracy <= 50) {
-      setGpsSignalStrength('poor');
+      setGpsSignalStrength("poor");
     } else {
-      setGpsSignalStrength('lost');
+      setGpsSignalStrength("lost");
     }
   }, []);
 
@@ -259,18 +266,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     }
     gpsTimeoutRef.current = setTimeout(() => {
       updateGpsSignal(null);
-      toast.warning('GPS perdu', {
-        description: 'Activez le GPS ou sortez.',
+      toast.warning("GPS perdu", {
+        description: "Activez le GPS ou sortez.",
         duration: 5000,
       });
-      
+
       // After 2 minutes of no GPS signal, mark tour as interrupted
       setTimeout(() => {
-        if (isActive && gpsSignalStrength === 'lost') {
-          console.log('Tour interrupted due to prolonged GPS loss');
-          markTourInterrupted('gps_lost');
-          toast.error('Tournée interrompue', {
-            description: 'GPS perdu. Trajet à compléter.',
+        if (isActive && gpsSignalStrength === "lost") {
+          console.log("Tour interrupted due to prolonged GPS loss");
+          markTourInterrupted("gps_lost");
+          toast.error("Tournée interrompue", {
+            description: "GPS perdu. Trajet à compléter.",
             duration: 8000,
           });
         }
@@ -281,210 +288,239 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   // Check geolocation permission status
   const checkPermission = useCallback(async () => {
     if (!navigator.geolocation) {
-      setError('Géolocalisation non supportée sur cet appareil');
-      setPermissionStatus('denied');
+      setError("Géolocalisation non supportée sur cet appareil");
+      setPermissionStatus("denied");
       return false;
     }
 
     if (navigator.permissions && navigator.permissions.query) {
       try {
-        const result = await navigator.permissions.query({ name: 'geolocation' });
-        setPermissionStatus(result.state as 'granted' | 'denied' | 'prompt');
-        
-        result.addEventListener('change', () => {
-          setPermissionStatus(result.state as 'granted' | 'denied' | 'prompt');
+        const result = await navigator.permissions.query({ name: "geolocation" });
+        setPermissionStatus(result.state as "granted" | "denied" | "prompt");
+
+        result.addEventListener("change", () => {
+          setPermissionStatus(result.state as "granted" | "denied" | "prompt");
         });
-        
-        return result.state !== 'denied';
+
+        return result.state !== "denied";
       } catch (e) {
-        console.log('Permission API not fully supported, will try geolocation directly');
+        console.log("Permission API not fully supported, will try geolocation directly");
       }
     }
-    
+
     return true;
   }, []);
 
   // Add a confirmed stop
-  const addStop = useCallback(async (lat: number, lng: number, arrivalTime: Date, address?: string, city?: string) => {
-    const newStop: TourStop = {
-      id: crypto.randomUUID(),
-      timestamp: arrivalTime,
-      lat,
-      lng,
-      address,
-      city,
-    };
+  const addStop = useCallback(
+    async (lat: number, lng: number, arrivalTime: Date, address?: string, city?: string) => {
+      const newStop: TourStop = {
+        id: crypto.randomUUID(),
+        timestamp: arrivalTime,
+        lat,
+        lng,
+        address,
+        city,
+      };
 
-    console.log(`New stop added: ${city || address || 'Unknown'} (${lat.toFixed(4)}, ${lng.toFixed(4)}) after 7+ minutes`);
-    
-    // Play notification sound
-    playNotificationSound('subtle');
-    
-    // Vibrate phone when new step is created (if supported)
-    if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100, 50, 100]); // Triple vibration pattern
-    }
-    
-    setStops((prev) => {
-      const next = [...prev, newStop];
-      // Force immediate DB sync so a new stop is never lost on tab close
-      updateSession({ stops: next }, true).catch(e =>
-        console.warn('[TourTracker] Force sync on addStop failed:', e)
+      console.log(
+        `New stop added: ${city || address || "Unknown"} (${lat.toFixed(4)}, ${lng.toFixed(4)}) after 7+ minutes`,
       );
-      return next;
-    });
-  }, [updateSession]);
+
+      // Play notification sound
+      playNotificationSound("subtle");
+
+      // Vibrate phone when new step is created (if supported)
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100, 50, 100]); // Triple vibration pattern
+      }
+
+      setStops((prev) => {
+        const next = [...prev, newStop];
+        // Force immediate DB sync so a new stop is never lost on tab close
+        updateSession({ stops: next }, true).catch((e) =>
+          console.warn("[TourTracker] Force sync on addStop failed:", e),
+        );
+        return next;
+      });
+    },
+    [updateSession],
+  );
 
   // Add GPS point with filtering
-  const addGpsPoint = useCallback((lat: number, lng: number, accuracy: number) => {
-    const now = Date.now();
-    
-    // Enforce minimum interval (10 seconds)
-    if (now - lastPointTimeRef.current < trackingInterval) {
-      return false;
-    }
-    
-    // Filter out inaccurate points
-    if (accuracy > accuracyThreshold) {
-      console.log(`GPS point rejected: accuracy ${accuracy.toFixed(0)}m > ${accuracyThreshold}m threshold`);
-      return false;
-    }
-    
-    const point: GpsPoint = { lat, lng, timestamp: now, accuracy };
-    setGpsPoints(prev => [...prev, point]);
-    lastPointTimeRef.current = now;
-    
-    console.log(`GPS point captured: (${lat.toFixed(5)}, ${lng.toFixed(5)}) accuracy: ${accuracy.toFixed(0)}m`);
-    return true;
-  }, [trackingInterval, accuracyThreshold]);
+  const addGpsPoint = useCallback(
+    (lat: number, lng: number, accuracy: number) => {
+      const now = Date.now();
+
+      // Enforce minimum interval (10 seconds)
+      if (now - lastPointTimeRef.current < trackingInterval) {
+        return false;
+      }
+
+      // Filter out inaccurate points
+      if (accuracy > accuracyThreshold) {
+        console.log(
+          `GPS point rejected: accuracy ${accuracy.toFixed(0)}m > ${accuracyThreshold}m threshold`,
+        );
+        return false;
+      }
+
+      const point: GpsPoint = { lat, lng, timestamp: now, accuracy };
+      setGpsPoints((prev) => [...prev, point]);
+      lastPointTimeRef.current = now;
+
+      console.log(
+        `GPS point captured: (${lat.toFixed(5)}, ${lng.toFixed(5)}) accuracy: ${accuracy.toFixed(0)}m`,
+      );
+      return true;
+    },
+    [trackingInterval, accuracyThreshold],
+  );
 
   // Update total distance using Haversine (real-time, fast, free).
   // Final driving distance is recalculated between stops at tour end in Index.tsx.
   // CRITICAL: persist immediately to localStorage to survive app kill/suspension
-  const updateTotalDistance = useCallback((fromLat: number, fromLng: number, toLat: number, toLng: number) => {
-    const segmentDistanceKm = getDistanceInMeters(fromLat, fromLng, toLat, toLng) / 1000;
-    
-    setTotalDistanceKm((prev) => {
-      const newTotal = prev + segmentDistanceKm;
-      const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
-      maxDistanceReachedRef.current = maxDistance;
-      // Persist immediately — useEffect may not fire before app suspension
-      saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, maxDistance);
-      return maxDistance;
-    });
-  }, []);
+  const updateTotalDistance = useCallback(
+    (fromLat: number, fromLng: number, toLat: number, toLng: number) => {
+      const segmentDistanceKm = getDistanceInMeters(fromLat, fromLng, toLat, toLng) / 1000;
+
+      setTotalDistanceKm((prev) => {
+        const newTotal = prev + segmentDistanceKm;
+        const maxDistance = Math.max(newTotal, maxDistanceReachedRef.current);
+        maxDistanceReachedRef.current = maxDistance;
+        // Persist immediately — useEffect may not fire before app suspension
+        saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, maxDistance);
+        return maxDistance;
+      });
+    },
+    [],
+  );
 
   // Process position from watchPosition
-  const processPosition = useCallback(async (position: GeolocationPosition) => {
-    const { latitude: lat, longitude: lng, accuracy } = position.coords;
-    const now = new Date();
-    
-    // Reset GPS timeout
-    resetGpsTimeout();
-    
-    // Update GPS signal strength
-    updateGpsSignal(accuracy);
-    
-    // Filter by accuracy
-    if (accuracy > accuracyThreshold) {
-      console.log(`Position update ignored: accuracy ${accuracy.toFixed(0)}m > ${accuracyThreshold}m`);
-      return;
-    }
-    
-    // Add GPS point (respects interval)
-    addGpsPoint(lat, lng, accuracy);
-    
-    setCurrentPosition({ lat, lng });
-    setPermissionStatus('granted');
+  const processPosition = useCallback(
+    async (position: GeolocationPosition) => {
+      const { latitude: lat, longitude: lng, accuracy } = position.coords;
+      const now = new Date();
 
-    // Update total distance if we have a previous position
-    if (lastPositionRef.current) {
-      const distanceFromLast = getDistanceInMeters(
-        lastPositionRef.current.lat,
-        lastPositionRef.current.lng,
-        lat,
-        lng
-      );
-      
-      // Only update distance if moved significantly (> 50m to avoid GPS jitter)
-      if (distanceFromLast > 50) {
-        updateTotalDistance(
+      // Reset GPS timeout
+      resetGpsTimeout();
+
+      // Update GPS signal strength
+      updateGpsSignal(accuracy);
+
+      // Filter by accuracy
+      if (accuracy > accuracyThreshold) {
+        console.log(
+          `Position update ignored: accuracy ${accuracy.toFixed(0)}m > ${accuracyThreshold}m`,
+        );
+        return;
+      }
+
+      // Add GPS point (respects interval)
+      addGpsPoint(lat, lng, accuracy);
+
+      setCurrentPosition({ lat, lng });
+      setPermissionStatus("granted");
+
+      // Update total distance if we have a previous position
+      if (lastPositionRef.current) {
+        const distanceFromLast = getDistanceInMeters(
           lastPositionRef.current.lat,
           lastPositionRef.current.lng,
           lat,
-          lng
+          lng,
         );
+
+        // Only update distance if moved significantly (> 50m to avoid GPS jitter)
+        if (distanceFromLast > 50) {
+          updateTotalDistance(lastPositionRef.current.lat, lastPositionRef.current.lng, lat, lng);
+          lastPositionRef.current = { lat, lng };
+        }
+      } else {
         lastPositionRef.current = { lat, lng };
       }
-    } else {
-      lastPositionRef.current = { lat, lng };
-    }
 
-    // Check if we're at the same location as pending stop
-    if (pendingStopRef.current) {
-      const distanceFromPending = getDistanceInMeters(
-        pendingStopRef.current.lat,
-        pendingStopRef.current.lng,
-        lat,
-        lng
-      );
+      // Check if we're at the same location as pending stop
+      if (pendingStopRef.current) {
+        const distanceFromPending = getDistanceInMeters(
+          pendingStopRef.current.lat,
+          pendingStopRef.current.lng,
+          lat,
+          lng,
+        );
 
-      if (distanceFromPending <= locationRadius) {
-        // Still at same location - check if 7 minutes have passed
-        const secondsAtLocation = (now.getTime() - pendingStopRef.current.arrivalTime.getTime()) / 1000;
-        
-        console.log(`Still at same location: ${secondsAtLocation.toFixed(0)}s / ${stopDurationThreshold}s`);
-        
-        if (secondsAtLocation >= stopDurationThreshold) {
-          // 7+ minutes at this location - create a stop
-          await addStop(
-            pendingStopRef.current.lat,
-            pendingStopRef.current.lng,
-            pendingStopRef.current.arrivalTime,
-            pendingStopRef.current.address,
-            pendingStopRef.current.city
+        if (distanceFromPending <= locationRadius) {
+          // Still at same location - check if 7 minutes have passed
+          const secondsAtLocation =
+            (now.getTime() - pendingStopRef.current.arrivalTime.getTime()) / 1000;
+
+          console.log(
+            `Still at same location: ${secondsAtLocation.toFixed(0)}s / ${stopDurationThreshold}s`,
           );
+
+          if (secondsAtLocation >= stopDurationThreshold) {
+            // 7+ minutes at this location - create a stop
+            await addStop(
+              pendingStopRef.current.lat,
+              pendingStopRef.current.lng,
+              pendingStopRef.current.arrivalTime,
+              pendingStopRef.current.address,
+              pendingStopRef.current.city,
+            );
+            pendingStopRef.current = null;
+            setPendingStop(null);
+            saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
+          }
+        } else {
+          // Moved away - reset pending stop timer
+          console.log(`Moved away from pending stop location (${distanceFromPending.toFixed(0)}m)`);
           pendingStopRef.current = null;
           setPendingStop(null);
           saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
         }
-      } else {
-        // Moved away - reset pending stop timer
-        console.log(`Moved away from pending stop location (${distanceFromPending.toFixed(0)}m)`);
-        pendingStopRef.current = null;
-        setPendingStop(null);
-        saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
       }
-    }
 
-    // Check if we should start tracking a new potential stop
-    if (!pendingStopRef.current) {
-      // Start a new pending stop
-      const newPendingStop: PendingStop = {
-        lat,
-        lng,
-        arrivalTime: now,
-      };
+      // Check if we should start tracking a new potential stop
+      if (!pendingStopRef.current) {
+        // Start a new pending stop
+        const newPendingStop: PendingStop = {
+          lat,
+          lng,
+          arrivalTime: now,
+        };
 
-      // Get address info
-      try {
-        const geocodeResult = await reverseGeocode(lat, lng);
-        if (geocodeResult) {
-          newPendingStop.address = geocodeResult.fullAddress;
-          newPendingStop.city = geocodeResult.city;
-          // Update state with geocoded address
-          setPendingStop({ ...newPendingStop });
+        // Get address info
+        try {
+          const geocodeResult = await reverseGeocode(lat, lng);
+          if (geocodeResult) {
+            newPendingStop.address = geocodeResult.fullAddress;
+            newPendingStop.city = geocodeResult.city;
+            // Update state with geocoded address
+            setPendingStop({ ...newPendingStop });
+          }
+        } catch (e) {
+          console.warn("Failed to geocode position:", e);
         }
-      } catch (e) {
-        console.warn('Failed to geocode position:', e);
-      }
 
-      pendingStopRef.current = newPendingStop;
-      setPendingStop(newPendingStop);
-      saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, newPendingStop);
-      console.log(`Started tracking potential stop at: ${newPendingStop.city || newPendingStop.address || 'Unknown'}`);
-    }
-  }, [accuracyThreshold, addGpsPoint, addStop, locationRadius, resetGpsTimeout, stopDurationThreshold, updateGpsSignal, updateTotalDistance]);
+        pendingStopRef.current = newPendingStop;
+        setPendingStop(newPendingStop);
+        saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, newPendingStop);
+        console.log(
+          `Started tracking potential stop at: ${newPendingStop.city || newPendingStop.address || "Unknown"}`,
+        );
+      }
+    },
+    [
+      accuracyThreshold,
+      addGpsPoint,
+      addStop,
+      locationRadius,
+      resetGpsTimeout,
+      stopDurationThreshold,
+      updateGpsSignal,
+      updateTotalDistance,
+    ],
+  );
 
   // Handle visibility change - sync when returning to foreground with gap filling
   // CRITICAL: Gap filling and watchPosition restart are serialized to prevent double counting.
@@ -493,34 +529,34 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   // would also add the same distance = 2x actual distance.
   useEffect(() => {
     let lastVisibilityHiddenAt: number | null = null;
-    
+
     const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         // Record when we went to background
         lastVisibilityHiddenAt = Date.now();
         return;
       }
-      
-      if (document.visibilityState === 'visible' && isActive) {
-        console.log('App returned to foreground - initiating gap filling');
-        
+
+      if (document.visibilityState === "visible" && isActive) {
+        console.log("App returned to foreground - initiating gap filling");
+
         // ⚡ Update TOUR_LAST_ACTIVITY IMMEDIATELY on foreground return
         saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-        
+
         // Re-request wake lock
         await wakeLock.request();
-        
+
         // ⚡ CRITICAL: Clear existing watcher FIRST and do NOT restart it until gap filling completes
         if (watchIdRef.current !== null) {
           navigator.geolocation.clearWatch(watchIdRef.current);
           watchIdRef.current = null;
         }
-        
+
         // Gap fill: get fresh position and calculate distance from last known
         if (navigator.geolocation && lastPositionRef.current) {
           const lastKnownPosition = lastPositionRef.current;
           const timeInBackground = lastVisibilityHiddenAt ? Date.now() - lastVisibilityHiddenAt : 0;
-          
+
           try {
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
               navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -529,30 +565,36 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                 maximumAge: 0,
               });
             });
-            
+
             const { latitude: lat, longitude: lng, accuracy } = position.coords;
-            
+
             // Reset GPS timeout and update signal
             resetGpsTimeout();
             updateGpsSignal(accuracy);
-            
+
             // Calculate distance from last known position
             const distanceFromLast = getDistanceInMeters(
-              lastKnownPosition.lat, lastKnownPosition.lng,
-              lat, lng
+              lastKnownPosition.lat,
+              lastKnownPosition.lng,
+              lat,
+              lng,
             );
-            
-            console.log(`Gap filling: ${distanceFromLast.toFixed(0)}m from last position, ${(timeInBackground / 1000 / 60).toFixed(1)}min in background`);
-            
+
+            console.log(
+              `Gap filling: ${distanceFromLast.toFixed(0)}m from last position, ${(timeInBackground / 1000 / 60).toFixed(1)}min in background`,
+            );
+
             // Gap filling: If moved > 500m AND was in background > 2 minutes
             if (distanceFromLast > 500 && timeInBackground > 2 * 60 * 1000) {
               try {
-                console.log('Calculating driving distance for gap filling...');
+                console.log("Calculating driving distance for gap filling...");
                 const drivingDistance = await calculateDrivingDistance(
-                  lastKnownPosition.lat, lastKnownPosition.lng,
-                  lat, lng
+                  lastKnownPosition.lat,
+                  lastKnownPosition.lng,
+                  lat,
+                  lng,
                 );
-                
+
                 setTotalDistanceKm((prev) => {
                   const newTotal = prev + drivingDistance;
                   maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
@@ -560,15 +602,15 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                   saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
                   return result;
                 });
-                
-                toast.success('Retour de veille', {
+
+                toast.success("Retour de veille", {
                   description: `Trajet mis à jour (+${drivingDistance.toFixed(1)} km)`,
                   duration: 4000,
                 });
-                
+
                 console.log(`Gap filled: +${drivingDistance.toFixed(2)}km added`);
               } catch (e) {
-                console.warn('Failed to calculate gap distance:', e);
+                console.warn("Failed to calculate gap distance:", e);
                 const fallbackKm = distanceFromLast / 1000;
                 setTotalDistanceKm((prev) => {
                   const newTotal = prev + fallbackKm;
@@ -577,7 +619,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                   saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
                   return result;
                 });
-                toast.info('Retour de veille', {
+                toast.info("Retour de veille", {
                   description: `Distance estimée (+${fallbackKm.toFixed(1)} km)`,
                   duration: 4000,
                 });
@@ -586,19 +628,19 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
               // Small gap (50m-500m or short background time): use Haversine
               updateTotalDistance(lastKnownPosition.lat, lastKnownPosition.lng, lat, lng);
             }
-            
+
             // ⚡ Update lastPositionRef BEFORE restarting watchPosition
             lastPositionRef.current = { lat, lng };
             setCurrentPosition({ lat, lng });
-            
+
             // Clear old pending stop if moved
             if (distanceFromLast > locationRadius && pendingStopRef.current) {
-              console.log('Moved away during background - resetting pending stop');
+              console.log("Moved away during background - resetting pending stop");
               pendingStopRef.current = null;
               setPendingStop(null);
               saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, null);
             }
-            
+
             // Start new pending stop at current location
             const newPendingStop: PendingStop = { lat, lng, arrivalTime: new Date() };
             try {
@@ -608,44 +650,53 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
                 newPendingStop.city = geocodeResult.city;
               }
             } catch (e) {
-              console.warn('Failed to geocode wake position:', e);
+              console.warn("Failed to geocode wake position:", e);
             }
             pendingStopRef.current = newPendingStop;
             setPendingStop(newPendingStop);
             saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, newPendingStop);
-            
+
             addGpsPoint(lat, lng, accuracy);
           } catch (err) {
-            console.error('Gap filling getCurrentPosition error:', err);
+            console.error("Gap filling getCurrentPosition error:", err);
             updateGpsSignal(null);
           }
         }
-        
+
         // ⚡ CRITICAL: Restart watchPosition ONLY AFTER gap filling is complete
         // This ensures processPosition sees the updated lastPositionRef
         if (navigator.geolocation) {
           watchIdRef.current = navigator.geolocation.watchPosition(
             processPosition,
             (err) => {
-              console.error('Watch position error on resume:', err);
+              console.error("Watch position error on resume:", err);
             },
             {
               enableHighAccuracy: true,
               timeout: 15000,
               maximumAge: 0,
-            }
+            },
           );
-          console.log('watchPosition restarted after foreground return (gap fill complete)');
+          console.log("watchPosition restarted after foreground return (gap fill complete)");
         }
-        
+
         // Reset timeout for next background period
         lastVisibilityHiddenAt = null;
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isActive, wakeLock, processPosition, resetGpsTimeout, updateGpsSignal, addGpsPoint, locationRadius, updateTotalDistance]);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [
+    isActive,
+    wakeLock,
+    processPosition,
+    resetGpsTimeout,
+    updateGpsSignal,
+    addGpsPoint,
+    locationRadius,
+    updateTotalDistance,
+  ]);
 
   // Safety net: release the GPS watch and pending timer if the hook unmounts
   // without stopTour() being called (navigation, route change, error boundary).
@@ -666,35 +717,37 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   const startWatching = useCallback(() => {
     if (watchIdRef.current !== null) return;
-    
+
     watchIdRef.current = navigator.geolocation.watchPosition(
       processPosition,
       (err) => {
-        console.error('Watch position error:', err);
+        console.error("Watch position error:", err);
         updateGpsSignal(null);
-        
+
         if (err.code === 1) {
-          setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
-          setPermissionStatus('denied');
+          setError(
+            "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres de votre appareil.",
+          );
+          setPermissionStatus("denied");
           // Mark tour as interrupted if it was active
           if (isActive) {
-            markTourInterrupted('permission_denied');
-            toast.error('Tournée interrompue', {
-              description: 'Permission GPS retirée. Votre trajet sera à compléter.',
+            markTourInterrupted("permission_denied");
+            toast.error("Tournée interrompue", {
+              description: "Permission GPS retirée. Votre trajet sera à compléter.",
               duration: 8000,
             });
           } else {
-            toast.error('GPS refusé', {
-              description: 'Autorisez l\'accès à la localisation dans les paramètres.',
+            toast.error("GPS refusé", {
+              description: "Autorisez l'accès à la localisation dans les paramètres.",
             });
           }
         } else if (err.code === 2) {
-          toast.warning('GPS indisponible', {
-            description: 'Vérifiez que le GPS est activé.',
+          toast.warning("GPS indisponible", {
+            description: "Vérifiez que le GPS est activé.",
           });
         } else if (err.code === 3) {
-          toast.warning('GPS perdu', {
-            description: 'Reconnexion...',
+          toast.warning("GPS perdu", {
+            description: "Reconnexion...",
           });
         }
       },
@@ -702,16 +755,16 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         enableHighAccuracy: true,
         timeout: 15000,
         maximumAge: 0, // Always get fresh position
-      }
+      },
     );
-    
+
     resetGpsTimeout();
   }, [processPosition, resetGpsTimeout, updateGpsSignal]);
 
   const startTour = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     // Clear previous tour data
     clearTourStorage();
     setStops([]);
@@ -725,7 +778,9 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     // Check permission first
     const hasPermission = await checkPermission();
     if (!hasPermission) {
-      setError("Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.");
+      setError(
+        "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.",
+      );
       setIsLoading(false);
       pendingStartRef.current = true;
       return;
@@ -736,18 +791,20 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude: lat, longitude: lng, accuracy } = position.coords;
-        console.log(`Tour started at: (${lat.toFixed(4)}, ${lng.toFixed(4)}) accuracy: ${accuracy.toFixed(0)}m`);
-        
+        console.log(
+          `Tour started at: (${lat.toFixed(4)}, ${lng.toFixed(4)}) accuracy: ${accuracy.toFixed(0)}m`,
+        );
+
         const startTime = new Date();
         setTourStartTime(startTime);
         setCurrentPosition({ lat, lng });
-        setPermissionStatus('granted');
+        setPermissionStatus("granted");
         updateGpsSignal(accuracy);
         lastPositionRef.current = { lat, lng };
-        
+
         // Add initial GPS point
         addGpsPoint(lat, lng, accuracy);
-        
+
         // Add starting point as first stop immediately.
         // Seed a raw-coords fallback address so the recovery flow never
         // has to invent a literal like "Position".
@@ -767,7 +824,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             startStop.city = geocodeResult.city;
           }
         } catch (e) {
-          console.warn('Failed to geocode start:', e);
+          console.warn("Failed to geocode start:", e);
         }
 
         setStops([startStop]);
@@ -779,13 +836,16 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         // in the first few seconds never leaves a "0 km / 0 stop" zombie row.
         createSession(startTime)
           .then(() =>
-            updateSession({
-              stops: [startStop],
-              gpsPoints: [{ lat, lng, timestamp: Date.now(), accuracy }],
-              totalDistanceKm: 0,
-            }, true)
+            updateSession(
+              {
+                stops: [startStop],
+                gpsPoints: [{ lat, lng, timestamp: Date.now(), accuracy }],
+                totalDistanceKm: 0,
+              },
+              true,
+            ),
           )
-          .catch(e => console.warn('[TourTracker] Failed to create/seed DB session:', e));
+          .catch((e) => console.warn("[TourTracker] Failed to create/seed DB session:", e));
 
         // Background retry: if the start stop still only has raw coords as
         // address, retry geocoding a few times and patch the stop in state +
@@ -794,11 +854,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         if (!startStop.city) {
           const retryGeocode = async (attempt = 1) => {
             if (attempt > 5) return;
-            await new Promise(r => setTimeout(r, attempt * 8000));
+            await new Promise((r) => setTimeout(r, attempt * 8000));
             try {
               const geo = await reverseGeocode(lat, lng);
               if (geo?.city || geo?.fullAddress) {
-                setStops(prev => {
+                setStops((prev) => {
                   if (prev.length === 0 || prev[0].id !== startStop.id) return prev;
                   const patched = [...prev];
                   patched[0] = {
@@ -825,8 +885,8 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         // Request wake lock to keep screen on
         const wakeLockAcquired = await wakeLock.request();
         if (!wakeLockAcquired) {
-          toast.info('Mode écran actif', {
-            description: 'L\'écran peut s\'éteindre sur ce navigateur. Gardez l\'app visible.',
+          toast.info("Mode écran actif", {
+            description: "L'écran peut s'éteindre sur ce navigateur. Gardez l'app visible.",
             duration: 5000,
           });
         }
@@ -835,22 +895,24 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         startWatching();
       },
       (err) => {
-        console.error('Geolocation error:', err);
+        console.error("Geolocation error:", err);
         if (err.code === 1) {
-          setError('Accès à la géolocalisation refusé. Veuillez autoriser l\'accès dans les paramètres de votre appareil.');
-          setPermissionStatus('denied');
+          setError(
+            "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres de votre appareil.",
+          );
+          setPermissionStatus("denied");
           pendingStartRef.current = true;
         } else if (err.code === 2) {
-          setError('Position indisponible. Vérifiez que le GPS est activé.');
+          setError("Position indisponible. Vérifiez que le GPS est activé.");
         } else {
-          setError('Impossible de démarrer la tournée. Vérifiez vos paramètres de localisation.');
+          setError("Impossible de démarrer la tournée. Vérifiez vos paramètres de localisation.");
         }
         setIsLoading(false);
       },
       {
         enableHighAccuracy: true,
         timeout: 60000,
-      }
+      },
     );
   }, [addGpsPoint, checkPermission, startWatching, updateGpsSignal, wakeLock]);
 
@@ -860,21 +922,23 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
-    
+
     // Clear GPS timeout
     if (gpsTimeoutRef.current) {
       clearTimeout(gpsTimeoutRef.current);
       gpsTimeoutRef.current = null;
     }
-    
+
     pendingStopRef.current = null;
     setIsActive(false);
-    setGpsSignalStrength('lost');
-    
+    setGpsSignalStrength("lost");
+
     // Release wake lock
     await wakeLock.release();
-    
-    console.log(`Tour stopped. Total GPS points: ${gpsPoints.length}, Distance: ${totalDistanceKm.toFixed(2)}km`);
+
+    console.log(
+      `Tour stopped. Total GPS points: ${gpsPoints.length}, Distance: ${totalDistanceKm.toFixed(2)}km`,
+    );
   }, [gpsPoints.length, totalDistanceKm, wakeLock]);
 
   const clearTour = useCallback(() => {
@@ -889,7 +953,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     lastPositionRef.current = null;
     lastPointTimeRef.current = 0;
     // End DB session
-    endSessionDB().catch(e => console.warn('[TourTracker] Failed to end DB session:', e));
+    endSessionDB().catch((e) => console.warn("[TourTracker] Failed to end DB session:", e));
   }, [stopTour, endSessionDB]);
 
   // Get tour data for saving to Supabase
@@ -927,41 +991,43 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const resumeTour = useCallback(async () => {
     // Guard against concurrent resume calls (race condition between mount + event listener)
     if (isResumingRef.current) {
-      console.log('[resumeTour] Already resuming, ignoring duplicate call');
+      console.log("[resumeTour] Already resuming, ignoring duplicate call");
       return false;
     }
     isResumingRef.current = true;
-    setTimeout(() => { isResumingRef.current = false; }, 5000);
+    setTimeout(() => {
+      isResumingRef.current = false;
+    }, 5000);
 
     const savedActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
     if (!savedActive) {
-      console.log('No saved tour to resume');
+      console.log("No saved tour to resume");
       isResumingRef.current = false;
       return false;
     }
-    
+
     // Restore all saved state
     const savedStops = loadTourData<TourStop[]>(STORAGE_KEYS.TOUR_STOPS, []);
     const savedGpsPoints = loadTourData<GpsPoint[]>(STORAGE_KEYS.TOUR_GPS_POINTS, []);
     const savedDistance = loadTourData<number>(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0);
     const savedStartTime = loadTourData<string | null>(STORAGE_KEYS.TOUR_START_TIME, null);
     const savedPendingStop = loadTourData<PendingStop | null>(STORAGE_KEYS.TOUR_PENDING_STOP, null);
-    
+
     // Reconstruct Date objects
     const restoredStops = savedStops.map((s: any) => ({
       ...s,
       timestamp: new Date(s.timestamp),
     }));
-    
+
     setStops(restoredStops);
     setGpsPoints(savedGpsPoints);
     setTotalDistanceKm(savedDistance);
     maxDistanceReachedRef.current = savedDistance;
-    
+
     if (savedStartTime) {
       setTourStartTime(new Date(savedStartTime));
     }
-    
+
     if (savedPendingStop) {
       const restoredPending = {
         ...savedPendingStop,
@@ -970,19 +1036,21 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       pendingStopRef.current = restoredPending;
       setPendingStop(restoredPending);
     }
-    
+
     // Restore lastPositionRef from last saved GPS point
     // This is critical so the first new GPS position calculates the gap distance
     if (savedGpsPoints.length > 0) {
       const lastSavedPoint = savedGpsPoints[savedGpsPoints.length - 1];
       lastPositionRef.current = { lat: lastSavedPoint.lat, lng: lastSavedPoint.lng };
-      console.log(`Restored last position: (${lastSavedPoint.lat.toFixed(5)}, ${lastSavedPoint.lng.toFixed(5)})`);
+      console.log(
+        `Restored last position: (${lastSavedPoint.lat.toFixed(5)}, ${lastSavedPoint.lng.toFixed(5)})`,
+      );
     }
-    
+
     // Mark as active IMMEDIATELY so FocusTourView renders right away
     setIsActive(true);
     saveTourData(STORAGE_KEYS.TOUR_LAST_ACTIVITY, new Date().toISOString());
-    
+
     // Check permission and start watching
     const hasPermission = await checkPermission();
     if (!hasPermission) {
@@ -991,10 +1059,10 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
       // They can cancel from there
       return true;
     }
-    
+
     // Request wake lock
     await wakeLock.request();
-    
+
     // Gap fill: get current position and calculate driving distance from last saved point
     if (lastPositionRef.current) {
       const lastPos = lastPositionRef.current;
@@ -1006,16 +1074,21 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             maximumAge: 0,
           });
         });
-        
+
         const { latitude: lat, longitude: lng, accuracy } = position.coords;
         const distanceFromLast = getDistanceInMeters(lastPos.lat, lastPos.lng, lat, lng);
-        
+
         console.log(`Resume gap: ${distanceFromLast.toFixed(0)}m from last saved point`);
-        
+
         // If moved significantly, calculate driving distance for the gap
         if (distanceFromLast > 50) {
           try {
-            const drivingDistance = await calculateDrivingDistance(lastPos.lat, lastPos.lng, lat, lng);
+            const drivingDistance = await calculateDrivingDistance(
+              lastPos.lat,
+              lastPos.lng,
+              lat,
+              lng,
+            );
             setTotalDistanceKm((prev) => {
               const newTotal = prev + drivingDistance;
               maxDistanceReachedRef.current = Math.max(newTotal, maxDistanceReachedRef.current);
@@ -1023,11 +1096,11 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
               saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, result);
               return result;
             });
-          console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
+            console.log(`Resume gap filled: +${drivingDistance.toFixed(2)}km (driving distance)`);
             // Toast removed: GlobalTourRecovery handles all resume notifications
             // to avoid duplicate toasts ("Tournée reprise" + "Tournée démarrée")
           } catch (e) {
-            console.warn('Failed to calculate resume gap driving distance:', e);
+            console.warn("Failed to calculate resume gap driving distance:", e);
             // Fallback to straight-line
             const fallbackKm = distanceFromLast / 1000;
             setTotalDistanceKm((prev) => {
@@ -1043,13 +1116,13 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           addGpsPoint(lat, lng, accuracy);
         }
       } catch (e) {
-        console.warn('Failed to get current position for gap filling on resume:', e);
+        console.warn("Failed to get current position for gap filling on resume:", e);
       }
     }
-    
+
     // Start GPS watching
     startWatching();
-    
+
     console.log(`Tour resumed: ${restoredStops.length} stops, ${savedDistance.toFixed(1)} km`);
     return true;
   }, [checkPermission, startWatching, wakeLock]);
@@ -1058,18 +1131,18 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   const getSavedTourData = useCallback(() => {
     const savedActive = loadTourData(STORAGE_KEYS.TOUR_ACTIVE, false);
     if (!savedActive) return null;
-    
+
     const savedStops = loadTourData<TourStop[]>(STORAGE_KEYS.TOUR_STOPS, []);
     const savedGpsPoints = loadTourData<GpsPoint[]>(STORAGE_KEYS.TOUR_GPS_POINTS, []);
     const savedDistance = loadTourData<number>(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, 0);
     const savedStartTime = loadTourData<string | null>(STORAGE_KEYS.TOUR_START_TIME, null);
-    
+
     // Reconstruct Date objects
     const restoredStops = savedStops.map((s: any) => ({
       ...s,
       timestamp: new Date(s.timestamp),
     }));
-    
+
     return {
       stops: restoredStops,
       gpsPoints: savedGpsPoints,
@@ -1081,32 +1154,32 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
   // Force a GPS position refresh and distance update
   const refreshDistance = useCallback(() => {
     if (!isActive || !navigator.geolocation) return;
-    
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude: lat, longitude: lng, accuracy } = position.coords;
-        
+
         resetGpsTimeout();
         updateGpsSignal(accuracy);
-        
+
         if (accuracy > accuracyThreshold) {
           console.log(`Refresh rejected: accuracy ${accuracy.toFixed(0)}m`);
           return;
         }
-        
+
         setCurrentPosition({ lat, lng });
         addGpsPoint(lat, lng, accuracy);
-        
+
         if (lastPositionRef.current) {
           const dist = getDistanceInMeters(
-            lastPositionRef.current.lat, lastPositionRef.current.lng,
-            lat, lng
+            lastPositionRef.current.lat,
+            lastPositionRef.current.lng,
+            lat,
+            lng,
           );
-          if (dist > 10) { // Lower threshold for manual refresh (10m instead of 50m)
-            updateTotalDistance(
-              lastPositionRef.current.lat, lastPositionRef.current.lng,
-              lat, lng
-            );
+          if (dist > 10) {
+            // Lower threshold for manual refresh (10m instead of 50m)
+            updateTotalDistance(lastPositionRef.current.lat, lastPositionRef.current.lng, lat, lng);
             lastPositionRef.current = { lat, lng };
             console.log(`Refresh: +${(dist / 1000).toFixed(2)}km`);
           } else {
@@ -1117,12 +1190,19 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         }
       },
       (err) => {
-        console.error('Refresh getCurrentPosition error:', err);
+        console.error("Refresh getCurrentPosition error:", err);
         updateGpsSignal(null);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
-  }, [isActive, accuracyThreshold, addGpsPoint, resetGpsTimeout, updateGpsSignal, updateTotalDistance]);
+  }, [
+    isActive,
+    accuracyThreshold,
+    addGpsPoint,
+    resetGpsTimeout,
+    updateGpsSignal,
+    updateTotalDistance,
+  ]);
 
   return {
     isActive,

@@ -1,41 +1,41 @@
-import { useState } from 'react';
-import { Stethoscope, Hammer, Briefcase, TrendingUp, Calculator } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Stethoscope, Hammer, Briefcase, TrendingUp, Calculator } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const PERSONA_OPTIONS = [
   {
-    value: 'sante_liberal',
-    label: 'Professionnel de Santé Libéral',
+    value: "sante_liberal",
+    label: "Professionnel de Santé Libéral",
     icon: Stethoscope,
-    profession: 'Santé et médical',
+    profession: "Santé et médical",
   },
   {
-    value: 'artisan_btp',
-    label: 'Artisan / Professionnel du BTP',
+    value: "artisan_btp",
+    label: "Artisan / Professionnel du BTP",
     icon: Hammer,
-    profession: 'Bâtiment et entretiens',
+    profession: "Bâtiment et entretiens",
   },
   {
-    value: 'consultant_freelance',
-    label: 'Consultant / Freelance',
+    value: "consultant_freelance",
+    label: "Consultant / Freelance",
     icon: Briefcase,
-    profession: 'Indépendants',
+    profession: "Indépendants",
   },
   {
-    value: 'commercial_immobilier',
-    label: 'Commercial / Agent Immobilier',
+    value: "commercial_immobilier",
+    label: "Commercial / Agent Immobilier",
     icon: TrendingUp,
-    profession: 'Immobilier',
+    profession: "Immobilier",
   },
   {
-    value: 'expert_comptable_tns',
-    label: 'Expert-Comptable / Dirigeant TNS',
+    value: "expert_comptable_tns",
+    label: "Expert-Comptable / Dirigeant TNS",
     icon: Calculator,
-    profession: 'Audit et expertise comptable',
+    profession: "Audit et expertise comptable",
   },
 ] as const;
 
-export type PersonaValue = typeof PERSONA_OPTIONS[number]['value'];
+export type PersonaValue = (typeof PERSONA_OPTIONS)[number]["value"];
 
 interface PersonaPickerProps {
   onSelect: (persona: PersonaValue) => void;
@@ -70,29 +70,31 @@ export function PersonaPicker({ onSelect }: PersonaPickerProps) {
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 className={cn(
-                  'w-full flex items-center gap-4 px-6 py-4 rounded-xl border transition-all duration-200 text-left',
-                  'bg-slate-900/60 border-slate-800/60 text-slate-200',
-                  'hover:bg-slate-800/80 hover:border-slate-600/60 hover:text-white',
-                  'active:scale-[0.98]',
-                  'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500/50'
+                  "w-full flex items-center gap-4 px-6 py-4 rounded-xl border transition-all duration-200 text-left",
+                  "bg-slate-900/60 border-slate-800/60 text-slate-200",
+                  "hover:bg-slate-800/80 hover:border-slate-600/60 hover:text-white",
+                  "active:scale-[0.98]",
+                  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500/50",
                 )}
                 style={{
                   animationDelay: `${index * 60}ms`,
-                  animationFillMode: 'both',
+                  animationFillMode: "both",
                 }}
               >
-                <div className={cn(
-                  'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200',
-                  isHovered ? 'bg-blue-500/20' : 'bg-slate-800/80'
-                )}>
-                  <Icon className={cn(
-                    'w-5 h-5 transition-colors duration-200',
-                    isHovered ? 'text-blue-400' : 'text-slate-400'
-                  )} />
+                <div
+                  className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200",
+                    isHovered ? "bg-blue-500/20" : "bg-slate-800/80",
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "w-5 h-5 transition-colors duration-200",
+                      isHovered ? "text-blue-400" : "text-slate-400",
+                    )}
+                  />
                 </div>
-                <span className="text-[15px] font-medium">
-                  {option.label}
-                </span>
+                <span className="text-[15px] font-medium">{option.label}</span>
               </button>
             );
           })}

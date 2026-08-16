@@ -45,7 +45,11 @@ export function useRecurringTrips() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!user) { setItems([]); setLoading(false); return; }
+    if (!user) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from("recurring_trips" as any)
@@ -55,31 +59,36 @@ export function useRecurringTrips() {
     setLoading(false);
   }, [user]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const create = useCallback(async (input: Omit<RecurringTrip, "id" | "lastGeneratedDate">) => {
-    if (!user) return null;
-    const { data, error } = await supabase
-      .from("recurring_trips" as any)
-      .insert({
-        user_id: user.id,
-        vehicle_id: input.vehicleId,
-        start_location: input.startLocation as any,
-        end_location: input.endLocation as any,
-        distance: input.distance,
-        base_distance: input.baseDistance,
-        round_trip: input.roundTrip,
-        purpose: input.purpose || null,
-        days_of_week: input.daysOfWeek,
-        is_active: input.isActive,
-      } as any)
-      .select()
-      .single();
-    if (error || !data) return null;
-    const row = mapRow(data);
-    setItems(p => [row, ...p]);
-    return row;
-  }, [user]);
+  const create = useCallback(
+    async (input: Omit<RecurringTrip, "id" | "lastGeneratedDate">) => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("recurring_trips" as any)
+        .insert({
+          user_id: user.id,
+          vehicle_id: input.vehicleId,
+          start_location: input.startLocation as any,
+          end_location: input.endLocation as any,
+          distance: input.distance,
+          base_distance: input.baseDistance,
+          round_trip: input.roundTrip,
+          purpose: input.purpose || null,
+          days_of_week: input.daysOfWeek,
+          is_active: input.isActive,
+        } as any)
+        .select()
+        .single();
+      if (error || !data) return null;
+      const row = mapRow(data);
+      setItems((p) => [row, ...p]);
+      return row;
+    },
+    [user],
+  );
 
   const update = useCallback(async (id: string, patch: Partial<Omit<RecurringTrip, "id">>) => {
     const payload: any = {};
@@ -102,17 +111,28 @@ export function useRecurringTrips() {
       .single();
     if (error || !data) return null;
     const row = mapRow(data);
-    setItems(p => p.map(x => x.id === id ? row : x));
+    setItems((p) => p.map((x) => (x.id === id ? row : x)));
     return row;
   }, []);
 
   const remove = useCallback(async (id: string) => {
-    const { error } = await supabase.from("recurring_trips" as any).delete().eq("id", id);
-    if (!error) setItems(p => p.filter(x => x.id !== id));
+    const { error } = await supabase
+      .from("recurring_trips" as any)
+      .delete()
+      .eq("id", id);
+    if (!error) setItems((p) => p.filter((x) => x.id !== id));
   }, []);
 
   return { items, loading, create, update, remove, reload: load };
 }
 
 export const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-export const DAYS_FR_FULL = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+export const DAYS_FR_FULL = [
+  "Dimanche",
+  "Lundi",
+  "Mardi",
+  "Mercredi",
+  "Jeudi",
+  "Vendredi",
+  "Samedi",
+];

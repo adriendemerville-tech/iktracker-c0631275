@@ -1,8 +1,23 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Car, Calendar, Route, Settings, MessageSquare, FileText, Sparkles, Plus, Download, UserCircle, Smartphone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  ChevronRight,
+  ChevronLeft,
+  Car,
+  Calendar,
+  Route,
+  Settings,
+  MessageSquare,
+  FileText,
+  Sparkles,
+  Plus,
+  Download,
+  UserCircle,
+  Smartphone,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 interface TutorialStep {
   id: string;
@@ -10,94 +25,103 @@ interface TutorialStep {
   title: string;
   description: string;
   icon: React.ReactNode;
-  position: 'top' | 'bottom' | 'left' | 'right';
+  position: "top" | "bottom" | "left" | "right";
   mobileOnly?: boolean;
 }
 
 const TUTORIAL_STEPS: TutorialStep[] = [
   // Left sidebar: top to bottom
   {
-    id: 'vehicles',
+    id: "vehicles",
     targetSelector: '[data-tutorial="vehicles"]',
-    title: 'Mes véhicules',
-    description: 'Configurez vos véhicules avec leur puissance fiscale pour un calcul précis des indemnités kilométriques.',
+    title: "Mes véhicules",
+    description:
+      "Configurez vos véhicules avec leur puissance fiscale pour un calcul précis des indemnités kilométriques.",
     icon: <Car className="w-5 h-5" />,
-    position: 'right',
+    position: "right",
   },
   {
-    id: 'calendar',
+    id: "calendar",
     targetSelector: '[data-tutorial="calendar"]',
-    title: 'Synchronisation calendrier',
-    description: 'Connectez Google Calendar ou Outlook pour importer automatiquement vos rendez-vous professionnels.',
+    title: "Synchronisation calendrier",
+    description:
+      "Connectez Google Calendar ou Outlook pour importer automatiquement vos rendez-vous professionnels.",
     icon: <Calendar className="w-5 h-5" />,
-    position: 'right',
+    position: "right",
   },
   {
-    id: 'tour',
+    id: "tour",
     targetSelector: '[data-tutorial="tour"]',
-    title: 'Mode tournée',
-    description: 'Activez le GPS pour enregistrer vos déplacements en temps réel lors de vos tournées. Idéal pour les infirmiers, artisans et commerciaux.',
+    title: "Mode tournée",
+    description:
+      "Activez le GPS pour enregistrer vos déplacements en temps réel lors de vos tournées. Idéal pour les infirmiers, artisans et commerciaux.",
     icon: <Route className="w-5 h-5" />,
-    position: 'right',
+    position: "right",
     mobileOnly: true,
   },
   {
-    id: 'settings',
+    id: "settings",
     targetSelector: '[data-tutorial="settings"]',
-    title: 'Mes préférences',
-    description: 'Personnalisez les paramètres de détection des arrêts, la distance minimale et l\'email de votre expert-comptable.',
+    title: "Mes préférences",
+    description:
+      "Personnalisez les paramètres de détection des arrêts, la distance minimale et l'email de votre expert-comptable.",
     icon: <Settings className="w-5 h-5" />,
-    position: 'right',
+    position: "right",
   },
   {
-    id: 'recovery',
+    id: "recovery",
     targetSelector: '[data-tutorial="recovery"]',
-    title: 'Récupération Auto',
-    description: 'Importez automatiquement vos trajets depuis l\'historique Google Maps pour récupérer vos indemnités passées.',
+    title: "Récupération Auto",
+    description:
+      "Importez automatiquement vos trajets depuis l'historique Google Maps pour récupérer vos indemnités passées.",
     icon: <Sparkles className="w-5 h-5" />,
-    position: 'right',
+    position: "right",
   },
   {
-    id: 'feedback',
+    id: "feedback",
     targetSelector: '[data-tutorial="feedback"]',
-    title: 'Aide & Avis',
-    description: 'Besoin d\'aide ? Une question ? Envoyez-nous votre avis et consultez les réponses de notre équipe.',
+    title: "Aide & Avis",
+    description:
+      "Besoin d'aide ? Une question ? Envoyez-nous votre avis et consultez les réponses de notre équipe.",
     icon: <MessageSquare className="w-5 h-5" />,
-    position: 'right',
+    position: "right",
   },
   // Bottom bar: left to right (report, add-trip)
   {
-    id: 'report',
+    id: "report",
     targetSelector: '[data-tutorial="report"]',
-    title: 'Voir le relevé',
-    description: 'Consultez votre relevé d\'indemnités kilométriques mensuel avec le détail de chaque trajet.',
+    title: "Voir le relevé",
+    description:
+      "Consultez votre relevé d'indemnités kilométriques mensuel avec le détail de chaque trajet.",
     icon: <FileText className="w-5 h-5" />,
-    position: 'top',
+    position: "top",
   },
   {
-    id: 'add-trip',
+    id: "add-trip",
     targetSelector: '[data-tutorial="add-trip"]',
-    title: 'Ajouter un trajet',
-    description: 'Créez manuellement un trajet avec le calcul automatique de la distance et des indemnités.',
+    title: "Ajouter un trajet",
+    description:
+      "Créez manuellement un trajet avec le calcul automatique de la distance et des indemnités.",
     icon: <Plus className="w-5 h-5" />,
-    position: 'top',
+    position: "top",
   },
   // Top right: profile, download
   {
-    id: 'profile',
+    id: "profile",
     targetSelector: '[data-tutorial="profile"]',
-    title: 'Mon profil',
-    description: 'Gérez votre compte, vos informations personnelles et vos paramètres de sécurité.',
+    title: "Mon profil",
+    description: "Gérez votre compte, vos informations personnelles et vos paramètres de sécurité.",
     icon: <UserCircle className="w-5 h-5" />,
-    position: 'bottom',
+    position: "bottom",
   },
   {
-    id: 'download',
+    id: "download",
     targetSelector: '[data-tutorial="download"]',
-    title: 'Télécharger le relevé',
-    description: 'Exportez votre relevé au format PDF ou CSV pour votre déclaration fiscale ou votre comptable.',
+    title: "Télécharger le relevé",
+    description:
+      "Exportez votre relevé au format PDF ou CSV pour votre déclaration fiscale ou votre comptable.",
     icon: <Download className="w-5 h-5" />,
-    position: 'bottom',
+    position: "bottom",
   },
 ];
 
@@ -108,8 +132,15 @@ interface OnboardingTutorialProps {
 
 export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorialProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [highlightPosition, setHighlightPosition] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const [highlightPosition, setHighlightPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(
+    null,
+  );
 
   const step = TUTORIAL_STEPS[currentStep];
 
@@ -121,7 +152,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
       if (element) {
         const rect = element.getBoundingClientRect();
         const padding = 8;
-        
+
         setHighlightPosition({
           top: rect.top - padding,
           left: rect.left - padding,
@@ -137,19 +168,19 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
         const gap = 16;
 
         switch (step.position) {
-          case 'right':
+          case "right":
             tooltipLeft = rect.right + gap;
             tooltipTop = rect.top + rect.height / 2 - tooltipHeight / 2;
             break;
-          case 'left':
+          case "left":
             tooltipLeft = rect.left - tooltipWidth - gap;
             tooltipTop = rect.top + rect.height / 2 - tooltipHeight / 2;
             break;
-          case 'bottom':
+          case "bottom":
             tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
             tooltipTop = rect.bottom + gap;
             break;
-          case 'top':
+          case "top":
             tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
             tooltipTop = rect.top - tooltipHeight - gap;
             break;
@@ -164,13 +195,13 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
     };
 
     updatePosition();
-    window.addEventListener('resize', updatePosition);
-    return () => window.removeEventListener('resize', updatePosition);
+    window.addEventListener("resize", updatePosition);
+    return () => window.removeEventListener("resize", updatePosition);
   }, [currentStep, step, isVisible]);
 
   const handleNext = () => {
     if (currentStep < TUTORIAL_STEPS.length - 1) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     } else {
       handleComplete();
     }
@@ -178,7 +209,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -202,7 +233,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
         className="fixed inset-0 z-[100]"
       >
         {/* Overlay with cutout */}
-        <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
+        <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }}>
           <defs>
             <mask id="tutorial-mask">
               <rect x="0" y="0" width="100%" height="100%" fill="white" />
@@ -225,7 +256,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
             height="100%"
             fill="rgba(0, 0, 0, 0.75)"
             mask="url(#tutorial-mask)"
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: "auto" }}
             onClick={(e) => e.stopPropagation()}
           />
         </svg>
@@ -271,15 +302,19 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
                     Étape {currentStep + 1} sur {TUTORIAL_STEPS.length}
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8" aria-label="Fermer le tutoriel">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSkip}
+                  className="h-8 w-8"
+                  aria-label="Fermer le tutoriel"
+                >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
 
               {/* Description */}
-              <p className="text-sm text-muted-foreground mb-4">
-                {step.description}
-              </p>
+              <p className="text-sm text-muted-foreground mb-4">{step.description}</p>
 
               {/* Mobile only badge */}
               {step.mobileOnly && (
@@ -291,7 +326,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
 
               {/* Progress bar */}
               <div className="w-full h-1 bg-muted rounded-full mb-4">
-                <div 
+                <div
                   className="h-full bg-primary rounded-full transition-all duration-300"
                   style={{ width: `${((currentStep + 1) / TUTORIAL_STEPS.length) * 100}%` }}
                 />
@@ -316,7 +351,7 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
                   className="bg-primary text-primary-foreground"
                 >
                   {currentStep === TUTORIAL_STEPS.length - 1 ? (
-                    'Terminer'
+                    "Terminer"
                   ) : (
                     <>
                       Suivant
@@ -334,4 +369,4 @@ export const OnboardingTutorial = ({ onComplete, isVisible }: OnboardingTutorial
 };
 
 // Hook re-exported from separate file to avoid bundling framer-motion when only using the hook
-export { useTutorial } from '@/hooks/useTutorial';
+export { useTutorial } from "@/hooks/useTutorial";

@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Link } from '@/lib/router-compat';
-import { ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { OptimizedImage } from '@/components/ui/optimized-image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect, useState } from "react";
+import { Link } from "@/lib/router-compat";
+import { ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RelatedPost {
   id: string;
@@ -26,11 +26,11 @@ export function RelatedArticle({ currentPostId }: RelatedArticleProps) {
     const fetchRelated = async () => {
       // Fetch a random published article that isn't the current one
       const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id, slug, title, subtitle, featured_image_url')
-        .eq('status', 'published')
-        .neq('id', currentPostId)
-        .order('display_order', { ascending: true })
+        .from("blog_posts")
+        .select("id, slug, title, subtitle, featured_image_url")
+        .eq("status", "published")
+        .neq("id", currentPostId)
+        .order("display_order", { ascending: true })
         .limit(5);
 
       if (!error && data && data.length > 0) {
@@ -68,14 +68,9 @@ export function RelatedArticle({ currentPostId }: RelatedArticleProps) {
   return (
     <Card className="my-8 overflow-hidden hover:shadow-lg transition-shadow">
       <CardContent className="p-0">
-        <Link 
-          to={`/blog/${relatedPost.slug}`} 
-          className="block"
-        >
+        <Link to={`/blog/${relatedPost.slug}`} className="block">
           <div className="p-4 bg-muted/30 border-b border-border">
-            <span className="text-sm font-medium text-muted-foreground">
-              À lire également
-            </span>
+            <span className="text-sm font-medium text-muted-foreground">À lire également</span>
           </div>
           <div className="p-6 flex gap-4 items-start">
             {/* Thumbnail */}
@@ -93,16 +88,14 @@ export function RelatedArticle({ currentPostId }: RelatedArticleProps) {
                 <span className="text-2xl font-bold text-primary">IK</span>
               </div>
             )}
-            
+
             {/* Content */}
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-foreground line-clamp-2 mb-1 group-hover:text-primary transition-colors">
                 {relatedPost.title}
               </h3>
               {relatedPost.subtitle && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {relatedPost.subtitle}
-                </p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{relatedPost.subtitle}</p>
               )}
               <span className="inline-flex items-center gap-1 text-sm text-primary mt-2 font-medium hover:underline">
                 Lire l'article

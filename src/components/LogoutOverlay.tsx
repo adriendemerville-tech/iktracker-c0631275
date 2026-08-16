@@ -1,23 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 
 const FAREWELL_MESSAGES = [
-  'À bientôt',
-  'À très vite',
-  'Bon retour',
-  'À la prochaine',
-  'Bonne route',
+  "À bientôt",
+  "À très vite",
+  "Bon retour",
+  "À la prochaine",
+  "Bonne route",
 ];
 
 // Get or create session farewell message (consistent within a session)
 const getSessionFarewellMessage = (): string => {
-  const storageKey = 'iktracker_farewell_message';
-  if (typeof sessionStorage === 'undefined') return FAREWELL_MESSAGES[0];
+  const storageKey = "iktracker_farewell_message";
+  if (typeof sessionStorage === "undefined") return FAREWELL_MESSAGES[0];
   const stored = sessionStorage.getItem(storageKey);
-  
+
   if (stored) {
     return stored;
   }
-  
+
   const randomMessage = FAREWELL_MESSAGES[Math.floor(Math.random() * FAREWELL_MESSAGES.length)];
   sessionStorage.setItem(storageKey, randomMessage);
   return randomMessage;
@@ -30,10 +30,10 @@ interface LogoutOverlayProps {
 }
 
 export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
-  const [phase, setPhase] = useState<'hidden' | 'entering' | 'visible' | 'exiting'>('hidden');
-  
+  const [phase, setPhase] = useState<"hidden" | "entering" | "visible" | "exiting">("hidden");
+
   // Check if desktop (>= 768px)
-  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
 
   // Get consistent message for this session
   const message = useMemo(() => getSessionFarewellMessage(), []);
@@ -41,15 +41,18 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
 
   useEffect(() => {
     if (!isVisible) {
-      setPhase('hidden');
+      setPhase("hidden");
       return;
     }
 
     // Store farewell data for the transition shell (landing page will pick this up)
-    sessionStorage.setItem('iktracker_logout_transition', JSON.stringify({
-      message: fullMessage,
-      timestamp: Date.now()
-    }));
+    sessionStorage.setItem(
+      "iktracker_logout_transition",
+      JSON.stringify({
+        message: fullMessage,
+        timestamp: Date.now(),
+      }),
+    );
 
     // If mobile, redirect immediately
     if (!isDesktop) {
@@ -58,11 +61,11 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
     }
 
     // Start entering phase immediately
-    setPhase('entering');
+    setPhase("entering");
 
     // Transition to visible after enter animation
     const visibleTimer = setTimeout(() => {
-      setPhase('visible');
+      setPhase("visible");
     }, 300);
 
     // Navigate quickly - the HTML shell will maintain the overlay until Landing loads
@@ -77,7 +80,7 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
   }, [isVisible, isDesktop, fullMessage]);
 
   // On mobile, don't render anything
-  if (!isDesktop || phase === 'hidden') {
+  if (!isDesktop || phase === "hidden") {
     return null;
   }
 
@@ -85,32 +88,36 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden animate-fade-in"
       style={{
-        background: 'linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)',
-        animationDuration: '0.5s',
-        animationFillMode: 'both',
+        background:
+          "linear-gradient(135deg, hsl(217, 91%, 35%) 0%, hsl(217, 91%, 20%) 50%, hsl(220, 95%, 12%) 100%)",
+        animationDuration: "0.5s",
+        animationFillMode: "both",
       }}
     >
       {/* Subtle light reflection at top */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 80% 50% at 50% -10%, hsla(210, 100%, 70%, 0.15) 0%, transparent 60%)',
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% -10%, hsla(210, 100%, 70%, 0.15) 0%, transparent 60%)",
         }}
       />
-      
+
       {/* Soft glow in center */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 50% 50%, hsla(217, 90%, 50%, 0.1) 0%, transparent 50%)',
+          background:
+            "radial-gradient(circle at 50% 50%, hsla(217, 90%, 50%, 0.1) 0%, transparent 50%)",
         }}
       />
-      
+
       {/* Bottom shadow/vignette */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 100% 60% at 50% 110%, hsla(220, 100%, 5%, 0.4) 0%, transparent 70%)',
+          background:
+            "radial-gradient(ellipse 100% 60% at 50% 110%, hsla(220, 100%, 5%, 0.4) 0%, transparent 70%)",
         }}
       />
 
@@ -118,12 +125,13 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
       <div
         className="relative z-10 flex flex-col items-center gap-6 animate-fade-in"
         style={{
-          animationDelay: '0.1s',
-          animationDuration: '0.6s',
-          animationFillMode: 'both',
-          opacity: phase === 'exiting' ? 0 : 1,
-          transform: phase === 'exiting' ? 'translateY(-20px) scale(0.98)' : 'translateY(0) scale(1)',
-          transition: 'opacity 0.3s, transform 0.3s',
+          animationDelay: "0.1s",
+          animationDuration: "0.6s",
+          animationFillMode: "both",
+          opacity: phase === "exiting" ? 0 : 1,
+          transform:
+            phase === "exiting" ? "translateY(-20px) scale(0.98)" : "translateY(0) scale(1)",
+          transition: "opacity 0.3s, transform 0.3s",
         }}
       >
         {/* Logo */}
@@ -134,16 +142,16 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
           height={64}
           className="w-16 h-16 object-contain"
           style={{
-            filter: 'drop-shadow(0 4px 20px hsla(210, 100%, 70%, 0.3))',
+            filter: "drop-shadow(0 4px 20px hsla(210, 100%, 70%, 0.3))",
           }}
         />
-        
+
         {/* Farewell message */}
-        <h1 
+        <h1
           className="text-2xl md:text-3xl font-semibold tracking-tight text-center"
           style={{
-            color: 'white',
-            textShadow: '0 2px 20px hsla(210, 100%, 70%, 0.3), 0 4px 40px hsla(217, 90%, 30%, 0.5)',
+            color: "white",
+            textShadow: "0 2px 20px hsla(210, 100%, 70%, 0.3), 0 4px 40px hsla(217, 90%, 30%, 0.5)",
           }}
         >
           {fullMessage}

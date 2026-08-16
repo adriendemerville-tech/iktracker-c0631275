@@ -37,12 +37,12 @@
   --color-wizard-border: hsl(var(--wizard-border));
   --color-wizard-muted: hsl(var(--wizard-muted));
 
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  --font-urbanist: 'Urbanist', system-ui, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-blog: 'DM Sans', system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "Space Mono", monospace;
+  --font-urbanist: "Urbanist", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-blog: "DM Sans", system-ui, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -62,44 +62,99 @@
   --animate-spin-slow: spin-slow 3s linear infinite;
 
   @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
   @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
   }
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(100%); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   @keyframes pulse-soft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
   }
   @keyframes counter-up {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
   @keyframes pulse-glow {
-    0%, 100% { transform: scale(1); opacity: 0.4; }
-    50% { transform: scale(1.15); opacity: 0.2; }
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.4;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 0.2;
+    }
   }
   @keyframes pulse-glow-delayed {
-    0%, 100% { transform: scale(1.1); opacity: 0.3; }
-    50% { transform: scale(1.25); opacity: 0.1; }
+    0%,
+    100% {
+      transform: scale(1.1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: scale(1.25);
+      opacity: 0.1;
+    }
   }
   @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
 
@@ -127,7 +182,8 @@
   }
 
   /* Allow text selection on marketing pages */
-  .select-text, .select-text * {
+  .select-text,
+  .select-text * {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
@@ -135,7 +191,9 @@
   }
 
   /* Text cursor for editable fields everywhere */
-  input, textarea, [contenteditable="true"] {
+  input,
+  textarea,
+  [contenteditable="true"] {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
@@ -144,7 +202,8 @@
   }
 
   /* Default cursor for app pages (non-marketing) */
-  .cursor-default, .cursor-default * {
+  .cursor-default,
+  .cursor-default * {
     cursor: default;
   }
 
@@ -220,8 +279,8 @@
     --shadow-glow: 0 0 20px hsl(245 58% 52% / 0.25);
 
     /* Typography */
-    --font-sans: 'DM Sans', system-ui, sans-serif;
-    --font-mono: 'Space Mono', monospace;
+    --font-sans: "DM Sans", system-ui, sans-serif;
+    --font-mono: "Space Mono", monospace;
 
     /* Pending trips section gradient */
     --pending-bg-from: 38 35% 96%;
@@ -235,7 +294,6 @@
     /* Pending trips section gradient - dark purple */
     --pending-bg-from: 260 35% 14%;
     --pending-bg-to: 265 30% 11%;
-
 
     --card: 220 25% 12%;
     --card-foreground: 210 20% 98%;
@@ -285,12 +343,19 @@
     font-size-adjust: 0.52; /* DM Sans x-height ratio */
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold tracking-tight;
   }
 
   /* FOUT prevention - font-size-adjust for each font family */
-  .font-mono, code, pre {
+  .font-mono,
+  code,
+  pre {
     font-size-adjust: 0.54; /* Space Mono x-height ratio */
   }
 
@@ -343,7 +408,7 @@
   .skip-link {
     @apply absolute -top-10 left-4 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium text-sm transition-all duration-200;
   }
-  
+
   .skip-link:focus {
     @apply top-4 outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
@@ -371,7 +436,7 @@
       --border: 220 30% 50%;
       --muted-foreground: 220 20% 30%;
     }
-    
+
     .dark {
       --border: 220 30% 60%;
       --muted-foreground: 220 20% 70%;
@@ -381,11 +446,16 @@
 
 /* Orange border glow animation for tour button */
 @keyframes orange-border-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 3px hsl(25 95% 53% / 0.6), 0 0 15px hsl(25 95% 53% / 0.3);
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px hsl(25 95% 53% / 0.6),
+      0 0 15px hsl(25 95% 53% / 0.3);
   }
   50% {
-    box-shadow: 0 0 0 4px hsl(38 92% 50% / 0.8), 0 0 25px hsl(38 92% 50% / 0.5);
+    box-shadow:
+      0 0 0 4px hsl(38 92% 50% / 0.8),
+      0 0 25px hsl(38 92% 50% / 0.5);
   }
 }
 
@@ -411,7 +481,8 @@
 
 /* Car driving animation - very subtle shake */
 @keyframes car-drive {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0) rotate(0deg);
   }
   25% {
@@ -476,10 +547,12 @@
 }
 
 @keyframes blink-orange {
-  0%, 100% {
+  0%,
+  100% {
     color: hsl(var(--foreground));
   }
-  25%, 75% {
+  25%,
+  75% {
     color: hsl(var(--warning-blink));
   }
 }
@@ -512,7 +585,8 @@
 
 /* Animated car - bounce + engine vibration */
 @keyframes car-bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(-3deg) translateX(0);
   }
   25% {
@@ -527,7 +601,8 @@
 }
 
 @keyframes car-vibrate {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
   }
   10% {
@@ -560,13 +635,16 @@
 }
 
 .animate-car-bounce {
-  animation: car-bounce 0.5s ease-in-out infinite, car-vibrate 0.08s linear infinite;
+  animation:
+    car-bounce 0.5s ease-in-out infinite,
+    car-vibrate 0.08s linear infinite;
   will-change: transform;
 }
 
 /* Speed lines animation - synced with car */
 @keyframes speed-lines {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0) scaleX(1);
     opacity: 0.6;
   }
@@ -607,7 +685,8 @@
 
 /* Sleeping Zz float animation */
 @keyframes zz-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, 0);
     opacity: 0.8;
   }
@@ -623,7 +702,8 @@
 
 /* Road dashes animation */
 @keyframes road-dash {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -637,7 +717,8 @@
 
 /* Road wave animation */
 @keyframes road-wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleX(1) translateY(0);
   }
   25% {
@@ -655,10 +736,10 @@
   animation: road-wave 1.2s ease-in-out infinite;
 }
 
-
 /* Subtle gradient breathing animation */
 @keyframes pulse-gradient {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -670,11 +751,16 @@
 
 /* Subtle CTA pulse animation */
 @keyframes cta-pulse {
-  0%, 100% {
-    box-shadow: 0 4px 6px -1px hsl(220 70% 50% / 0.15), 0 2px 4px -2px hsl(220 70% 50% / 0.1);
+  0%,
+  100% {
+    box-shadow:
+      0 4px 6px -1px hsl(220 70% 50% / 0.15),
+      0 2px 4px -2px hsl(220 70% 50% / 0.1);
   }
   50% {
-    box-shadow: 0 4px 12px -1px hsl(220 70% 50% / 0.3), 0 2px 8px -2px hsl(220 70% 50% / 0.2);
+    box-shadow:
+      0 4px 12px -1px hsl(220 70% 50% / 0.3),
+      0 2px 8px -2px hsl(220 70% 50% / 0.2);
   }
 }
 
@@ -687,11 +773,16 @@
 }
 
 @keyframes cta-pulse-dark {
-  0%, 100% {
-    box-shadow: 0 4px 6px -1px hsl(220 70% 60% / 0.15), 0 2px 4px -2px hsl(220 70% 60% / 0.1);
+  0%,
+  100% {
+    box-shadow:
+      0 4px 6px -1px hsl(220 70% 60% / 0.15),
+      0 2px 4px -2px hsl(220 70% 60% / 0.1);
   }
   50% {
-    box-shadow: 0 4px 14px -1px hsl(220 70% 60% / 0.35), 0 2px 10px -2px hsl(220 70% 60% / 0.25);
+    box-shadow:
+      0 4px 14px -1px hsl(220 70% 60% / 0.35),
+      0 2px 10px -2px hsl(220 70% 60% / 0.25);
   }
 }
 
@@ -730,7 +821,7 @@ img {
 
 /* Prevent font FOUT/FOIT causing CLS */
 @font-face {
-  font-family: 'Plus Jakarta Sans';
+  font-family: "Plus Jakarta Sans";
   font-display: swap;
   size-adjust: 100%;
   ascent-override: 95%;
@@ -774,44 +865,51 @@ img {
 
 /* Car button base - Blue-Mauve gradient background with gold border */
 .tour-premium-button {
-  background: 
-    linear-gradient(135deg, #7485ED 0%, #5666D8 100%) padding-box,
-    linear-gradient(135deg, #FFBF00 0%, #FF5722 100%) border-box;
+  background:
+    linear-gradient(135deg, #7485ed 0%, #5666d8 100%) padding-box,
+    linear-gradient(135deg, #ffbf00 0%, #ff5722 100%) border-box;
   border: 4px solid transparent;
   border-radius: 50%;
-  transition: background 4s cubic-bezier(0.25, 0.1, 0.25, 1), border 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition:
+    background 4s cubic-bezier(0.25, 0.1, 0.25, 1),
+    border 4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* T=6-10s: Transition phase - smooth progressive morph to WhatsApp green */
 .tour-premium-button--transitioning {
-  background: 
-    linear-gradient(135deg, 
-      #7485ED 0%, 
-      #6476E8 15%, 
-      #5666D8 30%, 
-      #4B7CC7 45%, 
-      #3D9BA8 60%, 
-      #2FB989 75%, 
-      #25D366 90%, 
-      #128C7E 100%
-    ) padding-box,
-    linear-gradient(135deg, #FFBF00 0%, #25D366 50%, #128C7E 100%) border-box;
+  background:
+    linear-gradient(
+        135deg,
+        #7485ed 0%,
+        #6476e8 15%,
+        #5666d8 30%,
+        #4b7cc7 45%,
+        #3d9ba8 60%,
+        #2fb989 75%,
+        #25d366 90%,
+        #128c7e 100%
+      )
+      padding-box,
+    linear-gradient(135deg, #ffbf00 0%, #25d366 50%, #128c7e 100%) border-box;
   border: 4px solid transparent;
-  transition: background 4s cubic-bezier(0.25, 0.1, 0.25, 1), border 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition:
+    background 4s cubic-bezier(0.25, 0.1, 0.25, 1),
+    border 4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* T=10s+: Final WhatsApp green phase with animated rotating border */
 .tour-premium-button--final {
-  background: 
-    linear-gradient(135deg, #25D366 0%, #1EBE5D 25%, #17A954 50%, #128C7E 100%) padding-box,
-    conic-gradient(from var(--tour-border-angle, 0deg), #25D366, #128C7E, #0F7B6C, #128C7E, #25D366) border-box;
+  background:
+    linear-gradient(135deg, #25d366 0%, #1ebe5d 25%, #17a954 50%, #128c7e 100%) padding-box,
+    conic-gradient(from var(--tour-border-angle, 0deg), #25d366, #128c7e, #0f7b6c, #128c7e, #25d366)
+      border-box;
   border: 4px solid transparent;
   animation: tour-border-rotate 3s linear infinite;
   transition: background 2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 @property --tour-border-angle {
-  syntax: '<angle>';
+  syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
 }

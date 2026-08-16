@@ -5,14 +5,14 @@
 // simplement jamais, ou revient avec `error=access_denied` dans l'URL.
 // On pose donc un marqueur au départ, et on le résout au retour.
 
-import ReactGAModule from 'react-ga4';
-import { isBrowser, isBot, safeSessionStorage } from '@/lib/ssr-utils';
-import { trackSignupEvent } from '@/lib/signup-tracking';
+import ReactGAModule from "react-ga4";
+import { isBrowser, isBot, safeSessionStorage } from "@/lib/ssr-utils";
+import { trackSignupEvent } from "@/lib/signup-tracking";
 
 const ReactGA = ((ReactGAModule as unknown as { default?: typeof ReactGAModule }).default ??
   ReactGAModule) as typeof ReactGAModule;
 
-const PENDING_KEY = 'ik_oauth_pending';
+const PENDING_KEY = "ik_oauth_pending";
 /** Au-delà, on considère la tentative comme abandonnée. */
 const STALE_MS = 15 * 60 * 1000;
 
@@ -43,7 +43,7 @@ function clearPending() {
 }
 
 /** À appeler juste avant `signInWithOAuth`. */
-export function markOAuthStart(provider: string, page = 'auth') {
+export function markOAuthStart(provider: string, page = "auth") {
   if (!isBrowser() || isBot()) return;
   safeSessionStorage.setItem(
     PENDING_KEY,
@@ -60,16 +60,15 @@ export function markOAuthStart(provider: string, page = 'auth') {
  * - `signup_oauth_denied`   : refus explicite sur l'écran de consentement
  * - `signup_oauth_abandon`  : retour sans session ni erreur (fermeture/back)
  */
-export function resolveOAuthReturn(hasSession: boolean, page = 'auth') {
+export function resolveOAuthReturn(hasSession: boolean, page = "auth") {
   if (!isBrowser() || isBot()) return;
   const pending = readPending();
   if (!pending) return;
 
   const params = new URLSearchParams(window.location.search);
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-  const errorCode = params.get('error') ?? hash.get('error');
-  const errorDesc =
-    params.get('error_description') ?? hash.get('error_description') ?? '';
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const errorCode = params.get("error") ?? hash.get("error");
+  const errorDesc = params.get("error_description") ?? hash.get("error_description") ?? "";
   const elapsed = Date.now() - pending.ts;
   const stale = elapsed > STALE_MS;
 
@@ -83,13 +82,13 @@ export function resolveOAuthReturn(hasSession: boolean, page = 'auth') {
   // toujours, c'est ce qui permet de calculer le taux de retour.
   if (!stale) {
     void trackSignupEvent(
-      'signup_oauth_return',
-      `${pending.provider}:${errorCode ? 'error' : hasSession ? 'session' : 'no_session'}`,
+      "signup_oauth_return",
+      `${pending.provider}:${errorCode ? "error" : hasSession ? "session" : "no_session"}`,
       page,
     );
-    gaEvent('signup_oauth_return', {
+    gaEvent("signup_oauth_return", {
       ...base,
-      outcome: errorCode ? 'error' : hasSession ? 'session' : 'no_session',
+      outcome: errorCode ? "error" : hasSession ? "session" : "no_session",
     });
   }
 
@@ -98,11 +97,11 @@ export function resolveOAuthReturn(hasSession: boolean, page = 'auth') {
       `${errorCode} ${errorDesc}`,
     );
     void trackSignupEvent(
-      denied ? 'signup_oauth_denied' : 'signup_error',
+      denied ? "signup_oauth_denied" : "signup_error",
       `${pending.provider}: ${errorCode} ${errorDesc}`.slice(0, 200),
       page,
     );
-    gaEvent(denied ? 'signup_oauth_denied' : 'signup_oauth_error', {
+    gaEvent(denied ? "signup_oauth_denied" : "signup_oauth_error", {
       ...base,
       error_code: errorCode,
       error_description: errorDesc.slice(0, 120),
@@ -111,11 +110,11 @@ export function resolveOAuthReturn(hasSession: boolean, page = 'auth') {
     // Revenu sur l'écran d'auth sans session : abandon sur le consentement
     // (fermeture de l'onglet Google, bouton retour, timeout).
     void trackSignupEvent(
-      'signup_oauth_abandon',
-      `${pending.provider}:${stale ? 'stale' : 'returned'}`,
+      "signup_oauth_abandon",
+      `${pending.provider}:${stale ? "stale" : "returned"}`,
       page,
     );
-    gaEvent('signup_oauth_abandon', { ...base, reason: stale ? 'stale' : 'returned' });
+    gaEvent("signup_oauth_abandon", { ...base, reason: stale ? "stale" : "returned" });
   }
 
   clearPending();

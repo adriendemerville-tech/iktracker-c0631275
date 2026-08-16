@@ -16,12 +16,14 @@ serve(async (req) => {
     const file = inbound.get("file");
     if (!(file instanceof File) || file.size < 1024) {
       return new Response(JSON.stringify({ error: "Audio file missing or too short" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     if (file.size > 20 * 1024 * 1024) {
       return new Response(JSON.stringify({ error: "Audio too large (max 20MB)" }), {
-        status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 413,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -39,19 +41,25 @@ serve(async (req) => {
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       console.error(`Transcription ${res.status}:`, body);
-      return new Response(JSON.stringify({ error: "Transcription failed", status: res.status, details: body }), {
-        status: res.status, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Transcription failed", status: res.status, details: body }),
+        {
+          status: res.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     const data = await res.json();
     return new Response(JSON.stringify({ text: data.text || "" }), {
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
     console.error("transcribe-audio error:", err);
     return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

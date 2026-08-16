@@ -1,11 +1,21 @@
 import { useEffect, useState, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MailCheck, RefreshCw, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { EMAIL_GATE_EVENT, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
+import {
+  EMAIL_GATE_EVENT,
+  UNVERIFIED_TRIP_LIMIT,
+  UNVERIFIED_TOUR_LIMIT,
+} from "@/hooks/useEmailGate";
 
 const GRACE_MS = 5 * 60 * 1000; // 5 minutes
 const firstSeenKey = (uid: string) => `ik_first_session_at_${uid}`;
@@ -58,7 +68,11 @@ export const EmailVerificationGate = () => {
     const flag = `ik_gmail_opened_${user?.id}`;
     if (sessionStorage.getItem(flag)) return;
     sessionStorage.setItem(flag, "1");
-    window.open("https://mail.google.com/mail/u/0/#search/IKtracker", "_blank", "noopener,noreferrer");
+    window.open(
+      "https://mail.google.com/mail/u/0/#search/IKtracker",
+      "_blank",
+      "noopener,noreferrer",
+    );
   }, [blocked, verified, user]);
 
   const handleResend = useCallback(async () => {
@@ -76,7 +90,11 @@ export const EmailVerificationGate = () => {
         description: `Un nouvel email de vérification a été envoyé à ${user.email}.`,
       });
       if (isGmail(user.email)) {
-        window.open("https://mail.google.com/mail/u/0/#search/IKtracker", "_blank", "noopener,noreferrer");
+        window.open(
+          "https://mail.google.com/mail/u/0/#search/IKtracker",
+          "_blank",
+          "noopener,noreferrer",
+        );
       }
     } catch (err) {
       toast({
@@ -120,13 +138,11 @@ export const EmailVerificationGate = () => {
           </div>
           <DialogTitle className="text-center">Vérifiez votre adresse email</DialogTitle>
           <DialogDescription className="text-center">
-            Confirmez l'adresse{" "}
-            <span className="font-medium text-foreground">{user.email}</span> pour débloquer
-            IKtracker. Sans vérification : {UNVERIFIED_TRIP_LIMIT} trajets et{" "}
+            Confirmez l'adresse <span className="font-medium text-foreground">{user.email}</span>{" "}
+            pour débloquer IKtracker. Sans vérification : {UNVERIFIED_TRIP_LIMIT} trajets et{" "}
             {UNVERIFIED_TOUR_LIMIT} tournée maximum, et aucun export de relevé.
           </DialogDescription>
         </DialogHeader>
-
 
         <div className="space-y-2">
           <Button className="w-full" onClick={handleResend} disabled={sending}>

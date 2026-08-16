@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { MapPin, Navigation, CheckCircle2, Clock, ArrowRight, Car } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { MapPin, Navigation, CheckCircle2, Clock, ArrowRight, Car } from "lucide-react";
 
 interface TourModeDemoProps {
   className?: string;
@@ -40,14 +40,18 @@ export function TourModeDemo({ className, compact = false }: TourModeDemoProps) 
 
   if (compact) {
     return (
-      <div className={cn("bg-card border border-border rounded-2xl p-6 overflow-hidden", className)}>
+      <div
+        className={cn("bg-card border border-border rounded-2xl p-6 overflow-hidden", className)}
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
             <Navigation className="w-6 h-6 text-accent" />
           </div>
           <div>
             <h3 className="font-bold text-foreground">Mode Tournée</h3>
-            <p className="text-sm text-muted-foreground">Optimisé pour les professionnels itinérants</p>
+            <p className="text-sm text-muted-foreground">
+              Optimisé pour les professionnels itinérants
+            </p>
           </div>
         </div>
 
@@ -57,20 +61,24 @@ export function TourModeDemo({ className, compact = false }: TourModeDemoProps) 
             <p className="text-xs text-muted-foreground">km parcourus</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-accent">{activeStop + 1}/{stops.length}</p>
+            <p className="text-2xl font-bold text-accent">
+              {activeStop + 1}/{stops.length}
+            </p>
             <p className="text-xs text-muted-foreground">étapes</p>
           </div>
         </div>
 
         <div className="mt-4 flex items-center gap-2 overflow-hidden">
           {stops.map((stop, i) => (
-            <div 
+            <div
               key={i}
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 shrink-0",
-                i < activeStop ? "bg-success text-success-foreground scale-90" :
-                i === activeStop ? "bg-primary text-primary-foreground scale-110 animate-pulse" :
-                "bg-muted text-muted-foreground scale-90"
+                i < activeStop
+                  ? "bg-success text-success-foreground scale-90"
+                  : i === activeStop
+                    ? "bg-primary text-primary-foreground scale-110 animate-pulse"
+                    : "bg-muted text-muted-foreground scale-90",
               )}
             >
               {i < activeStop ? (
@@ -108,7 +116,7 @@ export function TourModeDemo({ className, compact = false }: TourModeDemoProps) 
       <div className="relative">
         {/* Progress line */}
         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-muted" />
-        <div 
+        <div
           className="absolute left-6 top-0 w-0.5 bg-gradient-to-b from-primary to-accent transition-all duration-500"
           style={{ height: `${(activeStop / (stops.length - 1)) * 100}%` }}
         />
@@ -116,20 +124,24 @@ export function TourModeDemo({ className, compact = false }: TourModeDemoProps) 
         {/* Stops */}
         <div className="space-y-6">
           {stops.map((stop, i) => (
-            <div 
+            <div
               key={i}
               className={cn(
                 "relative flex items-start gap-4 transition-all duration-500",
-                i <= activeStop ? "opacity-100" : "opacity-40"
+                i <= activeStop ? "opacity-100" : "opacity-40",
               )}
             >
               {/* Marker */}
-              <div className={cn(
-                "relative z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 shrink-0",
-                i < activeStop ? "bg-success text-success-foreground" :
-                i === activeStop ? "bg-primary text-primary-foreground ring-4 ring-primary/20 animate-pulse" :
-                "bg-muted text-muted-foreground"
-              )}>
+              <div
+                className={cn(
+                  "relative z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 shrink-0",
+                  i < activeStop
+                    ? "bg-success text-success-foreground"
+                    : i === activeStop
+                      ? "bg-primary text-primary-foreground ring-4 ring-primary/20 animate-pulse"
+                      : "bg-muted text-muted-foreground",
+                )}
+              >
                 {i < activeStop ? (
                   <CheckCircle2 className="w-6 h-6" />
                 ) : i === activeStop ? (
@@ -140,10 +152,12 @@ export function TourModeDemo({ className, compact = false }: TourModeDemoProps) 
               </div>
 
               {/* Content */}
-              <div className={cn(
-                "flex-1 bg-muted/50 rounded-xl p-4 transition-all duration-500",
-                i === activeStop && "bg-primary/5 border border-primary/20 shadow-lg"
-              )}>
+              <div
+                className={cn(
+                  "flex-1 bg-muted/50 rounded-xl p-4 transition-all duration-500",
+                  i === activeStop && "bg-primary/5 border border-primary/20 shadow-lg",
+                )}
+              >
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-semibold text-foreground">{stop.name}</p>
@@ -178,7 +192,9 @@ export function TourModeDemo({ className, compact = false }: TourModeDemoProps) 
           <p className="text-sm text-muted-foreground">étapes</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-primary">{stops.reduce((a, s) => a + s.km, 0)} km</p>
+          <p className="text-2xl font-bold text-primary">
+            {stops.reduce((a, s) => a + s.km, 0)} km
+          </p>
           <p className="text-sm text-muted-foreground">total</p>
         </div>
         <div>

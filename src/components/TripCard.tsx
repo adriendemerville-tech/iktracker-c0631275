@@ -1,13 +1,24 @@
-import { useState, memo } from 'react';
-import { Trip, Vehicle, Location } from '@/types/trip';
-import { MapPin, ArrowRight, X, Pencil, Truck, ChevronRight, Calendar, AlertTriangle, MapPinOff, Check } from 'lucide-react';
-import { Button } from './ui/button';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { extractCityFromAddress } from '@/lib/geocoding';
-import { TourDetailSheet } from './TourDetailSheet';
-import { CompleteAddressSheet } from './CompleteAddressSheet';
-import { TripViewSheet } from './TripViewSheet';
+import { useState, memo } from "react";
+import { Trip, Vehicle, Location } from "@/types/trip";
+import {
+  MapPin,
+  ArrowRight,
+  X,
+  Pencil,
+  Truck,
+  ChevronRight,
+  Calendar,
+  AlertTriangle,
+  MapPinOff,
+  Check,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { extractCityFromAddress } from "@/lib/geocoding";
+import { TourDetailSheet } from "./TourDetailSheet";
+import { CompleteAddressSheet } from "./CompleteAddressSheet";
+import { TripViewSheet } from "./TripViewSheet";
 
 interface TripCardProps {
   trip: Trip;
@@ -33,11 +44,11 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
   return location.name;
 };
 
-export const TripCard = memo(function TripCard({ 
-  trip, 
-  vehicle, 
-  onDelete, 
-  onEdit, 
+export const TripCard = memo(function TripCard({
+  trip,
+  vehicle,
+  onDelete,
+  onEdit,
   showDelete = false,
   savedLocations = [],
   onTripUpdated,
@@ -56,22 +67,22 @@ export const TripCard = memo(function TripCard({
   const showActionButtons = !isMobile || (selectionMode && selected);
   // Classes de visibilité desktop : réserve la place, révèle au survol ou au focus clavier.
   const desktopHoverReveal = isMobile
-    ? ''
-    : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-opacity';
-  
-  const isPending = trip.status === 'pending_location';
-  
+    ? ""
+    : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-opacity";
+
+  const isPending = trip.status === "pending_location";
+
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: 'short',
+    return new Date(date).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "short",
     });
   };
 
   const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(date).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -91,11 +102,11 @@ export const TripCard = memo(function TripCard({
 
   const getLocationIcon = (type: string) => {
     const colors: Record<string, string> = {
-      home: 'text-primary',
-      office: 'text-accent',
-      client: 'text-warning',
-      supplier: 'text-destructive',
-      other: 'text-muted-foreground',
+      home: "text-primary",
+      office: "text-accent",
+      client: "text-warning",
+      supplier: "text-destructive",
+      other: "text-muted-foreground",
     };
     return colors[type] || colors.other;
   };
@@ -128,18 +139,17 @@ export const TripCard = memo(function TripCard({
 
   return (
     <>
-      <div 
+      <div
         className={cn(
           "bg-card rounded-md p-3 shadow-xs border animate-fade-in relative cursor-pointer hover:bg-muted/50 transition-colors group",
-          isPending 
-            ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600" 
+          isPending
+            ? "border-violet-500/50 bg-violet-600 text-white cursor-default hover:bg-violet-600"
             : "border-border/50",
           selectionMode && !isPending && "pl-11",
-          selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5"
+          selectionMode && selected && "ring-2 ring-primary border-primary/40 bg-primary/5",
         )}
         onClick={handleCardClick}
       >
-
         {/* Selection checkbox */}
         {selectionMode && !isPending && (
           <div
@@ -147,7 +157,7 @@ export const TripCard = memo(function TripCard({
               "absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors shrink-0",
               selected
                 ? "bg-primary border-primary text-primary-foreground"
-                : "bg-background border-muted-foreground/40"
+                : "bg-background border-muted-foreground/40",
             )}
             aria-hidden
           >
@@ -160,7 +170,7 @@ export const TripCard = memo(function TripCard({
             <MapPinOff className="w-3.5 h-3.5 text-white" />
           </div>
         )}
-        
+
         {/* Tour icon badge */}
         {isTour && !isPending && (
           <div className="absolute -top-2 -left-2 w-6 h-6 bg-white rounded-full shadow-xs border border-border/50 flex items-center justify-center">
@@ -170,10 +180,12 @@ export const TripCard = memo(function TripCard({
 
         {/* Ligne 1: Date | Tournée ou Départ → Arrivée | Bouton edit */}
         <div className="flex items-center gap-3 mb-2">
-          <div className={cn(
-            "flex items-center gap-1.5 text-xs shrink-0",
-            isPending ? "text-white/80" : "text-muted-foreground"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-1.5 text-xs shrink-0",
+              isPending ? "text-white/80" : "text-muted-foreground",
+            )}
+          >
             <span>{formatDate(trip.startTime)}</span>
             {showTripTime && hasRealTime(trip.startTime) && (
               <span className={isPending ? "text-white/60" : "text-muted-foreground/70"}>
@@ -181,32 +193,57 @@ export const TripCard = memo(function TripCard({
               </span>
             )}
           </div>
-          
-          
+
           {isTour ? (
             // Tour display: "Tournée (X étapes)"
             <div className="flex-1 flex items-center gap-2 min-w-0">
-              <Truck className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
+              <Truck
+                className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")}
+              />
               <span className="font-medium text-sm">Tournée</span>
-              <span className={cn("text-xs", isPending ? "text-white/70" : "text-muted-foreground")}>
+              <span
+                className={cn("text-xs", isPending ? "text-white/70" : "text-muted-foreground")}
+              >
                 ({trip.tourStops!.length} étapes)
               </span>
-              <ChevronRight className={cn("w-4 h-4 ml-auto shrink-0", isPending ? "text-white/70" : "text-muted-foreground")} />
+              <ChevronRight
+                className={cn(
+                  "w-4 h-4 ml-auto shrink-0",
+                  isPending ? "text-white/70" : "text-muted-foreground",
+                )}
+              />
             </div>
           ) : (
             // Regular trip display: Départ → Arrivée
             <div className="flex-1 flex items-center gap-1.5 min-w-0">
-              <MapPin className={cn("w-3.5 h-3.5 shrink-0", isPending ? "text-white" : getLocationIcon(trip.startLocation.type))} />
+              <MapPin
+                className={cn(
+                  "w-3.5 h-3.5 shrink-0",
+                  isPending ? "text-white" : getLocationIcon(trip.startLocation.type),
+                )}
+              />
               <span className="font-medium text-sm truncate">{startCityName}</span>
-              <ArrowRight className={cn("w-3.5 h-3.5 shrink-0", isPending ? "text-white/70" : "text-muted-foreground")} />
-              <MapPin className={cn("w-3.5 h-3.5 shrink-0", isPending ? "text-white" : getLocationIcon(trip.endLocation.type))} />
+              <ArrowRight
+                className={cn(
+                  "w-3.5 h-3.5 shrink-0",
+                  isPending ? "text-white/70" : "text-muted-foreground",
+                )}
+              />
+              <MapPin
+                className={cn(
+                  "w-3.5 h-3.5 shrink-0",
+                  isPending ? "text-white" : getLocationIcon(trip.endLocation.type),
+                )}
+              />
               <span className="font-medium text-sm truncate">{endCityName}</span>
             </div>
           )}
-          
+
           {/* Calendar icon if trip is from calendar event */}
           {trip.calendarEventId && (
-            <Calendar className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")} />
+            <Calendar
+              className={cn("w-4 h-4 shrink-0", isPending ? "text-white" : "text-primary")}
+            />
           )}
           {onEdit && !isTour && !isPending && showActionButtons && (
             <Button
@@ -214,7 +251,7 @@ export const TripCard = memo(function TripCard({
               size="icon"
               className={cn(
                 "h-5 w-5 hover:bg-transparent shrink-0 text-muted-foreground/60 hover:text-primary",
-                desktopHoverReveal
+                desktopHoverReveal,
               )}
               onClick={(e) => {
                 e.stopPropagation();
@@ -245,7 +282,9 @@ export const TripCard = memo(function TripCard({
           ) : (
             <div className="flex items-center gap-3">
               {/* Use tabular-nums and min-width for stable layout during number changes */}
-              <span className="counter-text text-sm font-semibold tabular-nums min-w-[55px]">{trip.distance.toFixed(1)} km</span>
+              <span className="counter-text text-sm font-semibold tabular-nums min-w-[55px]">
+                {trip.distance.toFixed(1)} km
+              </span>
               <span className="counter-text text-sm font-bold text-accent tabular-nums min-w-[65px]">
                 +{trip.ikAmount.toFixed(2)} €
               </span>
@@ -263,7 +302,7 @@ export const TripCard = memo(function TripCard({
               size="icon"
               className={cn(
                 "h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent",
-                desktopHoverReveal
+                desktopHoverReveal,
               )}
               onClick={(e) => {
                 e.stopPropagation();

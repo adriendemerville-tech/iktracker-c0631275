@@ -1,11 +1,8 @@
-import { useEffect, useState, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  FileText, Users, Tag, Image, AlertTriangle, 
-  BarChart3, Clock, Type 
-} from 'lucide-react';
+import { useEffect, useState, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FileText, Users, Tag, Image, AlertTriangle, BarChart3, Clock, Type } from "lucide-react";
 
 interface FullPost {
   id: string;
@@ -27,36 +24,36 @@ function wordCount(text: string): number {
 // Extract likely topic from slug
 function extractTopic(slug: string): string {
   const topics: Record<string, string> = {
-    'bareme': 'Barème IK',
-    'frais-reels': 'Frais réels',
-    'impot': 'Fiscalité',
-    'fiscal': 'Fiscalité',
-    'comptab': 'Comptabilité',
-    'expert-comptable': 'Comptabilité',
-    'independant': 'Indépendants',
-    'liberal': 'Professions libérales',
-    'infirmier': 'Santé',
-    'aide-soignant': 'Santé',
-    'commercial': 'Commercial',
-    'vtc': 'Transport',
-    'taxi': 'Transport',
-    'livreur': 'Transport',
-    'artisan': 'Artisanat',
-    'btp': 'BTP',
-    'immobilier': 'Immobilier',
-    'comparatif': 'Comparatif',
-    'guide': 'Guide',
-    'tutoriel': 'Tutoriel',
-    'astuce': 'Astuces',
-    'conseil': 'Conseils',
-    'declaration': 'Déclaration',
-    'tournee': 'Mode tournée',
+    bareme: "Barème IK",
+    "frais-reels": "Frais réels",
+    impot: "Fiscalité",
+    fiscal: "Fiscalité",
+    comptab: "Comptabilité",
+    "expert-comptable": "Comptabilité",
+    independant: "Indépendants",
+    liberal: "Professions libérales",
+    infirmier: "Santé",
+    "aide-soignant": "Santé",
+    commercial: "Commercial",
+    vtc: "Transport",
+    taxi: "Transport",
+    livreur: "Transport",
+    artisan: "Artisanat",
+    btp: "BTP",
+    immobilier: "Immobilier",
+    comparatif: "Comparatif",
+    guide: "Guide",
+    tutoriel: "Tutoriel",
+    astuce: "Astuces",
+    conseil: "Conseils",
+    declaration: "Déclaration",
+    tournee: "Mode tournée",
   };
 
   for (const [key, label] of Object.entries(topics)) {
     if (slug.includes(key)) return label;
   }
-  return 'Autre';
+  return "Autre";
 }
 
 export function BlogKpiDashboard() {
@@ -66,9 +63,11 @@ export function BlogKpiDashboard() {
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase
-        .from('blog_posts')
-        .select('id, title, content, slug, subtitle, meta_description, featured_image_url, author_name, published_at, status')
-        .eq('status', 'published');
+        .from("blog_posts")
+        .select(
+          "id, title, content, slug, subtitle, meta_description, featured_image_url, author_name, published_at, status",
+        )
+        .eq("status", "published");
       if (data) setPosts(data as FullPost[]);
       setLoading(false);
     };
@@ -79,29 +78,29 @@ export function BlogKpiDashboard() {
     if (!posts.length) return null;
 
     const totalArticles = posts.length;
-    const authors = new Set(posts.map(p => p.author_name || 'Anonyme'));
-    const topics = posts.map(p => extractTopic(p.slug));
+    const authors = new Set(posts.map((p) => p.author_name || "Anonyme"));
+    const topics = posts.map((p) => extractTopic(p.slug));
     const topicSet = new Set(topics);
     const topicCounts = topics.reduce<Record<string, number>>((acc, t) => {
       acc[t] = (acc[t] || 0) + 1;
       return acc;
     }, {});
 
-    const words = posts.map(p => wordCount(p.content));
+    const words = posts.map((p) => wordCount(p.content));
     const avgWords = Math.round(words.reduce((a, b) => a + b, 0) / words.length);
-    const shortArticles = words.filter(w => w < 500).length;
-    const longArticles = words.filter(w => w > 1500).length;
+    const shortArticles = words.filter((w) => w < 500).length;
+    const longArticles = words.filter((w) => w > 1500).length;
 
-    const withoutImage = posts.filter(p => !p.featured_image_url).length;
-    const withoutMeta = posts.filter(p => !p.meta_description).length;
-    const withoutSubtitle = posts.filter(p => !p.subtitle).length;
+    const withoutImage = posts.filter((p) => !p.featured_image_url).length;
+    const withoutMeta = posts.filter((p) => !p.meta_description).length;
+    const withoutSubtitle = posts.filter((p) => !p.subtitle).length;
 
     // Publication frequency
     const dates = posts
-      .filter(p => p.published_at)
-      .map(p => new Date(p.published_at!).getTime())
+      .filter((p) => p.published_at)
+      .map((p) => new Date(p.published_at!).getTime())
       .sort((a, b) => a - b);
-    
+
     let avgDaysBetween = 0;
     if (dates.length > 1) {
       const totalDays = (dates[dates.length - 1] - dates[0]) / (1000 * 60 * 60 * 24);
@@ -141,39 +140,82 @@ export function BlogKpiDashboard() {
       <div className="flex items-center gap-2 mb-3">
         <BarChart3 className="w-4 h-4 text-primary" />
         <span className="text-sm font-semibold text-foreground">Tableau de bord éditorial</span>
-        <Badge variant="outline" className="text-[10px] h-5 ml-auto">Admin</Badge>
+        <Badge variant="outline" className="text-[10px] h-5 ml-auto">
+          Admin
+        </Badge>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         {/* Total articles */}
-        <KpiCard icon={FileText} label="Articles publiés" value={kpis.totalArticles} color="text-blue-600" />
-        
+        <KpiCard
+          icon={FileText}
+          label="Articles publiés"
+          value={kpis.totalArticles}
+          color="text-blue-600"
+        />
+
         {/* Authors */}
         <KpiCard icon={Users} label="Auteurs" value={kpis.authorCount} color="text-emerald-600" />
-        
+
         {/* Topics */}
-        <KpiCard icon={Tag} label="Sujets couverts" value={kpis.topicCount} color="text-violet-600" />
-        
+        <KpiCard
+          icon={Tag}
+          label="Sujets couverts"
+          value={kpis.topicCount}
+          color="text-violet-600"
+        />
+
         {/* Avg words */}
         <KpiCard icon={Type} label="Mots / article" value={kpis.avgWords} color="text-cyan-600" />
-        
+
         {/* Publication frequency */}
-        <KpiCard icon={Clock} label="Fréquence" value={kpis.avgDaysBetween > 0 ? `${kpis.avgDaysBetween}j` : '—'} color="text-amber-600" subLabel="entre articles" />
-        
+        <KpiCard
+          icon={Clock}
+          label="Fréquence"
+          value={kpis.avgDaysBetween > 0 ? `${kpis.avgDaysBetween}j` : "—"}
+          color="text-amber-600"
+          subLabel="entre articles"
+        />
+
         {/* Short articles */}
-        <KpiCard icon={FileText} label="Courts (<500 mots)" value={kpis.shortArticles} color={kpis.shortArticles > 0 ? 'text-orange-600' : 'text-muted-foreground'} />
-        
+        <KpiCard
+          icon={FileText}
+          label="Courts (<500 mots)"
+          value={kpis.shortArticles}
+          color={kpis.shortArticles > 0 ? "text-orange-600" : "text-muted-foreground"}
+        />
+
         {/* Long articles */}
-        <KpiCard icon={FileText} label="Longs (>1500 mots)" value={kpis.longArticles} color="text-sky-600" />
-        
+        <KpiCard
+          icon={FileText}
+          label="Longs (>1500 mots)"
+          value={kpis.longArticles}
+          color="text-sky-600"
+        />
+
         {/* Missing image */}
-        <KpiCard icon={Image} label="Sans image" value={kpis.withoutImage} color={kpis.withoutImage > 0 ? 'text-red-600' : 'text-emerald-600'} />
-        
+        <KpiCard
+          icon={Image}
+          label="Sans image"
+          value={kpis.withoutImage}
+          color={kpis.withoutImage > 0 ? "text-red-600" : "text-emerald-600"}
+        />
+
         {/* Missing meta */}
-        <KpiCard icon={AlertTriangle} label="Sans méta desc." value={kpis.withoutMeta} color={kpis.withoutMeta > 0 ? 'text-red-600' : 'text-emerald-600'} />
-        
+        <KpiCard
+          icon={AlertTriangle}
+          label="Sans méta desc."
+          value={kpis.withoutMeta}
+          color={kpis.withoutMeta > 0 ? "text-red-600" : "text-emerald-600"}
+        />
+
         {/* Missing subtitle */}
-        <KpiCard icon={AlertTriangle} label="Sans sous-titre" value={kpis.withoutSubtitle} color={kpis.withoutSubtitle > 0 ? 'text-orange-600' : 'text-emerald-600'} />
+        <KpiCard
+          icon={AlertTriangle}
+          label="Sans sous-titre"
+          value={kpis.withoutSubtitle}
+          color={kpis.withoutSubtitle > 0 ? "text-orange-600" : "text-emerald-600"}
+        />
       </div>
 
       {/* Top topics */}
@@ -187,7 +229,7 @@ export function BlogKpiDashboard() {
           ))}
           {warnings > 0 && (
             <Badge variant="destructive" className="text-[10px] ml-auto">
-              {warnings} alerte{warnings > 1 ? 's' : ''} SEO
+              {warnings} alerte{warnings > 1 ? "s" : ""} SEO
             </Badge>
           )}
         </div>
@@ -196,7 +238,13 @@ export function BlogKpiDashboard() {
   );
 }
 
-function KpiCard({ icon: Icon, label, value, color, subLabel }: {
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+  subLabel,
+}: {
   icon: typeof FileText;
   label: string;
   value: number | string;

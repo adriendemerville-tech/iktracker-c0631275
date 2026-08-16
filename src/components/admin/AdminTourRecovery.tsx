@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -13,19 +13,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { AlertCircle, CheckCircle2, Eye, MapPin, RefreshCw, Bell, Activity } from 'lucide-react';
+} from "@/components/ui/table";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { AlertCircle, CheckCircle2, Eye, MapPin, RefreshCw, Bell, Activity } from "lucide-react";
 
 interface RegistryRow {
   session_id: string | null;
   trip_id: string | null;
   user_id: string;
   user_email: string | null;
-  source: 'active' | 'finalized';
+  source: "active" | "finalized";
   is_active: boolean;
   started_at: string;
   last_activity: string;
@@ -53,53 +53,63 @@ interface RecoveryEvent {
 }
 
 const EVENT_LABELS: Record<string, string> = {
-  modal_shown: 'Modal affichée',
-  resume_clicked: 'Reprise cliquée',
-  resume_success: 'Reprise réussie',
-  resume_error: 'Erreur reprise',
-  finalize_clicked: 'Finalisation cliquée',
-  transparent_resume_attempt: 'Reprise auto tentée',
-  transparent_resume_success: 'Reprise auto réussie',
-  transparent_resume_error: 'Erreur reprise auto',
-  auto_finalize_attempt: 'Auto-finalisation tentée',
-  auto_finalize_success: 'Auto-finalisation réussie',
-  auto_finalize_error: 'Erreur auto-finalisation',
-  toast_shown: 'Notification toast',
-  session_end: 'Session terminée',
-  check_error: 'Erreur de vérification',
+  modal_shown: "Modal affichée",
+  resume_clicked: "Reprise cliquée",
+  resume_success: "Reprise réussie",
+  resume_error: "Erreur reprise",
+  finalize_clicked: "Finalisation cliquée",
+  transparent_resume_attempt: "Reprise auto tentée",
+  transparent_resume_success: "Reprise auto réussie",
+  transparent_resume_error: "Erreur reprise auto",
+  auto_finalize_attempt: "Auto-finalisation tentée",
+  auto_finalize_success: "Auto-finalisation réussie",
+  auto_finalize_error: "Erreur auto-finalisation",
+  toast_shown: "Notification toast",
+  session_end: "Session terminée",
+  check_error: "Erreur de vérification",
 };
 
-const EVENT_VARIANTS: Record<string, 'default' | 'destructive' | 'secondary' | 'outline'> = {
-  modal_shown: 'secondary',
-  resume_success: 'default',
-  transparent_resume_success: 'default',
-  auto_finalize_success: 'default',
-  resume_error: 'destructive',
-  transparent_resume_error: 'destructive',
-  auto_finalize_error: 'destructive',
-  check_error: 'destructive',
+const EVENT_VARIANTS: Record<string, "default" | "destructive" | "secondary" | "outline"> = {
+  modal_shown: "secondary",
+  resume_success: "default",
+  transparent_resume_success: "default",
+  auto_finalize_success: "default",
+  resume_error: "destructive",
+  transparent_resume_error: "destructive",
+  auto_finalize_error: "destructive",
+  check_error: "destructive",
 };
 
-type FilterMode = 'all' | 'recovery';
+type FilterMode = "all" | "recovery";
 
 export const AdminTourRecovery = () => {
   const [daysBack, setDaysBack] = useState(30);
-  const [filterMode, setFilterMode] = useState<FilterMode>('all');
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
-    queryKey: ['tour-recovery-stats', daysBack],
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ["tour-recovery-stats", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_tour_recovery_stats' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_tour_recovery_stats" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return data as any;
     },
   });
 
-  const { data: registryRaw = [], isLoading: registryLoading, refetch: refetchRegistry } = useQuery({
-    queryKey: ['tour-recovery-registry', daysBack],
+  const {
+    data: registryRaw = [],
+    isLoading: registryLoading,
+    refetch: refetchRegistry,
+  } = useQuery({
+    queryKey: ["tour-recovery-registry", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_tour_recovery_registry' as any, {
+      const { data, error } = await supabase.rpc("get_tour_recovery_registry" as any, {
         days_back: daysBack,
         limit_count: 200,
       });
@@ -109,32 +119,35 @@ export const AdminTourRecovery = () => {
   });
 
   // Filter rows for "Reprise tournée" mode (only sessions with at least one recovery attempt)
-  const registry = filterMode === 'recovery'
-    ? registryRaw.filter(r => r.recovery_attempts > 0)
-    : registryRaw;
+  const registry =
+    filterMode === "recovery" ? registryRaw.filter((r) => r.recovery_attempts > 0) : registryRaw;
 
   // Compute aggregated KPIs for filtered rows
-  const recoveryRows = registryRaw.filter(r => r.recovery_attempts > 0);
+  const recoveryRows = registryRaw.filter((r) => r.recovery_attempts > 0);
   const totalRecoveryAttempts = recoveryRows.reduce((s, r) => s + r.recovery_attempts, 0);
   const totalRecoverySuccess = recoveryRows.reduce((s, r) => s + r.recovery_success, 0);
   const totalRecoveryFailed = totalRecoveryAttempts - totalRecoverySuccess;
-  const sessionsWithErrors = recoveryRows.filter(r => r.errors_count > 0).length;
-  const avgNotifsPerRecoverySession = recoveryRows.length > 0
-    ? (recoveryRows.reduce((s, r) => s + r.notifications_count, 0) / recoveryRows.length).toFixed(1)
-    : '0';
-  const successRateGlobal = totalRecoveryAttempts > 0
-    ? Math.round((totalRecoverySuccess / totalRecoveryAttempts) * 100)
-    : null;
+  const sessionsWithErrors = recoveryRows.filter((r) => r.errors_count > 0).length;
+  const avgNotifsPerRecoverySession =
+    recoveryRows.length > 0
+      ? (recoveryRows.reduce((s, r) => s + r.notifications_count, 0) / recoveryRows.length).toFixed(
+          1,
+        )
+      : "0";
+  const successRateGlobal =
+    totalRecoveryAttempts > 0
+      ? Math.round((totalRecoverySuccess / totalRecoveryAttempts) * 100)
+      : null;
 
   const { data: sessionEvents = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['tour-recovery-events', selectedSessionId],
+    queryKey: ["tour-recovery-events", selectedSessionId],
     queryFn: async () => {
       if (!selectedSessionId) return [];
       const { data, error } = await supabase
-        .from('tour_recovery_events' as any)
-        .select('*')
-        .eq('session_id', selectedSessionId)
-        .order('created_at', { ascending: false });
+        .from("tour_recovery_events" as any)
+        .select("*")
+        .eq("session_id", selectedSessionId)
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as unknown as RecoveryEvent[];
     },
@@ -147,11 +160,14 @@ export const AdminTourRecovery = () => {
   };
 
   // Determine recovery result for a row
-  const getRecoveryResult = (row: RegistryRow): { label: string; variant: 'default' | 'destructive' | 'secondary' | 'outline' } | null => {
+  const getRecoveryResult = (
+    row: RegistryRow,
+  ): { label: string; variant: "default" | "destructive" | "secondary" | "outline" } | null => {
     if (row.recovery_attempts === 0) return null;
-    if (row.recovery_success === 0) return { label: 'Échec', variant: 'destructive' };
-    if (row.recovery_success === row.recovery_attempts) return { label: 'Réussie', variant: 'default' };
-    return { label: 'Partielle', variant: 'secondary' };
+    if (row.recovery_success === 0) return { label: "Échec", variant: "destructive" };
+    if (row.recovery_success === row.recovery_attempts)
+      return { label: "Réussie", variant: "default" };
+    return { label: "Partielle", variant: "secondary" };
   };
 
   return (
@@ -187,30 +203,30 @@ export const AdminTourRecovery = () => {
       </Tabs>
 
       {/* Stats KPIs — adaptive to mode */}
-      {filterMode === 'all' ? (
+      {filterMode === "all" ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <KpiCard
             icon={<MapPin className="w-4 h-4" />}
             label="Tournées (total)"
-            value={statsLoading ? '…' : (stats?.total_sessions ?? 0)}
+            value={statsLoading ? "…" : (stats?.total_sessions ?? 0)}
             sub={`${stats?.active_sessions ?? 0} actives · ${stats?.finalized_tours ?? 0} finalisées`}
           />
           <KpiCard
             icon={<Activity className="w-4 h-4" />}
             label="Tentatives reprise"
-            value={statsLoading ? '…' : (stats?.recovery_attempts ?? 0)}
+            value={statsLoading ? "…" : (stats?.recovery_attempts ?? 0)}
             sub={`${stats?.recovery_success ?? 0} réussies`}
           />
           <KpiCard
             icon={<AlertCircle className="w-4 h-4 text-destructive" />}
             label="Erreurs"
-            value={statsLoading ? '…' : (stats?.recovery_errors ?? 0)}
-            variant={Number(stats?.recovery_errors ?? 0) > 0 ? 'destructive' : 'default'}
+            value={statsLoading ? "…" : (stats?.recovery_errors ?? 0)}
+            variant={Number(stats?.recovery_errors ?? 0) > 0 ? "destructive" : "default"}
           />
           <KpiCard
             icon={<Bell className="w-4 h-4" />}
             label="Notifications"
-            value={statsLoading ? '…' : (stats?.notifications_total ?? 0)}
+            value={statsLoading ? "…" : (stats?.notifications_total ?? 0)}
             sub="modals + toasts"
           />
         </div>
@@ -225,16 +241,18 @@ export const AdminTourRecovery = () => {
           <KpiCard
             icon={<CheckCircle2 className="w-4 h-4" />}
             label="Taux de réussite"
-            value={successRateGlobal !== null ? `${successRateGlobal}%` : '—'}
+            value={successRateGlobal !== null ? `${successRateGlobal}%` : "—"}
             sub={`${totalRecoverySuccess} réussies · ${totalRecoveryFailed} échecs`}
-            variant={successRateGlobal !== null && successRateGlobal < 70 ? 'destructive' : 'default'}
+            variant={
+              successRateGlobal !== null && successRateGlobal < 70 ? "destructive" : "default"
+            }
           />
           <KpiCard
             icon={<AlertCircle className="w-4 h-4 text-destructive" />}
             label="Sessions en erreur"
             value={sessionsWithErrors}
             sub={`${recoveryRows.length > 0 ? Math.round((sessionsWithErrors / recoveryRows.length) * 100) : 0}% des reprises`}
-            variant={sessionsWithErrors > 0 ? 'destructive' : 'default'}
+            variant={sessionsWithErrors > 0 ? "destructive" : "default"}
           />
           <KpiCard
             icon={<Bell className="w-4 h-4" />}
@@ -249,13 +267,16 @@ export const AdminTourRecovery = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {filterMode === 'recovery' ? 'Reprises de tournée' : 'Registre des tournées'} ({registry.length})
+            {filterMode === "recovery" ? "Reprises de tournée" : "Registre des tournées"} (
+            {registry.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {registryLoading ? (
             <div className="p-4 space-y-2">
-              {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-10 w-full" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
             </div>
           ) : registry.length === 0 ? (
             <p className="p-6 text-center text-muted-foreground text-sm">
@@ -269,7 +290,7 @@ export const AdminTourRecovery = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Utilisateur</TableHead>
                     <TableHead>Statut</TableHead>
-                    {filterMode === 'recovery' && <TableHead>Résultat</TableHead>}
+                    {filterMode === "recovery" && <TableHead>Résultat</TableHead>}
                     <TableHead className="text-right">Étapes</TableHead>
                     <TableHead className="text-right">Km</TableHead>
                     <TableHead className="text-right">Reprises</TableHead>
@@ -280,46 +301,65 @@ export const AdminTourRecovery = () => {
                 </TableHeader>
                 <TableBody>
                   {registry.map((row) => {
-                    const id = row.session_id || row.trip_id || '';
-                    const successRate = row.recovery_attempts > 0
-                      ? Math.round((row.recovery_success / row.recovery_attempts) * 100)
-                      : null;
+                    const id = row.session_id || row.trip_id || "";
+                    const successRate =
+                      row.recovery_attempts > 0
+                        ? Math.round((row.recovery_success / row.recovery_attempts) * 100)
+                        : null;
                     const result = getRecoveryResult(row);
                     return (
                       <TableRow key={id}>
                         <TableCell className="text-xs whitespace-nowrap">
-                          {format(new Date(row.last_activity), 'dd/MM HH:mm', { locale: fr })}
+                          {format(new Date(row.last_activity), "dd/MM HH:mm", { locale: fr })}
                         </TableCell>
                         <TableCell className="text-xs max-w-[180px] truncate">
                           {row.user_email || row.user_id.slice(0, 8)}
                         </TableCell>
                         <TableCell>
                           {row.is_active ? (
-                            <Badge variant="secondary" className="text-xs">Active</Badge>
-                          ) : row.source === 'finalized' ? (
-                            <Badge variant="outline" className="text-xs">Finalisée</Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              Active
+                            </Badge>
+                          ) : row.source === "finalized" ? (
+                            <Badge variant="outline" className="text-xs">
+                              Finalisée
+                            </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-xs">Inactive</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              Inactive
+                            </Badge>
                           )}
                         </TableCell>
-                        {filterMode === 'recovery' && (
+                        {filterMode === "recovery" && (
                           <TableCell>
                             {result ? (
-                              <Badge variant={result.variant} className="text-xs">{result.label}</Badge>
+                              <Badge variant={result.variant} className="text-xs">
+                                {result.label}
+                              </Badge>
                             ) : (
                               <span className="text-muted-foreground text-xs">—</span>
                             )}
                           </TableCell>
                         )}
                         <TableCell className="text-right text-xs">{row.stops_count}</TableCell>
-                        <TableCell className="text-right text-xs">{Number(row.distance_km).toFixed(1)}</TableCell>
+                        <TableCell className="text-right text-xs">
+                          {Number(row.distance_km).toFixed(1)}
+                        </TableCell>
                         <TableCell className="text-right text-xs">
                           {row.recovery_attempts > 0 ? (
                             <span className="flex items-center justify-end gap-1">
-                              <span>{row.recovery_success}/{row.recovery_attempts}</span>
+                              <span>
+                                {row.recovery_success}/{row.recovery_attempts}
+                              </span>
                               {successRate !== null && (
                                 <Badge
-                                  variant={successRate === 100 ? 'default' : successRate >= 50 ? 'secondary' : 'destructive'}
+                                  variant={
+                                    successRate === 100
+                                      ? "default"
+                                      : successRate >= 50
+                                        ? "secondary"
+                                        : "destructive"
+                                  }
                                   className="text-[10px] h-4 px-1"
                                 >
                                   {successRate}%
@@ -331,11 +371,17 @@ export const AdminTourRecovery = () => {
                           )}
                         </TableCell>
                         <TableCell className="text-right text-xs">
-                          {row.notifications_count > 0 ? row.notifications_count : <span className="text-muted-foreground">—</span>}
+                          {row.notifications_count > 0 ? (
+                            row.notifications_count
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right text-xs">
                           {row.errors_count > 0 ? (
-                            <Badge variant="destructive" className="text-[10px] h-4 px-1">{row.errors_count}</Badge>
+                            <Badge variant="destructive" className="text-[10px] h-4 px-1">
+                              {row.errors_count}
+                            </Badge>
                           ) : (
                             <CheckCircle2 className="w-3 h-3 text-muted-foreground inline" />
                           )}
@@ -372,27 +418,31 @@ export const AdminTourRecovery = () => {
             {eventsLoading ? (
               <Skeleton className="h-32 w-full" />
             ) : sessionEvents.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Aucun événement enregistré.</p>
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Aucun événement enregistré.
+              </p>
             ) : (
               sessionEvents.map((ev) => (
                 <div key={ev.id} className="border rounded-md p-3 space-y-1">
                   <div className="flex items-center justify-between gap-2">
-                    <Badge variant={EVENT_VARIANTS[ev.event_type] || 'outline'} className="text-xs">
+                    <Badge variant={EVENT_VARIANTS[ev.event_type] || "outline"} className="text-xs">
                       {EVENT_LABELS[ev.event_type] || ev.event_type}
                     </Badge>
                     <span className="text-[11px] text-muted-foreground">
-                      {format(new Date(ev.created_at), 'dd/MM HH:mm:ss', { locale: fr })}
+                      {format(new Date(ev.created_at), "dd/MM HH:mm:ss", { locale: fr })}
                     </span>
                   </div>
-                  {ev.context && (
-                    <p className="text-xs text-muted-foreground">{ev.context}</p>
-                  )}
+                  {ev.context && <p className="text-xs text-muted-foreground">{ev.context}</p>}
                   {ev.error_message && (
                     <p className="text-xs text-destructive">⚠ {ev.error_message}</p>
                   )}
                   <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                    {ev.is_mobile !== null && <span>{ev.is_mobile ? '📱 Mobile' : '🖥 Desktop'}</span>}
-                    {ev.inactivity_seconds !== null && <span>Inactif {Math.round(ev.inactivity_seconds / 60)}min</span>}
+                    {ev.is_mobile !== null && (
+                      <span>{ev.is_mobile ? "📱 Mobile" : "🖥 Desktop"}</span>
+                    )}
+                    {ev.inactivity_seconds !== null && (
+                      <span>Inactif {Math.round(ev.inactivity_seconds / 60)}min</span>
+                    )}
                     {ev.stops_count !== null && <span>{ev.stops_count} étapes</span>}
                     {ev.distance_km !== null && <span>{Number(ev.distance_km).toFixed(1)} km</span>}
                   </div>
@@ -411,15 +461,15 @@ const KpiCard = ({
   label,
   value,
   sub,
-  variant = 'default',
+  variant = "default",
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
   sub?: string;
-  variant?: 'default' | 'destructive';
+  variant?: "default" | "destructive";
 }) => (
-  <Card className={variant === 'destructive' ? 'border-destructive/30' : ''}>
+  <Card className={variant === "destructive" ? "border-destructive/30" : ""}>
     <CardContent className="pt-4 pb-3">
       <div className="flex items-center justify-between text-muted-foreground text-xs mb-1">
         <span>{label}</span>

@@ -1,18 +1,18 @@
-import { useState, useEffect, forwardRef } from 'react';
-import { Download, X, Smartphone } from 'lucide-react';
-import { Link } from '@/lib/router-compat';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  isBrowser, 
-  isBot, 
-  safeLocalStorage, 
-  safeSessionStorage, 
-  safeMatchMedia 
-} from '@/lib/ssr-utils';
+import { useState, useEffect, forwardRef } from "react";
+import { Download, X, Smartphone } from "lucide-react";
+import { Link } from "@/lib/router-compat";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  isBrowser,
+  isBot,
+  safeLocalStorage,
+  safeSessionStorage,
+  safeMatchMedia,
+} from "@/lib/ssr-utils";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
 // ForwardRef wrapper for lazy loading compatibility
@@ -23,28 +23,28 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
   useEffect(() => {
     // Skip for SSR and bots - critical for crawler compatibility
     if (!isBrowser() || isBot()) return;
-    
+
     // Check if already in standalone mode
-    const isStandalone = safeMatchMedia('(display-mode: standalone)') 
-      || (navigator as any)?.standalone === true;
-    
+    const isStandalone =
+      safeMatchMedia("(display-mode: standalone)") || (navigator as any)?.standalone === true;
+
     if (isStandalone) return;
 
     // Check if dismissed within last 3 days (less aggressive for marketing)
-    const dismissedTimestamp = safeLocalStorage.getItem('pwa-marketing-notification-dismissed');
+    const dismissedTimestamp = safeLocalStorage.getItem("pwa-marketing-notification-dismissed");
     if (dismissedTimestamp) {
       const daysDiff = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60 * 24);
       if (daysDiff < 3) return;
     }
 
     // Check session: only show once per session with 30% probability
-    const shownThisSession = safeSessionStorage.getItem('pwa-marketing-shown');
+    const shownThisSession = safeSessionStorage.getItem("pwa-marketing-shown");
     if (shownThisSession) return;
 
     // 30% chance to show (not too aggressive)
     const shouldShow = Math.random() < 0.3;
     if (!shouldShow) {
-      safeSessionStorage.setItem('pwa-marketing-shown', 'skipped');
+      safeSessionStorage.setItem("pwa-marketing-shown", "skipped");
       return;
     }
 
@@ -53,16 +53,16 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     // Show after 30 seconds minimum (avoid competing with signup CTAs)
     const timer = setTimeout(() => {
       setShow(true);
-      safeSessionStorage.setItem('pwa-marketing-shown', 'true');
+      safeSessionStorage.setItem("pwa-marketing-shown", "true");
     }, 30000);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       clearTimeout(timer);
     };
   }, []);
@@ -71,7 +71,7 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
     if (deferredPrompt) {
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
+      if (outcome === "accepted") {
         setShow(false);
       }
       setDeferredPrompt(null);
@@ -80,7 +80,7 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
 
   const handleDismiss = () => {
     setShow(false);
-    safeLocalStorage.setItem('pwa-marketing-notification-dismissed', Date.now().toString());
+    safeLocalStorage.setItem("pwa-marketing-notification-dismissed", Date.now().toString());
   };
 
   // Don't render anything for bots - return null immediately
@@ -96,13 +96,13 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="fixed bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50"
           >
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card via-card to-card/95 border border-border/50 shadow-2xl shadow-primary/10 backdrop-blur-xl">
               {/* Subtle gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/3 pointer-events-none" />
-              
+
               {/* Close button */}
               <button
                 onClick={handleDismiss}
@@ -168,6 +168,6 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
   );
 });
 
-MarketingPWANotification.displayName = 'MarketingPWANotification';
+MarketingPWANotification.displayName = "MarketingPWANotification";
 
 export default MarketingPWANotification;

@@ -1,22 +1,33 @@
-import { useState, useRef } from 'react';
-import { Location } from '@/types/trip';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { MapPin, Navigation, Plus, Home, Building2, Users, Truck, MapPinned, X, Clock } from 'lucide-react';
-import { useGeolocation } from '@/hooks/useGeolocation';
-import { cn } from '@/lib/utils';
-import { geocodeAddress, reverseGeocode, removeCountryFromAddress } from '@/lib/geocoding';
-import { toast } from '@/components/ui/sonner';
-import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
-import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
+import { useState, useRef } from "react";
+import { Location } from "@/types/trip";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import {
+  MapPin,
+  Navigation,
+  Plus,
+  Home,
+  Building2,
+  Users,
+  Truck,
+  MapPinned,
+  X,
+  Clock,
+} from "lucide-react";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { cn } from "@/lib/utils";
+import { geocodeAddress, reverseGeocode, removeCountryFromAddress } from "@/lib/geocoding";
+import { toast } from "@/components/ui/sonner";
+import { AddressAutocompleteInput } from "@/components/AddressAutocompleteInput";
+import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
 
-const RECENT_LOCATIONS_KEY = 'ik-recent-locations';
+const RECENT_LOCATIONS_KEY = "ik-recent-locations";
 const MAX_RECENT = 2;
 
 interface LocationPickerProps {
   savedLocations: Location[];
   onSelect: (location: Location) => void;
-  onAddNew: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
+  onAddNew: (location: Omit<Location, "id">) => Promise<Location | null> | Location | null;
   onDelete?: (id: string) => void;
   onUpdate?: (id: string, updates: Partial<Location>) => void;
 }
@@ -30,11 +41,11 @@ const typeIcons: Record<string, React.ReactNode> = {
 };
 
 const typeLabels: Record<string, string> = {
-  home: 'Maison',
-  office: 'Bureau',
-  client: 'Client',
-  supplier: 'Fournisseur',
-  other: 'Autre',
+  home: "Maison",
+  office: "Bureau",
+  client: "Client",
+  supplier: "Fournisseur",
+  other: "Autre",
 };
 
 // Load recent locations from localStorage
@@ -51,26 +62,32 @@ const loadRecentLocations = (): Location[] => {
 const saveRecentLocation = (location: Location) => {
   const recents = loadRecentLocations();
   // Remove if already exists
-  const filtered = recents.filter(l => l.address !== location.address);
+  const filtered = recents.filter((l) => l.address !== location.address);
   // Add to front and limit to MAX_RECENT
   const updated = [location, ...filtered].slice(0, MAX_RECENT);
   localStorage.setItem(RECENT_LOCATIONS_KEY, JSON.stringify(updated));
   return updated;
 };
 
-export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, onUpdate }: LocationPickerProps) {
+export function LocationPicker({
+  savedLocations,
+  onSelect,
+  onAddNew,
+  onDelete,
+  onUpdate,
+}: LocationPickerProps) {
   const [showNewForm, setShowNewForm] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [recentLocations, setRecentLocations] = useState<Location[]>(loadRecentLocations());
-  const [newName, setNewName] = useState('');
-  const [newAddress, setNewAddress] = useState('');
-  const [newType, setNewType] = useState<Location['type']>('other');
+  const [newName, setNewName] = useState("");
+  const [newAddress, setNewAddress] = useState("");
+  const [newType, setNewType] = useState<Location["type"]>("other");
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number } | null>(null);
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
-  
+
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Use ref to always have latest onSelect callback (avoids stale closure issues)
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
@@ -78,16 +95,16 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
   const handleSuggestionSelect = async (suggestion: AddressSuggestion) => {
     const tempLocation: Location = {
       id: `temp-${crypto.randomUUID()}`,
-      name: suggestion.city || suggestion.street || 'Lieu',
+      name: suggestion.city || suggestion.street || "Lieu",
       address: suggestion.fulltext,
       lat: suggestion.lat,
       lng: suggestion.lng,
-      type: 'other',
+      type: "other",
     };
     const updatedRecents = saveRecentLocation(tempLocation);
     setRecentLocations(updatedRecents);
     onSelectRef.current(tempLocation);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const handleSearchSubmit = async () => {
@@ -107,26 +124,26 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       address: geocodeResult?.fullAddress || query,
       lat: coords.lat,
       lng: coords.lng,
-      type: 'other',
+      type: "other",
     };
 
     const updatedRecents = saveRecentLocation(tempLocation);
     setRecentLocations(updatedRecents);
     onSelect(tempLocation);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const handleUseCurrentLocation = async () => {
     try {
       const coords = await getCurrentPosition();
-      
+
       // Use reverse geocoding to get the city name
-      let cityName = 'Position actuelle';
+      let cityName = "Position actuelle";
       const geocodeResult = await reverseGeocode(coords.lat, coords.lng);
       if (geocodeResult?.city) {
         cityName = geocodeResult.city;
       }
-      
+
       // Create location WITHOUT saving to database
       const tempLocation: Location = {
         id: `temp-${crypto.randomUUID()}`,
@@ -134,7 +151,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         address: geocodeResult?.fullAddress || `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
         lat: coords.lat,
         lng: coords.lng,
-        type: 'other',
+        type: "other",
       };
       // Save to recents
       const updatedRecents = saveRecentLocation(tempLocation);
@@ -142,7 +159,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       // Select directly
       onSelect(tempLocation);
     } catch (error) {
-      console.error('Geolocation error:', error);
+      console.error("Geolocation error:", error);
     }
   };
 
@@ -151,7 +168,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       const coords = await getCurrentPosition();
       setNewCoords(coords);
     } catch (error) {
-      console.error('Geolocation error:', error);
+      console.error("Geolocation error:", error);
     }
   };
 
@@ -169,9 +186,9 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
       onSelect(location);
     }
     setShowNewForm(false);
-    setNewName('');
-    setNewAddress('');
-    setNewType('other');
+    setNewName("");
+    setNewAddress("");
+    setNewType("other");
     setNewCoords(null);
   };
 
@@ -227,8 +244,10 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
         onClick={handleUseCurrentLocation}
         disabled={geoLoading}
       >
-        <Navigation className={cn("w-5 h-5 text-primary shrink-0", geoLoading && "animate-pulse")} />
-        {geoLoading ? 'Localisation...' : 'Utiliser ma position'}
+        <Navigation
+          className={cn("w-5 h-5 text-primary shrink-0", geoLoading && "animate-pulse")}
+        />
+        {geoLoading ? "Localisation..." : "Utiliser ma position"}
       </Button>
 
       {/* Recent locations */}
@@ -244,9 +263,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
               <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="font-medium truncate">{location.name}</p>
               </div>
-              {location.lat && location.lng && (
-                <MapPin className="w-3 h-3 text-accent shrink-0" />
-              )}
+              {location.lat && location.lng && <MapPin className="w-3 h-3 text-accent shrink-0" />}
             </button>
           ))}
         </div>
@@ -277,27 +294,40 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                   <Input
                     placeholder="Nom du lieu"
                     value={editingLocation.name}
-                    onChange={(e) => setEditingLocation({ ...editingLocation, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditingLocation({ ...editingLocation, name: e.target.value })
+                    }
                     autoFocus
                   />
                   <div className="relative">
                     <AddressAutocompleteInput
                       placeholder="Adresse"
                       value={editingLocation.address}
-                      onChange={(value) => setEditingLocation({ ...editingLocation, address: value, lat: undefined, lng: undefined })}
-                      onSelect={(suggestion) => setEditingLocation({
-                        ...editingLocation,
-                        address: suggestion.fulltext,
-                        lat: suggestion.lat,
-                        lng: suggestion.lng,
-                      })}
+                      onChange={(value) =>
+                        setEditingLocation({
+                          ...editingLocation,
+                          address: value,
+                          lat: undefined,
+                          lng: undefined,
+                        })
+                      }
+                      onSelect={(suggestion) =>
+                        setEditingLocation({
+                          ...editingLocation,
+                          address: suggestion.fulltext,
+                          lat: suggestion.lat,
+                          lng: suggestion.lng,
+                        })
+                      }
                     />
                     {editingLocation.lat && editingLocation.lng && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">✓ GPS</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">
+                        ✓ GPS
+                      </span>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {(Object.keys(typeLabels) as Location['type'][]).map((type) => (
+                    {(Object.keys(typeLabels) as Location["type"][]).map((type) => (
                       <button
                         key={type}
                         onClick={() => setEditingLocation({ ...editingLocation, type })}
@@ -305,7 +335,7 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                           "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
                           editingLocation.type === type
                             ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                         )}
                       >
                         {typeIcons[type]}
@@ -314,10 +344,18 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="secondary" onClick={() => setEditingLocation(null)} className="flex-1">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setEditingLocation(null)}
+                      className="flex-1"
+                    >
                       Annuler
                     </Button>
-                    <Button onClick={handleSaveEdit} className="flex-1" disabled={!editingLocation.name.trim()}>
+                    <Button
+                      onClick={handleSaveEdit}
+                      className="flex-1"
+                      disabled={!editingLocation.name.trim()}
+                    >
                       Enregistrer
                     </Button>
                   </div>
@@ -336,7 +374,9 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
                   <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="font-medium truncate">{location.name}</p>
                     {location.address && (
-                      <p className="text-sm text-muted-foreground truncate">{removeCountryFromAddress(location.address)}</p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {removeCountryFromAddress(location.address)}
+                      </p>
                     )}
                   </div>
                   {location.lat && location.lng && (
@@ -358,64 +398,88 @@ export function LocationPicker({ savedLocations, onSelect, onAddNew, onDelete, o
           <Plus className="w-5 h-5" />
           Ajouter un nouveau lieu
         </Button>
-      ) : !editingLocation && (
-        <div className="space-y-3 p-4 bg-muted rounded-md animate-fade-in">
-          <Input
-            placeholder="Nom du lieu"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <div className="relative">
-            <AddressAutocompleteInput
-              placeholder="Rechercher une adresse..."
-              value={newAddress}
-              onChange={(value) => { setNewAddress(value); setNewCoords(null); }}
-              onSelect={(suggestion) => {
-                setNewAddress(suggestion.fulltext);
-                setNewCoords(suggestion.lat && suggestion.lng ? { lat: suggestion.lat, lng: suggestion.lng } : null);
-              }}
-              className="pr-10"
+      ) : (
+        !editingLocation && (
+          <div className="space-y-3 p-4 bg-muted rounded-md animate-fade-in">
+            <Input
+              placeholder="Nom du lieu"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
             />
-            {newCoords && newAddress && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">✓ GPS</span>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start gap-2"
-            onClick={handleCaptureCoords}
-            disabled={geoLoading}
-          >
-            <Navigation className={cn("w-4 h-4", geoLoading && "animate-pulse", newCoords && "text-accent")} />
-            {geoLoading ? 'Localisation...' : newCoords ? `✓ Position GPS capturée` : 'Capturer ma position GPS ici'}
-          </Button>
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(typeLabels) as Location['type'][]).map((type) => (
-              <button
-                key={type}
-                onClick={() => setNewType(type)}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-                  newType === type
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                )}
+            <div className="relative">
+              <AddressAutocompleteInput
+                placeholder="Rechercher une adresse..."
+                value={newAddress}
+                onChange={(value) => {
+                  setNewAddress(value);
+                  setNewCoords(null);
+                }}
+                onSelect={(suggestion) => {
+                  setNewAddress(suggestion.fulltext);
+                  setNewCoords(
+                    suggestion.lat && suggestion.lng
+                      ? { lat: suggestion.lat, lng: suggestion.lng }
+                      : null,
+                  );
+                }}
+                className="pr-10"
+              />
+              {newCoords && newAddress && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm">
+                  ✓ GPS
+                </span>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start gap-2"
+              onClick={handleCaptureCoords}
+              disabled={geoLoading}
+            >
+              <Navigation
+                className={cn("w-4 h-4", geoLoading && "animate-pulse", newCoords && "text-accent")}
+              />
+              {geoLoading
+                ? "Localisation..."
+                : newCoords
+                  ? `✓ Position GPS capturée`
+                  : "Capturer ma position GPS ici"}
+            </Button>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(typeLabels) as Location["type"][]).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setNewType(type)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+                    newType === type
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                  )}
+                >
+                  {typeIcons[type]}
+                  {typeLabels[type]}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowNewForm(false);
+                  setNewCoords(null);
+                }}
+                className="flex-1"
               >
-                {typeIcons[type]}
-                {typeLabels[type]}
-              </button>
-            ))}
+                Annuler
+              </Button>
+              <Button onClick={handleAddNew} className="flex-1" disabled={!newName.trim()}>
+                Ajouter
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => { setShowNewForm(false); setNewCoords(null); }} className="flex-1">
-              Annuler
-            </Button>
-            <Button onClick={handleAddNew} className="flex-1" disabled={!newName.trim()}>
-              Ajouter
-            </Button>
-          </div>
-        </div>
+        )
       )}
     </div>
   );

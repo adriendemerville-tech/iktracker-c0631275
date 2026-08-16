@@ -13,9 +13,9 @@
  *     et comme override de campagne (campaign_source / campaign_medium).
  */
 
-import { isBrowser, safeSessionStorage } from '@/lib/ssr-utils';
+import { isBrowser, safeSessionStorage } from "@/lib/ssr-utils";
 
-export type TrafficChannel = 'ai' | 'pwa' | 'search' | 'social' | 'referral' | 'direct';
+export type TrafficChannel = "ai" | "pwa" | "search" | "social" | "referral" | "direct";
 
 export interface TrafficAttribution {
   channel: TrafficChannel;
@@ -34,51 +34,54 @@ export interface TrafficAttribution {
   landingPage: string;
 }
 
-const STORAGE_KEY = 'ik_attribution_v1';
+const STORAGE_KEY = "ik_attribution_v1";
 
 /**
  * Domaines des assistants IA. GA4 n'en reconnaît qu'une partie dans son
  * canal "AI Assistant" — on couvre ici l'ensemble du marché francophone.
  */
 const AI_REFERRER_MAP: Array<[RegExp, string]> = [
-  [/(^|\.)chatgpt\.com$/i, 'chatgpt'],
-  [/(^|\.)chat\.openai\.com$/i, 'chatgpt'],
-  [/(^|\.)openai\.com$/i, 'chatgpt'],
-  [/(^|\.)oai\.(azure|st)\b/i, 'chatgpt'],
-  [/(^|\.)perplexity\.ai$/i, 'perplexity'],
-  [/(^|\.)pplx\.ai$/i, 'perplexity'],
-  [/(^|\.)gemini\.google\.com$/i, 'gemini'],
-  [/(^|\.)bard\.google\.com$/i, 'gemini'],
-  [/(^|\.)aistudio\.google\.com$/i, 'gemini'],
-  [/(^|\.)copilot\.microsoft\.com$/i, 'copilot'],
-  [/(^|\.)bing\.com$/i, 'bing-or-copilot'],
-  [/(^|\.)claude\.ai$/i, 'claude'],
-  [/(^|\.)anthropic\.com$/i, 'claude'],
-  [/(^|\.)chat\.mistral\.ai$/i, 'lechat'],
-  [/(^|\.)mistral\.ai$/i, 'lechat'],
-  [/(^|\.)grok\.com$/i, 'grok'],
-  [/(^|\.)x\.ai$/i, 'grok'],
-  [/(^|\.)deepseek\.com$/i, 'deepseek'],
-  [/(^|\.)you\.com$/i, 'you'],
-  [/(^|\.)phind\.com$/i, 'phind'],
-  [/(^|\.)poe\.com$/i, 'poe'],
-  [/(^|\.)kagi\.com$/i, 'kagi'],
-  [/(^|\.)duckduckgo\.com$/i, 'duckduckgo-ai'],
-  [/(^|\.)meta\.ai$/i, 'meta-ai'],
-  [/(^|\.)huggingface\.co$/i, 'huggingface'],
+  [/(^|\.)chatgpt\.com$/i, "chatgpt"],
+  [/(^|\.)chat\.openai\.com$/i, "chatgpt"],
+  [/(^|\.)openai\.com$/i, "chatgpt"],
+  [/(^|\.)oai\.(azure|st)\b/i, "chatgpt"],
+  [/(^|\.)perplexity\.ai$/i, "perplexity"],
+  [/(^|\.)pplx\.ai$/i, "perplexity"],
+  [/(^|\.)gemini\.google\.com$/i, "gemini"],
+  [/(^|\.)bard\.google\.com$/i, "gemini"],
+  [/(^|\.)aistudio\.google\.com$/i, "gemini"],
+  [/(^|\.)copilot\.microsoft\.com$/i, "copilot"],
+  [/(^|\.)bing\.com$/i, "bing-or-copilot"],
+  [/(^|\.)claude\.ai$/i, "claude"],
+  [/(^|\.)anthropic\.com$/i, "claude"],
+  [/(^|\.)chat\.mistral\.ai$/i, "lechat"],
+  [/(^|\.)mistral\.ai$/i, "lechat"],
+  [/(^|\.)grok\.com$/i, "grok"],
+  [/(^|\.)x\.ai$/i, "grok"],
+  [/(^|\.)deepseek\.com$/i, "deepseek"],
+  [/(^|\.)you\.com$/i, "you"],
+  [/(^|\.)phind\.com$/i, "phind"],
+  [/(^|\.)poe\.com$/i, "poe"],
+  [/(^|\.)kagi\.com$/i, "kagi"],
+  [/(^|\.)duckduckgo\.com$/i, "duckduckgo-ai"],
+  [/(^|\.)meta\.ai$/i, "meta-ai"],
+  [/(^|\.)huggingface\.co$/i, "huggingface"],
 ];
 
-const SEARCH_REFERRERS = /(^|\.)(google\.[a-z.]+|qwant\.com|ecosia\.org|yahoo\.com|yandex\.[a-z]+|baidu\.com|brave\.com)$/i;
-const SOCIAL_REFERRERS = /(^|\.)(linkedin\.com|lnkd\.in|facebook\.com|instagram\.com|t\.co|x\.com|twitter\.com|reddit\.com|youtube\.com|whatsapp\.com|tiktok\.com)$/i;
+const SEARCH_REFERRERS =
+  /(^|\.)(google\.[a-z.]+|qwant\.com|ecosia\.org|yahoo\.com|yandex\.[a-z]+|baidu\.com|brave\.com)$/i;
+const SOCIAL_REFERRERS =
+  /(^|\.)(linkedin\.com|lnkd\.in|facebook\.com|instagram\.com|t\.co|x\.com|twitter\.com|reddit\.com|youtube\.com|whatsapp\.com|tiktok\.com)$/i;
 
 /** Valeurs d'utm_source considérées comme IA (liens que l'on balise nous-mêmes). */
-const AI_UTM_SOURCES = /(chatgpt|openai|perplexity|gemini|copilot|claude|lechat|mistral|grok|deepseek|llm|ai[-_]?assistant|geo)/i;
+const AI_UTM_SOURCES =
+  /(chatgpt|openai|perplexity|gemini|copilot|claude|lechat|mistral|grok|deepseek|llm|ai[-_]?assistant|geo)/i;
 
 function hostOf(url: string): string {
   try {
     return new URL(url).hostname;
   } catch {
-    return '';
+    return "";
   }
 }
 
@@ -90,34 +93,34 @@ function matchAiVendor(host: string): string | null {
 }
 
 function detectLaunchMode(): string {
-  if (!isBrowser()) return 'ssr';
+  if (!isBrowser()) return "ssr";
   const nav = window.navigator as Navigator & { standalone?: boolean };
-  if (document.referrer.startsWith('android-app://')) return 'twa';
-  if (nav.standalone === true) return 'standalone';
-  if (window.matchMedia?.('(display-mode: standalone)').matches) return 'standalone';
-  if (window.matchMedia?.('(display-mode: minimal-ui)').matches) return 'standalone';
-  if (window.matchMedia?.('(display-mode: fullscreen)').matches) return 'standalone';
-  return 'browser';
+  if (document.referrer.startsWith("android-app://")) return "twa";
+  if (nav.standalone === true) return "standalone";
+  if (window.matchMedia?.("(display-mode: standalone)").matches) return "standalone";
+  if (window.matchMedia?.("(display-mode: minimal-ui)").matches) return "standalone";
+  if (window.matchMedia?.("(display-mode: fullscreen)").matches) return "standalone";
+  return "browser";
 }
 
 function computeAttribution(): TrafficAttribution {
   const params = new URLSearchParams(window.location.search);
-  const utmSource = params.get('utm_source');
-  const utmMedium = params.get('utm_medium');
-  const utmCampaign = params.get('utm_campaign');
-  const rawReferrer = document.referrer || '';
+  const utmSource = params.get("utm_source");
+  const utmMedium = params.get("utm_medium");
+  const utmCampaign = params.get("utm_campaign");
+  const rawReferrer = document.referrer || "";
   const referrerHost = hostOf(rawReferrer);
   const launchMode = detectLaunchMode();
   const landingPage = window.location.pathname;
 
   // 1. Balisage explicite : un lien que l'on a taggué prime sur tout le reste.
   if (utmSource) {
-    const isAi = AI_UTM_SOURCES.test(utmSource) || utmMedium === 'ai';
+    const isAi = AI_UTM_SOURCES.test(utmSource) || utmMedium === "ai";
     return {
-      channel: isAi ? 'ai' : utmSource === 'pwa' ? 'pwa' : 'referral',
-      aiVendor: isAi ? utmSource.toLowerCase() : 'none',
+      channel: isAi ? "ai" : utmSource === "pwa" ? "pwa" : "referral",
+      aiVendor: isAi ? utmSource.toLowerCase() : "none",
       source: utmSource,
-      medium: utmMedium || (isAi ? 'ai_assistant' : 'referral'),
+      medium: utmMedium || (isAi ? "ai_assistant" : "referral"),
       campaign: utmCampaign,
       launchMode,
       rawReferrer,
@@ -129,10 +132,10 @@ function computeAttribution(): TrafficAttribution {
   const vendor = referrerHost ? matchAiVendor(referrerHost) : null;
   if (vendor) {
     return {
-      channel: 'ai',
+      channel: "ai",
       aiVendor: vendor,
       source: vendor,
-      medium: 'ai_assistant',
+      medium: "ai_assistant",
       campaign: null,
       launchMode,
       rawReferrer,
@@ -142,12 +145,12 @@ function computeAttribution(): TrafficAttribution {
 
   // 3. Lancement depuis l'icône PWA : ce n'est pas du "Direct" d'acquisition,
   //    c'est de la rétention applicative. On l'isole pour ne plus polluer Direct.
-  if (launchMode !== 'browser') {
+  if (launchMode !== "browser") {
     return {
-      channel: 'pwa',
-      aiVendor: 'none',
-      source: 'pwa',
-      medium: 'app',
+      channel: "pwa",
+      aiVendor: "none",
+      source: "pwa",
+      medium: "app",
       campaign: null,
       launchMode,
       rawReferrer,
@@ -157,10 +160,10 @@ function computeAttribution(): TrafficAttribution {
 
   if (referrerHost && SEARCH_REFERRERS.test(referrerHost)) {
     return {
-      channel: 'search',
-      aiVendor: 'none',
+      channel: "search",
+      aiVendor: "none",
       source: referrerHost,
-      medium: 'organic',
+      medium: "organic",
       campaign: null,
       launchMode,
       rawReferrer,
@@ -170,10 +173,10 @@ function computeAttribution(): TrafficAttribution {
 
   if (referrerHost && SOCIAL_REFERRERS.test(referrerHost)) {
     return {
-      channel: 'social',
-      aiVendor: 'none',
+      channel: "social",
+      aiVendor: "none",
       source: referrerHost,
-      medium: 'social',
+      medium: "social",
       campaign: null,
       launchMode,
       rawReferrer,
@@ -181,12 +184,12 @@ function computeAttribution(): TrafficAttribution {
     };
   }
 
-  if (referrerHost && !referrerHost.endsWith('iktracker.fr')) {
+  if (referrerHost && !referrerHost.endsWith("iktracker.fr")) {
     return {
-      channel: 'referral',
-      aiVendor: 'none',
+      channel: "referral",
+      aiVendor: "none",
       source: referrerHost,
-      medium: 'referral',
+      medium: "referral",
       campaign: null,
       launchMode,
       rawReferrer,
@@ -197,10 +200,10 @@ function computeAttribution(): TrafficAttribution {
   // 4. Direct résiduel : aucun referrer, aucun tag, navigateur classique.
   //    C'est le seul bucket qui reste réellement ambigu (dont copier-coller IA).
   return {
-    channel: 'direct',
-    aiVendor: 'none',
-    source: '(direct)',
-    medium: '(none)',
+    channel: "direct",
+    aiVendor: "none",
+    source: "(direct)",
+    medium: "(none)",
     campaign: null,
     launchMode,
     rawReferrer,
@@ -241,10 +244,10 @@ export function getGaAttributionParams(): Record<string, string> {
     traffic_channel: a.channel,
     ai_vendor: a.aiVendor,
     launch_mode: a.launchMode,
-    entry_referrer: a.rawReferrer ? hostOf(a.rawReferrer) || 'unknown' : '(none)',
+    entry_referrer: a.rawReferrer ? hostOf(a.rawReferrer) || "unknown" : "(none)",
   };
   // Override de campagne : force GA4 à sortir ces sessions de "Direct".
-  if (a.channel !== 'direct' && a.channel !== 'search') {
+  if (a.channel !== "direct" && a.channel !== "search") {
     params.campaign_source = a.source;
     params.campaign_medium = a.medium;
     if (a.campaign) params.campaign_name = a.campaign;

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface UseNightModeOptions {
   startHour?: number; // Hour to start night mode (default: 17)
-  endHour?: number;   // Hour to end night mode (default: 7)
+  endHour?: number; // Hour to end night mode (default: 7)
 }
 
 export function useNightMode(options: UseNightModeOptions = {}) {

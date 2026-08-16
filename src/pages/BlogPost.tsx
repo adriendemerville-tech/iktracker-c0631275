@@ -1,22 +1,22 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { supabase } from '@/integrations/supabase/client';
-import { useAdminLazy } from '@/hooks/useAdminLazy';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { OptimizedImage } from '@/components/ui/optimized-image';
-import { Breadcrumb } from '@/components/Breadcrumb';
-import { ArrowLeft, Pencil, Clock, User, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
-import { ArticleSummary } from '@/components/blog/ArticleSummary';
-import { BlogContentWithRelated } from '@/components/blog/BlogContentWithRelated';
-import { ArticleCTABlock } from '@/components/blog/ArticleCTABlock';
-import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from '@/lib/blog-schema-extractors';
+import { useEffect, useState, useMemo } from "react";
+import { useParams, Link, useNavigate } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdminLazy } from "@/hooks/useAdminLazy";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { ArrowLeft, Pencil, Clock, User, Calendar } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
+import { ArticleSummary } from "@/components/blog/ArticleSummary";
+import { BlogContentWithRelated } from "@/components/blog/BlogContentWithRelated";
+import { ArticleCTABlock } from "@/components/blog/ArticleCTABlock";
+import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from "@/lib/blog-schema-extractors";
 
 interface BlogPost {
   id: string;
@@ -41,8 +41,8 @@ function calculateReadingTime(content: string): number {
 
 // Extract first paragraph for description fallback
 function extractFirstParagraph(content: string): string {
-  const paragraphs = content.split('\n\n').filter(p => p.trim() && !p.startsWith('#'));
-  const firstPara = paragraphs[0]?.replace(/[#*_\[\]()]/g, '').trim() || '';
+  const paragraphs = content.split("\n\n").filter((p) => p.trim() && !p.startsWith("#"));
+  const firstPara = paragraphs[0]?.replace(/[#*_\[\]()]/g, "").trim() || "";
   return firstPara.slice(0, 160);
 }
 
@@ -63,10 +63,10 @@ export default function BlogPost() {
       }
 
       const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('slug', slug)
-        .eq('status', 'published')
+        .from("blog_posts")
+        .select("*")
+        .eq("slug", slug)
+        .eq("status", "published")
         .single();
 
       if (error || !data) {
@@ -81,13 +81,15 @@ export default function BlogPost() {
   }, [slug]);
 
   // Memoized calculations
-  const readingTime = useMemo(() => 
-    post ? calculateReadingTime(post.content) : 0
-  , [post?.content]);
+  const readingTime = useMemo(
+    () => (post ? calculateReadingTime(post.content) : 0),
+    [post?.content],
+  );
 
-  const metaDescription = useMemo(() => 
-    post?.meta_description || (post ? extractFirstParagraph(post.content) : '')
-  , [post]);
+  const metaDescription = useMemo(
+    () => post?.meta_description || (post ? extractFirstParagraph(post.content) : ""),
+    [post],
+  );
 
   if (loading) {
     return (
@@ -109,7 +111,7 @@ export default function BlogPost() {
             <Skeleton className="h-5 w-28" />
           </div>
           {/* Featured image skeleton - preserves aspect ratio for CLS */}
-          <Skeleton className="w-full mb-8 rounded-lg" style={{ aspectRatio: '16/9' }} />
+          <Skeleton className="w-full mb-8 rounded-lg" style={{ aspectRatio: "16/9" }} />
           {/* Content skeleton */}
           <div className="space-y-4">
             <Skeleton className="h-5 w-full" />
@@ -131,7 +133,7 @@ export default function BlogPost() {
           <p className="text-muted-foreground mb-6">
             L'article que vous recherchez n'existe pas ou n'est plus disponible.
           </p>
-          <Button onClick={() => navigate('/blog')}>
+          <Button onClick={() => navigate("/blog")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Retour au blog
           </Button>
@@ -149,40 +151,40 @@ export default function BlogPost() {
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": post.title,
-    "description": metaDescription,
-    "image": post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
-    "author": buildAuthorPerson(post.author_name),
-    "publisher": {
+    headline: post.title,
+    description: metaDescription,
+    image: post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
+    author: buildAuthorPerson(post.author_name),
+    publisher: {
       "@type": "Organization",
-      "name": "IKtracker",
-      "logo": {
+      name: "IKtracker",
+      logo: {
         "@type": "ImageObject",
-        "url": "https://iktracker.fr/logo-iktracker-250.webp"
-      }
+        url: "https://iktracker.fr/logo-iktracker-250.webp",
+      },
     },
-    "datePublished": dateISO,
-    "dateModified": modifiedDateISO,
-    "mainEntityOfPage": {
+    datePublished: dateISO,
+    dateModified: modifiedDateISO,
+    mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": canonicalUrl
+      "@id": canonicalUrl,
     },
-    "wordCount": post.content.trim().split(/\s+/).length,
-    "timeRequired": `PT${readingTime}M`,
-    "inLanguage": "fr-FR",
-    "speakable": {
+    wordCount: post.content.trim().split(/\s+/).length,
+    timeRequired: `PT${readingTime}M`,
+    inLanguage: "fr-FR",
+    speakable: {
       "@type": "SpeakableSpecification",
-      "cssSelector": ["article header h1", "article header + .article-summary"]
-    }
+      cssSelector: ["article header h1", "article header + .article-summary"],
+    },
   };
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://iktracker.fr/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://iktracker.fr/blog" },
-      { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl },
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://iktracker.fr/" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: "https://iktracker.fr/blog" },
+      { "@type": "ListItem", position: 3, name: post.title, item: canonicalUrl },
     ],
   };
 
@@ -198,39 +200,29 @@ export default function BlogPost() {
             server-side from the route head() in src/routes/blog/$slug.tsx */}
         {post.author_name ? <meta property="article:author" content={post.author_name} /> : null}
         <meta name="author" content={post.author_name || "IKtracker"} />
-        
-        
+
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-        {faqSchema && (
-          <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-        )}
-        {howToSchema && (
-          <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>
-        )}
+        {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
+        {howToSchema && <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>}
       </Helmet>
 
       <div className="min-h-screen bg-background">
         <main id="main-content" tabIndex={-1} className="outline-hidden">
           <article className="container mx-auto px-4 py-12 max-w-3xl">
             {/* Breadcrumb navigation with schema.org */}
-            <Breadcrumb 
-              items={[
-                { label: 'Blog', href: '/blog' },
-                { label: post.title }
-              ]} 
-            />
+            <Breadcrumb items={[{ label: "Blog", href: "/blog" }, { label: post.title }]} />
 
             <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-              <Link 
-                to="/blog" 
+              <Link
+                to="/blog"
                 className="inline-flex items-center text-primary hover:underline text-sm"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour au blog
               </Link>
-              
+
               {isAdmin && (
                 <Link to={`/blog/edit/${post.id}`}>
                   <Button variant="outline" size="sm">
@@ -245,14 +237,14 @@ export default function BlogPost() {
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
                 {post.title}
               </h1>
-              
+
               {post.subtitle && (
                 <p className="text-xl text-muted-foreground mb-4">{post.subtitle}</p>
               )}
 
               <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                 {post.author_name && (
-                  <Link 
+                  <Link
                     to="/blog/auteur/adrien-de-volontat"
                     className="flex items-center gap-1 hover:text-primary transition-colors"
                   >
@@ -262,7 +254,7 @@ export default function BlogPost() {
                 )}
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {format(new Date(publishDate), 'dd MMMM yyyy', { locale: fr })}
+                  {format(new Date(publishDate), "dd MMMM yyyy", { locale: fr })}
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
@@ -276,8 +268,8 @@ export default function BlogPost() {
 
             {post.featured_image_url && (
               <div className="mb-8 rounded-lg overflow-hidden">
-                <OptimizedImage 
-                  src={post.featured_image_url} 
+                <OptimizedImage
+                  src={post.featured_image_url}
                   alt={post.title}
                   className="w-full"
                   aspectRatio="16/9"
@@ -288,22 +280,16 @@ export default function BlogPost() {
               </div>
             )}
 
-            <BlogContentWithRelated 
-              content={post.content} 
-              postId={post.id}
-            />
+            <BlogContentWithRelated content={post.content} postId={post.id} />
 
             <ArticleCTABlock />
 
             <footer className="mt-12 pt-8 border-t border-border flex items-center justify-between flex-wrap gap-4">
-              <Link 
-                to="/blog" 
-                className="inline-flex items-center text-primary hover:underline"
-              >
+              <Link to="/blog" className="inline-flex items-center text-primary hover:underline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voir tous les articles
               </Link>
-              
+
               {isAdmin && (
                 <Link to={`/blog/edit/${post.id}`}>
                   <Button variant="ghost" size="sm">

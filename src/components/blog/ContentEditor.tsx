@@ -1,12 +1,12 @@
-import { useState, useRef, useCallback } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { convertToWebP } from '@/lib/image-utils';
-import { Image as ImageIcon, Link as LinkIcon, Loader2, Pencil } from 'lucide-react';
+import { useState, useRef, useCallback } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { convertToWebP } from "@/lib/image-utils";
+import { Image as ImageIcon, Link as LinkIcon, Loader2, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,12 +14,8 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from '@/components/ui/dialog';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface ContentEditorProps {
   value: string;
@@ -42,11 +38,11 @@ const MARKDOWN_LINK_REGEX = /\[([^\]]*)\]\(([^)]+)\)/g;
 function detectLinkAtPosition(content: string, cursorPos: number): DetectedLink | null {
   let match;
   MARKDOWN_LINK_REGEX.lastIndex = 0;
-  
+
   while ((match = MARKDOWN_LINK_REGEX.exec(content)) !== null) {
     const startIndex = match.index;
     const endIndex = match.index + match[0].length;
-    
+
     if (cursorPos >= startIndex && cursorPos <= endIndex) {
       return {
         fullMatch: match[0],
@@ -57,15 +53,15 @@ function detectLinkAtPosition(content: string, cursorPos: number): DetectedLink 
       };
     }
   }
-  
+
   return null;
 }
 
 export function ContentEditor({ value, onChange, placeholder, rows = 16 }: ContentEditorProps) {
   const [uploading, setUploading] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
-  const [linkText, setLinkText] = useState('');
-  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [cursorPosition, setCursorPosition] = useState<{ start: number; end: number } | null>(null);
   const [editingLink, setEditingLink] = useState<DetectedLink | null>(null);
   const [hoveredLink, setHoveredLink] = useState<DetectedLink | null>(null);
@@ -80,22 +76,20 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
       const filename = `content-${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
 
       const { data, error } = await supabase.storage
-        .from('blog-images')
+        .from("blog-images")
         .upload(filename, webpFile, {
-          cacheControl: '31536000',
+          cacheControl: "31536000",
           upsert: false,
-          contentType: 'image/webp',
+          contentType: "image/webp",
         });
 
       if (error) throw error;
 
-      const { data: urlData } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(data.path);
+      const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(data.path);
 
       return urlData.publicUrl;
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
       return null;
     }
   };
@@ -111,7 +105,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const markdownImage = `![Image](${url})`;
-    
+
     const newValue = value.substring(0, start) + markdownImage + value.substring(end);
     onChange(newValue);
 
@@ -124,7 +118,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
 
   const openLinkDialog = (existingLink?: DetectedLink) => {
     const textarea = textareaRef.current;
-    
+
     if (existingLink) {
       // Editing an existing link
       setEditingLink(existingLink);
@@ -138,12 +132,12 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
       const selectedText = value.substring(start, end);
       setCursorPosition({ start, end });
       setLinkText(selectedText);
-      setLinkUrl('');
+      setLinkUrl("");
       setEditingLink(null);
     } else {
       setCursorPosition(null);
-      setLinkText('');
-      setLinkUrl('');
+      setLinkText("");
+      setLinkUrl("");
       setEditingLink(null);
     }
     setLinkDialogOpen(true);
@@ -162,7 +156,10 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
     const markdownLink = `[${displayText}](${finalUrl})`;
 
     if (cursorPosition) {
-      const newValue = value.substring(0, cursorPosition.start) + markdownLink + value.substring(cursorPosition.end);
+      const newValue =
+        value.substring(0, cursorPosition.start) +
+        markdownLink +
+        value.substring(cursorPosition.end);
       onChange(newValue);
 
       setTimeout(() => {
@@ -178,45 +175,48 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
     }
 
     setLinkDialogOpen(false);
-    setLinkText('');
-    setLinkUrl('');
+    setLinkText("");
+    setLinkUrl("");
     setCursorPosition(null);
     setEditingLink(null);
-    toast.success(editingLink ? 'Lien modifié' : 'Lien inséré');
+    toast.success(editingLink ? "Lien modifié" : "Lien inséré");
   };
 
   const deleteLink = () => {
     if (!editingLink || !cursorPosition) return;
-    
+
     // Replace the link with just the text
-    const newValue = value.substring(0, cursorPosition.start) + editingLink.text + value.substring(cursorPosition.end);
+    const newValue =
+      value.substring(0, cursorPosition.start) +
+      editingLink.text +
+      value.substring(cursorPosition.end);
     onChange(newValue);
-    
+
     setLinkDialogOpen(false);
-    setLinkText('');
-    setLinkUrl('');
+    setLinkText("");
+    setLinkUrl("");
     setCursorPosition(null);
     setEditingLink(null);
-    toast.success('Lien supprimé');
+    toast.success("Lien supprimé");
   };
 
   const handleTextareaClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
     const cursorPos = textarea.selectionStart;
     const detectedLink = detectLinkAtPosition(value, cursorPos);
-    
+
     if (detectedLink) {
       // Calculate approximate position for the popover
       const textBeforeCursor = value.substring(0, detectedLink.startIndex);
-      const lines = textBeforeCursor.split('\n');
+      const lines = textBeforeCursor.split("\n");
       const lineNumber = lines.length;
       const charInLine = lines[lines.length - 1].length;
-      
+
       // Get textarea position
       const rect = textarea.getBoundingClientRect();
       const lineHeight = 20; // approximate line height
       const charWidth = 8; // approximate character width for monospace
-      
+
       setPopoverPosition({
         x: Math.min(rect.left + charInLine * charWidth, rect.right - 200),
         y: rect.top + lineNumber * lineHeight + 30,
@@ -234,7 +234,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
     let successCount = 0;
 
     for (const file of Array.from(files)) {
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast.error(`${file.name} n'est pas une image`);
         continue;
       }
@@ -256,7 +256,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
     if (successCount > 0) {
       toast.success(`${successCount} image(s) convertie(s) en WebP et insérée(s)`);
     }
-    
+
     setUploading(false);
   };
 
@@ -266,68 +266,74 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFileUpload(e.target.files);
-    e.target.value = '';
+    e.target.value = "";
   };
 
-  const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
+  const handlePaste = useCallback(
+    async (e: React.ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
 
-    const imageItems = Array.from(items).filter(item => item.type.startsWith('image/'));
-    
-    if (imageItems.length === 0) return;
+      const imageItems = Array.from(items).filter((item) => item.type.startsWith("image/"));
 
-    e.preventDefault();
-    setUploading(true);
+      if (imageItems.length === 0) return;
 
-    for (const item of imageItems) {
-      const file = item.getAsFile();
-      if (!file) continue;
+      e.preventDefault();
+      setUploading(true);
 
-      const url = await uploadImageToStorage(file);
-      if (url) {
-        insertImageAtCursor(url);
-        toast.success('Image collée convertie en WebP');
-      } else {
-        toast.error('Échec de l\'upload de l\'image collée');
-      }
-    }
+      for (const item of imageItems) {
+        const file = item.getAsFile();
+        if (!file) continue;
 
-    setUploading(false);
-  }, [value, onChange]);
-
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const files = e.dataTransfer?.files;
-    if (!files) return;
-
-    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-    if (imageFiles.length === 0) return;
-
-    setUploading(true);
-    let successCount = 0;
-
-    for (const file of imageFiles) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} dépasse 5MB`);
-        continue;
+        const url = await uploadImageToStorage(file);
+        if (url) {
+          insertImageAtCursor(url);
+          toast.success("Image collée convertie en WebP");
+        } else {
+          toast.error("Échec de l'upload de l'image collée");
+        }
       }
 
-      const url = await uploadImageToStorage(file);
-      if (url) {
-        insertImageAtCursor(url);
-        successCount++;
+      setUploading(false);
+    },
+    [value, onChange],
+  );
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const files = e.dataTransfer?.files;
+      if (!files) return;
+
+      const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
+      if (imageFiles.length === 0) return;
+
+      setUploading(true);
+      let successCount = 0;
+
+      for (const file of imageFiles) {
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} dépasse 5MB`);
+          continue;
+        }
+
+        const url = await uploadImageToStorage(file);
+        if (url) {
+          insertImageAtCursor(url);
+          successCount++;
+        }
       }
-    }
 
-    if (successCount > 0) {
-      toast.success(`${successCount} image(s) glissée(s) convertie(s) en WebP`);
-    }
+      if (successCount > 0) {
+        toast.success(`${successCount} image(s) glissée(s) convertie(s) en WebP`);
+      }
 
-    setUploading(false);
-  }, [value, onChange]);
+      setUploading(false);
+    },
+    [value, onChange],
+  );
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -340,7 +346,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingLink ? 'Modifier le lien' : 'Insérer un lien'}</DialogTitle>
+            <DialogTitle>{editingLink ? "Modifier le lien" : "Insérer un lien"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -374,19 +380,17 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
             <DialogClose asChild>
               <Button variant="outline">Annuler</Button>
             </DialogClose>
-            <Button onClick={insertLink}>
-              {editingLink ? 'Modifier' : 'Insérer'}
-            </Button>
+            <Button onClick={insertLink}>{editingLink ? "Modifier" : "Insérer"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Link Edit Popover */}
       {hoveredLink && popoverPosition && (
-        <div 
+        <div
           className="fixed z-50 bg-popover border rounded-md shadow-md p-2 flex items-center gap-2"
-          style={{ 
-            left: popoverPosition.x, 
+          style={{
+            left: popoverPosition.x,
             top: popoverPosition.y,
           }}
         >
@@ -453,11 +457,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
       </div>
 
       {/* Editor */}
-      <div 
-        className="relative"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
+      <div className="relative" onDrop={handleDrop} onDragOver={handleDragOver}>
         <Textarea
           ref={textareaRef}
           value={value}
@@ -469,7 +469,7 @@ export function ContentEditor({ value, onChange, placeholder, rows = 16 }: Conte
           rows={rows}
           className="font-mono text-sm rounded-t-none border-t-0"
         />
-        
+
         {/* Uploading overlay */}
         {uploading && (
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-md">

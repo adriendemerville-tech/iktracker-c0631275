@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, Clock, Layers, Eye } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useState, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronRight, Clock, Layers, Eye } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface AuditLog {
   id: string;
@@ -54,7 +54,7 @@ export function buildAuditSessions(logs: AuditLog[]): AuditSession[] {
       current.byResource[log.resource_type] = (current.byResource[log.resource_type] || 0) + 1;
     } else {
       current = {
-        key: `${log.api_key_name ?? 'none'}-${log.id}`,
+        key: `${log.api_key_name ?? "none"}-${log.id}`,
         api_key_name: log.api_key_name,
         startedAt: log.created_at,
         endedAt: log.created_at,
@@ -66,15 +66,13 @@ export function buildAuditSessions(logs: AuditLog[]): AuditSession[] {
     }
   }
   // Most recent session first; logs inside also desc
-  return sessions
-    .map(s => ({ ...s, logs: [...s.logs].reverse() }))
-    .reverse();
+  return sessions.map((s) => ({ ...s, logs: [...s.logs].reverse() })).reverse();
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: 'bg-emerald-500/15 text-emerald-700 border-emerald-500/20',
-  update: 'bg-blue-500/15 text-blue-700 border-blue-500/20',
-  delete: 'bg-red-500/15 text-red-700 border-red-500/20',
+  create: "bg-emerald-500/15 text-emerald-700 border-emerald-500/20",
+  update: "bg-blue-500/15 text-blue-700 border-blue-500/20",
+  delete: "bg-red-500/15 text-red-700 border-red-500/20",
 };
 
 export function AuditSessionGroup({
@@ -98,7 +96,7 @@ export function AuditSessionGroup({
     <div className="rounded-lg border bg-card overflow-hidden">
       <div className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/50 transition-colors">
         <button
-          onClick={() => setOpen(o => !o)}
+          onClick={() => setOpen((o) => !o)}
           className="flex items-center gap-3 flex-1 min-w-0 text-left"
         >
           {open ? (
@@ -110,16 +108,16 @@ export function AuditSessionGroup({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold">
-                Session {session.api_key_name ?? 'sans clé'}
+                Session {session.api_key_name ?? "sans clé"}
               </span>
               <Badge variant="secondary" className="text-[10px]">
-                {session.logs.length} action{session.logs.length > 1 ? 's' : ''}
+                {session.logs.length} action{session.logs.length > 1 ? "s" : ""}
               </Badge>
               {Object.entries(session.byAction).map(([action, count]) => (
                 <Badge
                   key={action}
                   variant="outline"
-                  className={`text-[10px] ${ACTION_COLORS[action] || ''}`}
+                  className={`text-[10px] ${ACTION_COLORS[action] || ""}`}
                 >
                   {action} ×{count}
                 </Badge>
@@ -128,9 +126,9 @@ export function AuditSessionGroup({
             <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
               <Clock className="w-3 h-3" />
               <span>
-                {format(new Date(session.startedAt), 'dd MMM HH:mm', { locale: fr })}
-                {' → '}
-                {format(new Date(session.endedAt), 'HH:mm', { locale: fr })}
+                {format(new Date(session.startedAt), "dd MMM HH:mm", { locale: fr })}
+                {" → "}
+                {format(new Date(session.endedAt), "HH:mm", { locale: fr })}
               </span>
               <span>•</span>
               <span>{durationMin} min</span>
@@ -138,7 +136,7 @@ export function AuditSessionGroup({
               <span>
                 {Object.entries(session.byResource)
                   .map(([r, c]) => `${r}:${c}`)
-                  .join(', ')}
+                  .join(", ")}
               </span>
             </div>
           </div>
@@ -148,7 +146,10 @@ export function AuditSessionGroup({
             variant="ghost"
             size="sm"
             className="shrink-0 h-7 px-2 text-xs"
-            onClick={(e) => { e.stopPropagation(); onOpenDetails(session); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails(session);
+            }}
             title="Vue détaillée de la session"
           >
             <Eye className="w-3.5 h-3.5 mr-1" />
@@ -156,11 +157,7 @@ export function AuditSessionGroup({
           </Button>
         )}
       </div>
-      {open && (
-        <div className="px-3 pb-3 pt-1 space-y-3 border-t bg-muted/20">
-          {children}
-        </div>
-      )}
+      {open && <div className="px-3 pb-3 pt-1 space-y-3 border-t bg-muted/20">{children}</div>}
     </div>
   );
 }

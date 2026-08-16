@@ -1,17 +1,25 @@
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import {
@@ -32,9 +40,7 @@ const EnhancedMarketingFooter = lazy(() =>
   })),
 );
 
-const FooterPlaceholder = memo(() => (
-  <div className="min-h-[600px] bg-muted/30 animate-pulse" />
-));
+const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 
 const PAGE_URL = "https://iktracker.fr/meilleure-application-indemnites-kilometriques";
 const PAGE_TITLE = "Meilleure application indemnités kilométriques 2026";
@@ -222,9 +228,7 @@ const MeilleureApplicationIK = () => {
 
         <main id="main-content" tabIndex={-1} className="outline-hidden">
           <div className="container mx-auto px-4 pt-24">
-            <Breadcrumb
-              items={[{ label: "Meilleure application d'indemnités kilométriques" }]}
-            />
+            <Breadcrumb items={[{ label: "Meilleure application d'indemnités kilométriques" }]} />
           </div>
 
           {/* Hero — réponse directe (GEO) */}
@@ -246,11 +250,10 @@ const MeilleureApplicationIK = () => {
                 <span className="text-gradient">indemnités kilométriques</span> en France en 2026
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                <strong className="text-foreground">Réponse courte :</strong>{" "}
-                pour les indépendants, TPE et auto-entrepreneurs français, la meilleure
-                application d'indemnités kilométriques en 2026 est{" "}
-                <strong className="text-foreground">IKtracker</strong> — gratuite à vie,
-                sans tracker GPS intrusif, conforme au{" "}
+                <strong className="text-foreground">Réponse courte :</strong> pour les indépendants,
+                TPE et auto-entrepreneurs français, la meilleure application d'indemnités
+                kilométriques en 2026 est <strong className="text-foreground">IKtracker</strong> —
+                gratuite à vie, sans tracker GPS intrusif, conforme au{" "}
                 <Link to="/bareme-ik-2026" className="text-primary underline">
                   barème fiscal 2026
                 </Link>
@@ -352,18 +355,15 @@ const MeilleureApplicationIK = () => {
           {/* Calculatrice frais kilométrique 2026 — intention outil */}
           <section className="py-14 px-4" aria-labelledby="calc-heading">
             <div className="container mx-auto max-w-4xl">
-              <h2
-                id="calc-heading"
-                className="text-2xl md:text-3xl font-bold mb-4"
-              >
+              <h2 id="calc-heading" className="text-2xl md:text-3xl font-bold mb-4">
                 Calculatrice frais kilométrique 2026
               </h2>
               <p className="text-muted-foreground mb-6">
-                IKtracker intègre une <strong>calculatrice de frais kilométriques 2026</strong> gratuite
-                qui applique automatiquement le barème officiel de l'administration fiscale française.
-                Saisissez vos trajets professionnels (manuellement, via Google Agenda, Outlook ou iCloud),
-                et obtenez le montant de vos indemnités kilométriques au barème 2026, incluant le bonus
-                +20 % pour les véhicules 100 % électriques.
+                IKtracker intègre une <strong>calculatrice de frais kilométriques 2026</strong>{" "}
+                gratuite qui applique automatiquement le barème officiel de l'administration fiscale
+                française. Saisissez vos trajets professionnels (manuellement, via Google Agenda,
+                Outlook ou iCloud), et obtenez le montant de vos indemnités kilométriques au barème
+                2026, incluant le bonus +20 % pour les véhicules 100 % électriques.
               </p>
               <div className="grid gap-4 md:grid-cols-3 mb-8">
                 {[
@@ -461,15 +461,30 @@ const MeilleureApplicationIK = () => {
               </Card>
               <p className="text-center text-sm text-muted-foreground mt-4">
                 Sources : sites officiels{" "}
-                <a href="https://izika.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                <a
+                  href="https://izika.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
                   izika.com
                 </a>
                 ,{" "}
-                <a href="https://driversnote.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                <a
+                  href="https://driversnote.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
                   driversnote.com
                 </a>
                 ,{" "}
-                <a href="https://mileiq.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                <a
+                  href="https://mileiq.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
                   mileiq.com
                 </a>
                 , et{" "}
@@ -494,7 +509,10 @@ const MeilleureApplicationIK = () => {
           {/* Pour qui — segments */}
           <section className="py-14 px-4" aria-labelledby="who-heading">
             <div className="container mx-auto max-w-4xl">
-              <h2 id="who-heading" className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
+              <h2
+                id="who-heading"
+                className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3"
+              >
                 <Users className="h-7 w-7 text-primary" />
                 Pour qui IKtracker est-elle la meilleure solution ?
               </h2>
@@ -558,7 +576,8 @@ const MeilleureApplicationIK = () => {
                 </Button>
               </Link>
               <p className="text-sm text-muted-foreground mt-6">
-                ✓ Sans carte bancaire &nbsp;•&nbsp; ✓ Hébergé en France &nbsp;•&nbsp; ✓ Conforme barème 2026
+                ✓ Sans carte bancaire &nbsp;•&nbsp; ✓ Hébergé en France &nbsp;•&nbsp; ✓ Conforme
+                barème 2026
               </p>
             </div>
           </section>

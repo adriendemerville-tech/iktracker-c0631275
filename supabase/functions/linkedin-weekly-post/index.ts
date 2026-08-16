@@ -50,9 +50,9 @@ type Topic = {
   focus: string;
   format: MediaFormat;
   mediaSource: MediaSource;
-  durationMs: number;     // browserless screencast length
-  visualPrompt?: string;  // Wavespeed image/video prompt (mediaSource='wavespeed')
-  slideCount?: number;    // number of intermediate carousel slides (default 3 → 5 pages total)
+  durationMs: number; // browserless screencast length
+  visualPrompt?: string; // Wavespeed image/video prompt (mediaSource='wavespeed')
+  slideCount?: number; // number of intermediate carousel slides (default 3 → 5 pages total)
 };
 
 // Rotation of 12 topics — with a monthly cadence this covers ~1 year.
@@ -316,7 +316,6 @@ const TOPICS: Topic[] = [
   },
 ];
 
-
 // Faits techniques précis par module. Injectés tels quels dans le prompt pour que
 // le post décrive une fonctionnalité réelle, avec son mécanisme, et pas une
 // généralité marketing sur les indemnités kilométriques.
@@ -510,7 +509,10 @@ function pickTopicForThisMonth(now: Date = new Date(), recentSlugs: string[] = [
   let slug = pool[start];
   for (let i = 0; i < pool.length; i++) {
     const candidate = pool[(start + i) % pool.length];
-    if (!blocked.has(candidate)) { slug = candidate; break; }
+    if (!blocked.has(candidate)) {
+      slug = candidate;
+      break;
+    }
   }
   return TOPICS.find((t) => t.slug === slug) ?? TOPICS[0];
 }
@@ -545,7 +547,6 @@ async function resolveBlogTopic(
   }
 }
 
-
 // Historique des posts publiés : sert à la rotation des sujets ET à interdire
 // au modèle de reprendre les mêmes angles, hooks ou chiffres.
 type PastPost = { slug: string; title: string; posted_at: string; text: string };
@@ -563,14 +564,18 @@ async function fetchPostHistory(
       .order("posted_at", { ascending: false })
       .limit(limit);
     if (error) throw error;
-    return (data ?? []).map((r: Record<string, unknown>) => ({
-      slug: String(r.topic_slug ?? ""),
-      title: String(r.topic_title ?? ""),
-      posted_at: String(r.posted_at ?? ""),
-      text: String(r.post_text ?? ""),
-    })).filter((p) => p.slug);
+    return (data ?? [])
+      .map((r: Record<string, unknown>) => ({
+        slug: String(r.topic_slug ?? ""),
+        title: String(r.topic_title ?? ""),
+        posted_at: String(r.posted_at ?? ""),
+        text: String(r.post_text ?? ""),
+      }))
+      .filter((p) => p.slug);
   } catch (err) {
-    console.warn(`[history] lecture impossible: ${err instanceof Error ? err.message : String(err)}`);
+    console.warn(
+      `[history] lecture impossible: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return [];
   }
 }
@@ -588,8 +593,6 @@ ${lines.join("\n")}
 ANTI-REDONDANCE : ne reprends ni ces sujets, ni ces angles, ni ces hooks, ni les mêmes exemples chiffrés déjà utilisés. Si un point a déjà été expliqué, traite un autre aspect du module ou une autre étape du parcours.`;
 }
 
-
-
 function findTopic(slug: string | null): Topic | null {
   if (!slug) return null;
   return TOPICS.find((t) => t.slug === slug) ?? null;
@@ -602,9 +605,24 @@ function findTopic(slug: string | null): Topic | null {
 
 const DOC_KEYWORDS: Record<string, string[]> = {
   simulateur: ["simulateur", "barème", "ik", "calcul", "indemnité", "cv fiscaux"],
-  "mode-tournee": ["tournée", "tour", "gps", "géolocalisation", "haversine", "distance matrix", "stop"],
+  "mode-tournee": [
+    "tournée",
+    "tour",
+    "gps",
+    "géolocalisation",
+    "haversine",
+    "distance matrix",
+    "stop",
+  ],
   "import-takeout": ["takeout", "recovery", "import", "wizard", "historique"],
-  "sync-calendrier": ["calendar", "calendrier", "sync-calendar-trips", "google calendar", "outlook", "oauth"],
+  "sync-calendrier": [
+    "calendar",
+    "calendrier",
+    "sync-calendar-trips",
+    "google calendar",
+    "outlook",
+    "oauth",
+  ],
   "detection-plaque": ["plaque", "vehicle-lookup", "immatriculation", "véhicule", "carburant"],
   "bareme-progressif": ["barème", "tranche", "5 000", "20 000", "calcul", "ik"],
   "bonus-electrique": ["électrique", "bonus", "20%", "multiplicateur", "véhicule"],
@@ -616,7 +634,10 @@ const DOC_KEYWORDS: Record<string, string[]> = {
 };
 
 function normalizeForMatch(s: string): string {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 // Sélection par score de mots-clés (titre pondéré ×3), plafonnée pour ne pas
@@ -658,7 +679,6 @@ function captureHintsForTopic(topic: Topic): string {
   return ctx ? ctx.slice(0, 1200) : topic.focus;
 }
 
-
 // ─── Wavespeed helpers ─────────────────────────────────────────────────────
 
 async function wavespeedFetch(path: string, init: RequestInit = {}): Promise<Response> {
@@ -687,7 +707,11 @@ async function wavespeedPollUntilDone(requestId: string, timeoutMs = 180_000): P
 
 // ─── Text generation ─── Mistral (Wavespeed) with Gemini fallback ─────────
 
-async function callMistralViaWavespeed(system: string, userMsg: string, opts: { json?: boolean; temperature?: number } = {}): Promise<string> {
+async function callMistralViaWavespeed(
+  system: string,
+  userMsg: string,
+  opts: { json?: boolean; temperature?: number } = {},
+): Promise<string> {
   // Wavespeed-hosted LLMs are called through the standard /predictions endpoint.
   // Endpoint shape follows Wavespeed's OpenAI-compatible chat schema.
   const res = await wavespeedFetch(`${WS_MISTRAL_MODEL}`, {
@@ -702,7 +726,8 @@ async function callMistralViaWavespeed(system: string, userMsg: string, opts: { 
       ...(opts.json ? { response_format: { type: "json_object" } } : {}),
     }),
   });
-  if (!res.ok) throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  if (!res.ok)
+    throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const raw = await res.json();
   // Wavespeed may return an OpenAI-style response directly, or a prediction envelope.
   // Try both shapes.
@@ -717,7 +742,8 @@ async function callMistralViaWavespeed(system: string, userMsg: string, opts: { 
   if (requestId) {
     const polled = await wavespeedPollUntilDone(String(requestId));
     const pOutputs: unknown = polled?.data?.outputs ?? polled?.outputs;
-    const content = polled?.data?.choices?.[0]?.message?.content ?? polled?.choices?.[0]?.message?.content;
+    const content =
+      polled?.data?.choices?.[0]?.message?.content ?? polled?.choices?.[0]?.message?.content;
     if (content) return String(content).trim();
     if (Array.isArray(pOutputs) && pOutputs.length > 0 && typeof pOutputs[0] === "string") {
       return (pOutputs[0] as string).trim();
@@ -726,7 +752,11 @@ async function callMistralViaWavespeed(system: string, userMsg: string, opts: { 
   throw new Error(`Unrecognized Wavespeed/Mistral response: ${JSON.stringify(raw).slice(0, 300)}`);
 }
 
-async function callGeminiFallback(system: string, userMsg: string, opts: { json?: boolean; temperature?: number } = {}): Promise<string> {
+async function callGeminiFallback(
+  system: string,
+  userMsg: string,
+  opts: { json?: boolean; temperature?: number } = {},
+): Promise<string> {
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
   if (!lovableKey) throw new Error("LOVABLE_API_KEY missing");
   const res = await fetch(AI_GATEWAY, {
@@ -745,14 +775,19 @@ async function callGeminiFallback(system: string, userMsg: string, opts: { json?
       ...(opts.json ? { response_format: { type: "json_object" } } : {}),
     }),
   });
-  if (!res.ok) throw new Error(`Gemini fallback ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  if (!res.ok)
+    throw new Error(`Gemini fallback ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const json = await res.json();
   const text = json.choices?.[0]?.message?.content?.trim();
   if (!text) throw new Error("Empty Gemini response");
   return text;
 }
 
-async function callLLM(system: string, userMsg: string, opts: { json?: boolean; temperature?: number } = {}): Promise<{ text: string; source: "mistral" | "gemini" }> {
+async function callLLM(
+  system: string,
+  userMsg: string,
+  opts: { json?: boolean; temperature?: number } = {},
+): Promise<{ text: string; source: "mistral" | "gemini" }> {
   try {
     const text = await callMistralViaWavespeed(system, userMsg, opts);
     return { text, source: "mistral" };
@@ -777,21 +812,151 @@ export type StyleProfile = {
   avg_sentence_words: number;
   avg_paragraph_count: number;
   avg_paragraph_words: number;
-  short_sentence_ratio: number;   // % phrases <= 8 mots (rythme sec)
-  first_person_ratio: number;     // % phrases commençant par "je"
-  question_ratio: number;         // % phrases interrogatives
-  top_opening_words: string[];    // mots typiques de première ligne
-  frequent_bigrams: string[];     // bigrammes récurrents (signature lexicale)
+  short_sentence_ratio: number; // % phrases <= 8 mots (rythme sec)
+  first_person_ratio: number; // % phrases commençant par "je"
+  question_ratio: number; // % phrases interrogatives
+  top_opening_words: string[]; // mots typiques de première ligne
+  frequent_bigrams: string[]; // bigrammes récurrents (signature lexicale)
   frequent_content_words: string[]; // vocabulaire fort récurrent
 };
 
 const FR_STOPWORDS = new Set<string>([
-  "le","la","les","un","une","des","de","du","d","l","et","ou","mais","donc","or","ni","car",
-  "je","tu","il","elle","on","nous","vous","ils","elles","me","te","se","lui","leur","y","en",
-  "mon","ma","mes","ton","ta","tes","son","sa","ses","notre","votre","nos","vos","leurs",
-  "ce","cet","cette","ces","ça","cela","celui","celle","ceux","celles",
-  "que","qui","quoi","dont","où","quand","comme","si","pour","par","sur","sous","avec","sans","dans","chez","vers","entre","aussi","très","plus","moins","bien","peu","tout","toute","tous","toutes","aux","au","à","a","est","être","été","suis","es","sommes","êtes","sont","était","étaient","serai","sera","seront","fait","faire","fais","font","ai","as","avons","avez","ont","avait","avaient",
-  "pas","ne","n","oui","non","déjà","encore","toujours","jamais","alors","puis","ensuite","enfin","ici","là","hier","aujourd","demain","c","s","t","m","qu",
+  "le",
+  "la",
+  "les",
+  "un",
+  "une",
+  "des",
+  "de",
+  "du",
+  "d",
+  "l",
+  "et",
+  "ou",
+  "mais",
+  "donc",
+  "or",
+  "ni",
+  "car",
+  "je",
+  "tu",
+  "il",
+  "elle",
+  "on",
+  "nous",
+  "vous",
+  "ils",
+  "elles",
+  "me",
+  "te",
+  "se",
+  "lui",
+  "leur",
+  "y",
+  "en",
+  "mon",
+  "ma",
+  "mes",
+  "ton",
+  "ta",
+  "tes",
+  "son",
+  "sa",
+  "ses",
+  "notre",
+  "votre",
+  "nos",
+  "vos",
+  "leurs",
+  "ce",
+  "cet",
+  "cette",
+  "ces",
+  "ça",
+  "cela",
+  "celui",
+  "celle",
+  "ceux",
+  "celles",
+  "que",
+  "qui",
+  "quoi",
+  "dont",
+  "où",
+  "quand",
+  "comme",
+  "si",
+  "pour",
+  "par",
+  "sur",
+  "sous",
+  "avec",
+  "sans",
+  "dans",
+  "chez",
+  "vers",
+  "entre",
+  "aussi",
+  "très",
+  "plus",
+  "moins",
+  "bien",
+  "peu",
+  "tout",
+  "toute",
+  "tous",
+  "toutes",
+  "aux",
+  "au",
+  "à",
+  "a",
+  "est",
+  "être",
+  "été",
+  "suis",
+  "es",
+  "sommes",
+  "êtes",
+  "sont",
+  "était",
+  "étaient",
+  "serai",
+  "sera",
+  "seront",
+  "fait",
+  "faire",
+  "fais",
+  "font",
+  "ai",
+  "as",
+  "avons",
+  "avez",
+  "ont",
+  "avait",
+  "avaient",
+  "pas",
+  "ne",
+  "n",
+  "oui",
+  "non",
+  "déjà",
+  "encore",
+  "toujours",
+  "jamais",
+  "alors",
+  "puis",
+  "ensuite",
+  "enfin",
+  "ici",
+  "là",
+  "hier",
+  "aujourd",
+  "demain",
+  "c",
+  "s",
+  "t",
+  "m",
+  "qu",
 ]);
 
 function tokenizeWords(text: string): string[] {
@@ -811,11 +976,17 @@ function splitSentences(text: string): string[] {
 }
 
 function splitParagraphs(text: string): string[] {
-  return text.split(/\n\s*\n+/).map((p) => p.trim()).filter((p) => p.length > 0);
+  return text
+    .split(/\n\s*\n+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
 }
 
 function topK<T extends string>(counter: Map<T, number>, k: number): T[] {
-  return [...counter.entries()].sort((a, b) => b[1] - a[1]).slice(0, k).map(([w]) => w);
+  return [...counter.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, k)
+    .map(([w]) => w);
 }
 
 export function analyzeStyle(samples: string[]): StyleProfile {
@@ -823,16 +994,30 @@ export function analyzeStyle(samples: string[]): StyleProfile {
   if (n === 0) {
     return {
       samples_count: 0,
-      avg_char_length: 0, avg_word_count: 0,
-      avg_sentence_count: 0, avg_sentence_words: 0,
-      avg_paragraph_count: 0, avg_paragraph_words: 0,
-      short_sentence_ratio: 0, first_person_ratio: 0, question_ratio: 0,
-      top_opening_words: [], frequent_bigrams: [], frequent_content_words: [],
+      avg_char_length: 0,
+      avg_word_count: 0,
+      avg_sentence_count: 0,
+      avg_sentence_words: 0,
+      avg_paragraph_count: 0,
+      avg_paragraph_words: 0,
+      short_sentence_ratio: 0,
+      first_person_ratio: 0,
+      question_ratio: 0,
+      top_opening_words: [],
+      frequent_bigrams: [],
+      frequent_content_words: [],
     };
   }
 
-  let totalChars = 0, totalWords = 0, totalSentences = 0, totalParagraphs = 0;
-  let shortSent = 0, firstPersonSent = 0, questionSent = 0, totalSentWords = 0, totalParaWords = 0;
+  let totalChars = 0,
+    totalWords = 0,
+    totalSentences = 0,
+    totalParagraphs = 0;
+  let shortSent = 0,
+    firstPersonSent = 0,
+    questionSent = 0,
+    totalSentWords = 0,
+    totalParaWords = 0;
   const openings = new Map<string, number>();
   const bigrams = new Map<string, number>();
   const contentWords = new Map<string, number>();
@@ -866,7 +1051,8 @@ export function analyzeStyle(samples: string[]): StyleProfile {
     const content = words.filter((w) => !FR_STOPWORDS.has(w) && w.length > 3);
     for (const w of content) contentWords.set(w, (contentWords.get(w) ?? 0) + 1);
     for (let i = 0; i < words.length - 1; i++) {
-      const a = words[i], b = words[i + 1];
+      const a = words[i],
+        b = words[i + 1];
       if (FR_STOPWORDS.has(a) || FR_STOPWORDS.has(b)) continue;
       if (a.length < 3 || b.length < 3) continue;
       const bg = `${a} ${b}`;
@@ -888,7 +1074,9 @@ export function analyzeStyle(samples: string[]): StyleProfile {
     question_ratio: totalSentences ? round((questionSent / totalSentences) * 100, 0) : 0,
     top_opening_words: topK(openings, 6),
     frequent_bigrams: topK(bigrams, 8).filter((b) => (bigrams.get(b as string) ?? 0) >= 2),
-    frequent_content_words: topK(contentWords, 15).filter((w) => (contentWords.get(w as string) ?? 0) >= 2),
+    frequent_content_words: topK(contentWords, 15).filter(
+      (w) => (contentWords.get(w as string) ?? 0) >= 2,
+    ),
   };
 }
 
@@ -910,9 +1098,7 @@ function styleProfileToPromptBlock(p: StyleProfile): string {
     p.frequent_content_words.length
       ? `Vocabulaire signature récurrent : ${p.frequent_content_words.join(", ")}. Puise dedans quand c'est naturel, ne force pas.`
       : "",
-    p.frequent_bigrams.length
-      ? `Bigrammes récurrents : ${p.frequent_bigrams.join(" · ")}.`
-      : "",
+    p.frequent_bigrams.length ? `Bigrammes récurrents : ${p.frequent_bigrams.join(" · ")}.` : "",
   ].filter(Boolean);
   return lines.join("\n");
 }
@@ -976,9 +1162,7 @@ GEO (VISIBILITÉ DANS LES RÉPONSES DES IA) — EXACTEMENT 1 PAR POST (obligatoi
 EXEMPLES DE POSTS DÉJÀ ÉCRITS PAR ADRIEN (source d'inspiration stylistique — ne recopie aucune phrase, imite le ton) :
 ${samplesBlock}`;
 
-  const factsBlock = (TOPIC_FACTS[topic.slug] ?? [])
-    .map((f) => `. ${f}`)
-    .join("\n");
+  const factsBlock = (TOPIC_FACTS[topic.slug] ?? []).map((f) => `. ${f}`).join("\n");
 
   const docBlock = docContextForTopic(topic);
   const historyBlock = historyPromptBlock(history);
@@ -990,12 +1174,16 @@ ${topic.focus}
 
 Faits techniques vérifiés à exploiter :
 ${factsBlock || ". (aucun fait complémentaire, reste strictement sur le résumé ci-dessus)"}
-${docBlock ? `
+${
+  docBlock
+    ? `
 EXTRAITS DE LA DOCUMENTATION TECHNIQUE INTERNE (source de vérité sur l'implémentation réelle, à reformuler en langage clair, jamais à recopier ni à citer comme documentation) :
 ${docBlock}
 
 Sers-toi de ces extraits pour être précis sur le mécanisme réel : déclencheur, fréquence, règle de calcul, seuils, ce qui est automatisé. N'invente rien qui ne figure pas dans ces extraits ou dans les faits ci-dessus. Ne mentionne aucun nom de table, de fonction technique ni de fournisseur d'infrastructure.
-` : ""}
+`
+    : ""
+}
 Rédige le post LinkedIn complet, prêt à publier. Rappels : hook en première ligne, exactement UNE question GEO dans le corps (obligatoire ET maximum, jamais 0 ni 2+) ; la question commence par Pourquoi / Qui / Quand / Quoi / Comment / Combien, elle est seule sur sa ligne et suivie immédiatement de sa réponse factuelle ; aucune autre phrase interrogative n'est autorisée ; angle produit uniquement (le module et son fonctionnement, pas les utilisateurs ni leurs galères), un seul module traité et décrit précisément, au moins trois faits techniques exploités, pas de chute, aucun tiret (—, –, -) comme ponctuation. LONGUEUR OBLIGATOIRE : entre ${POST_MIN_CHARS} et ${POST_MAX_CHARS} signes espaces compris. Compte tes caractères avant de rendre le texte.${lengthCorrection ? `\n\n${lengthCorrection}` : ""}`;
 
   const { text, source } = await callLLM(system, user, { temperature: 0.8 });
@@ -1022,9 +1210,18 @@ type UiHint = { selectors: { css: string; label: string }[]; note: string };
 const TOPIC_UI_HINTS: Record<string, UiHint> = {
   simulateur: {
     selectors: [
-      { css: "input[id^='annualKm']", label: "champ des kilomètres annuels, type number, recalcul en direct à la frappe" },
-      { css: "[id^='fiscalPower']", label: "menu déroulant de la puissance fiscale, 3 CV à 7 CV et plus, s'ouvre au clic" },
-      { css: "[id^='electric']", label: "interrupteur véhicule 100% électrique qui applique la majoration de 20%" },
+      {
+        css: "input[id^='annualKm']",
+        label: "champ des kilomètres annuels, type number, recalcul en direct à la frappe",
+      },
+      {
+        css: "[id^='fiscalPower']",
+        label: "menu déroulant de la puissance fiscale, 3 CV à 7 CV et plus, s'ouvre au clic",
+      },
+      {
+        css: "[id^='electric']",
+        label: "interrupteur véhicule 100% électrique qui applique la majoration de 20%",
+      },
       { css: "[id^='simulateur']", label: "titre et ancre du bloc simulateur" },
     ],
     note: "Le montant estimé, la tranche appliquée et le taux au km s'affichent à droite du formulaire et changent instantanément, sans bouton de validation.",
@@ -1033,14 +1230,14 @@ const TOPIC_UI_HINTS: Record<string, UiHint> = {
 
 function uiHintBlock(topic: Topic): string {
   const hint = TOPIC_UI_HINTS[topic.slug];
-  if (!hint) return "Aucun sélecteur vérifié pour ce module : n'utilise ni click, ni fill, ni hover. Limite toi à navigate, wait, scroll et scrollIntoView sur une ancre.";
+  if (!hint)
+    return "Aucun sélecteur vérifié pour ce module : n'utilise ni click, ni fill, ni hover. Limite toi à navigate, wait, scroll et scrollIntoView sur une ancre.";
   return [
     "Sélecteurs CSS vérifiés, les SEULS autorisés pour click, hover et fill :",
     ...hint.selectors.map((s) => `- ${s.css} : ${s.label}`),
     `Comportement observable : ${hint.note}`,
   ].join("\n");
 }
-
 
 // Scénario "aveugle" : simple défilement par positions absolues, toujours
 // valide quel que soit le DOM. Sert de repli si le scénario scripté échoue.
@@ -1089,7 +1286,6 @@ function scriptedVideoSteps(topic: Topic): PageboltStep[] {
     steps.push({ action: "wait", ms: 3000, live: true });
   }
 
-
   // Parcours final du module pour montrer le résultat et le contenu associé.
   steps.push({ action: "scroll", x: 0, y: 400, relative: true });
   steps.push({ action: "wait", ms: 2500, live: true });
@@ -1125,20 +1321,32 @@ async function requestPageboltVideo(key: string, steps: PageboltStep[]): Promise
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   const completed = Number(json?.steps_completed ?? NaN);
   const total = Number(json?.total_steps ?? NaN);
-  console.log(`[pagebolt] MP4 ${out.length} bytes, ${json?.frames ?? "?"} frames, ${json?.steps_completed ?? "?"}/${json?.total_steps ?? "?"} étapes`);
+  console.log(
+    `[pagebolt] MP4 ${out.length} bytes, ${json?.frames ?? "?"} frames, ${json?.steps_completed ?? "?"}/${json?.total_steps ?? "?"} étapes`,
+  );
   if (out.length < 50_000) throw new Error(`PageBolt video too small (${out.length} bytes)`);
   // Une étape non exécutée = un sélecteur qui ne matche rien : la vidéo tourne
   // mais le module n'est pas montré en action. On préfère basculer sur le
   // scénario scripté aux sélecteurs vérifiés.
   if (Number.isFinite(completed) && Number.isFinite(total) && completed < total) {
-    throw new Error(`PageBolt: seulement ${completed}/${total} étapes exécutées (sélecteur introuvable ?)`);
+    throw new Error(
+      `PageBolt: seulement ${completed}/${total} étapes exécutées (sélecteur introuvable ?)`,
+    );
   }
   return out;
 }
 
 // Validation stricte des étapes proposées par le LLM : on n'exécute que des
 // actions connues, sur le domaine iktracker.fr, avec des durées bornées.
-const ALLOWED_STEP_ACTIONS = new Set(["navigate", "wait", "scroll", "click", "fill", "hover", "evaluate"]);
+const ALLOWED_STEP_ACTIONS = new Set([
+  "navigate",
+  "wait",
+  "scroll",
+  "click",
+  "fill",
+  "hover",
+  "evaluate",
+]);
 
 // Un sélecteur proposé par le LLM n'est accepté que s'il figure dans les
 // sélecteurs vérifiés du module. Sinon l'étape est retirée : mieux vaut une
@@ -1175,11 +1383,17 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
       out.push({ action, x: 0, y, relative: s.relative !== false });
     } else if (action === "click" || action === "hover") {
       if (typeof s.selector !== "string" || !s.selector.trim()) continue;
-      if (!isKnownSelector(topic, s.selector)) { dropped++; continue; }
+      if (!isKnownSelector(topic, s.selector)) {
+        dropped++;
+        continue;
+      }
       out.push({ action, selector: s.selector.trim() });
     } else if (action === "fill") {
       if (typeof s.selector !== "string" || typeof s.value !== "string") continue;
-      if (!isKnownSelector(topic, s.selector)) { dropped++; continue; }
+      if (!isKnownSelector(topic, s.selector)) {
+        dropped++;
+        continue;
+      }
       out.push({ action, selector: s.selector.trim(), value: s.value });
     } else if (action === "evaluate") {
       const script = typeof s.script === "string" ? s.script : "";
@@ -1189,7 +1403,8 @@ function sanitizeAiSteps(raw: unknown, topic: Topic): PageboltStep[] {
     }
     if (out.length >= 18) break;
   }
-  if (dropped) console.warn(`[video-scenario] ${dropped} étape(s) écartée(s) : sélecteur non vérifié`);
+  if (dropped)
+    console.warn(`[video-scenario] ${dropped} étape(s) écartée(s) : sélecteur non vérifié`);
   if (!out.length) throw new Error("scenario: no valid step");
   // Toujours démarrer par la navigation sur la page du module.
   if ((out[0] as Record<string, unknown>).action !== "navigate") {
@@ -1208,14 +1423,20 @@ function ensureModuleInteractions(topic: Topic, steps: PageboltStep[]): Pagebolt
   if (!TOPIC_UI_HINTS[topic.slug]) return steps;
   const hasInteraction = steps.some((s) => {
     const a = s.action;
-    return (a === "fill" || a === "click" || a === "hover") ||
-      (a === "evaluate" && /\.click\(\)/.test(String(s.script ?? "")));
+    return (
+      a === "fill" ||
+      a === "click" ||
+      a === "hover" ||
+      (a === "evaluate" && /\.click\(\)/.test(String(s.script ?? "")))
+    );
   });
   if (hasInteraction) return steps;
 
   const injected = moduleInteractionSteps(topic);
   if (!injected.length) return steps;
-  console.warn(`[video-scenario] aucune interaction proposée, injection de la séquence scriptée du module`);
+  console.warn(
+    `[video-scenario] aucune interaction proposée, injection de la séquence scriptée du module`,
+  );
   const head = steps.slice(0, 2);
   const tail = steps.slice(2);
   return [...head, ...injected, ...tail].slice(0, 18);
@@ -1287,7 +1508,9 @@ JSON :`;
     console.log(`[video-scenario] ${steps.length} étapes générées depuis le post`);
     return steps;
   } catch (err) {
-    console.warn(`[video-scenario] échec, scénario scripté par défaut: ${err instanceof Error ? err.message : String(err)}`);
+    console.warn(
+      `[video-scenario] échec, scénario scripté par défaut: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return null;
   }
 }
@@ -1304,7 +1527,9 @@ async function capturePageboltVideo(topic: Topic, postText?: string): Promise<Ui
       try {
         return await requestPageboltVideo(key, aiSteps);
       } catch (e) {
-        console.warn(`[pagebolt] scénario adapté au post échoué: ${e instanceof Error ? e.message : String(e)}`);
+        console.warn(
+          `[pagebolt] scénario adapté au post échoué: ${e instanceof Error ? e.message : String(e)}`,
+        );
       }
     }
   }
@@ -1312,13 +1537,12 @@ async function capturePageboltVideo(topic: Topic, postText?: string): Promise<Ui
   try {
     return await requestPageboltVideo(key, scriptedVideoSteps(topic));
   } catch (e) {
-    console.warn(`[pagebolt] scénario scripté échoué, repli défilement simple: ${e instanceof Error ? e.message : String(e)}`);
+    console.warn(
+      `[pagebolt] scénario scripté échoué, repli défilement simple: ${e instanceof Error ? e.message : String(e)}`,
+    );
     return await requestPageboltVideo(key, fallbackVideoSteps(topic));
   }
 }
-
-
-
 
 async function captureUiFrames(topic: Topic, focusLabels: string[] = []): Promise<Uint8Array[]> {
   const token = Deno.env.get("BROWSERLESS_API_KEY");
@@ -1367,28 +1591,29 @@ export default async function ({ page, context }) {
 }
 `;
 
-  const res = await fetch(
-    `${BROWSERLESS_BASE}/function?token=${token}&timeout=120000`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, context: { url: topic.url, focusLabels } }),
-    },
-  );
+  const res = await fetch(`${BROWSERLESS_BASE}/function?token=${token}&timeout=120000`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, context: { url: topic.url, focusLabels } }),
+  });
   if (!res.ok) throw new Error(`Browserless ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const json = await res.json();
-  const payload = typeof json === "object" && json && "data" in json && typeof (json as any).data === "string"
-    ? JSON.parse((json as any).data)
-    : json;
+  const payload =
+    typeof json === "object" && json && "data" in json && typeof (json as any).data === "string"
+      ? JSON.parse((json as any).data)
+      : json;
   const shots: string[] = Array.isArray(payload?.shots) ? payload.shots : [];
-  if (shots.length === 0) throw new Error(`No screenshots returned: ${JSON.stringify(json).slice(0, 300)}`);
+  if (shots.length === 0)
+    throw new Error(`No screenshots returned: ${JSON.stringify(json).slice(0, 300)}`);
   const frames = shots.map((b64) => {
     const bin = atob(b64);
     const out = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out;
   });
-  console.log(`[frames] ${frames.length} captures (${payload?.anchor_hits ?? 0} ancres) sur ${topic.url}`);
+  console.log(
+    `[frames] ${frames.length} captures (${payload?.anchor_hits ?? 0} ancres) sur ${topic.url}`,
+  );
   return frames;
 }
 
@@ -1414,13 +1639,15 @@ async function submitWavespeedJob(modelPath: string, input: Record<string, unkno
     method: "POST",
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error(`Wavespeed ${modelPath} ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  if (!res.ok)
+    throw new Error(`Wavespeed ${modelPath} ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const json = await res.json();
   const status = json?.data?.status ?? json?.status;
   if (status === "completed") return json;
   // Wait=1 timed out on gateway side → poll ourselves
   const id = json?.data?.id ?? json?.id;
-  if (!id) throw new Error(`No request id in Wavespeed response: ${JSON.stringify(json).slice(0, 300)}`);
+  if (!id)
+    throw new Error(`No request id in Wavespeed response: ${JSON.stringify(json).slice(0, 300)}`);
   return await wavespeedPollUntilDone(String(id));
 }
 
@@ -1527,17 +1754,21 @@ JSON :`;
     const { text } = await callLLM(system, user, { json: true, temperature: 0.3 });
     const parsed = JSON.parse(text) as { labels?: unknown };
     const labels = Array.isArray(parsed.labels)
-      ? parsed.labels.filter((l): l is string => typeof l === "string" && l.trim().length > 2).slice(0, 4)
+      ? parsed.labels
+          .filter((l): l is string => typeof l === "string" && l.trim().length > 2)
+          .slice(0, 4)
       : [];
-    console.log(`[capture-focus] ${labels.length ? labels.join(" / ") : "aucun libellé, scroll global"}`);
+    console.log(
+      `[capture-focus] ${labels.length ? labels.join(" / ") : "aucun libellé, scroll global"}`,
+    );
     return labels;
   } catch (err) {
-    console.warn(`[capture-focus] échec, scroll global: ${err instanceof Error ? err.message : String(err)}`);
+    console.warn(
+      `[capture-focus] échec, scroll global: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return [];
   }
 }
-
-
 
 async function generateSlidePlanFromText(
   topic: Topic,
@@ -1570,7 +1801,9 @@ Produis le plan du carrousel au format JSON strict avec les clés cover_title, c
   const { text, source } = await callLLM(system, user, { json: true, temperature: 0.7 });
   const plan = JSON.parse(text) as SlidePlan;
   if (!plan.cover_title || !Array.isArray(plan.slides) || plan.slides.length !== count) {
-    throw new Error(`Malformed slide plan from text (expected ${count} slides): ${text.slice(0, 300)}`);
+    throw new Error(
+      `Malformed slide plan from text (expected ${count} slides): ${text.slice(0, 300)}`,
+    );
   }
   return { plan, source };
 }
@@ -1629,12 +1862,19 @@ async function renderCarouselPdf(
 
   const coverImage = coverBg
     ? await (async () => {
-        try { return await pdf.embedJpg(coverBg); }
-        catch { return await pdf.embedPng(coverBg); }
+        try {
+          return await pdf.embedJpg(coverBg);
+        } catch {
+          return await pdf.embedPng(coverBg);
+        }
       })()
     : null;
 
-  const drawFrame = (page: import("npm:pdf-lib@1.17.1").PDFPage, slideNum: number, total: number) => {
+  const drawFrame = (
+    page: import("npm:pdf-lib@1.17.1").PDFPage,
+    slideNum: number,
+    total: number,
+  ) => {
     page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
     page.drawRectangle({ x: 80, y: H - 100, width: 60, height: 4, color: primary });
     page.drawText("IKtracker", { x: 80, y: H - 140, size: 22, font: helvBold, color: ink });
@@ -1729,7 +1969,7 @@ async function gatewayFetch(path: string, init: RequestInit = {}): Promise<Respo
   return fetch(url, {
     ...init,
     headers: {
-      ...(init.headers as Record<string, string> || {}),
+      ...((init.headers as Record<string, string>) || {}),
       Authorization: `Bearer ${lovableKey}`,
       "X-Connection-Api-Key": linkedinKey,
     },
@@ -1755,7 +1995,9 @@ async function fetchRecentAuthorPosts(ownerUrn: string, count = 10): Promise<str
       headers: { "X-Restli-Protocol-Version": "2.0.0" },
     });
     if (!res.ok) {
-      console.warn(`[style-samples] ugcPosts list ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      console.warn(
+        `[style-samples] ugcPosts list ${res.status}: ${(await res.text()).slice(0, 200)}`,
+      );
       return [];
     }
     const json = await res.json();
@@ -1803,7 +2045,11 @@ function enforceMaxLength(text: string, max = POST_MAX_CHARS): string {
   }
   out = kept.join("").trim();
   // Sécurité ultime : coupe au dernier espace avant la limite.
-  if (!out || out.length > max) out = text.slice(0, max).replace(/\s+\S*$/, "").trim();
+  if (!out || out.length > max)
+    out = text
+      .slice(0, max)
+      .replace(/\s+\S*$/, "")
+      .trim();
   return out;
 }
 
@@ -1827,7 +2073,10 @@ function sanitizePostText(text: string): string {
 // et se termine par un point d'interrogation. On exclut le hook (première ligne
 // non vide) et la dernière ligne (CTA/lien).
 function countGeoBlocks(text: string): { count: number } {
-  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
   if (lines.length < 3) return { count: 0 };
   const geoRegex = /^(?:Pourquoi|Qui|Quand|Quoi|Comment|Combien)\b.*\?$/i;
   let count = 0;
@@ -1851,7 +2100,8 @@ function enforceBrandMention(text: string): string {
   if (/\bIKtracker\b/.test(out)) return out;
 
   // Aucune mention : on rattache la première tournure possessive anonyme.
-  const anonymous = /\b(?:mon|Mon|notre|Notre)\s+(simulateur|outil|module|application|appli|site|tableau de bord)\b/;
+  const anonymous =
+    /\b(?:mon|Mon|notre|Notre)\s+(simulateur|outil|module|application|appli|site|tableau de bord)\b/;
   const m = out.match(anonymous);
   if (m) {
     const isSentenceStart = m.index === 0 || /[.\n]\s*$/.test(out.slice(0, m.index));
@@ -1865,7 +2115,6 @@ function brandMentionCount(text: string): number {
   return (text.match(/\bIKtracker\b/g) ?? []).length;
 }
 
-
 // Ajoute le lien de la page concernée en fin de post : LinkedIn transforme
 // automatiquement une URL https en clair en lien cliquable.
 function appendTopicLink(text: string, topic: Topic): string {
@@ -1874,13 +2123,17 @@ function appendTopicLink(text: string, topic: Topic): string {
   return `${text}\n\n${url}`;
 }
 
-
 // Aère le post : un paragraphe = 2 phrases maximum, séparés par une ligne vide.
 // LinkedIn tronque les pavés dans le feed, l'aération est indispensable.
 function airifyPostText(text: string): string {
   const blocks = text
     .split(/\n{2,}/)
-    .map((b) => b.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim())
+    .map((b) =>
+      b
+        .replace(/\n+/g, " ")
+        .replace(/\s{2,}/g, " ")
+        .trim(),
+    )
     .filter(Boolean);
 
   const paragraphs: string[] = [];
@@ -1923,9 +2176,12 @@ async function resolveOrgUrn(): Promise<string | null> {
     }
     const json = await res.json();
     const elements: any[] = Array.isArray(json.elements) ? json.elements : [];
-    const match = elements.find((el) =>
-      String(el?.["organization~"]?.localizedName ?? "").toLowerCase().includes("iktracker")
-    ) ?? elements[0];
+    const match =
+      elements.find((el) =>
+        String(el?.["organization~"]?.localizedName ?? "")
+          .toLowerCase()
+          .includes("iktracker"),
+      ) ?? elements[0];
     const id = match?.["organization~"]?.id;
     cachedOrgUrn = id ? `urn:li:organization:${id}` : null;
     if (!cachedOrgUrn) console.warn("[mention] no administered organization found");
@@ -1948,11 +2204,13 @@ function ugcCommentary(text: string, orgUrn: string | null): Record<string, unkn
   const full = `${text}\n\n${MENTION_LABEL}`;
   return {
     text: full,
-    attributes: [{
-      length: MENTION_LABEL.length,
-      start: full.length - MENTION_LABEL.length,
-      value: { "com.linkedin.common.CompanyAttributedEntity": { company: orgUrn } },
-    }],
+    attributes: [
+      {
+        length: MENTION_LABEL.length,
+        start: full.length - MENTION_LABEL.length,
+        value: { "com.linkedin.common.CompanyAttributedEntity": { company: orgUrn } },
+      },
+    ],
   };
 }
 
@@ -1974,18 +2232,19 @@ async function registerUpload(
       registerUploadRequest: {
         recipes: [`urn:li:digitalmediaRecipe:${recipe}`],
         owner: ownerUrn,
-        serviceRelationships: [{
-          relationshipType: "OWNER",
-          identifier: "urn:li:userGeneratedContent",
-        }],
+        serviceRelationships: [
+          {
+            relationshipType: "OWNER",
+            identifier: "urn:li:userGeneratedContent",
+          },
+        ],
       },
     }),
   });
   if (!res.ok) throw new Error(`registerUpload ${res.status}: ${await res.text()}`);
   const json = await res.json();
-  const mech = json.value?.uploadMechanism?.[
-    "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
-  ];
+  const mech =
+    json.value?.uploadMechanism?.["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"];
   if (!mech?.uploadUrl || !json.value?.asset) {
     throw new Error(`Unexpected registerUpload payload: ${JSON.stringify(json).slice(0, 500)}`);
   }
@@ -2024,13 +2283,17 @@ async function waitForAssetReady(assetUrn: string, maxMs = 5 * 60 * 1000): Promi
       const status = json.recipes?.[0]?.status;
       console.log(`Asset ${assetId} status: ${status}`);
       if (status === "AVAILABLE") return;
-      if (status === "PROCESSING_FAILED" || status === "CLIENT_ERROR" || status === "SERVER_ERROR") {
+      if (
+        status === "PROCESSING_FAILED" ||
+        status === "CLIENT_ERROR" ||
+        status === "SERVER_ERROR"
+      ) {
         throw new Error(`Asset processing failed (${status})`);
       }
     } else {
       console.warn(`Asset poll ${res.status}: ${(await res.text()).slice(0, 200)}`);
     }
-    await new Promise(r => setTimeout(r, 8000));
+    await new Promise((r) => setTimeout(r, 8000));
   }
   throw new Error("Asset not AVAILABLE within timeout");
 }
@@ -2050,12 +2313,14 @@ async function createUgcPost(
       "com.linkedin.ugc.ShareContent": {
         shareCommentary: ugcCommentary(text, orgUrn),
         shareMediaCategory: mediaCategory,
-        media: [{
-          status: "READY",
-          description: { text: topic.title },
-          media: assetUrn,
-          title: { text: `IKtracker - ${topic.title}` },
-        }],
+        media: [
+          {
+            status: "READY",
+            description: { text: topic.title },
+            media: assetUrn,
+            title: { text: `IKtracker - ${topic.title}` },
+          },
+        ],
       },
     },
     visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
@@ -2106,7 +2371,8 @@ async function restInitUpload(
     headers: restHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
   });
-  if (!res.ok) throw new Error(`init ${resource} ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  if (!res.ok)
+    throw new Error(`init ${resource} ${res.status}: ${(await res.text()).slice(0, 400)}`);
   const json = await res.json();
   const value = json?.value ?? {};
   const urn = value.image ?? value.document;
@@ -2116,7 +2382,11 @@ async function restInitUpload(
   return { uploadUrl: value.uploadUrl, urn };
 }
 
-async function putBinary(uploadUrl: string, bytes: Uint8Array, contentType: string): Promise<Response> {
+async function putBinary(
+  uploadUrl: string,
+  bytes: Uint8Array,
+  contentType: string,
+): Promise<Response> {
   // L'URL d'upload renvoyée par LinkedIn est pré-signée : on tente d'abord un PUT
   // direct (le proxy gateway renvoie 405 sur ces hôtes média), puis le gateway.
   const errors: string[] = [];
@@ -2171,7 +2441,8 @@ async function uploadVideoRest(ownerUrn: string, bytes: Uint8Array): Promise<str
       },
     }),
   });
-  if (!initRes.ok) throw new Error(`init videos ${initRes.status}: ${(await initRes.text()).slice(0, 400)}`);
+  if (!initRes.ok)
+    throw new Error(`init videos ${initRes.status}: ${(await initRes.text()).slice(0, 400)}`);
   const initJson = await initRes.json();
   const value = initJson?.value ?? {};
   const instructions: any[] = value.uploadInstructions ?? [];
@@ -2199,7 +2470,8 @@ async function uploadVideoRest(ownerUrn: string, bytes: Uint8Array): Promise<str
       finalizeUploadRequest: { video: videoUrn, uploadToken, uploadedPartIds: etags },
     }),
   });
-  if (!finRes.ok) throw new Error(`finalize video ${finRes.status}: ${(await finRes.text()).slice(0, 300)}`);
+  if (!finRes.ok)
+    throw new Error(`finalize video ${finRes.status}: ${(await finRes.text()).slice(0, 300)}`);
   console.log(`[rest] video uploaded (${bytes.length} bytes) → ${videoUrn}`);
   return videoUrn;
 }
@@ -2218,7 +2490,11 @@ async function createRestPost(
       author: ownerUrn,
       commentary: restCommentary(text, orgUrn),
       visibility: "PUBLIC",
-      distribution: { feedDistribution: "MAIN_FEED", targetEntities: [], thirdPartyDistributionChannels: [] },
+      distribution: {
+        feedDistribution: "MAIN_FEED",
+        targetEntities: [],
+        thirdPartyDistributionChannels: [],
+      },
       content: { media: { id: mediaUrn, title: title.slice(0, 100) } },
       lifecycleState: "PUBLISHED",
       isReshareDisabledByAuthor: false,
@@ -2244,7 +2520,8 @@ async function captureScreenshot(topic: Topic): Promise<Uint8Array> {
       waitForTimeout: 2500,
     }),
   });
-  if (!res.ok) throw new Error(`Browserless screenshot ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(`Browserless screenshot ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const bytes = new Uint8Array(await res.arrayBuffer());
   console.log(`[screenshot] ${topic.url} → ${bytes.length} bytes`);
   return bytes;
@@ -2272,17 +2549,18 @@ Deno.serve(async (req) => {
   const cronSecret = Deno.env.get("CRON_SECRET");
   const altCronSecret = Deno.env.get("SYNC_CRON_TOKEN");
   const xCronSecret = req.headers.get("x-cron-secret");
-  const isCron = !!xCronSecret && (
-    (cronSecret && xCronSecret === cronSecret) ||
-    (altCronSecret && xCronSecret === altCronSecret)
-  );
+  const isCron =
+    !!xCronSecret &&
+    ((cronSecret && xCronSecret === cronSecret) ||
+      (altCronSecret && xCronSecret === altCronSecret));
   const triggeredBy: "cron" | "admin" = isCron ? "cron" : "admin";
 
   if (!isCron) {
     const authHeader = req.headers.get("Authorization") || "";
     if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const supabaseAuthed = createClient(
@@ -2294,15 +2572,18 @@ Deno.serve(async (req) => {
     const { data, error } = await supabaseAuthed.auth.getUser(token);
     if (error || !data.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const { data: isAdmin } = await supabaseAuthed.rpc("has_role", {
-      _user_id: data.user.id, _role: "admin",
+      _user_id: data.user.id,
+      _role: "admin",
     });
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
   }
@@ -2321,7 +2602,11 @@ Deno.serve(async (req) => {
   if (url.searchParams.get("mode") === "repost") {
     const repostStartedAt = Date.now();
     let payload: Record<string, unknown> = {};
-    try { payload = await req.json(); } catch { /* body optionnel */ }
+    try {
+      payload = await req.json();
+    } catch {
+      /* body optionnel */
+    }
 
     const targetPostId = String(payload.post_id ?? url.searchParams.get("post_id") ?? "").trim();
     const rawText = String(payload.text ?? "").trim();
@@ -2343,15 +2628,17 @@ Deno.serve(async (req) => {
         .limit(1)
         .maybeSingle();
 
-      const reusedAssetUrn = String(
-        payload.asset_urn ?? original?.linkedin_asset_urn ?? "",
-      ).trim();
+      const reusedAssetUrn = String(payload.asset_urn ?? original?.linkedin_asset_urn ?? "").trim();
       if (!reusedAssetUrn) {
-        throw new Error("Aucun asset média associé à ce post : republication impossible sans média.");
+        throw new Error(
+          "Aucun asset média associé à ce post : republication impossible sans média.",
+        );
       }
 
       // Invariant I2 également sur la republication corrigée par l'audit.
-      const newText = enforceBrandMention(enforceMaxLength(airifyPostText(sanitizePostText(rawText))));
+      const newText = enforceBrandMention(
+        enforceMaxLength(airifyPostText(sanitizePostText(rawText))),
+      );
       const ownerUrn = await getMemberUrn();
 
       // 1) Suppression du post existant (REST versionné, repli sur /v2/ugcPosts).
@@ -2433,29 +2720,41 @@ Deno.serve(async (req) => {
         duration_ms: Date.now() - repostStartedAt,
         triggered_by: triggeredBy,
       });
-      return new Response(
-        JSON.stringify({ ok: false, error: message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ ok: false, error: message }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
   }
-
-
 
   const startedAt = Date.now();
   const postHistory = await fetchPostHistory(admin, 12);
   if (postHistory.length) {
-    console.log(`[history] ${postHistory.length} posts passés · derniers sujets: ${postHistory.slice(0, 5).map((p) => p.slug).join(", ")}`);
+    console.log(
+      `[history] ${postHistory.length} posts passés · derniers sujets: ${postHistory
+        .slice(0, 5)
+        .map((p) => p.slug)
+        .join(", ")}`,
+    );
   }
-  const baseTopic = findTopic(forcedTopicSlug)
-    ?? pickTopicForThisMonth(new Date(), postHistory.map((p) => p.slug));
-  const topic = await resolveBlogTopic(admin, baseTopic, postHistory.map((p) => p.text ?? ""));
+  const baseTopic =
+    findTopic(forcedTopicSlug) ??
+    pickTopicForThisMonth(
+      new Date(),
+      postHistory.map((p) => p.slug),
+    );
+  const topic = await resolveBlogTopic(
+    admin,
+    baseTopic,
+    postHistory.map((p) => p.text ?? ""),
+  );
 
-  let format: MediaFormat | "text" | "image" = forceFormat === "video" || forceFormat === "carousel"
-    ? forceFormat
-    : topic.format;
+  let format: MediaFormat | "text" | "image" =
+    forceFormat === "video" || forceFormat === "carousel" ? forceFormat : topic.format;
 
-  console.log(`[linkedin-monthly-post] topic=${topic.slug} format=${format} mediaSource=${topic.mediaSource} dryRun=${dryRun} triggeredBy=${triggeredBy}`);
+  console.log(
+    `[linkedin-monthly-post] topic=${topic.slug} format=${format} mediaSource=${topic.mediaSource} dryRun=${dryRun} triggeredBy=${triggeredBy}`,
+  );
 
   let postText = "";
   let textSource = "";
@@ -2488,7 +2787,9 @@ Deno.serve(async (req) => {
         .filter((c: string) => c.length >= 80);
       console.log(`[style-samples] ${styleSamples.length} échantillons manuels chargés`);
     } catch (err) {
-      console.warn(`[style-samples] lecture DB impossible: ${err instanceof Error ? err.message : String(err)}`);
+      console.warn(
+        `[style-samples] lecture DB impossible: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
 
     // 1b) Complément éventuel via l'API LinkedIn (souvent indisponible côté scopes).
@@ -2500,12 +2801,16 @@ Deno.serve(async (req) => {
         styleSamples = [...styleSamples, ...remote];
       }
     } catch (err) {
-      console.warn(`[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`);
+      console.warn(
+        `[style-samples] URN/list unavailable, continuing without samples: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
 
     // 1bis) Profil de style déterministe (longueurs, rythme, vocabulaire)
     const styleProfile = analyzeStyle(styleSamples);
-    console.log(`[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`);
+    console.log(
+      `[style-profile] ${styleProfile.samples_count} samples · avg ${styleProfile.avg_word_count} mots · ${styleProfile.avg_sentence_count} phrases · ${styleProfile.short_sentence_ratio}% phrases courtes`,
+    );
 
     // 2) Text
     // Invariants I2 (longueur) et I11 (marque nommée) : on régénère une fois si
@@ -2518,42 +2823,67 @@ Deno.serve(async (req) => {
     if (outOfRange(body.length) || brandMentionCount(body) < 2 || geoCount !== 1) {
       const parts: string[] = [];
       if (body.length < POST_MIN_CHARS) {
-        parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`);
+        parts.push(
+          `Ta version précédente faisait ${body.length} signes, c'est TROP COURT. Ajoute des faits techniques et des paragraphes pour atteindre au moins ${POST_MIN_CHARS} signes sans dépasser ${POST_MAX_CHARS}.`,
+        );
       } else if (body.length > POST_MAX_CHARS) {
-        parts.push(`Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`);
+        parts.push(
+          `Ta version précédente faisait ${body.length} signes, c'est TROP LONG. Resserre le texte pour rester sous ${POST_MAX_CHARS} signes tout en restant au dessus de ${POST_MIN_CHARS}.`,
+        );
       }
       if (brandMentionCount(body) < 2) {
-        parts.push(`Ta version précédente ne nommait pas assez IKtracker (${brandMentionCount(body)} occurrence(s)). Écris "IKtracker" au moins deux fois, dont une dans les trois premières lignes, et ne parle jamais du module comme d'un outil anonyme.`);
+        parts.push(
+          `Ta version précédente ne nommait pas assez IKtracker (${brandMentionCount(body)} occurrence(s)). Écris "IKtracker" au moins deux fois, dont une dans les trois premières lignes, et ne parle jamais du module comme d'un outil anonyme.`,
+        );
       }
       if (geoCount !== 1) {
-        parts.push(`Le bloc GEO n'est pas conforme : tu as ${geoCount === 0 ? "zéro" : geoCount} question(s). Tu DOIS insérer exactement UNE question (ni plus, ni moins) dans le corps, seule sur sa ligne, commençant par Pourquoi / Qui / Quand / Quoi / Comment / Combien, suivie immédiatement de sa réponse factuelle. Aucune autre phrase interrogative n'est autorisée.`);
+        parts.push(
+          `Le bloc GEO n'est pas conforme : tu as ${geoCount === 0 ? "zéro" : geoCount} question(s). Tu DOIS insérer exactement UNE question (ni plus, ni moins) dans le corps, seule sur sa ligne, commençant par Pourquoi / Qui / Quand / Quoi / Comment / Combien, suivie immédiatement de sa réponse factuelle. Aucune autre phrase interrogative n'est autorisée.`,
+        );
       }
       const correction = parts.join("\n");
-      console.warn(`[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque, ${geoCount} bloc(s) GEO), régénération`);
+      console.warn(
+        `[llm] texte non conforme (${body.length} signes, ${brandMentionCount(body)} mention(s) marque, ${geoCount} bloc(s) GEO), régénération`,
+      );
       try {
-        const retry = await generatePostText(topic, styleSamples, styleProfile, correction, postHistory);
+        const retry = await generatePostText(
+          topic,
+          styleSamples,
+          styleProfile,
+          correction,
+          postHistory,
+        );
         const retryBody = enforceBrandMention(airifyPostText(sanitizePostText(retry.text)));
         // On garde la version la plus proche du gabarit, marque et GEO prioritaires.
-        const distance = (n: number) => (n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0);
+        const distance = (n: number) =>
+          n < POST_MIN_CHARS ? POST_MIN_CHARS - n : n > POST_MAX_CHARS ? n - POST_MAX_CHARS : 0;
         const score = (txt: string) => {
           const geo = countGeoBlocks(txt).count;
-          return distance(txt.length)
-            + (brandMentionCount(txt) === 0 ? 5000 : brandMentionCount(txt) < 2 ? 1000 : 0)
-            + (geo !== 1 ? 3000 : 0);
+          return (
+            distance(txt.length) +
+            (brandMentionCount(txt) === 0 ? 5000 : brandMentionCount(txt) < 2 ? 1000 : 0) +
+            (geo !== 1 ? 3000 : 0)
+          );
         };
         if (score(retryBody) < score(body)) {
           body = retryBody;
           t = retry;
         }
       } catch (err) {
-        console.warn(`[llm] régénération échouée: ${err instanceof Error ? err.message : String(err)}`);
+        console.warn(
+          `[llm] régénération échouée: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
     body = enforceBrandMention(enforceMaxLength(body));
-    console.log(`[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS}), marque citée ${brandMentionCount(body)}x, GEO conforme: ${geoBlockOk(body)}`);
+    console.log(
+      `[llm] longueur finale du corps: ${body.length} signes (gabarit ${POST_MIN_CHARS}-${POST_MAX_CHARS}), marque citée ${brandMentionCount(body)}x, GEO conforme: ${geoBlockOk(body)}`,
+    );
     postText = appendTopicLink(body, topic);
     textSource = t.source;
-    console.log(`Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`);
+    console.log(
+      `Generated post text (${postText.length} chars) via ${textSource}, ${styleSamples.length} style samples`,
+    );
 
     // 2bis) Derive media content from the generated text so visuals match the post.
     let derivedVisualPrompt: string | null = null;
@@ -2564,7 +2894,9 @@ Deno.serve(async (req) => {
         const sp = await generateSlidePlanFromText(topic, postText);
         slidePlan = sp.plan;
         slideSource = sp.source;
-        console.log(`Slide plan derived from text (${slidePlan.slides.length} content slides) via ${slideSource}`);
+        console.log(
+          `Slide plan derived from text (${slidePlan.slides.length} content slides) via ${slideSource}`,
+        );
       } catch (err) {
         console.warn(
           `[slide-plan] text-derived plan failed, falling back to topic plan: ${err instanceof Error ? err.message : String(err)}`,
@@ -2600,20 +2932,24 @@ Deno.serve(async (req) => {
 
     if (dryRun) {
       return new Response(
-        JSON.stringify({
-          dry_run: true,
-          topic,
-          format,
-          media_source: topic.mediaSource,
-          post_text: postText,
-          text_source: textSource,
-          derived_visual_prompt: derivedVisualPrompt,
-          visual_prompt_source: visualPromptSource,
-          style_samples_count: styleSamples.length,
-          style_profile: styleProfile,
-          slide_plan: slidePlan,
-          slide_source: slideSource || null,
-        }, null, 2),
+        JSON.stringify(
+          {
+            dry_run: true,
+            topic,
+            format,
+            media_source: topic.mediaSource,
+            post_text: postText,
+            text_source: textSource,
+            derived_visual_prompt: derivedVisualPrompt,
+            visual_prompt_source: visualPromptSource,
+            style_samples_count: styleSamples.length,
+            style_profile: styleProfile,
+            slide_plan: slidePlan,
+            slide_source: slideSource || null,
+          },
+          null,
+          2,
+        ),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -2624,7 +2960,6 @@ Deno.serve(async (req) => {
     // Média strictement obligatoire : aucun chemin de publication sans visuel.
     let mediaFallback = false;
     let mediaFallbackReason: string | null = null;
-
 
     // Legacy /v2/assets path, kept as a secondary attempt.
     const legacyPublish = async (
@@ -2650,7 +2985,6 @@ Deno.serve(async (req) => {
 
     // 3) Build media + upload — média obligatoire, aucune publication texte seul.
     {
-
       // Build the media bytes first (independent from the LinkedIn transport).
       // Visual prompts are derived from the generated post text whenever possible,
       // so the image/video actually illustrates what the text says.
@@ -2662,7 +2996,9 @@ Deno.serve(async (req) => {
             bytes = await capturePageboltVideo(topic, postText);
           } catch (videoErr) {
             const videoReason = videoErr instanceof Error ? videoErr.message : String(videoErr);
-            console.warn(`[media] PageBolt vidéo échouée, repli carrousel de captures: ${videoReason}`);
+            console.warn(
+              `[media] PageBolt vidéo échouée, repli carrousel de captures: ${videoReason}`,
+            );
             try {
               const focusLabels = await deriveCaptureFocus(topic, postText);
               const frames = await captureUiFrames(topic, focusLabels);
@@ -2680,8 +3016,9 @@ Deno.serve(async (req) => {
             }
           }
         } else {
-
-          bytes = await generateWavespeedVideo(derivedVisualPrompt || topic.visualPrompt || topic.focus);
+          bytes = await generateWavespeedVideo(
+            derivedVisualPrompt || topic.visualPrompt || topic.focus,
+          );
         }
       } else {
         let coverBg: Uint8Array | null = null;
@@ -2691,37 +3028,72 @@ Deno.serve(async (req) => {
             coverBg = await generateWavespeedImage(coverPrompt);
             console.log(`Wavespeed cover image: ${coverBg.length} bytes`);
           } catch (err) {
-            console.warn(`Wavespeed cover image failed: ${err instanceof Error ? err.message : String(err)}`);
+            console.warn(
+              `Wavespeed cover image failed: ${err instanceof Error ? err.message : String(err)}`,
+            );
           }
         }
         bytes = await renderCarouselPdf(topic, slidePlan!, coverBg);
       }
       mediaBytes = bytes.length;
 
-      const attempts: Array<{ label: string; run: () => Promise<string> }> = format === "image"
-        ? [
-            { label: "rest-image", run: async () => {
-              assetUrn = await uploadImageRest(ownerUrn!, bytes);
-              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
-            } },
-          ]
-        : format === "video"
-        ? [
-            { label: "rest-video", run: async () => {
-              assetUrn = await uploadVideoRest(ownerUrn!, bytes);
-              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
-            } },
-            { label: "legacy-video", run: () => legacyPublish(bytes, "feedshare-video", "application/octet-stream", "VIDEO") },
-            { label: "screenshot-image", run: publishScreenshot },
-          ]
-        : [
-            { label: "rest-document", run: async () => {
-              assetUrn = await uploadDocumentRest(ownerUrn!, bytes);
-              return await createRestPost(ownerUrn!, postText, assetUrn, `IKtracker - ${topic.title}`);
-            } },
-            { label: "legacy-document", run: () => legacyPublish(bytes, "feedshare-document", "application/pdf", "DOCUMENT") },
-            { label: "screenshot-image", run: publishScreenshot },
-          ];
+      const attempts: Array<{ label: string; run: () => Promise<string> }> =
+        format === "image"
+          ? [
+              {
+                label: "rest-image",
+                run: async () => {
+                  assetUrn = await uploadImageRest(ownerUrn!, bytes);
+                  return await createRestPost(
+                    ownerUrn!,
+                    postText,
+                    assetUrn,
+                    `IKtracker - ${topic.title}`,
+                  );
+                },
+              },
+            ]
+          : format === "video"
+            ? [
+                {
+                  label: "rest-video",
+                  run: async () => {
+                    assetUrn = await uploadVideoRest(ownerUrn!, bytes);
+                    return await createRestPost(
+                      ownerUrn!,
+                      postText,
+                      assetUrn,
+                      `IKtracker - ${topic.title}`,
+                    );
+                  },
+                },
+                {
+                  label: "legacy-video",
+                  run: () =>
+                    legacyPublish(bytes, "feedshare-video", "application/octet-stream", "VIDEO"),
+                },
+                { label: "screenshot-image", run: publishScreenshot },
+              ]
+            : [
+                {
+                  label: "rest-document",
+                  run: async () => {
+                    assetUrn = await uploadDocumentRest(ownerUrn!, bytes);
+                    return await createRestPost(
+                      ownerUrn!,
+                      postText,
+                      assetUrn,
+                      `IKtracker - ${topic.title}`,
+                    );
+                  },
+                },
+                {
+                  label: "legacy-document",
+                  run: () =>
+                    legacyPublish(bytes, "feedshare-document", "application/pdf", "DOCUMENT"),
+                },
+                { label: "screenshot-image", run: publishScreenshot },
+              ];
 
       for (const attempt of attempts) {
         try {
@@ -2776,7 +3148,6 @@ Deno.serve(async (req) => {
         media_fallback: mediaFallback,
         media_fallback_reason: mediaFallbackReason,
         duration_ms: Date.now() - startedAt,
-
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

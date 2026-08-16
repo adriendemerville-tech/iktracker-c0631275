@@ -31,10 +31,12 @@ function htmlResponse(html: string, status = 200): Response {
 // Generate a clean, standalone HTML page for sharing
 function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
   // Extract the content-wrapper div content from the original HTML
-  const contentMatch = htmlContent.match(/<div class="content-wrapper">([\s\S]*?)<\/div>\s*<\/div><!-- end content-wrapper -->/i);
-  
+  const contentMatch = htmlContent.match(
+    /<div class="content-wrapper">([\s\S]*?)<\/div>\s*<\/div><!-- end content-wrapper -->/i,
+  );
+
   // If we can't find the content wrapper, try a simpler extraction
-  let pageContent = '';
+  let pageContent = "";
   if (contentMatch && contentMatch[1]) {
     pageContent = contentMatch[1];
   } else {
@@ -45,10 +47,10 @@ function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
     }
   }
 
-  const expiresDateStr = expiresAt.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
+  const expiresDateStr = expiresAt.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
   return `<!DOCTYPE html>
@@ -225,7 +227,12 @@ function generateCleanSharePage(htmlContent: string, expiresAt: Date): string {
 </html>`;
 }
 
-function generateErrorPage(title: string, message: string, subMessage?: string, color = "#dc2626"): string {
+function generateErrorPage(
+  title: string,
+  message: string,
+  subMessage?: string,
+  color = "#dc2626",
+): string {
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -290,7 +297,7 @@ function generateErrorPage(title: string, message: string, subMessage?: string, 
     </div>
     <h1>${title}</h1>
     <p>${message}</p>
-    ${subMessage ? `<p class="sub">${subMessage}</p>` : ''}
+    ${subMessage ? `<p class="sub">${subMessage}</p>` : ""}
     <p class="link"><a href="https://iktracker.fr">Découvrir IKtracker →</a></p>
   </div>
 </body>
@@ -300,11 +307,12 @@ function generateErrorPage(title: string, message: string, subMessage?: string, 
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { 
+    return new Response(null, {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-iktracker-fetch",
-      }
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type, x-iktracker-fetch",
+      },
     });
   }
 
@@ -329,7 +337,7 @@ serve(async (req) => {
     if (!shareId) {
       return htmlResponse(
         generateErrorPage("Lien invalide", "Le lien de partage est invalide ou manquant."),
-        400
+        400,
       );
     }
 
@@ -348,8 +356,12 @@ serve(async (req) => {
     if (error || !share) {
       console.error("Error fetching share:", error);
       return htmlResponse(
-        generateErrorPage("Rapport introuvable", "Ce rapport n'existe pas ou a expiré.", "Les liens de partage sont valides pendant 7 jours."),
-        404
+        generateErrorPage(
+          "Rapport introuvable",
+          "Ce rapport n'existe pas ou a expiré.",
+          "Les liens de partage sont valides pendant 7 jours.",
+        ),
+        404,
       );
     }
 
@@ -358,12 +370,12 @@ serve(async (req) => {
     if (expiresAt < new Date()) {
       return htmlResponse(
         generateErrorPage(
-          "Lien expiré", 
-          `Ce lien de partage a expiré le ${expiresAt.toLocaleDateString('fr-FR')}.`,
+          "Lien expiré",
+          `Ce lien de partage a expiré le ${expiresAt.toLocaleDateString("fr-FR")}.`,
           "Les liens de partage sont valides pendant 7 jours.",
-          "#f59e0b"
+          "#f59e0b",
         ),
-        410
+        410,
       );
     }
 
@@ -377,7 +389,9 @@ serve(async (req) => {
         .eq("id", shareId);
     }
 
-    const wantsRawHtml = url.searchParams.get("raw") === "1" || req.headers.get("x-iktracker-fetch") === "temporary-report";
+    const wantsRawHtml =
+      url.searchParams.get("raw") === "1" ||
+      req.headers.get("x-iktracker-fetch") === "temporary-report";
     const accept = req.headers.get("accept") ?? "";
     const secFetchMode = req.headers.get("sec-fetch-mode");
     const secFetchDest = req.headers.get("sec-fetch-dest");
@@ -401,7 +415,7 @@ serve(async (req) => {
     console.error("Error in view-report function:", error);
     return htmlResponse(
       generateErrorPage("Erreur", "Une erreur est survenue lors du chargement du rapport."),
-      500
+      500,
     );
   }
 });

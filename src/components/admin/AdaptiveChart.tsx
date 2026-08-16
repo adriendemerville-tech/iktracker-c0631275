@@ -1,5 +1,5 @@
-import { useRef, useMemo } from 'react';
-import { useContainerWidth } from '@/hooks/useContainerWidth';
+import { useRef, useMemo } from "react";
+import { useContainerWidth } from "@/hooks/useContainerWidth";
 import {
   LineChart,
   Line,
@@ -9,8 +9,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from 'recharts';
-import { Skeleton } from '@/components/ui/skeleton';
+} from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DataPoint {
   [key: string]: string | number;
@@ -40,20 +40,20 @@ export function AdaptiveChart({
   isLoading = false,
   height = 200,
   baseDataPoints = 7,
-  emptyMessage = 'Aucune donnée',
+  emptyMessage = "Aucune donnée",
 }: AdaptiveChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { getDataPoints, isFullWidth } = useContainerWidth(containerRef);
-  
+
   // Limit data points based on container width
   const displayData = useMemo(() => {
     const maxPoints = getDataPoints(baseDataPoints);
     if (data.length <= maxPoints) return data;
-    
+
     // Take the most recent data points
     return data.slice(-maxPoints);
   }, [data, getDataPoints, baseDataPoints]);
-  
+
   if (isLoading) {
     return (
       <div ref={containerRef}>
@@ -61,7 +61,7 @@ export function AdaptiveChart({
       </div>
     );
   }
-  
+
   if (data.length === 0) {
     return (
       <div ref={containerRef} className="flex items-center justify-center" style={{ height }}>
@@ -69,31 +69,26 @@ export function AdaptiveChart({
       </div>
     );
   }
-  
+
   return (
     <div ref={containerRef}>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={displayData}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-          <XAxis 
-            dataKey={xAxisKey} 
+          <XAxis
+            dataKey={xAxisKey}
             tick={{ fontSize: isFullWidth ? 11 : 10 }}
             tickLine={false}
             axisLine={false}
             interval="preserveStartEnd"
           />
-          <YAxis 
-            tick={{ fontSize: 10 }}
-            tickLine={false}
-            axisLine={false}
-            allowDecimals={false}
-          />
+          <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'hsl(var(--background))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              fontSize: '12px',
+              backgroundColor: "hsl(var(--background))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "8px",
+              fontSize: "12px",
             }}
           />
           {lines.length > 1 && <Legend />}

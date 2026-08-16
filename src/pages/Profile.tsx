@@ -1,25 +1,63 @@
-import { useState, useEffect, useMemo, Suspense, lazy } from 'react';
-import { Helmet } from '@/lib/helmet-compat';
-import { useNavigate, Link } from '@/lib/router-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useAppAuth } from '@/components/AppChrome';
-import { useTheme } from '@/hooks/useTheme';
-import { useTrips } from '@/hooks/useTrips';
-import { usePreferences } from '@/hooks/usePreferences';
-import { useAdmin } from '@/hooks/useAdmin';
-import { useFeedback } from '@/hooks/useFeedback';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, User, CreditCard, Receipt, Settings, Moon, Sun, Mail, LogOut, BarChart3, Clock, Timer, MapPin, Briefcase, Car, Plus, Shield, ChevronRight, Send, ChevronDown, Route, Download, Share2, UserCircle, Home, Building2, Calendar as CalendarIcon, CalendarClock, Calculator, Trash2, Loader2 } from 'lucide-react';
+import { useState, useEffect, useMemo, Suspense, lazy } from "react";
+import { Helmet } from "@/lib/helmet-compat";
+import { useNavigate, Link } from "@/lib/router-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useAppAuth } from "@/components/AppChrome";
+import { useTheme } from "@/hooks/useTheme";
+import { useTrips } from "@/hooks/useTrips";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useFeedback } from "@/hooks/useFeedback";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ArrowLeft,
+  User,
+  CreditCard,
+  Receipt,
+  Settings,
+  Moon,
+  Sun,
+  Mail,
+  LogOut,
+  BarChart3,
+  Clock,
+  Timer,
+  MapPin,
+  Briefcase,
+  Car,
+  Plus,
+  Shield,
+  ChevronRight,
+  Send,
+  ChevronDown,
+  Route,
+  Download,
+  Share2,
+  UserCircle,
+  Home,
+  Building2,
+  Calendar as CalendarIcon,
+  CalendarClock,
+  Calculator,
+  Trash2,
+  Loader2,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,20 +67,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { CalendarConnections } from '@/components/CalendarConnections';
-import { GoogleCalendarStatus } from '@/components/GoogleCalendarStatus';
-import { FeedbackForm } from '@/components/FeedbackForm';
-import { VehicleCard } from '@/components/VehicleCard';
-import { VehicleForm } from '@/components/VehicleForm';
-import { AddressCard } from '@/components/AddressCard';
-import { AddressForm } from '@/components/AddressForm';
-import { DesktopSidebar } from '@/components/DesktopSidebar';
-import { Vehicle, Location } from '@/types/trip';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { CalendarConnections } from "@/components/CalendarConnections";
+import { GoogleCalendarStatus } from "@/components/GoogleCalendarStatus";
+import { FeedbackForm } from "@/components/FeedbackForm";
+import { VehicleCard } from "@/components/VehicleCard";
+import { VehicleForm } from "@/components/VehicleForm";
+import { AddressCard } from "@/components/AddressCard";
+import { AddressForm } from "@/components/AddressForm";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
+import { Vehicle, Location } from "@/types/trip";
 
 // Lazy load chart component to keep recharts out of initial bundle
-const ProfileKmChart = lazy(() => import('@/components/charts/ProfileKmChart'));
+const ProfileKmChart = lazy(() => import("@/components/charts/ProfileKmChart"));
 
 // Chart loading placeholder
 const ChartSkeleton = () => (
@@ -50,7 +88,6 @@ const ChartSkeleton = () => (
     <Skeleton className="w-full h-full rounded-lg" />
   </div>
 );
-
 
 const PROFESSIONS = [
   "Banque et assurance",
@@ -76,42 +113,54 @@ const Profile = () => {
   const { user } = useAuth();
   const { handleLogout } = useAppAuth();
   const { theme, toggleTheme } = useTheme();
-  const { trips, vehicles, savedLocations, addVehicle, updateVehicle, deleteVehicle, addLocation, updateLocation, deleteLocation, getTotalAnnualKm, loading: tripsLoading } = useTrips();
+  const {
+    trips,
+    vehicles,
+    savedLocations,
+    addVehicle,
+    updateVehicle,
+    deleteVehicle,
+    addLocation,
+    updateLocation,
+    deleteLocation,
+    getTotalAnnualKm,
+    loading: tripsLoading,
+  } = useTrips();
   const { preferences, updatePreference } = usePreferences();
   const { isAdmin } = useAdmin();
   const { unreadResponsesCount } = useFeedback();
-  
+
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
-  
+
   const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [addressFormOpen, setAddressFormOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Location | null>(null);
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [showPreferencesDropdown, setShowPreferencesDropdown] = useState(false);
-  
+
   // User profile fields
-  const [profileFirstName, setProfileFirstName] = useState('');
-  const [profileLastName, setProfileLastName] = useState('');
-  
+  const [profileFirstName, setProfileFirstName] = useState("");
+  const [profileLastName, setProfileLastName] = useState("");
+
   // Load user metadata on mount
   useEffect(() => {
     if (user?.user_metadata) {
-      setProfileFirstName(user.user_metadata.first_name || '');
-      setProfileLastName(user.user_metadata.last_name || '');
+      setProfileFirstName(user.user_metadata.first_name || "");
+      setProfileLastName(user.user_metadata.last_name || "");
     }
   }, [user]);
-  
+
   // Save profile names
   const handleSaveProfileNames = async () => {
     const { error } = await supabase.auth.updateUser({
       data: {
         first_name: profileFirstName.trim() || undefined,
         last_name: profileLastName.trim() || undefined,
-      }
+      },
     });
     if (!error) {
-      toast.success('Profil mis à jour');
+      toast.success("Profil mis à jour");
     }
   };
 
@@ -119,41 +168,42 @@ const Profile = () => {
 
   const monthlyKmData = useMemo(() => {
     const now = new Date();
-    const months: { month: string; year: number; monthIndex: number; km: number; ik: number }[] = [];
-    
+    const months: { month: string; year: number; monthIndex: number; km: number; ik: number }[] =
+      [];
+
     for (let i = monthsToShow - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthName = date.toLocaleDateString('fr-FR', { month: 'short' });
+      const monthName = date.toLocaleDateString("fr-FR", { month: "short" });
       months.push({
         month: monthName.charAt(0).toUpperCase() + monthName.slice(1, 3),
         year: date.getFullYear(),
         monthIndex: date.getMonth(),
         km: 0,
-        ik: 0
+        ik: 0,
       });
     }
 
-    trips.forEach(trip => {
+    trips.forEach((trip) => {
       const tripDate = new Date(trip.startTime);
       const tripMonth = tripDate.getMonth();
       const tripYear = tripDate.getFullYear();
-      
-      const monthData = months.find(m => m.monthIndex === tripMonth && m.year === tripYear);
+
+      const monthData = months.find((m) => m.monthIndex === tripMonth && m.year === tripYear);
       if (monthData) {
         monthData.km += trip.distance;
         monthData.ik += trip.ikAmount ?? 0;
       }
     });
 
-    return months.map(m => ({ month: m.month, km: Math.round(m.km), ik: m.ik }));
+    return months.map((m) => ({ month: m.month, km: Math.round(m.km), ik: m.ik }));
   }, [trips]);
 
   // Calculate dynamic Y-axis max with minimum threshold for visual balance
   const chartMaxKm = useMemo(() => {
-    const maxKm = Math.max(...monthlyKmData.map(d => d.km), 0);
+    const maxKm = Math.max(...monthlyKmData.map((d) => d.km), 0);
     const minCeiling = 200; // Minimum ceiling to prevent bars from being too tall with small values
     const padding = 1.2; // 20% padding above max value
-    return Math.max(Math.ceil(maxKm * padding / 50) * 50, minCeiling);
+    return Math.max(Math.ceil((maxKm * padding) / 50) * 50, minCeiling);
   }, [monthlyKmData]);
 
   // Calculate total stats for sharing
@@ -174,24 +224,29 @@ const Profile = () => {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+      const { error } = await supabase.functions.invoke("delete-account", { method: "POST" });
       if (error) throw error;
-      toast.success('Votre compte a été supprimé.');
+      toast.success("Votre compte a été supprimé.");
       try {
         await supabase.auth.signOut();
       } catch (signOutError) {
-        console.warn('Déconnexion après suppression du compte échouée', signOutError);
+        console.warn("Déconnexion après suppression du compte échouée", signOutError);
       }
-      setTimeout(() => { window.location.href = '/'; }, 800);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 800);
     } catch (e: any) {
-      console.error('Delete account failed', e);
+      console.error("Delete account failed", e);
       toast.error("Impossible de supprimer le compte. Réessayez plus tard.");
       setDeletingAccount(false);
       setDeleteAccountOpen(false);
     }
   };
 
-  const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>, options?: { updatePastTrips?: boolean }) => {
+  const handleSaveVehicle = (
+    vehicleData: Omit<Vehicle, "id">,
+    options?: { updatePastTrips?: boolean },
+  ) => {
     if (editingVehicle) {
       updateVehicle(editingVehicle.id, vehicleData, options);
     } else {
@@ -217,11 +272,10 @@ const Profile = () => {
 
   return (
     <>
-      <Helmet>
-      </Helmet>
+      <Helmet></Helmet>
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
-        <DesktopSidebar 
+        <DesktopSidebar
           vehicles={vehicles}
           onAddVehicle={addVehicle}
           onEditVehicle={updateVehicle}
@@ -234,7 +288,12 @@ const Profile = () => {
         {/* Header */}
         <header className="bg-card border-b border-border px-4 py-4 h-[65px]">
           <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/app')} aria-label="Retour à l'accueil">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/app")}
+              aria-label="Retour à l'accueil"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-xl font-semibold">Mon profil</h1>
@@ -242,30 +301,32 @@ const Profile = () => {
         </header>
 
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-5">
-        {/* Account Info Button */}
-        <Card 
-          className="cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => user ? setShowAccountInfo(!showAccountInfo) : navigate('/auth')}
-        >
-          <CardContent className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-primary" />
+          {/* Account Info Button */}
+          <Card
+            className="cursor-pointer hover:bg-accent/50 transition-colors"
+            onClick={() => (user ? setShowAccountInfo(!showAccountInfo) : navigate("/auth"))}
+          >
+            <CardContent className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Informations et connexion</p>
+                  {!isMobile && (
+                    <p className="text-sm text-muted-foreground">{user?.email || "Non connecté"}</p>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="font-medium">Informations et connexion</p>
-                {!isMobile && (
-                  <p className="text-sm text-muted-foreground">{user?.email || 'Non connecté'}</p>
-                )}
-              </div>
-            </div>
-            <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${showAccountInfo ? 'rotate-90' : ''}`} />
-          </CardContent>
-        </Card>
+              <ChevronRight
+                className={`w-5 h-5 text-muted-foreground transition-transform ${showAccountInfo ? "rotate-90" : ""}`}
+              />
+            </CardContent>
+          </Card>
 
-        {/* Account Info Details (Collapsible) */}
-        {showAccountInfo && (
-          <Card className="border-t-0 rounded-t-none -mt-5">
+          {/* Account Info Details (Collapsible) */}
+          {showAccountInfo && (
+            <Card className="border-t-0 rounded-t-none -mt-5">
               <CardContent className="space-y-4 pt-4">
                 {/* First Name / Last Name */}
                 <div className="flex items-center gap-3">
@@ -298,10 +359,10 @@ const Profile = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{user?.email || 'Non connecté'}</p>
+                    <p className="font-medium">{user?.email || "Non connecté"}</p>
                   </div>
                 </div>
-                
+
                 {/* Profession Dropdown */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
@@ -310,9 +371,9 @@ const Profile = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-muted-foreground">Profession (optionnel)</p>
-                      <Select 
-                        value={preferences.profession || ''} 
-                        onValueChange={(value) => updatePreference('profession', value)}
+                      <Select
+                        value={preferences.profession || ""}
+                        onValueChange={(value) => updatePreference("profession", value)}
                       >
                         <SelectTrigger className="w-full mt-1 bg-background border border-input">
                           <SelectValue placeholder="Sélectionnez votre secteur" />
@@ -340,8 +401,8 @@ const Profile = () => {
                       <Input
                         type="email"
                         placeholder="comptable@exemple.fr"
-                        value={preferences.accountantEmail || ''}
-                        onChange={(e) => updatePreference('accountantEmail', e.target.value)}
+                        value={preferences.accountantEmail || ""}
+                        onChange={(e) => updatePreference("accountantEmail", e.target.value)}
                         className="mt-1"
                       />
                     </div>
@@ -356,44 +417,68 @@ const Profile = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-muted-foreground">Début d'exercice comptable</p>
-                      <p className="text-xs text-muted-foreground">Les paliers IK se remettent à zéro à cette date</p>
+                      <p className="text-xs text-muted-foreground">
+                        Les paliers IK se remettent à zéro à cette date
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
                         <Select
                           value={String(preferences.fiscalYearStartDay || 1)}
-                          onValueChange={(value) => updatePreference('fiscalYearStartDay', parseInt(value))}
+                          onValueChange={(value) =>
+                            updatePreference("fiscalYearStartDay", parseInt(value))
+                          }
                         >
                           <SelectTrigger className="w-20 bg-background border border-input">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-background border border-input max-h-[200px]">
                             {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                              <SelectItem key={d} value={String(d)}>{d}</SelectItem>
+                              <SelectItem key={d} value={String(d)}>
+                                {d}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                         <Select
                           value={String(preferences.fiscalYearStartMonth || 1)}
-                          onValueChange={(value) => updatePreference('fiscalYearStartMonth', parseInt(value))}
+                          onValueChange={(value) =>
+                            updatePreference("fiscalYearStartMonth", parseInt(value))
+                          }
                         >
                           <SelectTrigger className="flex-1 bg-background border border-input">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-background border border-input max-h-[200px]">
-                            {['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'].map((m, i) => (
-                              <SelectItem key={i + 1} value={String(i + 1)}>{m}</SelectItem>
+                            {[
+                              "Janvier",
+                              "Février",
+                              "Mars",
+                              "Avril",
+                              "Mai",
+                              "Juin",
+                              "Juillet",
+                              "Août",
+                              "Septembre",
+                              "Octobre",
+                              "Novembre",
+                              "Décembre",
+                            ].map((m, i) => (
+                              <SelectItem key={i + 1} value={String(i + 1)}>
+                                {m}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      {(preferences.fiscalYearStartMonth !== 1 || preferences.fiscalYearStartDay !== 1) && (
+                      {(preferences.fiscalYearStartMonth !== 1 ||
+                        preferences.fiscalYearStartDay !== 1) && (
                         <p className="text-xs text-primary mt-1">
-                          Exercice personnalisé : {preferences.fiscalYearStartDay}/{preferences.fiscalYearStartMonth}
+                          Exercice personnalisé : {preferences.fiscalYearStartDay}/
+                          {preferences.fiscalYearStartMonth}
                         </p>
                       )}
                     </div>
                   </div>
                 </div>
-
 
                 {user && (
                   <Button variant="outline" className="w-full" onClick={handleSignOut}>
@@ -402,634 +487,682 @@ const Profile = () => {
                   </Button>
                 )}
                 {!user && (
-                  <Button className="w-full" onClick={() => navigate('/auth')}>
+                  <Button className="w-full" onClick={() => navigate("/auth")}>
                     Se connecter
                   </Button>
                 )}
               </CardContent>
             </Card>
-        )}
+          )}
 
-        {/* Mes adresses */}
-        <Card id="mes-adresses">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <MapPin className="w-4 h-4" />
-                Mes adresses
-              </CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-7 text-xs px-2"
-                onClick={() => {
-                  setEditingAddress(null);
-                  setAddressFormOpen(true);
-                }}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Ajouter
-              </Button>
-            </div>
-            {!isMobile && (
-              <CardDescription>
-                Vos lieux pour le calcul automatique des distances
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent className="min-h-[120px]">
-            {tripsLoading ? (
-              <div className="space-y-3">
-                <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
-                <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
+          {/* Mes adresses */}
+          <Card id="mes-adresses">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPin className="w-4 h-4" />
+                  Mes adresses
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs px-2"
+                  onClick={() => {
+                    setEditingAddress(null);
+                    setAddressFormOpen(true);
+                  }}
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Ajouter
+                </Button>
               </div>
-            ) : savedLocations.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Home className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Aucune adresse enregistrée</p>
-                <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
-                  Ajoutez votre domicile pour que les trajets du calendrier soient calculés automatiquement
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {savedLocations.map((location) => (
-                  <AddressCard
-                    key={location.id}
-                    location={{
-                      id: location.id,
-                      name: location.name,
-                      address: location.address,
-                      type: location.type as 'home' | 'office' | 'other',
-                    }}
-                    onEdit={() => {
-                      setEditingAddress(location);
-                      setAddressFormOpen(true);
-                    }}
-                    onDelete={() => {
-                      deleteLocation(location.id);
-                      toast.success("Adresse supprimée");
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <AddressForm
-          open={addressFormOpen}
-          onOpenChange={setAddressFormOpen}
-          editLocation={editingAddress ? {
-            id: editingAddress.id,
-            name: editingAddress.name,
-            address: editingAddress.address,
-            type: editingAddress.type as 'home' | 'office' | 'other',
-            latitude: editingAddress.lat,
-            longitude: editingAddress.lng,
-          } : undefined}
-          onSave={(locationData) => {
-            if (editingAddress) {
-              updateLocation(editingAddress.id, {
-                name: locationData.name,
-                address: locationData.address,
-                type: locationData.type,
-                lat: locationData.latitude,
-                lng: locationData.longitude,
-              });
-              toast.success("Adresse mise à jour");
-            } else {
-              addLocation({
-                name: locationData.name,
-                address: locationData.address ?? "",
-                type: locationData.type,
-                lat: locationData.latitude,
-                lng: locationData.longitude,
-              });
-              toast.success("Adresse ajoutée");
-            }
-            setEditingAddress(null);
-          }}
-        />
-
-        {/* Preferences Dropdown */}
-        <div className="bg-card rounded-md shadow-md overflow-hidden">
-          <button
-            onClick={() => setShowPreferencesDropdown(!showPreferencesDropdown)}
-            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Settings className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <p className="font-medium">Préférences</p>
-                {!isMobile && (
-                  <p className="text-sm text-muted-foreground">Personnaliser l'application</p>
-                )}
-              </div>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showPreferencesDropdown ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <div className={`grid transition-all duration-300 ease-out ${showPreferencesDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-            <div className="overflow-hidden">
-              <div className="border-t border-border p-4 space-y-5">
-                {/* Dark Mode */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {theme === 'dark' ? (
-                      <Moon className="w-5 h-5 text-muted-foreground" />
-                    ) : (
-                      <Sun className="w-5 h-5 text-muted-foreground" />
-                    )}
-                    <Label htmlFor="dark-mode" className="cursor-pointer">
-                      Mode sombre
-                    </Label>
-                  </div>
-                  <Switch
-                    id="dark-mode"
-                    checked={theme === 'dark'}
-                    onCheckedChange={toggleTheme}
-                  />
-                </div>
-
-                {/* Show Trip Time */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-muted-foreground" />
-                    <Label htmlFor="show-time" className="cursor-pointer">
-                      Afficher l'heure des trajets
-                    </Label>
-                  </div>
-                  <Switch
-                    id="show-time"
-                    checked={preferences.showTripTime}
-                    onCheckedChange={(checked) => updatePreference('showTripTime', checked)}
-                  />
-                </div>
-
-                {/* Stop Detection Interval */}
+              {!isMobile && (
+                <CardDescription>
+                  Vos lieux pour le calcul automatique des distances
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="min-h-[120px]">
+              {tripsLoading ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Timer className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label>Détection des étapes</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Durée d'arrêt pour créer une étape
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 pl-8">
-                    <Slider
-                      value={[preferences.stopDetectionMinutes]}
-                      onValueChange={([value]) => updatePreference('stopDetectionMinutes', value)}
-                      min={1}
-                      max={15}
-                      step={1}
-                      className="flex-1"
-                    />
-                    <span className="text-sm font-medium w-16 text-right">
-                      {preferences.stopDetectionMinutes} min
-                    </span>
-                  </div>
+                  <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
+                  <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
                 </div>
-
-                {/* Location Radius */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label>Rayon de détection</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Distance pour considérer un même lieu
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 pl-8">
-                    <Slider
-                      value={[preferences.locationRadiusMeters]}
-                      onValueChange={([value]) => updatePreference('locationRadiusMeters', value)}
-                      min={50}
-                      max={300}
-                      step={25}
-                      className="flex-1"
-                    />
-                    <span className="text-sm font-medium w-16 text-right">
-                      {preferences.locationRadiusMeters} m
-                    </span>
-                  </div>
-                </div>
-
-                {/* Minimum Distance */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Route className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label>Distance minimum</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Seuil pour enregistrer un trajet
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 pl-8">
-                    <Slider
-                      value={[preferences.minDistanceKm]}
-                      onValueChange={([value]) => updatePreference('minDistanceKm', value)}
-                      min={0}
-                      max={5}
-                      step={0.5}
-                      className={`flex-1 ${preferences.minDistanceKm === 0 ? '[&_span[role=slider]]:border-amber-500 [&_span[role=slider]]:bg-amber-500 [&_[data-radix-slider-range]]:bg-amber-500' : ''}`}
-                    />
-                    <span className="text-sm font-medium w-16 text-right">
-                      {preferences.minDistanceKm} km
-                    </span>
-                  </div>
-                  {preferences.minDistanceKm === 0 && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 pl-8">
-                      Tous les trajets seront enregistrés
-                    </p>
-                  )}
-                </div>
-
-                {/* Calendar Import Mode */}
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <div className="flex items-center gap-3">
-                    <CalendarClock className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label>Import calendrier</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Comportement lors de la synchronisation
-                      </p>
-                    </div>
-                  </div>
-                  <RadioGroup
-                    value={preferences.calendarImportMode}
-                    onValueChange={(v) => updatePreference('calendarImportMode', v as 'individual' | 'tour')}
-                    className="pl-8 space-y-2"
-                  >
-                    <div className="flex items-start gap-2">
-                      <RadioGroupItem value="individual" id="prof-cal-individual" className="mt-1" />
-                      <Label htmlFor="prof-cal-individual" className="cursor-pointer font-normal leading-snug">
-                        <span className="block text-sm font-medium">Trajets individuels</span>
-                        <span className="block text-xs text-muted-foreground">
-                          Chaque événement devient un aller-retour depuis mon domicile
-                        </span>
-                      </Label>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <RadioGroupItem value="tour" id="prof-cal-tour" className="mt-1" />
-                      <Label htmlFor="prof-cal-tour" className="cursor-pointer font-normal leading-snug">
-                        <span className="block text-sm font-medium">Tournée journalière</span>
-                        <span className="block text-xs text-muted-foreground">
-                          Rendez-vous d'une même journée regroupés : domicile → étapes → domicile
-                        </span>
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* IK rate override */}
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <div className="flex items-center gap-3">
-                    <Calculator className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label>Taux d'indemnité kilométrique</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Utile pour figer un taux stable sur l'année
-                      </p>
-                    </div>
-                  </div>
-                  <RadioGroup
-                    value={preferences.ikRateOverride}
-                    onValueChange={(v) => updatePreference('ikRateOverride', v as 'auto' | 'tier2' | 'tier3')}
-                    className="pl-8 space-y-2"
-                  >
-                    <div className="flex items-start gap-2">
-                      <RadioGroupItem value="auto" id="prof-ik-auto" className="mt-1" />
-                      <Label htmlFor="prof-ik-auto" className="cursor-pointer font-normal leading-snug">
-                        <span className="block text-sm font-medium">Barème automatique (recommandé)</span>
-                        <span className="block text-xs text-muted-foreground">
-                          Le taux évolue selon le cumul annuel (jusqu'à 5 000, 5 001–20 000, au-delà)
-                        </span>
-                      </Label>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <RadioGroupItem value="tier2" id="prof-ik-tier2" className="mt-1" />
-                      <Label htmlFor="prof-ik-tier2" className="cursor-pointer font-normal leading-snug">
-                        <span className="block text-sm font-medium">Forcer la tranche 5 001–20 000 km</span>
-                        <span className="block text-xs text-muted-foreground">
-                          Applique ce taux à tous les trajets, dès le 1er km
-                        </span>
-                      </Label>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <RadioGroupItem value="tier3" id="prof-ik-tier3" className="mt-1" />
-                      <Label htmlFor="prof-ik-tier3" className="cursor-pointer font-normal leading-snug">
-                        <span className="block text-sm font-medium">Forcer la tranche &gt; 20 000 km</span>
-                        <span className="block text-xs text-muted-foreground">
-                          Pour les gros rouleurs qui dépassent 20 000 km chaque année
-                        </span>
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                  <p className="pl-8 text-[11px] text-muted-foreground italic">
-                    Les trajets déjà enregistrés ne sont pas recalculés.
+              ) : savedLocations.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Home className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Aucune adresse enregistrée</p>
+                  <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
+                    Ajoutez votre domicile pour que les trajets du calendrier soient calculés
+                    automatiquement
                   </p>
                 </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Feedback Button - Shown at top when there are unread responses */}
-        {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
-
-        {/* Google Calendar Status Indicator */}
-        {user && <GoogleCalendarStatus userId={user.id} />}
-
-        {/* Calendar Connections */}
-        <CalendarConnections />
-
-        {/* Vehicles */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Car className="w-4 h-4" />
-                Mes véhicules
-              </CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-7 text-xs px-2"
-                onClick={() => {
-                  setEditingVehicle(null);
-                  setVehicleFormOpen(true);
-                }}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Ajouter
-              </Button>
-            </div>
-            {!isMobile && (
-              <CardDescription>
-                Gérez vos véhicules pour le calcul des IK
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent className="min-h-[100px]">
-            {tripsLoading ? (
-              <div className="space-y-3">
-                <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
-              </div>
-            ) : vehicles.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Aucun véhicule enregistré</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {vehicles.map((vehicle) => (
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    totalKm={getTotalAnnualKm(vehicle.id)}
-                    selected={false}
-                    onEdit={() => handleEditVehicle(vehicle)}
-                    onDelete={() => handleDeleteVehicle(vehicle.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <VehicleForm
-          open={vehicleFormOpen}
-          onOpenChange={setVehicleFormOpen}
-          onSave={handleSaveVehicle}
-          editVehicle={editingVehicle || undefined}
-        />
-
-        {/* Kilometers Chart */}
-        <Card className="relative">
-          {/* Animated car - at header level, above December bar */}
-          <div className="absolute top-4 right-[40px] flex flex-col items-center gap-0 z-10">
-            {totalStats.totalKm === 0 ? (
-              /* Sleeping car when 0 km */
-              <div className="relative" style={{ filter: 'drop-shadow(0 0 4px hsl(220 70% 50% / 0.2))' }}>
-                <Car className="w-8 h-8 text-primary/60 fill-transparent" strokeWidth={1.5} />
-                {/* Static wheels */}
-                <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
-                <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
-                {/* "Zz.." sleeping text inside car - lowered for better centering */}
-                <span className="absolute top-[10px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none animate-zz-float">
-                  Zz..
-                </span>
-                {/* Dot after the car (in front in driving direction) */}
-                <div className="absolute bottom-[6px] -right-[6px] w-[4px] h-[4px] rounded-full bg-primary/60" />
-              </div>
-            ) : (
-              /* Animated car when > 0 km */
-              <div className="animate-car-bounce relative" style={{ filter: 'drop-shadow(0 0 4px hsl(220 70% 50% / 0.35))' }}>
-                <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
-                {/* Animated wheels overlay */}
-                <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-                <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
-              </div>
-            )}
-            {/* Road */}
-            <div className="relative w-12 -mt-1.5">
-              <div className={`w-full h-[2px] bg-muted-foreground/40 rounded-full ${totalStats.totalKm > 0 ? 'animate-road-wave' : ''}`} />
-            </div>
-          </div>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <BarChart3 className="w-4 h-4" />
-              Kilomètres parcourus
-            </CardTitle>
-            {!isMobile && (
-              <CardDescription>
-                Sur les 12 derniers mois
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<ChartSkeleton />}>
-              <ProfileKmChart data={monthlyKmData} maxKm={chartMaxKm} isMobile={isMobile} />
-            </Suspense>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="py-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CreditCard className="w-4 h-4" />
-              Paiement
-              <span className="bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium px-2 py-0.5 rounded-md ml-auto">
-                Gratuit
-              </span>
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        {/* Invoices - Hidden while app is free */}
-
-
-        {/* Download App Button */}
-        <Button 
-          variant="outline" 
-          className="w-full"
-          onClick={async () => {
-            // Track click if user is logged in
-            if (user) {
-              try {
-                await supabase.from('download_clicks').insert({ user_id: user.id });
-              } catch (e) {
-                console.warn('Failed to track download click:', e);
-              }
-            }
-            navigate('/install');
-          }}
-        >
-          <Download className="w-4 h-4 mr-2" />
-          Télécharger l'application
-        </Button>
-
-        {/* Delete account - just before feedback */}
-        {user && (
-          <Card className="border-destructive/30">
-            <CardContent className="flex items-center justify-between gap-3 py-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <Trash2 className="w-5 h-5 text-destructive shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-medium text-sm">Supprimer mon compte</p>
-                  <p className="text-xs text-muted-foreground">
-                    Suppression définitive de vos données
-                  </p>
+              ) : (
+                <div className="space-y-3">
+                  {savedLocations.map((location) => (
+                    <AddressCard
+                      key={location.id}
+                      location={{
+                        id: location.id,
+                        name: location.name,
+                        address: location.address,
+                        type: location.type as "home" | "office" | "other",
+                      }}
+                      onEdit={() => {
+                        setEditingAddress(location);
+                        setAddressFormOpen(true);
+                      }}
+                      onDelete={() => {
+                        deleteLocation(location.id);
+                        toast.success("Adresse supprimée");
+                      }}
+                    />
+                  ))}
                 </div>
-              </div>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-8 text-xs px-3 shrink-0"
-                onClick={() => setDeleteAccountOpen(true)}
-              >
-                Supprimer
-              </Button>
+              )}
             </CardContent>
           </Card>
-        )}
 
-        {/* Feedback Button - Normal position when no unread responses */}
-        {user && unreadResponsesCount === 0 && <FeedbackForm />}
+          <AddressForm
+            open={addressFormOpen}
+            onOpenChange={setAddressFormOpen}
+            editLocation={
+              editingAddress
+                ? {
+                    id: editingAddress.id,
+                    name: editingAddress.name,
+                    address: editingAddress.address,
+                    type: editingAddress.type as "home" | "office" | "other",
+                    latitude: editingAddress.lat,
+                    longitude: editingAddress.lng,
+                  }
+                : undefined
+            }
+            onSave={(locationData) => {
+              if (editingAddress) {
+                updateLocation(editingAddress.id, {
+                  name: locationData.name,
+                  address: locationData.address,
+                  type: locationData.type,
+                  lat: locationData.latitude,
+                  lng: locationData.longitude,
+                });
+                toast.success("Adresse mise à jour");
+              } else {
+                addLocation({
+                  name: locationData.name,
+                  address: locationData.address ?? "",
+                  type: locationData.type,
+                  lat: locationData.latitude,
+                  lng: locationData.longitude,
+                });
+                toast.success("Adresse ajoutée");
+              }
+              setEditingAddress(null);
+            }}
+          />
 
-        {/* Admin Access */}
-        {isAdmin && (
-          <Card 
-            className="cursor-pointer hover:bg-accent/50 transition-colors border-primary/20"
-            onClick={() => navigate('/app/admin')}
-          >
-            <CardContent className="flex items-center justify-between py-4">
+          {/* Preferences Dropdown */}
+          <div className="bg-card rounded-md shadow-md overflow-hidden">
+            <button
+              onClick={() => setShowPreferencesDropdown(!showPreferencesDropdown)}
+              className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-primary" />
+                  <Settings className="w-5 h-5 text-primary" />
                 </div>
-                <div>
-                  <p className="font-medium">Administration</p>
-                  <p className="text-sm text-muted-foreground">Gérer les feedbacks et utilisateurs</p>
+                <div className="text-left">
+                  <p className="font-medium">Préférences</p>
+                  {!isMobile && (
+                    <p className="text-sm text-muted-foreground">Personnaliser l'application</p>
+                  )}
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              <ChevronDown
+                className={`w-5 h-5 text-muted-foreground transition-transform ${showPreferencesDropdown ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            <div
+              className={`grid transition-all duration-300 ease-out ${showPreferencesDropdown ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="overflow-hidden">
+                <div className="border-t border-border p-4 space-y-5">
+                  {/* Dark Mode */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {theme === "dark" ? (
+                        <Moon className="w-5 h-5 text-muted-foreground" />
+                      ) : (
+                        <Sun className="w-5 h-5 text-muted-foreground" />
+                      )}
+                      <Label htmlFor="dark-mode" className="cursor-pointer">
+                        Mode sombre
+                      </Label>
+                    </div>
+                    <Switch
+                      id="dark-mode"
+                      checked={theme === "dark"}
+                      onCheckedChange={toggleTheme}
+                    />
+                  </div>
+
+                  {/* Show Trip Time */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-muted-foreground" />
+                      <Label htmlFor="show-time" className="cursor-pointer">
+                        Afficher l'heure des trajets
+                      </Label>
+                    </div>
+                    <Switch
+                      id="show-time"
+                      checked={preferences.showTripTime}
+                      onCheckedChange={(checked) => updatePreference("showTripTime", checked)}
+                    />
+                  </div>
+
+                  {/* Stop Detection Interval */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Timer className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <Label>Détection des étapes</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Durée d'arrêt pour créer une étape
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 pl-8">
+                      <Slider
+                        value={[preferences.stopDetectionMinutes]}
+                        onValueChange={([value]) => updatePreference("stopDetectionMinutes", value)}
+                        min={1}
+                        max={15}
+                        step={1}
+                        className="flex-1"
+                      />
+                      <span className="text-sm font-medium w-16 text-right">
+                        {preferences.stopDetectionMinutes} min
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Location Radius */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <MapPin className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <Label>Rayon de détection</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Distance pour considérer un même lieu
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 pl-8">
+                      <Slider
+                        value={[preferences.locationRadiusMeters]}
+                        onValueChange={([value]) => updatePreference("locationRadiusMeters", value)}
+                        min={50}
+                        max={300}
+                        step={25}
+                        className="flex-1"
+                      />
+                      <span className="text-sm font-medium w-16 text-right">
+                        {preferences.locationRadiusMeters} m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Minimum Distance */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Route className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <Label>Distance minimum</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Seuil pour enregistrer un trajet
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 pl-8">
+                      <Slider
+                        value={[preferences.minDistanceKm]}
+                        onValueChange={([value]) => updatePreference("minDistanceKm", value)}
+                        min={0}
+                        max={5}
+                        step={0.5}
+                        className={`flex-1 ${preferences.minDistanceKm === 0 ? "[&_span[role=slider]]:border-amber-500 [&_span[role=slider]]:bg-amber-500 [&_[data-radix-slider-range]]:bg-amber-500" : ""}`}
+                      />
+                      <span className="text-sm font-medium w-16 text-right">
+                        {preferences.minDistanceKm} km
+                      </span>
+                    </div>
+                    {preferences.minDistanceKm === 0 && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 pl-8">
+                        Tous les trajets seront enregistrés
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Calendar Import Mode */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-3">
+                      <CalendarClock className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <Label>Import calendrier</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Comportement lors de la synchronisation
+                        </p>
+                      </div>
+                    </div>
+                    <RadioGroup
+                      value={preferences.calendarImportMode}
+                      onValueChange={(v) =>
+                        updatePreference("calendarImportMode", v as "individual" | "tour")
+                      }
+                      className="pl-8 space-y-2"
+                    >
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem
+                          value="individual"
+                          id="prof-cal-individual"
+                          className="mt-1"
+                        />
+                        <Label
+                          htmlFor="prof-cal-individual"
+                          className="cursor-pointer font-normal leading-snug"
+                        >
+                          <span className="block text-sm font-medium">Trajets individuels</span>
+                          <span className="block text-xs text-muted-foreground">
+                            Chaque événement devient un aller-retour depuis mon domicile
+                          </span>
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem value="tour" id="prof-cal-tour" className="mt-1" />
+                        <Label
+                          htmlFor="prof-cal-tour"
+                          className="cursor-pointer font-normal leading-snug"
+                        >
+                          <span className="block text-sm font-medium">Tournée journalière</span>
+                          <span className="block text-xs text-muted-foreground">
+                            Rendez-vous d'une même journée regroupés : domicile → étapes → domicile
+                          </span>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* IK rate override */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-3">
+                      <Calculator className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <Label>Taux d'indemnité kilométrique</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Utile pour figer un taux stable sur l'année
+                        </p>
+                      </div>
+                    </div>
+                    <RadioGroup
+                      value={preferences.ikRateOverride}
+                      onValueChange={(v) =>
+                        updatePreference("ikRateOverride", v as "auto" | "tier2" | "tier3")
+                      }
+                      className="pl-8 space-y-2"
+                    >
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem value="auto" id="prof-ik-auto" className="mt-1" />
+                        <Label
+                          htmlFor="prof-ik-auto"
+                          className="cursor-pointer font-normal leading-snug"
+                        >
+                          <span className="block text-sm font-medium">
+                            Barème automatique (recommandé)
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            Le taux évolue selon le cumul annuel (jusqu'à 5 000, 5 001–20 000,
+                            au-delà)
+                          </span>
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem value="tier2" id="prof-ik-tier2" className="mt-1" />
+                        <Label
+                          htmlFor="prof-ik-tier2"
+                          className="cursor-pointer font-normal leading-snug"
+                        >
+                          <span className="block text-sm font-medium">
+                            Forcer la tranche 5 001–20 000 km
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            Applique ce taux à tous les trajets, dès le 1er km
+                          </span>
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem value="tier3" id="prof-ik-tier3" className="mt-1" />
+                        <Label
+                          htmlFor="prof-ik-tier3"
+                          className="cursor-pointer font-normal leading-snug"
+                        >
+                          <span className="block text-sm font-medium">
+                            Forcer la tranche &gt; 20 000 km
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            Pour les gros rouleurs qui dépassent 20 000 km chaque année
+                          </span>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    <p className="pl-8 text-[11px] text-muted-foreground italic">
+                      Les trajets déjà enregistrés ne sont pas recalculés.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feedback Button - Shown at top when there are unread responses */}
+          {user && unreadResponsesCount > 0 && <FeedbackForm hasNotification />}
+
+          {/* Google Calendar Status Indicator */}
+          {user && <GoogleCalendarStatus userId={user.id} />}
+
+          {/* Calendar Connections */}
+          <CalendarConnections />
+
+          {/* Vehicles */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Car className="w-4 h-4" />
+                  Mes véhicules
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs px-2"
+                  onClick={() => {
+                    setEditingVehicle(null);
+                    setVehicleFormOpen(true);
+                  }}
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Ajouter
+                </Button>
+              </div>
+              {!isMobile && (
+                <CardDescription>Gérez vos véhicules pour le calcul des IK</CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="min-h-[100px]">
+              {tripsLoading ? (
+                <div className="space-y-3">
+                  <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
+                </div>
+              ) : vehicles.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Aucun véhicule enregistré</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {vehicles.map((vehicle) => (
+                    <VehicleCard
+                      key={vehicle.id}
+                      vehicle={vehicle}
+                      totalKm={getTotalAnnualKm(vehicle.id)}
+                      selected={false}
+                      onEdit={() => handleEditVehicle(vehicle)}
+                      onDelete={() => handleDeleteVehicle(vehicle.id)}
+                    />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
-        )}
+          <VehicleForm
+            open={vehicleFormOpen}
+            onOpenChange={setVehicleFormOpen}
+            onSave={handleSaveVehicle}
+            editVehicle={editingVehicle || undefined}
+          />
 
-        {/* Share Button */}
-        <Button 
-          variant="outline" 
-          className="w-full"
-          onClick={async () => {
-            const shareText = totalStats.totalKm > 0 
-              ? `J'ai parcouru ${totalStats.totalKm} km et récupéré ${totalStats.totalIk}€ d'indemnités avec IKtracker 🚗💰 Rejoins-moi !`
-              : "Voici un outil gratuit pour suivre automatiquement tes indemnités kilométriques 🚗";
-            
-            // Log share event
-            if (user) {
-              try {
-                await supabase.from('share_events').insert({
-                  user_id: user.id,
-                  total_km: totalStats.totalKm,
-                  total_ik: parseFloat(totalStats.totalIk),
-                });
-              } catch (error) {
-                console.error('Error logging share event:', error);
+          {/* Kilometers Chart */}
+          <Card className="relative">
+            {/* Animated car - at header level, above December bar */}
+            <div className="absolute top-4 right-[40px] flex flex-col items-center gap-0 z-10">
+              {totalStats.totalKm === 0 ? (
+                /* Sleeping car when 0 km */
+                <div
+                  className="relative"
+                  style={{ filter: "drop-shadow(0 0 4px hsl(220 70% 50% / 0.2))" }}
+                >
+                  <Car className="w-8 h-8 text-primary/60 fill-transparent" strokeWidth={1.5} />
+                  {/* Static wheels */}
+                  <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
+                  <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary/60" />
+                  {/* "Zz.." sleeping text inside car - lowered for better centering */}
+                  <span className="absolute top-[10px] left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary select-none animate-zz-float">
+                    Zz..
+                  </span>
+                  {/* Dot after the car (in front in driving direction) */}
+                  <div className="absolute bottom-[6px] -right-[6px] w-[4px] h-[4px] rounded-full bg-primary/60" />
+                </div>
+              ) : (
+                /* Animated car when > 0 km */
+                <div
+                  className="animate-car-bounce relative"
+                  style={{ filter: "drop-shadow(0 0 4px hsl(220 70% 50% / 0.35))" }}
+                >
+                  <Car className="w-8 h-8 text-primary fill-transparent" strokeWidth={1.5} />
+                  {/* Animated wheels overlay */}
+                  <div className="absolute bottom-[4px] left-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+                  <div className="absolute bottom-[4px] right-[4px] w-[7px] h-[7px] rounded-full border-[1.5px] border-primary border-dashed animate-wheel-spin" />
+                </div>
+              )}
+              {/* Road */}
+              <div className="relative w-12 -mt-1.5">
+                <div
+                  className={`w-full h-[2px] bg-muted-foreground/40 rounded-full ${totalStats.totalKm > 0 ? "animate-road-wave" : ""}`}
+                />
+              </div>
+            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <BarChart3 className="w-4 h-4" />
+                Kilomètres parcourus
+              </CardTitle>
+              {!isMobile && <CardDescription>Sur les 12 derniers mois</CardDescription>}
+            </CardHeader>
+            <CardContent>
+              <Suspense fallback={<ChartSkeleton />}>
+                <ProfileKmChart data={monthlyKmData} maxKm={chartMaxKm} isMobile={isMobile} />
+              </Suspense>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="py-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CreditCard className="w-4 h-4" />
+                Paiement
+                <span className="bg-green-500/15 text-green-600 dark:text-green-400 text-xs font-medium px-2 py-0.5 rounded-md ml-auto">
+                  Gratuit
+                </span>
+              </CardTitle>
+            </CardHeader>
+          </Card>
+
+          {/* Invoices - Hidden while app is free */}
+
+          {/* Download App Button */}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={async () => {
+              // Track click if user is logged in
+              if (user) {
+                try {
+                  await supabase.from("download_clicks").insert({ user_id: user.id });
+                } catch (e) {
+                  console.warn("Failed to track download click:", e);
+                }
               }
-            }
-            
-            const shareUrl = 'https://iktracker.fr';
-            
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: 'IKtracker',
-                  text: shareText,
-                  url: shareUrl,
-                });
-              } catch (error) {
-                // User cancelled or error
+              navigate("/install");
+            }}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Télécharger l'application
+          </Button>
+
+          {/* Delete account - just before feedback */}
+          {user && (
+            <Card className="border-destructive/30">
+              <CardContent className="flex items-center justify-between gap-3 py-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Trash2 className="w-5 h-5 text-destructive shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm">Supprimer mon compte</p>
+                    <p className="text-xs text-muted-foreground">
+                      Suppression définitive de vos données
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-8 text-xs px-3 shrink-0"
+                  onClick={() => setDeleteAccountOpen(true)}
+                >
+                  Supprimer
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Feedback Button - Normal position when no unread responses */}
+          {user && unreadResponsesCount === 0 && <FeedbackForm />}
+
+          {/* Admin Access */}
+          {isAdmin && (
+            <Card
+              className="cursor-pointer hover:bg-accent/50 transition-colors border-primary/20"
+              onClick={() => navigate("/app/admin")}
+            >
+              <CardContent className="flex items-center justify-between py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Administration</p>
+                    <p className="text-sm text-muted-foreground">
+                      Gérer les feedbacks et utilisateurs
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Share Button */}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={async () => {
+              const shareText =
+                totalStats.totalKm > 0
+                  ? `J'ai parcouru ${totalStats.totalKm} km et récupéré ${totalStats.totalIk}€ d'indemnités avec IKtracker 🚗💰 Rejoins-moi !`
+                  : "Voici un outil gratuit pour suivre automatiquement tes indemnités kilométriques 🚗";
+
+              // Log share event
+              if (user) {
+                try {
+                  await supabase.from("share_events").insert({
+                    user_id: user.id,
+                    total_km: totalStats.totalKm,
+                    total_ik: parseFloat(totalStats.totalIk),
+                  });
+                } catch (error) {
+                  console.error("Error logging share event:", error);
+                }
               }
-            } else {
-              // Fallback: copy to clipboard
-              navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-              const { toast } = await import('@/components/ui/sonner');
-              toast.success('Lien copié !');
-            }
-          }}
-        >
-          <Share2 className="w-4 h-4 mr-2" />
-          Partager l'application
-        </Button>
 
-        {/* Login / Logout Button */}
-        {user ? (
-          <Button 
-            variant="outline" 
-            className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleSignOut}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Déconnexion
-          </Button>
-        ) : (
-          <Button 
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-            onClick={() => navigate('/auth')}
-          >
-            <LogOut className="w-4 h-4 mr-2 rotate-180" />
-            Connexion
-          </Button>
-        )}
+              const shareUrl = "https://iktracker.fr";
 
-        {/* App Info */}
-        <div className="text-center text-xs text-muted-foreground pt-2 space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <Link to="/terms" className="hover:underline hover:text-foreground transition-colors">
-              CGVU
-            </Link>
-            <span>•</span>
-            <Link to="/privacy" className="hover:underline hover:text-foreground transition-colors">
-              Confidentialité
-            </Link>
+              if (navigator.share) {
+                try {
+                  await navigator.share({
+                    title: "IKtracker",
+                    text: shareText,
+                    url: shareUrl,
+                  });
+                } catch (error) {
+                  // User cancelled or error
+                }
+              } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+                const { toast } = await import("@/components/ui/sonner");
+                toast.success("Lien copié !");
+              }
+            }}
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Partager l'application
+          </Button>
+
+          {/* Login / Logout Button */}
+          {user ? (
+            <Button
+              variant="outline"
+              className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
+          ) : (
+            <Button
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              onClick={() => navigate("/auth")}
+            >
+              <LogOut className="w-4 h-4 mr-2 rotate-180" />
+              Connexion
+            </Button>
+          )}
+
+          {/* App Info */}
+          <div className="text-center text-xs text-muted-foreground pt-2 space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <Link to="/terms" className="hover:underline hover:text-foreground transition-colors">
+                CGVU
+              </Link>
+              <span>•</span>
+              <Link
+                to="/privacy"
+                className="hover:underline hover:text-foreground transition-colors"
+              >
+                Confidentialité
+              </Link>
+            </div>
+            <p>IKtracker V3.2</p>
+            <p>© 2024 - Tous droits réservés</p>
           </div>
-          <p>IKtracker V3.2</p>
-          <p>© 2024 - Tous droits réservés</p>
-        </div>
-      </main>
+        </main>
       </div>
 
-      <AlertDialog open={deleteAccountOpen} onOpenChange={(o) => !deletingAccount && setDeleteAccountOpen(o)}>
+      <AlertDialog
+        open={deleteAccountOpen}
+        onOpenChange={(o) => !deletingAccount && setDeleteAccountOpen(o)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
@@ -1041,14 +1174,19 @@ const Profile = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deletingAccount}>Annuler</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteAccount();
+              }}
               disabled={deletingAccount}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deletingAccount ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Suppression…</>
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Suppression…
+                </>
               ) : (
-                'Supprimer définitivement'
+                "Supprimer définitivement"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

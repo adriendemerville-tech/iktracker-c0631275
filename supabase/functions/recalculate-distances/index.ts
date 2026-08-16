@@ -2,13 +2,13 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
 
 // IK Barème 2024
 interface IKBareme {
@@ -19,11 +19,36 @@ interface IKBareme {
 }
 
 const IK_BAREME_2024: IKBareme[] = [
-  { cv: '3', upTo5000: { rate: 0.529 }, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: { rate: 0.370 } },
-  { cv: '4', upTo5000: { rate: 0.606 }, from5001To20000: { rate: 0.340, fixed: 1330 }, over20000: { rate: 0.407 } },
-  { cv: '5', upTo5000: { rate: 0.636 }, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: { rate: 0.427 } },
-  { cv: '6', upTo5000: { rate: 0.665 }, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: { rate: 0.447 } },
-  { cv: '7+', upTo5000: { rate: 0.697 }, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: { rate: 0.470 } },
+  {
+    cv: "3",
+    upTo5000: { rate: 0.529 },
+    from5001To20000: { rate: 0.316, fixed: 1065 },
+    over20000: { rate: 0.37 },
+  },
+  {
+    cv: "4",
+    upTo5000: { rate: 0.606 },
+    from5001To20000: { rate: 0.34, fixed: 1330 },
+    over20000: { rate: 0.407 },
+  },
+  {
+    cv: "5",
+    upTo5000: { rate: 0.636 },
+    from5001To20000: { rate: 0.357, fixed: 1395 },
+    over20000: { rate: 0.427 },
+  },
+  {
+    cv: "6",
+    upTo5000: { rate: 0.665 },
+    from5001To20000: { rate: 0.374, fixed: 1457 },
+    over20000: { rate: 0.447 },
+  },
+  {
+    cv: "7+",
+    upTo5000: { rate: 0.697 },
+    from5001To20000: { rate: 0.394, fixed: 1515 },
+    over20000: { rate: 0.47 },
+  },
 ];
 
 function getIKBareme(fiscalPower: number): IKBareme {
@@ -39,7 +64,7 @@ function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number): num
   if (totalAnnualKm <= 5000) {
     return totalAnnualKm * bareme.upTo5000.rate;
   } else if (totalAnnualKm <= 20000) {
-    return (totalAnnualKm * bareme.from5001To20000.rate) + bareme.from5001To20000.fixed;
+    return totalAnnualKm * bareme.from5001To20000.rate + bareme.from5001To20000.fixed;
   } else {
     return totalAnnualKm * bareme.over20000.rate;
   }
@@ -48,10 +73,10 @@ function calculateTotalAnnualIK(totalAnnualKm: number, fiscalPower: number): num
 // Get user's home location for distance calculation
 async function getUserHomeLocation(userId: string, supabase: any): Promise<string | null> {
   const { data: homeLocation } = await supabase
-    .from('locations')
-    .select('address, name')
-    .eq('user_id', userId)
-    .eq('type', 'home')
+    .from("locations")
+    .select("address, name")
+    .eq("user_id", userId)
+    .eq("type", "home")
     .limit(1);
 
   if (homeLocation && homeLocation.length > 0 && homeLocation[0].address) {
@@ -59,10 +84,10 @@ async function getUserHomeLocation(userId: string, supabase: any): Promise<strin
   }
 
   const { data: anyLocation } = await supabase
-    .from('locations')
-    .select('address, name')
-    .eq('user_id', userId)
-    .not('address', 'is', null)
+    .from("locations")
+    .select("address, name")
+    .eq("user_id", userId)
+    .not("address", "is", null)
     .limit(1);
 
   if (anyLocation && anyLocation.length > 0 && anyLocation[0].address) {
@@ -73,34 +98,37 @@ async function getUserHomeLocation(userId: string, supabase: any): Promise<strin
 }
 
 // Calculate driving distance using Google Maps Distance Matrix API
-async function calculateDrivingDistance(origin: string, destination: string): Promise<number | null> {
+async function calculateDrivingDistance(
+  origin: string,
+  destination: string,
+): Promise<number | null> {
   try {
     const params = new URLSearchParams({
       origins: origin,
       destinations: destination,
-      mode: 'driving',
-      language: 'fr',
+      mode: "driving",
+      language: "fr",
       key: GOOGLE_MAPS_API_KEY,
     });
 
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/distancematrix/json?${params}`
+      `https://maps.googleapis.com/maps/api/distancematrix/json?${params}`,
     );
 
     if (!response.ok) {
-      console.error('Distance Matrix API error:', response.status);
+      console.error("Distance Matrix API error:", response.status);
       return null;
     }
 
     const data = await response.json();
-    
-    if (data.status !== 'OK') {
-      console.error('Distance Matrix API status:', data.status, data.error_message);
+
+    if (data.status !== "OK") {
+      console.error("Distance Matrix API status:", data.status, data.error_message);
       return null;
     }
 
     const element = data.rows?.[0]?.elements?.[0];
-    if (element?.status === 'OK' && element.distance?.value) {
+    if (element?.status === "OK" && element.distance?.value) {
       const distanceKm = Math.round(element.distance.value / 100) / 10;
       console.log(`📏 Distance: ${origin} → ${destination} = ${distanceKm} km`);
       return distanceKm;
@@ -109,40 +137,48 @@ async function calculateDrivingDistance(origin: string, destination: string): Pr
     console.log(`⚠️ Could not calculate distance: ${origin} → ${destination}`);
     return null;
   } catch (error) {
-    console.error('Error calculating distance:', error);
+    console.error("Error calculating distance:", error);
     return null;
   }
 }
 
 // Get vehicle info
-async function getVehicle(vehicleId: string, supabase: any): Promise<{ fiscal_power: number; is_electric: boolean } | null> {
+async function getVehicle(
+  vehicleId: string,
+  supabase: any,
+): Promise<{ fiscal_power: number; is_electric: boolean } | null> {
   const { data } = await supabase
-    .from('vehicles')
-    .select('fiscal_power, is_electric')
-    .eq('id', vehicleId)
+    .from("vehicles")
+    .select("fiscal_power, is_electric")
+    .eq("id", vehicleId)
     .maybeSingle();
-  
+
   return data;
 }
 
 // Get total annual km for a vehicle
-async function getVehicleAnnualKm(userId: string, vehicleId: string, tripDate: string, supabase: any): Promise<number> {
+async function getVehicleAnnualKm(
+  userId: string,
+  vehicleId: string,
+  tripDate: string,
+  supabase: any,
+): Promise<number> {
   const year = new Date(tripDate).getFullYear();
   const startOfYear = `${year}-01-01`;
-  
+
   const { data: trips } = await supabase
-    .from('trips')
-    .select('distance, date')
-    .eq('user_id', userId)
-    .eq('vehicle_id', vehicleId)
-    .gte('date', startOfYear)
-    .lt('date', tripDate);
+    .from("trips")
+    .select("distance, date")
+    .eq("user_id", userId)
+    .eq("vehicle_id", vehicleId)
+    .gte("date", startOfYear)
+    .lt("date", tripDate);
 
   return trips?.reduce((sum: number, t: { distance: number }) => sum + (t.distance || 0), 0) || 0;
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -153,29 +189,31 @@ serve(async (req) => {
     const { tripId, newStartLocation, newEndLocation } = body;
 
     // Authentication gate
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const cronSecret = Deno.env.get('CRON_SECRET');
-    const providedCronSecret = req.headers.get('x-cron-secret');
-    const authHeader = req.headers.get('Authorization') || '';
-    const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    const providedCronSecret = req.headers.get("x-cron-secret");
+    const authHeader = req.headers.get("Authorization") || "";
+    const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
     let authedUserId: string | null = null;
-    const isCron = (bearer && bearer === serviceRoleKey) ||
-      (cronSecret && providedCronSecret === cronSecret);
+    const isCron =
+      (bearer && bearer === serviceRoleKey) || (cronSecret && providedCronSecret === cronSecret);
 
     if (isCron) {
       // cron-authenticated; full access
     } else if (bearer) {
       const { data: userData, error: userErr } = await supabase.auth.getUser(bearer);
       if (userErr || !userData?.user) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       authedUserId = userData.user.id;
       // Batch mode is allowed for a logged-in user, but scoped to their own trips only.
     } else {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -184,26 +222,32 @@ serve(async (req) => {
       // Ownership check for user-authenticated single-trip updates
       if (authedUserId) {
         const { data: ownerCheck } = await supabase
-          .from('trips').select('user_id').eq('id', tripId).single();
+          .from("trips")
+          .select("user_id")
+          .eq("id", tripId)
+          .single();
         if (!ownerCheck || ownerCheck.user_id !== authedUserId) {
-          return new Response(JSON.stringify({ error: 'Forbidden' }), {
-            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
       }
-      console.log(`Updating single trip ${tripId} with start: ${newStartLocation || 'auto'}, end: ${newEndLocation}`);
-      
+      console.log(
+        `Updating single trip ${tripId} with start: ${newStartLocation || "auto"}, end: ${newEndLocation}`,
+      );
+
       // Get trip details
       const { data: trip, error: tripError } = await supabase
-        .from('trips')
-        .select('id, user_id, vehicle_id, start_location, round_trip, date')
-        .eq('id', tripId)
+        .from("trips")
+        .select("id, user_id, vehicle_id, start_location, round_trip, date")
+        .eq("id", tripId)
         .single();
 
       if (tripError || !trip) {
-        return new Response(JSON.stringify({ success: false, error: 'Trip not found' }), {
+        return new Response(JSON.stringify({ success: false, error: "Trip not found" }), {
           status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
@@ -212,23 +256,36 @@ serve(async (req) => {
       if (!startLocation) {
         startLocation = await getUserHomeLocation(trip.user_id, supabase);
         if (!startLocation) {
-          return new Response(JSON.stringify({ success: false, error: 'No start address provided and no home address configured' }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "No start address provided and no home address configured",
+            }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
         }
       }
 
       // Calculate distance
       const oneWayDistance = await calculateDrivingDistance(startLocation, newEndLocation);
-      
+
       // If start and end are different but distance is 0 or null, force recalculation error
-      const locationsAreDifferent = startLocation.toLowerCase().trim() !== newEndLocation.toLowerCase().trim();
+      const locationsAreDifferent =
+        startLocation.toLowerCase().trim() !== newEndLocation.toLowerCase().trim();
       if (oneWayDistance === null || (oneWayDistance === 0 && locationsAreDifferent)) {
-        return new Response(JSON.stringify({ success: false, error: 'Could not calculate distance - locations are different but distance is zero' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Could not calculate distance - locations are different but distance is zero",
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
       }
 
       const totalDistance = trip.round_trip ? oneWayDistance * 2 : oneWayDistance;
@@ -238,66 +295,77 @@ serve(async (req) => {
       if (trip.vehicle_id) {
         const vehicle = await getVehicle(trip.vehicle_id, supabase);
         if (vehicle) {
-          const annualKmBefore = await getVehicleAnnualKm(trip.user_id, trip.vehicle_id, trip.date, supabase);
+          const annualKmBefore = await getVehicleAnnualKm(
+            trip.user_id,
+            trip.vehicle_id,
+            trip.date,
+            supabase,
+          );
           const annualKmAfter = annualKmBefore + totalDistance;
-          
+
           const ikBefore = calculateTotalAnnualIK(annualKmBefore, vehicle.fiscal_power);
           const ikAfter = calculateTotalAnnualIK(annualKmAfter, vehicle.fiscal_power);
           ikAmount = ikAfter - ikBefore;
-          
+
           if (vehicle.is_electric) {
-            ikAmount *= 1.20;
+            ikAmount *= 1.2;
           }
-          
+
           ikAmount = Math.round(ikAmount * 100) / 100;
         }
       }
 
       // Update trip with both start and end locations
       const { error: updateError } = await supabase
-        .from('trips')
+        .from("trips")
         .update({
           start_location: startLocation,
           end_location: newEndLocation,
           distance: totalDistance,
           ik_amount: ikAmount,
-          status: 'validated',
+          status: "validated",
         })
-        .eq('id', tripId);
+        .eq("id", tripId);
 
       if (updateError) {
-        console.error('Error updating trip:', updateError);
-        return new Response(JSON.stringify({ success: false, error: 'Failed to update trip' }), {
+        console.error("Error updating trip:", updateError);
+        return new Response(JSON.stringify({ success: false, error: "Failed to update trip" }), {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       console.log(`✅ Updated trip ${tripId}: ${totalDistance}km, ${ikAmount}€`);
-      return new Response(JSON.stringify({ 
-        success: true, 
-        distance: totalDistance,
-        ikAmount,
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          success: true,
+          distance: totalDistance,
+          ikAmount,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Batch mode: recalculate all trips with distance = 0
-    console.log(`Starting batch distance recalculation${authedUserId ? ` for user ${authedUserId}` : ' (cron)'}...`);
-    
+    console.log(
+      `Starting batch distance recalculation${authedUserId ? ` for user ${authedUserId}` : " (cron)"}...`,
+    );
+
     // Get all trips with distance = 0 (scoped to the caller when user-authenticated)
     let batchQuery = supabase
-      .from('trips')
-      .select('id, user_id, vehicle_id, start_location, end_location, round_trip, date')
-      .eq('distance', 0)
-      .is('deleted_at', null);
-    if (authedUserId) batchQuery = batchQuery.eq('user_id', authedUserId);
-    const { data: tripsToUpdate, error: tripsError } = await batchQuery
-      .order('date', { ascending: true });
+      .from("trips")
+      .select("id, user_id, vehicle_id, start_location, end_location, round_trip, date")
+      .eq("distance", 0)
+      .is("deleted_at", null);
+    if (authedUserId) batchQuery = batchQuery.eq("user_id", authedUserId);
+    const { data: tripsToUpdate, error: tripsError } = await batchQuery.order("date", {
+      ascending: true,
+    });
 
     if (tripsError) {
-      console.error('Error fetching trips:', tripsError);
+      console.error("Error fetching trips:", tripsError);
       throw tripsError;
     }
 
@@ -325,15 +393,16 @@ serve(async (req) => {
         }
 
         // Determine origin: use home address if start_location is just a name like "Maison"
-        const origin = trip.start_location.toLowerCase().includes('maison') || 
-                       trip.start_location.toLowerCase().includes('domicile') ||
-                       trip.start_location.length < 20 
-                       ? userHome 
-                       : trip.start_location;
+        const origin =
+          trip.start_location.toLowerCase().includes("maison") ||
+          trip.start_location.toLowerCase().includes("domicile") ||
+          trip.start_location.length < 20
+            ? userHome
+            : trip.start_location;
 
         // Calculate distance
         const oneWayDistance = await calculateDrivingDistance(origin, trip.end_location);
-        
+
         if (oneWayDistance === null || oneWayDistance === 0) {
           console.log(`⏭️ Skipping trip ${trip.id} - could not calculate distance`);
           skipped++;
@@ -348,31 +417,36 @@ serve(async (req) => {
         if (trip.vehicle_id) {
           const vehicle = await getVehicle(trip.vehicle_id, supabase);
           if (vehicle) {
-            const annualKmBefore = await getVehicleAnnualKm(trip.user_id, trip.vehicle_id, trip.date, supabase);
+            const annualKmBefore = await getVehicleAnnualKm(
+              trip.user_id,
+              trip.vehicle_id,
+              trip.date,
+              supabase,
+            );
             const annualKmAfter = annualKmBefore + totalDistance;
-            
+
             const ikBefore = calculateTotalAnnualIK(annualKmBefore, vehicle.fiscal_power);
             const ikAfter = calculateTotalAnnualIK(annualKmAfter, vehicle.fiscal_power);
             ikAmount = ikAfter - ikBefore;
-            
+
             if (vehicle.is_electric) {
-              ikAmount *= 1.20;
+              ikAmount *= 1.2;
             }
-            
+
             ikAmount = Math.round(ikAmount * 100) / 100;
           }
         }
 
         // Update trip
         const { error: updateError } = await supabase
-          .from('trips')
+          .from("trips")
           .update({
             distance: totalDistance,
             start_location: origin,
             ik_amount: ikAmount,
-            status: 'validated',
+            status: "validated",
           })
-          .eq('id', trip.id);
+          .eq("id", trip.id);
 
         if (updateError) {
           console.error(`❌ Failed to update trip ${trip.id}:`, updateError);
@@ -382,7 +456,6 @@ serve(async (req) => {
 
         console.log(`✅ Updated trip ${trip.id}: ${totalDistance}km, ${ikAmount}€`);
         updated++;
-
       } catch (error) {
         console.error(`Error processing trip ${trip.id}:`, error);
         failed++;
@@ -398,17 +471,17 @@ serve(async (req) => {
       timestamp: new Date().toISOString(),
     };
 
-    console.log('Distance recalculation completed:', result);
+    console.log("Distance recalculation completed:", result);
 
     return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error('Error in recalculate-distances:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Error in recalculate-distances:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

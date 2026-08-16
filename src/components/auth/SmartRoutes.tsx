@@ -15,7 +15,7 @@ const PageLoader = () => null;
 export const SmartLanding = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const fromApp = new URLSearchParams(location.search).get('from') === 'app';
+  const fromApp = new URLSearchParams(location.search).get("from") === "app";
 
   // Still loading auth state - show AuthLoadingScreen for consistency
   if (loading) {

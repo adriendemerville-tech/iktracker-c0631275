@@ -6,8 +6,8 @@ import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 export const Route = createFileRoute("/app/archive")({
   head: () => ({
     meta: [
-      {"title":"Archive des relevés IK | IKtracker"},
-      {"name":"robots","content":"noindex, nofollow"},
+      { title: "Archive des relevés IK | IKtracker" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: () => (

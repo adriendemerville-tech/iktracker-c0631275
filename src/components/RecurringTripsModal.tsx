@@ -17,7 +17,20 @@ interface Props {
   onAddNew?: () => void;
 }
 
-const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
+const MONTHS_FR = [
+  "Jan",
+  "Fév",
+  "Mar",
+  "Avr",
+  "Mai",
+  "Juin",
+  "Juil",
+  "Aoû",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Déc",
+];
 
 export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: Props) {
   const { items, update, remove, loading } = useRecurringTrips();
@@ -34,7 +47,8 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
   };
 
   const saveEdit = async (r: RecurringTrip) => {
-    const weeks = editWeeks.trim() === "" ? null : Math.max(1, parseInt(editWeeks, 10) || 0) || null;
+    const weeks =
+      editWeeks.trim() === "" ? null : Math.max(1, parseInt(editWeeks, 10) || 0) || null;
     await update(r.id, {
       daysOfWeek: editDays,
       weeksDuration: weeks,
@@ -45,15 +59,20 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
   };
 
   const toggleDay = (d: number) => {
-    setEditDays(editDays.includes(d) ? editDays.filter(x => x !== d) : [...editDays, d].sort());
+    setEditDays(editDays.includes(d) ? editDays.filter((x) => x !== d) : [...editDays, d].sort());
   };
 
   const toggleMonth = (m: number) => {
-    setEditMonths(editMonths.includes(m) ? editMonths.filter(x => x !== m) : [...editMonths, m].sort((a, b) => a - b));
+    setEditMonths(
+      editMonths.includes(m)
+        ? editMonths.filter((x) => x !== m)
+        : [...editMonths, m].sort((a, b) => a - b),
+    );
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce trajet récurrent ? Les trajets déjà générés ne sont pas affectés.")) return;
+    if (!confirm("Supprimer ce trajet récurrent ? Les trajets déjà générés ne sont pas affectés."))
+      return;
     await remove(id);
     toast.success("Trajet récurrent supprimé");
   };
@@ -67,7 +86,12 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
             Trajets récurrents
           </DialogTitle>
           {onAddNew && (
-            <Button size="sm" variant="outline" onClick={onAddNew} className="mt-2 h-8 w-8 p-0 rounded-full">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onAddNew}
+              className="mt-2 h-8 w-8 p-0 rounded-full"
+            >
               <Plus className="w-4 h-4" />
             </Button>
           )}
@@ -81,17 +105,18 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
           </p>
         ) : (
           <div className="space-y-3">
-            {items.map(r => {
-              const vehicle = vehicles.find(v => v.id === r.vehicleId);
+            {items.map((r) => {
+              const vehicle = vehicles.find((v) => v.id === r.vehicleId);
               const isEdit = editing === r.id;
               const days = isEdit ? editDays : r.daysOfWeek;
-              const months = isEdit ? editMonths : (r.activeMonths || []);
+              const months = isEdit ? editMonths : r.activeMonths || [];
               return (
                 <div key={r.id} className="border rounded-md p-3 space-y-3 bg-card">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm truncate">
-                        {r.startLocation?.name || r.startLocation?.address} → {r.endLocation?.name || r.endLocation?.address}
+                        {r.startLocation?.name || r.startLocation?.address} →{" "}
+                        {r.endLocation?.name || r.endLocation?.address}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {r.distance.toFixed(1)} km · {r.purpose || "Sans motif"}
@@ -107,7 +132,7 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
                   <div>
                     <p className="text-[11px] font-medium text-muted-foreground mb-1">Jours</p>
                     <div className="grid grid-cols-7 gap-1">
-                      {[1, 2, 3, 4, 5, 6, 0].map(d => {
+                      {[1, 2, 3, 4, 5, 6, 0].map((d) => {
                         const active = days.includes(d);
                         return (
                           <button
@@ -117,8 +142,10 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
                             onClick={() => toggleDay(d)}
                             className={cn(
                               "py-1.5 rounded text-[11px] font-medium transition-colors",
-                              active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                              isEdit && "hover:opacity-80 cursor-pointer"
+                              active
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground",
+                              isEdit && "hover:opacity-80 cursor-pointer",
                             )}
                           >
                             {DAYS_FR[d]}
@@ -130,10 +157,11 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
 
                   <div>
                     <p className="text-[11px] font-medium text-muted-foreground mb-1">
-                      Mois actifs {months.length === 0 && <span className="font-normal">(tous)</span>}
+                      Mois actifs{" "}
+                      {months.length === 0 && <span className="font-normal">(tous)</span>}
                     </p>
                     <div className="grid grid-cols-6 gap-1">
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map(m => {
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
                         const active = months.includes(m);
                         return (
                           <button
@@ -143,8 +171,10 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
                             onClick={() => toggleMonth(m)}
                             className={cn(
                               "py-1.5 rounded text-[11px] font-medium transition-colors",
-                              active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                              isEdit && "hover:opacity-80 cursor-pointer"
+                              active
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground",
+                              isEdit && "hover:opacity-80 cursor-pointer",
                             )}
                           >
                             {MONTHS_FR[m - 1]}
@@ -155,7 +185,10 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
                   </div>
 
                   <div>
-                    <Label htmlFor={`weeks-${r.id}`} className="text-[11px] font-medium text-muted-foreground">
+                    <Label
+                      htmlFor={`weeks-${r.id}`}
+                      className="text-[11px] font-medium text-muted-foreground"
+                    >
                       Durée (semaines)
                     </Label>
                     {isEdit ? (
@@ -170,7 +203,9 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
                       />
                     ) : (
                       <p className="text-xs mt-1">
-                        {r.weeksDuration ? `${r.weeksDuration} semaine${r.weeksDuration > 1 ? "s" : ""}` : "Illimité"}
+                        {r.weeksDuration
+                          ? `${r.weeksDuration} semaine${r.weeksDuration > 1 ? "s" : ""}`
+                          : "Illimité"}
                       </p>
                     )}
                   </div>
@@ -190,7 +225,12 @@ export function RecurringTripsModal({ open, onOpenChange, vehicles, onAddNew }: 
                         <Button size="sm" variant="ghost" onClick={() => startEdit(r)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleDelete(r.id)} className="text-destructive">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDelete(r.id)}
+                          className="text-destructive"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </>

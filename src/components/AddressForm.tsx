@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Home, Building2, MapPin, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
-import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
+import { useState, useEffect, useRef } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Home, Building2, MapPin, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { AddressAutocompleteInput } from "@/components/AddressAutocompleteInput";
+import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
 
 interface Location {
   id: string;
@@ -21,44 +21,44 @@ interface Location {
 interface AddressFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (location: Omit<Location, 'id'>) => void;
+  onSave: (location: Omit<Location, "id">) => void;
   editLocation?: Location;
 }
 
 export function AddressForm({ open, onOpenChange, onSave, editLocation }: AddressFormProps) {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [type, setType] = useState<string>('home');
-  const [customType, setCustomType] = useState('');
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [type, setType] = useState<string>("home");
+  const [customType, setCustomType] = useState("");
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
   const [isValidating, setIsValidating] = useState(false);
   const [addressValidated, setAddressValidated] = useState(false);
-  
+
   const addressInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     if (editLocation) {
       setName(editLocation.name);
-      setAddress(editLocation.address || '');
+      setAddress(editLocation.address || "");
       // Check if type is a custom type (not home/office)
-      if (editLocation.type === 'home' || editLocation.type === 'office') {
+      if (editLocation.type === "home" || editLocation.type === "office") {
         setType(editLocation.type);
-        setCustomType('');
+        setCustomType("");
       } else {
-        setType('other');
-        setCustomType(editLocation.type === 'other' ? '' : editLocation.type);
+        setType("other");
+        setCustomType(editLocation.type === "other" ? "" : editLocation.type);
       }
       setLatitude(editLocation.latitude);
       setLongitude(editLocation.longitude);
       // If editing and has coordinates, consider it validated
       setAddressValidated(!!editLocation.latitude && !!editLocation.longitude);
     } else {
-      setName('');
-      setAddress('');
-      setType('home');
-      setCustomType('');
+      setName("");
+      setAddress("");
+      setType("home");
+      setCustomType("");
       setLatitude(undefined);
       setLongitude(undefined);
       setAddressValidated(false);
@@ -81,9 +81,15 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
   };
 
   // Geocode address using Géoplateforme search API as fallback
-  const geocodeAddressFallback = async (addressText: string): Promise<{ address: string; lat: number; lng: number } | null> => {
+  const geocodeAddressFallback = async (
+    addressText: string,
+  ): Promise<{ address: string; lat: number; lng: number } | null> => {
     try {
-      const params = new URLSearchParams({ q: addressText, type: 'housenumber,street', limit: '1' });
+      const params = new URLSearchParams({
+        q: addressText,
+        type: "housenumber,street",
+        limit: "1",
+      });
       const res = await fetch(`https://data.geopf.fr/geocodage/search?${params}`);
       if (!res.ok) return null;
       const data = await res.json();
@@ -104,22 +110,22 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !address.trim()) return;
-    
+
     // If address wasn't validated via autocomplete, geocode it
     let finalAddress = address.trim();
     let finalLat = latitude;
     let finalLng = longitude;
-    
+
     if (!addressValidated) {
       setIsValidating(true);
       const geocoded = await geocodeAddressFallback(address.trim());
       setIsValidating(false);
-      
+
       if (geocoded) {
         finalAddress = geocoded.address;
         finalLat = geocoded.lat;
         finalLng = geocoded.lng;
-        
+
         toast({
           title: "Adresse corrigée",
           description: `L'adresse a été corrigée en : ${geocoded.address}`,
@@ -133,10 +139,10 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
         return;
       }
     }
-    
+
     // Use custom type if "other" is selected and customType is provided
-    const finalType = type === 'other' && customType.trim() ? customType.trim() : type;
-    
+    const finalType = type === "other" && customType.trim() ? customType.trim() : type;
+
     onSave({
       name: name.trim(),
       address: finalAddress,
@@ -151,7 +157,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>{editLocation ? 'Modifier l\'adresse' : 'Nouvelle adresse'}</SheetTitle>
+          <SheetTitle>{editLocation ? "Modifier l'adresse" : "Nouvelle adresse"}</SheetTitle>
         </SheetHeader>
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           <div className="space-y-2">
@@ -167,7 +173,11 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
 
           <div className="space-y-2">
             <Label>Type de lieu</Label>
-            <RadioGroup value={type} onValueChange={(v) => setType(v as typeof type)} className="flex gap-4">
+            <RadioGroup
+              value={type}
+              onValueChange={(v) => setType(v as typeof type)}
+              className="flex gap-4"
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="home" id="type-home" />
                 <Label htmlFor="type-home" className="flex items-center gap-1.5 cursor-pointer">
@@ -184,7 +194,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="other" id="type-other" />
-                {type === 'other' ? (
+                {type === "other" ? (
                   <Input
                     id="custom-type"
                     placeholder="Personnaliser..."
@@ -194,7 +204,10 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
                     autoFocus
                   />
                 ) : (
-                  <Label htmlFor="type-other" className="flex items-center gap-1.5 cursor-pointer text-muted-foreground">
+                  <Label
+                    htmlFor="type-other"
+                    className="flex items-center gap-1.5 cursor-pointer text-muted-foreground"
+                  >
                     <MapPin className="w-4 h-4" />
                     Personnaliser
                   </Label>
@@ -208,7 +221,13 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
               Adresse complète
               {addressValidated && (
                 <span className="inline-flex items-center gap-1 text-xs text-emerald-500 font-normal">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   Validée
@@ -222,7 +241,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
                 value={address}
                 onChange={handleAddressChange}
                 onSelect={handleAddressSelect}
-                className={`transition-colors ${addressValidated ? 'border-emerald-500/50 focus-visible:ring-emerald-500/30' : ''}`}
+                className={`transition-colors ${addressValidated ? "border-emerald-500/50 focus-visible:ring-emerald-500/30" : ""}`}
               />
               {addressValidated && latitude && longitude && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
@@ -231,24 +250,35 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              {addressValidated 
+              {addressValidated
                 ? "Coordonnées GPS enregistrées pour le calcul des distances."
                 : "Sélectionnez une suggestion pour valider l'adresse."}
             </p>
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => onOpenChange(false)}
+            >
               Annuler
             </Button>
-            <Button type="submit" className="flex-1" disabled={!name.trim() || !address.trim() || isValidating}>
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={!name.trim() || !address.trim() || isValidating}
+            >
               {isValidating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Validation...
                 </>
+              ) : editLocation ? (
+                "Enregistrer"
               ) : (
-                editLocation ? 'Enregistrer' : 'Ajouter'
+                "Ajouter"
               )}
             </Button>
           </div>

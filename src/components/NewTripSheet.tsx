@@ -1,78 +1,105 @@
-import { useState, useEffect, useRef } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Switch } from './ui/switch';
-import { LocationPicker } from './LocationPicker';
-import { VehicleCard } from './VehicleCard';
-import { DetailsStepContent } from './trip/DetailsStepContent';
-import { Location, TripDraft, Vehicle } from '@/types/trip';
-import { calculateDrivingDistance } from '@/hooks/useGeolocation';
-import { geocodeAddress, reverseGeocode } from '@/lib/geocoding';
-import { toast } from '@/components/ui/sonner';
-import { MapPin, ArrowRight, Clock, FileText, Check, Car, Plus, CalendarIcon, RefreshCw, Navigation, Map, X, Pencil, Repeat } from 'lucide-react';
-import wazeLogo from '@/assets/waze-logo.webp';
-import googleMapsLogo from '@/assets/google-maps-logo.webp';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Calendar } from './ui/calendar';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { TripPromptBar, ParsedTrip } from './TripPromptBar';
+import { useState, useEffect, useRef } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Switch } from "./ui/switch";
+import { LocationPicker } from "./LocationPicker";
+import { VehicleCard } from "./VehicleCard";
+import { DetailsStepContent } from "./trip/DetailsStepContent";
+import { Location, TripDraft, Vehicle } from "@/types/trip";
+import { calculateDrivingDistance } from "@/hooks/useGeolocation";
+import { geocodeAddress, reverseGeocode } from "@/lib/geocoding";
+import { toast } from "@/components/ui/sonner";
+import {
+  MapPin,
+  ArrowRight,
+  Clock,
+  FileText,
+  Check,
+  Car,
+  Plus,
+  CalendarIcon,
+  RefreshCw,
+  Navigation,
+  Map,
+  X,
+  Pencil,
+  Repeat,
+} from "lucide-react";
+import wazeLogo from "@/assets/waze-logo.webp";
+import googleMapsLogo from "@/assets/google-maps-logo.webp";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Calendar } from "./ui/calendar";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { TripPromptBar, ParsedTrip } from "./TripPromptBar";
 
 // Normalize address for consistent caching
 const normalizeAddress = (address: string): string => {
-  return address.toLowerCase().trim().replace(/\s+/g, ' ');
+  return address.toLowerCase().trim().replace(/\s+/g, " ");
 };
 
 // Cache functions for distance
-const getCachedDistance = async (startAddress: string, endAddress: string): Promise<number | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+const getCachedDistance = async (
+  startAddress: string,
+  endAddress: string,
+): Promise<number | null> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
-  
+
   const normalizedStart = normalizeAddress(startAddress);
   const normalizedEnd = normalizeAddress(endAddress);
-  
+
   try {
     const { data } = await supabase
-      .from('distance_cache')
-      .select('distance')
-      .eq('user_id', user.id)
-      .eq('start_address', normalizedStart)
-      .eq('end_address', normalizedEnd)
+      .from("distance_cache")
+      .select("distance")
+      .eq("user_id", user.id)
+      .eq("start_address", normalizedStart)
+      .eq("end_address", normalizedEnd)
       .maybeSingle();
-    
+
     if (data?.distance) {
-      console.log('Cache hit for distance:', normalizedStart, '->', normalizedEnd);
+      console.log("Cache hit for distance:", normalizedStart, "->", normalizedEnd);
     }
-    
+
     return data?.distance ?? null;
   } catch (error) {
-    console.error('Error fetching cached distance:', error);
+    console.error("Error fetching cached distance:", error);
     return null;
   }
 };
 
-const saveCachedDistance = async (startAddress: string, endAddress: string, distance: number): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser();
+const saveCachedDistance = async (
+  startAddress: string,
+  endAddress: string,
+  distance: number,
+): Promise<void> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return;
-  
+
   const normalizedStart = normalizeAddress(startAddress);
   const normalizedEnd = normalizeAddress(endAddress);
-  
+
   try {
-    await supabase
-      .from('distance_cache')
-      .upsert({
+    await supabase.from("distance_cache").upsert(
+      {
         user_id: user.id,
         start_address: normalizedStart,
         end_address: normalizedEnd,
-        distance
-      }, { onConflict: 'user_id,start_address,end_address', ignoreDuplicates: true });
-    console.log('Distance cached:', normalizedStart, '->', normalizedEnd, distance, 'km');
+        distance,
+      },
+      { onConflict: "user_id,start_address,end_address", ignoreDuplicates: true },
+    );
+    console.log("Distance cached:", normalizedStart, "->", normalizedEnd, distance, "km");
   } catch (error) {
-    console.error('Error caching distance:', error);
+    console.error("Error caching distance:", error);
   }
 };
 
@@ -94,7 +121,7 @@ interface NewTripSheetProps {
     endTime: Date;
     ikAmount: number;
   } | null;
-  onAddLocation: (location: Omit<Location, 'id'>) => Promise<Location | null> | Location | null;
+  onAddLocation: (location: Omit<Location, "id">) => Promise<Location | null> | Location | null;
   onDeleteLocation?: (id: string) => void;
   onUpdateLocation?: (id: string, updates: Partial<Location>) => void;
   onAddVehicle: () => void;
@@ -109,17 +136,20 @@ interface NewTripSheetProps {
     startTime: Date;
     endTime: Date;
   }) => void;
-  onUpdateTrip?: (id: string, trip: {
-    vehicleId: string;
-    startLocation: Location;
-    endLocation: Location;
-    distance: number;
-    baseDistance: number;
-    roundTrip: boolean;
-    purpose: string;
-    startTime: Date;
-    endTime: Date;
-  }) => void;
+  onUpdateTrip?: (
+    id: string,
+    trip: {
+      vehicleId: string;
+      startLocation: Location;
+      endLocation: Location;
+      distance: number;
+      baseDistance: number;
+      roundTrip: boolean;
+      purpose: string;
+      startTime: Date;
+      endTime: Date;
+    },
+  ) => void;
   getTotalAnnualKm: (vehicleId: string) => number;
   onCreateRecurring?: (data: {
     vehicleId: string;
@@ -134,7 +164,7 @@ interface NewTripSheetProps {
   recurringOnly?: boolean;
 }
 
-type Step = 'vehicle' | 'start' | 'end' | 'details';
+type Step = "vehicle" | "start" | "end" | "details";
 
 // Store last selected vehicle ID
 let lastSelectedVehicleId: string | null = null;
@@ -155,10 +185,10 @@ export function NewTripSheet({
   onCreateRecurring,
   recurringOnly = false,
 }: NewTripSheetProps) {
-  const [step, setStep] = useState<Step>('vehicle');
+  const [step, setStep] = useState<Step>("vehicle");
   const [draft, setDraft] = useState<TripDraft>({});
-  const [purpose, setPurpose] = useState('');
-  const [manualDistance, setManualDistance] = useState('');
+  const [purpose, setPurpose] = useState("");
+  const [manualDistance, setManualDistance] = useState("");
   const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
   const [isBlinking, setIsBlinking] = useState(false);
   const [tripDate, setTripDate] = useState<Date>(new Date());
@@ -182,19 +212,19 @@ export function NewTripSheet({
         startTime: new Date(editTrip.startTime),
         endTime: new Date(editTrip.endTime),
       });
-      setPurpose(editTrip.purpose || '');
+      setPurpose(editTrip.purpose || "");
       // Show total distance in input (already doubled if round trip)
       setManualDistance(editTrip.distance.toString());
       setRoundTrip(editTrip.roundTrip);
       setTripDate(new Date(editTrip.startTime));
-      setStep('details');
-      
+      setStep("details");
+
       // Recalculate distance from cache or API if coordinates are available
       const start = editTrip.startLocation;
       const end = editTrip.endLocation;
       const startAddr = start?.address || start?.name;
       const endAddr = end?.address || end?.name;
-      
+
       const fetchDistance = async () => {
         // Check cache first
         if (startAddr && endAddr) {
@@ -204,22 +234,26 @@ export function NewTripSheet({
             return;
           }
         }
-        
+
         // Fall back to API
-        if (typeof start?.lat === 'number' && typeof start?.lng === 'number' &&
-            typeof end?.lat === 'number' && typeof end?.lng === 'number') {
+        if (
+          typeof start?.lat === "number" &&
+          typeof start?.lng === "number" &&
+          typeof end?.lat === "number" &&
+          typeof end?.lng === "number"
+        ) {
           const distance = await calculateDrivingDistance(start.lat, start.lng, end.lat, end.lng);
           if (!distance || distance <= 0) return;
           setCalculatedDistance(distance);
-          
+
           // Save to cache
           if (startAddr && endAddr) {
             saveCachedDistance(startAddr, endAddr, distance);
           }
         }
       };
-      
-      fetchDistance().catch((err) => console.error('Error fetching distance:', err));
+
+      fetchDistance().catch((err) => console.error("Error fetching distance:", err));
     }
   }, [open, editTrip]);
 
@@ -227,16 +261,16 @@ export function NewTripSheet({
   useEffect(() => {
     if (open && !editTrip && vehicles.length > 0 && !draft.vehicleId) {
       let vehicleToSelect: string | null = null;
-      
+
       if (vehicles.length === 1) {
         vehicleToSelect = vehicles[0].id;
-      } else if (lastSelectedVehicleId && vehicles.find(v => v.id === lastSelectedVehicleId)) {
+      } else if (lastSelectedVehicleId && vehicles.find((v) => v.id === lastSelectedVehicleId)) {
         vehicleToSelect = lastSelectedVehicleId;
       }
-      
+
       if (vehicleToSelect) {
-        setDraft(d => ({ ...d, vehicleId: vehicleToSelect }));
-        setStep('start');
+        setDraft((d) => ({ ...d, vehicleId: vehicleToSelect }));
+        setStep("start");
       }
     }
   }, [open, editTrip, vehicles, draft.vehicleId]);
@@ -244,14 +278,14 @@ export function NewTripSheet({
   // Restore draft from localStorage when opening (if not editing)
   useEffect(() => {
     if (open && !editTrip) {
-      const savedDraft = localStorage.getItem('iktracker_trip_draft');
+      const savedDraft = localStorage.getItem("iktracker_trip_draft");
       if (savedDraft) {
         try {
           const draftData = JSON.parse(savedDraft);
           // Only restore if saved within last 24 hours
           const savedAt = new Date(draftData.savedAt);
           const hoursSinceSaved = (Date.now() - savedAt.getTime()) / (1000 * 60 * 60);
-          
+
           if (hoursSinceSaved < 24) {
             setDraft({
               vehicleId: draftData.vehicleId,
@@ -260,38 +294,38 @@ export function NewTripSheet({
               startTime: draftData.startTime ? new Date(draftData.startTime) : undefined,
               endTime: draftData.endTime ? new Date(draftData.endTime) : undefined,
             });
-            setPurpose(draftData.purpose || '');
-            setManualDistance(draftData.manualDistance || '');
+            setPurpose(draftData.purpose || "");
+            setManualDistance(draftData.manualDistance || "");
             setRoundTrip(draftData.roundTrip || false);
             setTripDate(draftData.tripDate ? new Date(draftData.tripDate) : new Date());
-            
+
             // Go to details step if we have enough data
             if (draftData.vehicleId && draftData.startLocation && draftData.endLocation) {
-              setStep('details');
+              setStep("details");
               toast.info("Brouillon restauré", {
                 description: "Votre trajet précédent a été restauré.",
               });
             }
-            
+
             // Clear the draft after restoring
-            localStorage.removeItem('iktracker_trip_draft');
+            localStorage.removeItem("iktracker_trip_draft");
           } else {
             // Draft too old, remove it
-            localStorage.removeItem('iktracker_trip_draft');
+            localStorage.removeItem("iktracker_trip_draft");
           }
         } catch (e) {
-          console.error('Error restoring draft:', e);
-          localStorage.removeItem('iktracker_trip_draft');
+          console.error("Error restoring draft:", e);
+          localStorage.removeItem("iktracker_trip_draft");
         }
       }
     }
   }, [open, editTrip]);
 
   const resetForm = () => {
-    setStep('vehicle');
+    setStep("vehicle");
     setDraft({});
-    setPurpose('');
-    setManualDistance('');
+    setPurpose("");
+    setManualDistance("");
     setCalculatedDistance(null);
     setTripDate(new Date());
     setRoundTrip(false);
@@ -307,7 +341,7 @@ export function NewTripSheet({
 
   const preventCloseOnGoogleAutocomplete = (event: any) => {
     const target = event?.target as HTMLElement | null;
-    if (target?.closest?.('.pac-container')) {
+    if (target?.closest?.(".pac-container")) {
       event.preventDefault();
     }
   };
@@ -315,7 +349,7 @@ export function NewTripSheet({
   const handleSelectVehicle = (vehicleId: string) => {
     lastSelectedVehicleId = vehicleId;
     setDraft({ ...draft, vehicleId });
-    setStep('start');
+    setStep("start");
   };
 
   const handleSelectStart = (location: Location) => {
@@ -324,7 +358,7 @@ export function NewTripSheet({
       startLocation: location,
       startTime: new Date(),
     });
-    setStep('end');
+    setStep("end");
   };
 
   const handleSelectEnd = async (location: Location) => {
@@ -336,7 +370,7 @@ export function NewTripSheet({
     setDraft(newDraft);
 
     const resolveCoords = async (loc: Location): Promise<{ lat: number; lng: number } | null> => {
-      if (typeof loc.lat === 'number' && typeof loc.lng === 'number') {
+      if (typeof loc.lat === "number" && typeof loc.lng === "number") {
         return { lat: loc.lat, lng: loc.lng };
       }
       if (loc.address) {
@@ -350,12 +384,13 @@ export function NewTripSheet({
       const start = draft.startLocation;
 
       if (start) {
-        const sameAddress = !!start.address && !!location.address && start.address === location.address;
+        const sameAddress =
+          !!start.address && !!location.address && start.address === location.address;
         const sameCoords =
-          typeof start.lat === 'number' &&
-          typeof start.lng === 'number' &&
-          typeof location.lat === 'number' &&
-          typeof location.lng === 'number' &&
+          typeof start.lat === "number" &&
+          typeof start.lng === "number" &&
+          typeof location.lat === "number" &&
+          typeof location.lng === "number" &&
           start.lat === location.lat &&
           start.lng === location.lng;
 
@@ -363,18 +398,18 @@ export function NewTripSheet({
           toast.message("Départ et arrivée identiques", {
             description: "Choisis une adresse d'arrivée différente pour calculer la distance.",
           });
-          setManualDistance('0');
+          setManualDistance("0");
         } else {
           const startAddr = start.address || start.name;
           const endAddr = location.address || location.name;
-          
+
           // Check cache first
           if (startAddr && endAddr) {
             const cachedDistance = await getCachedDistance(startAddr, endAddr);
             if (cachedDistance !== null) {
               setCalculatedDistance(cachedDistance);
               setManualDistance(cachedDistance.toFixed(1));
-              setStep('details');
+              setStep("details");
               return;
             }
           }
@@ -389,15 +424,15 @@ export function NewTripSheet({
               startCoords.lat,
               startCoords.lng,
               endCoords.lat,
-              endCoords.lng
+              endCoords.lng,
             );
             if (!distance || distance <= 0) {
-              setStep('details');
+              setStep("details");
               return;
             }
             setCalculatedDistance(distance);
             setManualDistance(distance.toFixed(1));
-            
+
             // Save to cache
             if (startAddr && endAddr) {
               saveCachedDistance(startAddr, endAddr, distance);
@@ -406,10 +441,10 @@ export function NewTripSheet({
         }
       }
     } catch (error) {
-      console.error('Error calculating distance:', error);
+      console.error("Error calculating distance:", error);
     }
 
-    setStep('details');
+    setStep("details");
   };
 
   const handleConfirm = () => {
@@ -417,18 +452,18 @@ export function NewTripSheet({
 
     const distance = parseFloat(manualDistance) || 0;
     const baseDistance = roundTrip ? distance / 2 : distance;
-    
+
     // Preserve the time from draft but use the selected date
     const startTime = draft.startTime || new Date();
     const endTime = draft.endTime || new Date();
-    
+
     // Combine tripDate with the original times
     const finalStartTime = new Date(tripDate);
     finalStartTime.setHours(startTime.getHours(), startTime.getMinutes(), startTime.getSeconds());
-    
+
     const finalEndTime = new Date(tripDate);
     finalEndTime.setHours(endTime.getHours(), endTime.getMinutes(), endTime.getSeconds());
-    
+
     const tripData = {
       vehicleId: draft.vehicleId,
       startLocation: draft.startLocation,
@@ -477,44 +512,43 @@ export function NewTripSheet({
       tripDate: tripDate.toISOString(),
       savedAt: new Date().toISOString(),
     };
-    localStorage.setItem('iktracker_trip_draft', JSON.stringify(draftData));
+    localStorage.setItem("iktracker_trip_draft", JSON.stringify(draftData));
   };
 
   // Navigate with Waze - saves draft before opening
   const handleNavigateWithWaze = async () => {
     if (!draft.endLocation) return;
-    
+
     setIsNavigating(true);
-    
+
     try {
       const destinationAddress = draft.endLocation.address || draft.endLocation.name;
-      
+
       if (!destinationAddress) {
         toast.error("Adresse de destination manquante");
         setIsNavigating(false);
         return;
       }
-      
+
       saveDraftBeforeNavigate();
       const encodedAddress = encodeURIComponent(destinationAddress);
       const wazeUrl = `waze://?q=${encodedAddress}&navigate=yes`;
       const webFallbackUrl = `https://www.waze.com/ul?q=${encodedAddress}&navigate=yes`;
-      
+
       const startTime = Date.now();
       window.location.href = wazeUrl;
-      
+
       setTimeout(() => {
         if (Date.now() - startTime < 2500) {
-          window.open(webFallbackUrl, '_blank');
+          window.open(webFallbackUrl, "_blank");
         }
       }, 2000);
-      
+
       toast.success("Brouillon sauvegardé", {
         description: "Votre trajet sera conservé à votre retour.",
       });
-      
     } catch (error) {
-      console.error('Error navigating with Waze:', error);
+      console.error("Error navigating with Waze:", error);
       toast.error("Erreur lors de l'ouverture de Waze");
     } finally {
       setIsNavigating(false);
@@ -524,32 +558,31 @@ export function NewTripSheet({
   // Navigate with Google Maps - saves draft before opening
   const handleNavigateWithMaps = async () => {
     if (!draft.endLocation) return;
-    
+
     setIsNavigating(true);
-    
+
     try {
       const destinationAddress = draft.endLocation.address || draft.endLocation.name;
-      
+
       if (!destinationAddress) {
         toast.error("Adresse de destination manquante");
         setIsNavigating(false);
         return;
       }
-      
+
       saveDraftBeforeNavigate();
       const encodedAddress = encodeURIComponent(destinationAddress);
-      
+
       // Google Maps URL - works on both mobile and web
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}&travelmode=driving`;
-      
-      window.open(mapsUrl, '_blank');
-      
+
+      window.open(mapsUrl, "_blank");
+
       toast.success("Brouillon sauvegardé", {
         description: "Votre trajet sera conservé à votre retour.",
       });
-      
     } catch (error) {
-      console.error('Error navigating with Maps:', error);
+      console.error("Error navigating with Maps:", error);
       toast.error("Erreur lors de l'ouverture de Maps");
     } finally {
       setIsNavigating(false);
@@ -557,40 +590,49 @@ export function NewTripSheet({
   };
 
   const steps: { key: Step; label: string; icon: React.ReactNode }[] = [
-    { key: 'vehicle', label: 'Véhicule', icon: <Car className="w-4 h-4" /> },
-    { key: 'start', label: 'Départ', icon: <MapPin className="w-4 h-4" /> },
-    { key: 'end', label: 'Arrivée', icon: <MapPin className="w-4 h-4" /> },
-    { key: 'details', label: 'Détails', icon: <FileText className="w-4 h-4" /> },
+    { key: "vehicle", label: "Véhicule", icon: <Car className="w-4 h-4" /> },
+    { key: "start", label: "Départ", icon: <MapPin className="w-4 h-4" /> },
+    { key: "end", label: "Arrivée", icon: <MapPin className="w-4 h-4" /> },
+    { key: "details", label: "Détails", icon: <FileText className="w-4 h-4" /> },
   ];
 
-  const currentStepIndex = steps.findIndex(s => s.key === step);
-  const selectedVehicle = vehicles.find(v => v.id === draft.vehicleId);
-  const homeLocation = savedLocations.find(l => l.type === 'home')
-    || savedLocations.find(l => /maison|domicile|home/i.test(l.name))
-    || (savedLocations.length === 1 ? savedLocations[0] : undefined);
+  const currentStepIndex = steps.findIndex((s) => s.key === step);
+  const selectedVehicle = vehicles.find((v) => v.id === draft.vehicleId);
+  const homeLocation =
+    savedLocations.find((l) => l.type === "home") ||
+    savedLocations.find((l) => /maison|domicile|home/i.test(l.name)) ||
+    (savedLocations.length === 1 ? savedLocations[0] : undefined);
 
-  const buildLocationFromAddress = async (address: string, fallbackName?: string): Promise<Location | null> => {
+  const buildLocationFromAddress = async (
+    address: string,
+    fallbackName?: string,
+  ): Promise<Location | null> => {
     const trimmed = address.trim();
     if (!trimmed) return null;
     const existing = savedLocations.find(
-      l => l.address?.toLowerCase() === trimmed.toLowerCase() || l.name?.toLowerCase() === trimmed.toLowerCase()
+      (l) =>
+        l.address?.toLowerCase() === trimmed.toLowerCase() ||
+        l.name?.toLowerCase() === trimmed.toLowerCase(),
     );
     if (existing) return existing;
     const coords = await geocodeAddress(trimmed).catch(() => null);
     return {
       id: `prompt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      name: fallbackName || trimmed.split(',')[0].trim() || trimmed,
+      name: fallbackName || trimmed.split(",")[0].trim() || trimmed,
       address: trimmed,
       lat: coords?.lat,
       lng: coords?.lng,
-      type: 'other',
+      type: "other",
     };
   };
 
   const applyParsedTrip = async (parsed: ParsedTrip) => {
     if (!draft.vehicleId && vehicles.length > 0) {
-      const vid = lastSelectedVehicleId && vehicles.find(v => v.id === lastSelectedVehicleId) ? lastSelectedVehicleId : vehicles[0].id;
-      setDraft(d => ({ ...d, vehicleId: vid }));
+      const vid =
+        lastSelectedVehicleId && vehicles.find((v) => v.id === lastSelectedVehicleId)
+          ? lastSelectedVehicleId
+          : vehicles[0].id;
+      setDraft((d) => ({ ...d, vehicleId: vid }));
     }
 
     const homeAddr = homeLocation?.address || homeLocation?.name;
@@ -601,17 +643,22 @@ export function NewTripSheet({
     const arrivalAddr = parsed.arrival || homeAddr;
 
     if (!departureAddr) {
-      toast.error("Départ introuvable", { description: "Précise l'adresse de départ ou enregistre ton domicile." });
+      toast.error("Départ introuvable", {
+        description: "Précise l'adresse de départ ou enregistre ton domicile.",
+      });
       return;
     }
     if (!arrivalAddr) {
-      toast.error("Arrivée introuvable", { description: "Précise l'adresse d'arrivée ou enregistre ton domicile." });
+      toast.error("Arrivée introuvable", {
+        description: "Précise l'adresse d'arrivée ou enregistre ton domicile.",
+      });
       return;
     }
 
     // Geocode start, stops, end in parallel
     const isHome = (a: string) => a === homeAddr;
-    const geocodeOrHome = (a: string) => (isHome(a) ? Promise.resolve(homeLocation!) : buildLocationFromAddress(a));
+    const geocodeOrHome = (a: string) =>
+      isHome(a) ? Promise.resolve(homeLocation!) : buildLocationFromAddress(a);
 
     const [startLocRaw, endLocRaw, ...stopLocsRaw] = await Promise.all([
       geocodeOrHome(departureAddr),
@@ -624,19 +671,23 @@ export function NewTripSheet({
       return;
     }
 
-    const stopLocs = stopLocsRaw.filter((l): l is Location => !!l && typeof l.lat === 'number' && typeof l.lng === 'number');
+    const stopLocs = stopLocsRaw.filter(
+      (l): l is Location => !!l && typeof l.lat === "number" && typeof l.lng === "number",
+    );
 
     let orderedStops: Location[] = stopLocs;
     let totalDistance: number | null = null;
 
     // Optimize stop order via Google Distance Matrix when we have valid coords
     if (
-      typeof startLocRaw.lat === 'number' && typeof startLocRaw.lng === 'number' &&
-      typeof endLocRaw.lat === 'number' && typeof endLocRaw.lng === 'number' &&
+      typeof startLocRaw.lat === "number" &&
+      typeof startLocRaw.lng === "number" &&
+      typeof endLocRaw.lat === "number" &&
+      typeof endLocRaw.lng === "number" &&
       stopLocs.length >= 1
     ) {
       try {
-        const { calculateDrivingMatrix, optimizeStopOrder } = await import('@/lib/distance');
+        const { calculateDrivingMatrix, optimizeStopOrder } = await import("@/lib/distance");
         const points = [
           { lat: startLocRaw.lat, lng: startLocRaw.lng },
           ...stopLocs.map((s) => ({ lat: s.lat!, lng: s.lng! })),
@@ -652,29 +703,44 @@ export function NewTripSheet({
         for (let i = 0; i < seq.length - 1; i++) sum += matrix[seq[i]][seq[i + 1]].distanceKm;
         totalDistance = sum;
       } catch (e) {
-        console.warn('Stop optimization failed, keeping original order:', e);
+        console.warn("Stop optimization failed, keeping original order:", e);
       }
     }
 
     // Compose purpose with the ordered stops
-    let purposeExtra = '';
+    let purposeExtra = "";
     if (orderedStops.length > 0) {
-      const names = orderedStops.map((s) => s.name || s.address || '').filter(Boolean);
-      if (names.length) purposeExtra = `Via : ${names.join(' → ')}`;
+      const names = orderedStops.map((s) => s.name || s.address || "").filter(Boolean);
+      if (names.length) purposeExtra = `Via : ${names.join(" → ")}`;
     }
 
-    setDraft(d => ({ ...d, startLocation: startLocRaw, endLocation: endLocRaw, startTime: new Date(), endTime: new Date() }));
+    setDraft((d) => ({
+      ...d,
+      startLocation: startLocRaw,
+      endLocation: endLocRaw,
+      startTime: new Date(),
+      endTime: new Date(),
+    }));
     setRoundTrip(!!parsed.roundTrip);
-    const purposeParts = [parsed.purpose, purposeExtra].filter(Boolean).join(' — ');
+    const purposeParts = [parsed.purpose, purposeExtra].filter(Boolean).join(" — ");
     if (purposeParts) setPurpose(purposeParts);
 
     // Distance: either from optimized matrix, or single-leg fallback
     try {
       let d = totalDistance;
-      if (d == null &&
-          typeof startLocRaw.lat === 'number' && typeof startLocRaw.lng === 'number' &&
-          typeof endLocRaw.lat === 'number' && typeof endLocRaw.lng === 'number') {
-        d = await calculateDrivingDistance(startLocRaw.lat, startLocRaw.lng, endLocRaw.lat, endLocRaw.lng);
+      if (
+        d == null &&
+        typeof startLocRaw.lat === "number" &&
+        typeof startLocRaw.lng === "number" &&
+        typeof endLocRaw.lat === "number" &&
+        typeof endLocRaw.lng === "number"
+      ) {
+        d = await calculateDrivingDistance(
+          startLocRaw.lat,
+          startLocRaw.lng,
+          endLocRaw.lat,
+          endLocRaw.lng,
+        );
       }
       if (d != null && d > 0) {
         setCalculatedDistance(d);
@@ -683,12 +749,14 @@ export function NewTripSheet({
         const ea = endLocRaw.address || endLocRaw.name;
         if (sa && ea && orderedStops.length === 0) saveCachedDistance(sa, ea, d);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
 
-    setStep('details');
+    setStep("details");
     toast.success("Trajet pré-rempli", {
       description: orderedStops.length
-        ? `Ordre optimisé : ${orderedStops.length} étape${orderedStops.length > 1 ? 's' : ''}.`
+        ? `Ordre optimisé : ${orderedStops.length} étape${orderedStops.length > 1 ? "s" : ""}.`
         : "Vérifie puis valide.",
     });
   };
@@ -704,7 +772,9 @@ export function NewTripSheet({
       >
         <SheetHeader className="pb-4 px-2">
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <SheetTitle className="text-xl">{isEditing ? 'Modifier le trajet' : 'Nouveau trajet'}</SheetTitle>
+            <SheetTitle className="text-xl">
+              {isEditing ? "Modifier le trajet" : "Nouveau trajet"}
+            </SheetTitle>
 
             {/* Stepper - aligné sur le titre */}
             <div className="flex items-center gap-1 sm:gap-2 overflow-hidden">
@@ -715,7 +785,7 @@ export function NewTripSheet({
                       "flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all duration-300 shrink-0",
                       i < currentStepIndex && "bg-accent text-accent-foreground",
                       i === currentStepIndex && "bg-primary text-primary-foreground",
-                      i > currentStepIndex && "bg-muted text-muted-foreground"
+                      i > currentStepIndex && "bg-muted text-muted-foreground",
                     )}
                   >
                     {i < currentStepIndex ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : s.icon}
@@ -724,7 +794,7 @@ export function NewTripSheet({
                     <div
                       className={cn(
                         "w-4 sm:w-6 h-0.5 mx-0.5 sm:mx-1 transition-colors shrink-0",
-                        i < currentStepIndex ? "bg-accent" : "bg-muted"
+                        i < currentStepIndex ? "bg-accent" : "bg-muted",
                       )}
                     />
                   )}
@@ -734,16 +804,24 @@ export function NewTripSheet({
           </div>
         </SheetHeader>
 
-
         <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 pb-24 px-3 sm:px-4">
           {!isEditing && !recurringOnly && (
             <div className="mb-4 space-y-3">
-              <div className={cn(
-                "flex items-center justify-between p-4 rounded-md transition-colors",
-                isRecurring ? "bg-primary/5 border-2 border-primary dark:bg-white/10" : "bg-muted border-0 dark:bg-white/5"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center justify-between p-4 rounded-md transition-colors",
+                  isRecurring
+                    ? "bg-primary/5 border-2 border-primary dark:bg-white/10"
+                    : "bg-muted border-0 dark:bg-white/5",
+                )}
+              >
                 <div className="flex items-center gap-3">
-                  <Repeat className={cn("w-5 h-5", isRecurring ? "text-primary" : "text-muted-foreground")} />
+                  <Repeat
+                    className={cn(
+                      "w-5 h-5",
+                      isRecurring ? "text-primary" : "text-muted-foreground",
+                    )}
+                  />
                   <p className="font-medium">Trajet récurrent</p>
                 </div>
                 <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
@@ -752,19 +830,27 @@ export function NewTripSheet({
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Jours de la semaine</p>
                   <div className="grid grid-cols-7 gap-1.5">
-                    {[1, 2, 3, 4, 5, 6, 0].map(d => {
+                    {[1, 2, 3, 4, 5, 6, 0].map((d) => {
                       const active = recurringDays.includes(d);
                       return (
                         <button
                           key={d}
                           type="button"
-                          onClick={() => setRecurringDays(active ? recurringDays.filter(x => x !== d) : [...recurringDays, d].sort())}
+                          onClick={() =>
+                            setRecurringDays(
+                              active
+                                ? recurringDays.filter((x) => x !== d)
+                                : [...recurringDays, d].sort(),
+                            )
+                          }
                           className={cn(
                             "py-2 rounded-md text-xs font-medium transition-colors",
-                            active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                            active
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-muted-foreground hover:bg-muted/70",
                           )}
                         >
-                          {['D', 'L', 'M', 'M', 'J', 'V', 'S'][d]}
+                          {["D", "L", "M", "M", "J", "V", "S"][d]}
                         </button>
                       );
                     })}
@@ -776,13 +862,13 @@ export function NewTripSheet({
               )}
             </div>
           )}
-          {step === 'vehicle' && (
+          {step === "vehicle" && (
             <div className="animate-fade-in space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Car className="w-5 h-5 text-primary" />
                 Sélectionner un véhicule
               </h3>
-              
+
               {vehicles.length === 0 ? (
                 <div className="text-center py-8">
                   <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
@@ -795,7 +881,7 @@ export function NewTripSheet({
               ) : (
                 <>
                   <div className="space-y-3">
-                    {vehicles.map(vehicle => (
+                    {vehicles.map((vehicle) => (
                       <VehicleCard
                         key={vehicle.id}
                         vehicle={vehicle}
@@ -814,16 +900,20 @@ export function NewTripSheet({
             </div>
           )}
 
-          {step === 'start' && (
+          {step === "start" && (
             <div className="animate-fade-in">
               {selectedVehicle && (
                 <div className="mb-4 p-3 bg-muted rounded-lg flex items-center gap-3">
                   <Car className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
-                  {selectedVehicle.licensePlate && <span className="text-muted-foreground">({selectedVehicle.licensePlate})</span>}
+                  <span className="font-medium">
+                    {selectedVehicle.make} {selectedVehicle.model}
+                  </span>
+                  {selectedVehicle.licensePlate && (
+                    <span className="text-muted-foreground">({selectedVehicle.licensePlate})</span>
+                  )}
                 </div>
               )}
-              
+
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
                 Départ
@@ -839,7 +929,7 @@ export function NewTripSheet({
             </div>
           )}
 
-          {step === 'end' && (
+          {step === "end" && (
             <div className="animate-fade-in">
               <div className="mb-4 p-3 bg-muted rounded-lg flex items-center gap-3">
                 <MapPin className="w-4 h-4 text-primary" />
@@ -847,7 +937,7 @@ export function NewTripSheet({
                 <ArrowRight className="w-4 h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">?</span>
               </div>
-              
+
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-accent" />
                 Arrivée
@@ -863,7 +953,7 @@ export function NewTripSheet({
             </div>
           )}
 
-          {step === 'details' && (
+          {step === "details" && (
             <DetailsStepContent
               draft={draft}
               setDraft={setDraft}
@@ -897,7 +987,7 @@ export function NewTripSheet({
             />
           )}
         </div>
-        {!isEditing && step !== 'details' && (
+        {!isEditing && step !== "details" && (
           <TripPromptBar
             homeAddress={homeLocation?.address || homeLocation?.name}
             onApply={applyParsedTrip}

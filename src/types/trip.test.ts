@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  getIKBareme,
-  calculateIK,
-  calculateTotalAnnualIK,
-  IK_BAREME_2024,
-} from "./trip";
+import { getIKBareme, calculateIK, calculateTotalAnnualIK, IK_BAREME_2024 } from "./trip";
 
 describe("getIKBareme", () => {
   it("returns 3CV barème for fiscal power <= 3", () => {
@@ -153,7 +148,7 @@ describe("IK_BAREME_2024 data integrity", () => {
   it("higher CV = higher rates within each tranche", () => {
     for (let i = 0; i < IK_BAREME_2024.length - 1; i++) {
       expect(IK_BAREME_2024[i + 1].upTo5000.rate).toBeGreaterThanOrEqual(
-        IK_BAREME_2024[i].upTo5000.rate
+        IK_BAREME_2024[i].upTo5000.rate,
       );
     }
   });

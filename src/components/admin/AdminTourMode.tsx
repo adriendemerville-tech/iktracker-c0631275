@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Car,
   Users,
@@ -26,7 +26,7 @@ import {
   Bot,
   Hand,
   Activity,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -38,7 +38,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
-} from 'recharts';
+} from "recharts";
 
 interface TourModeStats {
   total_tours: number;
@@ -76,51 +76,75 @@ interface PersonaRow {
 }
 
 const PERSONA_LABELS: Record<string, string> = {
-  chauffeur_vtc: 'Chauffeur VTC',
-  livreur: 'Livreur',
-  commercial: 'Commercial',
-  freelance: 'Freelance',
-  artisan: 'Artisan',
-  salarie: 'Salarié',
-  infirmier: 'Infirmier·ère',
-  autre: 'Autre',
-  'non renseigné': 'Non renseigné',
+  chauffeur_vtc: "Chauffeur VTC",
+  livreur: "Livreur",
+  commercial: "Commercial",
+  freelance: "Freelance",
+  artisan: "Artisan",
+  salarie: "Salarié",
+  infirmier: "Infirmier·ère",
+  autre: "Autre",
+  "non renseigné": "Non renseigné",
 };
 
 export const AdminTourMode = () => {
   const [daysBack, setDaysBack] = useState(30);
 
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
-    queryKey: ['tour-mode-stats', daysBack],
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ["tour-mode-stats", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_tour_mode_stats' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_tour_mode_stats" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return data as unknown as TourModeStats;
     },
   });
 
-  const { data: daily = [], isLoading: dailyLoading, refetch: refetchDaily } = useQuery({
-    queryKey: ['tour-mode-daily', daysBack],
+  const {
+    data: daily = [],
+    isLoading: dailyLoading,
+    refetch: refetchDaily,
+  } = useQuery({
+    queryKey: ["tour-mode-daily", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_tour_mode_daily' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_tour_mode_daily" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return (data || []) as DailyRow[];
     },
   });
 
-  const { data: personas = [], isLoading: personasLoading, refetch: refetchPersonas } = useQuery({
-    queryKey: ['tour-mode-personas', daysBack],
+  const {
+    data: personas = [],
+    isLoading: personasLoading,
+    refetch: refetchPersonas,
+  } = useQuery({
+    queryKey: ["tour-mode-personas", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_tour_mode_personas' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_tour_mode_personas" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return (data || []) as PersonaRow[];
     },
   });
 
-  const { data: users = [], isLoading: usersLoading, refetch: refetchUsers } = useQuery({
-    queryKey: ['tour-mode-users', daysBack],
+  const {
+    data: users = [],
+    isLoading: usersLoading,
+    refetch: refetchUsers,
+  } = useQuery({
+    queryKey: ["tour-mode-users", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_tour_mode_users' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_tour_mode_users" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return (data || []) as UserRow[];
     },
@@ -144,7 +168,7 @@ export const AdminTourMode = () => {
 
   const dailyFormatted = daily.map((d) => ({
     ...d,
-    label: new Date(d.day).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+    label: new Date(d.day).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }),
   }));
 
   const personasFormatted = personas.map((p) => ({
@@ -181,51 +205,51 @@ export const AdminTourMode = () => {
         <KpiCard
           icon={<Car className="w-4 h-4" />}
           label="Tournées totales"
-          value={statsLoading ? '…' : stats?.total_tours ?? 0}
+          value={statsLoading ? "…" : (stats?.total_tours ?? 0)}
           sub={`${stats?.unique_users_period ?? 0} utilisateurs uniques`}
         />
         <KpiCard
           icon={<Users className="w-4 h-4" />}
           label="Utilisateurs uniques 7j"
-          value={statsLoading ? '…' : stats?.unique_users_7d ?? 0}
+          value={statsLoading ? "…" : (stats?.unique_users_7d ?? 0)}
           sub="Ont créé au moins 1 tournée"
         />
         <KpiCard
           icon={<Activity className="w-4 h-4 text-emerald-600" />}
           label="Sessions actives"
-          value={statsLoading ? '…' : stats?.active_sessions ?? 0}
+          value={statsLoading ? "…" : (stats?.active_sessions ?? 0)}
           sub="En cours maintenant"
         />
         <KpiCard
           icon={<AlertTriangle className="w-4 h-4 text-destructive" />}
           label="Tournées abandonnées"
-          value={statsLoading ? '…' : stats?.abandoned_sessions ?? 0}
+          value={statsLoading ? "…" : (stats?.abandoned_sessions ?? 0)}
           sub="Actives sans activité > 24h"
-          variant={Number(stats?.abandoned_sessions ?? 0) > 0 ? 'destructive' : 'default'}
+          variant={Number(stats?.abandoned_sessions ?? 0) > 0 ? "destructive" : "default"}
         />
 
         <KpiCard
           icon={<Hand className="w-4 h-4" />}
           label="Finalisations manuelles"
-          value={statsLoading ? '…' : stats?.finalized_manual ?? 0}
+          value={statsLoading ? "…" : (stats?.finalized_manual ?? 0)}
           sub={`${manualPct}% des tournées`}
         />
         <KpiCard
           icon={<Bot className="w-4 h-4" />}
           label="Auto-finalisations"
-          value={statsLoading ? '…' : stats?.finalized_auto ?? 0}
+          value={statsLoading ? "…" : (stats?.finalized_auto ?? 0)}
           sub={`${autoPct}% des tournées`}
         />
         <KpiCard
           icon={<MapPin className="w-4 h-4" />}
           label="Étapes / tournée"
-          value={statsLoading ? '…' : stats?.avg_stops ?? 0}
+          value={statsLoading ? "…" : (stats?.avg_stops ?? 0)}
           sub={`${stats?.avg_km ?? 0} km en moyenne`}
         />
         <KpiCard
           icon={<Clock className="w-4 h-4" />}
           label="Durée moyenne"
-          value={statsLoading ? '…' : `${stats?.avg_duration_min ?? 0} min`}
+          value={statsLoading ? "…" : `${stats?.avg_duration_min ?? 0} min`}
           sub="Sessions finalisées"
         />
       </div>
@@ -249,8 +273,8 @@ export const AdminTourMode = () => {
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
+                    background: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
                     borderRadius: 8,
                     fontSize: 12,
                   }}
@@ -288,13 +312,18 @@ export const AdminTourMode = () => {
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
+                    background: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
                     borderRadius: 8,
                     fontSize: 12,
                   }}
                 />
-                <Bar dataKey="tours_created" name="Tournées" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="tours_created"
+                  name="Tournées"
+                  fill="hsl(var(--primary))"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -334,12 +363,14 @@ export const AdminTourMode = () => {
                 {personasFormatted.map((p) => (
                   <TableRow key={p.persona}>
                     <TableCell>
-                      <Badge variant="secondary" className="text-xs">{p.label}</Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {p.label}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right text-sm">{p.users_count}</TableCell>
                     <TableCell className="text-right text-sm">{p.tours_count}</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">
-                      {p.users_count > 0 ? (p.tours_count / p.users_count).toFixed(1) : '—'}
+                      {p.users_count > 0 ? (p.tours_count / p.users_count).toFixed(1) : "—"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -393,15 +424,17 @@ export const AdminTourMode = () => {
                         {PERSONA_LABELS[u.persona] || u.persona}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right text-sm font-semibold">{u.tours_count}</TableCell>
+                    <TableCell className="text-right text-sm font-semibold">
+                      {u.tours_count}
+                    </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">
                       {Number(u.total_km).toFixed(1)}
                     </TableCell>
                     <TableCell className="text-right text-xs text-muted-foreground hidden md:table-cell">
-                      {new Date(u.last_tour_at).toLocaleDateString('fr-FR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: '2-digit',
+                      {new Date(u.last_tour_at).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
                       })}
                     </TableCell>
                   </TableRow>
@@ -420,15 +453,15 @@ const KpiCard = ({
   label,
   value,
   sub,
-  variant = 'default',
+  variant = "default",
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
   sub?: string;
-  variant?: 'default' | 'destructive';
+  variant?: "default" | "destructive";
 }) => (
-  <Card className={variant === 'destructive' ? 'border-destructive/30' : ''}>
+  <Card className={variant === "destructive" ? "border-destructive/30" : ""}>
     <CardContent className="pt-4 pb-3">
       <div className="flex items-center justify-between text-muted-foreground text-xs mb-1">
         <span>{label}</span>

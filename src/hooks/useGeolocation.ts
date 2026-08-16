@@ -1,11 +1,8 @@
-import { useState, useCallback } from 'react';
-import { isBrowser, isBot } from '@/lib/ssr-utils';
+import { useState, useCallback } from "react";
+import { isBrowser, isBot } from "@/lib/ssr-utils";
 
 // Re-export distance functions from centralized module
-export { 
-  getDistanceInKm as calculateDistance, 
-  calculateDrivingDistance 
-} from '@/lib/distance';
+export { getDistanceInKm as calculateDistance, calculateDrivingDistance } from "@/lib/distance";
 
 interface GeolocationState {
   lat: number | null;
@@ -26,20 +23,20 @@ export function useGeolocation() {
     return new Promise<{ lat: number; lng: number }>((resolve, reject) => {
       // Skip for SSR and bots
       if (!isBrowser() || isBot()) {
-        const error = 'Géolocalisation non disponible';
-        setState(s => ({ ...s, error, loading: false }));
+        const error = "Géolocalisation non disponible";
+        setState((s) => ({ ...s, error, loading: false }));
         reject(new Error(error));
         return;
       }
 
       if (!navigator?.geolocation) {
-        const error = 'La géolocalisation n\'est pas supportée';
-        setState(s => ({ ...s, error, loading: false }));
+        const error = "La géolocalisation n'est pas supportée";
+        setState((s) => ({ ...s, error, loading: false }));
         reject(new Error(error));
         return;
       }
 
-      setState(s => ({ ...s, loading: true, error: null }));
+      setState((s) => ({ ...s, loading: true, error: null }));
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -55,26 +52,26 @@ export function useGeolocation() {
           resolve(coords);
         },
         (error) => {
-          let message = 'Erreur de géolocalisation';
+          let message = "Erreur de géolocalisation";
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              message = 'Permission refusée';
+              message = "Permission refusée";
               break;
             case error.POSITION_UNAVAILABLE:
-              message = 'Position indisponible';
+              message = "Position indisponible";
               break;
             case error.TIMEOUT:
-              message = 'Délai dépassé';
+              message = "Délai dépassé";
               break;
           }
-          setState(s => ({ ...s, loading: false, error: message }));
+          setState((s) => ({ ...s, loading: false, error: message }));
           reject(new Error(message));
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 60000,
-        }
+        },
       );
     });
   }, []);

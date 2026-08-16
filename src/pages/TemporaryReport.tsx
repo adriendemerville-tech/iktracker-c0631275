@@ -1,17 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "@/lib/router-compat";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 
-
 type ViewState =
-  | { status: "loading" }
-  | { status: "error"; message: string }
-  | { status: "ready"; html: string };
+  { status: "loading" } | { status: "error"; message: string } | { status: "ready"; html: string };
 
 export default function TemporaryReport() {
   const { id } = useParams<{ id: string }>();
@@ -40,9 +37,9 @@ export default function TemporaryReport() {
           {
             method: "GET",
             headers: {
-              "Accept": "text/html",
+              Accept: "text/html",
             },
-          }
+          },
         );
 
         if (cancelled) return;
@@ -53,7 +50,7 @@ export default function TemporaryReport() {
         }
 
         const html = await response.text();
-        
+
         if (!html.trim().startsWith("<!DOCTYPE") && !html.includes("<html")) {
           setState({ status: "error", message: "Contenu du relevé invalide." });
           return;
@@ -135,38 +132,48 @@ export default function TemporaryReport() {
 
   const handleDownloadCSV = () => {
     if (state.status !== "ready") return;
-    
+
     const iframe = document.querySelector('iframe[title="Relevé IK"]') as HTMLIFrameElement;
     if (!iframe?.contentDocument) return;
-    
-    const tripsTable = iframe.contentDocument.querySelector('#trips-table tbody');
+
+    const tripsTable = iframe.contentDocument.querySelector("#trips-table tbody");
     if (!tripsTable) {
       toast.error("Aucun trajet trouvé dans le rapport");
       return;
     }
-    
-    const headers = ['Date', 'Départ', 'Arrivée', 'Motif', 'Distance (km)', 'Cumul (km)', 'Montant IK (€)'];
+
+    const headers = [
+      "Date",
+      "Départ",
+      "Arrivée",
+      "Motif",
+      "Distance (km)",
+      "Cumul (km)",
+      "Montant IK (€)",
+    ];
     const rows: string[] = [];
-    
-    tripsTable.querySelectorAll('tr').forEach((row: Element) => {
-      const cells = row.querySelectorAll('td');
+
+    tripsTable.querySelectorAll("tr").forEach((row: Element) => {
+      const cells = row.querySelectorAll("td");
       if (cells.length >= 7) {
-        rows.push([
-          cells[0].textContent?.trim() || '',
-          cells[1].textContent?.trim() || '',
-          cells[2].textContent?.trim() || '',
-          cells[3].textContent?.trim() || '',
-          cells[4].textContent?.trim() || '',
-          cells[5].textContent?.trim() || '',
-          (cells[6].textContent?.trim() || '').replace(' €', '')
-        ].join(';'));
+        rows.push(
+          [
+            cells[0].textContent?.trim() || "",
+            cells[1].textContent?.trim() || "",
+            cells[2].textContent?.trim() || "",
+            cells[3].textContent?.trim() || "",
+            cells[4].textContent?.trim() || "",
+            cells[5].textContent?.trim() || "",
+            (cells[6].textContent?.trim() || "").replace(" €", ""),
+          ].join(";"),
+        );
       }
     });
-    
-    const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const dateStr = new Date().toISOString().split('T')[0];
+
+    const csv = "\uFEFF" + headers.join(";") + "\n" + rows.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const dateStr = new Date().toISOString().split("T")[0];
     link.href = URL.createObjectURL(blob);
     link.download = `releve-ik-${dateStr}.csv`;
     link.click();
@@ -177,7 +184,7 @@ export default function TemporaryReport() {
   const handleShareLink = async () => {
     // Use clean /temporaryreport/ URL (without www)
     const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
-    
+
     try {
       // Fallback to clipboard
       await navigator.clipboard.writeText(shareUrl);
@@ -201,9 +208,9 @@ export default function TemporaryReport() {
   const handleSendEmail = () => {
     // Construct clean URL for email (without www)
     const shareUrl = `https://iktracker.fr/temporaryreport/${id}`;
-    const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const currentMonth = new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
     const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
-    
+
     const emailBody = `Bonjour,
 
 Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques pour la période en cours.
@@ -227,7 +234,8 @@ https://iktracker.fr`;
   };
 
   // Premium Apple-style button styling - refined dark gray with white text
-  const appleButtonClass = "gap-2 bg-[#1d1d1f]/95 border-[#424245]/60 text-white hover:bg-[#2d2d30] active:bg-[#3a3a3c] backdrop-blur-xl transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.3)] font-medium rounded-lg";
+  const appleButtonClass =
+    "gap-2 bg-[#1d1d1f]/95 border-[#424245]/60 text-white hover:bg-[#2d2d30] active:bg-[#3a3a3c] backdrop-blur-xl transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.3)] font-medium rounded-lg";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -239,16 +247,12 @@ https://iktracker.fr`;
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
           {/* Logo à gauche - lien vers landing */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             aria-label="Aller à la page d'accueil IKtracker"
           >
-            <img 
-              src="/logo-iktracker-250.webp" 
-              alt="IKtracker" 
-              className="h-8 w-auto"
-            />
+            <img src="/logo-iktracker-250.webp" alt="IKtracker" className="h-8 w-auto" />
           </Link>
 
           {/* Boutons d'action à droite - style gris premium */}
@@ -286,7 +290,7 @@ https://iktracker.fr`;
               <Printer className="h-4 w-4" />
               <span className="hidden sm:inline">Imprimer</span>
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"

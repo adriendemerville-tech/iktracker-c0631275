@@ -1,41 +1,48 @@
 // HTML/CSS based print utility - replaces heavy PDF libraries
 // Uses native browser print dialog with @media print for PDF generation
 
-import { Trip, Vehicle, IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme, IKRateOverride } from '@/types/trip';
+import {
+  Trip,
+  Vehicle,
+  IK_BAREME_2024,
+  calculateTotalAnnualIK,
+  getIKBareme,
+  IKRateOverride,
+} from "@/types/trip";
 
 // Escape user-controlled values before interpolating into HTML to prevent XSS.
 function esc(value: unknown): string {
-  if (value === null || value === undefined) return '';
+  if (value === null || value === undefined) return "";
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // Fuseau horaire d'affichage des horodatages d'étapes (fixe pour l'audit).
-const AUDIT_TIMEZONE = 'Europe/Paris';
+const AUDIT_TIMEZONE = "Europe/Paris";
 const TZ_LABEL_SUFFIX = ` · heures ${AUDIT_TIMEZONE}`;
 
 // Formatte un timestamp d'étape en HH:MM dans le fuseau d'audit, avec fallback.
 function formatStopTime(iso: string | undefined | null): { time: string; missing: boolean } {
-  if (!iso) return { time: '--:--', missing: true };
+  if (!iso) return { time: "--:--", missing: true };
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return { time: '--:--', missing: true };
+  if (isNaN(d.getTime())) return { time: "--:--", missing: true };
   try {
     return {
-      time: new Intl.DateTimeFormat('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit',
+      time: new Intl.DateTimeFormat("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
         hour12: false,
         timeZone: AUDIT_TIMEZONE,
       }).format(d),
       missing: false,
     };
   } catch {
-    const hh = d.getHours().toString().padStart(2, '0');
-    const mm = d.getMinutes().toString().padStart(2, '0');
+    const hh = d.getHours().toString().padStart(2, "0");
+    const mm = d.getMinutes().toString().padStart(2, "0");
     return { time: `${hh}:${mm}`, missing: false };
   }
 }
@@ -64,11 +71,15 @@ interface RecalculatedTrip extends Trip {
   appliedRate: number;
 }
 
-function recalculateTrips(trips: Trip[], vehicles: Vehicle[], override: IKRateOverride = 'auto'): RecalculatedTrip[] {
-  const getVehicle = (id: string) => vehicles.find(v => v.id === id);
+function recalculateTrips(
+  trips: Trip[],
+  vehicles: Vehicle[],
+  override: IKRateOverride = "auto",
+): RecalculatedTrip[] {
+  const getVehicle = (id: string) => vehicles.find((v) => v.id === id);
   const grouped = new Map<string, Trip[]>();
-  
-  trips.forEach(trip => {
+
+  trips.forEach((trip) => {
     const year = new Date(trip.startTime).getFullYear();
     const key = `${trip.vehicleId}-${year}`;
     if (!grouped.has(key)) grouped.set(key, []);
@@ -78,14 +89,14 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[], override: IKRateOv
   const result: RecalculatedTrip[] = [];
 
   grouped.forEach((vehicleTrips, key) => {
-    const vehicleId = key.split('-')[0];
+    const vehicleId = key.split("-")[0];
     const vehicle = getVehicle(vehicleId);
     const sorted = [...vehicleTrips].sort(
-      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
     );
     let cumulativeKm = 0;
 
-    sorted.forEach(trip => {
+    sorted.forEach((trip) => {
       const prevCumulativeKm = cumulativeKm;
       cumulativeKm += trip.distance;
 
@@ -101,8 +112,8 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[], override: IKRateOv
 
       const bareme = getIKBareme(vehicle.fiscalPower);
       let appliedRate: number;
-      if (override === 'tier2') appliedRate = bareme.from5001To20000.rate;
-      else if (override === 'tier3') appliedRate = bareme.over20000.rate;
+      if (override === "tier2") appliedRate = bareme.from5001To20000.rate;
+      else if (override === "tier3") appliedRate = bareme.over20000.rate;
       else {
         appliedRate = bareme.upTo5000.rate;
         if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
@@ -116,11 +127,10 @@ function recalculateTrips(trips: Trip[], vehicles: Vehicle[], override: IKRateOv
   return result.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 }
 
-
 // Extract city name from full address (e.g., "255 chemin des masques, 13160 Châteaurenard" → "Châteaurenard")
 function extractCity(address: string): string {
-  const parts = address.split(',').map(p => p.trim());
-  
+  const parts = address.split(",").map((p) => p.trim());
+
   // Look for postal code + city pattern
   for (const part of parts) {
     const postalMatch = part.match(/^\d{5}\s+(.+)$/);
@@ -128,101 +138,136 @@ function extractCity(address: string): string {
       return postalMatch[1];
     }
   }
-  
+
   // Fallback: try to get last meaningful part
   for (let i = parts.length - 1; i >= 0; i--) {
     const part = parts[i];
     // Skip "France", postal-only, or very short strings
     if (part.match(/^france$/i) || part.match(/^\d{5}$/) || part.length < 3) continue;
     // Skip if it looks like a street (contains numbers at start or "rue", "avenue", etc.)
-    if (part.match(/^\d/) || part.match(/^(rue|avenue|boulevard|chemin|allée|place|impasse)/i)) continue;
+    if (part.match(/^\d/) || part.match(/^(rue|avenue|boulevard|chemin|allée|place|impasse)/i))
+      continue;
     return part;
   }
-  
+
   // Ultimate fallback: truncate address
-  return address.length > 25 ? address.substring(0, 24) + '…' : address;
+  return address.length > 25 ? address.substring(0, 24) + "…" : address;
 }
 
 function generateReportHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl, sinceDate, ikRateOverride = 'auto' } = options;
-  const logoSrc = logoUrl || '/logo-iktracker-250.webp';
-  
+  const {
+    trips,
+    vehicles,
+    totalKm,
+    userInfo,
+    logoUrl,
+    sinceDate,
+    ikRateOverride = "auto",
+  } = options;
+  const logoSrc = logoUrl || "/logo-iktracker-250.webp";
+
   // Get Supabase config for the share link feature
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
-  
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+
   const now = new Date();
-  const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const monthNames = [
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+  ];
   const currentMonth = monthNames[now.getMonth()];
   const currentYear = now.getFullYear();
-  
-  const editionDate = now.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+
+  const editionDate = now.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
-  const sinceDateStr = sinceDate ? sinceDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-  const sinceDateISO = sinceDate ? `${sinceDate.getFullYear()}-${String(sinceDate.getMonth() + 1).padStart(2, '0')}-${String(sinceDate.getDate()).padStart(2, '0')}` : '';
-  
+  const sinceDateStr = sinceDate
+    ? sinceDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+    : "";
+  const sinceDateISO = sinceDate
+    ? `${sinceDate.getFullYear()}-${String(sinceDate.getMonth() + 1).padStart(2, "0")}-${String(sinceDate.getDate()).padStart(2, "0")}`
+    : "";
+
   // Build user display info - prioritize userInfo, fallback to vehicle owner
-  const userDisplayName = userInfo?.firstName || userInfo?.lastName
-    ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
-    : null;
+  const userDisplayName =
+    userInfo?.firstName || userInfo?.lastName
+      ? `${userInfo.firstName || ""} ${userInfo.lastName || ""}`.trim()
+      : null;
   const userEmail = userInfo?.email || null;
-  
+
   const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-  
+
   // For titulaire: use userInfo first, fallback to vehicle owner, then email as last resort
-  const titulaireNom = userDisplayName || 
+  const titulaireNom =
+    userDisplayName ||
     (vehicle?.ownerFirstName || vehicle?.ownerLastName
-      ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
+      ? `${vehicle.ownerFirstName || ""} ${vehicle.ownerLastName || ""}`.trim()
       : null) ||
     userEmail; // Use email as title if no name available
-  
-  const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
-  
+
+  const vehicleName = vehicle
+    ? `${vehicle.make || ""} ${vehicle.model || ""}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`
+    : "";
+
   const recalculatedTrips = recalculateTrips(trips, vehicles, ikRateOverride);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
   // Generate trip rows - columns: Date, Départ, Arrivée, Motif, Km, Cumul, IK
   // Using city extraction for Départ/Arrivée
-  const tripRows = recalculatedTrips.map((t, i) => {
-    const tripDate = new Date(t.startTime);
-    const day = tripDate.getDate().toString().padStart(2, '0');
-    const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = tripDate.getFullYear().toString().slice(-2);
-    const startCity = extractCity(t.startLocation.address || t.startLocation.name);
-    const endCity = extractCity(t.endLocation.address || t.endLocation.name);
-    const motifRaw = t.purpose || '-';
-    const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + '…' : motifRaw;
-    const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+  const tripRows = recalculatedTrips
+    .map((t, i) => {
+      const tripDate = new Date(t.startTime);
+      const day = tripDate.getDate().toString().padStart(2, "0");
+      const month = (tripDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = tripDate.getFullYear().toString().slice(-2);
+      const startCity = extractCity(t.startLocation.address || t.startLocation.name);
+      const endCity = extractCity(t.endLocation.address || t.endLocation.name);
+      const motifRaw = t.purpose || "-";
+      const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + "…" : motifRaw;
+      const bgColor = i % 2 === 0 ? "#ffffff" : "#f9fafb";
 
-    // Tour stop details for audit trail (arrival time per stop)
-    const isTour = Array.isArray(t.tourStops) && t.tourStops.length >= 2;
-    let tourDetailRow = '';
-    if (isTour) {
-      const stopsHtml = t.tourStops!.map((s, idx) => {
-        const { time, missing } = formatStopTime(s.timestamp);
-        const label = s.address || s.city || `Étape ${idx + 1}`;
-        const timeColor = missing ? '#9ca3af' : '#111827';
-        const suffix = missing ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>' : '';
-        return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
+      // Tour stop details for audit trail (arrival time per stop)
+      const isTour = Array.isArray(t.tourStops) && t.tourStops.length >= 2;
+      let tourDetailRow = "";
+      if (isTour) {
+        const stopsHtml = t
+          .tourStops!.map((s, idx) => {
+            const { time, missing } = formatStopTime(s.timestamp);
+            const label = s.address || s.city || `Étape ${idx + 1}`;
+            const timeColor = missing ? "#9ca3af" : "#111827";
+            const suffix = missing
+              ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>'
+              : "";
+            return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
           <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
           <span style="display: inline-block; width: 50px; font-weight: 600; color: ${timeColor};">${time}</span>
           <span style="flex: 1; color: #4b5563;">${esc(label)}${suffix}</span>
         </div>`;
-      }).join('');
-      tourDetailRow = `
+          })
+          .join("");
+        tourDetailRow = `
       <tr style="background-color: ${bgColor};">
         <td colspan="7" style="padding: 6px 12px 12px 20px; border-bottom: 1px solid #e5e7eb;">
           <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes${TZ_LABEL_SUFFIX}</div>
           ${stopsHtml}
         </td>
       </tr>`;
-    }
+      }
 
-    const mainRow = `
+      const mainRow = `
       <tr style="background-color: ${bgColor};">
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(startCity)}</td>
@@ -233,24 +278,25 @@ function generateReportHTML(options: PrintReportOptions): string {
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>
       </tr>`;
 
-    // Regrouper trajet + détail de tournée dans un même <tbody> pour éviter
-    // qu'un saut de page ne sépare la ligne parent du détail (indispensable pour l'audit).
-    return isTour
-      ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
-      : mainRow;
-  }).join('');
+      // Regrouper trajet + détail de tournée dans un même <tbody> pour éviter
+      // qu'un saut de page ne sépare la ligne parent du détail (indispensable pour l'audit).
+      return isTour
+        ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
+        : mainRow;
+    })
+    .join("");
 
   const baremeRows = IK_BAREME_2024.map((b, i) => {
-    const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+    const bgColor = i % 2 === 0 ? "#ffffff" : "#f9fafb";
     return `
       <tr style="background-color: ${bgColor};">
-        <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 11px;">${b.cv === '7+' ? '7 CV et +' : b.cv + ' CV'}</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 11px;">${b.cv === "7+" ? "7 CV et +" : b.cv + " CV"}</td>
         <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 11px;">d × ${b.upTo5000.rate}</td>
         <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 11px;">(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed}</td>
         <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 11px;">d × ${b.over20000.rate}</td>
       </tr>
     `;
-  }).join('');
+  }).join("");
 
   // SVG Icons with explicit dimensions
   const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
@@ -432,7 +478,7 @@ function generateReportHTML(options: PrintReportOptions): string {
         <input type="date" id="start-date-input" value="${sinceDateISO}" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; color: #374151; cursor: pointer;" onchange="filterByDateRange()" />
         <span>au</span>
         <input type="date" id="end-date-input" value="" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; color: #374151; cursor: pointer;" onchange="filterByDateRange()" />
-        <button id="btn-reset-date" onclick="resetDateFilter()" style="display: ${sinceDateISO ? 'inline-flex' : 'none'}; align-items: center; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #6B7280; background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer;">✕</button>
+        <button id="btn-reset-date" onclick="resetDateFilter()" style="display: ${sinceDateISO ? "inline-flex" : "none"}; align-items: center; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #6B7280; background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer;">✕</button>
       </label>
     </div>
     <div class="right-actions">
@@ -463,9 +509,9 @@ function generateReportHTML(options: PrintReportOptions): string {
   <script>
     // User info embedded from the app
     const USER_INFO = ${JSON.stringify({
-      firstName: userInfo?.firstName || '',
-      lastName: userInfo?.lastName || '',
-      email: userInfo?.email || '',
+      firstName: userInfo?.firstName || "",
+      lastName: userInfo?.lastName || "",
+      email: userInfo?.email || "",
     })};
     const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
     const SUPABASE_KEY = ${JSON.stringify(supabaseKey)};
@@ -846,8 +892,8 @@ function generateReportHTML(options: PrintReportOptions): string {
         </td>
         <td style="text-align: right; vertical-align: middle;">
           <div style="font-size: 18px; font-weight: 700; color: #111;">Relevé des Frais Kilométriques</div>
-          <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Édité le ${editionDate}${sinceDateStr ? ` • Depuis le ${sinceDateStr}` : ''}</div>
-          <div id="period-label" style="font-size: 11px; color: #2563eb; margin-top: 2px; display: ${sinceDateStr ? 'block' : 'none'};"></div>
+          <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Édité le ${editionDate}${sinceDateStr ? ` • Depuis le ${sinceDateStr}` : ""}</div>
+          <div id="period-label" style="font-size: 11px; color: #2563eb; margin-top: 2px; display: ${sinceDateStr ? "block" : "none"};"></div>
         </td>
       </tr>
     </table>
@@ -870,8 +916,8 @@ function generateReportHTML(options: PrintReportOptions): string {
                 </table>
               </td>
             </tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || '-'}</td></tr></table></td></tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(userEmail) || '-'}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Nom</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || "-"}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Email</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(userEmail) || "-"}</td></tr></table></td></tr>
           </table>
         </td>
         
@@ -890,10 +936,10 @@ function generateReportHTML(options: PrintReportOptions): string {
                 </table>
               </td>
             </tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Modèle</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || '-'}</td></tr></table></td></tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Puissance</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + ' CV' : '-'}</td></tr></table></td></tr>
-            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Immatriculation</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicle?.licensePlate) || '-'}</td></tr></table></td></tr>
-            ${vehicle?.isElectric ? `<tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Type</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #059669;">⚡ Électrique (+20%)</td></tr></table></td></tr>` : ''}
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Modèle</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || "-"}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Puissance</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + " CV" : "-"}</td></tr></table></td></tr>
+            <tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Immatriculation</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicle?.licensePlate) || "-"}</td></tr></table></td></tr>
+            ${vehicle?.isElectric ? `<tr><td style="padding: 4px 0;"><table style="width: 100%;"><tr><td style="font-size: 11px; color: #9ca3af;">Type</td><td style="text-align: right; font-size: 12px; font-weight: 600; color: #059669;">⚡ Électrique (+20%)</td></tr></table></td></tr>` : ""}
           </table>
         </td>
         
@@ -925,7 +971,7 @@ function generateReportHTML(options: PrintReportOptions): string {
         <!-- Distance Card -->
         <td style="width: 33.33%; text-align: center; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 12px; padding: 20px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <div style="font-size: 10px; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Distance totale</div>
-          <div style="font-size: 28px; font-weight: 700; color: #111; line-height: 1;">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</div>
+          <div style="font-size: 28px; font-weight: 700; color: #111; line-height: 1;">${totalKm.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} km</div>
         </td>
         
         <!-- Trajets Card -->
@@ -937,7 +983,7 @@ function generateReportHTML(options: PrintReportOptions): string {
         <!-- IK Card (Primary Blue) -->
         <td style="width: 33.33%; text-align: center; background: #2563eb; border-radius: 12px; padding: 20px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <div style="font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Indemnités à déclarer</div>
-          <div style="font-size: 28px; font-weight: 700; color: #ffffff; line-height: 1;">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
+          <div style="font-size: 28px; font-weight: 700; color: #ffffff; line-height: 1;">${recalculatedTotalIK.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
         </td>
       </tr>
     </table>
@@ -971,8 +1017,8 @@ function generateReportHTML(options: PrintReportOptions): string {
       <tr>
         <td style="padding: 14px 20px; font-size: 13px; font-weight: 600; color: #111;">Total à déclarer</td>
         <td style="padding: 14px 20px; text-align: right;">
-          <span id="total-row-km" style="font-size: 14px; font-weight: 600; color: #111; margin-right: 20px;">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</span>
-          <span id="total-row-ik" style="font-size: 16px; font-weight: 700; color: #ffffff; background: #2563eb; padding: 6px 14px; border-radius: 6px;">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+          <span id="total-row-km" style="font-size: 14px; font-weight: 600; color: #111; margin-right: 20px;">${totalKm.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} km</span>
+          <span id="total-row-ik" style="font-size: 16px; font-weight: 700; color: #ffffff; background: #2563eb; padding: 6px 14px; border-radius: 6px;">${recalculatedTotalIK.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
         </td>
       </tr>
     </table>
@@ -1075,29 +1121,29 @@ function generateReportHTML(options: PrintReportOptions): string {
 
 export function printReport(options: PrintReportOptions): void {
   const html = generateReportHTML(options);
-  
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'fixed';
-  iframe.style.right = '0';
-  iframe.style.bottom = '0';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
-  iframe.style.border = 'none';
-  iframe.style.visibility = 'hidden';
-  
+
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "none";
+  iframe.style.visibility = "hidden";
+
   document.body.appendChild(iframe);
-  
+
   const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
   if (!iframeDoc) {
-    console.error('Cannot access iframe document');
+    console.error("Cannot access iframe document");
     document.body.removeChild(iframe);
     return;
   }
-  
+
   iframeDoc.open();
   iframeDoc.write(html);
   iframeDoc.close();
-  
+
   iframe.onload = () => {
     setTimeout(() => {
       iframe.contentWindow?.print();
@@ -1106,7 +1152,7 @@ export function printReport(options: PrintReportOptions): void {
       }, 1000);
     }, 250);
   };
-  
+
   setTimeout(() => {
     if (document.body.contains(iframe)) {
       iframe.contentWindow?.print();
@@ -1125,73 +1171,95 @@ export function generatePrintableHTML(options: PrintReportOptions): string {
 
 // Generate clean HTML without action bar and scripts - optimized for PDF export via html2pdf.js
 export function generateCleanPdfHTML(options: PrintReportOptions): string {
-  const { trips, vehicles, totalKm, userInfo, logoUrl, ikRateOverride = 'auto' } = options;
-  const logoSrc = logoUrl || '/logo-iktracker-250.webp';
-  
+  const { trips, vehicles, totalKm, userInfo, logoUrl, ikRateOverride = "auto" } = options;
+  const logoSrc = logoUrl || "/logo-iktracker-250.webp";
+
   const now = new Date();
-  const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const monthNames = [
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+  ];
   const currentMonth = monthNames[now.getMonth()];
   const currentYear = now.getFullYear();
-  
-  const editionDate = now.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+
+  const editionDate = now.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
-  
-  const userDisplayName = userInfo?.firstName || userInfo?.lastName
-    ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
-    : null;
+
+  const userDisplayName =
+    userInfo?.firstName || userInfo?.lastName
+      ? `${userInfo.firstName || ""} ${userInfo.lastName || ""}`.trim()
+      : null;
   const userEmail = userInfo?.email || null;
-  
+
   const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-  
-  const titulaireNom = userDisplayName || 
+
+  const titulaireNom =
+    userDisplayName ||
     (vehicle?.ownerFirstName || vehicle?.ownerLastName
-      ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
+      ? `${vehicle.ownerFirstName || ""} ${vehicle.ownerLastName || ""}`.trim()
       : null) ||
     userEmail;
-  
-  const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || `Véhicule ${vehicle.fiscalPower} CV` : '';
-  
+
+  const vehicleName = vehicle
+    ? `${vehicle.make || ""} ${vehicle.model || ""}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`
+    : "";
+
   const recalculatedTrips = recalculateTrips(trips, vehicles, ikRateOverride);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
-  const tripRows = recalculatedTrips.map((t, i) => {
-    const tripDate = new Date(t.startTime);
-    const day = tripDate.getDate().toString().padStart(2, '0');
-    const month = (tripDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = tripDate.getFullYear().toString().slice(-2);
-    const startCity = extractCity(t.startLocation.address || t.startLocation.name);
-    const endCity = extractCity(t.endLocation.address || t.endLocation.name);
-    const motifRaw = t.purpose || '-';
-    const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + '…' : motifRaw;
-    const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+  const tripRows = recalculatedTrips
+    .map((t, i) => {
+      const tripDate = new Date(t.startTime);
+      const day = tripDate.getDate().toString().padStart(2, "0");
+      const month = (tripDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = tripDate.getFullYear().toString().slice(-2);
+      const startCity = extractCity(t.startLocation.address || t.startLocation.name);
+      const endCity = extractCity(t.endLocation.address || t.endLocation.name);
+      const motifRaw = t.purpose || "-";
+      const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + "…" : motifRaw;
+      const bgColor = i % 2 === 0 ? "#ffffff" : "#f9fafb";
 
-    const isTour = Array.isArray(t.tourStops) && t.tourStops.length >= 2;
-    let tourDetailRow = '';
-    if (isTour) {
-      const stopsHtml = t.tourStops!.map((s, idx) => {
-        const { time, missing } = formatStopTime(s.timestamp);
-        const label = s.address || s.city || `Étape ${idx + 1}`;
-        const timeColor = missing ? '#9ca3af' : '#111827';
-        const suffix = missing ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>' : '';
-        return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
+      const isTour = Array.isArray(t.tourStops) && t.tourStops.length >= 2;
+      let tourDetailRow = "";
+      if (isTour) {
+        const stopsHtml = t
+          .tourStops!.map((s, idx) => {
+            const { time, missing } = formatStopTime(s.timestamp);
+            const label = s.address || s.city || `Étape ${idx + 1}`;
+            const timeColor = missing ? "#9ca3af" : "#111827";
+            const suffix = missing
+              ? ' <span style="color:#9ca3af; font-style: italic;">(heure non enregistrée)</span>'
+              : "";
+            return `<div style="display: flex; padding: 3px 0; font-size: 10px; color: #374151;">
           <span style="display: inline-block; width: 22px; font-weight: 700; color: #2563eb;">${idx + 1}.</span>
           <span style="display: inline-block; width: 50px; font-weight: 600; color: ${timeColor};">${time}</span>
           <span style="flex: 1; color: #4b5563;">${esc(label)}${suffix}</span>
         </div>`;
-      }).join('');
-      tourDetailRow = `
+          })
+          .join("");
+        tourDetailRow = `
       <tr style="background-color: ${bgColor};">
         <td colspan="7" style="padding: 6px 12px 10px 20px; border-bottom: 1px solid #e5e7eb;">
           <div style="font-size: 10px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;">Détail de la tournée · ${t.tourStops!.length} étapes${TZ_LABEL_SUFFIX}</div>
           ${stopsHtml}
         </td>
       </tr>`;
-    }
+      }
 
-    const mainRow = `
+      const mainRow = `
       <tr style="background-color: ${bgColor};">
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px;">${day}/${month}/${year}</td>
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${esc(startCity)}</td>
@@ -1202,22 +1270,23 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
         <td style="padding: 8px 6px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px;">${t.recalculatedIK.toFixed(2)} €</td>
       </tr>`;
 
-    return isTour
-      ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
-      : mainRow;
-  }).join('');
+      return isTour
+        ? `<tbody style="page-break-inside: avoid;">${mainRow}${tourDetailRow}</tbody>`
+        : mainRow;
+    })
+    .join("");
 
   const baremeRows = IK_BAREME_2024.map((b, i) => {
-    const bgColor = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+    const bgColor = i % 2 === 0 ? "#ffffff" : "#f9fafb";
     return `
       <tr style="background-color: ${bgColor};">
-        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 11px;">${b.cv === '7+' ? '7 CV et +' : b.cv + ' CV'}</td>
+        <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 11px;">${b.cv === "7+" ? "7 CV et +" : b.cv + " CV"}</td>
         <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 11px;">d × ${b.upTo5000.rate}</td>
         <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 11px;">(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed}</td>
         <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 11px;">d × ${b.over20000.rate}</td>
       </tr>
     `;
-  }).join('');
+  }).join("");
 
   const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
   const carIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>`;
@@ -1269,7 +1338,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
             <span style="margin-left: 8px; font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase;">TITULAIRE</span>
           </div>
           <div style="font-size: 11px; color: #9ca3af; margin-bottom: 2px;">Nom</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(titulaireNom) || "-"}</div>
         </td>
         <td style="width: 33.33%; vertical-align: top; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;">
           <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -1277,9 +1346,9 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
             <span style="margin-left: 8px; font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase;">VÉHICULE</span>
           </div>
           <div style="font-size: 11px; color: #9ca3af; margin-bottom: 2px;">Modèle</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${esc(vehicleName) || "-"}</div>
           <div style="font-size: 11px; color: #9ca3af; margin-top: 6px; margin-bottom: 2px;">Puissance</div>
-          <div style="font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + ' CV' : '-'}</div>
+          <div style="font-size: 12px; font-weight: 600; color: #111827;">${vehicle?.fiscalPower ? vehicle.fiscalPower + " CV" : "-"}</div>
         </td>
         <td style="width: 33.33%; vertical-align: top; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;">
           <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -1299,7 +1368,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
       <tr>
         <td style="width: 33.33%; text-align: center; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
           <div style="font-size: 10px; font-weight: 500; color: #6b7280; text-transform: uppercase; margin-bottom: 4px;">Distance totale</div>
-          <div style="font-size: 24px; font-weight: 700; color: #111;">${totalKm.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} km</div>
+          <div style="font-size: 24px; font-weight: 700; color: #111;">${totalKm.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} km</div>
         </td>
         <td style="width: 33.33%; text-align: center; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
           <div style="font-size: 10px; font-weight: 500; color: #6b7280; text-transform: uppercase; margin-bottom: 4px;">Nombre de trajets</div>
@@ -1307,7 +1376,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
         </td>
         <td style="width: 33.33%; text-align: center; background: #2563eb; border-radius: 8px; padding: 16px;">
           <div style="font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.85); text-transform: uppercase; margin-bottom: 4px;">Indemnités à déclarer</div>
-          <div style="font-size: 24px; font-weight: 700; color: #ffffff;">${recalculatedTotalIK.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
+          <div style="font-size: 24px; font-weight: 700; color: #ffffff;">${recalculatedTotalIK.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
         </td>
       </tr>
     </table>
@@ -1366,15 +1435,15 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
 
 export async function exportToPDF(options: PrintReportOptions): Promise<void> {
   const html = generateReportHTML(options);
-  
-  const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
-  
+
+  const { htmlToPdfBlob } = await import("@/lib/pdf-utils");
+
   const pdfBlob = await htmlToPdfBlob(html);
-  
+
   const now = new Date();
-  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const url = URL.createObjectURL(pdfBlob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = `releve-ik-${dateStr}.pdf`;
   document.body.appendChild(link);

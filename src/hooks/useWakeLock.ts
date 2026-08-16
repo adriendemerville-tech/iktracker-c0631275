@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { isBrowser, isBot } from '@/lib/ssr-utils';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { isBrowser, isBot } from "@/lib/ssr-utils";
 
 interface UseWakeLockReturn {
   isActive: boolean;
@@ -24,7 +24,7 @@ export function useWakeLock(): UseWakeLockReturn {
       setIsSupported(false);
       return;
     }
-    setIsSupported('wakeLock' in navigator);
+    setIsSupported("wakeLock" in navigator);
   }, []);
 
   // Monitor battery level
@@ -33,26 +33,26 @@ export function useWakeLock(): UseWakeLockReturn {
     if (!isBrowser() || isBot()) return;
 
     const checkBattery = async () => {
-      if ('getBattery' in navigator) {
+      if ("getBattery" in navigator) {
         try {
           // @ts-ignore - getBattery is not in TypeScript types
           const battery = await navigator.getBattery();
-          
+
           const updateBatteryStatus = () => {
             // Consider low battery if < 20% and not charging
             setLowBattery(battery.level < 0.2 && !battery.charging);
           };
 
           updateBatteryStatus();
-          battery.addEventListener('levelchange', updateBatteryStatus);
-          battery.addEventListener('chargingchange', updateBatteryStatus);
+          battery.addEventListener("levelchange", updateBatteryStatus);
+          battery.addEventListener("chargingchange", updateBatteryStatus);
 
           return () => {
-            battery.removeEventListener('levelchange', updateBatteryStatus);
-            battery.removeEventListener('chargingchange', updateBatteryStatus);
+            battery.removeEventListener("levelchange", updateBatteryStatus);
+            battery.removeEventListener("chargingchange", updateBatteryStatus);
           };
         } catch (e) {
-          console.log('Battery API not available');
+          console.log("Battery API not available");
         }
       }
     };
@@ -66,25 +66,25 @@ export function useWakeLock(): UseWakeLockReturn {
     if (!isBrowser() || isBot()) return;
 
     const handleVisibilityChange = async () => {
-      if (wakeLockRef.current !== null && document.visibilityState === 'visible') {
+      if (wakeLockRef.current !== null && document.visibilityState === "visible") {
         // Try to re-acquire the wake lock when tab becomes visible again
         try {
-          wakeLockRef.current = await navigator.wakeLock.request('screen');
+          wakeLockRef.current = await navigator.wakeLock.request("screen");
           setIsActive(true);
           setError(null);
-          
-          wakeLockRef.current.addEventListener('release', () => {
+
+          wakeLockRef.current.addEventListener("release", () => {
             setIsActive(false);
           });
         } catch (e) {
-          console.warn('Failed to re-acquire wake lock:', e);
+          console.warn("Failed to re-acquire wake lock:", e);
         }
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -95,30 +95,30 @@ export function useWakeLock(): UseWakeLockReturn {
     }
 
     if (!isSupported) {
-      setError('Wake Lock non supporté sur ce navigateur');
+      setError("Wake Lock non supporté sur ce navigateur");
       return false;
     }
 
     try {
-      wakeLockRef.current = await navigator.wakeLock.request('screen');
+      wakeLockRef.current = await navigator.wakeLock.request("screen");
       setIsActive(true);
       setError(null);
 
-      wakeLockRef.current.addEventListener('release', () => {
+      wakeLockRef.current.addEventListener("release", () => {
         setIsActive(false);
       });
 
-      console.log('Wake Lock acquired');
+      console.log("Wake Lock acquired");
       return true;
     } catch (err: any) {
-      console.error('Wake Lock error:', err);
-      
-      if (err.name === 'NotAllowedError') {
-        setError('Wake Lock refusé par le navigateur');
+      console.error("Wake Lock error:", err);
+
+      if (err.name === "NotAllowedError") {
+        setError("Wake Lock refusé par le navigateur");
       } else {
-        setError('Impossible d\'activer le mode écran actif');
+        setError("Impossible d'activer le mode écran actif");
       }
-      
+
       return false;
     }
   }, [isSupported]);
@@ -129,9 +129,9 @@ export function useWakeLock(): UseWakeLockReturn {
         await wakeLockRef.current.release();
         wakeLockRef.current = null;
         setIsActive(false);
-        console.log('Wake Lock released');
+        console.log("Wake Lock released");
       } catch (err) {
-        console.error('Error releasing wake lock:', err);
+        console.error("Error releasing wake lock:", err);
       }
     }
   }, []);

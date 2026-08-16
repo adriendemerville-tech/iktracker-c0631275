@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Link } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { useAdminLazy } from '@/hooks/useAdminLazy';
-import { useAuthLazy } from '@/hooks/useAuthLazy';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { MarketingNav } from '@/components/marketing/MarketingNav';
-import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
-import { Breadcrumb } from '@/components/Breadcrumb';
-import { Plus, Calendar, User, ArrowRight } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Link } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdminLazy } from "@/hooks/useAdminLazy";
+import { useAuthLazy } from "@/hooks/useAuthLazy";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { Plus, Calendar, User, ArrowRight } from "lucide-react";
 
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { getOptimizedImageUrl, getResponsiveSrcSet, imagePresets } from '@/lib/image-transform';
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { getOptimizedImageUrl, getResponsiveSrcSet, imagePresets } from "@/lib/image-transform";
 
 interface BlogPost {
   id: string;
@@ -36,11 +36,13 @@ export default function Blog() {
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id, slug, title, subtitle, meta_description, featured_image_url, author_name, published_at')
-        .eq('status', 'published')
-        .eq('is_listed', true)
-        .order('published_at', { ascending: false });
+        .from("blog_posts")
+        .select(
+          "id, slug, title, subtitle, meta_description, featured_image_url, author_name, published_at",
+        )
+        .eq("status", "published")
+        .eq("is_listed", true)
+        .order("published_at", { ascending: false });
 
       if (!error && data) {
         // Sort by display_order if available, fallback to published_at order
@@ -63,52 +65,64 @@ export default function Blog() {
   const remainingPosts = posts.slice(3);
 
   // Get card size class based on position for editorial layout
-  const getCardSize = (index: number): 'large' | 'medium' | 'small' => {
+  const getCardSize = (index: number): "large" | "medium" | "small" => {
     const pattern = [
-      'large', 'medium', 'small', 'small', 'medium', 
-      'small', 'large', 'small', 'medium', 'small'
+      "large",
+      "medium",
+      "small",
+      "small",
+      "medium",
+      "small",
+      "large",
+      "small",
+      "medium",
+      "small",
     ];
-    return pattern[index % pattern.length] as 'large' | 'medium' | 'small';
+    return pattern[index % pattern.length] as "large" | "medium" | "small";
   };
 
   return (
     <>
       <Helmet>
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "name": "Blog IKtracker",
-            "description": "Articles et conseils sur les indemnités kilométriques, le barème fiscal 2026 et la gestion des frais professionnels.",
-            "url": "https://iktracker.fr/blog",
-            "isPartOf": {
+            name: "Blog IKtracker",
+            description:
+              "Articles et conseils sur les indemnités kilométriques, le barème fiscal 2026 et la gestion des frais professionnels.",
+            url: "https://iktracker.fr/blog",
+            isPartOf: {
               "@type": "WebSite",
-              "name": "IKtracker",
-              "url": "https://iktracker.fr"
+              name: "IKtracker",
+              url: "https://iktracker.fr",
             },
-            "publisher": {
+            publisher: {
               "@type": "Organization",
-              "name": "IKtracker",
-              "logo": {
+              name: "IKtracker",
+              logo: {
                 "@type": "ImageObject",
-                "url": "https://iktracker.fr/logo-iktracker-250.webp"
-              }
+                url: "https://iktracker.fr/logo-iktracker-250.webp",
+              },
             },
-            "inLanguage": "fr-FR"
+            inLanguage: "fr-FR",
           })}
         </script>
       </Helmet>
 
       <div className="min-h-screen bg-background font-blog">
         <MarketingNav user={user} loading={authLoading} />
-        
+
         <main id="main-content" tabIndex={-1} className="pt-20 pb-16 outline-hidden">
           {/* Breadcrumb */}
           <div className="container mx-auto px-4 pt-6">
-            <Breadcrumb items={[{ label: 'Blog' }]} />
+            <Breadcrumb items={[{ label: "Blog" }]} />
           </div>
-          
+
           {/* Hero Header - Editorial style */}
           <section className="border-b border-border" aria-labelledby="hero-heading">
             <div className="container mx-auto px-4 py-12 md:py-20">
@@ -116,13 +130,17 @@ export default function Blog() {
                 <span className="text-sm font-medium text-primary uppercase tracking-wider">
                   Actualités & Conseils
                 </span>
-                <h1 id="hero-heading" className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mt-4 tracking-tight leading-[1.1]">
+                <h1
+                  id="hero-heading"
+                  className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mt-4 tracking-tight leading-[1.1]"
+                >
                   Le Blog<span className="text-primary">.</span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground mt-6 max-w-2xl leading-relaxed">
-                  Indemnités kilométriques, fiscalité des indépendants et bonnes pratiques pour optimiser vos frais professionnels.
+                  Indemnités kilométriques, fiscalité des indépendants et bonnes pratiques pour
+                  optimiser vos frais professionnels.
                 </p>
-                
+
                 {isAdmin && (
                   <div className="mt-8">
                     <Link to="/app/admin/blog/edit">
@@ -139,7 +157,6 @@ export default function Blog() {
 
           <div className="container mx-auto px-4 py-12">
             {/* Admin-only editorial KPIs */}
-            
 
             {loading ? (
               <div className="space-y-8">
@@ -165,8 +182,12 @@ export default function Blog() {
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                   <Calendar className="w-10 h-10 text-muted-foreground" />
                 </div>
-                <h2 className="font-serif text-3xl font-bold text-foreground mb-2">Aucun article pour le moment</h2>
-                <p className="text-muted-foreground mb-6">Les premiers articles arrivent bientôt !</p>
+                <h2 className="font-serif text-3xl font-bold text-foreground mb-2">
+                  Aucun article pour le moment
+                </h2>
+                <p className="text-muted-foreground mb-6">
+                  Les premiers articles arrivent bientôt !
+                </p>
                 {isAdmin && (
                   <Link to="/app/admin/blog/edit">
                     <Button variant="gradient">
@@ -185,9 +206,19 @@ export default function Blog() {
                     <Link to={`/blog/${featuredPost.slug}`} className="lg:col-span-3 group block">
                       <article className="relative h-full min-h-[400px] rounded-2xl overflow-hidden bg-muted">
                         {featuredPost.featured_image_url ? (
-                          <img 
-                            src={getOptimizedImageUrl(featuredPost.featured_image_url, imagePresets.featured) || ''} 
-                            srcSet={getResponsiveSrcSet(featuredPost.featured_image_url, [600, 900, 1200]) || ''}
+                          <img
+                            src={
+                              getOptimizedImageUrl(
+                                featuredPost.featured_image_url,
+                                imagePresets.featured,
+                              ) || ""
+                            }
+                            srcSet={
+                              getResponsiveSrcSet(
+                                featuredPost.featured_image_url,
+                                [600, 900, 1200],
+                              ) || ""
+                            }
                             sizes="(max-width: 1024px) 100vw, 60vw"
                             alt={featuredPost.title}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -220,7 +251,9 @@ export default function Blog() {
                             )}
                             {featuredPost.published_at && (
                               <span>
-                                {format(new Date(featuredPost.published_at), 'dd MMMM yyyy', { locale: fr })}
+                                {format(new Date(featuredPost.published_at), "dd MMMM yyyy", {
+                                  locale: fr,
+                                })}
                               </span>
                             )}
                           </div>
@@ -236,9 +269,16 @@ export default function Blog() {
                         <Link key={post.id} to={`/blog/${post.slug}`} className="group flex-1">
                           <article className="relative h-full min-h-[180px] rounded-xl overflow-hidden bg-muted">
                             {post.featured_image_url ? (
-                              <img 
-                                src={getOptimizedImageUrl(post.featured_image_url, imagePresets.card) || ''} 
-                                srcSet={getResponsiveSrcSet(post.featured_image_url, [400, 600]) || ''}
+                              <img
+                                src={
+                                  getOptimizedImageUrl(
+                                    post.featured_image_url,
+                                    imagePresets.card,
+                                  ) || ""
+                                }
+                                srcSet={
+                                  getResponsiveSrcSet(post.featured_image_url, [400, 600]) || ""
+                                }
                                 sizes="(max-width: 1024px) 100vw, 40vw"
                                 alt={post.title}
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -256,7 +296,11 @@ export default function Blog() {
                               <div className="flex items-center gap-3 text-xs text-white/70">
                                 {post.author_name && <span>{post.author_name}</span>}
                                 {post.published_at && (
-                                  <span>{format(new Date(post.published_at), 'dd MMM yyyy', { locale: fr })}</span>
+                                  <span>
+                                    {format(new Date(post.published_at), "dd MMM yyyy", {
+                                      locale: fr,
+                                    })}
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -278,21 +322,37 @@ export default function Blog() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-fr">
                       {remainingPosts.map((post, index) => {
                         const size = getCardSize(index);
-                        const isLarge = size === 'large';
-                        const isMedium = size === 'medium';
-                        
+                        const isLarge = size === "large";
+                        const isMedium = size === "medium";
+
                         return (
-                          <Link 
-                            key={post.id} 
-                            to={`/blog/${post.slug}`} 
-                            className={`group block ${isLarge ? 'md:col-span-2 md:row-span-2' : isMedium ? 'md:row-span-2' : ''}`}
+                          <Link
+                            key={post.id}
+                            to={`/blog/${post.slug}`}
+                            className={`group block ${isLarge ? "md:col-span-2 md:row-span-2" : isMedium ? "md:row-span-2" : ""}`}
                           >
-                            <article className={`relative h-full rounded-xl overflow-hidden bg-muted ${isLarge ? 'min-h-[350px]' : isMedium ? 'min-h-[300px]' : 'min-h-[220px]'}`}>
+                            <article
+                              className={`relative h-full rounded-xl overflow-hidden bg-muted ${isLarge ? "min-h-[350px]" : isMedium ? "min-h-[300px]" : "min-h-[220px]"}`}
+                            >
                               {post.featured_image_url ? (
-                                <img 
-                                  src={getOptimizedImageUrl(post.featured_image_url, isLarge ? imagePresets.featured : imagePresets.card) || ''} 
-                                  srcSet={getResponsiveSrcSet(post.featured_image_url, isLarge ? [600, 900] : [400, 600]) || ''}
-                                  sizes={isLarge ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
+                                <img
+                                  src={
+                                    getOptimizedImageUrl(
+                                      post.featured_image_url,
+                                      isLarge ? imagePresets.featured : imagePresets.card,
+                                    ) || ""
+                                  }
+                                  srcSet={
+                                    getResponsiveSrcSet(
+                                      post.featured_image_url,
+                                      isLarge ? [600, 900] : [400, 600],
+                                    ) || ""
+                                  }
+                                  sizes={
+                                    isLarge
+                                      ? "(max-width: 768px) 100vw, 50vw"
+                                      : "(max-width: 768px) 100vw, 25vw"
+                                  }
                                   alt={post.title}
                                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                   loading="lazy"
@@ -303,7 +363,9 @@ export default function Blog() {
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
                               <div className="absolute bottom-0 left-0 right-0 p-4">
-                                <h3 className={`font-serif font-bold text-white leading-tight mb-2 group-hover:text-primary-foreground/90 transition-colors line-clamp-2 ${isLarge ? 'text-xl md:text-2xl' : isMedium ? 'text-lg' : 'text-base'}`}>
+                                <h3
+                                  className={`font-serif font-bold text-white leading-tight mb-2 group-hover:text-primary-foreground/90 transition-colors line-clamp-2 ${isLarge ? "text-xl md:text-2xl" : isMedium ? "text-lg" : "text-base"}`}
+                                >
                                   {post.title}
                                 </h3>
                                 {(isLarge || isMedium) && post.subtitle && (
@@ -313,7 +375,11 @@ export default function Blog() {
                                 )}
                                 <div className="flex items-center gap-2 text-xs text-white/60">
                                   {post.published_at && (
-                                    <span>{format(new Date(post.published_at), 'dd MMM yyyy', { locale: fr })}</span>
+                                    <span>
+                                      {format(new Date(post.published_at), "dd MMM yyyy", {
+                                        locale: fr,
+                                      })}
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -328,7 +394,7 @@ export default function Blog() {
             )}
           </div>
         </main>
-        
+
         <EnhancedMarketingFooter />
       </div>
     </>

@@ -15,7 +15,13 @@ export default defineTool({
   description:
     "Retourne le cumul kilométrique et l'indemnité totale par véhicule pour une année donnée (année en cours par défaut).",
   inputSchema: {
-    year: z.number().int().min(2000).max(2100).optional().describe("Année civile (défaut : année courante)."),
+    year: z
+      .number()
+      .int()
+      .min(2000)
+      .max(2100)
+      .optional()
+      .describe("Année civile (défaut : année courante)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ year }, ctx) => {
@@ -38,7 +44,10 @@ export default defineTool({
     if (e1 || e2) {
       return { content: [{ type: "text", text: (e1 ?? e2)!.message }], isError: true };
     }
-    const byVehicle = new Map<string | null, { distance: number; ik_amount: number; trips: number }>();
+    const byVehicle = new Map<
+      string | null,
+      { distance: number; ik_amount: number; trips: number }
+    >();
     for (const t of trips ?? []) {
       const key = t.vehicle_id;
       const acc = byVehicle.get(key) ?? { distance: 0, ik_amount: 0, trips: 0 };

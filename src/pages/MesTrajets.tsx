@@ -1,47 +1,113 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { useNavigate, useSearchParams, Link } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { useTrips } from '@/hooks/useTrips';
-import { Trip, Vehicle, Location as TripLocation, TourStopData, getIKBareme, IK_BAREME_2024, calculateTotalAnnualIK } from '@/types/trip';
-import { TripCard } from '@/components/TripCard';
-import { ThresholdAlert } from '@/components/ThresholdAlert';
-import { DesktopSidebar } from '@/components/DesktopSidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar, Download, Plus, UserCircle, Mail, Pencil, Send, Car, ChevronDown, MapPin, Clock, Calculator, Home, RefreshCw, AlertTriangle, FileText, CalendarRange, Repeat, CheckSquare, X as XIcon, Truck, Settings, Check, Loader2 } from 'lucide-react';
-import { useRecurringTrips } from '@/hooks/useRecurringTrips';
-import { removeCountryFromAddress } from '@/lib/geocoding';
-import { useAuth } from '@/hooks/useAuth';
-import { useEmailGate } from '@/hooks/useEmailGate';
-import { useAdmin } from '@/hooks/useAdmin';
-import { usePreferences } from '@/hooks/usePreferences';
-import { toast } from '@/components/ui/sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useNavigate, useSearchParams, Link } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { useTrips } from "@/hooks/useTrips";
+import {
+  Trip,
+  Vehicle,
+  Location as TripLocation,
+  TourStopData,
+  getIKBareme,
+  IK_BAREME_2024,
+  calculateTotalAnnualIK,
+} from "@/types/trip";
+import { TripCard } from "@/components/TripCard";
+import { ThresholdAlert } from "@/components/ThresholdAlert";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  ArrowLeft,
+  Calendar,
+  Download,
+  Plus,
+  UserCircle,
+  Mail,
+  Pencil,
+  Send,
+  Car,
+  ChevronDown,
+  MapPin,
+  Clock,
+  Calculator,
+  Home,
+  RefreshCw,
+  AlertTriangle,
+  FileText,
+  CalendarRange,
+  Repeat,
+  CheckSquare,
+  X as XIcon,
+  Truck,
+  Settings,
+  Check,
+  Loader2,
+} from "lucide-react";
+import { useRecurringTrips } from "@/hooks/useRecurringTrips";
+import { removeCountryFromAddress } from "@/lib/geocoding";
+import { useAuth } from "@/hooks/useAuth";
+import { useEmailGate } from "@/hooks/useEmailGate";
+import { useAdmin } from "@/hooks/useAdmin";
+import { usePreferences } from "@/hooks/usePreferences";
+import { toast } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 // PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
 
 // Lazy load heavy components
-const NewTripSheet = lazy(() => import('@/components/NewTripSheet').then(m => ({ default: m.NewTripSheet })));
-const VehicleForm = lazy(() => import('@/components/VehicleForm').then(m => ({ default: m.VehicleForm })));
-const ArchivedTripsSection = lazy(() => import('@/components/ArchivedTripsSection').then(m => ({ default: m.ArchivedTripsSection })));
-const RecurringTripsModal = lazy(() => import('@/components/RecurringTripsModal').then(m => ({ default: m.RecurringTripsModal })));
-const TripSettingsModal = lazy(() => import('@/components/TripSettingsModal').then(m => ({ default: m.TripSettingsModal })));
+const NewTripSheet = lazy(() =>
+  import("@/components/NewTripSheet").then((m) => ({ default: m.NewTripSheet })),
+);
+const VehicleForm = lazy(() =>
+  import("@/components/VehicleForm").then((m) => ({ default: m.VehicleForm })),
+);
+const ArchivedTripsSection = lazy(() =>
+  import("@/components/ArchivedTripsSection").then((m) => ({ default: m.ArchivedTripsSection })),
+);
+const RecurringTripsModal = lazy(() =>
+  import("@/components/RecurringTripsModal").then((m) => ({ default: m.RecurringTripsModal })),
+);
+const TripSettingsModal = lazy(() =>
+  import("@/components/TripSettingsModal").then((m) => ({ default: m.TripSettingsModal })),
+);
 
-const SheetLoader = () => <div className="p-4 text-center text-muted-foreground">Chargement...</div>;
+const SheetLoader = () => (
+  <div className="p-4 text-center text-muted-foreground">Chargement...</div>
+);
 
 export default function Report() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
-  const { trips, archivedTrips, vehicles, savedLocations, deleteTrip, restoreTrip, permanentlyDeleteTrip, updateTrip, addTrip, addLocation, updateLocation, deleteLocation, addVehicle, updateVehicle, deleteVehicle, getTotalAnnualKm, deleteAllTrips, getWipeBackupInfo, restoreWipedTrips } = useTrips();
+  const {
+    trips,
+    archivedTrips,
+    vehicles,
+    savedLocations,
+    deleteTrip,
+    restoreTrip,
+    permanentlyDeleteTrip,
+    updateTrip,
+    addTrip,
+    addLocation,
+    updateLocation,
+    deleteLocation,
+    addVehicle,
+    updateVehicle,
+    deleteVehicle,
+    getTotalAnnualKm,
+    deleteAllTrips,
+    getWipeBackupInfo,
+    restoreWipedTrips,
+  } = useTrips();
   const { user } = useAuth();
   const { guard } = useEmailGate();
   const { isAdmin } = useAdmin();
   const { preferences, updatePreference } = usePreferences();
-  
+
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<string | null>(null);
@@ -64,9 +130,10 @@ export default function Report() {
   const { create: createRecurring, items: recurringItems } = useRecurringTrips();
 
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -77,22 +144,22 @@ export default function Report() {
   };
 
   const handleRegroupToTour = async () => {
-    const chosen = trips.filter(t => selectedIds.has(t.id));
+    const chosen = trips.filter((t) => selectedIds.has(t.id));
     if (chosen.length < 2) {
       toast.error("Sélectionnez au moins 2 trajets");
       return;
     }
     // Same day check
-    const dayKey = (d: Date) => new Date(d).toISOString().split('T')[0];
+    const dayKey = (d: Date) => new Date(d).toISOString().split("T")[0];
     const firstDay = dayKey(chosen[0].startTime);
-    if (!chosen.every(t => dayKey(t.startTime) === firstDay)) {
+    if (!chosen.every((t) => dayKey(t.startTime) === firstDay)) {
       toast.error("Les trajets doivent être du même jour");
       return;
     }
     // Same vehicle check — accepts null (unassigned) as long as it's consistent.
     // Fall back to the first available vehicle when everyone is unassigned.
     const firstVehicleRaw = chosen[0].vehicleId ?? null;
-    if (!chosen.every(t => (t.vehicleId ?? null) === firstVehicleRaw)) {
+    if (!chosen.every((t) => (t.vehicleId ?? null) === firstVehicleRaw)) {
       toast.error("Les trajets doivent utiliser le même véhicule");
       return;
     }
@@ -106,7 +173,7 @@ export default function Report() {
     try {
       // Sort chronologically
       const sorted = [...chosen].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       );
 
       // Build tour_stops: chained locations, dedup consecutive identical addresses.
@@ -115,20 +182,20 @@ export default function Report() {
       const pushStop = (loc: TripLocation, ts: string) => {
         const addr = loc.address || loc.name;
         const last = stops[stops.length - 1];
-        if (last && (last.address || '') === addr) return;
+        if (last && (last.address || "") === addr) return;
         const stop: TourStopData = {
           id: crypto.randomUUID(),
           timestamp: ts,
           address: loc.address || loc.name,
           city: loc.name,
         };
-        if (typeof loc.lat === 'number' && typeof loc.lng === 'number') {
+        if (typeof loc.lat === "number" && typeof loc.lng === "number") {
           stop.lat = loc.lat;
           stop.lng = loc.lng;
         }
         stops.push(stop);
       };
-      sorted.forEach(t => {
+      sorted.forEach((t) => {
         pushStop(t.startLocation, new Date(t.startTime).toISOString());
         pushStop(t.endLocation, new Date(t.endTime || t.startTime).toISOString());
       });
@@ -149,29 +216,34 @@ export default function Report() {
         await deleteTrip(t.id);
       }
 
-      const created = await addTrip({
-        vehicleId: tourVehicleId,
-        startLocation: sorted[0].startLocation,
-        endLocation: sorted[sorted.length - 1].endLocation,
-        distance: totalDistance,
-        baseDistance,
-        roundTrip: false,
-        purpose: 'Tournée',
-        startTime: sorted[0].startTime,
-        endTime: sorted[sorted.length - 1].endTime || sorted[sorted.length - 1].startTime,
-        tourStops: stops,
-        status: 'validated',
-      } as any, { ikAmountOverride: sumIK });
+      const created = await addTrip(
+        {
+          vehicleId: tourVehicleId,
+          startLocation: sorted[0].startLocation,
+          endLocation: sorted[sorted.length - 1].endLocation,
+          distance: totalDistance,
+          baseDistance,
+          roundTrip: false,
+          purpose: "Tournée",
+          startTime: sorted[0].startTime,
+          endTime: sorted[sorted.length - 1].endTime || sorted[sorted.length - 1].startTime,
+          tourStops: stops,
+          status: "validated",
+        } as any,
+        { ikAmountOverride: sumIK },
+      );
 
       if (!created) {
-        toast.error("Impossible de créer la tournée (les trajets sources ont été archivés, restaurez-les)");
+        toast.error(
+          "Impossible de créer la tournée (les trajets sources ont été archivés, restaurez-les)",
+        );
         return;
       }
 
       toast.success(`Tournée créée avec ${stops.length} étapes`);
       exitSelectionMode();
     } catch (e) {
-      console.error('Regroup error:', e);
+      console.error("Regroup error:", e);
       toast.error("Erreur lors du regroupement");
     } finally {
       setIsRegrouping(false);
@@ -180,26 +252,26 @@ export default function Report() {
 
   // Open recurring modal from survey tab=RECURRENT
   useEffect(() => {
-    if (searchParams.get('tab') === 'RECURRENT') {
+    if (searchParams.get("tab") === "RECURRENT") {
       setShowRecurringModal(true);
       const next = new URLSearchParams(searchParams);
-      next.delete('tab');
+      next.delete("tab");
       setSearchParams(next, { replace: true });
     }
   }, [searchParams, setSearchParams]);
-  
+
   const totalKm = trips.reduce((sum, t) => sum + t.distance, 0);
   const totalIK = trips.reduce((sum, t) => sum + t.ikAmount, 0);
-  
+
   // Count trips with 0km distance
-  const tripsWithZeroKm = useMemo(() => trips.filter(t => t.distance === 0), [trips]);
+  const tripsWithZeroKm = useMemo(() => trips.filter((t) => t.distance === 0), [trips]);
   const hasZeroKmTrips = tripsWithZeroKm.length > 0;
-  
+
   // Check if user has a home address configured
   const hasHomeAddress = useMemo(() => {
-    return savedLocations.some(loc => loc.type === 'home' && loc.address);
+    return savedLocations.some((loc) => loc.type === "home" && loc.address);
   }, [savedLocations]);
-  
+
   const openBlockingZeroKmTrip = () => {
     const blocking = tripsWithZeroKm[0];
     if (!blocking) return;
@@ -214,13 +286,13 @@ export default function Report() {
       });
       return;
     }
-    
+
     setIsRecalculating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('recalculate-distances');
-      
+      const { data, error } = await supabase.functions.invoke("recalculate-distances");
+
       if (error) throw error;
-      
+
       if (data?.updated > 0) {
         toast.success(`${data.updated} trajet(s) recalculé(s)`, {
           description: "La page va se rafraîchir",
@@ -229,7 +301,8 @@ export default function Report() {
       } else {
         // Nothing could be recalculated: guide the user to the blocking trip
         toast.warning("Recalcul impossible", {
-          description: "Les adresses de ce trajet sont incomplètes ou introuvables. Complétez-les manuellement.",
+          description:
+            "Les adresses de ce trajet sont incomplètes ou introuvables. Complétez-les manuellement.",
           action: {
             label: "Corriger",
             onClick: openBlockingZeroKmTrip,
@@ -238,7 +311,7 @@ export default function Report() {
         openBlockingZeroKmTrip();
       }
     } catch (error) {
-      console.error('Recalculation error:', error);
+      console.error("Recalculation error:", error);
       toast.error("Erreur lors du recalcul", {
         description: "Ouvrez le trajet concerné pour corriger ses adresses.",
         action: {
@@ -251,53 +324,56 @@ export default function Report() {
     }
   };
 
-
   // Separate pending trips from validated trips - pending always shown first
-  const pendingTrips = trips.filter(t => t.status === 'pending_location');
+  const pendingTrips = trips.filter((t) => t.status === "pending_location");
 
   // Scroll to #pending anchor once trips are loaded
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (window.location.hash !== '#pending') return;
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#pending") return;
     if (pendingTrips.length === 0) return;
-    const el = document.getElementById('pending');
+    const el = document.getElementById("pending");
     if (el) {
-      requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      requestAnimationFrame(() => el.scrollIntoView({ behavior: "smooth", block: "start" }));
     }
   }, [pendingTrips.length]);
 
-  const validatedTrips = trips.filter(t => t.status !== 'pending_location');
+  const validatedTrips = trips.filter((t) => t.status !== "pending_location");
 
-  const groupedByMonth = validatedTrips.reduce((acc, trip) => {
-    const month = new Date(trip.startTime).toLocaleDateString('fr-FR', {
-      month: 'long',
-      year: 'numeric',
-    });
-    if (!acc[month]) acc[month] = [];
-    acc[month].push(trip);
-    return acc;
-  }, {} as Record<string, Trip[]>);
+  const groupedByMonth = validatedTrips.reduce(
+    (acc, trip) => {
+      const month = new Date(trip.startTime).toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      });
+      if (!acc[month]) acc[month] = [];
+      acc[month].push(trip);
+      return acc;
+    },
+    {} as Record<string, Trip[]>,
+  );
 
-  const getVehicle = (vehicleId: string | null) => vehicles.find(v => v.id === vehicleId);
+  const getVehicle = (vehicleId: string | null) => vehicles.find((v) => v.id === vehicleId);
 
   // Filter trips that are tours (have tourStops)
   const pastTours = useMemo(() => {
-    return trips.filter(trip => trip.tourStops && trip.tourStops.length > 0)
+    return trips
+      .filter((trip) => trip.tourStops && trip.tourStops.length > 0)
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [trips]);
 
-  const selectedTour = pastTours.find(t => t.id === selectedTourId);
+  const selectedTour = pastTours.find((t) => t.id === selectedTourId);
 
   const formatTourDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
+    return new Date(date).toLocaleDateString("fr-FR", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
     });
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return new Date(timestamp).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   };
 
   // Recalculate IK amounts based on chronological order and cumulative distance
@@ -305,28 +381,29 @@ export default function Report() {
   const recalculatedTrips = useMemo(() => {
     // Group trips by vehicle and year
     const grouped = new Map<string, Trip[]>();
-    
-    trips.forEach(trip => {
+
+    trips.forEach((trip) => {
       const year = new Date(trip.startTime).getFullYear();
       const key = `${trip.vehicleId}-${year}`;
       if (!grouped.has(key)) grouped.set(key, []);
       grouped.get(key)!.push(trip);
     });
 
-    const result: (Trip & { recalculatedIK: number; cumulativeKm: number; appliedRate: number })[] = [];
+    const result: (Trip & { recalculatedIK: number; cumulativeKm: number; appliedRate: number })[] =
+      [];
 
     grouped.forEach((vehicleTrips, key) => {
-      const vehicleId = key.split('-')[0];
+      const vehicleId = key.split("-")[0];
       const vehicle = getVehicle(vehicleId);
-      
+
       // Sort chronologically
       const sorted = [...vehicleTrips].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       );
 
       let cumulativeKm = 0;
 
-      sorted.forEach(trip => {
+      sorted.forEach((trip) => {
         const prevCumulativeKm = cumulativeKm;
         cumulativeKm += trip.distance;
 
@@ -343,7 +420,11 @@ export default function Report() {
 
         // Calculate marginal IK for this trip
         const rateOverride = preferences.ikRateOverride;
-        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower, rateOverride);
+        const ikBefore = calculateTotalAnnualIK(
+          prevCumulativeKm,
+          vehicle.fiscalPower,
+          rateOverride,
+        );
         const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower, rateOverride);
         let recalculatedIK = ikAfter - ikBefore;
         if (vehicle.isElectric) recalculatedIK = recalculatedIK * 1.2;
@@ -351,9 +432,9 @@ export default function Report() {
         // Determine applied rate
         const bareme = getIKBareme(vehicle.fiscalPower);
         let appliedRate: number;
-        if (rateOverride === 'tier2') {
+        if (rateOverride === "tier2") {
           appliedRate = bareme.from5001To20000.rate;
-        } else if (rateOverride === 'tier3') {
+        } else if (rateOverride === "tier3") {
           appliedRate = bareme.over20000.rate;
         } else {
           appliedRate = bareme.upTo5000.rate;
@@ -374,16 +455,15 @@ export default function Report() {
     return result.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [trips, vehicles, preferences.ikRateOverride]);
 
-
   // Recalculated totals
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
-  
+
   const handleAddVehicle = () => {
     setEditingVehicle(null);
     setShowVehicleForm(true);
   };
 
-  const IKTRACKER_URL = 'https://iktracker.fr';
+  const IKTRACKER_URL = "https://iktracker.fr";
   const IKTRACKER_MENTION = `Généré conformément à la législation par IKtracker, outil gratuit de suivi des indemnités kilométriques. ${IKTRACKER_URL}`;
 
   const generateReadmeContent = () => {
@@ -410,40 +490,42 @@ ${IKTRACKER_MENTION}
 
   const generateCSVContent = () => {
     const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-    const ownerName = vehicle ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim() : '';
-    const vehicleName = vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() : '';
-    const fiscalPower = vehicle?.fiscalPower ? `${vehicle.fiscalPower} CV` : '';
-    const licensePlate = vehicle?.licensePlate || '';
-    
+    const ownerName = vehicle
+      ? `${vehicle.ownerFirstName || ""} ${vehicle.ownerLastName || ""}`.trim()
+      : "";
+    const vehicleName = vehicle ? `${vehicle.make || ""} ${vehicle.model || ""}`.trim() : "";
+    const fiscalPower = vehicle?.fiscalPower ? `${vehicle.fiscalPower} CV` : "";
+    const licensePlate = vehicle?.licensePlate || "";
+
     const headers = [
-      'Date',
-      'Propriétaire',
-      'Véhicule',
-      'Immatriculation',
-      'Puissance fiscale (CV)',
-      'Lieu de départ',
+      "Date",
+      "Propriétaire",
+      "Véhicule",
+      "Immatriculation",
+      "Puissance fiscale (CV)",
+      "Lieu de départ",
       "Lieu d'arrivée",
-      'Distance (km)',
-      'Cumul annuel (km)',
-      'Motif',
-      'Taux appliqué (€/km)',
-      'Montant IK (€)',
+      "Distance (km)",
+      "Cumul annuel (km)",
+      "Motif",
+      "Taux appliqué (€/km)",
+      "Montant IK (€)",
     ];
 
     // Sort chronologically for CSV export
     const sortedTrips = [...recalculatedTrips].sort(
-      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
     );
 
-    const rows = sortedTrips.map(t => {
+    const rows = sortedTrips.map((t) => {
       const tripVehicle = getVehicle(t.vehicleId);
 
       return [
-        new Date(t.startTime).toLocaleDateString('fr-FR'),
-        tripVehicle ? `${tripVehicle.ownerFirstName} ${tripVehicle.ownerLastName}` : '',
-        tripVehicle ? `${tripVehicle.make} ${tripVehicle.model}` : '',
-        tripVehicle?.licensePlate || '',
-        tripVehicle?.fiscalPower?.toString() || '',
+        new Date(t.startTime).toLocaleDateString("fr-FR"),
+        tripVehicle ? `${tripVehicle.ownerFirstName} ${tripVehicle.ownerLastName}` : "",
+        tripVehicle ? `${tripVehicle.make} ${tripVehicle.model}` : "",
+        tripVehicle?.licensePlate || "",
+        tripVehicle?.fiscalPower?.toString() || "",
         t.startLocation.name,
         t.endLocation.name,
         t.distance.toFixed(1),
@@ -455,14 +537,27 @@ ${IKTRACKER_MENTION}
     });
 
     rows.push([]);
-    rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(1), '', '', '', recalculatedTotalIK.toFixed(2)]);
-    
+    rows.push([
+      "TOTAL",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      totalKm.toFixed(1),
+      "",
+      "",
+      "",
+      recalculatedTotalIK.toFixed(2),
+    ]);
+
     rows.push([]);
-    rows.push(['Barème kilométrique fiscal 2026']);
-    rows.push(['CV', "Jusqu'à 5000 km", '5001 à 20000 km', 'Au-delà de 20000 km']);
-    IK_BAREME_2024.forEach(b => {
+    rows.push(["Barème kilométrique fiscal 2026"]);
+    rows.push(["CV", "Jusqu'à 5000 km", "5001 à 20000 km", "Au-delà de 20000 km"]);
+    IK_BAREME_2024.forEach((b) => {
       rows.push([
-        b.cv === '7+' ? '7 CV et plus' : `${b.cv} CV`,
+        b.cv === "7+" ? "7 CV et plus" : `${b.cv} CV`,
         `d × ${b.upTo5000.rate}`,
         `(d × ${b.from5001To20000.rate}) + ${b.from5001To20000.fixed}`,
         `d × ${b.over20000.rate}`,
@@ -475,67 +570,73 @@ ${IKTRACKER_MENTION}
     rows.push([IKTRACKER_URL]);
 
     // Build header info section with user info
-    const userName = userInfo.firstName || userInfo.lastName
-      ? `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim()
-      : '';
-    
+    const userName =
+      userInfo.firstName || userInfo.lastName
+        ? `${userInfo.firstName || ""} ${userInfo.lastName || ""}`.trim()
+        : "";
+
     const headerInfo = [
       IKTRACKER_MENTION,
-      '',
-      '=== INFORMATIONS UTILISATEUR ===',
-      userName ? `Nom;${userName}` : '',
-      userInfo.email ? `Email;${userInfo.email}` : '',
-      '',
-      '=== INFORMATIONS CONDUCTEUR ET VÉHICULE ===',
+      "",
+      "=== INFORMATIONS UTILISATEUR ===",
+      userName ? `Nom;${userName}` : "",
+      userInfo.email ? `Email;${userInfo.email}` : "",
+      "",
+      "=== INFORMATIONS CONDUCTEUR ET VÉHICULE ===",
       `Propriétaire;${ownerName}`,
       `Véhicule;${vehicleName}`,
       `Puissance fiscale;${fiscalPower}`,
       `Immatriculation;${licensePlate}`,
-      '',
-      '=== DÉTAIL DES TRAJETS ===',
-    ].filter(line => line !== '');
+      "",
+      "=== DÉTAIL DES TRAJETS ===",
+    ].filter((line) => line !== "");
 
-    const csv = [
-      ...headerInfo,
-      headers.join(';'),
-      ...rows.map(r => r.join(';')),
-    ].join('\n');
+    const csv = [...headerInfo, headers.join(";"), ...rows.map((r) => r.join(";"))].join("\n");
 
-    return '\uFEFF' + csv; // BOM for Excel
+    return "\uFEFF" + csv; // BOM for Excel
   };
 
   // Build user info from auth user
-  const userInfo = useMemo(() => ({
-    email: user?.email,
-    firstName: user?.user_metadata?.first_name,
-    lastName: user?.user_metadata?.last_name,
-  }), [user]);
+  const userInfo = useMemo(
+    () => ({
+      email: user?.email,
+      firstName: user?.user_metadata?.first_name,
+      lastName: user?.user_metadata?.last_name,
+    }),
+    [user],
+  );
 
   // Filter trips by reportSinceDate for exports
   const filteredTripsForReport = useMemo(() => {
     if (!reportSinceDate) return trips;
-    return trips.filter(t => new Date(t.startTime) >= reportSinceDate);
+    return trips.filter((t) => new Date(t.startTime) >= reportSinceDate);
   }, [trips, reportSinceDate]);
 
-  const filteredTotalKm = useMemo(() => filteredTripsForReport.reduce((sum, t) => sum + t.distance, 0), [filteredTripsForReport]);
+  const filteredTotalKm = useMemo(
+    () => filteredTripsForReport.reduce((sum, t) => sum + t.distance, 0),
+    [filteredTripsForReport],
+  );
   const filteredRecalculatedTrips = useMemo(() => {
     if (!reportSinceDate) return recalculatedTrips;
-    return recalculatedTrips.filter(t => new Date(t.startTime) >= reportSinceDate);
+    return recalculatedTrips.filter((t) => new Date(t.startTime) >= reportSinceDate);
   }, [recalculatedTrips, reportSinceDate]);
-  const filteredRecalculatedTotalIK = filteredRecalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
+  const filteredRecalculatedTotalIK = filteredRecalculatedTrips.reduce(
+    (sum, t) => sum + t.recalculatedIK,
+    0,
+  );
 
   const formatReportSinceDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
   };
 
   // Generate HTML content for PDF (used in ZIP export)
   const generateHTMLContent = async () => {
-    const { generatePrintableHTML } = await import('@/lib/print-utils');
+    const { generatePrintableHTML } = await import("@/lib/print-utils");
     return generatePrintableHTML({
       trips: filteredTripsForReport,
       vehicles,
       totalKm: filteredTotalKm,
-      logoUrl: '/logo-iktracker-250.webp',
+      logoUrl: "/logo-iktracker-250.webp",
       userInfo,
       sinceDate: reportSinceDate,
       ikRateOverride: preferences.ikRateOverride,
@@ -544,12 +645,12 @@ ${IKTRACKER_MENTION}
 
   // Direct print function (opens browser print dialog)
   const handlePrint = async () => {
-    const { printReport } = await import('@/lib/print-utils');
+    const { printReport } = await import("@/lib/print-utils");
     printReport({
       trips: filteredTripsForReport,
       vehicles,
       totalKm: filteredTotalKm,
-      logoUrl: '/logo-iktracker-250.webp',
+      logoUrl: "/logo-iktracker-250.webp",
       userInfo,
       sinceDate: reportSinceDate,
       ikRateOverride: preferences.ikRateOverride,
@@ -558,12 +659,14 @@ ${IKTRACKER_MENTION}
 
   // Debug: open the HTML report in a new tab to verify it's not empty
   const previewHTMLReport = async () => {
-    if (!guard('export')) return;
+    if (!guard("export")) return;
     try {
       const htmlContent = await generateHTMLContent();
-      const w = window.open('', '_blank');
+      const w = window.open("", "_blank");
       if (!w) {
-        toast.error("Popup bloqué", { description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé" });
+        toast.error("Popup bloqué", {
+          description: "Autorisez l'ouverture d'onglets pour prévisualiser le relevé",
+        });
         return;
       }
       w.document.open();
@@ -577,17 +680,17 @@ ${IKTRACKER_MENTION}
 
   // Download PDF directly using htmlToPdfBlob
   const handleDownloadPdf = async () => {
-    if (!guard('export')) return;
+    if (!guard("export")) return;
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
     }
 
     setIsExporting(true);
-    
+
     // Create elegant loading overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'download-overlay';
+    const overlay = document.createElement("div");
+    overlay.id = "download-overlay";
     overlay.style.cssText = `
       position: fixed;
       inset: 0;
@@ -613,67 +716,67 @@ ${IKTRACKER_MENTION}
       <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
     `;
     document.body.appendChild(overlay);
-    
+
     try {
-      const { htmlToPdfBlob } = await import('@/lib/pdf-utils');
-      const dateStr = new Date().toISOString().split('T')[0];
-      
+      const { htmlToPdfBlob } = await import("@/lib/pdf-utils");
+      const dateStr = new Date().toISOString().split("T")[0];
+
       // Generate HTML content
       const htmlContent = await generateHTMLContent();
-      
+
       // Convert HTML to PDF
       const pdfBlob = await htmlToPdfBlob(htmlContent);
-      
+
       // Download PDF
       const pdfUrl = URL.createObjectURL(pdfBlob);
-      const pdfLink = document.createElement('a');
+      const pdfLink = document.createElement("a");
       pdfLink.href = pdfUrl;
       pdfLink.download = `releve-ik-${dateStr}.pdf`;
       document.body.appendChild(pdfLink);
       pdfLink.click();
       document.body.removeChild(pdfLink);
       URL.revokeObjectURL(pdfUrl);
-      
+
       // Also download CSV
       const csvContent = generateCSVContent();
-      const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-      
-      await new Promise(r => setTimeout(r, 300));
-      
+      const csvBlob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+
+      await new Promise((r) => setTimeout(r, 300));
+
       const csvUrl = URL.createObjectURL(csvBlob);
-      const csvLink = document.createElement('a');
+      const csvLink = document.createElement("a");
       csvLink.href = csvUrl;
       csvLink.download = `releve-ik-${dateStr}.csv`;
       document.body.appendChild(csvLink);
       csvLink.click();
       document.body.removeChild(csvLink);
       URL.revokeObjectURL(csvUrl);
-      
+
       toast.success("PDF et CSV téléchargés");
     } catch (error) {
-      console.error('Download error:', error);
+      console.error("Download error:", error);
       const message = error instanceof Error ? error.message : "Erreur lors du téléchargement";
       toast.error("Erreur lors du téléchargement", { description: message });
     } finally {
       // Remove overlay
-      const existingOverlay = document.getElementById('download-overlay');
+      const existingOverlay = document.getElementById("download-overlay");
       if (existingOverlay) existingOverlay.remove();
       setIsExporting(false);
     }
   };
 
   const exportZip = async () => {
-    if (!guard('export')) return;
+    if (!guard("export")) return;
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
     }
 
     setIsExporting(true);
-    
+
     // Create elegant loading overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'export-overlay';
+    const overlay = document.createElement("div");
+    overlay.id = "export-overlay";
     overlay.style.cssText = `
       position: fixed;
       inset: 0;
@@ -699,106 +802,110 @@ ${IKTRACKER_MENTION}
       <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
     `;
     document.body.appendChild(overlay);
-    
+
     try {
-      const { loadZip, htmlToPdfBlob } = await import('@/lib/pdf-utils');
+      const { loadZip, htmlToPdfBlob } = await import("@/lib/pdf-utils");
       const JSZip = await loadZip();
       const zip = new JSZip();
-      const dateStr = new Date().toISOString().split('T')[0];
-      
+      const dateStr = new Date().toISOString().split("T")[0];
+
       // Add README
       const readmeContent = generateReadmeContent();
-      zip.file('LISEZ-MOI-IKtracker.txt', readmeContent);
-      
+      zip.file("LISEZ-MOI-IKtracker.txt", readmeContent);
+
       // Add CSV
       const csvContent = generateCSVContent();
       zip.file(`releve-ik-${dateStr}.csv`, csvContent);
-      
+
       // Generate HTML content
       const htmlContent = await generateHTMLContent();
-      
+
       // Convert HTML to PDF
       const pdfBlob = await htmlToPdfBlob(htmlContent);
       zip.file(`releve-ik-${dateStr}.pdf`, pdfBlob);
-      
+
       // Generate ZIP
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+
       // Download
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(zipBlob);
       link.download = `releve-ik-${dateStr}.zip`;
       link.click();
-      
+
       toast.success("Export réussi", {
         description: "Le fichier ZIP contient le PDF et le CSV",
       });
     } catch (error) {
-      console.error('Export error:', error);
+      console.error("Export error:", error);
       const message = error instanceof Error ? error.message : "Erreur lors de l'export";
       toast.error("Erreur lors de l'export", { description: message });
     } finally {
       // Remove overlay
-      const existingOverlay = document.getElementById('export-overlay');
+      const existingOverlay = document.getElementById("export-overlay");
       if (existingOverlay) existingOverlay.remove();
       setIsExporting(false);
     }
   };
 
   const sendToAccountant = async () => {
-    if (!guard('export')) return;
+    if (!guard("export")) return;
     if (trips.length === 0) {
       toast.error("Aucun trajet à exporter");
       return;
     }
 
     setIsExporting(true);
-    
+
     try {
       // Generate printable HTML for sharing
-      const { generatePrintableHTML } = await import('@/lib/print-utils');
+      const { generatePrintableHTML } = await import("@/lib/print-utils");
       const shareHtmlContent = generatePrintableHTML({
         trips: filteredTripsForReport,
         vehicles,
         totalKm: filteredTotalKm,
-        logoUrl: '/logo-iktracker-250.webp',
+        logoUrl: "/logo-iktracker-250.webp",
         userInfo,
         sinceDate: reportSinceDate,
         ikRateOverride: preferences.ikRateOverride,
       });
-      
+
       // Create the share in the database
       if (!user?.id) {
-        throw new Error('Utilisateur non connecté');
+        throw new Error("Utilisateur non connecté");
       }
       const { data: shareData, error: shareError } = await supabase
-        .from('report_shares')
+        .from("report_shares")
         .insert({
           user_id: user.id,
           html_content: shareHtmlContent,
         })
-        .select('id')
+        .select("id")
         .single();
-      
+
       if (shareError || !shareData?.id) {
         throw new Error("Impossible de créer le lien de partage");
       }
-      
+
       const shareLink = `https://iktracker.fr/temporaryreport/${shareData.id}`;
 
       // Get user identity for signature
       const vehicle = vehicles.length > 0 ? vehicles[0] : null;
-      const ownerName = vehicle && (vehicle.ownerFirstName || vehicle.ownerLastName) 
-        ? `${vehicle.ownerFirstName || ''} ${vehicle.ownerLastName || ''}`.trim()
-        : user?.email?.split('@')[0] || 'Votre client';
+      const ownerName =
+        vehicle && (vehicle.ownerFirstName || vehicle.ownerLastName)
+          ? `${vehicle.ownerFirstName || ""} ${vehicle.ownerLastName || ""}`.trim()
+          : user?.email?.split("@")[0] || "Votre client";
 
       // Compose email with share link
-      const periodLabel = reportSinceDate 
-        ? `depuis le ${reportSinceDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`
-        : 'pour la période en cours';
-      const currentMonth = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const periodLabel = reportSinceDate
+        ? `depuis le ${reportSinceDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`
+        : "pour la période en cours";
+      const currentMonth = new Date().toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      });
       const subject = encodeURIComponent(`Relevé des indemnités kilométriques - ${currentMonth}`);
-      
+
       const emailBody = `Bonjour,
 
 Veuillez trouver ci-dessous le lien vers mon relevé des indemnités kilométriques ${periodLabel}.
@@ -824,7 +931,7 @@ Document généré via IKtracker
 ${IKTRACKER_URL}`;
 
       const body = encodeURIComponent(emailBody);
-      const mailtoFallback = preferences.accountantEmail 
+      const mailtoFallback = preferences.accountantEmail
         ? `mailto:${encodeURIComponent(preferences.accountantEmail)}?subject=${subject}&body=${body}`
         : `mailto:?subject=${subject}&body=${body}`;
 
@@ -833,7 +940,7 @@ ${IKTRACKER_URL}`;
       if (preferences.accountantEmail) {
         try {
           const { data: sendData, error: sendErr } = await supabase.functions.invoke(
-            'send-accountant-report-manual',
+            "send-accountant-report-manual",
             {
               body: {
                 shareId: shareData.id,
@@ -844,15 +951,15 @@ ${IKTRACKER_URL}`;
                 totalIk: filteredRecalculatedTotalIK,
                 ownerName,
               },
-            }
+            },
           );
           if (!sendErr && (sendData as any)?.ok) {
             sentViaResend = true;
           } else if (sendErr) {
-            console.warn('Resend send failed, falling back to mailto:', sendErr);
+            console.warn("Resend send failed, falling back to mailto:", sendErr);
           }
         } catch (e) {
-          console.warn('Resend invoke failed, falling back to mailto:', e);
+          console.warn("Resend invoke failed, falling back to mailto:", e);
         }
       }
 
@@ -871,13 +978,12 @@ ${IKTRACKER_URL}`;
         });
       }
 
-
       if (preferences.accountantEmail) {
-        updatePreference('hasSentToAccountant', true);
+        updatePreference("hasSentToAccountant", true);
         setIsEditingAccountantEmail(false);
       }
     } catch (error) {
-      console.error('Export error:', error);
+      console.error("Export error:", error);
       toast.error("Erreur lors de la préparation de l'email");
     } finally {
       setIsExporting(false);
@@ -886,12 +992,11 @@ ${IKTRACKER_URL}`;
 
   return (
     <>
-      <Helmet>
-      </Helmet>
-      
+      <Helmet></Helmet>
+
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
-        <DesktopSidebar 
+        <DesktopSidebar
           vehicles={vehicles}
           onAddVehicle={addVehicle}
           onEditVehicle={updateVehicle}
@@ -917,10 +1022,21 @@ ${IKTRACKER_URL}`;
               >
                 <Settings className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={previewHTMLReport} disabled={trips.length === 0} aria-label="Prévisualiser le relevé">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={previewHTMLReport}
+                disabled={trips.length === 0}
+                aria-label="Prévisualiser le relevé"
+              >
                 <Download className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/app/profile')} aria-label="Accéder au profil">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/app/profile")}
+                aria-label="Accéder au profil"
+              >
                 <UserCircle className="w-5 h-5" />
               </Button>
             </div>
@@ -928,330 +1044,304 @@ ${IKTRACKER_URL}`;
         </header>
 
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-3 md:py-6 space-y-4 md:space-y-6">
-        
-        {/* Summary Stats Card */}
-        <div className="bg-card rounded-xl p-4 md:p-6 shadow-xs border border-gray-100 dark:border-border space-y-3 md:space-y-4">
-          <div className="grid grid-cols-3 gap-4 md:gap-6 text-center">
-            <div>
-              <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">{trips.length}</p>
-              <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">trajets</p>
-            </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">{totalKm.toFixed(0)}</p>
-              <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">km</p>
-            </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">{recalculatedTotalIK.toFixed(0)}€</p>
-              <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">IK</p>
-            </div>
-          </div>
-          
-          {/* Threshold Alert - Report variant (orange) */}
-          {vehicles.length > 0 && (
-            <ThresholdAlert 
-              totalKm={totalKm} 
-              fiscalPower={vehicles[0].fiscalPower} 
-              variant="report" 
-            />
-          )}
-          
-          {/* Alert for trips with 0km */}
-          {hasZeroKmTrips && (
-            <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mt-3">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
-                <p className="text-sm font-medium text-warning-foreground flex-1">
-                  {tripsWithZeroKm.length} trajet{tripsWithZeroKm.length > 1 ? 's' : ''} à 0 km
+          {/* Summary Stats Card */}
+          <div className="bg-card rounded-xl p-4 md:p-6 shadow-xs border border-gray-100 dark:border-border space-y-3 md:space-y-4">
+            <div className="grid grid-cols-3 gap-4 md:gap-6 text-center">
+              <div>
+                <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">
+                  {trips.length}
                 </p>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={openBlockingZeroKmTrip}
-                  className="shrink-0 text-warning-foreground hover:bg-warning/20"
-                >
-                  Voir le trajet
-                </Button>
-                <Button
-
-                  size="sm"
-                  variant={hasHomeAddress ? "default" : "outline"}
-                  onClick={hasHomeAddress ? handleRecalculateDistances : () => navigate('/app/profile#mes-adresses')}
-                  disabled={isRecalculating}
-                  className="shrink-0"
-                >
-                  {isRecalculating ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : hasHomeAddress ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      Recalculer
-                    </>
-                  ) : (
-                    <>
-                      <Home className="w-4 h-4 mr-1" />
-                      Configurer
-                    </>
-                  )}
-                </Button>
+                <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">
+                  trajets
+                </p>
+              </div>
+              <div>
+                <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight">
+                  {totalKm.toFixed(0)}
+                </p>
+                <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">
+                  km
+                </p>
+              </div>
+              <div>
+                <p className="text-2xl md:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight text-accent">
+                  {recalculatedTotalIK.toFixed(0)}€
+                </p>
+                <p className="text-xs font-urbanist font-semibold text-muted-foreground uppercase tracking-wide">
+                  IK
+                </p>
               </div>
             </div>
-          )}
-        </div>
 
-        <div className="flex flex-col lg:flex-row items-center gap-2 -my-1">
-          {/* Show email input only if not sent yet - hidden on mobile */}
-          {!isMobile && (!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
-            <div className="flex items-center gap-2 w-full lg:w-auto lg:max-w-[260px]">
-              <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <Input
-                type="email"
-                placeholder="Email du destinataire"
-                value={preferences.accountantEmail}
-                onChange={(e) => updatePreference('accountantEmail', e.target.value)}
-                className="flex-1 lg:w-[220px]"
+            {/* Threshold Alert - Report variant (orange) */}
+            {vehicles.length > 0 && (
+              <ThresholdAlert
+                totalKm={totalKm}
+                fiscalPower={vehicles[0].fiscalPower}
+                variant="report"
               />
+            )}
+
+            {/* Alert for trips with 0km */}
+            {hasZeroKmTrips && (
+              <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mt-3">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
+                  <p className="text-sm font-medium text-warning-foreground flex-1">
+                    {tripsWithZeroKm.length} trajet{tripsWithZeroKm.length > 1 ? "s" : ""} à 0 km
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={openBlockingZeroKmTrip}
+                    className="shrink-0 text-warning-foreground hover:bg-warning/20"
+                  >
+                    Voir le trajet
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={hasHomeAddress ? "default" : "outline"}
+                    onClick={
+                      hasHomeAddress
+                        ? handleRecalculateDistances
+                        : () => navigate("/app/profile#mes-adresses")
+                    }
+                    disabled={isRecalculating}
+                    className="shrink-0"
+                  >
+                    {isRecalculating ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : hasHomeAddress ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-1" />
+                        Recalculer
+                      </>
+                    ) : (
+                      <>
+                        <Home className="w-4 h-4 mr-1" />
+                        Configurer
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center gap-2 -my-1">
+            {/* Show email input only if not sent yet - hidden on mobile */}
+            {!isMobile && (!preferences.hasSentToAccountant || !preferences.accountantEmail) && (
+              <div className="flex items-center gap-2 w-full lg:w-auto lg:max-w-[260px]">
+                <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <Input
+                  type="email"
+                  placeholder="Email du destinataire"
+                  value={preferences.accountantEmail}
+                  onChange={(e) => updatePreference("accountantEmail", e.target.value)}
+                  className="flex-1 lg:w-[220px]"
+                />
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className={cn(
+                      "shadow-md border-0 dark:border dark:border-white/20",
+                      reportSinceDate
+                        ? "bg-primary/10 dark:bg-primary/20 text-primary hover:bg-primary/20"
+                        : "bg-white dark:bg-muted text-muted-foreground hover:bg-white/90 dark:hover:bg-muted/80",
+                    )}
+                  >
+                    <CalendarRange className="w-4 h-4" />
+                    {reportSinceDate
+                      ? `Depuis ${formatReportSinceDate(reportSinceDate)}`
+                      : "Depuis..."}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <div className="p-2 border-b border-border">
+                    <p className="text-xs text-muted-foreground text-center">Début du relevé</p>
+                  </div>
+                  <CalendarComponent
+                    mode="single"
+                    selected={reportSinceDate}
+                    onSelect={(date) => {
+                      setReportSinceDate(date);
+                      setDatePickerOpen(false);
+                    }}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                  {reportSinceDate && (
+                    <div className="p-2 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-xs text-muted-foreground"
+                        onClick={() => {
+                          setReportSinceDate(undefined);
+                          setDatePickerOpen(false);
+                        }}
+                      >
+                        Réinitialiser (tous les trajets)
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="outline"
+                size="default"
+                className={`bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md transition-colors ${exportSent ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+                onClick={sendToAccountant}
+                disabled={trips.length === 0 || isExporting}
+                aria-live="polite"
+              >
+                {exportSent ? (
+                  <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                ) : isExporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                {exportSent ? "Relevé envoyé" : "Envoyer le relevé"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Past Tours Dropdown - only show if there are past tours */}
+          {pastTours.length > 0 && (
+            <div className="bg-card rounded-md shadow-md overflow-hidden">
+              <button
+                onClick={() => {
+                  const willClose = showToursDropdown;
+                  setShowToursDropdown(!showToursDropdown);
+                  // Reset selected tour when closing the dropdown
+                  if (willClose) {
+                    setSelectedTourId(null);
+                  }
+                }}
+                className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Car className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium">Tournées passées</p>
+                    <p className="text-sm text-muted-foreground">
+                      {pastTours.length} tournée{pastTours.length !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-muted-foreground transition-transform ${showToursDropdown ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              <div
+                className={`grid transition-all duration-300 ease-out ${showToursDropdown ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+              >
+                <div className="overflow-hidden">
+                  <div className="border-t border-border p-3 space-y-2 max-h-60 overflow-y-auto">
+                    {pastTours.map((tour) => (
+                      <button
+                        key={tour.id}
+                        onClick={() =>
+                          setSelectedTourId(selectedTourId === tour.id ? null : tour.id)
+                        }
+                        className={`w-full p-3 rounded-md text-left transition-colors ${
+                          selectedTourId === tour.id
+                            ? "bg-primary/10 border border-primary/30"
+                            : "hover:bg-accent/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">
+                              {tour.tourStops?.length || 0} arrêts
+                            </span>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-sm text-muted-foreground">
+                              {formatTourDate(tour.startTime)}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium text-accent">
+                            {tour.ikAmount.toFixed(2)}€
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-          <div className="flex items-center gap-2">
-            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className={cn(
-                    "shadow-md border-0 dark:border dark:border-white/20",
-                    reportSinceDate 
-                      ? "bg-primary/10 dark:bg-primary/20 text-primary hover:bg-primary/20" 
-                      : "bg-white dark:bg-muted text-muted-foreground hover:bg-white/90 dark:hover:bg-muted/80"
-                  )}
-                >
-                  <CalendarRange className="w-4 h-4" />
-                  {reportSinceDate ? `Depuis ${formatReportSinceDate(reportSinceDate)}` : 'Depuis...'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="center">
-                <div className="p-2 border-b border-border">
-                  <p className="text-xs text-muted-foreground text-center">Début du relevé</p>
-                </div>
-                <CalendarComponent
-                  mode="single"
-                  selected={reportSinceDate}
-                  onSelect={(date) => {
-                    setReportSinceDate(date);
-                    setDatePickerOpen(false);
-                  }}
-                  disabled={(date) => date > new Date()}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
-                {reportSinceDate && (
-                  <div className="p-2 border-t border-border">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-xs text-muted-foreground"
-                      onClick={() => {
-                        setReportSinceDate(undefined);
-                        setDatePickerOpen(false);
-                      }}
-                    >
-                      Réinitialiser (tous les trajets)
-                    </Button>
-                  </div>
-                )}
-              </PopoverContent>
-            </Popover>
-            <Button 
-              variant="outline" 
-              size="default" 
-              className={`bg-white dark:bg-muted text-primary dark:text-white hover:bg-white/90 dark:hover:bg-muted/80 border-0 dark:border dark:border-white/20 shadow-md transition-colors ${exportSent ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
-              onClick={sendToAccountant} 
-              disabled={trips.length === 0 || isExporting}
-              aria-live="polite"
-            >
-              {exportSent ? (
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              ) : isExporting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-              {exportSent ? 'Relevé envoyé' : 'Envoyer le relevé'}
-            </Button>
 
-          </div>
-        </div>
+          {/* Selected Tour Details */}
+          {selectedTour && selectedTour.tourStops && (
+            <div className="bg-card rounded-md p-4 shadow-md animate-fade-in">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Détail de la tournée du {formatTourDate(selectedTour.startTime)}
+              </h3>
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-3 top-4 bottom-4 w-0.5 bg-border" />
 
-        {/* Past Tours Dropdown - only show if there are past tours */}
-        {pastTours.length > 0 && (
-        <div className="bg-card rounded-md shadow-md overflow-hidden">
-          <button
-            onClick={() => {
-              const willClose = showToursDropdown;
-              setShowToursDropdown(!showToursDropdown);
-              // Reset selected tour when closing the dropdown
-              if (willClose) {
-                setSelectedTourId(null);
-              }
-            }}
-            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Car className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <p className="font-medium">Tournées passées</p>
-                <p className="text-sm text-muted-foreground">
-                  {pastTours.length} tournée{pastTours.length !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showToursDropdown ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <div className={`grid transition-all duration-300 ease-out ${showToursDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-            <div className="overflow-hidden">
-              <div className="border-t border-border p-3 space-y-2 max-h-60 overflow-y-auto">
-                {pastTours.map(tour => (
-                  <button
-                    key={tour.id}
-                    onClick={() => setSelectedTourId(selectedTourId === tour.id ? null : tour.id)}
-                    className={`w-full p-3 rounded-md text-left transition-colors ${
-                      selectedTourId === tour.id ? 'bg-primary/10 border border-primary/30' : 'hover:bg-accent/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{tour.tourStops?.length || 0} arrêts</span>
-                        <span className="text-muted-foreground">•</span>
-                        <span className="text-sm text-muted-foreground">{formatTourDate(tour.startTime)}</span>
+                <div className="space-y-3">
+                  {selectedTour.tourStops.map((stop, index) => (
+                    <div key={stop.id} className="relative flex gap-3 items-start">
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center z-10 shrink-0 ${
+                          index === 0
+                            ? "bg-primary text-primary-foreground"
+                            : index === selectedTour.tourStops!.length - 1
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-secondary text-secondary-foreground"
+                        }`}
+                      >
+                        <MapPin className="w-3 h-3" />
                       </div>
-                      <span className="text-sm font-medium text-accent">{tour.ikAmount.toFixed(2)}€</span>
+                      <div className="flex-1 min-w-0 pb-2">
+                        <p className="font-medium text-sm truncate">
+                          {stop.city ||
+                            (stop.address ? removeCountryFromAddress(stop.address) : "Position")}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatTime(stop.timestamp)}
+                        </p>
+                      </div>
                     </div>
-                  </button>
-                ))}
+                  ))}
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-border flex justify-between text-sm">
+                <span className="text-muted-foreground">Total</span>
+                <span className="font-medium">
+                  {selectedTour.distance.toFixed(1)} km • {selectedTour.ikAmount.toFixed(2)}€
+                </span>
               </div>
             </div>
-          </div>
-        </div>
-        )}
+          )}
 
-        {/* Selected Tour Details */}
-        {selectedTour && selectedTour.tourStops && (
-          <div className="bg-card rounded-md p-4 shadow-md animate-fade-in">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              Détail de la tournée du {formatTourDate(selectedTour.startTime)}
-            </h3>
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-3 top-4 bottom-4 w-0.5 bg-border" />
-              
+          {/* Pending trips section - always at top */}
+          {pendingTrips.length > 0 && (
+            <div className="mb-6" id="pending">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                Trajets à compléter ({pendingTrips.length})
+              </h3>
+
               <div className="space-y-3">
-                {selectedTour.tourStops.map((stop, index) => (
-                  <div key={stop.id} className="relative flex gap-3 items-start">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center z-10 shrink-0 ${
-                      index === 0 
-                        ? 'bg-primary text-primary-foreground' 
-                        : index === selectedTour.tourStops!.length - 1
-                        ? 'bg-accent text-accent-foreground'
-                        : 'bg-secondary text-secondary-foreground'
-                    }`}>
-                      <MapPin className="w-3 h-3" />
-                    </div>
-                    <div className="flex-1 min-w-0 pb-2">
-                      <p className="font-medium text-sm truncate">{stop.city || (stop.address ? removeCountryFromAddress(stop.address) : 'Position')}</p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatTime(stop.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-3 pt-3 border-t border-border flex justify-between text-sm">
-              <span className="text-muted-foreground">Total</span>
-              <span className="font-medium">{selectedTour.distance.toFixed(1)} km • {selectedTour.ikAmount.toFixed(2)}€</span>
-            </div>
-          </div>
-        )}
-
-
-        {/* Pending trips section - always at top */}
-        {pendingTrips.length > 0 && (
-          <div className="mb-6" id="pending">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
-              Trajets à compléter ({pendingTrips.length})
-            </h3>
-
-            <div className="space-y-3">
-              {pendingTrips.map(trip => {
-                const vehicle = getVehicle(trip.vehicleId);
-                return (
-                  <TripCard
-                    key={trip.id}
-                    trip={trip}
-                    vehicle={vehicle}
-                    showTripTime={preferences.showTripTime}
-                    onEdit={(t) => {
-                      setEditingTrip(t);
-                      setShowNewTrip(true);
-                    }}
-                    onDelete={deleteTrip}
-                    showDelete
-                    savedLocations={savedLocations}
-                    onTripUpdated={() => window.location.reload()}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {Object.keys(groupedByMonth).length === 0 && pendingTrips.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-            <p className="text-muted-foreground">Aucun trajet enregistré</p>
-          </div>
-        ) : Object.keys(groupedByMonth).length > 0 && (
-          <>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Trajets passés</h3>
-              {selectionMode ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs text-muted-foreground"
-                  onClick={exitSelectionMode}
-                >
-                  <XIcon className="w-3.5 h-3.5 mr-1" />
-                  Annuler
-                </Button>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs text-muted-foreground hover:text-primary"
-                  onClick={() => setSelectionMode(true)}
-                >
-                  <CheckSquare className="w-3.5 h-3.5 mr-1" />
-                  Regrouper en tournée
-                </Button>
-              )}
-            </div>
-            {Object.entries(groupedByMonth).map(([month, monthTrips], index) => (
-            <div key={month}>
-              {index > 0 && (
-                <h3 className="text-sm font-medium text-muted-foreground mb-3 mt-6 capitalize">{month}</h3>
-              )}
-              <div className="space-y-3">
-                {monthTrips.map(trip => {
+                {pendingTrips.map((trip) => {
                   const vehicle = getVehicle(trip.vehicleId);
-                  const isTourTrip = !!(trip.tourStops && trip.tourStops.length > 0);
                   return (
                     <TripCard
                       key={trip.id}
@@ -1266,229 +1356,294 @@ ${IKTRACKER_URL}`;
                       showDelete
                       savedLocations={savedLocations}
                       onTripUpdated={() => window.location.reload()}
-                      selectionMode={selectionMode && !isTourTrip}
-                      selected={selectedIds.has(trip.id)}
-                      onToggleSelect={toggleSelect}
                     />
                   );
                 })}
               </div>
             </div>
-          ))}
-          </>
+          )}
 
-        )}
-
-        {/* Archived trips section - above barème */}
-        <Suspense fallback={<SheetLoader />}>
-          <ArchivedTripsSection
-            archivedTrips={archivedTrips}
-            vehicles={vehicles}
-            onRestore={restoreTrip}
-            onPermanentDelete={permanentlyDeleteTrip}
-          />
-        </Suspense>
-
-        <div className="bg-card rounded-md shadow-md overflow-hidden">
-          <button
-            onClick={() => setShowBaremeDropdown(!showBaremeDropdown)}
-            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Calculator className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <p className="font-medium">Barème IK 2026</p>
-                <p className="text-sm text-muted-foreground">Indemnités kilométriques</p>
-              </div>
+          {Object.keys(groupedByMonth).length === 0 && pendingTrips.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">Aucun trajet enregistré</p>
             </div>
-            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showBaremeDropdown ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <div className={`grid transition-all duration-300 ease-out ${showBaremeDropdown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-            <div className="overflow-hidden">
-              <div className="border-t border-border p-4">
-                <div className="text-xs text-muted-foreground space-y-1">
-                  {IK_BAREME_2024.map(b => (
-                    <div key={b.cv} className="flex justify-between">
-                      <span>{b.cv === '7+' ? '7 CV et +' : `${b.cv} CV`}</span>
-                      <span>{b.upTo5000.rate} €/km (≤5000km)</span>
+          ) : (
+            Object.keys(groupedByMonth).length > 0 && (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">Trajets passés</h3>
+                  {selectionMode ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-muted-foreground"
+                      onClick={exitSelectionMode}
+                    >
+                      <XIcon className="w-3.5 h-3.5 mr-1" />
+                      Annuler
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-muted-foreground hover:text-primary"
+                      onClick={() => setSelectionMode(true)}
+                    >
+                      <CheckSquare className="w-3.5 h-3.5 mr-1" />
+                      Regrouper en tournée
+                    </Button>
+                  )}
+                </div>
+                {Object.entries(groupedByMonth).map(([month, monthTrips], index) => (
+                  <div key={month}>
+                    {index > 0 && (
+                      <h3 className="text-sm font-medium text-muted-foreground mb-3 mt-6 capitalize">
+                        {month}
+                      </h3>
+                    )}
+                    <div className="space-y-3">
+                      {monthTrips.map((trip) => {
+                        const vehicle = getVehicle(trip.vehicleId);
+                        const isTourTrip = !!(trip.tourStops && trip.tourStops.length > 0);
+                        return (
+                          <TripCard
+                            key={trip.id}
+                            trip={trip}
+                            vehicle={vehicle}
+                            showTripTime={preferences.showTripTime}
+                            onEdit={(t) => {
+                              setEditingTrip(t);
+                              setShowNewTrip(true);
+                            }}
+                            onDelete={deleteTrip}
+                            showDelete
+                            savedLocations={savedLocations}
+                            onTripUpdated={() => window.location.reload()}
+                            selectionMode={selectionMode && !isTourTrip}
+                            selected={selectedIds.has(trip.id)}
+                            onToggleSelect={toggleSelect}
+                          />
+                        );
+                      })}
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </>
+            )
+          )}
+
+          {/* Archived trips section - above barème */}
+          <Suspense fallback={<SheetLoader />}>
+            <ArchivedTripsSection
+              archivedTrips={archivedTrips}
+              vehicles={vehicles}
+              onRestore={restoreTrip}
+              onPermanentDelete={permanentlyDeleteTrip}
+            />
+          </Suspense>
+
+          <div className="bg-card rounded-md shadow-md overflow-hidden">
+            <button
+              onClick={() => setShowBaremeDropdown(!showBaremeDropdown)}
+              className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Calculator className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium">Barème IK 2026</p>
+                  <p className="text-sm text-muted-foreground">Indemnités kilométriques</p>
+                </div>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-muted-foreground transition-transform ${showBaremeDropdown ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            <div
+              className={`grid transition-all duration-300 ease-out ${showBaremeDropdown ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="overflow-hidden">
+                <div className="border-t border-border p-4">
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    {IK_BAREME_2024.map((b) => (
+                      <div key={b.cv} className="flex justify-between">
+                        <span>{b.cv === "7+" ? "7 CV et +" : `${b.cv} CV`}</span>
+                        <span>{b.upTo5000.rate} €/km (≤5000km)</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </main>
 
-      </main>
+        {/* Selection action bar - shown above the main bottom bar */}
+        {selectionMode && (
+          <div className="fixed bottom-[76px] left-0 right-0 z-20 px-4 md:pl-16 animate-fade-in">
+            <div className="max-w-lg mx-auto bg-primary text-primary-foreground rounded-xl shadow-lg px-4 py-3 flex items-center justify-between gap-3">
+              <span className="text-sm font-medium">
+                {selectedIds.size} trajet{selectedIds.size > 1 ? "s" : ""} sélectionné
+                {selectedIds.size > 1 ? "s" : ""}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-primary-foreground hover:bg-primary-foreground/10"
+                  onClick={exitSelectionMode}
+                  disabled={isRegrouping}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="h-8"
+                  onClick={handleRegroupToTour}
+                  disabled={selectedIds.size < 2 || isRegrouping}
+                >
+                  <Truck className="w-4 h-4 mr-1" />
+                  {isRegrouping ? "Regroupement…" : `Regrouper (${selectedIds.size})`}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      {/* Selection action bar - shown above the main bottom bar */}
-      {selectionMode && (
-        <div className="fixed bottom-[76px] left-0 right-0 z-20 px-4 md:pl-16 animate-fade-in">
-          <div className="max-w-lg mx-auto bg-primary text-primary-foreground rounded-xl shadow-lg px-4 py-3 flex items-center justify-between gap-3">
-            <span className="text-sm font-medium">
-              {selectedIds.size} trajet{selectedIds.size > 1 ? 's' : ''} sélectionné{selectedIds.size > 1 ? 's' : ''}
-            </span>
-            <div className="flex items-center gap-2">
+        {/* Bottom action buttons */}
+        <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-xs shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
+          <div className="max-w-lg mx-auto flex justify-center">
+            <div className="grid grid-cols-3 gap-3 w-4/5 min-w-[280px]">
               <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 text-primary-foreground hover:bg-primary-foreground/10"
-                onClick={exitSelectionMode}
-                disabled={isRegrouping}
+                variant="outline"
+                size="default"
+                className="w-full h-12 px-2 text-sm"
+                onClick={() => setShowRecurringModal(true)}
               >
-                Annuler
+                <Repeat className="w-4 h-4" />
+                <span className="hidden lg:inline ml-1">Récurrents</span>
               </Button>
+              <Link to="/app/profile#mes-adresses" className="w-full">
+                <Button variant="outline" size="default" className="w-full h-12 px-2 text-sm">
+                  <Home className="w-4 h-4" />
+                  <span className="hidden lg:inline ml-1">Adresses</span>
+                </Button>
+              </Link>
               <Button
-                size="sm"
-                variant="secondary"
-                className="h-8"
-                onClick={handleRegroupToTour}
-                disabled={selectedIds.size < 2 || isRegrouping}
+                variant="gradient"
+                size="default"
+                className="w-full h-12 px-2 text-sm"
+                onClick={() => setShowNewTrip(true)}
+                disabled={vehicles.length === 0}
               >
-                <Truck className="w-4 h-4 mr-1" />
-                {isRegrouping ? 'Regroupement…' : `Regrouper (${selectedIds.size})`}
+                <Plus className="w-4 h-4" />
+                Nouveau
               </Button>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Bottom action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-background/95 backdrop-blur-xs shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)] safe-area-pb">
-
-        <div className="max-w-lg mx-auto flex justify-center">
-          <div className="grid grid-cols-3 gap-3 w-4/5 min-w-[280px]">
-            <Button 
-              variant="outline" 
-              size="default"
-              className="w-full h-12 px-2 text-sm"
-              onClick={() => setShowRecurringModal(true)}
-            >
-              <Repeat className="w-4 h-4" />
-              <span className="hidden lg:inline ml-1">Récurrents</span>
-            </Button>
-            <Link to="/app/profile#mes-adresses" className="w-full">
-              <Button 
-                variant="outline" 
-                size="default"
-                className="w-full h-12 px-2 text-sm"
-              >
-                <Home className="w-4 h-4" />
-                <span className="hidden lg:inline ml-1">Adresses</span>
-              </Button>
-            </Link>
-            <Button 
-              variant="gradient" 
-              size="default"
-              className="w-full h-12 px-2 text-sm"
-              onClick={() => setShowNewTrip(true)}
-              disabled={vehicles.length === 0}
-            >
-              <Plus className="w-4 h-4" />
-              Nouveau
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* New trip sheet */}
-      <Suspense fallback={null}>
-        <NewTripSheet
-          open={showNewTrip}
-          onOpenChange={(open) => {
-            setShowNewTrip(open);
-            if (!open) {
-              setEditingTrip(null);
-              setNewTripRecurringOnly(false);
-            }
-          }}
-          savedLocations={savedLocations}
-          vehicles={vehicles}
-          editTrip={editingTrip ? { ...editingTrip, vehicleId: editingTrip.vehicleId ?? "" } : null}
-          onAddLocation={addLocation}
-          onDeleteLocation={deleteLocation}
-          onUpdateLocation={updateLocation}
-          onAddVehicle={handleAddVehicle}
-          onCreateTrip={(t) => { void addTrip({ ...t, status: "validated" }); }}
-          onUpdateTrip={updateTrip}
-          getTotalAnnualKm={getTotalAnnualKm}
-          recurringOnly={newTripRecurringOnly}
-          onCreateRecurring={async (data) => {
-            await createRecurring({
-              vehicleId: data.vehicleId,
-              startLocation: data.startLocation,
-              endLocation: data.endLocation,
-              distance: data.distance,
-              baseDistance: data.baseDistance,
-              roundTrip: data.roundTrip,
-              purpose: data.purpose,
-              daysOfWeek: data.daysOfWeek,
-              isActive: true,
-              weeksDuration: null,
-              activeMonths: null,
-              createdAt: null,
-            });
-            toast.success("Trajet récurrent enregistré");
-          }}
-        />
-      </Suspense>
-
-      {/* Vehicle form */}
-      <Suspense fallback={null}>
-        <VehicleForm
-          open={showVehicleForm}
-          onOpenChange={setShowVehicleForm}
-          editVehicle={editingVehicle ? vehicles.find(v => v.id === editingVehicle) : undefined}
-          onSave={(vehicleData, options) => {
-            if (editingVehicle) {
-              updateVehicle(editingVehicle, vehicleData, options);
-            } else {
-              addVehicle(vehicleData);
-            }
-          }}
-        />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <RecurringTripsModal
-          open={showRecurringModal}
-          onOpenChange={setShowRecurringModal}
-          vehicles={vehicles}
-          onAddNew={() => {
-            setNewTripRecurringOnly(true);
-            setShowNewTrip(true);
-          }}
-        />
-      </Suspense>
-
-      {/* Trip settings modal (desktop only entry point) */}
-      <Suspense fallback={null}>
-        {showSettings && (
-          <TripSettingsModal
-            open={showSettings}
-            onOpenChange={setShowSettings}
-            vehicles={vehicles}
+        {/* New trip sheet */}
+        <Suspense fallback={null}>
+          <NewTripSheet
+            open={showNewTrip}
+            onOpenChange={(open) => {
+              setShowNewTrip(open);
+              if (!open) {
+                setEditingTrip(null);
+                setNewTripRecurringOnly(false);
+              }
+            }}
             savedLocations={savedLocations}
-            getTotalAnnualKm={getTotalAnnualKm}
-            onAddVehicle={addVehicle}
-            onUpdateVehicle={updateVehicle}
-            onDeleteVehicle={deleteVehicle}
+            vehicles={vehicles}
+            editTrip={
+              editingTrip ? { ...editingTrip, vehicleId: editingTrip.vehicleId ?? "" } : null
+            }
             onAddLocation={addLocation}
-            onUpdateLocation={updateLocation}
             onDeleteLocation={deleteLocation}
-            onOpenRecurring={() => setShowRecurringModal(true)}
-            onDeleteAllTrips={deleteAllTrips}
-            onGetWipeBackupInfo={getWipeBackupInfo}
-            onRestoreWipedTrips={restoreWipedTrips}
-            currentTripsCount={trips.length}
-
+            onUpdateLocation={updateLocation}
+            onAddVehicle={handleAddVehicle}
+            onCreateTrip={(t) => {
+              void addTrip({ ...t, status: "validated" });
+            }}
+            onUpdateTrip={updateTrip}
+            getTotalAnnualKm={getTotalAnnualKm}
+            recurringOnly={newTripRecurringOnly}
+            onCreateRecurring={async (data) => {
+              await createRecurring({
+                vehicleId: data.vehicleId,
+                startLocation: data.startLocation,
+                endLocation: data.endLocation,
+                distance: data.distance,
+                baseDistance: data.baseDistance,
+                roundTrip: data.roundTrip,
+                purpose: data.purpose,
+                daysOfWeek: data.daysOfWeek,
+                isActive: true,
+                weeksDuration: null,
+                activeMonths: null,
+                createdAt: null,
+              });
+              toast.success("Trajet récurrent enregistré");
+            }}
           />
+        </Suspense>
 
-        )}
-      </Suspense>
+        {/* Vehicle form */}
+        <Suspense fallback={null}>
+          <VehicleForm
+            open={showVehicleForm}
+            onOpenChange={setShowVehicleForm}
+            editVehicle={editingVehicle ? vehicles.find((v) => v.id === editingVehicle) : undefined}
+            onSave={(vehicleData, options) => {
+              if (editingVehicle) {
+                updateVehicle(editingVehicle, vehicleData, options);
+              } else {
+                addVehicle(vehicleData);
+              }
+            }}
+          />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <RecurringTripsModal
+            open={showRecurringModal}
+            onOpenChange={setShowRecurringModal}
+            vehicles={vehicles}
+            onAddNew={() => {
+              setNewTripRecurringOnly(true);
+              setShowNewTrip(true);
+            }}
+          />
+        </Suspense>
+
+        {/* Trip settings modal (desktop only entry point) */}
+        <Suspense fallback={null}>
+          {showSettings && (
+            <TripSettingsModal
+              open={showSettings}
+              onOpenChange={setShowSettings}
+              vehicles={vehicles}
+              savedLocations={savedLocations}
+              getTotalAnnualKm={getTotalAnnualKm}
+              onAddVehicle={addVehicle}
+              onUpdateVehicle={updateVehicle}
+              onDeleteVehicle={deleteVehicle}
+              onAddLocation={addLocation}
+              onUpdateLocation={updateLocation}
+              onDeleteLocation={deleteLocation}
+              onOpenRecurring={() => setShowRecurringModal(true)}
+              onDeleteAllTrips={deleteAllTrips}
+              onGetWipeBackupInfo={getWipeBackupInfo}
+              onRestoreWipedTrips={restoreWipedTrips}
+              currentTripsCount={trips.length}
+            />
+          )}
+        </Suspense>
       </div>
     </>
   );

@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -16,17 +16,35 @@ import {
   Zap,
   RefreshCw,
   Shield,
-  Smartphone
+  Smartphone,
 } from "lucide-react";
 
 // Lazy load heavy demo components
-const CalendarSyncDemo = lazy(() => import("@/components/marketing/CalendarSyncDemo").then(m => ({ default: m.CalendarSyncDemo })));
-const AnimatedPhoneMockup = lazy(() => import("@/components/marketing/AnimatedPhoneMockup").then(m => ({ default: m.AnimatedPhoneMockup })));
-const AppCarousel = lazy(() => import("@/components/marketing/AppCarousel").then(m => ({ default: m.AppCarousel })));
+const CalendarSyncDemo = lazy(() =>
+  import("@/components/marketing/CalendarSyncDemo").then((m) => ({ default: m.CalendarSyncDemo })),
+);
+const AnimatedPhoneMockup = lazy(() =>
+  import("@/components/marketing/AnimatedPhoneMockup").then((m) => ({
+    default: m.AnimatedPhoneMockup,
+  })),
+);
+const AppCarousel = lazy(() =>
+  import("@/components/marketing/AppCarousel").then((m) => ({ default: m.AppCarousel })),
+);
 
-const DemoLoader = () => <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>;
+const DemoLoader = () => (
+  <div className="h-64 flex items-center justify-center text-muted-foreground">Chargement...</div>
+);
 
-const AnimatedSection = ({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
+const AnimatedSection = ({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
   return (
     <div
@@ -34,7 +52,7 @@ const AnimatedSection = ({ children, className, delay = 0 }: { children: React.R
       className={cn(
         "transition-all duration-700 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
-        className
+        className,
       )}
       style={{ transitionDelay: `${delay}ms` }}
     >
@@ -52,59 +70,59 @@ export default function Calendrier() {
     {
       icon: Zap,
       title: "Zéro saisie",
-      description: "Vos RDV deviennent des trajets automatiquement"
+      description: "Vos RDV deviennent des trajets automatiquement",
     },
     {
       icon: RefreshCw,
       title: "Synchro en temps réel",
-      description: "Nouveaux RDV détectés instantanément"
+      description: "Nouveaux RDV détectés instantanément",
     },
     {
       icon: Clock,
       title: "2h gagnées/mois",
-      description: "Plus de ressaisie manuelle le week-end"
+      description: "Plus de ressaisie manuelle le week-end",
     },
     {
       icon: Shield,
       title: "Données sécurisées",
-      description: "Connexion OAuth, aucun mot de passe stocké"
-    }
+      description: "Connexion OAuth, aucun mot de passe stocké",
+    },
   ];
 
   const steps = [
     {
       number: "1",
       title: "Connectez votre calendrier",
-      description: "Google Calendar ou Outlook, en 2 clics"
+      description: "Google Calendar ou Outlook, en 2 clics",
     },
     {
       number: "2",
       title: "Ajoutez vos RDV comme d'habitude",
-      description: "Avec l'adresse dans le champ lieu"
+      description: "Avec l'adresse dans le champ lieu",
     },
     {
       number: "3",
       title: "Les trajets se créent seuls",
-      description: "Distance et IK calculées automatiquement"
-    }
+      description: "Distance et IK calculées automatiquement",
+    },
   ];
 
   const carouselSlides = [
     {
       title: "Vos rendez-vous synchronisés",
       description: "Chaque RDV avec une adresse est détecté automatiquement.",
-      mockup: <AnimatedPhoneMockup screen="calendar" />
+      mockup: <AnimatedPhoneMockup screen="calendar" />,
     },
     {
       title: "Trajets générés",
       description: "La distance est calculée entre votre domicile et le lieu du RDV.",
-      mockup: <AnimatedPhoneMockup screen="newTrip" />
+      mockup: <AnimatedPhoneMockup screen="newTrip" />,
     },
     {
       title: "Tout est comptabilisé",
       description: "Retrouvez tous vos km dans votre tableau de bord.",
-      mockup: <AnimatedPhoneMockup screen="dashboard" />
-    }
+      mockup: <AnimatedPhoneMockup screen="dashboard" />,
+    },
   ];
 
   const calendars = [
@@ -115,13 +133,12 @@ export default function Calendrier() {
   return (
     <div className="min-h-screen bg-background font-display select-text">
       <Helmet>
-        
         {/* Open Graph */}
-        
+
         {/* Twitter */}
-        
+
         {/* Geo */}
-        
+
         {/* Structured Data */}
         <script type="application/ld+json">
           {JSON.stringify({
@@ -129,39 +146,59 @@ export default function Calendrier() {
             "@graph": [
               {
                 "@type": "WebPage",
-                "name": "Synchronisation Calendrier IKtracker",
-                "description": "Connectez votre calendrier Google ou Outlook pour créer automatiquement vos trajets",
-                "url": "https://iktracker.fr/calendrier",
-                "isPartOf": {
+                name: "Synchronisation Calendrier IKtracker",
+                description:
+                  "Connectez votre calendrier Google ou Outlook pour créer automatiquement vos trajets",
+                url: "https://iktracker.fr/calendrier",
+                isPartOf: {
                   "@type": "WebSite",
-                  "name": "IKtracker",
-                  "url": "https://iktracker.fr"
+                  name: "IKtracker",
+                  url: "https://iktracker.fr",
                 },
-                "about": {
+                about: {
                   "@type": "SoftwareApplication",
-                  "name": "IKtracker Calendrier Sync",
-                  "applicationCategory": "BusinessApplication",
-                  "operatingSystem": "Web, iOS, Android",
-                  "offers": {
+                  name: "IKtracker Calendrier Sync",
+                  applicationCategory: "BusinessApplication",
+                  operatingSystem: "Web, iOS, Android",
+                  offers: {
                     "@type": "Offer",
-                    "price": "0.00",
-                    "priceCurrency": "EUR"
-                  }
-                }
+                    price: "0.00",
+                    priceCurrency: "EUR",
+                  },
+                },
               },
               {
                 "@type": "HowTo",
-                "name": "Comment synchroniser son calendrier avec IKtracker",
-                "description": "Transformez automatiquement vos rendez-vous Google Calendar ou Outlook en trajets professionnels.",
-                "totalTime": "PT2M",
-                "tool": [{ "@type": "HowToTool", "name": "Compte Google ou Microsoft / Outlook" }],
-                "step": [
-                  { "@type": "HowToStep", "position": 1, "name": "Connectez votre calendrier", "text": "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé.", "url": "https://iktracker.fr/calendrier#etape-1" },
-                  { "@type": "HowToStep", "position": 2, "name": "Ajoutez vos RDV comme d'habitude", "text": "Avec l'adresse dans le champ lieu de votre événement.", "url": "https://iktracker.fr/calendrier#etape-2" },
-                  { "@type": "HowToStep", "position": 3, "name": "Les trajets se créent seuls", "text": "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026.", "url": "https://iktracker.fr/calendrier#etape-3" }
-                ]
-              }
-            ]
+                name: "Comment synchroniser son calendrier avec IKtracker",
+                description:
+                  "Transformez automatiquement vos rendez-vous Google Calendar ou Outlook en trajets professionnels.",
+                totalTime: "PT2M",
+                tool: [{ "@type": "HowToTool", name: "Compte Google ou Microsoft / Outlook" }],
+                step: [
+                  {
+                    "@type": "HowToStep",
+                    position: 1,
+                    name: "Connectez votre calendrier",
+                    text: "Google Calendar ou Outlook, en 2 clics via OAuth sécurisé.",
+                    url: "https://iktracker.fr/calendrier#etape-1",
+                  },
+                  {
+                    "@type": "HowToStep",
+                    position: 2,
+                    name: "Ajoutez vos RDV comme d'habitude",
+                    text: "Avec l'adresse dans le champ lieu de votre événement.",
+                    url: "https://iktracker.fr/calendrier#etape-2",
+                  },
+                  {
+                    "@type": "HowToStep",
+                    position: 3,
+                    name: "Les trajets se créent seuls",
+                    text: "Distance et indemnités kilométriques calculées automatiquement selon le barème 2026.",
+                    url: "https://iktracker.fr/calendrier#etape-3",
+                  },
+                ],
+              },
+            ],
           })}
         </script>
       </Helmet>
@@ -170,7 +207,7 @@ export default function Calendrier() {
       <main id="main-content" tabIndex={-1} className="outline-hidden">
         {/* Breadcrumb */}
         <div className="container mx-auto px-4 pt-24">
-          <Breadcrumb items={[{ label: 'Synchronisation Calendrier' }]} />
+          <Breadcrumb items={[{ label: "Synchronisation Calendrier" }]} />
         </div>
 
         {/* Hero */}
@@ -178,8 +215,11 @@ export default function Calendrier() {
           className="pt-28 pb-20 md:pt-36 md:pb-28 px-4 relative overflow-hidden"
           aria-labelledby="hero-heading"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" aria-hidden="true" />
-          
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5"
+            aria-hidden="true"
+          />
+
           <div className="container mx-auto relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <AnimatedSection>
@@ -187,21 +227,27 @@ export default function Calendrier() {
                   <Calendar className="h-4 w-4" aria-hidden="true" />
                   <span>Synchronisation automatique</span>
                 </div>
-                
-                <h1 id="hero-heading" className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-6">
+
+                <h1
+                  id="hero-heading"
+                  className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-6"
+                >
                   Votre calendrier génère vos <span className="text-gradient">trajets</span>
                 </h1>
-                
+
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
-                  Connectez librement Google Calendar ou Outlook. Chaque rendez-vous avec une adresse 
-                  génère automatiquement un trajet avec localisation GPS et IK calculées.
+                  Connectez librement Google Calendar ou Outlook. Chaque rendez-vous avec une
+                  adresse génère automatiquement un trajet avec localisation GPS et IK calculées.
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
                   <Link to="/signup" className="focus-visible-ring rounded-lg">
                     <Button size="lg" variant="gradient" className="group">
                       Connecter mon calendrier
-                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                      <ArrowRight
+                        className="h-5 w-5 group-hover:translate-x-1 transition-transform"
+                        aria-hidden="true"
+                      />
                     </Button>
                   </Link>
                   <Link to="/mode-tournee" className="focus-visible-ring rounded-lg">
@@ -212,15 +258,19 @@ export default function Calendrier() {
                 </div>
 
                 {/* Supported calendars */}
-                <div className="flex items-center gap-4" role="list" aria-label="Calendriers compatibles">
+                <div
+                  className="flex items-center gap-4"
+                  role="list"
+                  aria-label="Calendriers compatibles"
+                >
                   <span className="text-sm text-muted-foreground">Compatible avec :</span>
                   {calendars.map((cal, i) => (
-                    <div 
+                    <div
                       key={i}
                       role="listitem"
                       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border"
                     >
-                      <div 
+                      <div
                         className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold"
                         style={{ backgroundColor: cal.color }}
                         aria-hidden="true"
@@ -296,9 +346,7 @@ export default function Calendrier() {
         <section className="py-20 px-4 bg-muted/30">
           <div className="container mx-auto">
             <AnimatedSection className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Les avantages
-              </h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Les avantages</h2>
             </AnimatedSection>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -348,15 +396,15 @@ export default function Calendrier() {
                 </p>
                 <p className="text-sm text-muted-foreground mb-8">
                   Consultez le{" "}
-                  <a 
-                    href="https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/frais-professionnels.html" 
-                    target="_blank" 
+                  <a
+                    href="https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/frais-professionnels.html"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="underline hover:text-primary transition-colors"
                   >
                     guide URSSAF sur les frais professionnels
-                  </a>
-                  {" "}pour connaître les conditions d'exonération.
+                  </a>{" "}
+                  pour connaître les conditions d'exonération.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Link to="/signup">

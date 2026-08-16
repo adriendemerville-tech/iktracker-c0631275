@@ -1,4 +1,4 @@
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -39,7 +39,6 @@ export default function IndemniteKilometriqueVelo() {
   return (
     <>
       <Helmet>
-
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -47,7 +46,11 @@ export default function IndemniteKilometriqueVelo() {
             headline: "Indemnité kilométrique vélo 2025-2026 : guide complet",
             description:
               "Tout savoir sur l'indemnité kilométrique vélo et le Forfait Mobilités Durables en France : montant, conditions, exonération et justificatifs.",
-            author: { "@type": "Person", name: "Adrien de Volontat", url: "https://iktracker.fr/blog/auteur/adrien-de-volontat" },
+            author: {
+              "@type": "Person",
+              name: "Adrien de Volontat",
+              url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
+            },
             publisher: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
             datePublished: "2026-06-29",
             dateModified: "2026-06-29",
@@ -67,13 +70,23 @@ export default function IndemniteKilometriqueVelo() {
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/indemnite-kilometrique-velo", pageDescription: "Indemnité kilométrique vélo 2025-2026 et Forfait Mobilités Durables : guide pratique, plafond 700 €, conditions, justificatifs. IKtracker consigne vos trajets vélo et voiture dans un journal opposable, gratuit à vie." }))}
+          {JSON.stringify(
+            buildSoftwareApplicationSchema({
+              pageUrl: "https://iktracker.fr/indemnite-kilometrique-velo",
+              pageDescription:
+                "Indemnité kilométrique vélo 2025-2026 et Forfait Mobilités Durables : guide pratique, plafond 700 €, conditions, justificatifs. IKtracker consigne vos trajets vélo et voiture dans un journal opposable, gratuit à vie.",
+            }),
+          )}
         </script>
       </Helmet>
 
       <MarketingNav />
 
-      <main id="main-content" tabIndex={-1} className="min-h-screen bg-background pt-20 outline-hidden">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="min-h-screen bg-background pt-20 outline-hidden"
+      >
         <div className="container mx-auto px-4 pt-6">
           <Breadcrumb items={[{ label: "Indemnité kilométrique vélo" }]} />
         </div>
@@ -88,8 +101,8 @@ export default function IndemniteKilometriqueVelo() {
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed min-h-[7rem] sm:min-h-[5.5rem] md:min-h-[5rem]">
             Le guide pratique de l'<strong className="text-foreground">IK vélo</strong> et du
             <strong className="text-foreground"> Forfait Mobilités Durables</strong> : jusqu'à
-            <strong className="text-foreground"> 700 €/an exonérés</strong> de cotisations et d'impôt
-            pour vos trajets domicile-travail à vélo.
+            <strong className="text-foreground"> 700 €/an exonérés</strong> de cotisations et
+            d'impôt pour vos trajets domicile-travail à vélo.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/signup">
@@ -112,10 +125,26 @@ export default function IndemniteKilometriqueVelo() {
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: Euro, t: "700 € / an exonérés", d: "Plafond du Forfait Mobilités Durables, porté à 800 € si cumulé avec un abonnement transport public." },
-              { icon: Bike, t: "Vélo musculaire et électrique", d: "Le dispositif couvre le vélo classique, le VAE et même la trottinette ou le covoiturage." },
-              { icon: ShieldCheck, t: "Exonéré URSSAF & impôt", d: "Aucune cotisation sociale ni impôt sur le revenu dans la limite du plafond annuel." },
-              { icon: Leaf, t: "Mobilité durable", d: "Dispositif unique remplaçant l'ancienne IK vélo depuis la Loi d'Orientation des Mobilités (LOM)." },
+              {
+                icon: Euro,
+                t: "700 € / an exonérés",
+                d: "Plafond du Forfait Mobilités Durables, porté à 800 € si cumulé avec un abonnement transport public.",
+              },
+              {
+                icon: Bike,
+                t: "Vélo musculaire et électrique",
+                d: "Le dispositif couvre le vélo classique, le VAE et même la trottinette ou le covoiturage.",
+              },
+              {
+                icon: ShieldCheck,
+                t: "Exonéré URSSAF & impôt",
+                d: "Aucune cotisation sociale ni impôt sur le revenu dans la limite du plafond annuel.",
+              },
+              {
+                icon: Leaf,
+                t: "Mobilité durable",
+                d: "Dispositif unique remplaçant l'ancienne IK vélo depuis la Loi d'Orientation des Mobilités (LOM).",
+              },
             ].map(({ icon: Icon, t, d }) => (
               <Card key={t} className="border-border">
                 <CardContent className="p-5 flex gap-4">
@@ -139,13 +168,29 @@ export default function IndemniteKilometriqueVelo() {
           </h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              Jusqu'en 2019, l'<strong className="text-foreground">indemnité kilométrique vélo</strong> était un dispositif autonome, fixé à 0,25 €/km parcouru à vélo entre le domicile et le lieu de travail. La <strong className="text-foreground">Loi d'Orientation des Mobilités</strong> (LOM) de décembre 2019 l'a fusionnée avec d'autres dispositifs au sein du <strong className="text-foreground">Forfait Mobilités Durables</strong> (FMD).
+              Jusqu'en 2019, l'
+              <strong className="text-foreground">indemnité kilométrique vélo</strong> était un
+              dispositif autonome, fixé à 0,25 €/km parcouru à vélo entre le domicile et le lieu de
+              travail. La{" "}
+              <strong className="text-foreground">Loi d'Orientation des Mobilités</strong> (LOM) de
+              décembre 2019 l'a fusionnée avec d'autres dispositifs au sein du{" "}
+              <strong className="text-foreground">Forfait Mobilités Durables</strong> (FMD).
             </p>
             <p>
-              Depuis, l'employeur verse un <strong className="text-foreground">forfait annuel</strong> plutôt qu'une indemnité au kilomètre. Le montant est libre, dans la limite de <strong className="text-foreground">700 € par an et par salarié</strong> en exonération de cotisations URSSAF et d'impôt sur le revenu (800 € en cumul avec un abonnement transport).
+              Depuis, l'employeur verse un{" "}
+              <strong className="text-foreground">forfait annuel</strong> plutôt qu'une indemnité au
+              kilomètre. Le montant est libre, dans la limite de{" "}
+              <strong className="text-foreground">700 € par an et par salarié</strong> en
+              exonération de cotisations URSSAF et d'impôt sur le revenu (800 € en cumul avec un
+              abonnement transport).
             </p>
             <p>
-              Certaines entreprises conservent cependant un calcul au kilomètre dans leur accord interne — c'est dans ce cas qu'un journal kilométrique à vélo, comme celui géré par <Link to="/app/mestrajets" className="text-primary underline">IKtracker</Link>, devient essentiel pour justifier le versement.
+              Certaines entreprises conservent cependant un calcul au kilomètre dans leur accord
+              interne — c'est dans ce cas qu'un journal kilométrique à vélo, comme celui géré par{" "}
+              <Link to="/app/mestrajets" className="text-primary underline">
+                IKtracker
+              </Link>
+              , devient essentiel pour justifier le versement.
             </p>
           </div>
         </section>
@@ -157,10 +202,15 @@ export default function IndemniteKilometriqueVelo() {
           </h2>
           <div className="space-y-4">
             {faqs.map((f) => (
-              <details key={f.q} className="group rounded-xl border border-border bg-card p-5 open:shadow-xs transition-shadow">
+              <details
+                key={f.q}
+                className="group rounded-xl border border-border bg-card p-5 open:shadow-xs transition-shadow"
+              >
                 <summary className="cursor-pointer font-semibold text-foreground list-none flex justify-between items-center">
                   {f.q}
-                  <span className="ml-4 text-primary transition-transform group-open:rotate-45">+</span>
+                  <span className="ml-4 text-primary transition-transform group-open:rotate-45">
+                    +
+                  </span>
                 </summary>
                 <p className="mt-3 text-muted-foreground leading-relaxed">{f.a}</p>
               </details>
@@ -171,7 +221,8 @@ export default function IndemniteKilometriqueVelo() {
         {/* CTA */}
         <section className="max-w-md mx-auto px-4 pb-24 pt-8 text-center">
           <p className="text-muted-foreground mb-4">
-            Consignez vos trajets vélo et voiture dans un journal unique, opposable et gratuit à vie.
+            Consignez vos trajets vélo et voiture dans un journal unique, opposable et gratuit à
+            vie.
           </p>
           <Link to="/signup">
             <Button size="lg" className="gap-2 px-8">

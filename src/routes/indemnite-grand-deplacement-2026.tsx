@@ -11,7 +11,11 @@ export const Route = createFileRoute("/indemnite-grand-deplacement-2026")({
       meta: [
         { title },
         { name: "description", content: description },
-        { name: "keywords", content: "indemnité grand déplacement 2026, barème grand déplacement URSSAF, indemnité repas 2026, indemnité nuitée 2026, frais de mission, forfait grand déplacement, découcher professionnel" },
+        {
+          name: "keywords",
+          content:
+            "indemnité grand déplacement 2026, barème grand déplacement URSSAF, indemnité repas 2026, indemnité nuitée 2026, frais de mission, forfait grand déplacement, découcher professionnel",
+        },
         { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },

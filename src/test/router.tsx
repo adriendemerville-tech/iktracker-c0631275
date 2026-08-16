@@ -27,7 +27,5 @@ function createTestRouter() {
 
 export function TestRouter({ children }: { children: ReactNode }) {
   const router = createTestRouter();
-  return (
-    <RouterContextProvider router={router as never}>{children}</RouterContextProvider>
-  );
+  return <RouterContextProvider router={router as never}>{children}</RouterContextProvider>;
 }

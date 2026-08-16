@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from '@/lib/router-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useSearchParams } from "@/lib/router-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Loader2, ShieldCheck } from "lucide-react";
 
 // Beta helper types — the SDK exposes these at runtime.
 type OAuthClient = {
@@ -22,9 +22,21 @@ type AuthorizationDetails = {
 };
 
 type OAuthNamespace = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: AuthorizationDetails | null; error: { message: string } | null }>;
-  approveAuthorization: (id: string) => Promise<{ data: { redirect_url?: string; redirect_to?: string } | null; error: { message: string } | null }>;
-  denyAuthorization: (id: string) => Promise<{ data: { redirect_url?: string; redirect_to?: string } | null; error: { message: string } | null }>;
+  getAuthorizationDetails: (
+    id: string,
+  ) => Promise<{ data: AuthorizationDetails | null; error: { message: string } | null }>;
+  approveAuthorization: (
+    id: string,
+  ) => Promise<{
+    data: { redirect_url?: string; redirect_to?: string } | null;
+    error: { message: string } | null;
+  }>;
+  denyAuthorization: (
+    id: string,
+  ) => Promise<{
+    data: { redirect_url?: string; redirect_to?: string } | null;
+    error: { message: string } | null;
+  }>;
 };
 
 function oauthNs() {
@@ -33,7 +45,7 @@ function oauthNs() {
 
 export default function OAuthConsent() {
   const [params] = useSearchParams();
-  const authorizationId = params.get('authorization_id') ?? '';
+  const authorizationId = params.get("authorization_id") ?? "";
   const [details, setDetails] = useState<AuthorizationDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -43,13 +55,13 @@ export default function OAuthConsent() {
     let active = true;
     (async () => {
       if (!authorizationId) {
-        setError('Paramètre authorization_id manquant.');
+        setError("Paramètre authorization_id manquant.");
         return;
       }
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) {
         const next = window.location.pathname + window.location.search;
-        window.location.href = '/auth?next=' + encodeURIComponent(next);
+        window.location.href = "/auth?next=" + encodeURIComponent(next);
         return;
       }
       setUserEmail(sess.session.user.email ?? null);
@@ -68,7 +80,7 @@ export default function OAuthConsent() {
         setDetails(data);
       } catch (e) {
         if (!active) return;
-        setError(e instanceof Error ? e.message : 'Impossible de charger la demande.');
+        setError(e instanceof Error ? e.message : "Impossible de charger la demande.");
       }
     })();
     return () => {
@@ -91,13 +103,13 @@ export default function OAuthConsent() {
       }
       const target = data?.redirect_url ?? data?.redirect_to;
       if (!target) {
-        setError('Aucune URL de redirection renvoyée par le serveur d\'autorisation.');
+        setError("Aucune URL de redirection renvoyée par le serveur d'autorisation.");
         setBusy(false);
         return;
       }
       window.location.href = target;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur inattendue');
+      setError(e instanceof Error ? e.message : "Erreur inattendue");
       setBusy(false);
     }
   }
@@ -126,7 +138,8 @@ export default function OAuthConsent() {
     );
   }
 
-  const clientName = details.client?.client_name ?? details.client?.name ?? 'une application externe';
+  const clientName =
+    details.client?.client_name ?? details.client?.name ?? "une application externe";
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-background">
@@ -134,12 +147,14 @@ export default function OAuthConsent() {
         <CardHeader>
           <div className="flex items-center gap-2 text-primary mb-2">
             <ShieldCheck className="w-5 h-5" />
-            <span className="text-xs font-medium uppercase tracking-wide">Autorisation IKtracker</span>
+            <span className="text-xs font-medium uppercase tracking-wide">
+              Autorisation IKtracker
+            </span>
           </div>
           <CardTitle>Connecter {clientName} à votre compte IKtracker</CardTitle>
           <CardDescription>
-            {clientName} pourra utiliser les outils IKtracker en votre nom : lister vos trajets, véhicules,
-            cumuls annuels, et créer de nouveaux trajets.
+            {clientName} pourra utiliser les outils IKtracker en votre nom : lister vos trajets,
+            véhicules, cumuls annuels, et créer de nouveaux trajets.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -149,14 +164,19 @@ export default function OAuthConsent() {
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            Cette autorisation ne contourne pas les règles d'accès IKtracker : {clientName} ne verra que
-            vos données, selon les mêmes permissions que dans l'application.
+            Cette autorisation ne contourne pas les règles d'accès IKtracker : {clientName} ne verra
+            que vos données, selon les mêmes permissions que dans l'application.
           </p>
           <div className="flex gap-2 pt-2">
             <Button onClick={() => decide(true)} disabled={busy} className="flex-1">
-              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Autoriser'}
+              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Autoriser"}
             </Button>
-            <Button onClick={() => decide(false)} disabled={busy} variant="outline" className="flex-1">
+            <Button
+              onClick={() => decide(false)}
+              disabled={busy}
+              variant="outline"
+              className="flex-1"
+            >
               Refuser
             </Button>
           </div>

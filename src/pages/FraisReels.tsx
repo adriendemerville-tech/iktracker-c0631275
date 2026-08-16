@@ -1,92 +1,97 @@
-import { useState, useMemo } from 'react';
-import { buildSoftwareApplicationSchema } from '@/lib/seo-schemas';
-import { Helmet } from '@/lib/helmet-compat';
-import { Link } from '@/lib/router-compat';
-import { MarketingNav } from '@/components/marketing/MarketingNav';
-import { EnhancedMarketingFooter } from '@/components/marketing/EnhancedMarketingFooter';
-import { PartnerStrip } from '@/components/marketing/PartnerStrip';
-import { Breadcrumb } from '@/components/Breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useAuth } from '@/hooks/useAuth';
-import { useMarketingTracker } from '@/hooks/useMarketingTracker';
-import { 
-  Calculator, 
-  ArrowRight, 
-  TrendingUp, 
-  Percent, 
-  Car, 
+import { useState, useMemo } from "react";
+import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
+import { Helmet } from "@/lib/helmet-compat";
+import { Link } from "@/lib/router-compat";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
+import { PartnerStrip } from "@/components/marketing/PartnerStrip";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { useAuth } from "@/hooks/useAuth";
+import { useMarketingTracker } from "@/hooks/useMarketingTracker";
+import {
+  Calculator,
+  ArrowRight,
+  TrendingUp,
+  Percent,
+  Car,
   CheckCircle2,
   AlertCircle,
   FileText,
   Scale,
-  HelpCircle
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  HelpCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Barème kilométrique 2026 (véhicules thermiques)
 const BAREME_2026 = {
-  '3': { low: 0.529, mid: 0.316, high: 0.370 },
-  '4': { low: 0.606, mid: 0.340, high: 0.407 },
-  '5': { low: 0.636, mid: 0.357, high: 0.427 },
-  '6': { low: 0.665, mid: 0.374, high: 0.447 },
-  '7+': { low: 0.697, mid: 0.394, high: 0.470 },
+  "3": { low: 0.529, mid: 0.316, high: 0.37 },
+  "4": { low: 0.606, mid: 0.34, high: 0.407 },
+  "5": { low: 0.636, mid: 0.357, high: 0.427 },
+  "6": { low: 0.665, mid: 0.374, high: 0.447 },
+  "7+": { low: 0.697, mid: 0.394, high: 0.47 },
 };
 
-type FiscalPower = '3' | '4' | '5' | '6' | '7+';
+type FiscalPower = "3" | "4" | "5" | "6" | "7+";
 
 function calculateIK(distance: number, fiscalPower: FiscalPower, isElectric: boolean): number {
   const rates = BAREME_2026[fiscalPower];
   let baseAmount = 0;
-  
+
   if (distance <= 5000) {
     baseAmount = distance * rates.low;
   } else if (distance <= 20000) {
-    baseAmount = (distance * rates.mid) + 1065;
+    baseAmount = distance * rates.mid + 1065;
   } else {
     baseAmount = distance * rates.high;
   }
-  
+
   // Majoration 20% pour véhicules électriques
   if (isElectric) {
-    baseAmount *= 1.20;
+    baseAmount *= 1.2;
   }
-  
+
   return Math.round(baseAmount * 100) / 100;
 }
 
 function calculateAbattement(grossIncome: number): number {
-  const abattement = grossIncome * 0.10;
+  const abattement = grossIncome * 0.1;
   // Plafond 2026 estimé (à ajuster selon les données officielles)
   const plafond = 14171;
   const plancher = 495;
-  
+
   return Math.min(Math.max(abattement, plancher), plafond);
 }
 
 export default function FraisReels() {
   const { user, loading } = useAuth();
-  const { trackIKSimulation } = useMarketingTracker('frais-reels');
-  
-  const [grossIncome, setGrossIncome] = useState<string>('35000');
-  const [annualKm, setAnnualKm] = useState<string>('15000');
-  const [fiscalPower, setFiscalPower] = useState<FiscalPower>('5');
+  const { trackIKSimulation } = useMarketingTracker("frais-reels");
+
+  const [grossIncome, setGrossIncome] = useState<string>("35000");
+  const [annualKm, setAnnualKm] = useState<string>("15000");
+  const [fiscalPower, setFiscalPower] = useState<FiscalPower>("5");
   const [isElectric, setIsElectric] = useState<boolean>(false);
   const [hasCalculated, setHasCalculated] = useState<boolean>(false);
 
   const results = useMemo(() => {
     const income = parseFloat(grossIncome) || 0;
     const km = parseFloat(annualKm) || 0;
-    
+
     const abattement = calculateAbattement(income);
     const fraisReels = calculateIK(km, fiscalPower, isElectric);
     const difference = fraisReels - abattement;
-    const bestOption = fraisReels > abattement ? 'frais-reels' : 'abattement';
-    
+    const bestOption = fraisReels > abattement ? "frais-reels" : "abattement";
+
     return {
       abattement,
       fraisReels,
@@ -104,28 +109,28 @@ export default function FraisReels() {
   return (
     <>
       <Helmet>
-        
         {/* Open Graph */}
-        
+
         {/* JSON-LD */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            "name": "Calculateur Frais Réels vs Abattement 10%",
-            "url": "https://iktracker.fr/frais-reels",
-            "description": "Outil gratuit de comparaison entre l'abattement forfaitaire de 10% et les frais réels kilométriques pour la déclaration d'impôts.",
-            "applicationCategory": "FinanceApplication",
-            "operatingSystem": "Web",
-            "offers": {
+            name: "Calculateur Frais Réels vs Abattement 10%",
+            url: "https://iktracker.fr/frais-reels",
+            description:
+              "Outil gratuit de comparaison entre l'abattement forfaitaire de 10% et les frais réels kilométriques pour la déclaration d'impôts.",
+            applicationCategory: "FinanceApplication",
+            operatingSystem: "Web",
+            offers: {
               "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "EUR"
+              price: "0",
+              priceCurrency: "EUR",
             },
-            "speakable": {
+            speakable: {
               "@type": "SpeakableSpecification",
-              "cssSelector": ["#main-content h1", "#main-content > section:first-of-type p"]
-            }
+              cssSelector: ["#main-content h1", "#main-content > section:first-of-type p"],
+            },
           })}
         </script>
         {/* HowTo Schema */}
@@ -133,17 +138,42 @@ export default function FraisReels() {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "HowTo",
-            "name": "Comment choisir entre frais réels et abattement de 10%",
-            "description": "Méthode en 4 étapes pour déterminer l'option fiscale la plus avantageuse en tant que salarié ou indépendant.",
-            "totalTime": "PT5M",
-            "estimatedCost": { "@type": "MonetaryAmount", "currency": "EUR", "value": "0" },
-            "tool": [{ "@type": "HowToTool", "name": "IKtracker — calculateur gratuit" }],
-            "step": [
-              { "@type": "HowToStep", "position": 1, "name": "Estimez votre kilométrage professionnel annuel", "text": "Comptez les déplacements professionnels et le trajet domicile-travail (dans la limite de 40 km aller).", "url": "https://iktracker.fr/frais-reels#etape-1" },
-              { "@type": "HowToStep", "position": 2, "name": "Identifiez la puissance fiscale de votre véhicule", "text": "Elle figure sur la carte grise (case P.6). Les véhicules 100% électriques bénéficient d'une majoration de 20%.", "url": "https://iktracker.fr/frais-reels#etape-2" },
-              { "@type": "HowToStep", "position": 3, "name": "Calculez vos IK avec le barème 2026", "text": "Appliquez le barème officiel selon votre tranche kilométrique et votre puissance fiscale.", "url": "https://iktracker.fr/frais-reels#etape-3" },
-              { "@type": "HowToStep", "position": 4, "name": "Comparez au montant de l'abattement de 10%", "text": "Si vos frais réels dépassent 10% de votre salaire brut imposable, optez pour les frais réels sur le formulaire 2042.", "url": "https://iktracker.fr/frais-reels#etape-4" }
-            ]
+            name: "Comment choisir entre frais réels et abattement de 10%",
+            description:
+              "Méthode en 4 étapes pour déterminer l'option fiscale la plus avantageuse en tant que salarié ou indépendant.",
+            totalTime: "PT5M",
+            estimatedCost: { "@type": "MonetaryAmount", currency: "EUR", value: "0" },
+            tool: [{ "@type": "HowToTool", name: "IKtracker — calculateur gratuit" }],
+            step: [
+              {
+                "@type": "HowToStep",
+                position: 1,
+                name: "Estimez votre kilométrage professionnel annuel",
+                text: "Comptez les déplacements professionnels et le trajet domicile-travail (dans la limite de 40 km aller).",
+                url: "https://iktracker.fr/frais-reels#etape-1",
+              },
+              {
+                "@type": "HowToStep",
+                position: 2,
+                name: "Identifiez la puissance fiscale de votre véhicule",
+                text: "Elle figure sur la carte grise (case P.6). Les véhicules 100% électriques bénéficient d'une majoration de 20%.",
+                url: "https://iktracker.fr/frais-reels#etape-2",
+              },
+              {
+                "@type": "HowToStep",
+                position: 3,
+                name: "Calculez vos IK avec le barème 2026",
+                text: "Appliquez le barème officiel selon votre tranche kilométrique et votre puissance fiscale.",
+                url: "https://iktracker.fr/frais-reels#etape-3",
+              },
+              {
+                "@type": "HowToStep",
+                position: 4,
+                name: "Comparez au montant de l'abattement de 10%",
+                text: "Si vos frais réels dépassent 10% de votre salaire brut imposable, optez pour les frais réels sur le formulaire 2042.",
+                url: "https://iktracker.fr/frais-reels#etape-4",
+              },
+            ],
           })}
         </script>
         {/* FAQ Schema */}
@@ -151,30 +181,92 @@ export default function FraisReels() {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": [
-              { "@type": "Question", "name": "Quand choisir les frais réels plutôt que l'abattement de 10% ?", "acceptedAnswer": { "@type": "Answer", "text": "Les frais réels kilométriques sont généralement plus avantageux si vous parcourez plus de 15 000 km par an pour des raisons professionnelles, ou si votre trajet domicile-travail est supérieur à 40 km." }},
-              { "@type": "Question", "name": "Comment justifier ses frais réels auprès de l'administration fiscale ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous devez conserver des justificatifs fiscaux précis : un carnet de bord avec la date, le motif et la distance de chaque trajet professionnel. IKtracker automatise ce suivi grâce à la synchronisation de votre agenda et au GPS." }},
-              { "@type": "Question", "name": "Le barème kilométrique 2026 : quels sont les taux ?", "acceptedAnswer": { "@type": "Answer", "text": "Le barème kilométrique 2026 varie selon la puissance fiscale de votre véhicule et le nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%." }},
-              { "@type": "Question", "name": "Peut-on cumuler frais réels kilométriques et autres frais professionnels ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, en optant pour les frais réels, vous pouvez déduire l'ensemble de vos frais professionnels : indemnités kilométriques, repas, formation, matériel. Le choix s'applique à l'ensemble de vos revenus." }},
-              { "@type": "Question", "name": "Quelle est la distance maximale déductible pour le trajet domicile-travail ?", "acceptedAnswer": { "@type": "Answer", "text": "En principe, seuls les 40 premiers kilomètres sont déductibles (soit 80 km aller-retour). Au-delà, vous devez justifier de circonstances particulières." }},
-              { "@type": "Question", "name": "Comment déclarer ses frais réels sur la déclaration d'impôts ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur votre déclaration de revenus (formulaire 2042), cochez la case frais réels et indiquez le montant total. Conservez les justificatifs pendant 3 ans en cas de contrôle." }},
-              { "@type": "Question", "name": "Les véhicules électriques sont-ils avantagés fiscalement ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, les véhicules électriques bénéficient d'une majoration de 20% sur le barème kilométrique standard." }},
-              { "@type": "Question", "name": "Comment prouver l'usage professionnel de son véhicule personnel ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous devez tenir un carnet de bord détaillant chaque déplacement professionnel. IKtracker automatise cette tâche en synchronisant votre agenda et en calculant les distances via GPS." }}
-            ]
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "Quand choisir les frais réels plutôt que l'abattement de 10% ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Les frais réels kilométriques sont généralement plus avantageux si vous parcourez plus de 15 000 km par an pour des raisons professionnelles, ou si votre trajet domicile-travail est supérieur à 40 km.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Comment justifier ses frais réels auprès de l'administration fiscale ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Vous devez conserver des justificatifs fiscaux précis : un carnet de bord avec la date, le motif et la distance de chaque trajet professionnel. IKtracker automatise ce suivi grâce à la synchronisation de votre agenda et au GPS.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Le barème kilométrique 2026 : quels sont les taux ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Le barème kilométrique 2026 varie selon la puissance fiscale de votre véhicule et le nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Peut-on cumuler frais réels kilométriques et autres frais professionnels ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Oui, en optant pour les frais réels, vous pouvez déduire l'ensemble de vos frais professionnels : indemnités kilométriques, repas, formation, matériel. Le choix s'applique à l'ensemble de vos revenus.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Quelle est la distance maximale déductible pour le trajet domicile-travail ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "En principe, seuls les 40 premiers kilomètres sont déductibles (soit 80 km aller-retour). Au-delà, vous devez justifier de circonstances particulières.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Comment déclarer ses frais réels sur la déclaration d'impôts ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Sur votre déclaration de revenus (formulaire 2042), cochez la case frais réels et indiquez le montant total. Conservez les justificatifs pendant 3 ans en cas de contrôle.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Les véhicules électriques sont-ils avantagés fiscalement ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Oui, les véhicules électriques bénéficient d'une majoration de 20% sur le barème kilométrique standard.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Comment prouver l'usage professionnel de son véhicule personnel ?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Vous devez tenir un carnet de bord détaillant chaque déplacement professionnel. IKtracker automatise cette tâche en synchronisant votre agenda et en calculant les distances via GPS.",
+                },
+              },
+            ],
           })}
         </script>
         <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/frais-reels", pageDescription: "Calculateur Frais Réels vs Abattement 10% selon barème kilométrique 2026. Outil gratuit pour optimiser sa déclaration d'impôts. Conçu par un entrepreneur indépendant pour les indépendants." }))}
+          {JSON.stringify(
+            buildSoftwareApplicationSchema({
+              pageUrl: "https://iktracker.fr/frais-reels",
+              pageDescription:
+                "Calculateur Frais Réels vs Abattement 10% selon barème kilométrique 2026. Outil gratuit pour optimiser sa déclaration d'impôts. Conçu par un entrepreneur indépendant pour les indépendants.",
+            }),
+          )}
         </script>
       </Helmet>
 
       <div className="min-h-screen bg-background">
         <MarketingNav user={user} loading={loading} />
-        
+
         <main id="main-content" className="pt-20 md:pt-24">
           {/* Breadcrumb */}
           <div className="container mx-auto px-4 pt-4">
-            <Breadcrumb items={[{ label: 'Frais Réels vs Abattement' }]} />
+            <Breadcrumb items={[{ label: "Frais Réels vs Abattement" }]} />
           </div>
           {/* Hero Section */}
           <section className="container mx-auto px-4 py-12 md:py-16">
@@ -183,26 +275,29 @@ export default function FraisReels() {
                 <Scale className="h-4 w-4" />
                 <span className="text-sm font-medium">Barème fiscal 2026</span>
               </div>
-              
+
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
                 Frais réels ou abattement 10% ?
-                <span className="block text-primary mt-2">Calculez la meilleure option en 2026</span>
+                <span className="block text-primary mt-2">
+                  Calculez la meilleure option en 2026
+                </span>
               </h1>
-              
+
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
-                Comparez gratuitement les deux méthodes de déduction fiscale pour vos frais kilométriques 
-                et optimisez votre déclaration d'impôts en quelques clics.
+                Comparez gratuitement les deux méthodes de déduction fiscale pour vos frais
+                kilométriques et optimisez votre déclaration d'impôts en quelques clics.
               </p>
               <p className="text-sm text-muted-foreground mt-4">
                 Retrouvez toutes les informations sur la déclaration des frais professionnels sur{" "}
-                <a 
-                  href="https://www.impots.gouv.fr/particulier/je-declare-mes-frais-professionnels" 
-                  target="_blank" 
+                <a
+                  href="https://www.impots.gouv.fr/particulier/je-declare-mes-frais-professionnels"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="underline hover:text-primary transition-colors"
                 >
                   impots.gouv.fr
-                </a>.
+                </a>
+                .
               </p>
             </div>
           </section>
@@ -269,13 +364,9 @@ export default function FraisReels() {
                         onValueChange={(v) => setFiscalPower(v as FiscalPower)}
                         className="grid grid-cols-5 gap-2"
                       >
-                        {['3', '4', '5', '6', '7+'].map((cv) => (
+                        {["3", "4", "5", "6", "7+"].map((cv) => (
                           <div key={cv} className="flex items-center">
-                            <RadioGroupItem
-                              value={cv}
-                              id={`cv-${cv}`}
-                              className="peer sr-only"
-                            />
+                            <RadioGroupItem value={cv} id={`cv-${cv}`} className="peer sr-only" />
                             <Label
                               htmlFor={`cv-${cv}`}
                               className={cn(
@@ -283,7 +374,7 @@ export default function FraisReels() {
                                 "hover:bg-primary/5",
                                 fiscalPower === cv
                                   ? "border-primary bg-primary/10 text-primary"
-                                  : "border-muted bg-background text-muted-foreground"
+                                  : "border-muted bg-background text-muted-foreground",
                               )}
                             >
                               {cv}
@@ -307,7 +398,7 @@ export default function FraisReels() {
                       </Label>
                     </div>
 
-                    <Button 
+                    <Button
                       onClick={handleCalculate}
                       variant="gradient"
                       size="lg"
@@ -320,20 +411,21 @@ export default function FraisReels() {
                 </Card>
 
                 {/* Results Card */}
-                <Card className={cn(
-                  "shadow-lg border-2 transition-all duration-500",
-                  hasCalculated ? "border-primary/50" : "border-muted"
-                )}>
+                <Card
+                  className={cn(
+                    "shadow-lg border-2 transition-all duration-500",
+                    hasCalculated ? "border-primary/50" : "border-muted",
+                  )}
+                >
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-primary" />
                       Résultats de la comparaison
                     </CardTitle>
                     <CardDescription>
-                      {hasCalculated 
+                      {hasCalculated
                         ? "Voici la meilleure option pour votre situation"
-                        : "Remplissez le formulaire pour voir les résultats"
-                      }
+                        : "Remplissez le formulaire pour voir les résultats"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -347,23 +439,28 @@ export default function FraisReels() {
                     ) : (
                       <>
                         {/* Abattement 10% */}
-                        <div className={cn(
-                          "p-4 rounded-lg border-2 transition-all",
-                          results.bestOption === 'abattement'
-                            ? "border-primary bg-primary/10"
-                            : "border-muted bg-muted/30"
-                        )}>
+                        <div
+                          className={cn(
+                            "p-4 rounded-lg border-2 transition-all",
+                            results.bestOption === "abattement"
+                              ? "border-primary bg-primary/10"
+                              : "border-muted bg-muted/30",
+                          )}
+                        >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <Percent className="h-5 w-5 text-muted-foreground" />
                               <span className="font-semibold">Abattement forfaitaire 10%</span>
                             </div>
-                            {results.bestOption === 'abattement' && (
+                            {results.bestOption === "abattement" && (
                               <CheckCircle2 className="h-5 w-5 text-primary" />
                             )}
                           </div>
                           <p className="text-2xl font-bold text-foreground">
-                            {results.abattement.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                            {results.abattement.toLocaleString("fr-FR", {
+                              minimumFractionDigits: 2,
+                            })}{" "}
+                            €
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             Déduction automatique sans justificatif
@@ -371,23 +468,28 @@ export default function FraisReels() {
                         </div>
 
                         {/* Frais réels */}
-                        <div className={cn(
-                          "p-4 rounded-lg border-2 transition-all",
-                          results.bestOption === 'frais-reels'
-                            ? "border-primary bg-primary/10"
-                            : "border-muted bg-muted/30"
-                        )}>
+                        <div
+                          className={cn(
+                            "p-4 rounded-lg border-2 transition-all",
+                            results.bestOption === "frais-reels"
+                              ? "border-primary bg-primary/10"
+                              : "border-muted bg-muted/30",
+                          )}
+                        >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <Car className="h-5 w-5 text-muted-foreground" />
                               <span className="font-semibold">Frais réels kilométriques</span>
                             </div>
-                            {results.bestOption === 'frais-reels' && (
+                            {results.bestOption === "frais-reels" && (
                               <CheckCircle2 className="h-5 w-5 text-primary" />
                             )}
                           </div>
                           <p className="text-2xl font-bold text-foreground">
-                            {results.fraisReels.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                            {results.fraisReels.toLocaleString("fr-FR", {
+                              minimumFractionDigits: 2,
+                            })}{" "}
+                            €
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             Basé sur le barème kilométrique 2026
@@ -400,14 +502,17 @@ export default function FraisReels() {
                             <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                             <div>
                               <p className="font-semibold text-foreground">
-                                {results.bestOption === 'frais-reels' 
+                                {results.bestOption === "frais-reels"
                                   ? "Les frais réels sont plus avantageux !"
-                                  : "L'abattement forfaitaire est plus avantageux !"
-                                }
+                                  : "L'abattement forfaitaire est plus avantageux !"}
                               </p>
                               <p className="text-sm text-muted-foreground mt-1">
-                                Économie potentielle : <strong className="text-primary">
-                                  {results.economie.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                                Économie potentielle :{" "}
+                                <strong className="text-primary">
+                                  {results.economie.toLocaleString("fr-FR", {
+                                    minimumFractionDigits: 2,
+                                  })}{" "}
+                                  €
                                 </strong>
                               </p>
                             </div>
@@ -415,7 +520,7 @@ export default function FraisReels() {
                         </div>
 
                         {/* CTA */}
-                        {results.bestOption === 'frais-reels' && (
+                        {results.bestOption === "frais-reels" && (
                           <div className="pt-4 border-t">
                             <p className="text-sm text-muted-foreground mb-3">
                               Automatisez le suivi de vos trajets pour justifier vos frais réels
@@ -442,7 +547,7 @@ export default function FraisReels() {
               <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
                 Comprendre les deux options de déduction fiscale
               </h2>
-              
+
               <div className="grid md:grid-cols-2 gap-8">
                 {/* Abattement */}
                 <Card>
@@ -454,8 +559,8 @@ export default function FraisReels() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-muted-foreground">
-                      L'administration fiscale applique automatiquement une déduction de 10% sur vos revenus 
-                      pour couvrir vos frais professionnels.
+                      L'administration fiscale applique automatiquement une déduction de 10% sur vos
+                      revenus pour couvrir vos frais professionnels.
                     </p>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
@@ -485,9 +590,9 @@ export default function FraisReels() {
                   <CardContent className="space-y-4">
                     <p className="text-muted-foreground">
                       Vous déclarez vos frais réels en utilisant le{" "}
-                      <a 
-                        href="https://www.economie.gouv.fr/entreprises/gerer-sa-fiscalite-et-ses-impots/limpot-sur-les-benefices-ir-et/comment-deduire-les" 
-                        target="_blank" 
+                      <a
+                        href="https://www.economie.gouv.fr/entreprises/gerer-sa-fiscalite-et-ses-impots/limpot-sur-les-benefices-ir-et/comment-deduire-les"
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="underline hover:text-primary transition-colors"
                       >
@@ -502,11 +607,15 @@ export default function FraisReels() {
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary mt-1 shrink-0" />
-                        <span className="text-sm">Majoration de 20% pour les véhicules électriques</span>
+                        <span className="text-sm">
+                          Majoration de 20% pour les véhicules électriques
+                        </span>
                       </li>
                       <li className="flex items-start gap-2">
                         <AlertCircle className="h-4 w-4 text-destructive mt-1 shrink-0" />
-                        <span className="text-sm">Nécessite des justificatifs (carnet de bord)</span>
+                        <span className="text-sm">
+                          Nécessite des justificatifs (carnet de bord)
+                        </span>
                       </li>
                     </ul>
                   </CardContent>
@@ -527,17 +636,19 @@ export default function FraisReels() {
                   Questions fréquentes sur les frais réels
                 </h2>
               </div>
-              
+
               <Accordion type="single" collapsible className="w-full space-y-4">
                 <AccordionItem value="item-1" className="border rounded-lg px-4 bg-card">
                   <AccordionTrigger className="text-left font-semibold hover:no-underline">
                     Quand choisir les frais réels plutôt que l'abattement de 10% ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Les <strong className="text-foreground">frais réels kilométriques</strong> sont généralement plus avantageux si vous parcourez 
-                    plus de 15 000 km par an pour des raisons professionnelles, ou si votre trajet domicile-travail 
-                    est supérieur à 40 km. L'option des frais réels permet de déduire l'intégralité 
-                    de vos dépenses liées aux déplacements professionnels selon le <strong className="text-foreground">barème kilométrique URSSAF</strong>.
+                    Les <strong className="text-foreground">frais réels kilométriques</strong> sont
+                    généralement plus avantageux si vous parcourez plus de 15 000 km par an pour des
+                    raisons professionnelles, ou si votre trajet domicile-travail est supérieur à 40
+                    km. L'option des frais réels permet de déduire l'intégralité de vos dépenses
+                    liées aux déplacements professionnels selon le{" "}
+                    <strong className="text-foreground">barème kilométrique URSSAF</strong>.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -546,10 +657,11 @@ export default function FraisReels() {
                     Comment justifier ses frais réels auprès de l'administration fiscale ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Pour bénéficier de la déduction des frais réels, vous devez conserver des 
-                    <strong className="text-foreground"> justificatifs fiscaux</strong> précis : un carnet de bord avec la date, le motif et la 
-                    distance de chaque trajet professionnel. C'est exactement ce que permet IKtracker : automatiser 
-                    ce suivi grâce à la synchronisation de votre agenda et au GPS.
+                    Pour bénéficier de la déduction des frais réels, vous devez conserver des
+                    <strong className="text-foreground"> justificatifs fiscaux</strong> précis : un
+                    carnet de bord avec la date, le motif et la distance de chaque trajet
+                    professionnel. C'est exactement ce que permet IKtracker : automatiser ce suivi
+                    grâce à la synchronisation de votre agenda et au GPS.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -558,10 +670,11 @@ export default function FraisReels() {
                     Le barème kilométrique 2026 : quels sont les taux ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Le <strong className="text-foreground">barème kilométrique 2026</strong> varie selon la puissance fiscale de votre véhicule 
-                    et le nombre de kilomètres parcourus. Les véhicules électriques bénéficient d'une majoration de 20%. 
-                    Ce barème couvre l'ensemble des frais liés à l'utilisation de votre véhicule : carburant, 
-                    assurance, entretien et amortissement.
+                    Le <strong className="text-foreground">barème kilométrique 2026</strong> varie
+                    selon la puissance fiscale de votre véhicule et le nombre de kilomètres
+                    parcourus. Les véhicules électriques bénéficient d'une majoration de 20%. Ce
+                    barème couvre l'ensemble des frais liés à l'utilisation de votre véhicule :
+                    carburant, assurance, entretien et amortissement.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -570,10 +683,12 @@ export default function FraisReels() {
                     Peut-on cumuler frais réels kilométriques et autres frais professionnels ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Oui, en optant pour les frais réels, vous pouvez déduire l'ensemble de vos frais professionnels : 
-                    <strong className="text-foreground"> indemnités kilométriques</strong>, repas, formation, matériel, etc. 
-                    Attention : le choix des frais réels s'applique à l'ensemble de vos revenus, vous ne pouvez pas 
-                    cumuler abattement forfaitaire sur une partie et frais réels sur l'autre.
+                    Oui, en optant pour les frais réels, vous pouvez déduire l'ensemble de vos frais
+                    professionnels :
+                    <strong className="text-foreground"> indemnités kilométriques</strong>, repas,
+                    formation, matériel, etc. Attention : le choix des frais réels s'applique à
+                    l'ensemble de vos revenus, vous ne pouvez pas cumuler abattement forfaitaire sur
+                    une partie et frais réels sur l'autre.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -582,10 +697,11 @@ export default function FraisReels() {
                     Quelle est la distance maximale déductible pour le trajet domicile-travail ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    En principe, seuls les 40 premiers kilomètres du trajet domicile-travail sont déductibles 
-                    (soit 80 km aller-retour). Au-delà, vous devez justifier de circonstances particulières 
-                    (emploi précaire, mutations, raisons familiales) pour déduire la distance réelle. 
-                    Les déplacements professionnels hors trajet domicile-travail sont intégralement déductibles.
+                    En principe, seuls les 40 premiers kilomètres du trajet domicile-travail sont
+                    déductibles (soit 80 km aller-retour). Au-delà, vous devez justifier de
+                    circonstances particulières (emploi précaire, mutations, raisons familiales)
+                    pour déduire la distance réelle. Les déplacements professionnels hors trajet
+                    domicile-travail sont intégralement déductibles.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -594,11 +710,11 @@ export default function FraisReels() {
                     Comment déclarer ses frais réels sur la déclaration d'impôts ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Sur votre déclaration de revenus (formulaire 2042), vous devez cocher la case "frais réels" 
-                    et indiquer le montant total de vos frais dans la case dédiée. L'administration fiscale 
-                    ne demandera pas systématiquement les justificatifs, mais vous devez les conserver 
-                    pendant 3 ans en cas de contrôle. IKtracker génère automatiquement un rapport PDF 
-                    conforme pour faciliter cette démarche.
+                    Sur votre déclaration de revenus (formulaire 2042), vous devez cocher la case
+                    "frais réels" et indiquer le montant total de vos frais dans la case dédiée.
+                    L'administration fiscale ne demandera pas systématiquement les justificatifs,
+                    mais vous devez les conserver pendant 3 ans en cas de contrôle. IKtracker génère
+                    automatiquement un rapport PDF conforme pour faciliter cette démarche.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -607,10 +723,11 @@ export default function FraisReels() {
                     Les véhicules électriques sont-ils avantagés fiscalement ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Oui, les <strong className="text-foreground">véhicules électriques</strong> bénéficient d'une majoration de 20% sur le barème 
-                    kilométrique standard. Par exemple, pour un véhicule de 5 CV parcourant 15 000 km/an, 
-                    l'indemnité passe de 6 420 € à 7 704 € pour un véhicule électrique. Cette mesure 
-                    vise à encourager la transition vers des mobilités plus propres.
+                    Oui, les <strong className="text-foreground">véhicules électriques</strong>{" "}
+                    bénéficient d'une majoration de 20% sur le barème kilométrique standard. Par
+                    exemple, pour un véhicule de 5 CV parcourant 15 000 km/an, l'indemnité passe de
+                    6 420 € à 7 704 € pour un véhicule électrique. Cette mesure vise à encourager la
+                    transition vers des mobilités plus propres.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -619,10 +736,12 @@ export default function FraisReels() {
                     Comment prouver l'usage professionnel de son véhicule personnel ?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">
-                    Vous devez tenir un <strong className="text-foreground">carnet de bord</strong> détaillant chaque déplacement professionnel 
-                    avec : la date, le lieu de départ, la destination, le motif du déplacement et la distance parcourue. 
-                    IKtracker automatise cette tâche en synchronisant votre agenda professionnel et en calculant 
-                    automatiquement les distances via GPS, générant un rapport conforme aux exigences fiscales.
+                    Vous devez tenir un <strong className="text-foreground">carnet de bord</strong>{" "}
+                    détaillant chaque déplacement professionnel avec : la date, le lieu de départ,
+                    la destination, le motif du déplacement et la distance parcourue. IKtracker
+                    automatise cette tâche en synchronisant votre agenda professionnel et en
+                    calculant automatiquement les distances via GPS, générant un rapport conforme
+                    aux exigences fiscales.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

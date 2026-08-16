@@ -1,6 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Minimize2 } from 'lucide-react';
-import { Signal, SignalLow, SignalZero, Sun, Moon, Car, BatteryLow, Square, Radio, Loader2, RotateCw } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Minimize2 } from "lucide-react";
+import {
+  Signal,
+  SignalLow,
+  SignalZero,
+  Sun,
+  Moon,
+  Car,
+  BatteryLow,
+  Square,
+  Radio,
+  Loader2,
+  RotateCw,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,9 +22,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useNightMode } from '@/hooks/useNightMode';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/alert-dialog";
+import { useNightMode } from "@/hooks/useNightMode";
+import { cn } from "@/lib/utils";
 
 interface PendingStop {
   lat: number;
@@ -30,7 +42,7 @@ interface FocusTourViewProps {
   wakeLockActive: boolean;
   lowBattery: boolean;
   tourStartTime?: Date;
-  gpsSignalStrength?: 'excellent' | 'good' | 'poor' | 'lost';
+  gpsSignalStrength?: "excellent" | "good" | "poor" | "lost";
   gpsAccuracy?: number | null;
   pendingStop?: PendingStop | null;
   onFinish: () => void; // Directly finish and save the tour
@@ -42,14 +54,14 @@ interface FocusTourViewProps {
 // Hook to detect if on desktop (width >= 1024px)
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(false);
-  
+
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     checkDesktop();
-    window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
   }, []);
-  
+
   return isDesktop;
 }
 
@@ -61,7 +73,7 @@ export function FocusTourView({
   wakeLockActive,
   lowBattery,
   tourStartTime,
-  gpsSignalStrength = 'lost',
+  gpsSignalStrength = "lost",
   gpsAccuracy,
   pendingStop,
   onFinish,
@@ -73,24 +85,26 @@ export function FocusTourView({
   const [displayedKm, setDisplayedKm] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
-  const [animationPhase, setAnimationPhase] = useState<'initial' | 'transitioning' | 'final'>('initial');
+  const [animationPhase, setAnimationPhase] = useState<"initial" | "transitioning" | "final">(
+    "initial",
+  );
   const { isNightMode } = useNightMode({ startHour: 17, endHour: 7 });
 
   // Track animation phases based on tour start time
   useEffect(() => {
     if (!tourStartTime || !isActive) {
-      setAnimationPhase('initial');
+      setAnimationPhase("initial");
       return;
     }
 
     const checkPhase = () => {
       const elapsed = Date.now() - tourStartTime.getTime();
       if (elapsed >= 10000) {
-        setAnimationPhase('final');
+        setAnimationPhase("final");
       } else if (elapsed >= 6000) {
-        setAnimationPhase('transitioning');
+        setAnimationPhase("transitioning");
       } else {
-        setAnimationPhase('initial');
+        setAnimationPhase("initial");
       }
     };
 
@@ -121,7 +135,7 @@ export function FocusTourView({
   // >= 0.1 km and < 1 km: still show "DÉPART"
   // >= 1 km: show stops counter (0 if no detected stops yet)
   const showDeparture = totalDistanceKm < 1;
-  
+
   // Determine which gradient to use for stops counter
   // 0 stops: green-orange gradient (same as DÉPART)
   // 1+ stops: current orange-red gradient
@@ -145,13 +159,13 @@ export function FocusTourView({
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Easing function
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const current = startValue + (target - startValue) * easeOut;
-      
+
       setDisplayedKm(current);
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
@@ -161,9 +175,9 @@ export function FocusTourView({
   }, [totalDistanceKm]);
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -173,25 +187,25 @@ export function FocusTourView({
     const totalMinutes = Math.floor(elapsed / 60000);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    
+
     if (hours > 0) {
-      return `${hours}h ${minutes.toString().padStart(2, '0')} minutes`;
+      return `${hours}h ${minutes.toString().padStart(2, "0")} minutes`;
     }
-    return `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
+    return `${totalMinutes} minute${totalMinutes !== 1 ? "s" : ""}`;
   };
 
   // Get GPS signal icon and color
   const getGpsSignalDisplay = () => {
     switch (gpsSignalStrength) {
-      case 'excellent':
-        return { icon: Signal, color: 'text-green-500', label: 'Excellent' };
-      case 'good':
-        return { icon: Signal, color: 'text-green-400', label: 'Bon' };
-      case 'poor':
-        return { icon: SignalLow, color: 'text-yellow-500', label: 'Faible' };
-      case 'lost':
+      case "excellent":
+        return { icon: Signal, color: "text-green-500", label: "Excellent" };
+      case "good":
+        return { icon: Signal, color: "text-green-400", label: "Bon" };
+      case "poor":
+        return { icon: SignalLow, color: "text-yellow-500", label: "Faible" };
+      case "lost":
       default:
-        return { icon: SignalZero, color: 'text-red-500', label: 'Perdu' };
+        return { icon: SignalZero, color: "text-red-500", label: "Perdu" };
     }
   };
 
@@ -213,12 +227,10 @@ export function FocusTourView({
             </div>
           )}
         </div>
-        
+
         {/* Right side - GPS Signal, Night mode, Minimize */}
         <div className="flex items-center gap-2">
-          {isNightMode && (
-            <Moon className="w-4 h-4 text-indigo-400" />
-          )}
+          {isNightMode && <Moon className="w-4 h-4 text-indigo-400" />}
           <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full">
             <GpsIcon className={cn("w-4 h-4", gpsDisplay.color)} />
             {gpsAccuracy !== null && gpsAccuracy !== undefined && (
@@ -256,56 +268,60 @@ export function FocusTourView({
         {/* Car button - Premium animated button with rotating gradient border */}
         <div className="relative">
           {/* Rotating gradient border */}
-          <div 
+          <div
             className="absolute inset-0 rounded-full animate-spin-slow"
             style={{
-              width: 'calc(100% + 10px)',
-              height: 'calc(100% + 10px)',
-              top: '-5px',
-              left: '-5px',
-              background: 'conic-gradient(from 0deg, #FFAB40, #FF5722, #FFAB40)',
+              width: "calc(100% + 10px)",
+              height: "calc(100% + 10px)",
+              top: "-5px",
+              left: "-5px",
+              background: "conic-gradient(from 0deg, #FFAB40, #FF5722, #FFAB40)",
             }}
           />
           {/* Inner black circle to create border effect */}
-          <div 
+          <div
             className="absolute rounded-full bg-black"
             style={{
-              inset: '0px',
+              inset: "0px",
               zIndex: 1,
             }}
           />
-          
+
           <button
             onClick={handleStopClick}
             className={cn(
               "tour-premium-button relative w-40 h-40 rounded-full flex items-center justify-center shadow-2xl active:scale-95",
-              animationPhase === 'transitioning' && "tour-premium-button--transitioning",
-              animationPhase === 'final' && "tour-premium-button--final"
+              animationPhase === "transitioning" && "tour-premium-button--transitioning",
+              animationPhase === "final" && "tour-premium-button--final",
             )}
             style={{ zIndex: 2 }}
             aria-label="Arrêter la tournée"
           >
             {/* Speed lines - only visible in final phase */}
-            <span className={cn(
-              "absolute left-5 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 transition-opacity duration-500",
-              animationPhase === 'final' ? "opacity-100" : "opacity-0"
-            )}>
+            <span
+              className={cn(
+                "absolute left-5 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 transition-opacity duration-500",
+                animationPhase === "final" ? "opacity-100" : "opacity-0",
+              )}
+            >
               <span className="w-4 h-1 bg-white/60 rounded-full" />
               <span className="w-6 h-1 bg-white/40 rounded-full -ml-1" />
               <span className="w-5 h-1 bg-white/50 rounded-full -ml-0.5" />
             </span>
-            
+
             {/* White dot in front of car - visible before final phase */}
-            <span className={cn(
-              "absolute right-7 top-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full z-10 transition-opacity duration-500",
-              animationPhase === 'final' ? "opacity-0" : "opacity-100"
-            )} />
-            
+            <span
+              className={cn(
+                "absolute right-7 top-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full z-10 transition-opacity duration-500",
+                animationPhase === "final" ? "opacity-0" : "opacity-100",
+              )}
+            />
+
             {/* Car icon - static, no animations */}
             <Car className="w-24 h-24 relative z-20 text-white" />
           </button>
         </div>
-        
+
         {/* Stop button - elegant, compact design */}
         <button
           onClick={handleStopClick}
@@ -315,9 +331,9 @@ export function FocusTourView({
           <Square className="w-4 h-4 fill-current" />
           <span>Terminer</span>
         </button>
-        
+
         <span className="text-gray-500 text-sm font-urbanist">
-          {isNightMode ? 'Mode nuit actif' : 'Tournée en cours'}
+          {isNightMode ? "Mode nuit actif" : "Tournée en cours"}
         </span>
       </div>
 
@@ -332,22 +348,28 @@ export function FocusTourView({
       )}
 
       {/* GPS signal warning when poor or lost */}
-      {(gpsSignalStrength === 'poor' || gpsSignalStrength === 'lost') && !lowBattery && (
-        <div className={cn(
-          "w-[80%] max-w-xs border rounded-xl px-5 py-2.5 flex items-center justify-center gap-3",
-          gpsSignalStrength === 'lost' 
-            ? "bg-red-500/20 border-red-500/40" 
-            : "bg-yellow-500/20 border-yellow-500/40"
-        )}>
-          <Radio className={cn(
-            "w-6 h-6",
-            gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
-          )} />
-          <span className={cn(
-            "text-base font-urbanist text-center",
-            gpsSignalStrength === 'lost' ? "text-red-400" : "text-yellow-400"
-          )}>
-            {gpsSignalStrength === 'lost' ? 'GPS perdu' : 'GPS faible'}
+      {(gpsSignalStrength === "poor" || gpsSignalStrength === "lost") && !lowBattery && (
+        <div
+          className={cn(
+            "w-[80%] max-w-xs border rounded-xl px-5 py-2.5 flex items-center justify-center gap-3",
+            gpsSignalStrength === "lost"
+              ? "bg-red-500/20 border-red-500/40"
+              : "bg-yellow-500/20 border-yellow-500/40",
+          )}
+        >
+          <Radio
+            className={cn(
+              "w-6 h-6",
+              gpsSignalStrength === "lost" ? "text-red-400" : "text-yellow-400",
+            )}
+          />
+          <span
+            className={cn(
+              "text-base font-urbanist text-center",
+              gpsSignalStrength === "lost" ? "text-red-400" : "text-yellow-400",
+            )}
+          >
+            {gpsSignalStrength === "lost" ? "GPS perdu" : "GPS faible"}
           </span>
         </div>
       )}
@@ -401,10 +423,11 @@ export function FocusTourView({
           {showDeparture ? (
             // Show "DÉPART" while under 1km
             <>
-              <span 
+              <span
                 className="font-urbanist text-4xl font-bold bg-clip-text text-transparent uppercase tracking-wide"
                 style={{
-                  backgroundImage: 'linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 75%, #f97316 100%)',
+                  backgroundImage:
+                    "linear-gradient(135deg, #166534 0%, #22c55e 50%, #84cc16 75%, #f97316 100%)",
                 }}
               >
                 Départ
@@ -416,20 +439,20 @@ export function FocusTourView({
           ) : (
             // Show stops counter once >= 1km
             <>
-              <span 
+              <span
                 className="font-urbanist text-5xl font-bold tabular-nums bg-clip-text text-transparent"
                 style={{
-                  backgroundImage: useGreenOrangeGradient 
-                    ? 'linear-gradient(180deg, #22c55e, #84cc16, #f97316, #22c55e)'
-                    : 'linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)',
-                  backgroundSize: '100% 300%',
-                  animation: 'gradient-scroll 6s linear infinite',
+                  backgroundImage: useGreenOrangeGradient
+                    ? "linear-gradient(180deg, #22c55e, #84cc16, #f97316, #22c55e)"
+                    : "linear-gradient(180deg, #f97316, #ef4444, #f97316, #fbbf24, #f97316)",
+                  backgroundSize: "100% 300%",
+                  animation: "gradient-scroll 6s linear infinite",
                 }}
               >
                 {detectedStopsCount}
               </span>
               <span className="font-urbanist text-sm text-white mt-1 uppercase tracking-widest font-bold">
-                {detectedStopsCount === 1 ? 'ÉTAPE' : 'ÉTAPES'}
+                {detectedStopsCount === 1 ? "ÉTAPE" : "ÉTAPES"}
               </span>
             </>
           )}
@@ -440,7 +463,9 @@ export function FocusTourView({
       <AlertDialog open={showStopConfirm} onOpenChange={setShowStopConfirm}>
         <AlertDialogContent className="max-w-[320px] p-6 rounded-2xl">
           <AlertDialogHeader className="pb-2">
-            <AlertDialogTitle className="text-lg font-semibold text-center">Terminer la tournée ?</AlertDialogTitle>
+            <AlertDialogTitle className="text-lg font-semibold text-center">
+              Terminer la tournée ?
+            </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row items-center gap-3 pt-4 sm:space-x-0">
             <AlertDialogCancel className="flex-1 h-11 text-sm rounded-xl mt-0">

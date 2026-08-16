@@ -15,10 +15,14 @@ export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
   // Cluster « frais réels vs forfait »
   "frais-reels-vs-forfait": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
   "frais-reels-vs-forfait-guide-complet": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-  "frais-reels-ou-forfait-guide-independants-2026": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-  "frais-reels-ou-forfait-independants-impots-2026": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-  "frais-reels-ou-abattement-forfaitaire-simulation-2026": "/blog/frais-reels-ou-abattement-choisir",
-  "frais-reels-vs-forfait-guide-optimisation-impots": "/blog/seuil-rentabilite-frais-reels-kilometrage-annuel",
+  "frais-reels-ou-forfait-guide-independants-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-forfait-independants-impots-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-abattement-forfaitaire-simulation-2026":
+    "/blog/frais-reels-ou-abattement-choisir",
+  "frais-reels-vs-forfait-guide-optimisation-impots":
+    "/blog/seuil-rentabilite-frais-reels-kilometrage-annuel",
 
   // Cluster « URSSAF / anti-redressement »
   "comment-optimiser-ses-frais-auto-sans-risque-guide-de-conformite-urssaf-et-autom":
@@ -38,11 +42,15 @@ export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
     "/blog/controle-urssaf-liste-des-pieces-a-fournir",
 
   // Cluster « calcul / étapes »
-  "calculer-indemnites-kilometriques-2026-guide": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "comment-calculer-frais-kilometriques-remboursement": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+  "calculer-indemnites-kilometriques-2026-guide":
+    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+  "comment-calculer-frais-kilometriques-remboursement":
+    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
   "etapes-rapport-kilometrique": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "precision-calcul-frais-kilometriques-2026": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "etapes-declaration-fiscale-kilometrage-guide": "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
+  "precision-calcul-frais-kilometriques-2026":
+    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+  "etapes-declaration-fiscale-kilometrage-guide":
+    "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
 
   // Barème : renvoi vers la page pilier marketing
   "bareme-indemnites-kilometriques-2026-iktracker": "/bareme-ik-2026",

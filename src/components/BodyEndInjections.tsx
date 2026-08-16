@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface Injection {
   id: string;
@@ -8,7 +8,7 @@ interface Injection {
 }
 
 const BodyEndInjections = () => {
-  const [html, setHtml] = useState('');
+  const [html, setHtml] = useState("");
 
   useEffect(() => {
     // Silently handle ad-blockers / network failures (e.g. ERR_BLOCKED_BY_CLIENT
@@ -17,20 +17,19 @@ const BodyEndInjections = () => {
     const controller = new AbortController();
 
     fetch(
-      'https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/iktracker-actions?action=get-injections&location=body_end',
-      { signal: controller.signal }
+      "https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/iktracker-actions?action=get-injections&location=body_end",
+      { signal: controller.signal },
     )
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!data) return;
-        const injections =
-          data?.injections || data?.result?.data?.data || data?.result?.data;
+        const injections = data?.injections || data?.result?.data?.data || data?.result?.data;
         if (!Array.isArray(injections) || !injections.length) return;
         setHtml(
           injections
             .filter((i: Injection) => i.is_active)
             .map((i: Injection) => i.content)
-            .join('')
+            .join(""),
         );
       })
       .catch(() => {
@@ -41,23 +40,20 @@ const BodyEndInjections = () => {
     // (e.g. ad-blocked Taap.it). We only mute errors coming from external
     // hosts so app-level errors keep surfacing.
     const onError = (e: ErrorEvent) => {
-      const src =
-        (e.target as HTMLScriptElement | HTMLImageElement | null)?.src || '';
+      const src = (e.target as HTMLScriptElement | HTMLImageElement | null)?.src || "";
       if (
         src &&
-        /taap\.it|googletagmanager|google-analytics|doubleclick|facebook\.net/i.test(
-          src
-        )
+        /taap\.it|googletagmanager|google-analytics|doubleclick|facebook\.net/i.test(src)
       ) {
         e.stopImmediatePropagation();
         e.preventDefault();
       }
     };
-    window.addEventListener('error', onError, true);
+    window.addEventListener("error", onError, true);
 
     return () => {
       controller.abort();
-      window.removeEventListener('error', onError, true);
+      window.removeEventListener("error", onError, true);
     };
   }, []);
 

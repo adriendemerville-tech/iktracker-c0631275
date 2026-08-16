@@ -8,9 +8,11 @@
  * Check if we're running in a browser environment with full DOM support
  */
 export const isBrowser = (): boolean => {
-  return typeof window !== 'undefined' && 
-         typeof document !== 'undefined' &&
-         typeof navigator !== 'undefined';
+  return (
+    typeof window !== "undefined" &&
+    typeof document !== "undefined" &&
+    typeof navigator !== "undefined"
+  );
 };
 
 /**
@@ -19,7 +21,7 @@ export const isBrowser = (): boolean => {
 export const hasLocalStorage = (): boolean => {
   if (!isBrowser()) return false;
   try {
-    const testKey = '__storage_test__';
+    const testKey = "__storage_test__";
     window.localStorage.setItem(testKey, testKey);
     window.localStorage.removeItem(testKey);
     return true;
@@ -34,7 +36,7 @@ export const hasLocalStorage = (): boolean => {
 export const hasSessionStorage = (): boolean => {
   if (!isBrowser()) return false;
   try {
-    const testKey = '__storage_test__';
+    const testKey = "__storage_test__";
     window.sessionStorage.setItem(testKey, testKey);
     window.sessionStorage.removeItem(testKey);
     return true;
@@ -70,7 +72,7 @@ export const safeLocalStorage = {
     } catch {
       // Silently fail
     }
-  }
+  },
 };
 
 /**
@@ -100,7 +102,7 @@ export const safeSessionStorage = {
     } catch {
       // Silently fail
     }
-  }
+  },
 };
 
 /**
@@ -108,7 +110,7 @@ export const safeSessionStorage = {
  */
 export const isBot = (): boolean => {
   if (!isBrowser()) return true; // Assume bot if no browser environment
-  
+
   const botPatterns = [
     /bot/i,
     /spider/i,
@@ -147,10 +149,10 @@ export const isBot = (): boolean => {
     /gemini/i,
     /perplexity/i,
   ];
-  
+
   try {
-    const userAgent = navigator.userAgent || '';
-    return botPatterns.some(pattern => pattern.test(userAgent));
+    const userAgent = navigator.userAgent || "";
+    return botPatterns.some((pattern) => pattern.test(userAgent));
   } catch {
     return true; // Assume bot if we can't check
   }
@@ -168,7 +170,7 @@ export const getWindowWidth = (): number => {
  * Safe matchMedia with fallback
  */
 export const safeMatchMedia = (query: string): boolean => {
-  if (!isBrowser() || typeof window.matchMedia !== 'function') {
+  if (!isBrowser() || typeof window.matchMedia !== "function") {
     return false;
   }
   try {
@@ -184,20 +186,20 @@ export const safeMatchMedia = (query: string): boolean => {
 export const safeRandomUUID = (): string => {
   if (!isBrowser()) {
     // Fallback for non-browser environments
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }
-  
+
   try {
     return crypto.randomUUID();
   } catch {
     // Fallback for older browsers
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }

@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from '@/lib/router-compat';
-import { Helmet } from '@/lib/helmet-compat';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useSearchParams } from "@/lib/router-compat";
+import { Helmet } from "@/lib/helmet-compat";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
-type State = 'loading' | 'ready' | 'confirming' | 'success' | 'already' | 'invalid';
+type State = "loading" | "ready" | "confirming" | "success" | "already" | "invalid";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 export default function Unsubscribe() {
   const [params] = useSearchParams();
-  const token = params.get('token') ?? '';
-  const [state, setState] = useState<State>('loading');
+  const token = params.get("token") ?? "";
+  const [state, setState] = useState<State>("loading");
 
   useEffect(() => {
     if (!token) {
-      setState('invalid');
+      setState("invalid");
       return;
     }
     (async () => {
@@ -27,70 +27,70 @@ export default function Unsubscribe() {
           { headers: { apikey: ANON } },
         );
         const json = await res.json();
-        if (!res.ok) return setState('invalid');
-        if (json.valid === false && json.reason === 'already_unsubscribed') return setState('already');
-        setState('ready');
+        if (!res.ok) return setState("invalid");
+        if (json.valid === false && json.reason === "already_unsubscribed")
+          return setState("already");
+        setState("ready");
       } catch {
-        setState('invalid');
+        setState("invalid");
       }
     })();
   }, [token]);
 
   const confirm = async () => {
-    setState('confirming');
-    const { data, error } = await supabase.functions.invoke('handle-email-unsubscribe', {
+    setState("confirming");
+    const { data, error } = await supabase.functions.invoke("handle-email-unsubscribe", {
       body: { token },
     });
-    if (error) return setState('invalid');
-    if ((data as any)?.reason === 'already_unsubscribed') return setState('already');
-    setState('success');
+    if (error) return setState("invalid");
+    if ((data as any)?.reason === "already_unsubscribed") return setState("already");
+    setState("success");
   };
 
   return (
     <>
-      <Helmet>
-      </Helmet>
+      <Helmet></Helmet>
       <main className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-xs text-center space-y-5">
-        <h1 className="text-2xl font-semibold">Désabonnement IKtracker</h1>
+          <h1 className="text-2xl font-semibold">Désabonnement IKtracker</h1>
 
-        {state === 'loading' && (
-          <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin" /> Vérification du lien…
-          </div>
-        )}
+          {state === "loading" && (
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" /> Vérification du lien…
+            </div>
+          )}
 
-        {state === 'ready' && (
-          <>
-            <p className="text-muted-foreground">
-              Confirmez-vous vouloir ne plus recevoir d'emails d'IKtracker à cette adresse ?
+          {state === "ready" && (
+            <>
+              <p className="text-muted-foreground">
+                Confirmez-vous vouloir ne plus recevoir d'emails d'IKtracker à cette adresse ?
+              </p>
+              <Button onClick={confirm} className="w-full">
+                Confirmer le désabonnement
+              </Button>
+            </>
+          )}
+
+          {state === "confirming" && (
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" /> En cours…
+            </div>
+          )}
+
+          {state === "success" && (
+            <p className="text-emerald-600 dark:text-emerald-400">
+              Vous êtes désabonné. Vous ne recevrez plus d'emails d'IKtracker.
             </p>
-            <Button onClick={confirm} className="w-full">Confirmer le désabonnement</Button>
-          </>
-        )}
+          )}
 
-        {state === 'confirming' && (
-          <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin" /> En cours…
-          </div>
-        )}
+          {state === "already" && (
+            <p className="text-muted-foreground">Cette adresse est déjà désabonnée.</p>
+          )}
 
-        {state === 'success' && (
-          <p className="text-emerald-600 dark:text-emerald-400">
-            Vous êtes désabonné. Vous ne recevrez plus d'emails d'IKtracker.
-          </p>
-        )}
-
-        {state === 'already' && (
-          <p className="text-muted-foreground">Cette adresse est déjà désabonnée.</p>
-        )}
-
-        {state === 'invalid' && (
-          <p className="text-red-600 dark:text-red-400">
-            Lien invalide ou expiré.
-          </p>
-        )}
-      </div>
+          {state === "invalid" && (
+            <p className="text-red-600 dark:text-red-400">Lien invalide ou expiré.</p>
+          )}
+        </div>
       </main>
     </>
   );

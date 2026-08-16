@@ -24,7 +24,11 @@ const staticPages: SitemapEntry[] = [
   { path: "/indemnite-kilometrique-velo", priority: "0.8", changefreq: "monthly" },
   { path: "/indemnite-grand-deplacement-2026", priority: "0.8", changefreq: "monthly" },
   { path: "/mes-trajets", priority: "0.8", changefreq: "monthly" },
-  { path: "/meilleure-application-indemnites-kilometriques", priority: "1.0", changefreq: "monthly" },
+  {
+    path: "/meilleure-application-indemnites-kilometriques",
+    priority: "1.0",
+    changefreq: "monthly",
+  },
   { path: "/tarifs", priority: "0.7", changefreq: "monthly" },
   { path: "/lexique", priority: "0.8", changefreq: "monthly" },
   { path: "/comparatif-izika", priority: "0.8", changefreq: "monthly" },

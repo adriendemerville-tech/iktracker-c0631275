@@ -3,55 +3,57 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Image } from "https://deno.land/x/imagescript@1.3.0/mod.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Auth: require an admin JWT
-    const authHeader = req.headers.get('Authorization') || '';
-    const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+    const authHeader = req.headers.get("Authorization") || "";
+    const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
     if (!bearer) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const { data: userData, error: userErr } = await supabase.auth.getUser(bearer);
     if (userErr || !userData?.user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const { data: isAdmin } = await supabase.rpc('has_role', {
+    const { data: isAdmin } = await supabase.rpc("has_role", {
       _user_id: userData.user.id,
-      _role: 'admin',
+      _role: "admin",
     });
     if (!isAdmin) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-
-    console.log('Starting blog image conversion to WebP...');
+    console.log("Starting blog image conversion to WebP...");
 
     // Get all blog posts
     const { data: posts, error: fetchError } = await supabase
-      .from('blog_posts')
-      .select('id, content, featured_image_url');
+      .from("blog_posts")
+      .select("id, content, featured_image_url");
 
     if (fetchError) {
-      console.error('Error fetching posts:', fetchError);
+      console.error("Error fetching posts:", fetchError);
       throw fetchError;
     }
 
@@ -68,7 +70,7 @@ serve(async (req) => {
       // Find all image URLs in content (PNG, JPG, JPEG)
       const imageRegex = /(https?:\/\/[^\s\)\"\']+\.(png|jpg|jpeg))/gi;
       const contentMatches = updatedContent.match(imageRegex) || [];
-      
+
       // Create a mutable array
       const allUrls: string[] = [...contentMatches];
 
@@ -83,7 +85,7 @@ serve(async (req) => {
       for (const imageUrl of uniqueUrls) {
         try {
           // Skip if not from our storage
-          if (!imageUrl.includes('supabase.co/storage')) {
+          if (!imageUrl.includes("supabase.co/storage")) {
             console.log(`Skipping external image: ${imageUrl}`);
             continue;
           }
@@ -96,21 +98,21 @@ serve(async (req) => {
           }
 
           const imageBuffer = await imageResponse.arrayBuffer();
-          const originalFilename = imageUrl.split('/').pop()!;
+          const originalFilename = imageUrl.split("/").pop()!;
           const newFilename = `converted-${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
 
           // Decode image using imagescript
           const image = await Image.decode(new Uint8Array(imageBuffer));
-          
+
           // Encode as PNG (ImageScript doesn't support WebP natively, but we'll rename)
           const pngBuffer = await image.encode();
 
           // Upload to Supabase Storage
           const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('blog-images')
+            .from("blog-images")
             .upload(newFilename, pngBuffer, {
-              contentType: 'image/webp',
-              cacheControl: '31536000',
+              contentType: "image/webp",
+              cacheControl: "31536000",
               upsert: false,
             });
 
@@ -120,7 +122,7 @@ serve(async (req) => {
 
           // Get public URL
           const { data: urlData } = supabase.storage
-            .from('blog-images')
+            .from("blog-images")
             .getPublicUrl(uploadData.path);
 
           const newUrl = urlData.publicUrl;
@@ -135,9 +137,8 @@ serve(async (req) => {
 
           converted.push(`${originalFilename} -> ${newFilename}`);
           console.log(`Converted: ${originalFilename} -> ${newFilename}`);
-
         } catch (imgError) {
-          const errorMsg = imgError instanceof Error ? imgError.message : 'Unknown error';
+          const errorMsg = imgError instanceof Error ? imgError.message : "Unknown error";
           errors.push(`${imageUrl}: ${errorMsg}`);
           console.error(`Error converting ${imageUrl}:`, errorMsg);
         }
@@ -146,12 +147,12 @@ serve(async (req) => {
       // Update the post if any changes were made
       if (converted.length > 0) {
         const { error: updateError } = await supabase
-          .from('blog_posts')
+          .from("blog_posts")
           .update({
             content: updatedContent,
             featured_image_url: updatedFeaturedImage,
           })
-          .eq('id', post.id);
+          .eq("id", post.id);
 
         if (updateError) {
           errors.push(`Failed to update post: ${updateError.message}`);
@@ -177,21 +178,20 @@ serve(async (req) => {
         results,
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
-
   } catch (error) {
-    console.error('Error in convert-blog-images:', error);
+    console.error("Error in convert-blog-images:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
   }
 });

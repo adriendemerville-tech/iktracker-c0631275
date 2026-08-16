@@ -10,7 +10,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     apikey: SUPABASE_ANON_KEY,
-    ...(options.headers as Record<string, string> || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
   const res = await fetch(url, { ...options, headers });
   const body = await res.json();
@@ -114,7 +114,7 @@ async function authFetch(path: string, options: RequestInit = {}) {
     "Content-Type": "application/json",
     apikey: SUPABASE_ANON_KEY,
     "x-api-key": API_KEY,
-    ...(options.headers as Record<string, string> || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
   const res = await fetch(url, { ...options, headers });
   const body = await res.json();
@@ -129,7 +129,11 @@ Deno.test("GET /posts?status=all with API key returns drafts and published", asy
   const hasDraft = statuses.includes("draft");
   const hasPublished = statuses.includes("published");
   assertEquals(hasPublished, true, "Should contain published posts");
-  assertEquals(hasDraft, true, "Should contain draft posts (Parménion needs this to avoid duplicates)");
+  assertEquals(
+    hasDraft,
+    true,
+    "Should contain draft posts (Parménion needs this to avoid duplicates)",
+  );
 });
 
 Deno.test("GET /posts?status=draft with API key returns only drafts", async () => {
@@ -151,7 +155,7 @@ Deno.test("GET /posts without status param returns only published (default)", as
 Deno.test("Each post has a status field for consumer-side filtering", async () => {
   if (!API_KEY) return;
   const { body } = await authFetch("/posts?status=all&limit=5");
-  for (const post of (body.posts ?? [])) {
+  for (const post of body.posts ?? []) {
     assertExists(post.status, "Every post must expose a status field");
   }
 });

@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Trip, Vehicle } from '@/types/trip';
+import { useState, useMemo, useEffect } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Trip, Vehicle } from "@/types/trip";
 import {
   MapPin,
   ArrowRight,
@@ -15,16 +15,16 @@ import {
   ArrowUp,
   ArrowDown,
   Check,
-} from 'lucide-react';
-import { extractCityFromAddress, geocodeAddress } from '@/lib/geocoding';
-import { AddressAutocompleteInput } from './AddressAutocompleteInput';
-import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
-import { useTrips } from '@/hooks/useTrips';
-import { useGoogleMaps } from '@/hooks/useGoogleMaps';
-import { calculateDrivingMatrix, optimizeStopOrder } from '@/lib/distance';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import type { TourStopData } from '@/types/trip';
+} from "lucide-react";
+import { extractCityFromAddress, geocodeAddress } from "@/lib/geocoding";
+import { AddressAutocompleteInput } from "./AddressAutocompleteInput";
+import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
+import { useTrips } from "@/hooks/useTrips";
+import { useGoogleMaps } from "@/hooks/useGoogleMaps";
+import { calculateDrivingMatrix, optimizeStopOrder } from "@/lib/distance";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import type { TourStopData } from "@/types/trip";
 
 interface TripViewSheetProps {
   open: boolean;
@@ -42,14 +42,14 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
 };
 
 const formatDate = (date: Date) =>
-  new Date(date).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  new Date(date).toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 const formatTime = (date: Date) =>
-  new Date(date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  new Date(date).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
 interface ViaStop {
   id: string;
@@ -58,7 +58,7 @@ interface ViaStop {
   lng: number;
 }
 
-type EditTarget = null | 'start' | 'end' | { kind: 'stop'; id: string };
+type EditTarget = null | "start" | "end" | { kind: "stop"; id: string };
 
 export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewSheetProps) {
   const { updateTrip } = useTrips();
@@ -66,12 +66,12 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
   const { toast } = useToast();
   const [viaStops, setViaStops] = useState<ViaStop[]>([]);
   const [showAdder, setShowAdder] = useState(false);
-  const [adderValue, setAdderValue] = useState('');
+  const [adderValue, setAdderValue] = useState("");
   const [isRecalc, setIsRecalc] = useState(false);
   const [localDistance, setLocalDistance] = useState<number | null>(null);
   const [localIk, setLocalIk] = useState<number | null>(null);
   const [editing, setEditing] = useState<EditTarget>(null);
-  const [editValue, setEditValue] = useState('');
+  const [editValue, setEditValue] = useState("");
 
   // Local editable copies of start/end (persist immediately on save)
   const [startOverride, setStartOverride] = useState<{
@@ -93,8 +93,8 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
   const startLoc = startOverride ?? displayTrip?.startLocation;
   const endLoc = endOverride ?? displayTrip?.endLocation;
 
-  const startCityName = useMemo(() => (startLoc ? getDisplayName(startLoc) : ''), [startLoc]);
-  const endCityName = useMemo(() => (endLoc ? getDisplayName(endLoc) : ''), [endLoc]);
+  const startCityName = useMemo(() => (startLoc ? getDisplayName(startLoc) : ""), [startLoc]);
+  const endCityName = useMemo(() => (endLoc ? getDisplayName(endLoc) : ""), [endLoc]);
 
   useEffect(() => {
     if (!open || !displayTrip) return;
@@ -103,10 +103,10 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       setViaStops(
         stops.slice(1, -1).map((s: any) => ({
           id: s.id || crypto.randomUUID(),
-          label: s.address || s.city || 'Étape',
+          label: s.address || s.city || "Étape",
           lat: s.lat,
           lng: s.lng,
-        }))
+        })),
       );
     } else {
       setViaStops([]);
@@ -117,7 +117,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     setEndOverride(null);
     setEditing(null);
     setShowAdder(false);
-    setAdderValue('');
+    setAdderValue("");
   }, [open, displayTrip?.id]);
 
   if (!displayTrip) return null;
@@ -129,7 +129,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     if (!o) {
       setViaStops([]);
       setShowAdder(false);
-      setAdderValue('');
+      setAdderValue("");
       setLocalDistance(null);
       setLocalIk(null);
       setStartOverride(null);
@@ -139,9 +139,12 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     onOpenChange(o);
   };
 
-  const resolveCoords = async (
-    loc: { address?: string; name: string; lat?: number; lng?: number }
-  ) => {
+  const resolveCoords = async (loc: {
+    address?: string;
+    name: string;
+    lat?: number;
+    lng?: number;
+  }) => {
     if (loc.lat != null && loc.lng != null) return { lat: loc.lat, lng: loc.lng };
     const g = await geocodeAddress(loc.address || loc.name);
     return g ? { lat: g.lat, lng: g.lng } : null;
@@ -153,7 +156,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       convertLoop?: boolean;
       startOverrideLoc?: typeof startOverride;
       endOverrideLoc?: typeof endOverride;
-    }
+    },
   ) => {
     if (!displayTrip) return;
     setIsRecalc(true);
@@ -165,9 +168,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       const eC = await resolveCoords(effEnd);
       if (!sC || !eC) {
         toast({
-          title: 'Adresses non géocodables',
-          description: 'Impossible de recalculer la distance.',
-          variant: 'destructive',
+          title: "Adresses non géocodables",
+          description: "Impossible de recalculer la distance.",
+          variant: "destructive",
         });
         setIsRecalc(false);
         return;
@@ -197,9 +200,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       if (finalRoundTrip) totalKm *= 2;
       totalKm = Math.round(totalKm * 10) / 10;
 
-      const cleanedBase = (displayTrip.purpose || '')
-        .replace(/\s*·?\s*Via:.*$/i, '')
-        .replace(/^\s*Tournée\s*·?\s*/i, '')
+      const cleanedBase = (displayTrip.purpose || "")
+        .replace(/\s*·?\s*Via:.*$/i, "")
+        .replace(/^\s*Tournée\s*·?\s*/i, "")
         .trim();
 
       let newPurpose: string | null;
@@ -209,11 +212,11 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
         tourStops = [];
         newPurpose = cleanedBase || null;
       } else {
-        const viaText = nextStops.map((s) => s.label.split(',')[0]).join(' → ');
-        newPurpose = `${cleanedBase ? cleanedBase + ' · ' : 'Tournée · '}Via: ${viaText}`;
+        const viaText = nextStops.map((s) => s.label.split(",")[0]).join(" → ");
+        newPurpose = `${cleanedBase ? cleanedBase + " · " : "Tournée · "}Via: ${viaText}`;
         tourStops = [
           {
-            id: 'start',
+            id: "start",
             timestamp: new Date(displayTrip.startTime).toISOString(),
             lat: sC.lat,
             lng: sC.lng,
@@ -229,7 +232,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
             city: s.label,
           })),
           {
-            id: 'end',
+            id: "end",
             timestamp: new Date(displayTrip.startTime).toISOString(),
             lat: finalEndLat,
             lng: finalEndLng,
@@ -241,7 +244,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
 
       const updates: any = {
         distance: totalKm,
-        purpose: newPurpose ?? '',
+        purpose: newPurpose ?? "",
         tourStops: tourStops as TourStopData[],
       };
       if (opts?.startOverrideLoc) {
@@ -273,11 +276,11 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       if (updated) {
         setLocalDistance(updated.distance);
         setLocalIk(updated.ikAmount);
-        toast({ title: 'Trajet mis à jour', description: `${totalKm.toFixed(1)} km` });
+        toast({ title: "Trajet mis à jour", description: `${totalKm.toFixed(1)} km` });
       }
     } catch (e) {
       console.error(e);
-      toast({ title: 'Erreur', description: 'Recalcul impossible.', variant: 'destructive' });
+      toast({ title: "Erreur", description: "Recalcul impossible.", variant: "destructive" });
     } finally {
       setIsRecalc(false);
     }
@@ -289,9 +292,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       const g = await geocodeAddress(s.fulltext);
       if (!g) {
         toast({
-          title: 'Adresse invalide',
-          description: 'Impossible de géocoder cette étape.',
-          variant: 'destructive',
+          title: "Adresse invalide",
+          description: "Impossible de géocoder cette étape.",
+          variant: "destructive",
         });
         return;
       }
@@ -310,9 +313,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       const g = await resolveCoords(displayTrip.endLocation);
       if (!g) {
         toast({
-          title: 'Conversion impossible',
-          description: 'Ancienne destination non géocodable.',
-          variant: 'destructive',
+          title: "Conversion impossible",
+          description: "Ancienne destination non géocodable.",
+          variant: "destructive",
         });
         return;
       }
@@ -328,7 +331,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     }
 
     setViaStops(next);
-    setAdderValue('');
+    setAdderValue("");
     setShowAdder(false);
     await recomputeAndSave(next, { convertLoop: shouldConvertLoop });
   };
@@ -348,11 +351,11 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     await recomputeAndSave(next);
   };
 
-  const handleReplaceEndpoint = async (target: 'start' | 'end', s: AddressSuggestion) => {
+  const handleReplaceEndpoint = async (target: "start" | "end", s: AddressSuggestion) => {
     if (!s.lat || !s.lng) {
       const g = await geocodeAddress(s.fulltext);
       if (!g) {
-        toast({ title: 'Adresse invalide', variant: 'destructive' });
+        toast({ title: "Adresse invalide", variant: "destructive" });
         return;
       }
       s = { ...s, lat: g.lat, lng: g.lng };
@@ -363,7 +366,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
       lat: s.lat!,
       lng: s.lng!,
     };
-    if (target === 'start') {
+    if (target === "start") {
       setStartOverride(newLoc);
       await recomputeAndSave(viaStops, { startOverrideLoc: newLoc });
     } else {
@@ -377,13 +380,13 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
     if (!s.lat || !s.lng) {
       const g = await geocodeAddress(s.fulltext);
       if (!g) {
-        toast({ title: 'Adresse invalide', variant: 'destructive' });
+        toast({ title: "Adresse invalide", variant: "destructive" });
         return;
       }
       s = { ...s, lat: g.lat, lng: g.lng };
     }
     const next = viaStops.map((v) =>
-      v.id === id ? { ...v, label: s.fulltext, lat: s.lat!, lng: s.lng! } : v
+      v.id === id ? { ...v, label: s.fulltext, lat: s.lat!, lng: s.lng! } : v,
     );
     setViaStops(next);
     setEditing(null);
@@ -397,14 +400,14 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/40 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
           className={cn(
-            'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-            'w-[calc(100%-2rem)] max-w-lg sm:max-w-[38rem] max-h-[85vh] overflow-y-auto',
-            'rounded-2xl border border-border/50 bg-card/95 backdrop-blur-xl',
-            'shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)]',
-            'p-6 focus:outline-hidden',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'
+            "fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2",
+            "w-[calc(100%-2rem)] max-w-lg sm:max-w-[38rem] max-h-[85vh] overflow-y-auto",
+            "rounded-2xl border border-border/50 bg-card/95 backdrop-blur-xl",
+            "shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)]",
+            "p-6 focus:outline-hidden",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           )}
         >
           {/* Header */}
@@ -413,7 +416,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
               {isTour ? (
                 <>
                   <Truck className="w-5 h-5 text-primary" />
-                  <DialogPrimitive.Title className="text-lg font-semibold">Tournée</DialogPrimitive.Title>
+                  <DialogPrimitive.Title className="text-lg font-semibold">
+                    Tournée
+                  </DialogPrimitive.Title>
                 </>
               ) : (
                 <>
@@ -442,8 +447,8 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                   <button
                     type="button"
                     onClick={() => {
-                      setEditing('start');
-                      setEditValue(startLoc?.address || startLoc?.name || '');
+                      setEditing("start");
+                      setEditValue(startLoc?.address || startLoc?.name || "");
                     }}
                     disabled={isRecalc}
                     className="opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
@@ -452,11 +457,11 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                {editing === 'start' ? (
+                {editing === "start" ? (
                   <AddressAutocompleteInput
                     value={editValue}
                     onChange={setEditValue}
-                    onSelect={(s) => handleReplaceEndpoint('start', s)}
+                    onSelect={(s) => handleReplaceEndpoint("start", s)}
                     placeholder="Nouvelle adresse de départ..."
                     disabled={isRecalc}
                   />
@@ -499,8 +504,8 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                   <button
                     type="button"
                     onClick={() => {
-                      setEditing('end');
-                      setEditValue(endLoc?.address || endLoc?.name || '');
+                      setEditing("end");
+                      setEditValue(endLoc?.address || endLoc?.name || "");
                     }}
                     disabled={isRecalc}
                     className="opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
@@ -509,11 +514,11 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                {editing === 'end' ? (
+                {editing === "end" ? (
                   <AddressAutocompleteInput
                     value={editValue}
                     onChange={setEditValue}
-                    onSelect={(s) => handleReplaceEndpoint('end', s)}
+                    onSelect={(s) => handleReplaceEndpoint("end", s)}
                     placeholder="Nouvelle adresse d'arrivée..."
                     disabled={isRecalc}
                   />
@@ -521,9 +526,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                   <>
                     <p className="font-semibold text-foreground">{endCityName}</p>
                     {endLoc?.address && endLoc.address !== endCityName && (
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {endLoc.address}
-                      </p>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{endLoc.address}</p>
                     )}
                   </>
                 )}
@@ -560,7 +563,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                 <div className="space-y-1.5">
                   {viaStops.map((s, i) => {
                     const isEditing =
-                      typeof editing === 'object' && editing?.kind === 'stop' && editing.id === s.id;
+                      typeof editing === "object" &&
+                      editing?.kind === "stop" &&
+                      editing.id === s.id;
                     return (
                       <div
                         key={s.id}
@@ -583,7 +588,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewShe
                           <span
                             className="text-sm text-foreground flex-1 truncate cursor-pointer"
                             onClick={() => {
-                              setEditing({ kind: 'stop', id: s.id });
+                              setEditing({ kind: "stop", id: s.id });
                               setEditValue(s.label);
                             }}
                             title="Modifier"

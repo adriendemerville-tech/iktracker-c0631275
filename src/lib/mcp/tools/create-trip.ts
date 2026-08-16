@@ -27,7 +27,12 @@ export default defineTool({
     purpose: z.string().optional().describe("Motif du déplacement."),
     ik_amount: z.number().nonnegative().optional().describe("Montant IK en euros (0 par défaut)."),
   },
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };

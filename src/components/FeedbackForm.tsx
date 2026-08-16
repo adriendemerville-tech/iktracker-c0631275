@@ -1,11 +1,23 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageSquareHeart, Camera, X, Loader2, Send, MessageCircle, Clock, Phone, Star, Paperclip, FileIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState, useRef, useEffect } from "react";
+import {
+  MessageSquareHeart,
+  Camera,
+  X,
+  Loader2,
+  Send,
+  MessageCircle,
+  Clock,
+  Phone,
+  Star,
+  Paperclip,
+  FileIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -13,15 +25,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useFeedback } from '@/hooks/useFeedback';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useFeedback } from "@/hooks/useFeedback";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const MAX_CHARS = 700;
 
@@ -31,14 +43,14 @@ interface FeedbackFormProps {
 
 export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => {
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [wantsCall, setWantsCall] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -56,14 +68,14 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         toast({
-          title: 'Fichier trop volumineux',
-          description: 'La taille maximale est de 10 Mo',
-          variant: 'destructive',
+          title: "Fichier trop volumineux",
+          description: "La taille maximale est de 10 Mo",
+          variant: "destructive",
         });
         return;
       }
       setImage(file);
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
           setImagePreview(reader.result as string);
@@ -75,73 +87,72 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
     }
   };
 
-
   const removeImage = () => {
     setImage(null);
     setImagePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const isValidPhone = (phone: string) => {
-    const cleaned = phone.replace(/\s/g, '');
+    const cleaned = phone.replace(/\s/g, "");
     return /^0[67]\d{8}$/.test(cleaned);
   };
 
   const getDeviceInfo = () => {
     const ua = navigator.userAgent;
     const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
-    
+
     // OS detection
-    let os = 'Unknown';
-    if (/Windows NT 10/i.test(ua)) os = 'Windows 10';
-    else if (/Windows NT 11|Windows NT 10.*Build\/(2[2-9]|[3-9])/i.test(ua)) os = 'Windows 11';
-    else if (/Windows/i.test(ua)) os = 'Windows';
+    let os = "Unknown";
+    if (/Windows NT 10/i.test(ua)) os = "Windows 10";
+    else if (/Windows NT 11|Windows NT 10.*Build\/(2[2-9]|[3-9])/i.test(ua)) os = "Windows 11";
+    else if (/Windows/i.test(ua)) os = "Windows";
     else if (/Mac OS X/i.test(ua)) {
       const match = ua.match(/Mac OS X (\d+[._]\d+[._]?\d*)/);
-      os = match ? `macOS ${match[1].replace(/_/g, '.')}` : 'macOS';
-    } else if (/CrOS/i.test(ua)) os = 'Chrome OS';
+      os = match ? `macOS ${match[1].replace(/_/g, ".")}` : "macOS";
+    } else if (/CrOS/i.test(ua)) os = "Chrome OS";
     else if (/Android/i.test(ua)) {
       const match = ua.match(/Android (\d+\.?\d*)/);
-      os = match ? `Android ${match[1]}` : 'Android';
+      os = match ? `Android ${match[1]}` : "Android";
     } else if (/iPhone OS|iPad/i.test(ua)) {
       const match = ua.match(/OS (\d+_\d+)/);
-      os = match ? `iOS ${match[1].replace('_', '.')}` : 'iOS';
-    } else if (/Linux/i.test(ua)) os = 'Linux';
-    
+      os = match ? `iOS ${match[1].replace("_", ".")}` : "iOS";
+    } else if (/Linux/i.test(ua)) os = "Linux";
+
     // Browser detection
-    let browser = 'Unknown';
-    let browserVersion = '';
+    let browser = "Unknown";
+    let browserVersion = "";
     if (/OPR|Opera/i.test(ua)) {
-      browser = 'Opera';
-      browserVersion = ua.match(/(?:OPR|Opera)\/(\d+\.?\d*)/)?.[1] || '';
+      browser = "Opera";
+      browserVersion = ua.match(/(?:OPR|Opera)\/(\d+\.?\d*)/)?.[1] || "";
     } else if (/Edg/i.test(ua)) {
-      browser = 'Edge';
-      browserVersion = ua.match(/Edg\/(\d+\.?\d*)/)?.[1] || '';
+      browser = "Edge";
+      browserVersion = ua.match(/Edg\/(\d+\.?\d*)/)?.[1] || "";
     } else if (/Chrome/i.test(ua) && !/Chromium/i.test(ua)) {
-      browser = 'Chrome';
-      browserVersion = ua.match(/Chrome\/(\d+\.?\d*)/)?.[1] || '';
+      browser = "Chrome";
+      browserVersion = ua.match(/Chrome\/(\d+\.?\d*)/)?.[1] || "";
     } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
-      browser = 'Safari';
-      browserVersion = ua.match(/Version\/(\d+\.?\d*)/)?.[1] || '';
+      browser = "Safari";
+      browserVersion = ua.match(/Version\/(\d+\.?\d*)/)?.[1] || "";
     } else if (/Firefox/i.test(ua)) {
-      browser = 'Firefox';
-      browserVersion = ua.match(/Firefox\/(\d+\.?\d*)/)?.[1] || '';
+      browser = "Firefox";
+      browserVersion = ua.match(/Firefox\/(\d+\.?\d*)/)?.[1] || "";
     }
-    
+
     // Device brand/model
-    let device = '';
-    if (/iPhone/i.test(ua)) device = 'Apple iPhone';
-    else if (/iPad/i.test(ua)) device = 'Apple iPad';
-    else if (/Macintosh/i.test(ua)) device = 'Apple Mac';
+    let device = "";
+    if (/iPhone/i.test(ua)) device = "Apple iPhone";
+    else if (/iPad/i.test(ua)) device = "Apple iPad";
+    else if (/Macintosh/i.test(ua)) device = "Apple Mac";
     else {
       const androidMatch = ua.match(/;\s*([^;)]+)\s*Build/);
       if (androidMatch) device = androidMatch[1].trim();
     }
-    
+
     return {
-      platform: isMobileDevice ? 'mobile' : 'desktop',
+      platform: isMobileDevice ? "mobile" : "desktop",
       os,
       browser,
       browser_version: browserVersion,
@@ -153,27 +164,27 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   const handleSubmit = async () => {
     if (!message.trim()) {
       toast({
-        title: 'Message requis',
-        description: 'Veuillez écrire votre avis',
-        variant: 'destructive',
+        title: "Message requis",
+        description: "Veuillez écrire votre avis",
+        variant: "destructive",
       });
       return;
     }
 
     if (wantsCall && !isValidPhone(phoneNumber)) {
       toast({
-        title: 'Numéro invalide',
-        description: 'Veuillez entrer un numéro commençant par 06 ou 07 (10 chiffres)',
-        variant: 'destructive',
+        title: "Numéro invalide",
+        description: "Veuillez entrer un numéro commençant par 06 ou 07 (10 chiffres)",
+        variant: "destructive",
       });
       return;
     }
 
     if (!user) {
       toast({
-        title: 'Non connecté',
-        description: 'Vous devez être connecté pour envoyer un avis',
-        variant: 'destructive',
+        title: "Non connecté",
+        description: "Vous devez être connecté pour envoyer un avis",
+        variant: "destructive",
       });
       return;
     }
@@ -184,57 +195,53 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
       let imageUrl: string | null = null;
 
       if (image) {
-        const fileExt = image.name.split('.').pop();
+        const fileExt = image.name.split(".").pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        
+
         const { error: uploadError } = await supabase.storage
-          .from('feedback-images')
+          .from("feedback-images")
           .upload(fileName, image);
 
         if (uploadError) {
-          console.error('Upload error:', uploadError);
-          throw new Error('Erreur lors du téléchargement de l\'image');
+          console.error("Upload error:", uploadError);
+          throw new Error("Erreur lors du téléchargement de l'image");
         }
 
-        const { data: urlData } = supabase.storage
-          .from('feedback-images')
-          .getPublicUrl(fileName);
+        const { data: urlData } = supabase.storage.from("feedback-images").getPublicUrl(fileName);
 
         imageUrl = urlData.publicUrl;
       }
 
-      const { error: insertError } = await supabase
-        .from('feedback')
-        .insert({
-          user_id: user.id,
-          message: message.trim(),
-          image_url: imageUrl,
-          phone_number: wantsCall ? phoneNumber.replace(/\s/g, '') : null,
-          device_info: getDeviceInfo(),
-          rating: rating > 0 ? rating : null,
-        } as any);
+      const { error: insertError } = await supabase.from("feedback").insert({
+        user_id: user.id,
+        message: message.trim(),
+        image_url: imageUrl,
+        phone_number: wantsCall ? phoneNumber.replace(/\s/g, "") : null,
+        device_info: getDeviceInfo(),
+        rating: rating > 0 ? rating : null,
+      } as any);
 
       if (insertError) {
-        console.error('Insert error:', insertError);
-        throw new Error('Erreur lors de l\'envoi de votre avis');
+        console.error("Insert error:", insertError);
+        throw new Error("Erreur lors de l'envoi de votre avis");
       }
 
       toast({
-        title: 'Merci pour votre avis !',
-        description: 'Votre retour nous aide à améliorer l\'application',
+        title: "Merci pour votre avis !",
+        description: "Votre retour nous aide à améliorer l'application",
       });
 
-      setMessage('');
+      setMessage("");
       setImage(null);
       setImagePreview(null);
       setWantsCall(false);
-      setPhoneNumber('');
+      setPhoneNumber("");
       setRating(0);
     } catch (error: any) {
       toast({
-        title: 'Erreur',
-        description: error.message || 'Une erreur est survenue',
-        variant: 'destructive',
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -242,7 +249,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   };
 
   const charsRemaining = MAX_CHARS - message.length;
-  const feedbacksWithResponses = feedbacks.filter(f => f.response);
+  const feedbacksWithResponses = feedbacks.filter((f) => f.response);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -253,11 +260,11 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
             Votre avis compte
           </Button>
           {(unreadResponsesCount > 0 || hasNotification) && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full animate-pulse"
             >
-              {unreadResponsesCount || '!'}
+              {unreadResponsesCount || "!"}
             </Badge>
           )}
         </div>
@@ -268,9 +275,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
             <MessageSquareHeart className="w-5 h-5 text-primary" />
             Votre avis compte
           </DialogTitle>
-          <DialogDescription>
-            Partagez vos suggestions pour améliorer IKtracker
-          </DialogDescription>
+          <DialogDescription>Partagez vos suggestions pour améliorer IKtracker</DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="flex-1 pr-4">
@@ -290,7 +295,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                         <div className="bg-muted/50 rounded-lg p-2">
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {format(new Date(feedback.created_at), 'dd MMM yyyy', { locale: fr })}
+                            {format(new Date(feedback.created_at), "dd MMM yyyy", { locale: fr })}
                           </p>
                           <p className="text-sm mt-1">{feedback.message}</p>
                         </div>
@@ -300,7 +305,9 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                           <p className="text-sm mt-1">{feedback.response}</p>
                           {feedback.responded_at && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              {format(new Date(feedback.responded_at), 'dd MMM yyyy', { locale: fr })}
+                              {format(new Date(feedback.responded_at), "dd MMM yyyy", {
+                                locale: fr,
+                              })}
                             </p>
                           )}
                         </div>
@@ -322,14 +329,14 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                     onClick={() => setRating(n === rating ? 0 : n)}
                     onMouseEnter={() => setHoverRating(n)}
                     className="p-1 hover:scale-110 transition-transform"
-                    aria-label={`Noter ${n} étoile${n > 1 ? 's' : ''}`}
+                    aria-label={`Noter ${n} étoile${n > 1 ? "s" : ""}`}
                   >
                     <Star
                       className={cn(
-                        'w-6 h-6 transition-colors',
+                        "w-6 h-6 transition-colors",
                         n <= (hoverRating || rating)
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'text-muted-foreground/40'
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-muted-foreground/40",
                       )}
                     />
                   </button>
@@ -348,7 +355,9 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                 onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
                 className="min-h-[150px] resize-none cursor-text select-text"
               />
-              <p className={`text-xs text-right ${charsRemaining < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
+              <p
+                className={`text-xs text-right ${charsRemaining < 50 ? "text-destructive" : "text-muted-foreground"}`}
+              >
                 {charsRemaining} caractères restants
               </p>
             </div>
@@ -361,7 +370,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
                   checked={wantsCall}
                   onCheckedChange={(checked) => {
                     setWantsCall(checked === true);
-                    if (!checked) setPhoneNumber('');
+                    if (!checked) setPhoneNumber("");
                   }}
                 />
                 <label htmlFor="wants-call" className="text-sm font-medium cursor-pointer">
@@ -401,11 +410,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
               {image ? (
                 <div className="relative inline-block">
                   {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Aperçu"
-                      className="max-h-24 rounded-lg border"
-                    />
+                    <img src={imagePreview} alt="Aperçu" className="max-h-24 rounded-lg border" />
                   ) : (
                     <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 pr-8 max-w-xs">
                       <FileIcon className="w-4 h-4 text-primary shrink-0" />
@@ -436,13 +441,8 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
               </p>
             </div>
 
-
             {/* Submit button */}
-            <Button
-              onClick={handleSubmit}
-              disabled={loading || !message.trim()}
-              className="w-full"
-            >
+            <Button onClick={handleSubmit} disabled={loading || !message.trim()} className="w-full">
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : (
@@ -450,7 +450,6 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
               )}
               Envoyer mon avis
             </Button>
-
           </div>
         </ScrollArea>
       </DialogContent>

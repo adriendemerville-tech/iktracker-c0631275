@@ -1,15 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { MapPin, Loader2, Navigation } from 'lucide-react';
-import { Trip, Location } from '@/types/trip';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { reverseGeocode } from '@/lib/geocoding';
-import { useGeolocation } from '@/hooks/useGeolocation';
-import { AddressAutocompleteInput } from '@/components/AddressAutocompleteInput';
-import { AddressSuggestion } from '@/hooks/useAddressAutocomplete';
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { MapPin, Loader2, Navigation } from "lucide-react";
+import { Trip, Location } from "@/types/trip";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { reverseGeocode } from "@/lib/geocoding";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { AddressAutocompleteInput } from "@/components/AddressAutocompleteInput";
+import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
 
 interface CompleteAddressSheetProps {
   open: boolean;
@@ -19,31 +25,31 @@ interface CompleteAddressSheetProps {
   onCompleted: () => void;
 }
 
-export function CompleteAddressSheet({ 
-  open, 
-  onOpenChange, 
-  trip, 
+export function CompleteAddressSheet({
+  open,
+  onOpenChange,
+  trip,
   savedLocations,
-  onCompleted 
+  onCompleted,
 }: CompleteAddressSheetProps) {
-  const [startAddress, setStartAddress] = useState('');
-  const [endAddress, setEndAddress] = useState('');
+  const [startAddress, setStartAddress] = useState("");
+  const [endAddress, setEndAddress] = useState("");
   const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const { getCurrentPosition, loading: geoLoading } = useGeolocation();
   // Pre-fill with original trip locations; fallback to home/office only for generic start addresses
   const isGenericAddress = (addr?: string) => {
     if (!addr) return true;
     const normalized = addr.toLowerCase().trim();
-    return normalized === 'maison' || normalized === 'domicile';
+    return normalized === "maison" || normalized === "domicile";
   };
 
   useEffect(() => {
     if (open) {
       // Start: preserve the trip's original departure address (fallback to .name)
-      const startValue = trip.startLocation?.address || trip.startLocation?.name || '';
+      const startValue = trip.startLocation?.address || trip.startLocation?.name || "";
       if (startValue && !isGenericAddress(startValue)) {
         setStartAddress(startValue);
         if (trip.startLocation?.lat && trip.startLocation?.lng) {
@@ -52,8 +58,8 @@ export function CompleteAddressSheet({
           setStartCoords(null);
         }
       } else {
-        const homeLocation = savedLocations.find(l => l.type === 'home');
-        const officeLocation = savedLocations.find(l => l.type === 'office');
+        const homeLocation = savedLocations.find((l) => l.type === "home");
+        const officeLocation = savedLocations.find((l) => l.type === "office");
         const defaultLocation = homeLocation || officeLocation;
 
         if (defaultLocation) {
@@ -64,7 +70,7 @@ export function CompleteAddressSheet({
             setStartCoords(null);
           }
         } else {
-          setStartAddress('');
+          setStartAddress("");
           setStartCoords(null);
         }
       }
@@ -72,7 +78,7 @@ export function CompleteAddressSheet({
       // End: preserve the trip's original arrival address if meaningful
       // Fallback to .name because sync-calendar stores the event summary in end_location
       // which is mapped to endLocation.name (not .address) by useTrips.
-      const endValue = trip.endLocation?.address || trip.endLocation?.name || '';
+      const endValue = trip.endLocation?.address || trip.endLocation?.name || "";
       if (endValue && !isGenericAddress(endValue)) {
         setEndAddress(endValue);
         if (trip.endLocation?.lat && trip.endLocation?.lng) {
@@ -81,15 +87,16 @@ export function CompleteAddressSheet({
           setEndCoords(null);
         }
       } else {
-        setEndAddress('');
+        setEndAddress("");
         setEndCoords(null);
       }
     }
   }, [open, savedLocations, trip]);
 
-  const handleAddressSelect = (suggestion: AddressSuggestion, field: 'start' | 'end') => {
-    const coords = suggestion.lat && suggestion.lng ? { lat: suggestion.lat, lng: suggestion.lng } : null;
-    if (field === 'start') {
+  const handleAddressSelect = (suggestion: AddressSuggestion, field: "start" | "end") => {
+    const coords =
+      suggestion.lat && suggestion.lng ? { lat: suggestion.lat, lng: suggestion.lng } : null;
+    if (field === "start") {
       setStartAddress(suggestion.fulltext);
       setStartCoords(coords);
     } else {
@@ -98,13 +105,14 @@ export function CompleteAddressSheet({
     }
   };
 
-  const handleUseCurrentLocation = async (field: 'start' | 'end') => {
+  const handleUseCurrentLocation = async (field: "start" | "end") => {
     try {
       const coords = await getCurrentPosition();
       const geocodeResult = await reverseGeocode(coords.lat, coords.lng);
-      const address = geocodeResult?.fullAddress || `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`;
-      
-      if (field === 'start') {
+      const address =
+        geocodeResult?.fullAddress || `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`;
+
+      if (field === "start") {
         setStartAddress(address);
         setStartCoords(coords);
       } else {
@@ -112,16 +120,16 @@ export function CompleteAddressSheet({
         setEndCoords(coords);
       }
     } catch (error) {
-      console.error('Geolocation error:', error);
-      toast.error('Impossible d\'obtenir votre position');
+      console.error("Geolocation error:", error);
+      toast.error("Impossible d'obtenir votre position");
     }
   };
 
-  const handleSelectSavedLocation = (location: Location, field: 'start' | 'end') => {
+  const handleSelectSavedLocation = (location: Location, field: "start" | "end") => {
     const address = location.address || location.name;
     const coords = location.lat && location.lng ? { lat: location.lat, lng: location.lng } : null;
-    
-    if (field === 'start') {
+
+    if (field === "start") {
       setStartAddress(address);
       setStartCoords(coords);
     } else {
@@ -132,7 +140,7 @@ export function CompleteAddressSheet({
 
   const handleComplete = async () => {
     if (!startAddress.trim() || !endAddress.trim()) {
-      toast.error('Veuillez renseigner les deux adresses');
+      toast.error("Veuillez renseigner les deux adresses");
       return;
     }
 
@@ -140,8 +148,8 @@ export function CompleteAddressSheet({
 
     try {
       // Call edge function to recalculate distance with both addresses
-      const { data, error } = await supabase.functions.invoke('recalculate-distances', {
-        body: { 
+      const { data, error } = await supabase.functions.invoke("recalculate-distances", {
+        body: {
           tripId: trip.id,
           newStartLocation: startAddress,
           newEndLocation: endAddress,
@@ -157,11 +165,11 @@ export function CompleteAddressSheet({
         onCompleted();
         onOpenChange(false);
       } else {
-        throw new Error(data?.error || 'Erreur lors du calcul');
+        throw new Error(data?.error || "Erreur lors du calcul");
       }
     } catch (error) {
-      console.error('Error completing trip:', error);
-      toast.error('Erreur lors de la mise à jour du trajet');
+      console.error("Error completing trip:", error);
+      toast.error("Erreur lors de la mise à jour du trajet");
     } finally {
       setLoading(false);
     }
@@ -169,11 +177,11 @@ export function CompleteAddressSheet({
 
   const getLocationIcon = (type: string) => {
     const colors: Record<string, string> = {
-      home: 'text-primary',
-      office: 'text-accent',
-      client: 'text-warning',
-      supplier: 'text-destructive',
-      other: 'text-muted-foreground',
+      home: "text-primary",
+      office: "text-accent",
+      client: "text-warning",
+      supplier: "text-destructive",
+      other: "text-muted-foreground",
     };
     return colors[type] || colors.other;
   };
@@ -193,18 +201,22 @@ export function CompleteAddressSheet({
         <div className="space-y-4 pt-2">
           {/* Départ */}
           <div className="space-y-1.5">
-            <Label htmlFor="start-address" className="text-xs font-medium text-muted-foreground">Départ</Label>
+            <Label htmlFor="start-address" className="text-xs font-medium text-muted-foreground">
+              Départ
+            </Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <AddressAutocompleteInput
                 placeholder="Adresse de départ..."
                 value={startAddress}
                 onChange={setStartAddress}
-                onSelect={(suggestion) => handleAddressSelect(suggestion, 'start')}
+                onSelect={(suggestion) => handleAddressSelect(suggestion, "start")}
                 className="pl-10 h-10"
               />
               {startCoords && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">✓</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">
+                  ✓
+                </span>
               )}
             </div>
             <div className="flex gap-1.5 flex-wrap">
@@ -212,7 +224,7 @@ export function CompleteAddressSheet({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleUseCurrentLocation('start')}
+                onClick={() => handleUseCurrentLocation("start")}
                 disabled={geoLoading}
                 className="h-7 text-xs px-2"
               >
@@ -225,7 +237,7 @@ export function CompleteAddressSheet({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleSelectSavedLocation(loc, 'start')}
+                  onClick={() => handleSelectSavedLocation(loc, "start")}
                   className="h-7 text-xs px-2"
                 >
                   <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
@@ -237,18 +249,22 @@ export function CompleteAddressSheet({
 
           {/* Arrivée */}
           <div className="space-y-1.5">
-            <Label htmlFor="end-address" className="text-xs font-medium text-muted-foreground">Arrivée</Label>
+            <Label htmlFor="end-address" className="text-xs font-medium text-muted-foreground">
+              Arrivée
+            </Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <AddressAutocompleteInput
                 placeholder="Adresse d'arrivée..."
                 value={endAddress}
                 onChange={setEndAddress}
-                onSelect={(suggestion) => handleAddressSelect(suggestion, 'end')}
+                onSelect={(suggestion) => handleAddressSelect(suggestion, "end")}
                 className="pl-10 h-10"
               />
               {endCoords && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">✓</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary">
+                  ✓
+                </span>
               )}
             </div>
             <div className="flex gap-1.5 flex-wrap">
@@ -256,7 +272,7 @@ export function CompleteAddressSheet({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleUseCurrentLocation('end')}
+                onClick={() => handleUseCurrentLocation("end")}
                 disabled={geoLoading}
                 className="h-7 text-xs px-2"
               >
@@ -269,7 +285,7 @@ export function CompleteAddressSheet({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleSelectSavedLocation(loc, 'end')}
+                  onClick={() => handleSelectSavedLocation(loc, "end")}
                   className="h-7 text-xs px-2"
                 >
                   <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
@@ -288,7 +304,7 @@ export function CompleteAddressSheet({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleSelectSavedLocation(loc, 'end')}
+                  onClick={() => handleSelectSavedLocation(loc, "end")}
                   className="h-7 text-xs px-2"
                 >
                   <MapPin className={`w-3 h-3 mr-1 ${getLocationIcon(loc.type)}`} />
@@ -299,11 +315,7 @@ export function CompleteAddressSheet({
           )}
 
           <div className="flex gap-3 pt-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
               Annuler
             </Button>
             <Button
@@ -317,7 +329,7 @@ export function CompleteAddressSheet({
                   Calcul...
                 </>
               ) : (
-                'Valider'
+                "Valider"
               )}
             </Button>
           </div>

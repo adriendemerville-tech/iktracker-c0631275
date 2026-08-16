@@ -41,10 +41,13 @@ interface Parsed {
 function coerceParsed(raw: unknown): Parsed {
   const obj = (raw ?? {}) as Record<string, unknown>;
   const stops = Array.isArray(obj.stops)
-    ? (obj.stops as unknown[]).filter((s): s is string => typeof s === "string" && s.trim().length > 0)
+    ? (obj.stops as unknown[]).filter(
+        (s): s is string => typeof s === "string" && s.trim().length > 0,
+      )
     : [];
   return {
-    departure: typeof obj.departure === "string" && obj.departure.trim() ? obj.departure.trim() : null,
+    departure:
+      typeof obj.departure === "string" && obj.departure.trim() ? obj.departure.trim() : null,
     arrival: typeof obj.arrival === "string" && obj.arrival.trim() ? obj.arrival.trim() : null,
     stops,
     roundTrip: obj.roundTrip === true,
@@ -53,8 +56,16 @@ function coerceParsed(raw: unknown): Parsed {
 }
 
 function extractJson(text: string): unknown {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-  try { return JSON.parse(trimmed); } catch { /* try substring */ }
+  const trimmed = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    /* try substring */
+  }
   const first = trimmed.indexOf("{");
   const last = trimmed.lastIndexOf("}");
   if (first !== -1 && last > first) {
@@ -68,7 +79,11 @@ async function wavespeedFetch(path: string, init: RequestInit = {}): Promise<Res
   if (!key) throw new Error("WAVESPEED_API_KEY missing");
   return fetch(`${WAVESPEED_BASE}/${path.replace(/^\/+/, "")}`, {
     ...init,
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      ...(init.headers ?? {}),
+    },
   });
 }
 
@@ -79,7 +94,8 @@ async function wavespeedPoll(requestId: string, timeoutMs = 20_000): Promise<any
     const j = await r.json();
     const status = j?.data?.status ?? j?.status;
     if (status === "completed" || status === "succeeded") return j;
-    if (status === "failed" || status === "error") throw new Error(`Wavespeed prediction failed: ${JSON.stringify(j).slice(0, 200)}`);
+    if (status === "failed" || status === "error")
+      throw new Error(`Wavespeed prediction failed: ${JSON.stringify(j).slice(0, 200)}`);
     await new Promise((res) => setTimeout(res, 500));
   }
   throw new Error(`Wavespeed polling timeout for ${requestId}`);
@@ -98,19 +114,23 @@ async function callMistralWavespeed(userMsg: string): Promise<string> {
       response_format: { type: "json_object" },
     }),
   });
-  if (!res.ok) throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(`Wavespeed/Mistral ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const raw = await res.json();
   const direct = raw?.choices?.[0]?.message?.content;
   if (direct) return String(direct);
   const outputs: unknown = raw?.data?.outputs ?? raw?.outputs;
-  if (Array.isArray(outputs) && outputs.length > 0 && typeof outputs[0] === "string") return outputs[0] as string;
+  if (Array.isArray(outputs) && outputs.length > 0 && typeof outputs[0] === "string")
+    return outputs[0] as string;
   const requestId = raw?.data?.id ?? raw?.id;
   if (requestId) {
     const polled = await wavespeedPoll(String(requestId));
-    const content = polled?.data?.choices?.[0]?.message?.content ?? polled?.choices?.[0]?.message?.content;
+    const content =
+      polled?.data?.choices?.[0]?.message?.content ?? polled?.choices?.[0]?.message?.content;
     if (content) return String(content);
     const pOutputs: unknown = polled?.data?.outputs ?? polled?.outputs;
-    if (Array.isArray(pOutputs) && pOutputs.length > 0 && typeof pOutputs[0] === "string") return pOutputs[0] as string;
+    if (Array.isArray(pOutputs) && pOutputs.length > 0 && typeof pOutputs[0] === "string")
+      return pOutputs[0] as string;
   }
   throw new Error(`Unrecognized Wavespeed/Mistral response: ${JSON.stringify(raw).slice(0, 200)}`);
 }
@@ -131,7 +151,8 @@ async function callGeminiFallback(userMsg: string): Promise<string> {
       response_format: { type: "json_object" },
     }),
   });
-  if (!res.ok) throw new Error(`Gemini fallback ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(`Gemini fallback ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const json = await res.json();
   const text = json?.choices?.[0]?.message?.content;
   if (!text) throw new Error("Empty Gemini response");
@@ -145,7 +166,8 @@ serve(async (req) => {
     const { prompt, homeAddress } = await req.json();
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "prompt required" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -156,7 +178,9 @@ serve(async (req) => {
     try {
       rawText = await callMistralWavespeed(userMsg);
     } catch (err) {
-      console.warn(`[parse-trip-prompt] Mistral failed, fallback Gemini: ${err instanceof Error ? err.message : err}`);
+      console.warn(
+        `[parse-trip-prompt] Mistral failed, fallback Gemini: ${err instanceof Error ? err.message : err}`,
+      );
       rawText = await callGeminiFallback(userMsg);
       source = "gemini";
     }
@@ -164,12 +188,14 @@ serve(async (req) => {
     const parsed = coerceParsed(extractJson(rawText));
 
     return new Response(JSON.stringify({ ...parsed, _source: source }), {
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
     console.error("parse-trip-prompt error:", err);
     return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

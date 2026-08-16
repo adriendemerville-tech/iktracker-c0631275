@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Car, Loader2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
-import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState } from "react";
+import { Mic, MicOff, Car, Loader2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Textarea } from "./ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
 
 export interface ParsedTrip {
   departure: string | null;
@@ -25,7 +25,10 @@ function encodeWav(chunks: Float32Array[], sampleRate: number): Blob {
   const length = chunks.reduce((s, c) => s + c.length, 0);
   const merged = new Float32Array(length);
   let offset = 0;
-  for (const c of chunks) { merged.set(c, offset); offset += c.length; }
+  for (const c of chunks) {
+    merged.set(c, offset);
+    offset += c.length;
+  }
 
   // downsample to 16kHz
   const targetRate = 16000;
@@ -36,46 +39,75 @@ function encodeWav(chunks: Float32Array[], sampleRate: number): Blob {
 
   const buffer = new ArrayBuffer(44 + down.length * 2);
   const view = new DataView(buffer);
-  const writeStr = (o: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
-  writeStr(0, 'RIFF');
+  const writeStr = (o: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i));
+  };
+  writeStr(0, "RIFF");
   view.setUint32(4, 36 + down.length * 2, true);
-  writeStr(8, 'WAVE'); writeStr(12, 'fmt ');
-  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
-  view.setUint32(24, targetRate, true); view.setUint32(28, targetRate * 2, true);
-  view.setUint16(32, 2, true); view.setUint16(34, 16, true);
-  writeStr(36, 'data'); view.setUint32(40, down.length * 2, true);
+  writeStr(8, "WAVE");
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, targetRate, true);
+  view.setUint32(28, targetRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, "data");
+  view.setUint32(40, down.length * 2, true);
   let p = 44;
   for (let i = 0; i < down.length; i++) {
     const s = Math.max(-1, Math.min(1, down[i]));
     view.setInt16(p, s < 0 ? s * 0x8000 : s * 0x7fff, true);
     p += 2;
   }
-  return new Blob([buffer], { type: 'audio/wav' });
+  return new Blob([buffer], { type: "audio/wav" });
 }
 
 export function TripPromptBar({ homeAddress, onApply, className }: Props) {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
-  const recRef = useRef<{ stream: MediaStream; ctx: AudioContext; node: ScriptProcessorNode; src: MediaStreamAudioSourceNode; chunks: Float32Array[] } | null>(null);
+  const recRef = useRef<{
+    stream: MediaStream;
+    ctx: AudioContext;
+    node: ScriptProcessorNode;
+    src: MediaStreamAudioSourceNode;
+    chunks: Float32Array[];
+  } | null>(null);
 
   // Libère micro + AudioContext quoi qu'il arrive
   const teardownRecording = () => {
     const r = recRef.current;
     recRef.current = null;
     if (!r) return null;
-    try { r.stream.getTracks().forEach((t) => t.stop()); } catch { /* noop */ }
-    try { r.node.disconnect(); } catch { /* noop */ }
-    try { r.src.disconnect(); } catch { /* noop */ }
+    try {
+      r.stream.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* noop */
+    }
+    try {
+      r.node.disconnect();
+    } catch {
+      /* noop */
+    }
+    try {
+      r.src.disconnect();
+    } catch {
+      /* noop */
+    }
     r.node.onaudioprocess = null;
     return r;
   };
 
-  useEffect(() => () => {
-    const r = teardownRecording();
-    if (r) void r.ctx.close().catch(() => {});
-  }, []);
+  useEffect(
+    () => () => {
+      const r = teardownRecording();
+      if (r) void r.ctx.close().catch(() => {});
+    },
+    [],
+  );
 
   const startRecording = async () => {
     let stream: MediaStream | null = null;
@@ -95,7 +127,9 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
       console.error(e);
       stream?.getTracks().forEach((t) => t.stop());
       if (ctx) await ctx.close().catch(() => {});
-      toast.error("Micro inaccessible", { description: "Autorise le micro pour dicter ton trajet." });
+      toast.error("Micro inaccessible", {
+        description: "Autorise le micro pour dicter ton trajet.",
+      });
     }
   };
 
@@ -117,17 +151,19 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
     await r.ctx.close().catch(() => {});
 
     if (blob.size < 2048) {
-      toast.error("Enregistrement vide", { description: "Réessaie en parlant plus près du micro." });
+      toast.error("Enregistrement vide", {
+        description: "Réessaie en parlant plus près du micro.",
+      });
       return;
     }
 
     setTranscribing(true);
     try {
       const fd = new FormData();
-      fd.append('file', blob, 'recording.wav');
-      const { data, error } = await supabase.functions.invoke('transcribe-audio', { body: fd });
-      if (error || !data?.text) throw new Error(error?.message || 'Transcription vide');
-      setText((prev) => (prev ? prev + ' ' : '') + data.text);
+      fd.append("file", blob, "recording.wav");
+      const { data, error } = await supabase.functions.invoke("transcribe-audio", { body: fd });
+      if (error || !data?.text) throw new Error(error?.message || "Transcription vide");
+      setText((prev) => (prev ? prev + " " : "") + data.text);
     } catch (e: any) {
       console.error(e);
       toast.error("Transcription impossible", { description: e.message });
@@ -136,27 +172,31 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
     }
   };
 
-
   const handleParse = async () => {
     if (!text.trim()) return;
     setBusy(true);
     try {
-      const { data, error } = await supabase.functions.invoke('parse-trip-prompt', {
+      const { data, error } = await supabase.functions.invoke("parse-trip-prompt", {
         body: { prompt: text.trim(), homeAddress: homeAddress || null },
       });
       if (error) throw error;
       await onApply(data as ParsedTrip);
-      setText('');
+      setText("");
     } catch (e: any) {
       console.error(e);
-      toast.error("Extraction impossible", { description: e.message || 'Réessaie autrement.' });
+      toast.error("Extraction impossible", { description: e.message || "Réessaie autrement." });
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className={cn("border-t bg-background/95 backdrop-blur px-3 sm:px-4 py-3 space-y-2", className)}>
+    <div
+      className={cn(
+        "border-t bg-background/95 backdrop-blur px-3 sm:px-4 py-3 space-y-2",
+        className,
+      )}
+    >
       <div className="flex items-start gap-2">
         <div className="relative flex-1">
           <Textarea
@@ -177,7 +217,13 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
               recording && "bg-destructive/15 text-destructive",
             )}
           >
-            {transcribing ? <Loader2 className="w-4 h-4 animate-spin" /> : recording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            {transcribing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : recording ? (
+              <MicOff className="w-4 h-4" />
+            ) : (
+              <Mic className="w-4 h-4" />
+            )}
           </button>
         </div>
         <Button
@@ -187,12 +233,17 @@ export function TripPromptBar({ homeAddress, onApply, className }: Props) {
           disabled={!text.trim() || busy || recording || transcribing}
           title="Extraire le trajet"
         >
-          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4 fill-transparent" strokeWidth={1.5} />}
+          {busy ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Car className="w-4 h-4 fill-transparent" strokeWidth={1.5} />
+          )}
         </Button>
       </div>
 
       <p className="text-[11px] text-muted-foreground">
-        Décris ton trajet en langage naturel — l'IA extrait les adresses et déduit l'ordre logique. Le domicile est utilisé par défaut si le départ ou l'arrivée n'est pas précisé.
+        Décris ton trajet en langage naturel — l'IA extrait les adresses et déduit l'ordre logique.
+        Le domicile est utilisé par défaut si le départ ou l'arrivée n'est pas précisé.
       </p>
     </div>
   );

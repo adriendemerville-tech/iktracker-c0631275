@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useCallback } from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
-const SESSION_COUNT_KEY = 'ik_session_count';
+const SESSION_COUNT_KEY = "ik_session_count";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -16,25 +16,25 @@ export const useAuth = () => {
   // Silent session refresh - only called when we have a valid reason to refresh
   const silentRefresh = useCallback(async () => {
     if (isRefreshing) return null;
-    
+
     setIsRefreshing(true);
     try {
       const { data, error } = await supabase.auth.refreshSession();
-      
+
       if (error) {
         // Only log if it's not a "no session" error (expected for logged out users)
-        if (!error.message.includes('session missing') && !error.message.includes('no session')) {
-          console.warn('[Auth] Session refresh failed:', error.message);
+        if (!error.message.includes("session missing") && !error.message.includes("no session")) {
+          console.warn("[Auth] Session refresh failed:", error.message);
         }
         return null;
       }
-      
+
       if (data.session) {
         setSession(data.session);
         setUser(data.session.user);
         return data.session;
       }
-      
+
       return null;
     } catch (err) {
       // Silent fail for expected errors
@@ -49,56 +49,59 @@ export const useAuth = () => {
     const storedCount = localStorage.getItem(SESSION_COUNT_KEY);
     const currentCount = storedCount ? parseInt(storedCount, 10) : 0;
     const newCount = currentCount + 1;
-    
+
     // Only increment on first load of the app
-    if (!sessionStorage.getItem('session_started')) {
+    if (!sessionStorage.getItem("session_started")) {
       localStorage.setItem(SESSION_COUNT_KEY, newCount.toString());
-      sessionStorage.setItem('session_started', 'true');
+      sessionStorage.setItem("session_started", "true");
       setSessionCount(newCount);
     } else {
       setSessionCount(currentCount);
     }
 
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Force requiresAuth when user signs out
-        if (event === 'SIGNED_OUT') {
-          setRequiresAuth(true);
-        }
-        
-        // Handle token refresh events
-        if (event === 'TOKEN_REFRESHED') {
-          console.log('[Auth] Token refreshed via auth state change');
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+
+      // Force requiresAuth when user signs out
+      if (event === "SIGNED_OUT") {
+        setRequiresAuth(true);
       }
-    );
+
+      // Handle token refresh events
+      if (event === "TOKEN_REFRESHED") {
+        console.log("[Auth] Token refreshed via auth state change");
+      }
+    });
 
     // THEN check for existing session
     const initializeSession = async () => {
       try {
-        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session: existingSession },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
           // Don't spam logs for expected "no session" errors
-          if (!error.message.includes('session') && !error.message.includes('missing')) {
-            console.warn('[Auth] Error getting session:', error.message);
+          if (!error.message.includes("session") && !error.message.includes("missing")) {
+            console.warn("[Auth] Error getting session:", error.message);
           }
           setLoading(false);
           return;
         }
-        
+
         if (existingSession) {
           // Check if session is about to expire (within 2 minutes)
           const expiresAt = existingSession.expires_at;
           if (expiresAt) {
             const expiresAtMs = expiresAt * 1000;
             const twoMinutesFromNow = Date.now() + 2 * 60 * 1000;
-            
+
             if (expiresAtMs < twoMinutesFromNow) {
               await silentRefresh();
             } else {
@@ -111,10 +114,10 @@ export const useAuth = () => {
           }
         }
         // If no session exists, just set loading to false - no need to attempt refresh
-        
+
         setLoading(false);
       } catch (err) {
-        console.error('[Auth] Session initialization error:', err);
+        console.error("[Auth] Session initialization error:", err);
         setLoading(false);
       }
     };
@@ -146,16 +149,16 @@ export const useAuth = () => {
     // Best-effort server sign-out (token revoke). Don't block UI indefinitely.
     try {
       const { error } = await Promise.race([
-        supabase.auth.signOut({ scope: 'local' }), // Use 'local' scope to avoid server errors
+        supabase.auth.signOut({ scope: "local" }), // Use 'local' scope to avoid server errors
         new Promise<{ error: Error }>((_, reject) =>
-          setTimeout(() => reject(new Error('signOut_timeout')), 4000)
+          setTimeout(() => reject(new Error("signOut_timeout")), 4000),
         ),
       ]);
       if (error) {
-        console.warn('Sign out error:', error);
+        console.warn("Sign out error:", error);
       }
     } catch (error) {
-      console.warn('Sign out warning:', error);
+      console.warn("Sign out warning:", error);
     }
 
     // Return true to indicate signout complete (for navigation timing)

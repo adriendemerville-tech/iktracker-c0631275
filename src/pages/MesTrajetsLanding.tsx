@@ -1,4 +1,4 @@
-import { Helmet } from '@/lib/helmet-compat';
+import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -93,7 +93,6 @@ export default function MesTrajetsLanding() {
   return (
     <>
       <Helmet>
-
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -149,7 +148,7 @@ export default function MesTrajetsLanding() {
               pageUrl: "https://iktracker.fr/mes-trajets",
               pageDescription:
                 "Mes Trajets IKtracker : journal kilométrique professionnel centralisant saisie manuelle, trajets récurrents, import agenda, Mode Tournée GPS et export PDF/Excel conforme URSSAF. Gratuit à vie.",
-            })
+            }),
           )}
         </script>
       </Helmet>
@@ -173,9 +172,9 @@ export default function MesTrajetsLanding() {
             <span className="text-primary">le journal kilométrique pro</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            Centralisez tous vos déplacements professionnels : saisie manuelle,
-            trajets récurrents, import depuis Google Agenda ou Outlook, et
-            détection GPS automatique. Export PDF & Excel conforme URSSAF.
+            Centralisez tous vos déplacements professionnels : saisie manuelle, trajets récurrents,
+            import depuis Google Agenda ou Outlook, et détection GPS automatique. Export PDF & Excel
+            conforme URSSAF.
             <strong className="text-foreground"> Gratuit, sans abonnement.</strong>
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -198,8 +197,8 @@ export default function MesTrajetsLanding() {
             Tout ce qu'il faut pour suivre vos trajets professionnels
           </h2>
           <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Une seule page pour saisir, importer, catégoriser, filtrer et
-            exporter — sans tableur Excel improvisé.
+            Une seule page pour saisir, importer, catégoriser, filtrer et exporter — sans tableur
+            Excel improvisé.
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map(({ icon: Icon, title, desc }) => (
@@ -209,9 +208,7 @@ export default function MesTrajetsLanding() {
                     <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <h3 className="font-semibold text-foreground">{title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                    {desc}
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -245,9 +242,7 @@ export default function MesTrajetsLanding() {
               <Card key={t} className="border-border">
                 <CardContent className="p-5">
                   <h3 className="font-semibold text-foreground">{t}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                    {d}
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{d}</p>
                 </CardContent>
               </Card>
             ))}
@@ -269,8 +264,7 @@ export default function MesTrajetsLanding() {
                 <h3 className="font-semibold text-foreground">Mode Tournée GPS</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Enregistrement automatique des trajets pour les professionnels
-                itinérants.
+                Enregistrement automatique des trajets pour les professionnels itinérants.
               </p>
             </Link>
             <Link
@@ -279,13 +273,10 @@ export default function MesTrajetsLanding() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <CalendarSync className="w-4 h-4 text-primary" />
-                <h3 className="font-semibold text-foreground">
-                  Synchronisation Calendrier
-                </h3>
+                <h3 className="font-semibold text-foreground">Synchronisation Calendrier</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Google Agenda et Outlook : vos rendez-vous deviennent des
-                trajets.
+                Google Agenda et Outlook : vos rendez-vous deviennent des trajets.
               </p>
             </Link>
             <Link
@@ -294,9 +285,7 @@ export default function MesTrajetsLanding() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <FileDown className="w-4 h-4 text-primary" />
-                <h3 className="font-semibold text-foreground">
-                  Note de frais kilométrique
-                </h3>
+                <h3 className="font-semibold text-foreground">Note de frais kilométrique</h3>
               </div>
               <p className="text-sm text-muted-foreground">
                 Modèle conforme URSSAF et méthodologie pas-à-pas.
@@ -311,8 +300,7 @@ export default function MesTrajetsLanding() {
                 <h3 className="font-semibold text-foreground">Barème IK 2025-2026</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Tous les taux officiels par puissance fiscale et tranche
-                kilométrique.
+                Tous les taux officiels par puissance fiscale et tranche kilométrique.
               </p>
             </Link>
           </div>
@@ -344,8 +332,7 @@ export default function MesTrajetsLanding() {
         {/* CTA */}
         <section className="max-w-md mx-auto px-4 pb-24 pt-8 text-center">
           <p className="text-muted-foreground mb-4">
-            Reprenez la main sur vos déplacements professionnels en moins de
-            deux minutes.
+            Reprenez la main sur vos déplacements professionnels en moins de deux minutes.
           </p>
           <Link to="/signup">
             <Button size="lg" className="gap-2 px-8">

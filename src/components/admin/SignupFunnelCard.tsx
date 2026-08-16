@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, TrendingDown, TrendingUp, AlertCircle } from 'lucide-react';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, TrendingDown, TrendingUp, AlertCircle } from "lucide-react";
 
 interface SignupFunnel {
   days_back: number;
@@ -23,9 +23,11 @@ interface Props {
 
 export function SignupFunnelCard({ daysBack }: Props) {
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-signup-funnel', daysBack],
+    queryKey: ["admin-signup-funnel", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_signup_funnel' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_signup_funnel" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return data as unknown as SignupFunnel;
     },
@@ -35,7 +37,9 @@ export function SignupFunnelCard({ daysBack }: Props) {
   if (isLoading) {
     return (
       <Card>
-        <CardHeader><CardTitle>Funnel Signup</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Funnel Signup</CardTitle>
+        </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </CardContent>
@@ -52,13 +56,32 @@ export function SignupFunnelCard({ daysBack }: Props) {
   const undertracked = data.new_users > data.views;
 
   const steps = [
-    { label: 'Vues page (trackées)', value: data.views, pct: Math.round((data.views / denom) * 100) },
-    { label: 'Formulaire ou OAuth démarré', value: totalStart, pct: Math.round((totalStart / denom) * 100) },
-    { label: 'Erreurs d\'inscription', value: data.errors, pct: data.form_submit ? Math.round((data.errors / data.form_submit) * 100) : 0, isError: true },
-    { label: 'Comptes créés (réels)', value: data.new_users, pct: Math.round((data.new_users / denom) * 100), isSuccess: true },
+    {
+      label: "Vues page (trackées)",
+      value: data.views,
+      pct: Math.round((data.views / denom) * 100),
+    },
+    {
+      label: "Formulaire ou OAuth démarré",
+      value: totalStart,
+      pct: Math.round((totalStart / denom) * 100),
+    },
+    {
+      label: "Erreurs d'inscription",
+      value: data.errors,
+      pct: data.form_submit ? Math.round((data.errors / data.form_submit) * 100) : 0,
+      isError: true,
+    },
+    {
+      label: "Comptes créés (réels)",
+      value: data.new_users,
+      pct: Math.round((data.new_users / denom) * 100),
+      isSuccess: true,
+    },
   ];
   // Conversion : comptes créés sur vues trackées, capée à 100% pour rester lisible
-  const displayConversion = data.views > 0 ? Math.min(100, Math.round((data.new_users / data.views) * 100)) : 0;
+  const displayConversion =
+    data.views > 0 ? Math.min(100, Math.round((data.new_users / data.views) * 100)) : 0;
 
   return (
     <Card>
@@ -66,14 +89,17 @@ export function SignupFunnelCard({ daysBack }: Props) {
         <CardTitle className="flex items-center justify-between">
           <span>Funnel Signup</span>
           <span className="text-sm font-normal text-muted-foreground">
-            {daysBack} derniers jours · conversion <strong className="text-foreground">{displayConversion}%</strong>
+            {daysBack} derniers jours · conversion{" "}
+            <strong className="text-foreground">{displayConversion}%</strong>
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {undertracked && (
           <p className="text-xs text-muted-foreground bg-muted/50 border border-border rounded-md p-2">
-            ⚠ Les vues sont sous-trackées : signups OAuth directs, arrivées via <code>/auth</code>, bots et admins filtrés, ou visites &lt; 2s (tracking différé). Le % est capé à 100% pour rester lisible.
+            ⚠ Les vues sont sous-trackées : signups OAuth directs, arrivées via <code>/auth</code>,
+            bots et admins filtrés, ou visites &lt; 2s (tracking différé). Le % est capé à 100% pour
+            rester lisible.
           </p>
         )}
         {/* Funnel steps */}
@@ -83,15 +109,17 @@ export function SignupFunnelCard({ daysBack }: Props) {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-muted-foreground">{s.label}</span>
                 <span className="font-medium">
-                  {s.value.toLocaleString('fr-FR')} · {s.pct}%
+                  {s.value.toLocaleString("fr-FR")} · {s.pct}%
                 </span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className={
-                    s.isError ? 'bg-destructive h-full' :
-                    s.isSuccess ? 'bg-green-500 h-full' :
-                    'bg-primary h-full'
+                    s.isError
+                      ? "bg-destructive h-full"
+                      : s.isSuccess
+                        ? "bg-green-500 h-full"
+                        : "bg-primary h-full"
                   }
                   style={{ width: `${Math.min(100, s.pct)}%` }}
                 />
@@ -104,7 +132,7 @@ export function SignupFunnelCard({ daysBack }: Props) {
         <div>
           <h4 className="text-sm font-medium mb-2">Par provider (comptes créés trackés)</h4>
           <div className="grid grid-cols-3 gap-3">
-            {(['google', 'apple', 'email'] as const).map((p) => (
+            {(["google", "apple", "email"] as const).map((p) => (
               <div key={p} className="rounded-lg border border-border p-3">
                 <div className="text-xs uppercase text-muted-foreground">{p}</div>
                 <div className="text-lg font-semibold">{data.by_provider[p]}</div>

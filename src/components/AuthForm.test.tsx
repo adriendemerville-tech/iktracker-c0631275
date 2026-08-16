@@ -37,7 +37,7 @@ function renderAuth(props = {}) {
       <TooltipProvider>
         <AuthForm {...props} />
       </TooltipProvider>
-    </TestRouter>
+    </TestRouter>,
   );
 }
 

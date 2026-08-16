@@ -1,31 +1,38 @@
-import type { JSX } from 'react';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { lazy, Suspense } from 'react';
-import { 
-  LineChart, 
-  Line, 
+import type { JSX } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { lazy, Suspense } from "react";
+import {
+  LineChart,
+  Line,
   BarChart,
   Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
-  Legend
-} from 'recharts';
-import { 
-  Users, 
-  Route, 
-  Euro, 
-  Navigation, 
+  Legend,
+} from "recharts";
+import {
+  Users,
+  Route,
+  Euro,
+  Navigation,
   Activity,
   TrendingUp,
   Calendar,
@@ -50,10 +57,23 @@ import {
   RefreshCw,
   Repeat,
   ChevronDown,
-  ChevronUp
-} from 'lucide-react';
-import { format, startOfWeek, startOfMonth, startOfYear, subWeeks, subMonths, subYears, subDays, endOfWeek, addDays, addWeeks, addMonths } from 'date-fns';
-import { fr } from 'date-fns/locale';
+  ChevronUp,
+} from "lucide-react";
+import {
+  format,
+  startOfWeek,
+  startOfMonth,
+  startOfYear,
+  subWeeks,
+  subMonths,
+  subYears,
+  subDays,
+  endOfWeek,
+  addDays,
+  addWeeks,
+  addMonths,
+} from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   DndContext,
   closestCenter,
@@ -62,23 +82,23 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   rectSortingStrategy,
-} from '@dnd-kit/sortable';
+} from "@dnd-kit/sortable";
 
 // PDF export has been removed - export to CSV only
-import { DraggableMarketingCards } from '@/components/admin/DraggableMarketingCards';
-import { DraggableStatsSection } from '@/components/admin/DraggableStatsSection';
-import { AdaptiveChart } from '@/components/admin/AdaptiveChart';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { PERSONA_OPTIONS } from '@/components/PersonaPicker';
-import { SignupFunnelCard } from '@/components/admin/SignupFunnelCard';
-import { SearchConsoleCard } from '@/components/admin/SearchConsoleCard';
+import { DraggableMarketingCards } from "@/components/admin/DraggableMarketingCards";
+import { DraggableStatsSection } from "@/components/admin/DraggableStatsSection";
+import { AdaptiveChart } from "@/components/admin/AdaptiveChart";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
+import { SignupFunnelCard } from "@/components/admin/SignupFunnelCard";
+import { SearchConsoleCard } from "@/components/admin/SearchConsoleCard";
 
 interface AdminStatsData {
   total_users: number;
@@ -166,121 +186,124 @@ interface MonthlyStats {
   total_ik: number;
 }
 
-type PeriodFilter = 'week' | 'month' | 'year' | 'all';
-type Granularity = 'day' | 'week' | 'month';
-type TopUserSort = 'trips' | 'km' | 'ik';
+type PeriodFilter = "week" | "month" | "year" | "all";
+type Granularity = "day" | "week" | "month";
+type TopUserSort = "trips" | "km" | "ik";
 
 const granularityConfig: Record<Granularity, { label: string; labelFr: string }> = {
-  day: { label: 'Jour', labelFr: 'par jour' },
-  week: { label: 'Semaine', labelFr: 'par semaine' },
-  month: { label: 'Mois', labelFr: 'par mois' },
+  day: { label: "Jour", labelFr: "par jour" },
+  week: { label: "Semaine", labelFr: "par semaine" },
+  month: { label: "Mois", labelFr: "par mois" },
 };
 
-const periodConfig: Record<PeriodFilter, { label: string; daysBack: number; getStartDate: () => Date }> = {
-  week: { 
-    label: 'Semaine', 
+const periodConfig: Record<
+  PeriodFilter,
+  { label: string; daysBack: number; getStartDate: () => Date }
+> = {
+  week: {
+    label: "Semaine",
     daysBack: 7,
-    getStartDate: () => startOfWeek(new Date(), { weekStartsOn: 1 })
+    getStartDate: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
   },
-  month: { 
-    label: 'Mois', 
+  month: {
+    label: "Mois",
     daysBack: 30,
-    getStartDate: () => startOfMonth(new Date())
+    getStartDate: () => startOfMonth(new Date()),
   },
-  year: { 
-    label: 'Année', 
+  year: {
+    label: "Année",
     daysBack: 365,
-    getStartDate: () => startOfYear(new Date())
+    getStartDate: () => startOfYear(new Date()),
   },
-  all: { 
-    label: 'Tout', 
+  all: {
+    label: "Tout",
     daysBack: 3650,
-    getStartDate: () => new Date('2020-01-01')
+    getStartDate: () => new Date("2020-01-01"),
   },
 };
 
 const DEFAULT_SECTION_ORDER = [
-  'main-stats',
-  'dau-chart',
-  'signup-funnel',
-  'search-console',
-  'recent-signups',
-  'persona-distribution',
-  'calendar-connection-stats',
-  'download-stats',
-  'share-stats',
-  'referral-sources',
-  'comparison-chart',
-  'registrations-chart',
-  'recurring-trips-stats',
-  'top-users',
+  "main-stats",
+  "dau-chart",
+  "signup-funnel",
+  "search-console",
+  "recent-signups",
+  "persona-distribution",
+  "calendar-connection-stats",
+  "download-stats",
+  "share-stats",
+  "referral-sources",
+  "comparison-chart",
+  "registrations-chart",
+  "recurring-trips-stats",
+  "top-users",
 ];
 
 const DEFAULT_MARKETING_SECTION_ORDER = [
-  'marketing-views-chart',
-  'marketing-signup-clicks-chart',
-  'bareme-simulations-chart',
-  'marketing-stats-by-page',
+  "marketing-views-chart",
+  "marketing-signup-clicks-chart",
+  "bareme-simulations-chart",
+  "marketing-stats-by-page",
 ];
 
 export function AdminStats() {
   const queryClient = useQueryClient();
   const [onlineUsers, setOnlineUsers] = useState(0);
-  const [period, setPeriod] = useState<PeriodFilter>('month');
+  const [period, setPeriod] = useState<PeriodFilter>("month");
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
-  const [topUserSort, setTopUserSort] = useState<TopUserSort>('trips');
+  const [topUserSort, setTopUserSort] = useState<TopUserSort>("trips");
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
 
-  const [granularity, setGranularity] = useState<Granularity>('day');
-  
+  const [granularity, setGranularity] = useState<Granularity>("day");
+
   // Refresh all admin stats at 7:00 AM every day
   useEffect(() => {
     const scheduleRefresh = () => {
       const now = new Date();
       const next7AM = new Date(now);
       next7AM.setHours(7, 0, 0, 0);
-      
+
       // If it's already past 7 AM today, schedule for tomorrow
       if (now >= next7AM) {
         next7AM.setDate(next7AM.getDate() + 1);
       }
-      
+
       const msUntil7AM = next7AM.getTime() - now.getTime();
-      
+
       return setTimeout(() => {
         // Invalidate all admin queries to refresh data
-        queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-stats-prev'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-registrations'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-top-users'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-download-stats'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-download-clicks-by-day'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-share-stats'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-shares-by-day'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-marketing-stats'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-marketing-views-by-day'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-signup-clicks-by-day'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-marketing-by-page'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-monthly-stats'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-bareme-simulations-by-day'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-dau'] });
-        
+        queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-stats-prev"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-registrations"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-top-users"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-download-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-download-clicks-by-day"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-share-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-shares-by-day"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-signup-clicks-by-day"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-marketing-by-page"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-recent-signups"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-total-tours"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-monthly-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-takeout-import-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-bareme-simulations-by-day"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-dau"] });
+
         // Schedule next refresh
         scheduleRefresh();
       }, msUntil7AM);
     };
-    
+
     const timerId = scheduleRefresh();
     return () => clearTimeout(timerId);
   }, [queryClient]);
-  
+
   // Section ordering for drag and drop
   const [sectionOrder, setSectionOrder] = useState<string[]>(() => {
-    const saved = localStorage.getItem('admin-stats-section-order');
+    const saved = localStorage.getItem("admin-stats-section-order");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -293,7 +316,7 @@ export function AdminStats() {
 
   // Marketing blocks ordering (charts + table)
   const [marketingSectionOrder, setMarketingSectionOrder] = useState<string[]>(() => {
-    const saved = localStorage.getItem('admin-marketing-section-order');
+    const saved = localStorage.getItem("admin-marketing-section-order");
     if (saved) {
       try {
         const savedOrder = JSON.parse(saved) as string[];
@@ -309,7 +332,7 @@ export function AdminStats() {
 
   // Card widths (1=1/3, 2=2/3, 3=full) stored per section id
   const [cardWidths, setCardWidths] = useState<Record<string, 1 | 2 | 3>>(() => {
-    const saved = localStorage.getItem('admin-card-widths');
+    const saved = localStorage.getItem("admin-card-widths");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -323,7 +346,7 @@ export function AdminStats() {
   const handleWidthChange = (id: string, width: 1 | 2 | 3) => {
     setCardWidths((prev) => {
       const next = { ...prev, [id]: width };
-      localStorage.setItem('admin-card-widths', JSON.stringify(next));
+      localStorage.setItem("admin-card-widths", JSON.stringify(next));
       return next;
     });
   };
@@ -338,7 +361,7 @@ export function AdminStats() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleSectionDragEnd = (event: DragEndEvent) => {
@@ -348,7 +371,7 @@ export function AdminStats() {
         const oldIndex = items.indexOf(active.id as string);
         const newIndex = items.indexOf(over.id as string);
         const newOrder = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem('admin-stats-section-order', JSON.stringify(newOrder));
+        localStorage.setItem("admin-stats-section-order", JSON.stringify(newOrder));
         return newOrder;
       });
     }
@@ -361,7 +384,7 @@ export function AdminStats() {
         const oldIndex = items.indexOf(active.id as string);
         const newIndex = items.indexOf(over.id as string);
         const newOrder = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem('admin-marketing-section-order', JSON.stringify(newOrder));
+        localStorage.setItem("admin-marketing-section-order", JSON.stringify(newOrder));
         return newOrder;
       });
     }
@@ -369,16 +392,16 @@ export function AdminStats() {
 
   // Track presence for simultaneous visits
   useEffect(() => {
-    const channel = supabase.channel('admin-presence', {
+    const channel = supabase.channel("admin-presence", {
       config: {
         presence: {
-          key: 'online-users',
+          key: "online-users",
         },
       },
     });
 
     channel
-      .on('presence', { event: 'sync' }, () => {
+      .on("presence", { event: "sync" }, () => {
         const state = channel.presenceState();
         const count = Object.keys(state).reduce((acc, key) => {
           return acc + (state[key] as any[]).length;
@@ -386,7 +409,7 @@ export function AdminStats() {
         setOnlineUsers(count);
       })
       .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
+        if (status === "SUBSCRIBED") {
           await channel.track({ online_at: new Date().toISOString() });
         }
       });
@@ -401,28 +424,28 @@ export function AdminStats() {
     const config = periodConfig[period];
     let startDate = config.getStartDate();
     let endDate = new Date();
-    
-    if (isPrevious && period !== 'all') {
+
+    if (isPrevious && period !== "all") {
       // Calculate previous period
       switch (period) {
-        case 'week':
+        case "week":
           endDate = subDays(startDate, 1);
           startDate = subWeeks(startDate, 1);
           break;
-        case 'month':
+        case "month":
           endDate = subDays(startDate, 1);
           startDate = subMonths(startDate, 1);
           break;
-        case 'year':
+        case "year":
           endDate = subDays(startDate, 1);
           startDate = subYears(startDate, 1);
           break;
       }
     }
-    
+
     return {
-      start_date: format(startDate, 'yyyy-MM-dd'),
-      end_date: format(endDate, 'yyyy-MM-dd'),
+      start_date: format(startDate, "yyyy-MM-dd"),
+      end_date: format(endDate, "yyyy-MM-dd"),
     };
   };
 
@@ -431,9 +454,9 @@ export function AdminStats() {
 
   // Fetch admin stats with period filter - refresh every hour
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin-stats', period],
+    queryKey: ["admin-stats", period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_admin_stats', {
+      const { data, error } = await supabase.rpc("get_admin_stats", {
         start_date: dateRange.start_date,
         end_date: dateRange.end_date,
       });
@@ -445,62 +468,75 @@ export function AdminStats() {
 
   // Fetch previous period stats for comparison - refresh every hour
   const { data: prevStats, isLoading: prevStatsLoading } = useQuery({
-    queryKey: ['admin-stats-prev', period],
+    queryKey: ["admin-stats-prev", period],
     queryFn: async () => {
-      if (period === 'all') return null;
-      const { data, error } = await supabase.rpc('get_admin_stats', {
+      if (period === "all") return null;
+      const { data, error } = await supabase.rpc("get_admin_stats", {
         start_date: prevDateRange.start_date,
         end_date: prevDateRange.end_date,
       });
       if (error) throw error;
       return data as unknown as AdminStatsData;
     },
-    enabled: period !== 'all',
+    enabled: period !== "all",
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
   // Fetch registrations by day with period filter - refresh every hour
   const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
-    queryKey: ['admin-registrations', period, granularity],
+    queryKey: ["admin-registrations", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_registrations_by_day', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_registrations_by_day", {
+        days_back: daysBack,
+      });
       if (error) throw error;
       const rawData = data as unknown as { day: string; count: number }[];
-      return fillMissingDays(rawData, ['count'], daysBack, period) as { day: string; count: number }[];
+      return fillMissingDays(rawData, ["count"], daysBack, period) as {
+        day: string;
+        count: number;
+      }[];
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
   // Fetch 7-day rolling active users with period + granularity
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
-    queryKey: ['admin-dau', period, granularity],
+    queryKey: ["admin-dau", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_rolling_active_users', { days_back: daysBack, window_size: 7 });
+      const { data, error } = await supabase.rpc("get_rolling_active_users", {
+        days_back: daysBack,
+        window_size: 7,
+      });
       if (error) throw error;
-      const rawData = (data as unknown as { day: string; count: number }[]).map(d => ({
+      const rawData = (data as unknown as { day: string; count: number }[]).map((d) => ({
         day: d.day,
         count: Number(d.count),
       }));
-      return fillMissingDays(rawData, ['count'], daysBack, period) as { day: string; count: number }[];
+      return fillMissingDays(rawData, ["count"], daysBack, period) as {
+        day: string;
+        count: number;
+      }[];
     },
     refetchInterval: 60 * 60 * 1000,
   });
 
   // Compute DAU today vs yesterday
-  const dauToday = dailyActiveUsers.length >= 1 ? dailyActiveUsers[dailyActiveUsers.length - 1]?.count || 0 : 0;
-  const dauYesterday = dailyActiveUsers.length >= 2 ? dailyActiveUsers[dailyActiveUsers.length - 2]?.count || 0 : 0;
+  const dauToday =
+    dailyActiveUsers.length >= 1 ? dailyActiveUsers[dailyActiveUsers.length - 1]?.count || 0 : 0;
+  const dauYesterday =
+    dailyActiveUsers.length >= 2 ? dailyActiveUsers[dailyActiveUsers.length - 2]?.count || 0 : 0;
   const dauDiff = dauToday - dauYesterday;
-  const dauTrend: 'up' | 'down' | 'flat' = dauDiff > 0 ? 'up' : dauDiff < 0 ? 'down' : 'flat';
+  const dauTrend: "up" | "down" | "flat" = dauDiff > 0 ? "up" : dauDiff < 0 ? "down" : "flat";
 
   // Fetch top users - refresh every hour
   const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
-    queryKey: ['admin-top-users', topUserSort],
+    queryKey: ["admin-top-users", topUserSort],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_top_users', { 
-        sort_by: topUserSort, 
-        limit_count: 10 
+      const { data, error } = await supabase.rpc("get_top_users", {
+        sort_by: topUserSort,
+        limit_count: 10,
       });
       if (error) throw error;
       return data as unknown as TopUser[];
@@ -510,9 +546,9 @@ export function AdminStats() {
 
   // Fetch download stats - refresh every hour
   const { data: downloadStats, isLoading: downloadStatsLoading } = useQuery({
-    queryKey: ['admin-download-stats'],
+    queryKey: ["admin-download-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_download_stats');
+      const { data, error } = await supabase.rpc("get_download_stats");
       if (error) throw error;
       return data as unknown as DownloadStatsData;
     },
@@ -521,15 +557,17 @@ export function AdminStats() {
 
   // Recurring trips stats — total + série sur la période sélectionnée
   const { data: recurringTripsStats, isLoading: recurringTripsStatsLoading } = useQuery({
-    queryKey: ['admin-recurring-trips-stats', period],
+    queryKey: ["admin-recurring-trips-stats", period],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_recurring_trips_stats' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_recurring_trips_stats" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       const rows = (data ?? []) as Array<{ total_count: number; day: string; count: number }>;
       const total = rows[0]?.total_count ?? 0;
       const series = rows.map((r) => ({
-        day: format(new Date(r.day), 'dd/MM', { locale: fr }),
+        day: format(new Date(r.day), "dd/MM", { locale: fr }),
         count: Number(r.count) || 0,
       }));
       return { total: Number(total) || 0, series };
@@ -537,21 +575,20 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-
-
-
   // Helper: fill missing days in chart data
   const fillMissingDays = (
     rawData: { day: string; [key: string]: any }[],
     valueKeys: string[],
     daysBack: number,
-    _currentPeriod: PeriodFilter
+    _currentPeriod: PeriodFilter,
   ): Record<string, any>[] => {
     const dataMap: Record<string, Record<string, number>> = {};
-    rawData.forEach(d => {
-      const key = d.day.split('T')[0];
+    rawData.forEach((d) => {
+      const key = d.day.split("T")[0];
       const values: Record<string, number> = {};
-      valueKeys.forEach(k => { values[k] = Number(d[k]) || 0; });
+      valueKeys.forEach((k) => {
+        values[k] = Number(d[k]) || 0;
+      });
       dataMap[key] = values;
     });
 
@@ -559,39 +596,46 @@ export function AdminStats() {
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - daysBack);
     const defaultValues: Record<string, number> = {};
-    valueKeys.forEach(k => { defaultValues[k] = 0; });
+    valueKeys.forEach((k) => {
+      defaultValues[k] = 0;
+    });
 
-    if (granularity === 'month') {
+    if (granularity === "month") {
       const monthMap: Record<string, Record<string, number>> = {};
       for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-        const monthKey = format(d, 'yyyy-MM');
-        const dateKey = format(d, 'yyyy-MM-dd');
+        const monthKey = format(d, "yyyy-MM");
+        const dateKey = format(d, "yyyy-MM-dd");
         if (!monthMap[monthKey]) monthMap[monthKey] = { ...defaultValues };
         const dayData = dataMap[dateKey];
         if (dayData) {
-          valueKeys.forEach(k => { monthMap[monthKey][k] += dayData[k] || 0; });
+          valueKeys.forEach((k) => {
+            monthMap[monthKey][k] += dayData[k] || 0;
+          });
         }
       }
       return Object.entries(monthMap).map(([month, values]) => ({
-        day: format(new Date(month + '-01'), 'MMM yy', { locale: fr }),
+        day: format(new Date(month + "-01"), "MMM yy", { locale: fr }),
         ...values,
       }));
     }
 
-    if (granularity === 'week') {
+    if (granularity === "week") {
       const weekMap: Record<string, Record<string, number>> = {};
       const weekLabels: Record<string, string> = {};
       for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
         const weekStart = startOfWeek(d, { weekStartsOn: 1 });
-        const weekKey = format(weekStart, 'yyyy-MM-dd');
+        const weekKey = format(weekStart, "yyyy-MM-dd");
         if (!weekMap[weekKey]) {
           weekMap[weekKey] = { ...defaultValues };
-          weekLabels[weekKey] = `S${format(weekStart, 'ww', { locale: fr })} ${format(weekStart, 'dd/MM', { locale: fr })}`;
+          weekLabels[weekKey] =
+            `S${format(weekStart, "ww", { locale: fr })} ${format(weekStart, "dd/MM", { locale: fr })}`;
         }
-        const dateKey = format(d, 'yyyy-MM-dd');
+        const dateKey = format(d, "yyyy-MM-dd");
         const dayData = dataMap[dateKey];
         if (dayData) {
-          valueKeys.forEach(k => { weekMap[weekKey][k] += dayData[k] || 0; });
+          valueKeys.forEach((k) => {
+            weekMap[weekKey][k] += dayData[k] || 0;
+          });
         }
       }
       return Object.entries(weekMap).map(([weekKey, values]) => ({
@@ -603,9 +647,9 @@ export function AdminStats() {
     // Default: day granularity
     const filled: Record<string, any>[] = [];
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-      const dateKey = format(d, 'yyyy-MM-dd');
+      const dateKey = format(d, "yyyy-MM-dd");
       filled.push({
-        day: format(d, 'dd/MM', { locale: fr }),
+        day: format(d, "dd/MM", { locale: fr }),
         ...(dataMap[dateKey] || defaultValues),
       });
     }
@@ -614,14 +658,18 @@ export function AdminStats() {
 
   // Fetch download clicks by day with period filter - refresh every hour
   const { data: downloadClicksByDay = [], isLoading: downloadClicksLoading } = useQuery({
-    queryKey: ['admin-download-clicks-by-day', period, granularity],
+    queryKey: ["admin-download-clicks-by-day", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_download_clicks_by_day', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_download_clicks_by_day", {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return fillMissingDays(
         data as unknown as { day: string; count: number }[],
-        ['count'], daysBack, period
+        ["count"],
+        daysBack,
+        period,
       ) as { day: string; count: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
@@ -629,9 +677,9 @@ export function AdminStats() {
 
   // Fetch share stats - refresh every hour
   const { data: shareStats, isLoading: shareStatsLoading } = useQuery({
-    queryKey: ['admin-share-stats'],
+    queryKey: ["admin-share-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_share_stats');
+      const { data, error } = await supabase.rpc("get_share_stats");
       if (error) throw error;
       return data as unknown as ShareStatsData;
     },
@@ -640,10 +688,12 @@ export function AdminStats() {
 
   // Fetch referral sources stats (admins exclus via RPC)
   const { data: referralStats, isLoading: referralLoading } = useQuery({
-    queryKey: ['admin-referral-sources', period],
+    queryKey: ["admin-referral-sources", period],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_referral_sources_stats' as any, { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_referral_sources_stats" as any, {
+        days_back: daysBack,
+      });
       if (error) throw error;
       const rows = (data as unknown as { source: string; count: number }[]) || [];
       const counts: Record<string, number> = {};
@@ -652,7 +702,7 @@ export function AdminStats() {
       for (const r of rows) {
         const n = Number(r.count) || 0;
         totalExposed += n;
-        if (r.source === 'skip') continue;
+        if (r.source === "skip") continue;
         counts[r.source] = (counts[r.source] || 0) + n;
         total += n;
       }
@@ -662,17 +712,14 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-
   // Fetch per-user persona map (for recent signups display)
   const { data: userPersonaMap } = useQuery({
-    queryKey: ['admin-user-persona-map'],
+    queryKey: ["admin-user-persona-map"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('user_id, persona');
+      const { data, error } = await supabase.from("user_preferences").select("user_id, persona");
       if (error) throw error;
       const map: Record<string, string> = {};
-      for (const p of (data || [])) {
+      for (const p of data || []) {
         map[p.user_id] = p.persona;
       }
       return map;
@@ -682,15 +729,15 @@ export function AdminStats() {
 
   // Fetch persona distribution (via RPC, admins exclus)
   const { data: personaDistribution, isLoading: personaLoading } = useQuery({
-    queryKey: ['admin-persona-distribution'],
+    queryKey: ["admin-persona-distribution"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_persona_distribution');
+      const { data, error } = await supabase.rpc("get_persona_distribution");
       if (error) throw error;
       const rows = (data as unknown as { persona: string; count: number }[]) || [];
       const counts: Record<string, number> = {};
       let total = 0;
       for (const r of rows) {
-        const key = r.persona || 'undefined';
+        const key = r.persona || "undefined";
         counts[key] = (counts[key] || 0) + Number(r.count);
         total += Number(r.count);
       }
@@ -699,17 +746,17 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-
-
   const { data: sharesByDay = [], isLoading: sharesLoading } = useQuery({
-    queryKey: ['admin-shares-by-day', period, granularity],
+    queryKey: ["admin-shares-by-day", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_shares_by_day', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_shares_by_day", { days_back: daysBack });
       if (error) throw error;
       return fillMissingDays(
         data as unknown as { day: string; count: number }[],
-        ['count'], daysBack, period
+        ["count"],
+        daysBack,
+        period,
       ) as { day: string; count: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
@@ -717,10 +764,10 @@ export function AdminStats() {
 
   // Fetch marketing stats - refresh every hour
   const { data: marketingStats, isLoading: marketingStatsLoading } = useQuery({
-    queryKey: ['admin-marketing-stats', period],
+    queryKey: ["admin-marketing-stats", period],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_marketing_stats', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_marketing_stats", { days_back: daysBack });
       if (error) throw error;
       return data as unknown as MarketingStatsData;
     },
@@ -729,14 +776,18 @@ export function AdminStats() {
 
   // Fetch marketing views by day - refresh every hour
   const { data: marketingViewsByDay = [], isLoading: marketingViewsLoading } = useQuery({
-    queryKey: ['admin-marketing-views-by-day', period, granularity],
+    queryKey: ["admin-marketing-views-by-day", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_marketing_views_by_day', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return fillMissingDays(
         data as unknown as { day: string; views: number; unique_visitors: number }[],
-        ['views', 'unique_visitors'], daysBack, period
+        ["views", "unique_visitors"],
+        daysBack,
+        period,
       ) as { day: string; views: number; unique_visitors: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
@@ -744,21 +795,26 @@ export function AdminStats() {
 
   // Fetch signup clicks by day - refresh every hour
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
-    queryKey: ['admin-signup-clicks-by-day', period, granularity],
+    queryKey: ["admin-signup-clicks-by-day", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
       const endDate = new Date();
       const startDate = new Date(endDate);
       startDate.setDate(startDate.getDate() - daysBack);
 
-      const { data, error } = await supabase.rpc('get_signup_clicks_by_day', {
+      const { data, error } = await supabase.rpc("get_signup_clicks_by_day", {
         start_date: startDate.toISOString(),
-        end_date: endDate.toISOString()
+        end_date: endDate.toISOString(),
       });
       if (error) throw error;
       return fillMissingDays(
-        (data as unknown as { day: string; clicks: number }[]).map(d => ({ day: d.day, clicks: Number(d.clicks) })),
-        ['clicks'], daysBack, period
+        (data as unknown as { day: string; clicks: number }[]).map((d) => ({
+          day: d.day,
+          clicks: Number(d.clicks),
+        })),
+        ["clicks"],
+        daysBack,
+        period,
       ) as { day: string; clicks: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
@@ -766,10 +822,12 @@ export function AdminStats() {
 
   // Fetch marketing stats by page - refresh every hour
   const { data: marketingByPage = [], isLoading: marketingByPageLoading } = useQuery({
-    queryKey: ['admin-marketing-by-page', period],
+    queryKey: ["admin-marketing-by-page", period],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_marketing_stats_by_page', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_marketing_stats_by_page", {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return data as unknown as MarketingStatsByPage[];
     },
@@ -778,14 +836,18 @@ export function AdminStats() {
 
   // Fetch bareme simulations by day with period filter - refresh every hour
   const { data: baremeSimulationsByDay = [], isLoading: baremeSimulationsLoading } = useQuery({
-    queryKey: ['admin-bareme-simulations-by-day', period, granularity],
+    queryKey: ["admin-bareme-simulations-by-day", period, granularity],
     queryFn: async () => {
       const daysBack = periodConfig[period].daysBack;
-      const { data, error } = await supabase.rpc('get_bareme_simulations_by_day', { days_back: daysBack });
+      const { data, error } = await supabase.rpc("get_bareme_simulations_by_day", {
+        days_back: daysBack,
+      });
       if (error) throw error;
       return fillMissingDays(
         data as unknown as { day: string; count: number }[],
-        ['count'], daysBack, period
+        ["count"],
+        daysBack,
+        period,
       ) as { day: string; count: number }[];
     },
     refetchInterval: 60 * 60 * 1000,
@@ -793,9 +855,9 @@ export function AdminStats() {
 
   // Fetch recent signups - refresh every hour
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
-    queryKey: ['admin-recent-signups'],
+    queryKey: ["admin-recent-signups"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_recent_signups', { limit_count: 10 });
+      const { data, error } = await supabase.rpc("get_recent_signups", { limit_count: 10 });
       if (error) throw error;
       return data as unknown as RecentSignup[];
     },
@@ -804,9 +866,9 @@ export function AdminStats() {
 
   // Fetch total tours count (excluding admins) - refresh every hour
   const { data: totalToursCount = 0, isLoading: toursCountLoading } = useQuery({
-    queryKey: ['admin-total-tours', period],
+    queryKey: ["admin-total-tours", period],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_total_tours_count', {
+      const { data, error } = await supabase.rpc("get_total_tours_count", {
         start_date: dateRange.start_date,
         end_date: dateRange.end_date,
       });
@@ -818,11 +880,11 @@ export function AdminStats() {
 
   // Fetch monthly stats for 5-month trend chart - refresh every hour
   const { data: monthlyStats = [], isLoading: monthlyStatsLoading } = useQuery({
-    queryKey: ['admin-monthly-stats'],
+    queryKey: ["admin-monthly-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_monthly_stats', { months_back: 5 });
+      const { data, error } = await supabase.rpc("get_monthly_stats", { months_back: 5 });
       if (error) throw error;
-      return (data as unknown as MonthlyStats[]).map(d => ({
+      return (data as unknown as MonthlyStats[]).map((d) => ({
         month: d.month,
         users: Number(d.total_users),
         trips: Number(d.total_trips),
@@ -835,9 +897,9 @@ export function AdminStats() {
 
   // Fetch Google Takeout import stats - refresh every hour
   const { data: takeoutImportStats, isLoading: takeoutImportStatsLoading } = useQuery({
-    queryKey: ['admin-takeout-import-stats'],
+    queryKey: ["admin-takeout-import-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_takeout_import_stats');
+      const { data, error } = await supabase.rpc("get_takeout_import_stats");
       if (error) throw error;
       return data as unknown as TakeoutImportStatsData;
     },
@@ -846,9 +908,11 @@ export function AdminStats() {
 
   // Fetch calendar connection attempt stats - refresh every hour
   const { data: calendarConnectionStats, isLoading: calendarConnectionStatsLoading } = useQuery({
-    queryKey: ['admin-calendar-connection-stats'],
+    queryKey: ["admin-calendar-connection-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_calendar_connection_stats', { days_back: 90 });
+      const { data, error } = await supabase.rpc("get_calendar_connection_stats", {
+        days_back: 90,
+      });
       if (error) throw error;
       return (data as unknown as CalendarConnectionStatsData[]) || [];
     },
@@ -856,42 +920,52 @@ export function AdminStats() {
   });
 
   const formatNumber = (num: number) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "k";
     return num.toString();
   };
 
   const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(num);
   };
 
   const formatKm = (num: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(num) + ' km';
+    return (
+      new Intl.NumberFormat("fr-FR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(num) + " km"
+    );
   };
 
   const getPeriodLabel = () => {
     switch (period) {
-      case 'week': return 'cette semaine';
-      case 'month': return 'ce mois';
-      case 'year': return 'cette année';
-      case 'all': return 'au total';
+      case "week":
+        return "cette semaine";
+      case "month":
+        return "ce mois";
+      case "year":
+        return "cette année";
+      case "all":
+        return "au total";
     }
   };
 
   const getPrevPeriodLabel = () => {
     switch (period) {
-      case 'week': return 'semaine précédente';
-      case 'month': return 'mois précédent';
-      case 'year': return 'année précédente';
-      case 'all': return '';
+      case "week":
+        return "semaine précédente";
+      case "month":
+        return "mois précédent";
+      case "year":
+        return "année précédente";
+      case "all":
+        return "";
     }
   };
 
@@ -902,28 +976,31 @@ export function AdminStats() {
   };
 
   // Comparison chart data
-  const comparisonData = period !== 'all' && stats && prevStats ? [
-    { 
-      name: 'Utilisateurs', 
-      current: stats.total_users, 
-      previous: prevStats.total_users,
-    },
-    { 
-      name: 'Trajets', 
-      current: stats.total_trips, 
-      previous: prevStats.total_trips,
-    },
-    { 
-      name: 'IK (€)', 
-      current: Math.round(stats.total_ik), 
-      previous: Math.round(prevStats.total_ik),
-    },
-    { 
-      name: 'Distance (km)', 
-      current: Math.round(stats.total_km), 
-      previous: Math.round(prevStats.total_km),
-    },
-  ] : [];
+  const comparisonData =
+    period !== "all" && stats && prevStats
+      ? [
+          {
+            name: "Utilisateurs",
+            current: stats.total_users,
+            previous: prevStats.total_users,
+          },
+          {
+            name: "Trajets",
+            current: stats.total_trips,
+            previous: prevStats.total_trips,
+          },
+          {
+            name: "IK (€)",
+            current: Math.round(stats.total_ik),
+            previous: Math.round(prevStats.total_ik),
+          },
+          {
+            name: "Distance (km)",
+            current: Math.round(stats.total_km),
+            previous: Math.round(prevStats.total_km),
+          },
+        ]
+      : [];
 
   // Change indicator component
   const ChangeIndicator = ({ current, previous }: { current: number; previous: number }) => {
@@ -934,72 +1011,75 @@ export function AdminStats() {
   };
 
   // Marketing cards data for drag and drop
-  const marketingCardsData = useMemo(() => [
-    {
-      id: 'views',
-      icon: <Globe className="w-5 h-5 text-blue-500" />,
-      label: 'Visites',
-      value: formatNumber(marketingStats?.total_views || 0),
-      subValue: getPeriodLabel(),
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'unique-visitors',
-      icon: <Users className="w-5 h-5 text-green-500" />,
-      label: 'Visiteurs uniques',
-      value: formatNumber(marketingStats?.unique_sessions || 0),
-      subValue: getPeriodLabel(),
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'cta-clicks',
-      icon: <MousePointer className="w-5 h-5 text-amber-500" />,
-      label: 'Clics CTA',
-      value: formatNumber(marketingStats?.total_cta_clicks || 0),
-      subValue: getPeriodLabel(),
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'simulations',
-      icon: <Calculator className="w-5 h-5 text-purple-500" />,
-      label: 'Simulations IK',
-      value: formatNumber(marketingStats?.total_simulations || 0),
-      subValue: getPeriodLabel(),
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'signup-clicks',
-      icon: <UserPlus className="w-5 h-5 text-emerald-500" />,
-      label: 'Clics inscription',
-      value: formatNumber(marketingStats?.total_signup_clicks || 0),
-      subValue: getPeriodLabel(),
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'crawlers-clicks',
-      icon: <Globe className="w-5 h-5 text-violet-500" />,
-      label: 'Clics Crawlers',
-      value: formatNumber(marketingStats?.total_crawlers_clicks || 0),
-      subValue: getPeriodLabel(),
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'mobile',
-      icon: <Smartphone className="w-5 h-5 text-pink-500" />,
-      label: 'Mobile',
-      value: `${marketingStats?.mobile_pct || 0}%`,
-      subValue: `${formatNumber(marketingStats?.mobile_views || 0)} visites`,
-      isLoading: marketingStatsLoading,
-    },
-    {
-      id: 'desktop',
-      icon: <Monitor className="w-5 h-5 text-slate-500" />,
-      label: 'Desktop',
-      value: `${marketingStats?.desktop_pct || 0}%`,
-      subValue: `${formatNumber(marketingStats?.desktop_views || 0)} visites`,
-      isLoading: marketingStatsLoading,
-    },
-  ], [marketingStats, marketingStatsLoading, period]);
+  const marketingCardsData = useMemo(
+    () => [
+      {
+        id: "views",
+        icon: <Globe className="w-5 h-5 text-blue-500" />,
+        label: "Visites",
+        value: formatNumber(marketingStats?.total_views || 0),
+        subValue: getPeriodLabel(),
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "unique-visitors",
+        icon: <Users className="w-5 h-5 text-green-500" />,
+        label: "Visiteurs uniques",
+        value: formatNumber(marketingStats?.unique_sessions || 0),
+        subValue: getPeriodLabel(),
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "cta-clicks",
+        icon: <MousePointer className="w-5 h-5 text-amber-500" />,
+        label: "Clics CTA",
+        value: formatNumber(marketingStats?.total_cta_clicks || 0),
+        subValue: getPeriodLabel(),
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "simulations",
+        icon: <Calculator className="w-5 h-5 text-purple-500" />,
+        label: "Simulations IK",
+        value: formatNumber(marketingStats?.total_simulations || 0),
+        subValue: getPeriodLabel(),
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "signup-clicks",
+        icon: <UserPlus className="w-5 h-5 text-emerald-500" />,
+        label: "Clics inscription",
+        value: formatNumber(marketingStats?.total_signup_clicks || 0),
+        subValue: getPeriodLabel(),
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "crawlers-clicks",
+        icon: <Globe className="w-5 h-5 text-violet-500" />,
+        label: "Clics Crawlers",
+        value: formatNumber(marketingStats?.total_crawlers_clicks || 0),
+        subValue: getPeriodLabel(),
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "mobile",
+        icon: <Smartphone className="w-5 h-5 text-pink-500" />,
+        label: "Mobile",
+        value: `${marketingStats?.mobile_pct || 0}%`,
+        subValue: `${formatNumber(marketingStats?.mobile_views || 0)} visites`,
+        isLoading: marketingStatsLoading,
+      },
+      {
+        id: "desktop",
+        icon: <Monitor className="w-5 h-5 text-slate-500" />,
+        label: "Desktop",
+        value: `${marketingStats?.desktop_pct || 0}%`,
+        subValue: `${formatNumber(marketingStats?.desktop_views || 0)} visites`,
+        isLoading: marketingStatsLoading,
+      },
+    ],
+    [marketingStats, marketingStatsLoading, period],
+  );
 
   // PDF export removed - use CSV instead
 
@@ -1008,24 +1088,24 @@ export function AdminStats() {
   const refreshAllStats = useCallback(async () => {
     setIsRefreshing(true);
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['admin-stats'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-stats-prev'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-registrations'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-top-users'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-download-stats'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-download-clicks-by-day'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-share-stats'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-shares-by-day'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-marketing-stats'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-marketing-views-by-day'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-signup-clicks-by-day'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-marketing-by-page'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-recent-signups'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-total-tours'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-takeout-import-stats'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-monthly-stats'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-bareme-simulations-by-day'] }),
-      queryClient.invalidateQueries({ queryKey: ['admin-calendar-connection-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-stats-prev"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-registrations"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-top-users"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-download-stats"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-download-clicks-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-share-stats"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-shares-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-signup-clicks-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-marketing-by-page"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-recent-signups"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-total-tours"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-takeout-import-stats"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-monthly-stats"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-bareme-simulations-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-calendar-connection-stats"] }),
     ]);
     // Small delay to show animation
     setTimeout(() => setIsRefreshing(false), 500);
@@ -1034,29 +1114,29 @@ export function AdminStats() {
   const exportToCSV = () => {
     // Stats CSV
     const statsRows = [
-      ['Métrique', 'Valeur'],
-      ['Période', periodConfig[period].label],
-      ['Date début', dateRange.start_date],
-      ['Date fin', dateRange.end_date],
-      ['Utilisateurs', stats?.total_users || 0],
-      ['Trajets', stats?.total_trips || 0],
-      ['Total IK (€)', stats?.total_ik || 0],
-      ['Distance totale (km)', stats?.total_km || 0],
-      ['Visites simultanées', onlineUsers],
-      [''],
-      ['Nouveaux inscrits par jour'],
-      ['Date', 'Nombre'],
-      ...registrations.map(r => [r.day, r.count]),
+      ["Métrique", "Valeur"],
+      ["Période", periodConfig[period].label],
+      ["Date début", dateRange.start_date],
+      ["Date fin", dateRange.end_date],
+      ["Utilisateurs", stats?.total_users || 0],
+      ["Trajets", stats?.total_trips || 0],
+      ["Total IK (€)", stats?.total_ik || 0],
+      ["Distance totale (km)", stats?.total_km || 0],
+      ["Visites simultanées", onlineUsers],
+      [""],
+      ["Nouveaux inscrits par jour"],
+      ["Date", "Nombre"],
+      ...registrations.map((r) => [r.day, r.count]),
     ];
 
-    const csvContent = statsRows.map(row => 
-      Array.isArray(row) ? row.join(';') : row
-    ).join('\n');
+    const csvContent = statsRows
+      .map((row) => (Array.isArray(row) ? row.join(";") : row))
+      .join("\n");
 
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `stats-admin-${period}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.download = `stats-admin-${period}-${format(new Date(), "yyyy-MM-dd")}.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
   };
@@ -1074,29 +1154,35 @@ export function AdminStats() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setFiltersCollapsed(v => !v)}
+            onClick={() => setFiltersCollapsed((v) => !v)}
             className="h-7 w-7 p-0"
-            aria-label={filtersCollapsed ? 'Afficher les filtres' : 'Masquer les filtres'}
+            aria-label={filtersCollapsed ? "Afficher les filtres" : "Masquer les filtres"}
           >
-            {filtersCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            {filtersCollapsed ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronUp className="w-4 h-4" />
+            )}
           </Button>
         </div>
 
-        <div className={`flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between ${filtersCollapsed ? 'hidden lg:flex' : 'flex'}`}>
+        <div
+          className={`flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between ${filtersCollapsed ? "hidden lg:flex" : "flex"}`}
+        >
           <div className="flex flex-col lg:flex-row lg:items-center gap-2">
             <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-foreground shrink-0 whitespace-nowrap">
               <Calendar className="w-4 h-4 text-primary" />
               <span>Filtre de période</span>
             </div>
-            <ToggleGroup 
-              type="single" 
-              value={period} 
+            <ToggleGroup
+              type="single"
+              value={period}
               onValueChange={(value) => value && setPeriod(value as PeriodFilter)}
               className="w-full justify-start overflow-x-auto rounded-xl bg-muted/50 p-1 lg:w-auto"
             >
               {Object.entries(periodConfig).map(([key, config]) => (
-                <ToggleGroupItem 
-                  key={key} 
+                <ToggleGroupItem
+                  key={key}
                   value={key}
                   className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-xs"
                 >
@@ -1105,21 +1191,21 @@ export function AdminStats() {
               ))}
             </ToggleGroup>
           </div>
-          
+
           <div className="flex flex-col lg:flex-row lg:items-center gap-2">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground shrink-0 whitespace-nowrap">
               <BarChart3 className="w-4 h-4 text-primary" />
               <span>Intervalle</span>
             </div>
-            <ToggleGroup 
-              type="single" 
-              value={granularity} 
+            <ToggleGroup
+              type="single"
+              value={granularity}
               onValueChange={(value) => value && setGranularity(value as Granularity)}
               className="w-full justify-start overflow-x-auto rounded-xl bg-muted/50 p-1 lg:w-auto"
             >
               {Object.entries(granularityConfig).map(([key, config]) => (
-                <ToggleGroupItem 
-                  key={key} 
+                <ToggleGroupItem
+                  key={key}
                   value={key}
                   className="shrink-0 px-3 py-1.5 text-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-xs"
                 >
@@ -1130,19 +1216,19 @@ export function AdminStats() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={refreshAllStats}
               disabled={isRefreshing}
               className="gap-1.5"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              {isRefreshing ? 'Actualisation...' : 'Actualiser'}
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              {isRefreshing ? "Actualisation..." : "Actualiser"}
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={exportToCSV}
               disabled={statsLoading}
               className="gap-1.5"
@@ -1180,9 +1266,14 @@ export function AdminStats() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
               {marketingSectionOrder.map((blockId) => {
                 switch (blockId) {
-                  case 'marketing-views-chart':
+                  case "marketing-views-chart":
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
+                      <DraggableStatsSection
+                        key={blockId}
+                        id={blockId}
+                        cardWidth={getCardWidth(blockId)}
+                        onWidthChange={handleWidthChange}
+                      >
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <BarChart3 className="w-5 h-5 text-blue-500" />
@@ -1194,8 +1285,12 @@ export function AdminStats() {
                             data={marketingViewsByDay}
                             xAxisKey="day"
                             lines={[
-                              { dataKey: 'views', name: 'Visites', stroke: 'hsl(var(--primary))' },
-                              { dataKey: 'unique_visitors', name: 'Visiteurs uniques', stroke: 'hsl(var(--chart-2))' },
+                              { dataKey: "views", name: "Visites", stroke: "hsl(var(--primary))" },
+                              {
+                                dataKey: "unique_visitors",
+                                name: "Visiteurs uniques",
+                                stroke: "hsl(var(--chart-2))",
+                              },
                             ]}
                             isLoading={marketingViewsLoading}
                             height={220}
@@ -1205,9 +1300,14 @@ export function AdminStats() {
                       </DraggableStatsSection>
                     );
 
-                  case 'marketing-signup-clicks-chart':
+                  case "marketing-signup-clicks-chart":
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
+                      <DraggableStatsSection
+                        key={blockId}
+                        id={blockId}
+                        cardWidth={getCardWidth(blockId)}
+                        onWidthChange={handleWidthChange}
+                      >
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <UserPlus className="w-5 h-5 text-emerald-500" />
@@ -1219,7 +1319,12 @@ export function AdminStats() {
                             data={signupClicksByDay}
                             xAxisKey="day"
                             lines={[
-                              { dataKey: 'clicks', name: 'Clics inscription', stroke: 'hsl(142, 76%, 36%)', showDots: true },
+                              {
+                                dataKey: "clicks",
+                                name: "Clics inscription",
+                                stroke: "hsl(142, 76%, 36%)",
+                                showDots: true,
+                              },
                             ]}
                             isLoading={signupClicksLoading}
                             height={220}
@@ -1229,9 +1334,14 @@ export function AdminStats() {
                       </DraggableStatsSection>
                     );
 
-                  case 'bareme-simulations-chart':
+                  case "bareme-simulations-chart":
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
+                      <DraggableStatsSection
+                        key={blockId}
+                        id={blockId}
+                        cardWidth={getCardWidth(blockId)}
+                        onWidthChange={handleWidthChange}
+                      >
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-purple-500" />
@@ -1243,7 +1353,12 @@ export function AdminStats() {
                             data={baremeSimulationsByDay}
                             xAxisKey="day"
                             lines={[
-                              { dataKey: 'count', name: 'Simulations', stroke: 'hsl(270, 70%, 50%)', showDots: true },
+                              {
+                                dataKey: "count",
+                                name: "Simulations",
+                                stroke: "hsl(270, 70%, 50%)",
+                                showDots: true,
+                              },
                             ]}
                             isLoading={baremeSimulationsLoading}
                             height={220}
@@ -1253,9 +1368,14 @@ export function AdminStats() {
                       </DraggableStatsSection>
                     );
 
-                  case 'marketing-stats-by-page':
+                  case "marketing-stats-by-page":
                     return (
-                      <DraggableStatsSection key={blockId} id={blockId} cardWidth={getCardWidth(blockId)} onWidthChange={handleWidthChange}>
+                      <DraggableStatsSection
+                        key={blockId}
+                        id={blockId}
+                        cardWidth={getCardWidth(blockId)}
+                        onWidthChange={handleWidthChange}
+                      >
                         <CardHeader className="pb-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <FileText className="w-5 h-5 text-green-500" />
@@ -1281,10 +1401,18 @@ export function AdminStats() {
                                 <TableBody>
                                   {marketingByPage.map((page) => (
                                     <TableRow key={page.page}>
-                                      <TableCell className="font-medium text-xs">{page.page}</TableCell>
-                                      <TableCell className="text-right">{formatNumber(page.views)}</TableCell>
-                                      <TableCell className="text-right">{formatNumber(page.cta_clicks)}</TableCell>
-                                      <TableCell className="text-right">{formatNumber(page.simulations)}</TableCell>
+                                      <TableCell className="font-medium text-xs">
+                                        {page.page}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        {formatNumber(page.views)}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        {formatNumber(page.cta_clicks)}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        {formatNumber(page.simulations)}
+                                      </TableCell>
                                     </TableRow>
                                   ))}
                                 </TableBody>
@@ -1314,9 +1442,15 @@ export function AdminStats() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {sectionOrder.map((sectionId) => {
               switch (sectionId) {
-                case 'main-stats':
+                case "main-stats":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} isCard={false} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      isCard={false}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                         {/* Online users - real-time */}
                         <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
@@ -1333,7 +1467,6 @@ export function AdminStats() {
                           </CardContent>
                         </Card>
 
-
                         {/* Total users */}
                         <Card>
                           <CardContent className="p-4">
@@ -1345,7 +1478,9 @@ export function AdminStats() {
                               <Skeleton className="h-8 w-16" />
                             ) : (
                               <>
-                                <p className="text-2xl font-bold">{formatNumber(stats?.total_users || 0)}</p>
+                                <p className="text-2xl font-bold">
+                                  {formatNumber(stats?.total_users || 0)}
+                                </p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
@@ -1357,13 +1492,20 @@ export function AdminStats() {
                           <CardContent className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <Map className="w-5 h-5 text-teal-500" />
-                              <span className="text-xs text-muted-foreground" title="Tournées lancées sur mobile (sessions démarrées)">Tournées lancées</span>
+                              <span
+                                className="text-xs text-muted-foreground"
+                                title="Tournées lancées sur mobile (sessions démarrées)"
+                              >
+                                Tournées lancées
+                              </span>
                             </div>
                             {toursCountLoading ? (
                               <Skeleton className="h-8 w-16" />
                             ) : (
                               <>
-                                <p className="text-2xl font-bold text-teal-600">{formatNumber(totalToursCount)}</p>
+                                <p className="text-2xl font-bold text-teal-600">
+                                  {formatNumber(totalToursCount)}
+                                </p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
@@ -1381,7 +1523,9 @@ export function AdminStats() {
                               <Skeleton className="h-8 w-16" />
                             ) : (
                               <>
-                                <p className="text-2xl font-bold">{formatNumber(stats?.total_trips || 0)}</p>
+                                <p className="text-2xl font-bold">
+                                  {formatNumber(stats?.total_trips || 0)}
+                                </p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
@@ -1399,7 +1543,9 @@ export function AdminStats() {
                               <Skeleton className="h-8 w-20" />
                             ) : (
                               <>
-                                <p className="text-2xl font-bold">{formatCurrency(stats?.total_ik || 0)}</p>
+                                <p className="text-2xl font-bold">
+                                  {formatCurrency(stats?.total_ik || 0)}
+                                </p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
@@ -1417,7 +1563,9 @@ export function AdminStats() {
                               <Skeleton className="h-8 w-24" />
                             ) : (
                               <>
-                                <p className="text-2xl font-bold">{formatKm(stats?.total_km || 0)}</p>
+                                <p className="text-2xl font-bold">
+                                  {formatKm(stats?.total_km || 0)}
+                                </p>
                                 <p className="text-xs text-muted-foreground">{getPeriodLabel()}</p>
                               </>
                             )}
@@ -1429,14 +1577,20 @@ export function AdminStats() {
                           <CardContent className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <MapPin className="w-5 h-5 text-orange-500" />
-                              <span className="text-xs text-muted-foreground">Imports Google Maps</span>
+                              <span className="text-xs text-muted-foreground">
+                                Imports Google Maps
+                              </span>
                             </div>
                             {takeoutImportStatsLoading ? (
                               <Skeleton className="h-8 w-16" />
                             ) : (
                               <>
-                                <p className="text-2xl font-bold text-orange-600">{takeoutImportStats?.successful_imports || 0}</p>
-                                <p className="text-xs text-muted-foreground">réussis • {takeoutImportStats?.total_attempts || 0} tentatives</p>
+                                <p className="text-2xl font-bold text-orange-600">
+                                  {takeoutImportStats?.successful_imports || 0}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  réussis • {takeoutImportStats?.total_attempts || 0} tentatives
+                                </p>
                               </>
                             )}
                           </CardContent>
@@ -1445,28 +1599,36 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'dau-chart':
+                case "dau-chart":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center gap-2" title="Utilisateurs ayant au moins 2 jours d'activité distincts sur la fenêtre glissante de 7 jours (admins exclus).">
+                        <CardTitle
+                          className="text-lg flex items-center gap-2"
+                          title="Utilisateurs ayant au moins 2 jours d'activité distincts sur la fenêtre glissante de 7 jours (admins exclus)."
+                        >
                           <Activity className="w-5 h-5 text-violet-500" />
                           Actifs engagés (7j glissants)
-
                           {!dauLoading && (
                             <span className="ml-auto flex items-center gap-1.5">
                               <span className="text-xl font-bold text-violet-600">{dauToday}</span>
-                              {dauTrend === 'up' && (
+                              {dauTrend === "up" && (
                                 <span className="flex items-center text-xs font-medium text-green-600">
                                   <ArrowUp className="w-3 h-3" />+{dauDiff}
                                 </span>
                               )}
-                              {dauTrend === 'down' && (
+                              {dauTrend === "down" && (
                                 <span className="flex items-center text-xs font-medium text-red-500">
-                                  <ArrowDown className="w-3 h-3" />{dauDiff}
+                                  <ArrowDown className="w-3 h-3" />
+                                  {dauDiff}
                                 </span>
                               )}
-                              {dauTrend === 'flat' && (
+                              {dauTrend === "flat" && (
                                 <span className="flex items-center text-xs font-medium text-muted-foreground">
                                   <Minus className="w-3 h-3" />0
                                 </span>
@@ -1480,36 +1642,52 @@ export function AdminStats() {
                           <Skeleton className="h-[200px] w-full" />
                         ) : (
                           <ResponsiveContainer width="100%" height={200}>
-                            <LineChart data={dailyActiveUsers} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                              <XAxis 
-                                dataKey="day" 
-                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
+                            <LineChart
+                              data={dailyActiveUsers}
+                              margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
+                            >
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="hsl(var(--border))"
+                                opacity={0.3}
+                              />
+                              <XAxis
+                                dataKey="day"
+                                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                                 axisLine={false}
                                 tickLine={false}
                                 interval="preserveStartEnd"
                               />
-                              <YAxis 
-                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
+                              <YAxis
+                                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                                 allowDecimals={false}
                                 axisLine={false}
                                 tickLine={false}
                               />
-                              <Tooltip 
-                                formatter={(value: number) => [value, 'Actifs (7j)']}
-                                contentStyle={{ 
-                                  background: 'hsl(var(--card))', 
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '8px',
-                                  fontSize: '12px'
+                              <Tooltip
+                                formatter={(value: number) => [value, "Actifs (7j)"]}
+                                contentStyle={{
+                                  background: "hsl(var(--card))",
+                                  border: "1px solid hsl(var(--border))",
+                                  borderRadius: "8px",
+                                  fontSize: "12px",
                                 }}
                               />
-                              <Line 
-                                type="monotone" 
-                                dataKey="count" 
-                                stroke="#8b5cf6" 
+                              <Line
+                                type="monotone"
+                                dataKey="count"
+                                stroke="#8b5cf6"
                                 strokeWidth={2.5}
-                                dot={dailyActiveUsers.length <= 31 ? { r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: 'hsl(var(--card))' } : false}
+                                dot={
+                                  dailyActiveUsers.length <= 31
+                                    ? {
+                                        r: 4,
+                                        fill: "#8b5cf6",
+                                        strokeWidth: 2,
+                                        stroke: "hsl(var(--card))",
+                                      }
+                                    : false
+                                }
                                 activeDot={{ r: 6 }}
                               />
                             </LineChart>
@@ -1522,21 +1700,38 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'signup-funnel':
+                case "signup-funnel":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange} isCard={false}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                      isCard={false}
+                    >
                       <SignupFunnelCard daysBack={periodConfig[period].daysBack} />
                     </DraggableStatsSection>
                   );
-                case 'search-console':
+                case "search-console":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange} isCard={false}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                      isCard={false}
+                    >
                       <SearchConsoleCard />
                     </DraggableStatsSection>
                   );
-                case 'recent-signups':
+                case "recent-signups":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Users className="w-5 h-5 text-primary" />
@@ -1546,43 +1741,59 @@ export function AdminStats() {
                       <CardContent>
                         {signupsLoading ? (
                           <div className="space-y-2">
-                            {[1, 2, 3, 4, 5].map(i => (
+                            {[1, 2, 3, 4, 5].map((i) => (
                               <Skeleton key={i} className="h-10 w-full" />
                             ))}
                           </div>
                         ) : recentSignups.length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-4">Aucun inscrit récent</p>
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            Aucun inscrit récent
+                          </p>
                         ) : (
                           <div className="space-y-2">
                             {recentSignups.map((signup, index) => (
-                              <div 
-                                key={signup.user_id} 
+                              <div
+                                key={signup.user_id}
                                 className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors"
                               >
                                 <div className="flex items-center gap-3">
-                                  <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
+                                  <span className="text-xs font-medium text-muted-foreground w-5">
+                                    {index + 1}.
+                                  </span>
                                   <div>
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-sm font-medium truncate max-w-[200px]">{signup.email}</p>
-                                    {(() => {
-                                      const persona = userPersonaMap?.[signup.user_id];
-                                      const personaOption = persona ? PERSONA_OPTIONS.find(p => p.value === persona) : null;
-                                      if (personaOption) {
-                                        const Icon = personaOption.icon;
-                                        return <span title={personaOption.label}><Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" /></span>;
-                                      }
-                                      return null;
-                                    })()}
-                                  </div>
-                                    <p className="text-xs text-muted-foreground font-mono">{signup.user_id.slice(0, 8)}...</p>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-sm font-medium truncate max-w-[200px]">
+                                        {signup.email}
+                                      </p>
+                                      {(() => {
+                                        const persona = userPersonaMap?.[signup.user_id];
+                                        const personaOption = persona
+                                          ? PERSONA_OPTIONS.find((p) => p.value === persona)
+                                          : null;
+                                        if (personaOption) {
+                                          const Icon = personaOption.icon;
+                                          return (
+                                            <span title={personaOption.label}>
+                                              <Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                                            </span>
+                                          );
+                                        }
+                                        return null;
+                                      })()}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground font-mono">
+                                      {signup.user_id.slice(0, 8)}...
+                                    </p>
                                   </div>
                                 </div>
                                 <div className="text-right">
                                   <p className="text-xs text-muted-foreground">
-                                    {format(new Date(signup.created_at), 'dd/MM/yyyy', { locale: fr })}
+                                    {format(new Date(signup.created_at), "dd/MM/yyyy", {
+                                      locale: fr,
+                                    })}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {format(new Date(signup.created_at), 'HH:mm', { locale: fr })}
+                                    {format(new Date(signup.created_at), "HH:mm", { locale: fr })}
                                   </p>
                                 </div>
                               </div>
@@ -1593,9 +1804,14 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'download-stats':
+                case "download-stats":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Download className="w-5 h-5 text-primary" />
@@ -1613,62 +1829,78 @@ export function AdminStats() {
                         ) : (
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 [&>*:last-child:nth-child(2n+1)]:col-span-2 md:[&>*:last-child:nth-child(4n+1)]:col-span-4 md:[&>*:last-child:nth-child(4n+2)]:col-span-3 md:[&>*:last-child:nth-child(4n+3)]:col-span-2">
                             <div className="text-center p-3 bg-muted/50 rounded-lg">
-                              <p className="text-2xl font-bold text-primary">{downloadStats?.total_clicks || 0}</p>
+                              <p className="text-2xl font-bold text-primary">
+                                {downloadStats?.total_clicks || 0}
+                              </p>
                               <p className="text-xs text-muted-foreground">Clics totaux</p>
                             </div>
                             <div className="text-center p-3 bg-muted/50 rounded-lg">
-                              <p className="text-2xl font-bold text-blue-500">{downloadStats?.unique_users || 0}</p>
+                              <p className="text-2xl font-bold text-blue-500">
+                                {downloadStats?.unique_users || 0}
+                              </p>
                               <p className="text-xs text-muted-foreground">Utilisateurs uniques</p>
                             </div>
                             <div className="text-center p-3 bg-muted/50 rounded-lg">
-                              <p className="text-2xl font-bold text-amber-500">{downloadStats?.avg_clicks_per_user || 0}</p>
+                              <p className="text-2xl font-bold text-amber-500">
+                                {downloadStats?.avg_clicks_per_user || 0}
+                              </p>
                               <p className="text-xs text-muted-foreground">Clics/utilisateur</p>
                             </div>
                             <div className="text-center p-3 bg-muted/50 rounded-lg">
-                              <p className="text-2xl font-bold text-green-500">{downloadStats?.pct_users_clicked || 0}%</p>
-                              <p className="text-xs text-muted-foreground">Utilisateurs ayant cliqué</p>
+                              <p className="text-2xl font-bold text-green-500">
+                                {downloadStats?.pct_users_clicked || 0}%
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Utilisateurs ayant cliqué
+                              </p>
                             </div>
                           </div>
                         )}
-                        
+
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-3">Évolution {getPeriodLabel()}</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                            Évolution {getPeriodLabel()}
+                          </h4>
                           {downloadClicksLoading ? (
                             <Skeleton className="h-[180px] w-full" />
                           ) : (
                             <ResponsiveContainer width="100%" height={180}>
                               <LineChart data={downloadClicksByDay}>
                                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                <XAxis 
-                                  dataKey="day" 
+                                <XAxis
+                                  dataKey="day"
                                   tick={{ fontSize: 10 }}
                                   tickLine={false}
                                   axisLine={false}
                                   interval="preserveStartEnd"
                                 />
-                                <YAxis 
+                                <YAxis
                                   tick={{ fontSize: 10 }}
                                   tickLine={false}
                                   axisLine={false}
                                   allowDecimals={false}
                                 />
-                                <Tooltip 
-                                  contentStyle={{ 
-                                    backgroundColor: 'hsl(var(--card))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '8px',
-                                    fontSize: '12px',
+                                <Tooltip
+                                  contentStyle={{
+                                    backgroundColor: "hsl(var(--card))",
+                                    border: "1px solid hsl(var(--border))",
+                                    borderRadius: "8px",
+                                    fontSize: "12px",
                                   }}
-                                  labelStyle={{ fontWeight: 'bold' }}
+                                  labelStyle={{ fontWeight: "bold" }}
                                 />
-                                <Line 
-                                  type="monotone" 
-                                  dataKey="count" 
+                                <Line
+                                  type="monotone"
+                                  dataKey="count"
                                   name="Clics"
-                                  stroke="hsl(var(--primary))" 
+                                  stroke="hsl(var(--primary))"
                                   strokeWidth={2}
-                                  dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 2 }}
-                                  activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 2 }}
+                                  activeDot={{
+                                    r: 4,
+                                    stroke: "hsl(var(--primary))",
+                                    strokeWidth: 2,
+                                  }}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
@@ -1678,9 +1910,14 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'share-stats':
+                case "share-stats":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Share2 className="w-5 h-5 text-primary" />
@@ -1698,36 +1935,49 @@ export function AdminStats() {
                           <>
                             <div className="grid grid-cols-2 gap-4 mb-2 [&>*:last-child:nth-child(2n+1)]:col-span-2">
                               <div className="text-center p-3 bg-muted/50 rounded-lg">
-                                <p className="text-2xl font-bold text-primary">{shareStats?.total_shares || 0}</p>
+                                <p className="text-2xl font-bold text-primary">
+                                  {shareStats?.total_shares || 0}
+                                </p>
                                 <p className="text-xs text-muted-foreground">Partages totaux</p>
                               </div>
                               <div className="text-center p-3 bg-muted/50 rounded-lg">
-                                <p className="text-2xl font-bold text-green-500">{shareStats?.pct_users_shared || 0}%</p>
-                                <p className="text-xs text-muted-foreground">Utilisateurs ayant partagé</p>
+                                <p className="text-2xl font-bold text-green-500">
+                                  {shareStats?.pct_users_shared || 0}%
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Utilisateurs ayant partagé
+                                </p>
                               </div>
                             </div>
-                            <p className="text-xs text-muted-foreground text-center">sur les 30 derniers jours</p>
+                            <p className="text-xs text-muted-foreground text-center">
+                              sur les 30 derniers jours
+                            </p>
                           </>
                         )}
                       </CardContent>
                     </DraggableStatsSection>
                   );
 
-                case 'referral-sources': {
+                case "referral-sources": {
                   const sourceLabels: Record<string, string> = {
-                    communaute: 'Communauté',
-                    google: 'Google',
-                    reseaux_sociaux: 'Réseaux sociaux',
-                    chatgpt: 'ChatGPT',
+                    communaute: "Communauté",
+                    google: "Google",
+                    reseaux_sociaux: "Réseaux sociaux",
+                    chatgpt: "ChatGPT",
                   };
                   const sourceColors: Record<string, string> = {
-                    communaute: 'bg-blue-500',
-                    google: 'bg-amber-500',
-                    reseaux_sociaux: 'bg-pink-500',
-                    chatgpt: 'bg-emerald-500',
+                    communaute: "bg-blue-500",
+                    google: "bg-amber-500",
+                    reseaux_sociaux: "bg-pink-500",
+                    chatgpt: "bg-emerald-500",
                   };
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Users className="w-5 h-5 text-primary" />
@@ -1743,13 +1993,23 @@ export function AdminStats() {
                             <Skeleton className="h-8" />
                           </div>
                         ) : !referralStats || referralStats.total === 0 ? (
-                          <p className="text-muted-foreground text-center py-4 text-sm">Aucune réponse</p>
+                          <p className="text-muted-foreground text-center py-4 text-sm">
+                            Aucune réponse
+                          </p>
                         ) : (
                           <div className="space-y-3">
-                            <p className="text-xs text-muted-foreground text-center mb-2">{referralStats.total} réponse{referralStats.total > 1 ? 's' : ''} / {referralStats.totalExposed} exposée{referralStats.totalExposed > 1 ? 's' : ''} — taux : {referralStats.responseRate}%</p>
+                            <p className="text-xs text-muted-foreground text-center mb-2">
+                              {referralStats.total} réponse{referralStats.total > 1 ? "s" : ""} /{" "}
+                              {referralStats.totalExposed} exposée
+                              {referralStats.totalExposed > 1 ? "s" : ""} — taux :{" "}
+                              {referralStats.responseRate}%
+                            </p>
                             {Object.entries(sourceLabels).map(([key, label]) => {
                               const count = referralStats.counts[key] || 0;
-                              const pct = referralStats.total > 0 ? Math.round((count / referralStats.total) * 100) : 0;
+                              const pct =
+                                referralStats.total > 0
+                                  ? Math.round((count / referralStats.total) * 100)
+                                  : 0;
                               return (
                                 <div key={key} className="flex items-center gap-3">
                                   <span className="text-sm w-28 truncate">{label}</span>
@@ -1759,7 +2019,9 @@ export function AdminStats() {
                                       style={{ width: `${pct}%` }}
                                     />
                                   </div>
-                                  <span className="text-sm font-medium w-16 text-right">{count} ({pct}%)</span>
+                                  <span className="text-sm font-medium w-16 text-right">
+                                    {count} ({pct}%)
+                                  </span>
                                 </div>
                               );
                             })}
@@ -1770,25 +2032,29 @@ export function AdminStats() {
                   );
                 }
 
-                case 'persona-distribution': {
+                case "persona-distribution": {
                   const personaColors: Record<string, string> = {
-                    sante_liberal: 'bg-blue-500',
-                    artisan_btp: 'bg-amber-500',
-                    consultant_freelance: 'bg-purple-500',
-                    commercial_immobilier: 'bg-emerald-500',
-                    expert_comptable_tns: 'bg-pink-500',
-                    undefined: 'bg-slate-400',
+                    sante_liberal: "bg-blue-500",
+                    artisan_btp: "bg-amber-500",
+                    consultant_freelance: "bg-purple-500",
+                    commercial_immobilier: "bg-emerald-500",
+                    expert_comptable_tns: "bg-pink-500",
+                    undefined: "bg-slate-400",
                   };
-                  const allPersonaKeys = [
-                    ...PERSONA_OPTIONS.map(p => p.value),
-                    'undefined',
-                  ];
+                  const allPersonaKeys = [...PERSONA_OPTIONS.map((p) => p.value), "undefined"];
                   const personaLabels: Record<string, string> = {
-                    ...Object.fromEntries(PERSONA_OPTIONS.map(p => [p.value, p.label.split('/')[0].trim()])),
-                    undefined: 'Non défini',
+                    ...Object.fromEntries(
+                      PERSONA_OPTIONS.map((p) => [p.value, p.label.split("/")[0].trim()]),
+                    ),
+                    undefined: "Non défini",
                   };
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Users className="w-5 h-5 text-primary" />
@@ -1798,37 +2064,60 @@ export function AdminStats() {
                       <CardContent>
                         {personaLoading ? (
                           <div className="space-y-3">
-                            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-8" />)}
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Skeleton key={i} className="h-8" />
+                            ))}
                           </div>
                         ) : !personaDistribution || personaDistribution.total === 0 ? (
-                          <p className="text-muted-foreground text-center py-4 text-sm">Aucune donnée</p>
+                          <p className="text-muted-foreground text-center py-4 text-sm">
+                            Aucune donnée
+                          </p>
                         ) : (
                           <div className="space-y-3">
                             <p className="text-xs text-muted-foreground text-center mb-2">
-                              {personaDistribution.total - (personaDistribution.counts['undefined'] || 0)} qualifié{(personaDistribution.total - (personaDistribution.counts['undefined'] || 0)) > 1 ? 's' : ''} / {personaDistribution.total} utilisateurs
+                              {personaDistribution.total -
+                                (personaDistribution.counts["undefined"] || 0)}{" "}
+                              qualifié
+                              {personaDistribution.total -
+                                (personaDistribution.counts["undefined"] || 0) >
+                              1
+                                ? "s"
+                                : ""}{" "}
+                              / {personaDistribution.total} utilisateurs
                             </p>
-                            {PERSONA_OPTIONS.map(p => p.value).map(key => {
+                            {PERSONA_OPTIONS.map((p) => p.value).map((key) => {
                               const count = personaDistribution.counts[key] || 0;
-                              const definedTotal = personaDistribution.total - (personaDistribution.counts['undefined'] || 0);
-                              const pct = definedTotal > 0 ? Math.round((count / definedTotal) * 100) : 0;
+                              const definedTotal =
+                                personaDistribution.total -
+                                (personaDistribution.counts["undefined"] || 0);
+                              const pct =
+                                definedTotal > 0 ? Math.round((count / definedTotal) * 100) : 0;
                               return (
                                 <div key={key} className="flex items-center gap-3">
-                                  <span className="text-sm w-36 truncate">{personaLabels[key] || key}</span>
+                                  <span className="text-sm w-36 truncate">
+                                    {personaLabels[key] || key}
+                                  </span>
                                   <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden">
                                     <div
-                                      className={`h-full ${personaColors[key] || 'bg-slate-400'} rounded-full transition-all duration-500`}
+                                      className={`h-full ${personaColors[key] || "bg-slate-400"} rounded-full transition-all duration-500`}
                                       style={{ width: `${Math.max(pct, 2)}%` }}
                                     />
                                   </div>
-                                  <span className="text-sm font-medium w-20 text-right">{count} ({pct}%)</span>
+                                  <span className="text-sm font-medium w-20 text-right">
+                                    {count} ({pct}%)
+                                  </span>
                                 </div>
                               );
                             })}
                             <div className="border-t pt-2 mt-2">
                               <div className="flex items-center gap-3">
-                                <span className="text-sm w-36 truncate text-muted-foreground">Non défini</span>
+                                <span className="text-sm w-36 truncate text-muted-foreground">
+                                  Non défini
+                                </span>
                                 <div className="flex-1" />
-                                <span className="text-sm font-medium w-20 text-right text-muted-foreground">{personaDistribution.counts['undefined'] || 0}</span>
+                                <span className="text-sm font-medium w-20 text-right text-muted-foreground">
+                                  {personaDistribution.counts["undefined"] || 0}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -1838,27 +2127,89 @@ export function AdminStats() {
                   );
                 }
 
-                case 'calendar-connection-stats': {
+                case "calendar-connection-stats": {
                   const providerLabels: Record<string, string> = {
-                    google: 'Google Calendar',
-                    outlook: 'Outlook Calendar',
-                    ics: 'Agenda ICS',
+                    google: "Google Calendar",
+                    outlook: "Outlook Calendar",
+                    ics: "Agenda ICS",
                   };
                   const providerIcons: Record<string, JSX.Element> = {
-                    google: <svg viewBox="0 0 24 24" className="w-4 h-4"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>,
-                    outlook: <svg viewBox="0 0 24 24" className="w-4 h-4"><path fill="#0078D4" d="M24 7.387v10.478c0 .23-.08.424-.238.576-.158.152-.356.228-.594.228h-8.168v-6.182l1.602 1.176a.477.477 0 0 0 .29.096.5.5 0 0 0 .29-.096.42.42 0 0 0 0-.656l-2.182-1.6V7.387c0-.238.08-.436.238-.594.158-.158.356-.237.594-.237h7.574c.238 0 .436.08.594.237.158.158.238.356.238.594z"/><path fill="#0078D4" d="M14.875 9.75l-2.182 1.6a.42.42 0 0 0 0 .655.5.5 0 0 0 .29.097.477.477 0 0 0 .29-.097l1.602-1.175v6.182H6.708c-.238 0-.436-.076-.594-.228A.776.776 0 0 1 5.876 16.21V7.387c0-.238.08-.436.238-.594.158-.158.356-.237.594-.237h7.573c.239 0 .437.08.594.237.159.158.239.356.239.594v2.363h-.239z"/><path fill="#28A8EA" d="M9.143 8.625v6.75A1.131 1.131 0 0 1 8.018 16.5H.375V7.125C.375 6.504.879 6 1.5 6h6.518c.621 0 1.125.504 1.125 1.125v1.5z"/><path fill="#0078D4" d="M9.143 8.625v6.75A1.131 1.131 0 0 1 8.018 16.5H.375V7.125C.375 6.504.879 6 1.5 6h6.518c.621 0 1.125.504 1.125 1.125v1.5z"/><path fill="#50D9FF" d="M4.5 10.125c-1.036 0-1.875.84-1.875 1.875s.84 1.875 1.875 1.875S6.375 13.036 6.375 12s-.84-1.875-1.875-1.875z"/></svg>,
+                    google: (
+                      <svg viewBox="0 0 24 24" className="w-4 h-4">
+                        <path
+                          fill="#4285F4"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        />
+                      </svg>
+                    ),
+                    outlook: (
+                      <svg viewBox="0 0 24 24" className="w-4 h-4">
+                        <path
+                          fill="#0078D4"
+                          d="M24 7.387v10.478c0 .23-.08.424-.238.576-.158.152-.356.228-.594.228h-8.168v-6.182l1.602 1.176a.477.477 0 0 0 .29.096.5.5 0 0 0 .29-.096.42.42 0 0 0 0-.656l-2.182-1.6V7.387c0-.238.08-.436.238-.594.158-.158.356-.237.594-.237h7.574c.238 0 .436.08.594.237.158.158.238.356.238.594z"
+                        />
+                        <path
+                          fill="#0078D4"
+                          d="M14.875 9.75l-2.182 1.6a.42.42 0 0 0 0 .655.5.5 0 0 0 .29.097.477.477 0 0 0 .29-.097l1.602-1.175v6.182H6.708c-.238 0-.436-.076-.594-.228A.776.776 0 0 1 5.876 16.21V7.387c0-.238.08-.436.238-.594.158-.158.356-.237.594-.237h7.573c.239 0 .437.08.594.237.159.158.239.356.239.594v2.363h-.239z"
+                        />
+                        <path
+                          fill="#28A8EA"
+                          d="M9.143 8.625v6.75A1.131 1.131 0 0 1 8.018 16.5H.375V7.125C.375 6.504.879 6 1.5 6h6.518c.621 0 1.125.504 1.125 1.125v1.5z"
+                        />
+                        <path
+                          fill="#0078D4"
+                          d="M9.143 8.625v6.75A1.131 1.131 0 0 1 8.018 16.5H.375V7.125C.375 6.504.879 6 1.5 6h6.518c.621 0 1.125.504 1.125 1.125v1.5z"
+                        />
+                        <path
+                          fill="#50D9FF"
+                          d="M4.5 10.125c-1.036 0-1.875.84-1.875 1.875s.84 1.875 1.875 1.875S6.375 13.036 6.375 12s-.84-1.875-1.875-1.875z"
+                        />
+                      </svg>
+                    ),
                     ics: <Calendar className="w-4 h-4 text-primary" />,
                   };
                   const statsByProvider: Record<string, CalendarConnectionStatsData> = {
-                    google: { provider: 'google', total_attempts: 0, successful_attempts: 0, failed_attempts: 0 },
-                    outlook: { provider: 'outlook', total_attempts: 0, successful_attempts: 0, failed_attempts: 0 },
-                    ics: { provider: 'ics', total_attempts: 0, successful_attempts: 0, failed_attempts: 0 },
+                    google: {
+                      provider: "google",
+                      total_attempts: 0,
+                      successful_attempts: 0,
+                      failed_attempts: 0,
+                    },
+                    outlook: {
+                      provider: "outlook",
+                      total_attempts: 0,
+                      successful_attempts: 0,
+                      failed_attempts: 0,
+                    },
+                    ics: {
+                      provider: "ics",
+                      total_attempts: 0,
+                      successful_attempts: 0,
+                      failed_attempts: 0,
+                    },
                   };
                   (calendarConnectionStats || []).forEach((s) => {
                     statsByProvider[s.provider] = s;
                   });
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Calendar className="w-5 h-5 text-primary" />
@@ -1874,28 +2225,48 @@ export function AdminStats() {
                           </div>
                         ) : (
                           <div className="space-y-3">
-                            {(['google', 'outlook', 'ics'] as const).map((provider) => {
+                            {(["google", "outlook", "ics"] as const).map((provider) => {
                               const s = statsByProvider[provider];
-                              const successPct = s.total_attempts > 0 ? Math.round((s.successful_attempts / s.total_attempts) * 100) : 0;
-                              const failurePct = s.total_attempts > 0 ? Math.round((s.failed_attempts / s.total_attempts) * 100) : 0;
+                              const successPct =
+                                s.total_attempts > 0
+                                  ? Math.round((s.successful_attempts / s.total_attempts) * 100)
+                                  : 0;
+                              const failurePct =
+                                s.total_attempts > 0
+                                  ? Math.round((s.failed_attempts / s.total_attempts) * 100)
+                                  : 0;
                               return (
                                 <div key={provider} className="p-3 rounded-lg border bg-card">
                                   <div className="flex items-center gap-2 mb-2">
                                     {providerIcons[provider]}
-                                    <span className="font-medium text-sm">{providerLabels[provider]}</span>
+                                    <span className="font-medium text-sm">
+                                      {providerLabels[provider]}
+                                    </span>
                                   </div>
                                   <div className="grid grid-cols-3 gap-2">
                                     <div className="text-center p-2 bg-muted/50 rounded-md">
-                                      <p className="text-lg font-bold">{formatNumber(s.total_attempts)}</p>
-                                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Utilisateurs</p>
+                                      <p className="text-lg font-bold">
+                                        {formatNumber(s.total_attempts)}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                                        Utilisateurs
+                                      </p>
                                     </div>
                                     <div className="text-center p-2 bg-green-500/10 rounded-md">
-                                      <p className="text-lg font-bold text-green-600">{formatNumber(s.successful_attempts)}</p>
-                                      <p className="text-[10px] text-green-700 dark:text-green-400 uppercase tracking-wide">{successPct}% réussis</p>
+                                      <p className="text-lg font-bold text-green-600">
+                                        {formatNumber(s.successful_attempts)}
+                                      </p>
+                                      <p className="text-[10px] text-green-700 dark:text-green-400 uppercase tracking-wide">
+                                        {successPct}% réussis
+                                      </p>
                                     </div>
                                     <div className="text-center p-2 bg-red-500/10 rounded-md">
-                                      <p className="text-lg font-bold text-red-600">{formatNumber(s.failed_attempts)}</p>
-                                      <p className="text-[10px] text-red-700 dark:text-red-400 uppercase tracking-wide">{failurePct}% échoués</p>
+                                      <p className="text-lg font-bold text-red-600">
+                                        {formatNumber(s.failed_attempts)}
+                                      </p>
+                                      <p className="text-[10px] text-red-700 dark:text-red-400 uppercase tracking-wide">
+                                        {failurePct}% échoués
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
@@ -1903,15 +2274,22 @@ export function AdminStats() {
                             })}
                           </div>
                         )}
-                        <p className="text-xs text-muted-foreground text-center">Utilisateurs uniques ayant tenté une connexion (90 derniers jours)</p>
+                        <p className="text-xs text-muted-foreground text-center">
+                          Utilisateurs uniques ayant tenté une connexion (90 derniers jours)
+                        </p>
                       </CardContent>
                     </DraggableStatsSection>
                   );
                 }
 
-                case 'comparison-chart':
+                case "comparison-chart":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
@@ -1927,80 +2305,83 @@ export function AdminStats() {
                           <ResponsiveContainer width="100%" height={280}>
                             <LineChart data={monthlyStats}>
                               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                              <XAxis 
-                                dataKey="month" 
-                                tick={{ fontSize: 11 }} 
-                                tickLine={false} 
+                              <XAxis
+                                dataKey="month"
+                                tick={{ fontSize: 11 }}
+                                tickLine={false}
                                 axisLine={false}
                               />
-                              <YAxis 
+                              <YAxis
                                 yAxisId="left"
-                                tick={{ fontSize: 10 }} 
-                                tickLine={false} 
+                                tick={{ fontSize: 10 }}
+                                tickLine={false}
                                 axisLine={false}
                                 allowDecimals={false}
                               />
-                              <YAxis 
+                              <YAxis
                                 yAxisId="right"
                                 orientation="right"
-                                tick={{ fontSize: 10 }} 
-                                tickLine={false} 
+                                tick={{ fontSize: 10 }}
+                                tickLine={false}
                                 axisLine={false}
                                 allowDecimals={false}
                               />
-                              <Tooltip 
-                                contentStyle={{ 
-                                  backgroundColor: 'hsl(var(--card))',
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '8px',
-                                  fontSize: '12px',
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: "hsl(var(--card))",
+                                  border: "1px solid hsl(var(--border))",
+                                  borderRadius: "8px",
+                                  fontSize: "12px",
                                 }}
                                 formatter={(value: number, name: string) => {
                                   const labels: Record<string, string> = {
-                                    users: 'Utilisateurs actifs',
-                                    trips: 'Trajets',
-                                    km: 'Distance (km)',
-                                    ik: 'IK (€)',
+                                    users: "Utilisateurs actifs",
+                                    trips: "Trajets",
+                                    km: "Distance (km)",
+                                    ik: "IK (€)",
                                   };
-                                  return [new Intl.NumberFormat('fr-FR').format(value), labels[name] || name];
+                                  return [
+                                    new Intl.NumberFormat("fr-FR").format(value),
+                                    labels[name] || name,
+                                  ];
                                 }}
                               />
-                              <Legend 
+                              <Legend
                                 formatter={(value) => {
                                   const labels: Record<string, string> = {
-                                    users: 'Utilisateurs',
-                                    trips: 'Trajets',
-                                    km: 'Km',
-                                    ik: 'IK (€)',
+                                    users: "Utilisateurs",
+                                    trips: "Trajets",
+                                    km: "Km",
+                                    ik: "IK (€)",
                                   };
                                   return labels[value] || value;
                                 }}
                               />
-                              <Line 
+                              <Line
                                 yAxisId="left"
-                                type="monotone" 
-                                dataKey="users" 
-                                stroke="hsl(var(--primary))" 
+                                type="monotone"
+                                dataKey="users"
+                                stroke="hsl(var(--primary))"
                                 strokeWidth={2}
-                                dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
+                                dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
                                 activeDot={{ r: 5 }}
                               />
-                              <Line 
+                              <Line
                                 yAxisId="left"
-                                type="monotone" 
-                                dataKey="trips" 
-                                stroke="hsl(142, 76%, 36%)" 
+                                type="monotone"
+                                dataKey="trips"
+                                stroke="hsl(142, 76%, 36%)"
                                 strokeWidth={2}
-                                dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 0, r: 3 }}
+                                dot={{ fill: "hsl(142, 76%, 36%)", strokeWidth: 0, r: 3 }}
                                 activeDot={{ r: 5 }}
                               />
-                              <Line 
+                              <Line
                                 yAxisId="right"
-                                type="monotone" 
-                                dataKey="ik" 
-                                stroke="hsl(45, 93%, 47%)" 
+                                type="monotone"
+                                dataKey="ik"
+                                stroke="hsl(45, 93%, 47%)"
                                 strokeWidth={2}
-                                dot={{ fill: 'hsl(45, 93%, 47%)', strokeWidth: 0, r: 3 }}
+                                dot={{ fill: "hsl(45, 93%, 47%)", strokeWidth: 0, r: 3 }}
                                 activeDot={{ r: 5 }}
                               />
                             </LineChart>
@@ -2010,9 +2391,14 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'registrations-chart':
+                case "registrations-chart":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-primary" />
@@ -2026,36 +2412,36 @@ export function AdminStats() {
                           <ResponsiveContainer width="100%" height={200}>
                             <LineChart data={registrations}>
                               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                              <XAxis 
-                                dataKey="day" 
+                              <XAxis
+                                dataKey="day"
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                                 axisLine={false}
                                 interval="preserveStartEnd"
                               />
-                              <YAxis 
+                              <YAxis
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                                 axisLine={false}
                                 allowDecimals={false}
                               />
-                              <Tooltip 
-                                contentStyle={{ 
-                                  backgroundColor: 'hsl(var(--card))',
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '8px',
-                                  fontSize: '12px',
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: "hsl(var(--card))",
+                                  border: "1px solid hsl(var(--border))",
+                                  borderRadius: "8px",
+                                  fontSize: "12px",
                                 }}
-                                labelStyle={{ fontWeight: 'bold' }}
+                                labelStyle={{ fontWeight: "bold" }}
                               />
-                              <Line 
-                                type="monotone" 
-                                dataKey="count" 
+                              <Line
+                                type="monotone"
+                                dataKey="count"
                                 name="Nouveaux inscrits"
-                                stroke="hsl(var(--primary))" 
+                                stroke="hsl(var(--primary))"
                                 strokeWidth={2}
-                                dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
-                                activeDot={{ r: 5, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                                dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
+                                activeDot={{ r: 5, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
                               />
                             </LineChart>
                           </ResponsiveContainer>
@@ -2064,9 +2450,14 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'recurring-trips-stats':
+                case "recurring-trips-stats":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Repeat className="w-5 h-5 text-cyan-500" />
@@ -2083,27 +2474,34 @@ export function AdminStats() {
                           <Skeleton className="h-[200px] w-full" />
                         ) : (
                           <ResponsiveContainer width="100%" height={200}>
-                            <LineChart data={recurringTripsStats?.series ?? []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                            <LineChart
+                              data={recurringTripsStats?.series ?? []}
+                              margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
+                            >
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="hsl(var(--border))"
+                                opacity={0.3}
+                              />
                               <XAxis
                                 dataKey="day"
-                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                                 axisLine={false}
                                 tickLine={false}
                               />
                               <YAxis
-                                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                                 allowDecimals={false}
                                 axisLine={false}
                                 tickLine={false}
                               />
                               <Tooltip
-                                formatter={(value: number) => [value, 'Créés']}
+                                formatter={(value: number) => [value, "Créés"]}
                                 contentStyle={{
-                                  background: 'hsl(var(--card))',
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '8px',
-                                  fontSize: '12px',
+                                  background: "hsl(var(--card))",
+                                  border: "1px solid hsl(var(--border))",
+                                  borderRadius: "8px",
+                                  fontSize: "12px",
                                 }}
                               />
                               <Line
@@ -2111,7 +2509,12 @@ export function AdminStats() {
                                 dataKey="count"
                                 stroke="#06b6d4"
                                 strokeWidth={2.5}
-                                dot={{ r: 4, fill: '#06b6d4', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                                dot={{
+                                  r: 4,
+                                  fill: "#06b6d4",
+                                  strokeWidth: 2,
+                                  stroke: "hsl(var(--card))",
+                                }}
                                 activeDot={{ r: 6 }}
                               />
                             </LineChart>
@@ -2124,28 +2527,42 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
-                case 'top-users':
+                case "top-users":
                   return (
-                    <DraggableStatsSection key={sectionId} id={sectionId} cardWidth={getCardWidth(sectionId)} onWidthChange={handleWidthChange}>
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Trophy className="w-5 h-5 text-amber-500" />
                             Top 10 utilisateurs
                           </CardTitle>
-                          <ToggleGroup 
-                            type="single" 
-                            value={topUserSort} 
+                          <ToggleGroup
+                            type="single"
+                            value={topUserSort}
                             onValueChange={(value) => value && setTopUserSort(value as TopUserSort)}
                             className="bg-muted/50 p-1 rounded-lg"
                           >
-                            <ToggleGroupItem value="trips" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs">
+                            <ToggleGroupItem
+                              value="trips"
+                              className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs"
+                            >
                               Trajets
                             </ToggleGroupItem>
-                            <ToggleGroupItem value="km" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs">
+                            <ToggleGroupItem
+                              value="km"
+                              className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs"
+                            >
                               Km
                             </ToggleGroupItem>
-                            <ToggleGroupItem value="ik" className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs">
+                            <ToggleGroupItem
+                              value="ik"
+                              className="px-3 py-1 text-xs data-[state=on]:bg-background data-[state=on]:shadow-xs"
+                            >
                               IK
                             </ToggleGroupItem>
                           </ToggleGroup>
@@ -2155,7 +2572,9 @@ export function AdminStats() {
                         {topUsersLoading ? (
                           <Skeleton className="h-[300px] w-full" />
                         ) : topUsers.length === 0 ? (
-                          <p className="text-muted-foreground text-center py-8">Aucun utilisateur trouvé</p>
+                          <p className="text-muted-foreground text-center py-8">
+                            Aucun utilisateur trouvé
+                          </p>
                         ) : (
                           <div className="overflow-x-auto">
                             <Table>
@@ -2172,7 +2591,13 @@ export function AdminStats() {
                                 {topUsers.map((user, index) => (
                                   <TableRow key={user.user_id}>
                                     <TableCell className="font-medium">
-                                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                                      {index === 0
+                                        ? "🥇"
+                                        : index === 1
+                                          ? "🥈"
+                                          : index === 2
+                                            ? "🥉"
+                                            : index + 1}
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">
                                       {user.user_id.slice(0, 8)}...

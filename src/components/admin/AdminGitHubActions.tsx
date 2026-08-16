@@ -1,42 +1,57 @@
-import { useQuery } from '@tanstack/react-query';
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { getGitHubActionsRuns } from '@/lib/github.functions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Github, RefreshCw, ExternalLink, AlertCircle, CheckCircle2, XCircle, Clock, PlayCircle } from 'lucide-react';
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { getGitHubActionsRuns } from "@/lib/github.functions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Github,
+  RefreshCw,
+  ExternalLink,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  PlayCircle,
+} from "lucide-react";
 
-const OWNER = 'adriendemerville-tech';
-const REPO = 'iktracker-mobile';
+const OWNER = "adriendemerville-tech";
+const REPO = "iktracker-mobile";
 
 function statusIcon(status: string, conclusion: string | null) {
-  if (status === 'queued' || status === 'waiting') return <Clock className="w-4 h-4" />;
-  if (status === 'in_progress') return <PlayCircle className="w-4 h-4" />;
-  if (conclusion === 'success') return <CheckCircle2 className="w-4 h-4" />;
-  if (conclusion === 'failure' || conclusion === 'cancelled' || conclusion === 'timed_out') return <XCircle className="w-4 h-4" />;
+  if (status === "queued" || status === "waiting") return <Clock className="w-4 h-4" />;
+  if (status === "in_progress") return <PlayCircle className="w-4 h-4" />;
+  if (conclusion === "success") return <CheckCircle2 className="w-4 h-4" />;
+  if (conclusion === "failure" || conclusion === "cancelled" || conclusion === "timed_out")
+    return <XCircle className="w-4 h-4" />;
   return <Clock className="w-4 h-4" />;
 }
 
-function statusVariant(status: string, conclusion: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
-  if (status === 'in_progress') return 'default';
-  if (status === 'queued' || status === 'waiting') return 'secondary';
-  if (conclusion === 'success') return 'outline';
-  if (conclusion === 'failure' || conclusion === 'timed_out') return 'destructive';
-  return 'secondary';
+function statusVariant(
+  status: string,
+  conclusion: string | null,
+): "default" | "secondary" | "destructive" | "outline" {
+  if (status === "in_progress") return "default";
+  if (status === "queued" || status === "waiting") return "secondary";
+  if (conclusion === "success") return "outline";
+  if (conclusion === "failure" || conclusion === "timed_out") return "destructive";
+  return "secondary";
 }
 
 function statusLabel(status: string, conclusion: string | null) {
-  if (conclusion) return conclusion === 'success' ? 'réussi' : conclusion;
-  return status === 'in_progress' ? 'en cours' : status;
+  if (conclusion) return conclusion === "success" ? "réussi" : conclusion;
+  return status === "in_progress" ? "en cours" : status;
 }
 
 export function AdminGitHubActions() {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['github-actions-runs', OWNER, REPO],
+    queryKey: ["github-actions-runs", OWNER, REPO],
     queryFn: async () => {
-      const result = await getGitHubActionsRuns({ data: { owner: OWNER, repo: REPO, per_page: 15 } });
+      const result = await getGitHubActionsRuns({
+        data: { owner: OWNER, repo: REPO, per_page: 15 },
+      });
       return result;
     },
     refetchInterval: 60_000,
@@ -53,11 +68,19 @@ export function AdminGitHubActions() {
                 Builds mobile — GitHub Actions
               </CardTitle>
               <CardDescription>
-                Statut des workflows du repo <code className="text-xs">{OWNER}/{REPO}</code>.
+                Statut des workflows du repo{" "}
+                <code className="text-xs">
+                  {OWNER}/{REPO}
+                </code>
+                .
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading}>
-              {isLoading ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              {isLoading ? (
+                <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
               Rafraîchir
             </Button>
           </div>
@@ -76,7 +99,9 @@ export function AdminGitHubActions() {
               <AlertCircle className="w-5 h-5 shrink-0" />
               <div className="space-y-1">
                 <p className="font-medium">Impossible de récupérer les builds</p>
-                <p className="text-xs opacity-90">{error instanceof Error ? error.message : String(error)}</p>
+                <p className="text-xs opacity-90">
+                  {error instanceof Error ? error.message : String(error)}
+                </p>
               </div>
             </div>
           )}
@@ -99,7 +124,10 @@ export function AdminGitHubActions() {
                 >
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant={statusVariant(run.status, run.conclusion)} className="gap-1 text-[10px] h-5">
+                      <Badge
+                        variant={statusVariant(run.status, run.conclusion)}
+                        className="gap-1 text-[10px] h-5"
+                      >
                         {statusIcon(run.status, run.conclusion)}
                         {statusLabel(run.status, run.conclusion)}
                       </Badge>
@@ -107,7 +135,11 @@ export function AdminGitHubActions() {
                     </div>
                     <p className="text-sm font-medium truncate">{run.name}</p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {run.head_branch} · {run.event} · {formatDistanceToNow(new Date(run.created_at), { locale: fr, addSuffix: true })}
+                      {run.head_branch} · {run.event} ·{" "}
+                      {formatDistanceToNow(new Date(run.created_at), {
+                        locale: fr,
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
                   <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />

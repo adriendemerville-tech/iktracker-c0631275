@@ -13,7 +13,7 @@ interface IdleDeadline {
 // Polyfill for browsers without requestIdleCallback
 const requestIdleCallbackPolyfill = (
   callback: (deadline: IdleDeadline) => void,
-  options?: { timeout?: number }
+  options?: { timeout?: number },
 ): IdleCallbackHandle => {
   const start = Date.now();
   return window.setTimeout(() => {
@@ -29,13 +29,13 @@ const cancelIdleCallbackPolyfill = (handle: IdleCallbackHandle): void => {
 };
 
 // Use native or polyfill
-export const scheduleIdleCallback = 
-  typeof window !== 'undefined' && 'requestIdleCallback' in window
+export const scheduleIdleCallback =
+  typeof window !== "undefined" && "requestIdleCallback" in window
     ? window.requestIdleCallback
     : requestIdleCallbackPolyfill;
 
-export const cancelIdleCallback = 
-  typeof window !== 'undefined' && 'cancelIdleCallback' in window
+export const cancelIdleCallback =
+  typeof window !== "undefined" && "cancelIdleCallback" in window
     ? window.cancelIdleCallback
     : cancelIdleCallbackPolyfill;
 
@@ -44,7 +44,7 @@ export const cancelIdleCallback =
  */
 const taskQueue: Array<{
   task: () => void | Promise<void>;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
 }> = [];
 
 let isProcessing = false;
@@ -66,7 +66,7 @@ function processQueue(deadline: IdleDeadline): void {
       try {
         item.task();
       } catch (error) {
-        console.warn('[IdleCallback] Task failed:', error);
+        console.warn("[IdleCallback] Task failed:", error);
       }
     }
   }
@@ -87,8 +87,8 @@ function processQueue(deadline: IdleDeadline): void {
  */
 export function deferTask(
   task: () => void | Promise<void>,
-  priority: 'low' | 'medium' | 'high' = 'low',
-  timeout: number = 5000
+  priority: "low" | "medium" | "high" = "low",
+  timeout: number = 5000,
 ): void {
   taskQueue.push({ task, priority });
 
@@ -114,29 +114,37 @@ export function afterNextFrame(callback: () => void): void {
  * @param importFn Dynamic import function
  */
 export function preloadModule(importFn: () => Promise<unknown>): void {
-  deferTask(() => {
-    importFn().catch(() => {
-      // Silent fail - preloading is best effort
-    });
-  }, 'low', 10000);
+  deferTask(
+    () => {
+      importFn().catch(() => {
+        // Silent fail - preloading is best effort
+      });
+    },
+    "low",
+    10000,
+  );
 }
 
 /**
  * Defer analytics and tracking initialization
  */
 export function deferAnalytics(initFn: () => void): void {
-  deferTask(initFn, 'low', 3000);
+  deferTask(initFn, "low", 3000);
 }
 
 /**
  * Wait for the page to be fully interactive before running
  */
 export function whenInteractive(callback: () => void): void {
-  if (document.readyState === 'complete') {
-    deferTask(callback, 'medium', 2000);
+  if (document.readyState === "complete") {
+    deferTask(callback, "medium", 2000);
   } else {
-    window.addEventListener('load', () => {
-      deferTask(callback, 'medium', 2000);
-    }, { once: true });
+    window.addEventListener(
+      "load",
+      () => {
+        deferTask(callback, "medium", 2000);
+      },
+      { once: true },
+    );
   }
 }

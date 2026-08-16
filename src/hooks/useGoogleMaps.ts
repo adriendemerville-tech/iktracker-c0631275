@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const SCRIPT_ID = 'google-maps-script';
+const SCRIPT_ID = "google-maps-script";
 
 let isLoading = false;
 let isLoaded = false;
@@ -12,41 +12,42 @@ async function fetchApiKey(): Promise<string | null> {
   if (cachedKey) return cachedKey;
 
   try {
-    const { data, error } = await supabase.functions.invoke('google-maps-key');
+    const { data, error } = await supabase.functions.invoke("google-maps-key");
     if (error || !data?.key) {
-      console.error('Failed to fetch Google Maps key:', error);
+      console.error("Failed to fetch Google Maps key:", error);
       return null;
     }
     cachedKey = data.key;
     return cachedKey;
   } catch (e) {
-    console.error('Failed to fetch Google Maps key:', e);
+    console.error("Failed to fetch Google Maps key:", e);
     return null;
   }
 }
 
 function loadScript(apiKey: string) {
-  const existingScript = document.getElementById(SCRIPT_ID) || 
+  const existingScript =
+    document.getElementById(SCRIPT_ID) ||
     document.querySelector('script[src*="maps.googleapis.com"]');
 
   if (existingScript) {
     if (window.google?.maps) {
       isLoaded = true;
       isLoading = false;
-      callbacks.forEach(cb => cb());
+      callbacks.forEach((cb) => cb());
       callbacks.length = 0;
       return;
     }
-    existingScript.addEventListener('load', () => {
+    existingScript.addEventListener("load", () => {
       isLoaded = true;
       isLoading = false;
-      callbacks.forEach(cb => cb());
+      callbacks.forEach((cb) => cb());
       callbacks.length = 0;
     });
     return;
   }
 
-  const script = document.createElement('script');
+  const script = document.createElement("script");
   script.id = SCRIPT_ID;
   script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=fr`;
   script.async = true;
@@ -55,13 +56,13 @@ function loadScript(apiKey: string) {
   script.onload = () => {
     isLoaded = true;
     isLoading = false;
-    callbacks.forEach(cb => cb());
+    callbacks.forEach((cb) => cb());
     callbacks.length = 0;
   };
 
   script.onerror = () => {
     isLoading = false;
-    console.error('Failed to load Google Maps');
+    console.error("Failed to load Google Maps");
   };
 
   document.head.appendChild(script);
@@ -84,7 +85,8 @@ export function useGoogleMaps() {
     isLoading = true;
 
     // Check if script already exists
-    const existingScript = document.getElementById(SCRIPT_ID) || 
+    const existingScript =
+      document.getElementById(SCRIPT_ID) ||
       document.querySelector('script[src*="maps.googleapis.com"]');
 
     if (existingScript && window.google?.maps) {
@@ -99,7 +101,7 @@ export function useGoogleMaps() {
     fetchApiKey().then((key) => {
       if (!key) {
         isLoading = false;
-        console.error('No Google Maps API key available');
+        console.error("No Google Maps API key available");
         return;
       }
       loadScript(key);
@@ -118,7 +120,8 @@ export function useGoogleMaps() {
 export function preloadGoogleMaps() {
   if (isLoaded || isLoading) return;
 
-  const existingScript = document.getElementById(SCRIPT_ID) || 
+  const existingScript =
+    document.getElementById(SCRIPT_ID) ||
     document.querySelector('script[src*="maps.googleapis.com"]');
   if (existingScript) return;
 

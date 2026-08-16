@@ -6,12 +6,10 @@ import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 export const Route = createFileRoute("/app/admin/blog/")({
   head: () => ({
     meta: [
-      {"title":"Administration Blog - IKtracker"},
-      {"name":"robots","content":"noindex, nofollow"},
+      { title: "Administration Blog - IKtracker" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [
-      {"rel":"canonical","href":"https://iktracker.fr/app/admin/blog"},
-    ],
+    links: [{ rel: "canonical", href: "https://iktracker.fr/app/admin/blog" }],
   }),
   component: () => (
     <ProtectedRoute>

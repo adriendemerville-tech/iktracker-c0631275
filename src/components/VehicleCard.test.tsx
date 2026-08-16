@@ -21,7 +21,7 @@ function renderCard(props: Partial<React.ComponentProps<typeof VehicleCard>> = {
       <TooltipProvider>
         <VehicleCard vehicle={baseVehicle} {...props} />
       </TooltipProvider>
-    </TestRouter>
+    </TestRouter>,
   );
 }
 
@@ -57,7 +57,7 @@ describe("VehicleCard", () => {
         <TooltipProvider>
           <VehicleCard vehicle={electricVehicle} totalKm={3000} />
         </TooltipProvider>
-      </TestRouter>
+      </TestRouter>,
     );
     // 0.636 * 1.2 = 0.7632
     expect(screen.getByText("0.763 €/km")).toBeInTheDocument();

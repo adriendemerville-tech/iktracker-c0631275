@@ -2,12 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type PartnerCategory =
-  | "neobank"
-  | "accounting"
-  | "insurance"
-  | "fuel_card"
-  | "leasing"
-  | "other";
+  "neobank" | "accounting" | "insurance" | "fuel_card" | "leasing" | "other";
 
 export interface Partner {
   id: string;
@@ -84,9 +79,7 @@ export function buildPartnerRedirectUrl(opts: {
   persona?: string | null;
   sessionId?: string | null;
 }): string {
-  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID as
-    | string
-    | undefined;
+  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
   const base = projectId
     ? `https://${projectId}.supabase.co/functions/v1/partner-redirect`
     : "/functions/v1/partner-redirect";

@@ -1,8 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import {
-  usePartners,
-  buildPartnerRedirectUrl,
-} from "@/hooks/usePartners";
+import { usePartners, buildPartnerRedirectUrl } from "@/hooks/usePartners";
 import { useLocation } from "@/lib/router-compat";
 
 interface PartnerStripProps {
@@ -40,9 +37,7 @@ export function PartnerStrip({
     >
       <div className="container mx-auto px-4">
         <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            {title}
-          </h2>
+          <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
           <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
             Offres partenaires
           </span>
@@ -73,13 +68,9 @@ export function PartnerStrip({
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {partner.name}
-                  </p>
+                  <p className="truncate text-sm font-medium text-foreground">{partner.name}</p>
                   {partner.tagline && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {partner.tagline}
-                    </p>
+                    <p className="truncate text-xs text-muted-foreground">{partner.tagline}</p>
                   )}
                 </div>
                 <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-primary" />
