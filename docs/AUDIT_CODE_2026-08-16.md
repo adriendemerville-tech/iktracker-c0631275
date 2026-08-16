@@ -71,3 +71,13 @@ Résultat : **59 tests / 59 au vert**, `tsgo --noEmit` propre.
 8. Consolider les routes dupliquées en redirections uniques.
 9. Découper `AdminStats.tsx`, `BlogAdmin.tsx`, `MesTrajets.tsx` et `linkedin-weekly-post`.
 10. Extraire un module partagé pour le barème IK web/mobile.
+
+## Lot 2 — cohérence de style — TERMINÉ (16/08/2026)
+
+1. `.prettierrc.json` créé (semi, double quotes, trailingComma `all`, printWidth 100, LF) — la configuration était implicite jusque-là, d'où les 21 400 écarts constatés.
+2. `.prettierignore` créé : exclut les fichiers auto-générés (`routeTree.gen.ts`, l'intégration backend générée, `config.toml`), les artefacts de build (`dist`, `.output`, `node_modules`, `mobile/ios`, `mobile/android`) et le contenu non-code (`docs`, `public`, `*.md`, lockfiles).
+3. Passe `prettier --write .` appliquée sur l'ensemble du dépôt : composants, hooks, pages, fonctions backend, scripts et fichiers de configuration.
+4. Les 2 derniers `@ts-ignore` convertis en `@ts-expect-error` commentés (`src/hooks/useWakeLock.ts` pour `navigator.getBattery`, fonction backend `backfill-blog-covers` pour `EdgeRuntime`).
+5. Script `npm run format:check` ajouté pour verrouiller le style et permettre un contrôle en CI.
+
+Vérifications : `prettier --check .` propre sur tout le dépôt, `tsgo --noEmit` sans erreur, 59 tests / 59 au vert, preview HTTP 200.
