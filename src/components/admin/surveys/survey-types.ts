@@ -1,4 +1,4 @@
-import { MessageSquare, Star, Camera, Share2, ListChecks, type LucideIcon } from "lucide-react";
+import { MessageSquare, Star, Camera, Share2, ListChecks, Info } from "lucide-react";
 
 // ---- Types ----
 
