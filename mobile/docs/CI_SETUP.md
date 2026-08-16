@@ -111,6 +111,7 @@ Ensuite les builds CI (`--non-interactive`) réutilisent les credentials stocké
 | `Not logged in` | `EXPO_TOKEN` manquant ou expiré |
 | `projectId is not configured` | `eas init` non exécuté / `app.json` pas poussé |
 | `npm ci` échoue | pas de `package-lock.json` — le workflow bascule sur `npm install` |
+| Build EAS `Errored` en ~15 s (Install dependencies) | conflit de peer deps npm — corrigé par `.npmrc` (`legacy-peer-deps=true`) + `package-lock.json` versionnés |
 | `Credentials are not set up` | faire un build interactif local une fois (étape 6) |
 | Submit iOS refusé | `appleId` / `ascAppId` / `appleTeamId` incorrects dans `eas.json` |
 | Flash blanc puis fermeture | consulter Sentry → Issues ; le crash natif précédent est envoyé au prochain lancement |
