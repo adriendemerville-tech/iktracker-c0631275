@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Trip, Location, Vehicle, calculateTotalAnnualIK, TourStopData } from "@/types/trip";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { useAuth } from "./useAuth";
 import { usePreferences, getFiscalYearStart } from "./usePreferences";
 import { useEmailGate, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "./useEmailGate";
@@ -36,7 +37,31 @@ function dbLocation(name: string, address: unknown, lat: unknown, lng: unknown):
 
 // Coordinate payload for trips insert/update. Undefined values are omitted so
 // a partial update never wipes previously stored coordinates.
-function locationColumns(prefix: "start" | "end", loc?: Location) {
+type TripRow = Tables<"trips">;
+type TripInsert = TablesInsert<"trips">;
+type VehicleRow = Tables<"vehicles">;
+
+// Forme historique d'un trajet stocké en localStorage (utilisateurs non connectés).
+// Les dates y sont sérialisées en chaînes, d'où la réhydratation ci-dessous.
+type StoredTrip = Omit<Trip, "startTime" | "endTime"> & {
+  startTime: string | Date;
+  endTime: string | Date;
+  baseDistance?: number;
+  roundTrip?: boolean;
+};
+
+// Les colonnes jsonb attendent le type Json généré : les interfaces applicatives
+// n'ont pas d'index signature, on convertit explicitement au lieu de caster en any.
+function toJson(value: unknown): Json | null {
+  return value === undefined || value === null ? null : (value as Json);
+}
+
+type TripLocationColumns = Pick<
+  TripInsert,
+  "start_address" | "start_lat" | "start_lng" | "end_address" | "end_lat" | "end_lng"
+>;
+
+function locationColumns(prefix: "start" | "end", loc?: Location): Partial<TripLocationColumns> {
   if (!loc) return {};
   const valid =
     typeof loc.lat === "number" &&
@@ -48,7 +73,41 @@ function locationColumns(prefix: "start" | "end", loc?: Location) {
     [`${prefix}_address`]: loc.address || null,
     [`${prefix}_lat`]: valid ? loc.lat : null,
     [`${prefix}_lng`]: valid ? loc.lng : null,
-  } as Record<string, unknown>;
+  };
+}
+
+// Single source of truth for DB row -> Trip mapping (active and archived trips).
+function mapTripRow(t: TripRow): Trip {
+  return {
+    id: t.id,
+    vehicleId: t.vehicle_id,
+    startLocation: dbLocation(t.start_location, t.start_address, t.start_lat, t.start_lng),
+    endLocation: dbLocation(t.end_location, t.end_address, t.end_lat, t.end_lng),
+    distance: t.distance,
+    baseDistance: t.round_trip ? t.distance / 2 : t.distance,
+    roundTrip: t.round_trip,
+    purpose: t.purpose || "",
+    startTime: new Date(t.date),
+    endTime: new Date(t.date),
+    ikAmount: t.ik_amount,
+    tourStops: (t.tour_stops as TourStopData[] | null) ?? undefined,
+    calendarEventId: t.calendar_event_id || undefined,
+    status: (t.status as Trip["status"]) || "validated",
+  };
+}
+
+function mapVehicleRow(v: VehicleRow): Vehicle {
+  return {
+    id: v.id,
+    ownerFirstName: v.owner_first_name || "",
+    ownerLastName: v.owner_last_name || "",
+    licensePlate: v.license_plate || "",
+    make: v.make || "",
+    model: v.model || v.name,
+    fiscalPower: v.fiscal_power,
+    year: v.year || undefined,
+    isElectric: v.is_electric || false,
+  };
 }
 
 export function useTrips() {
@@ -74,19 +133,7 @@ export function useTrips() {
         .order("created_at", { ascending: false });
 
       if (dbVehicles) {
-        setVehicles(
-          dbVehicles.map((v) => ({
-            id: v.id,
-            ownerFirstName: (v as any).owner_first_name || "",
-            ownerLastName: (v as any).owner_last_name || "",
-            licensePlate: (v as any).license_plate || "",
-            make: (v as any).make || "",
-            model: (v as any).model || v.name,
-            fiscalPower: v.fiscal_power,
-            year: (v as any).year || undefined,
-            isElectric: (v as any).is_electric || false,
-          })),
-        );
+        setVehicles(dbVehicles.map(mapVehicleRow));
       }
 
       // Load locations
@@ -118,35 +165,7 @@ export function useTrips() {
         .order("date", { ascending: false });
 
       if (dbTrips) {
-        setTrips(
-          dbTrips.map((t) => ({
-            id: t.id,
-            vehicleId: t.vehicle_id,
-            startLocation: dbLocation(
-              t.start_location,
-              (t as any).start_address,
-              (t as any).start_lat,
-              (t as any).start_lng,
-            ),
-            endLocation: dbLocation(
-              t.end_location,
-              (t as any).end_address,
-              (t as any).end_lat,
-              (t as any).end_lng,
-            ),
-
-            distance: t.distance,
-            baseDistance: t.round_trip ? t.distance / 2 : t.distance,
-            roundTrip: t.round_trip,
-            purpose: t.purpose || "",
-            startTime: new Date(t.date),
-            endTime: new Date(t.date),
-            ikAmount: t.ik_amount,
-            tourStops: (t as any).tour_stops as TourStopData[] | undefined,
-            calendarEventId: t.calendar_event_id || undefined,
-            status: (t as any).status || "validated",
-          })),
-        );
+        setTrips(dbTrips.map(mapTripRow));
       }
 
       // Load archived trips (deleted within last 30 days)
@@ -161,35 +180,7 @@ export function useTrips() {
         .order("deleted_at", { ascending: false });
 
       if (dbArchivedTrips) {
-        setArchivedTrips(
-          dbArchivedTrips.map((t) => ({
-            id: t.id,
-            vehicleId: t.vehicle_id,
-            startLocation: dbLocation(
-              t.start_location,
-              (t as any).start_address,
-              (t as any).start_lat,
-              (t as any).start_lng,
-            ),
-            endLocation: dbLocation(
-              t.end_location,
-              (t as any).end_address,
-              (t as any).end_lat,
-              (t as any).end_lng,
-            ),
-
-            distance: t.distance,
-            baseDistance: t.round_trip ? t.distance / 2 : t.distance,
-            roundTrip: t.round_trip,
-            purpose: t.purpose || "",
-            startTime: new Date(t.date),
-            endTime: new Date(t.date),
-            ikAmount: t.ik_amount,
-            tourStops: (t as any).tour_stops as TourStopData[] | undefined,
-            calendarEventId: t.calendar_event_id || undefined,
-            status: (t as any).status || "validated",
-          })),
-        );
+        setArchivedTrips(dbArchivedTrips.map(mapTripRow));
       }
     } catch (error) {
       console.error("Error loading from database:", error);
@@ -204,7 +195,7 @@ export function useTrips() {
     if (stored) {
       const parsed = JSON.parse(stored);
       setTrips(
-        parsed.map((t: any) => ({
+        parsed.map((t: StoredTrip) => ({
           ...t,
           baseDistance: t.baseDistance || t.distance,
           roundTrip: t.roundTrip || false,
@@ -267,7 +258,7 @@ export function useTrips() {
               make: v.make,
               model: v.model,
               year: v.year || null,
-            } as any)
+            })
             .select()
             .single();
 
@@ -326,7 +317,7 @@ export function useTrips() {
               purpose: t.purpose || null,
               round_trip: false,
               ik_amount: t.ikAmount,
-            } as any);
+            });
             if (error) {
               tripFailure = true;
               console.error("Migration: trip insert failed", error);
@@ -448,8 +439,8 @@ export function useTrips() {
           purpose: trip.purpose || null,
           round_trip: trip.roundTrip,
           ik_amount: ikAmount,
-          tour_stops: trip.tourStops || null,
-        } as any)
+          tour_stops: toJson(trip.tourStops),
+        })
         .select()
         .single();
 
@@ -466,7 +457,7 @@ export function useTrips() {
           startTime: new Date(data.date),
           endTime: new Date(data.date),
           ikAmount: data.ik_amount,
-          tourStops: (data as any).tour_stops as TourStopData[] | undefined,
+          tourStops: (data.tour_stops as TourStopData[] | null) ?? undefined,
           status: "validated",
         };
         setTrips((prev) => [newTrip, ...prev]);
@@ -539,7 +530,7 @@ export function useTrips() {
       const archived = storedArchived ? JSON.parse(storedArchived) : [];
       localStorage.setItem(
         "ik-tracker-archived-trips",
-        JSON.stringify(archived.filter((t: any) => t.id !== id)),
+        JSON.stringify(archived.filter((t: Trip) => t.id !== id)),
       );
 
       // Add back to active trips
@@ -559,7 +550,7 @@ export function useTrips() {
       const archived = storedArchived ? JSON.parse(storedArchived) : [];
       localStorage.setItem(
         "ik-tracker-archived-trips",
-        JSON.stringify(archived.filter((t: any) => t.id !== id)),
+        JSON.stringify(archived.filter((t: Trip) => t.id !== id)),
       );
       setArchivedTrips((prev) => prev.filter((t) => t.id !== id));
     }
@@ -915,35 +906,7 @@ export function useTrips() {
           .order("date", { ascending: false });
 
         if (updatedTrips) {
-          setTrips(
-            updatedTrips.map((t) => ({
-              id: t.id,
-              vehicleId: t.vehicle_id,
-              startLocation: dbLocation(
-                t.start_location,
-                (t as any).start_address,
-                (t as any).start_lat,
-                (t as any).start_lng,
-              ),
-              endLocation: dbLocation(
-                t.end_location,
-                (t as any).end_address,
-                (t as any).end_lat,
-                (t as any).end_lng,
-              ),
-
-              distance: t.distance,
-              baseDistance: t.round_trip ? t.distance / 2 : t.distance,
-              roundTrip: t.round_trip,
-              purpose: t.purpose || "",
-              startTime: new Date(t.date),
-              endTime: new Date(t.date),
-              ikAmount: t.ik_amount,
-              tourStops: (t as any).tour_stops as TourStopData[] | undefined,
-              calendarEventId: t.calendar_event_id || undefined,
-              status: (t as any).status || "validated",
-            })),
-          );
+          setTrips(updatedTrips.map(mapTripRow));
         }
 
         // Notify user that IK amounts were recalculated
