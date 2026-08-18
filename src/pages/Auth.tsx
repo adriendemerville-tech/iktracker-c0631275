@@ -35,7 +35,8 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const isOnDeployedDomain = window.location.hostname === DEPLOYED_DOMAIN;
+  const isOnDeployedDomain =
+    typeof window !== "undefined" && window.location.hostname === DEPLOYED_DOMAIN;
 
   // Auto-register calendar connection placeholder when signing in with OAuth provider
   // This creates an active connection entry so the switch shows ON in CalendarConnections.
