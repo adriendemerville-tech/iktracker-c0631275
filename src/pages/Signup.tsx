@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useHydrated } from "@tanstack/react-router";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
