@@ -62,6 +62,9 @@ const Signup = () => {
   }, []);
 
   const [checkingAuth, setCheckingAuth] = useState(true);
+  // Le spinner ne doit s'afficher qu'après hydratation : le rendu serveur doit
+  // exposer le formulaire complet aux crawlers.
+  const hydrated = useHydrated();
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [selectedPersona, setSelectedPersona] = useState<PersonaValue | null>(null);
   const [showPersonaPicker, setShowPersonaPicker] = useState(true);
