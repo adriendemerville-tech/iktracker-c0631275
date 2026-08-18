@@ -246,7 +246,7 @@ const Signup = () => {
     }
   };
 
-  if (checkingAuth) {
+  if (hydrated && checkingAuth) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center cursor-default">
         <Loader2 className="w-8 h-8 animate-spin text-white" />
