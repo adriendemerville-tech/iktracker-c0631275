@@ -1,77 +1,48 @@
-import { lazy, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { AuthLoadingScreen } from "@/components/AuthLoadingScreen";
 import { Navigate, useLocation } from "@/lib/router-compat";
+import { useHydrated } from "@tanstack/react-router";
+import Landing from "@/pages/Landing";
+import Auth from "@/pages/Auth";
+import Signup from "@/pages/Signup";
 
-// Moved verbatim from the pre-migration src/App.tsx during the TanStack Start migration.
-const Landing = lazy(() => import("@/pages/Landing"));
-const Auth = lazy(() => import("@/pages/Auth"));
-const Signup = lazy(() => import("@/pages/Signup"));
+// Public entry points ("/", "/auth", "/signup") must render real HTML during SSR:
+// crawlers (and AI crawlers especially) do not execute JS. So we always render the
+// public page on the server, and only redirect authenticated users after hydration.
 
-// Minimal loading fallback - the SSR shell already paints the page frame
-const PageLoader = () => null;
-
-// Smart landing: redirect authenticated users to /app
+// Smart landing: redirect authenticated users to /app (client-side only)
 export const SmartLanding = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const hydrated = useHydrated();
   const fromApp = new URLSearchParams(location.search).get("from") === "app";
 
-  // Still loading auth state - show AuthLoadingScreen for consistency
-  if (loading) {
-    return <AuthLoadingScreen />;
-  }
-
-  // Authenticated users redirect to app (unless they came from app via logo)
-  if (user && !fromApp) {
+  if (hydrated && !loading && user && !fromApp) {
     return <Navigate to="/app" replace />;
   }
 
-  // Show the landing page
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <Landing />
-    </Suspense>
-  );
+  return <Landing />;
 };
 
 // Smart auth: redirect authenticated users to /app
 export const SmartAuth = () => {
   const { user, loading } = useAuth();
+  const hydrated = useHydrated();
 
-  // Show loader only while actually loading auth state
-  if (loading) {
-    return <AuthLoadingScreen />;
-  }
-
-  // Authenticated users go directly to the app
-  if (user) {
+  if (hydrated && !loading && user) {
     return <Navigate to="/app" replace />;
   }
 
-  // Non-authenticated users see the auth page immediately
-  return (
-    <Suspense fallback={<AuthLoadingScreen />}>
-      <Auth />
-    </Suspense>
-  );
+  return <Auth />;
 };
 
 // Smart signup: redirect authenticated users to /app
 export const SmartSignup = () => {
   const { user, loading } = useAuth();
+  const hydrated = useHydrated();
 
-  if (loading) {
-    return <AuthLoadingScreen />;
-  }
-
-  if (user) {
+  if (hydrated && !loading && user) {
     return <Navigate to="/app" replace />;
   }
 
-  return (
-    <Suspense fallback={<AuthLoadingScreen />}>
-      <Signup />
-    </Suspense>
-  );
+  return <Signup />;
 };

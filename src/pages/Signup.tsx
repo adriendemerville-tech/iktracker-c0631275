@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useHydrated } from "@tanstack/react-router";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,6 +62,9 @@ const Signup = () => {
   }, []);
 
   const [checkingAuth, setCheckingAuth] = useState(true);
+  // Le spinner ne doit s'afficher qu'après hydratation : le rendu serveur doit
+  // exposer le formulaire complet aux crawlers.
+  const hydrated = useHydrated();
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [selectedPersona, setSelectedPersona] = useState<PersonaValue | null>(null);
   const [showPersonaPicker, setShowPersonaPicker] = useState(true);
@@ -242,7 +246,7 @@ const Signup = () => {
     }
   };
 
-  if (checkingAuth) {
+  if (hydrated && checkingAuth) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center cursor-default">
         <Loader2 className="w-8 h-8 animate-spin text-white" />

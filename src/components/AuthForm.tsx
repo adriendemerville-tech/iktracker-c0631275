@@ -39,9 +39,11 @@ export const AuthForm = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(
-    () => localStorage.getItem("ik_remember_me") === "true",
-  );
+  const [rememberMe, setRememberMe] = useState(false);
+  // Lu après hydratation : localStorage n'existe pas pendant le rendu serveur.
+  useEffect(() => {
+    setRememberMe(localStorage.getItem("ik_remember_me") === "true");
+  }, []);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
