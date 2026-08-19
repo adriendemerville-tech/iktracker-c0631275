@@ -6,6 +6,7 @@ import { Helmet } from "@/lib/helmet-compat";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageContent } from "@/hooks/usePageContent";
+import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -191,6 +192,17 @@ const Landing = () => {
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker("landing");
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
+
+  // Test A/B du H1 : le serveur (et Googlebot) reçoit toujours la variante de
+  // contrôle ; le swap n'a lieu qu'après hydratation pour la variante B.
+  const [heroVariant, setHeroVariant] = useState<HeroVariant>(DEFAULT_VARIANT);
+  useEffect(() => {
+    setHeroVariant(getHeroVariant());
+  }, []);
+  const hero = heroVariant === "A" ? null : HERO_VARIANTS[heroVariant];
+  const heroTitle = hero?.title ?? c.hero_title;
+  const heroHighlight = hero?.highlight ?? c.hero_highlight;
+  const heroSubtitle = hero?.subtitle ?? c.hero_subtitle;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -382,13 +394,13 @@ const Landing = () => {
                   id="hero-heading"
                   className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
                 >
-                  {c.hero_title}
+                  {heroTitle}
                   <br />
-                  <span className="text-gradient">{c.hero_highlight}</span>
+                  <span className="text-gradient">{heroHighlight}</span>
                 </h1>
                 {/* min-height reserves space → prevents CLS when React subtitle replaces static shell */}
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 min-h-[6rem] sm:min-h-[5.5rem] md:min-h-[6rem]">
-                  {c.hero_subtitle}
+                  {heroSubtitle}
                 </p>
 
                 {/* CTA principal mobile - au-dessus de la ligne de flottaison */}

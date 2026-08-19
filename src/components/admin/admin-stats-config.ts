@@ -126,6 +126,7 @@ export const DEFAULT_SECTION_ORDER = [
   "main-stats",
   "dau-chart",
   "signup-funnel",
+  "ab-test",
   "search-console",
   "recent-signups",
   "persona-distribution",

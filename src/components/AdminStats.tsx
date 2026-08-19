@@ -98,6 +98,7 @@ import { AdaptiveChart } from "@/components/admin/AdaptiveChart";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import { SignupFunnelCard } from "@/components/admin/SignupFunnelCard";
+import { ABTestCard } from "@/components/admin/ABTestCard";
 import { SearchConsoleCard } from "@/components/admin/SearchConsoleCard";
 
 import type {
@@ -1588,6 +1589,18 @@ export function AdminStats() {
                       isCard={false}
                     >
                       <SignupFunnelCard daysBack={periodConfig[period].daysBack} />
+                    </DraggableStatsSection>
+                  );
+                case "ab-test":
+                  return (
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                      isCard={false}
+                    >
+                      <ABTestCard daysBack={periodConfig[period].daysBack} />
                     </DraggableStatsSection>
                   );
                 case "search-console":

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isBrowser, isBot } from "@/lib/ssr-utils";
 import { getSessionId, getDeviceType, checkIsAdmin } from "@/lib/tracking-shared";
+import { getVariantTag } from "@/lib/ab-test";
 
 // IP is captured server-side by the track-event edge function (CF headers),
 // so we no longer call api.ipify.org (blocked by uBlock/Brave/Pi-hole).
@@ -63,6 +64,7 @@ export function useMarketingTracker(page: string) {
           session_id: getSessionId(),
           referrer: document?.referrer || null,
           user_agent: navigator?.userAgent || "unknown",
+          variant: getVariantTag(),
         },
       });
     } catch (error) {

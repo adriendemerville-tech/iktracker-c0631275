@@ -235,7 +235,7 @@ Le backend pèse ≈ 20 % du codebase total (~68 k lignes).
 | `convert-blog-images` | 172 | JWT (admin) | POST | Conversion d'images blog |
 | `sitemap` | 138 | Non | GET | Génération sitemap XML dynamique |
 | `wavespeed` | ~150 | JWT (**admin uniquement**) | ANY | Proxy générique Wavespeed.ai (crédits projet — accès strictement réservé) |
-| `track-event` | ~125 | Public (JWT optionnel) | POST | Ingestion `marketing_analytics` avec IP capturée server-side (headers CF), filtre bots + admins. Événements autorisés : funnel signup complet, dont `signup_oauth_return`, `signup_oauth_denied`, `signup_oauth_abandon` (retour/refus/abandon sur l'écran de consentement OAuth). CORS restreint à `iktracker.fr`, `lovable.app`, `lovableproject.com`. Cron `purge-marketing-analytics-daily` (03:15 UTC) supprime les événements > 90 j via `purge_old_marketing_analytics()`. |
+| `track-event` | ~125 | Public (JWT optionnel) | POST | Ingestion `marketing_analytics` avec IP capturée server-side (headers CF), filtre bots + admins. Événements autorisés : funnel signup complet, dont `signup_oauth_return`, `signup_oauth_denied`, `signup_oauth_abandon` (retour/refus/abandon sur l'écran de consentement OAuth). CORS restreint à `iktracker.fr`, `lovable.app`, `lovableproject.com`. Accepte un champ optionnel `variant` (format `test_id:X`, validé par regex) stocké dans `marketing_analytics.variant` pour l'A/B testing. Cron `purge-marketing-analytics-daily` (03:15 UTC) supprime les événements > 90 j via `purge_old_marketing_analytics()`. |
 | `marina-analyze` | 86 | JWT | GET/POST | Analyse IA de documents (Marina) |
 | `google-maps-key` | 62 | JWT | GET | Fournit la clé Google Maps au client |
 
@@ -1314,3 +1314,11 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - Edge function `backfill-blog-covers` (verify_jwt=false) : génère une couverture photoréaliste (flux-dev, 1216x640) pour les articles publiés sans visuel ou pointant vers un stockage externe, upload dans le bucket `blog-images`, met à jour `featured_image_url`.
 - Garde-fou : table `public.maintenance_flags` (cle `backfill_blog_covers`) — la fonction ne s' exécute que si `enabled = true` (sinon service_role ou JWT admin requis). Flag remis à `false` après le backfill.
 - Résultat août 2026 : 79 articles publiés, 0 sans image (49 couvertures générées).
+
+## A/B testing (hero H1)
+
+- Colonne `marketing_analytics.variant` (`text`, nullable) + index partiel `idx_marketing_analytics_variant`.
+- Attribution 50/50 côté client (`src/lib/ab-test.ts`, clé localStorage `ab_hero_h1_v1`), envoyée dans chaque évènement via `track-event`.
+- RPC `get_ab_test_results(days_back int)` (SECURITY DEFINER, EXECUTE réservé à `authenticated`) : renvoie par variante le nombre de sessions distinctes pour visiteurs, clics CTA, vues signup, démarrages et inscriptions.
+- Restitution : carte « Test A/B — Titre du hero » dans /admin > Stats (`src/components/admin/ABTestCard.tsx`).
+- SSR : la variante de contrôle (A) est toujours rendue côté serveur pour Googlebot ; le swap n'a lieu qu'après hydratation.

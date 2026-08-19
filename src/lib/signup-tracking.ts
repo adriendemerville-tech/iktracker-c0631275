@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { isBrowser, isBot, safeSessionStorage } from "@/lib/ssr-utils";
 import { getSessionId, getDeviceType } from "@/lib/tracking-shared";
+import { getVariantTag } from "@/lib/ab-test";
 
 type SignupEventType =
   | "signup_view"
@@ -43,6 +44,7 @@ export async function trackSignupEvent(
         session_id: getSessionId(),
         referrer: context ?? document?.referrer ?? null,
         user_agent: navigator?.userAgent || "unknown",
+        variant: getVariantTag(),
       },
     });
   } catch (err) {
