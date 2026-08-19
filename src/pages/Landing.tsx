@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
