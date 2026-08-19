@@ -1,4 +1,5 @@
 import { Helmet } from "@/lib/helmet-compat";
+import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
@@ -341,6 +342,14 @@ export default function Fonctionnalites() {
           </Link>
         </section>
       </main>
+
+      <RelatedLinks
+        links={[
+          { label: "Suivi de mes trajets", href: "/mes-trajets", description: "Le carnet de bord automatique et opposable." },
+          { label: "Note de frais kilométrique", href: "/note-de-frais-kilometrique", description: "Générer une note de frais prête pour la compta." },
+          { label: "API & documentation", href: "/api-docs", description: "Intégrer IKtracker à vos outils métier." },
+        ]}
+      />
 
       <EnhancedMarketingFooter />
     </>
