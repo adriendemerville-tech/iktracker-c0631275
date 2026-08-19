@@ -574,7 +574,9 @@ export default function FraisReels() {
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary mt-1 shrink-0" />
-                        <span className="text-sm">Simple et sans risque de contrôle</span>
+                        <span className="text-sm">
+                          Simple, avec un risque de contrôle très réduit
+                        </span>
                       </li>
                     </ul>
                   </CardContent>
@@ -649,7 +651,7 @@ export default function FraisReels() {
                     raisons professionnelles, ou si votre trajet domicile-travail est supérieur à 40
                     km. L'option des frais réels permet de déduire l'intégralité de vos dépenses
                     liées aux déplacements professionnels selon le{" "}
-                    <strong className="text-foreground">barème kilométrique URSSAF</strong>.
+                    <strong className="text-foreground">barème kilométrique DGFiP (BOFiP)</strong>.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -777,9 +779,21 @@ export default function FraisReels() {
 
         <RelatedLinks
           links={[
-            { label: "Note de frais kilométrique", href: "/note-de-frais-kilometrique", description: "Modèle et règles de rédaction d'une note de frais conforme." },
-            { label: "Indemnité grand déplacement 2026", href: "/indemnite-grand-deplacement-2026", description: "Barèmes repas et hébergement pour les missions longues." },
-            { label: "Suivi de mes trajets", href: "/mes-trajets", description: "Enregistrer et justifier chaque déplacement professionnel." },
+            {
+              label: "Note de frais kilométrique",
+              href: "/note-de-frais-kilometrique",
+              description: "Modèle et règles de rédaction d'une note de frais conforme.",
+            },
+            {
+              label: "Indemnité grand déplacement 2026",
+              href: "/indemnite-grand-deplacement-2026",
+              description: "Barèmes repas et hébergement pour les missions longues.",
+            },
+            {
+              label: "Suivi de mes trajets",
+              href: "/mes-trajets",
+              description: "Enregistrer et justifier chaque déplacement professionnel.",
+            },
           ]}
         />
 

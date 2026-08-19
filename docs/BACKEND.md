@@ -1322,3 +1322,12 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - RPC `get_ab_test_results(days_back int)` (SECURITY DEFINER, EXECUTE réservé à `authenticated`) : renvoie par variante le nombre de sessions distinctes pour visiteurs, clics CTA, vues signup, démarrages et inscriptions.
 - Restitution : carte « Test A/B — Titre du hero » dans /admin > Stats (`src/components/admin/ABTestCard.tsx`).
 - SSR : la variante de contrôle (A) est toujours rendue côté serveur pour Googlebot ; le swap n'a lieu qu'après hydratation.
+
+## Correction éditoriale GEO (19/08/2026)
+
+Migration de contenu (pas de changement de schéma) sur `blog_posts` (`status = 'published'`) :
+
+- **Autorité citée** : une occurrence sur deux de « URSSAF » apparaissant dans un contexte de barème kilométrique (`barème[^.]{0,40}URSSAF`) a été remplacée par « DGFiP (BOFiP) ». L'alternance est volontaire : l'URSSAF reste pertinente pour l'exonération de cotisations, la DGFiP/BOFiP est l'autorité correcte pour le barème kilométrique. 30 articles concernés → 22 conservent encore la formulation URSSAF.
+- **Superlatifs non sourcés** purgés : `100 % conforme` → `conforme`, `sans risque` → `en limitant fortement le risque`, `reconnu par l'administration` → `conçu pour répondre aux exigences de l'administration`. Les énumérations de type « erreur n°1 » n'ont pas été touchées (faux positif de l'audit).
+
+Côté front, mêmes corrections ciblées sur `BaremeIK2026.tsx`, `NoteDeFraisKilometrique.tsx`, `FraisReels.tsx`, `routes/bareme-ik-2026.tsx` et `EnhancedMarketingFooter.tsx` (lien source du barème repointé vers `impots.gouv.fr`).

@@ -11,7 +11,7 @@ import { ArrowRight, FileText, ListChecks, ShieldCheck, FileDown } from "lucide-
 const faqs = [
   {
     q: "Comment faire une note de frais kilométrique ?",
-    a: "Une note de frais kilométrique doit mentionner : la date du déplacement, le motif professionnel, l'adresse de départ et d'arrivée, la distance parcourue en kilomètres, la puissance fiscale du véhicule (case P.6 de la carte grise) et le montant calculé selon le barème URSSAF en vigueur. IKtracker génère automatiquement chacun de ces champs et exporte le tout en PDF ou Excel.",
+    a: "Une note de frais kilométrique doit mentionner : la date du déplacement, le motif professionnel, l'adresse de départ et d'arrivée, la distance parcourue en kilomètres, la puissance fiscale du véhicule (case P.6 de la carte grise) et le montant calculé selon le barème kilométrique DGFiP (BOFiP) en vigueur. IKtracker génère automatiquement chacun de ces champs et exporte le tout en PDF ou Excel.",
   },
   {
     q: "Quel modèle de note de frais kilométrique utiliser ?",
@@ -157,7 +157,7 @@ export default function NoteDeFraisKilometrique() {
               {
                 icon: FileDown,
                 t: "Montant calculé",
-                d: "Application du barème URSSAF 2025-2026 selon la tranche kilométrique annuelle.",
+                d: "Application du barème DGFiP (BOFiP) 2025-2026 selon la tranche kilométrique annuelle.",
               },
             ].map(({ icon: Icon, t, d }) => (
               <Card key={t} className="border-border">

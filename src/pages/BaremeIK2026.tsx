@@ -77,7 +77,7 @@ const faqData = [
   {
     question: "Que risque-t-on en cas de mauvais suivi de ses trajets professionnels ?",
     answer:
-      "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés. Un outil de suivi automatisé comme IKtracker permet de constituer un dossier fiscal solide et conforme aux exigences de l'URSSAF.",
+      "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés. Un outil de suivi automatisé comme IKtracker permet de constituer un dossier fiscal solide et conforme aux exigences de la DGFiP (BOFiP).",
   },
 ];
 
@@ -693,12 +693,12 @@ const BaremeIK2026 = () => {
                 fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs
                 centaines d'euros. L'
                 <a
-                  href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html"
+                  href="https://www.impots.gouv.fr/simulateur-bareme-kilometrique"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  administration fiscale (URSSAF)
+                  administration fiscale (DGFiP – BOFiP)
                 </a>{" "}
                 exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu
                 de départ, destination, distance et motif professionnel. En cas de contrôle,
@@ -1145,9 +1145,21 @@ const BaremeIK2026 = () => {
 
         <RelatedLinks
           links={[
-            { label: "Indemnité kilométrique vélo", href: "/indemnite-kilometrique-velo", description: "Le forfait mobilités durables et le barème vélo." },
-            { label: "Indemnité grand déplacement 2026", href: "/indemnite-grand-deplacement-2026", description: "Barèmes repas et hébergement hors du domicile." },
-            { label: "IKtracker vs Drivers Note", href: "/comparatif-driversnote", description: "Comparatif détaillé des deux applications." },
+            {
+              label: "Indemnité kilométrique vélo",
+              href: "/indemnite-kilometrique-velo",
+              description: "Le forfait mobilités durables et le barème vélo.",
+            },
+            {
+              label: "Indemnité grand déplacement 2026",
+              href: "/indemnite-grand-deplacement-2026",
+              description: "Barèmes repas et hébergement hors du domicile.",
+            },
+            {
+              label: "IKtracker vs Drivers Note",
+              href: "/comparatif-driversnote",
+              description: "Comparatif détaillé des deux applications.",
+            },
           ]}
         />
 

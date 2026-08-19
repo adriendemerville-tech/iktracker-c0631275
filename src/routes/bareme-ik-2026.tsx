@@ -8,7 +8,7 @@ export const Route = createFileRoute("/bareme-ik-2026")({
       {
         name: "description",
         content:
-          "Barème kilométrique 2026 officiel URSSAF : tableau IK par CV, simulateur gratuit en 10 secondes et majoration +20% véhicule électrique. Sans inscription.",
+          "Barème kilométrique 2026 officiel DGFiP (BOFiP) : tableau IK par CV, simulateur gratuit en 10 secondes et majoration +20% véhicule électrique. Sans inscription.",
       },
       {
         name: "keywords",
