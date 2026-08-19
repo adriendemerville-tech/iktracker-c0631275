@@ -891,6 +891,7 @@ export type Database = {
           session_id: string | null
           user_agent: string | null
           user_id: string | null
+          variant: string | null
         }
         Insert: {
           created_at?: string
@@ -903,6 +904,7 @@ export type Database = {
           session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
+          variant?: string | null
         }
         Update: {
           created_at?: string
@@ -915,6 +917,7 @@ export type Database = {
           session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
+          variant?: string | null
         }
         Relationships: []
       }
@@ -2266,6 +2269,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_ab_test_results: { Args: { days_back?: number }; Returns: Json }
       get_admin_stats: {
         Args: { end_date?: string; start_date?: string }
         Returns: Json

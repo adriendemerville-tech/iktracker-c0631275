@@ -102,6 +102,10 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Variante A/B (ex. "hero_h1_v1:B") — optionnelle et bornée
+    const rawVariant = typeof body.variant === "string" ? body.variant.trim() : "";
+    const variant = /^[a-z0-9_]{1,40}:[A-Z]$/.test(rawVariant) ? rawVariant : null;
+
     const ip = getClientIp(req);
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -114,6 +118,7 @@ Deno.serve(async (req) => {
       user_agent: userAgent,
       user_id: userId,
       ip_address: ip,
+      variant,
     });
 
     if (error) {
