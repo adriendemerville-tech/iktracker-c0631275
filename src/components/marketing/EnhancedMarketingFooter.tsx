@@ -32,7 +32,7 @@ const faqItems = [
   {
     question: "Mes données sont-elles sécurisées et conformes RGPD ?",
     answer:
-      "Absolument. Vos données sont chiffrées et hébergées en Europe. IKtracker est 100% conforme au RGPD. Vos informations ne sont jamais partagées ni vendues. Vous pouvez exporter ou supprimer vos données à tout moment.",
+      "Absolument. Vos données sont chiffrées et hébergées en Europe. IKtracker est conforme au RGPD. Vos informations ne sont jamais partagées ni vendues. Vous pouvez exporter ou supprimer vos données à tout moment.",
   },
   {
     question: "L'outil est-il adapté aux infirmiers libéraux ?",

@@ -77,7 +77,7 @@ const faqData = [
   {
     question: "Que risque-t-on en cas de mauvais suivi de ses trajets professionnels ?",
     answer:
-      "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés. Un outil de suivi automatisé comme IKtracker permet de constituer un dossier fiscal solide et conforme aux exigences de l'URSSAF.",
+      "L'administration fiscale exige un relevé détaillé de chaque trajet (date, lieu de départ, destination, distance, motif). En cas de contrôle, l'absence de justificatifs peut entraîner un redressement fiscal portant sur l'ensemble des frais déclarés. Un outil de suivi automatisé comme IKtracker permet de constituer un dossier fiscal solide et conforme aux exigences de la DGFiP (BOFiP).",
   },
 ];
 
