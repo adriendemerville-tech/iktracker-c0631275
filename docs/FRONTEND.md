@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.4 — 11 août 2026 (attribution de trafic & détection IA GA4)
+> Version 2.5 — 19 août 2026 (qualité de code, SSR public, A/B testing hero)
+
+**Notes v2.5**
+- Chantier qualité (lots 1 à 4) : tests Vitest (`vitest.config.ts`), Prettier, suppression des `any` sur les hooks métier, découpage des fichiers > 1000 lignes (`print-utils.ts`, `AdminStats.tsx`…), suppression des routes blog dupliquées.
+- SSR réparé sur `/`, `/auth` et `/signup` : imports statiques dans `SmartRoutes.tsx` + `useHydrated`, plus aucun accès direct aux globales navigateur au rendu serveur.
+- Navigation marketing simplifiée (`MarketingNav.tsx` : regroupement « Ressources ») et CTA « Créer mon compte » remonté above the fold sur mobile.
+- A/B testing du H1 du hero (`src/lib/ab-test.ts`) avec restitution dans /admin > Stats.
+
 
 **Notes v2.3 (consolidation blog & redirections)**
 - `src/lib/blog-redirects.ts` contient les **22 redirections 301** des slugs de blog consolidés (articles archivés ou réorientés). Il est consommé par `beforeLoad` de `src/routes/blog/$slug.tsx` : la 301 part donc du SSR, sans dépendre du Worker Cloudflare.
@@ -577,7 +584,40 @@ src/
 - `public/manifest.webmanifest` : `start_url` taggué `?utm_source=pwa&utm_medium=app&utm_campaign=standalone_launch`, afin que les lancements depuis l'icône installée ne soient plus comptés comme acquisition directe.
 - Prérequis GA4 côté interface : déclarer les 4 dimensions personnalisées (portée évènement) avec les noms de paramètres ci-dessus, puis créer un groupe de canaux personnalisé mappant `medium = ai_assistant` → « IA » et `medium = app` → « App installée ».
 
+## A/B testing du hero (`/`)
+
+- `src/lib/ab-test.ts` : attribution 50/50 persistante (localStorage `ab_hero_h1_v1`), variante A = contrôle (gestion des trajets), variante B = bénéfice fiscal / sérénité comptable.
+- `src/pages/Landing.tsx` : la variante A est rendue en SSR (Googlebot voit toujours le contrôle) ; le swap n'a lieu qu'après hydratation.
+- Propagation de la variante : `src/hooks/useMarketingTracker.ts` et `src/lib/signup-tracking.ts` → Edge Function `track-event` → colonne `marketing_analytics.variant`.
+- Restitution : `src/components/admin/ABTestCard.tsx` dans /admin > Stats (visiteurs, clics CTA, vues signup, inscriptions par variante) via la RPC `get_ab_test_results`.
+
+## Conversion : navigation & CTA
+
+- `src/components/marketing/MarketingNav.tsx` : liens secondaires regroupés dans un menu « Ressources » pour réduire la dilution des CTA sur desktop.
+- `src/pages/Landing.tsx` : CTA « Créer mon compte » remonté above the fold sur mobile.
+
+## Trajet en direct (PWA)
+
+- `src/components/QuickTripTracker.tsx` : démarrage/fin de trajet géolocalisés en haut de la home mobile. Points GPS départ/arrivée puis distance routière via Distance Matrix à la finalisation (les détours ne sont tracés qu'en Mode Tournée).
+- Pendant natif : `mobile/src/lib/live-trip.ts`.
+
+## Qualité de code (lots 1 à 4)
+
+- **Lot 1 — stabilisation** : `vitest.config.ts`, suite de tests verte (59/59), correction des hooks conditionnels.
+- **Lot 2 — style** : Prettier appliqué sur l'ensemble du code, `@ts-ignore` → `@ts-expect-error`.
+- **Lot 3 — typage** : suppression des `any` sur les hooks métier (`useTrips.ts`…) au profit des types générés du backend.
+- **Lot 4 — architecture** : suppression des routes blog dupliquées (canonical + noindex), découpage des fichiers > 1000 lignes (`print-utils.ts`, `AdminStats.tsx`, etc.).
+- Dette résiduelle suivie dans `docs/AUDIT_CODE_2026-08-16.md` : `no-explicit-any` restants, `exhaustive-deps`, fichiers encore volumineux.
+
+## SSR des pages publiques
+
+- `src/components/auth/SmartRoutes.tsx` utilise des imports statiques et `useHydrated` : `/`, `/auth` et `/signup` renvoient désormais un HTML complet côté serveur (le body était vide auparavant, signalé par l'audit SEO).
+- `AuthForm.tsx`, `Auth.tsx`, `Signup.tsx` : tout accès `window`/`localStorage` est gardé ou différé après hydratation.
+
 ## Changelog
+
+- **2.5** (19 août 2026) — Qualité de code (lots 1 à 4 : Vitest, Prettier, typage, découpage), SSR restauré sur `/`, `/auth`, `/signup`, navigation marketing simplifiée + CTA mobile above the fold, A/B testing du H1 du hero avec suivi dans /admin > Stats, trajet en direct PWA.
+
 
 - **2.4** (11 août 2026) — Attribution de trafic fiabilisée : `traffic-attribution.ts` (détection IA élargie, mode de lancement PWA), dimensions personnalisées et override de campagne dans `AnalyticsTracker`, `start_url` du manifeste taggué UTM.
 
