@@ -23,6 +23,9 @@ export function MarketingFooter() {
     resources: [
       { label: "Expert-Comptable", href: "/expert-comptable" },
       { label: "Lexique IK", href: "/lexique" },
+      { label: "Note de frais kilométrique", href: "/note-de-frais-kilometrique" },
+      { label: "IK vélo", href: "/indemnite-kilometrique-velo" },
+      { label: "Grand déplacement 2026", href: "/indemnite-grand-deplacement-2026" },
       { label: "Confidentialité", href: "/privacy" },
       { label: "RGPD", href: "/rgpd" },
       { label: "CGVU", href: "/terms" },
