@@ -186,19 +186,21 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Link>
                 ) : (
                   <>
-                    <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                      <Link to="/auth" className="focus-visible-ring">
-                        <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
-                        Connexion
-                      </Link>
-                    </Button>
+                    {/* Connexion en lien discret, un seul bouton d'action */}
+                    <Link
+                      to="/auth"
+                      className="hidden sm:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md px-2 py-1"
+                    >
+                      <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                      Connexion
+                    </Link>
                     <Link
                       to="/signup"
                       className="focus-visible-ring rounded-lg"
                       onClick={trackSignupClick}
                     >
                       <Button variant="gradient" size="sm">
-                        S'inscrire
+                        Créer mon compte
                       </Button>
                     </Link>
                   </>
