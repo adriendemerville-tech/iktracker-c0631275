@@ -20,6 +20,36 @@ interface Props {
 
 const pct = (n: number, d: number) => (d > 0 ? (n / d) * 100 : 0);
 
+/** Fonction de répartition de la loi normale centrée réduite (approx. Zelen & Severo). */
+function normalCdf(z: number): number {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989422804014327 * Math.exp((-z * z) / 2);
+  const p =
+    d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+  return z >= 0 ? 1 - p : p;
+}
+
+/** Test z bilatéral de comparaison de deux proportions + IC 95 % de l'écart absolu. */
+function twoProportionTest(x1: number, n1: number, x2: number, n2: number) {
+  if (n1 < 1 || n2 < 1) return null;
+  const p1 = x1 / n1;
+  const p2 = x2 / n2;
+  const pPool = (x1 + x2) / (n1 + n2);
+  const se = Math.sqrt(pPool * (1 - pPool) * (1 / n1 + 1 / n2));
+  if (se === 0) return null;
+  const z = (p2 - p1) / se;
+  const pValue = 2 * (1 - normalCdf(Math.abs(z)));
+  const seDiff = Math.sqrt((p1 * (1 - p1)) / n1 + (p2 * (1 - p2)) / n2);
+  const diff = p2 - p1;
+  return {
+    pValue,
+    diff: diff * 100,
+    ciLow: (diff - 1.96 * seDiff) * 100,
+    ciHigh: (diff + 1.96 * seDiff) * 100,
+    significant: pValue < 0.05,
+  };
+}
+
 export function ABTestCard({ daysBack }: Props) {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-ab-test", daysBack],
