@@ -162,11 +162,32 @@ export function ABTestCard({ daysBack }: Props) {
           );
         })}
 
-        {rows.length > 1 && (
-          <p className="text-xs text-muted-foreground">
-            Attendre au moins ~300 visiteurs par variante avant de conclure : en dessous, l&apos;écart
-            n&apos;est pas statistiquement fiable.
-          </p>
+        {stats && sorted[0] && sorted[1] && (
+          <div className="rounded-lg border border-dashed p-4 space-y-1">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold">Significativité (test z, bilatéral)</span>
+              <Badge variant={stats.significant ? "default" : "outline"}>
+                {stats.significant ? "Significatif (p < 0,05)" : "Non concluant"}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              p-value = {stats.pValue < 0.001 ? "< 0,001" : stats.pValue.toFixed(3)} · écart{" "}
+              {stats.diff >= 0 ? "+" : ""}
+              {stats.diff.toFixed(2)} pt (IC 95 % : {stats.ciLow.toFixed(2)} pt →{" "}
+              {stats.ciHigh.toFixed(2)} pt)
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {stats.significant
+                ? "L'écart est statistiquement fiable : la décision peut être prise."
+                : "L'intervalle de confiance contient 0 : ne pas trancher, laisser tourner le test."}
+            </p>
+            {(sorted[0].visitors < 300 || sorted[1].visitors < 300) && (
+              <p className="text-xs text-muted-foreground">
+                Volume encore faible ({sorted[0].visitors} / {sorted[1].visitors} visiteurs) — viser
+                ~300 visiteurs par variante minimum.
+              </p>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
