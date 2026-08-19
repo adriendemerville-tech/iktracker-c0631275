@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogIn, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 
@@ -15,15 +21,21 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  const links = [
-    { label: "Pourquoi IKtracker ?", href: "/meilleure-application-indemnites-kilometriques" },
+  // Nav allégée : 3 entrées principales, le reste regroupé sous "Ressources"
+  const primaryLinks = [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
-    { label: "Mode Tournée", href: "/mode-tournee" },
-    { label: "Calendrier", href: "/calendrier" },
     { label: "Barème 2026", href: "/bareme-ik-2026", isNew: true },
-    { label: "Blog", href: "/blog" },
     { label: "Tarifs", href: "/tarifs" },
   ];
+
+  const secondaryLinks: { label: string; href: string; isNew?: boolean }[] = [
+    { label: "Pourquoi IKtracker ?", href: "/meilleure-application-indemnites-kilometriques" },
+    { label: "Mode Tournée", href: "/mode-tournee" },
+    { label: "Calendrier", href: "/calendrier" },
+    { label: "Blog", href: "/blog" },
+  ];
+
+  const links = [...primaryLinks, ...secondaryLinks];
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -94,13 +106,13 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - allégée */}
             <ul
               className="hidden lg:flex items-center gap-6"
               role="menubar"
               aria-label="Menu principal"
             >
-              {links.map((link) => (
+              {primaryLinks.map((link) => (
                 <li key={link.href} role="none">
                   <Link
                     to={link.href}
@@ -114,14 +126,6 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                     )}
                   >
                     {link.label}
-                    {link.isNew && (
-                      <span
-                        className="ml-1 inline-block align-middle px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse"
-                        aria-label="Nouveau"
-                      >
-                        2026
-                      </span>
-                    )}
                     {isActive(link.href) && (
                       <span
                         className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
@@ -131,6 +135,23 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Link>
                 </li>
               ))}
+              <li role="none">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md px-2 py-1">
+                    Ressources
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64">
+                    {secondaryLinks.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link to={link.href} className="cursor-pointer">
+                          {link.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </li>
             </ul>
 
             {/* CTA Buttons */}
@@ -165,19 +186,21 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Link>
                 ) : (
                   <>
-                    <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                      <Link to="/auth" className="focus-visible-ring">
-                        <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
-                        Connexion
-                      </Link>
-                    </Button>
+                    {/* Connexion en lien discret, un seul bouton d'action */}
+                    <Link
+                      to="/auth"
+                      className="hidden sm:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md px-2 py-1"
+                    >
+                      <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                      Connexion
+                    </Link>
                     <Link
                       to="/signup"
                       className="focus-visible-ring rounded-lg"
                       onClick={trackSignupClick}
                     >
                       <Button variant="gradient" size="sm">
-                        S'inscrire
+                        Créer mon compte
                       </Button>
                     </Link>
                   </>
@@ -213,7 +236,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                           className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full"
                           aria-label="Nouveau"
                         >
-                          2026
+                          Nouveau
                         </span>
                       )}
                     </Link>
