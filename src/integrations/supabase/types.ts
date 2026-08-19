@@ -348,6 +348,30 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts_content_backup: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          post_id: string
+          reason: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          post_id: string
+          reason?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       blog_slug_blacklist: {
         Row: {
           created_at: string
