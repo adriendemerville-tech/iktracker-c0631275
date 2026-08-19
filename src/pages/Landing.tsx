@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, memo } from "react";
+import { useState, useEffect, useLayoutEffect, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
@@ -167,7 +167,11 @@ const LANDING_DEFAULTS = {
   faq_subtitle: "Tout ce que vous devez savoir sur IKtracker.",
 };
 
+// useLayoutEffect côté client (applique le swap avant le paint), useEffect côté serveur.
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 const Landing = () => {
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -176,11 +180,14 @@ const Landing = () => {
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
 
   // Test A/B du H1 : le serveur (et Googlebot) reçoit toujours la variante de
-  // contrôle ; le swap n'a lieu qu'après hydratation pour la variante B.
+  // contrôle ; le swap éventuel (variante B) a lieu avant le premier paint
+  // post-hydratation (useLayoutEffect) pour éviter tout flash visible, et le
+  // conteneur du H1 réserve une hauteur fixe pour éviter tout CLS.
   const [heroVariant, setHeroVariant] = useState<HeroVariant>(DEFAULT_VARIANT);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     setHeroVariant(getHeroVariant());
   }, []);
+
   const hero = heroVariant === "A" ? null : HERO_VARIANTS[heroVariant];
   const heroTitle = hero?.title ?? c.hero_title;
   const heroHighlight = hero?.highlight ?? c.hero_highlight;
@@ -239,11 +246,14 @@ const Landing = () => {
                   <Star className="h-4 w-4" aria-hidden="true" />
                   <span>100% Gratuit</span>
                 </div>
-                {/* LCP Element - H1 must render instantly without any animation - must match index.html static shell */}
+                {/* LCP Element - rendu instantané, sans animation.
+                    min-height = hauteur du pire cas (titre sur 3 lignes mobile /
+                    2 lignes desktop) → le swap de variante A/B ne décale rien. */}
                 <h1
                   id="hero-heading"
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[15rem]"
                 >
+
                   {heroTitle}
                   <br />
                   <span className="text-gradient">{heroHighlight}</span>
