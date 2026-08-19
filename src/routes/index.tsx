@@ -21,6 +21,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:url", content: "https://iktracker.fr/" },
     ],
     links: [{ rel: "canonical", href: "https://iktracker.fr/" }],
+    scripts: HOME_JSON_LD_SCRIPTS,
   }),
   component: () => <SmartLanding />,
 });
