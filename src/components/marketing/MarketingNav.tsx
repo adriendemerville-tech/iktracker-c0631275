@@ -21,10 +21,13 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Nav allégée : 3 entrées principales, le reste regroupé sous "Ressources"
+  // Nav allégée : entrées principales rendues en dur (crawlables en SSR),
+  // le reste regroupé sous "Ressources". Barème + Blog restent hors dropdown
+  // volontairement : ce sont les deux hubs de maillage interne.
   const primaryLinks = [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
     { label: "Barème 2026", href: "/bareme-ik-2026", isNew: true },
+    { label: "Blog", href: "/blog" },
     { label: "Tarifs", href: "/tarifs" },
   ];
 
@@ -32,7 +35,6 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
     { label: "Pourquoi IKtracker ?", href: "/meilleure-application-indemnites-kilometriques" },
     { label: "Mode Tournée", href: "/mode-tournee" },
     { label: "Calendrier", href: "/calendrier" },
-    { label: "Blog", href: "/blog" },
   ];
 
   const links = [...primaryLinks, ...secondaryLinks];
