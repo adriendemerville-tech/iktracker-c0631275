@@ -1150,9 +1150,8 @@ const Landing = () => {
       </Suspense>
 
       <BodyEndInjections />
-      <Suspense fallback={<div className="min-h-[600px] bg-muted/30 animate-pulse" />}>
-        <EnhancedMarketingFooter />
-      </Suspense>
+      <EnhancedMarketingFooter />
+
       <Suspense fallback={null}>
         <MarketingPWANotification />
       </Suspense>
