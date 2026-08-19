@@ -1320,7 +1320,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - Colonne `marketing_analytics.variant` (`text`, nullable) + index partiel `idx_marketing_analytics_variant`.
 - Attribution 50/50 côté client (`src/lib/ab-test.ts`, clé localStorage `ab_hero_h1_v1`), envoyée dans chaque évènement via `track-event`.
 - RPC `get_ab_test_results(days_back int)` (SECURITY DEFINER, EXECUTE réservé à `authenticated`) : renvoie par variante le nombre de sessions distinctes pour visiteurs, clics CTA, vues signup, démarrages et inscriptions.
-- Restitution : carte « Test A/B — Titre du hero » dans /admin > Stats (`src/components/admin/ABTestCard.tsx`).
+- Restitution : carte « Test A/B — Titre du hero » dans /admin > Stats (`src/components/admin/ABTestCard.tsx`), avec test z bilatéral de comparaison de proportions (p-value + IC 95 % de l’écart) calculé côté client.
 - SSR : la variante de contrôle (A) est toujours rendue côté serveur pour Googlebot ; le swap n'a lieu qu'après hydratation.
 
 ## Correction éditoriale GEO (19/08/2026)
@@ -1343,3 +1343,4 @@ Côté front, mêmes corrections ciblées sur `BaremeIK2026.tsx`, `NoteDeFraisKi
 ### RPC `get_ab_test_results` — nettoyage
 
 - Suppression du `ORDER BY variant` dans le sous-select agrégé en `jsonb` (sans effet sur `jsonb_agg`, le tri est fait côté UI).
+- Depuis le 19/08/2026 : contrôle d'accès `has_admin_or_viewer_role(auth.uid())` en tête de fonction (sinon `Access denied`), `EXECUTE` révoqué de `PUBLIC`/`anon`. Les sessions admin/viewer et les IP de `excluded_ips` sont exclues **au niveau session** (toute la session est écartée dès qu'un évènement interne est détecté), pour ne pas polluer le dénominateur visiteurs.
