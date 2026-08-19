@@ -82,6 +82,18 @@ export function ABTestCard({ daysBack }: Props) {
     return pct(r.signups, r.visitors) > pct(acc.signups, acc.visitors) ? r : acc;
   }, null);
 
+  // Test de significativité : uniquement pertinent sur un A/B à deux bras.
+  const sorted = [...rows].sort((a, b) => a.variant.localeCompare(b.variant));
+  const stats =
+    sorted.length === 2 && sorted[0] && sorted[1]
+      ? twoProportionTest(
+          sorted[0].signups,
+          sorted[0].visitors,
+          sorted[1].signups,
+          sorted[1].visitors,
+        )
+      : null;
+
   return (
     <Card>
       <CardHeader>
