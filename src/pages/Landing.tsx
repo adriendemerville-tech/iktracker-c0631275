@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,11 +79,9 @@ const TestimonialsCarousel = lazy(() =>
     default: m.TestimonialsCarousel,
   })),
 );
-const EnhancedMarketingFooter = lazy(() =>
-  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
-    default: m.EnhancedMarketingFooter,
-  })),
-);
+// Footer marketing : import statique volontaire — il porte le maillage interne
+// (pages orphelines incluses) et doit être présent dans le HTML SSR de "/".
+
 const PartnerStrip = lazy(() =>
   import("@/components/marketing/PartnerStrip").then((m) => ({ default: m.PartnerStrip })),
 );
@@ -1151,9 +1150,8 @@ const Landing = () => {
       </Suspense>
 
       <BodyEndInjections />
-      <Suspense fallback={<div className="min-h-[600px] bg-muted/30 animate-pulse" />}>
-        <EnhancedMarketingFooter />
-      </Suspense>
+      <EnhancedMarketingFooter />
+
       <Suspense fallback={null}>
         <MarketingPWANotification />
       </Suspense>
