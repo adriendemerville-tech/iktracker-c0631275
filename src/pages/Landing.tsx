@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, memo } from "react";
+import { useState, useEffect, useLayoutEffect, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
