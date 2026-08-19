@@ -236,7 +236,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                           className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full"
                           aria-label="Nouveau"
                         >
-                          2026
+                          Nouveau
                         </span>
                       )}
                     </Link>
