@@ -167,7 +167,11 @@ const LANDING_DEFAULTS = {
   faq_subtitle: "Tout ce que vous devez savoir sur IKtracker.",
 };
 
+// useLayoutEffect côté client (applique le swap avant le paint), useEffect côté serveur.
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 const Landing = () => {
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
