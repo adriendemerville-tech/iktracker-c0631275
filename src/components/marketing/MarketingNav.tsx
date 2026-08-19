@@ -106,13 +106,13 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - allégée */}
             <ul
               className="hidden lg:flex items-center gap-6"
               role="menubar"
               aria-label="Menu principal"
             >
-              {links.map((link) => (
+              {primaryLinks.map((link) => (
                 <li key={link.href} role="none">
                   <Link
                     to={link.href}
@@ -126,14 +126,6 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                     )}
                   >
                     {link.label}
-                    {link.isNew && (
-                      <span
-                        className="ml-1 inline-block align-middle px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-full animate-pulse"
-                        aria-label="Nouveau"
-                      >
-                        2026
-                      </span>
-                    )}
                     {isActive(link.href) && (
                       <span
                         className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
@@ -143,6 +135,23 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Link>
                 </li>
               ))}
+              <li role="none">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md px-2 py-1">
+                    Ressources
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64">
+                    {secondaryLinks.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link to={link.href} className="cursor-pointer">
+                          {link.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </li>
             </ul>
 
             {/* CTA Buttons */}
