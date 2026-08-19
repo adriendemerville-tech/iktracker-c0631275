@@ -72,12 +72,17 @@ export function EnhancedMarketingFooter() {
     { label: "Synchronisation Calendrier", href: "/calendrier" },
     { label: "Barème IK 2026", href: "/bareme-ik-2026" },
     { label: "IKtracker vs Izika", href: "/comparatif-izika" },
-    { label: "IKtracker vs Drivers Note", href: "/comparatif-drivers-note" },
+    { label: "IKtracker vs Drivers Note", href: "/comparatif-driversnote" },
+    { label: "Suivi de mes trajets", href: "/mes-trajets" },
   ];
 
   const resourceLinks = [
     { label: "Expert-Comptable", href: "/expert-comptable" },
     { label: "Lexique IK", href: "/lexique" },
+    { label: "Note de frais kilométrique", href: "/note-de-frais-kilometrique" },
+    { label: "Indemnité kilométrique vélo", href: "/indemnite-kilometrique-velo" },
+    { label: "Indemnité grand déplacement 2026", href: "/indemnite-grand-deplacement-2026" },
+    { label: "API & documentation", href: "/api-docs" },
     { label: "Artisans & devis de chantier", href: "/artisans" },
     { label: "Indépendants & acquisition de clients", href: "/independants" },
     { label: "Blog", href: "/blog" },
