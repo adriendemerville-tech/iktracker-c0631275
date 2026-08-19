@@ -176,11 +176,14 @@ const Landing = () => {
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
 
   // Test A/B du H1 : le serveur (et Googlebot) reçoit toujours la variante de
-  // contrôle ; le swap n'a lieu qu'après hydratation pour la variante B.
+  // contrôle ; le swap éventuel (variante B) a lieu avant le premier paint
+  // post-hydratation (useLayoutEffect) pour éviter tout flash visible, et le
+  // conteneur du H1 réserve une hauteur fixe pour éviter tout CLS.
   const [heroVariant, setHeroVariant] = useState<HeroVariant>(DEFAULT_VARIANT);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     setHeroVariant(getHeroVariant());
   }, []);
+
   const hero = heroVariant === "A" ? null : HERO_VARIANTS[heroVariant];
   const heroTitle = hero?.title ?? c.hero_title;
   const heroHighlight = hero?.highlight ?? c.hero_highlight;
