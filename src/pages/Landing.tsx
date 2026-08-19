@@ -387,9 +387,32 @@ const Landing = () => {
                   <span className="text-gradient">{c.hero_highlight}</span>
                 </h1>
                 {/* min-height reserves space → prevents CLS when React subtitle replaces static shell */}
-                <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5.5rem] md:min-h-[6rem]">
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 min-h-[6rem] sm:min-h-[5.5rem] md:min-h-[6rem]">
                   {c.hero_subtitle}
                 </p>
+
+                {/* CTA principal mobile - au-dessus de la ligne de flottaison */}
+                {!user && (
+                  <div className="lg:hidden mb-6">
+                    <Link
+                      to="/signup"
+                      onClick={trackSignupClick}
+                      className="focus-visible-ring rounded-lg block"
+                    >
+                      <Button size="lg" variant="gradient" className="w-full group">
+                        Créer mon compte gratuit
+                        <ArrowRight
+                          className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform"
+                          aria-hidden="true"
+                        />
+                      </Button>
+                    </Link>
+                    <p className="mt-2 text-xs text-muted-foreground text-center">
+                      Gratuit à vie · Sans carte bancaire · 30 secondes
+                    </p>
+                  </div>
+                )}
+
 
                 {user && (
                   <div className="lg:hidden mb-8">
