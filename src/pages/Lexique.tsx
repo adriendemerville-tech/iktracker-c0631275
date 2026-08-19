@@ -6,7 +6,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { toast } from "sonner";
 
@@ -953,7 +953,7 @@ export default function Lexique() {
           </section>
         </main>
 
-        <MarketingFooter />
+        <EnhancedMarketingFooter />
       </div>
     </>
   );
