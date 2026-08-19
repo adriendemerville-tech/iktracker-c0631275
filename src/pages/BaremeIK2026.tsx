@@ -693,12 +693,12 @@ const BaremeIK2026 = () => {
                 fiscale perdue — et sur une année entière, ces oublis peuvent représenter plusieurs
                 centaines d'euros. L'
                 <a
-                  href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html"
+                  href="https://www.impots.gouv.fr/simulateur-bareme-kilometrique"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  administration fiscale (URSSAF)
+                  administration fiscale (DGFiP – BOFiP)
                 </a>{" "}
                 exige par ailleurs un <strong>relevé détaillé</strong> de chaque trajet : date, lieu
                 de départ, destination, distance et motif professionnel. En cas de contrôle,
