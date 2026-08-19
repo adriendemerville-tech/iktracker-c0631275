@@ -30,7 +30,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const themeBootstrapScript = `(function(){try{var stored=localStorage.getItem('theme');var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;if(stored==='dark'||(!stored&&prefersDark)){document.documentElement.classList.add('dark');}}catch(e){}})();`;
 
 // ported from index.html — logout farewell overlay + fonts-loaded marker
-const logoutAndFontsScript = `(function(){try{var data=sessionStorage.getItem('iktracker_logout_transition');if(data){var parsed=JSON.parse(data);if(Date.now()-parsed.timestamp<10000){document.write('<div id="logout-shell-overlay" class="logout-overlay"><div class="logout-content"><img src="/logo-iktracker-250.webp" alt="IKtracker" width="64" height="64"><h2>'+parsed.message+'</h2></div></div>');}sessionStorage.removeItem('iktracker_logout_transition');}}catch(e){}})();if('fonts' in document){document.fonts.ready.then(function(){document.documentElement.classList.add('fonts-loaded');});}else{setTimeout(function(){document.documentElement.classList.add('fonts-loaded');},100);}`;
+const logoutAndFontsScript = `(function(){try{var data=sessionStorage.getItem('iktracker_logout_transition');if(data){var parsed=JSON.parse(data);if(Date.now()-parsed.timestamp<10000){document.write('<div id="logout-shell-overlay" class="logout-overlay"><div class="logout-content"><img src="/logo-iktracker-250.webp" alt="IKtracker" width="64" height="64"><h2>'+parsed.message+'</h2></div></div>');}sessionStorage.removeItem('iktracker_logout_transition');}}catch(e){}})();(function(){function a(){var l=document.querySelectorAll('link[data-async-font]');for(var i=0;i<l.length;i++){l[i].media='all';}}a();document.addEventListener('DOMContentLoaded',a);window.addEventListener('load',a);})();if('fonts' in document){document.fonts.ready.then(function(){document.documentElement.classList.add('fonts-loaded');});}else{setTimeout(function(){document.documentElement.classList.add('fonts-loaded');},100);}`;
 
 // ported from index.html — sitewide Organization + WebSite + HowTo JSON-LD
 const organizationJsonLd = JSON.stringify({
@@ -266,6 +266,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap",
+        // Chargée sans bloquer le premier rendu (LCP) : `media=print` est basculé
+        // sur `all` par le script inline dès que la feuille est disponible.
+        media: "print",
+        "data-async-font": "true",
       },
       // Favicons & app icons
       { rel: "icon", href: "/favicon.ico?v=20260428b", sizes: "48x48" },
