@@ -1331,3 +1331,15 @@ Migration de contenu (pas de changement de schéma) sur `blog_posts` (`status = 
 - **Superlatifs non sourcés** purgés : `100 % conforme` → `conforme`, `sans risque` → `en limitant fortement le risque`, `reconnu par l'administration` → `conçu pour répondre aux exigences de l'administration`. Les énumérations de type « erreur n°1 » n'ont pas été touchées (faux positif de l'audit).
 
 Côté front, mêmes corrections ciblées sur `BaremeIK2026.tsx`, `NoteDeFraisKilometrique.tsx`, `FraisReels.tsx`, `routes/bareme-ik-2026.tsx` et `EnhancedMarketingFooter.tsx` (lien source du barème repointé vers `impots.gouv.fr`).
+
+### Sauvegarde du contenu blog (19/08/2026)
+
+- Table `public.blog_posts_content_backup` (`post_id`, `content`, `reason`, `created_at`), index `(post_id, created_at DESC)`.
+- Lecture réservée aux admins (`has_role(auth.uid(), 'admin')`), `service_role` en écriture.
+- Snapshot `baseline_2026_08_19` inséré une seule fois par article (INSERT ... WHERE NOT EXISTS → migration rejouable).
+- Règle : toute future purge/réécriture en masse de `blog_posts.content` doit d'abord insérer une ligne de sauvegarde avec un `reason` dédié, puis rester idempotente (garde `WHERE content ~* ...` sur le motif ciblé).
+- Limite connue : la purge des superlatifs du 19/08/2026 a été appliquée avant la mise en place de cette table ; son état d'origine n'est pas restaurable, le baseline capture le contenu post-purge.
+
+### RPC `get_ab_test_results` — nettoyage
+
+- Suppression du `ORDER BY variant` dans le sous-select agrégé en `jsonb` (sans effet sur `jsonb_agg`, le tri est fait côté UI).
