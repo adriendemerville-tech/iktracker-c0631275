@@ -78,11 +78,9 @@ const TestimonialsCarousel = lazy(() =>
     default: m.TestimonialsCarousel,
   })),
 );
-const EnhancedMarketingFooter = lazy(() =>
-  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
-    default: m.EnhancedMarketingFooter,
-  })),
-);
+// Footer marketing : import statique volontaire — il porte le maillage interne
+// (pages orphelines incluses) et doit être présent dans le HTML SSR de "/".
+
 const PartnerStrip = lazy(() =>
   import("@/components/marketing/PartnerStrip").then((m) => ({ default: m.PartnerStrip })),
 );
