@@ -1145,9 +1145,21 @@ const BaremeIK2026 = () => {
 
         <RelatedLinks
           links={[
-            { label: "Indemnité kilométrique vélo", href: "/indemnite-kilometrique-velo", description: "Le forfait mobilités durables et le barème vélo." },
-            { label: "Indemnité grand déplacement 2026", href: "/indemnite-grand-deplacement-2026", description: "Barèmes repas et hébergement hors du domicile." },
-            { label: "IKtracker vs Drivers Note", href: "/comparatif-driversnote", description: "Comparatif détaillé des deux applications." },
+            {
+              label: "Indemnité kilométrique vélo",
+              href: "/indemnite-kilometrique-velo",
+              description: "Le forfait mobilités durables et le barème vélo.",
+            },
+            {
+              label: "Indemnité grand déplacement 2026",
+              href: "/indemnite-grand-deplacement-2026",
+              description: "Barèmes repas et hébergement hors du domicile.",
+            },
+            {
+              label: "IKtracker vs Drivers Note",
+              href: "/comparatif-driversnote",
+              description: "Comparatif détaillé des deux applications.",
+            },
           ]}
         />
 
