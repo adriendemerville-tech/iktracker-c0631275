@@ -171,6 +171,7 @@ const LANDING_DEFAULTS = {
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker("landing");
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
