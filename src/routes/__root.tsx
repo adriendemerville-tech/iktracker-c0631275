@@ -240,14 +240,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://yarjaudctshlxkatqgeb.supabase.co",
         crossOrigin: "anonymous",
       },
-      // LCP image + critical font preloads
-      {
-        rel: "preload",
-        href: "/logo-iktracker-250.webp",
-        as: "image",
-        type: "image/webp",
-        fetchPriority: "high",
-      },
+      // NB: le preload de l'image LCP (/logo-iktracker-250.webp) est déjà injecté
+      // automatiquement par la couche d'hébergement — ne pas le dupliquer ici.
+      // Preloads des polices critiques
+
       {
         rel: "preload",
         href: "https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2",
