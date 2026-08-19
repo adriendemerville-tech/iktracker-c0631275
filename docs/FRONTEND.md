@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.4 — 11 août 2026 (attribution de trafic & détection IA GA4)
+> Version 2.5 — 19 août 2026 (qualité de code, SSR public, A/B testing hero)
+
+**Notes v2.5**
+- Chantier qualité (lots 1 à 4) : tests Vitest (`vitest.config.ts`), Prettier, suppression des `any` sur les hooks métier, découpage des fichiers > 1000 lignes (`print-utils.ts`, `AdminStats.tsx`…), suppression des routes blog dupliquées.
+- SSR réparé sur `/`, `/auth` et `/signup` : imports statiques dans `SmartRoutes.tsx` + `useHydrated`, plus aucun accès direct aux globales navigateur au rendu serveur.
+- Navigation marketing simplifiée (`MarketingNav.tsx` : regroupement « Ressources ») et CTA « Créer mon compte » remonté above the fold sur mobile.
+- A/B testing du H1 du hero (`src/lib/ab-test.ts`) avec restitution dans /admin > Stats.
+
 
 **Notes v2.3 (consolidation blog & redirections)**
 - `src/lib/blog-redirects.ts` contient les **22 redirections 301** des slugs de blog consolidés (articles archivés ou réorientés). Il est consommé par `beforeLoad` de `src/routes/blog/$slug.tsx` : la 301 part donc du SSR, sans dépendre du Worker Cloudflare.
