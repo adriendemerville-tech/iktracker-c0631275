@@ -246,11 +246,14 @@ const Landing = () => {
                   <Star className="h-4 w-4" aria-hidden="true" />
                   <span>100% Gratuit</span>
                 </div>
-                {/* LCP Element - H1 must render instantly without any animation - must match index.html static shell */}
+                {/* LCP Element - rendu instantané, sans animation.
+                    min-height = hauteur du pire cas (titre sur 3 lignes mobile /
+                    2 lignes desktop) → le swap de variante A/B ne décale rien. */}
                 <h1
                   id="hero-heading"
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[15rem]"
                 >
+
                   {heroTitle}
                   <br />
                   <span className="text-gradient">{heroHighlight}</span>
