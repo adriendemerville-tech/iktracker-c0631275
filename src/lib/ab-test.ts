@@ -36,29 +36,44 @@ export const HERO_VARIANTS: Record<
 /** Variante affichée côté serveur / avant hydratation. */
 export const DEFAULT_VARIANT: HeroVariant = "A";
 
-/**
- * Retourne la variante assignée à ce navigateur (tirage 50/50 persistant).
- * Renvoie la variante de contrôle côté serveur.
- */
-export function getHeroVariant(): HeroVariant {
-  if (!isBrowser()) return DEFAULT_VARIANT;
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "A" || stored === "B") return stored;
-    const assigned: HeroVariant = Math.random() < 0.5 ? "A" : "B";
-    window.localStorage.setItem(STORAGE_KEY, assigned);
-    return assigned;
-  } catch {
-    return DEFAULT_VARIANT;
-  }
-}
-
-/** Valeur envoyée au tracking (ex. "hero_h1_v1:B"). */
-export function getVariantTag(): string | null {
+/** Lit la variante déjà assignée à ce navigateur, sans en attribuer une. */
+function readVariant(): HeroVariant | null {
   if (!isBrowser()) return null;
   try {
-    return `${AB_TEST_ID}:${getHeroVariant()}`;
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    return stored === "A" || stored === "B" ? stored : null;
   } catch {
     return null;
   }
 }
+
+/**
+ * Retourne la variante assignée à ce navigateur (tirage 50/50 persistant).
+ * L'assignation n'a lieu QUE sur la page d'accueil (seul endroit où le hero
+ * testé est affiché) : sans cela, un visiteur arrivé sur une page blog serait
+ * compté dans le dénominateur du test sans jamais avoir vu la variante.
+ * Renvoie la variante de contrôle côté serveur.
+ */
+export function getHeroVariant(): HeroVariant {
+  if (!isBrowser()) return DEFAULT_VARIANT;
+  const stored = readVariant();
+  if (stored) return stored;
+  const assigned: HeroVariant = Math.random() < 0.5 ? "A" : "B";
+  try {
+    window.localStorage.setItem(STORAGE_KEY, assigned);
+  } catch {
+    /* stockage indisponible : variante non persistée, non trackée */
+  }
+  return assigned;
+}
+
+/**
+ * Valeur envoyée au tracking (ex. "hero_h1_v1:B").
+ * `null` tant que le visiteur n'a pas vu la home : les évènements des autres
+ * pages ne sont pas rattachés au test.
+ */
+export function getVariantTag(): string | null {
+  const stored = readVariant();
+  return stored ? `${AB_TEST_ID}:${stored}` : null;
+}
+
