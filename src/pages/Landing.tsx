@@ -1,8 +1,6 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
-import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
-import { Helmet } from "@/lib/helmet-compat";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -173,22 +171,6 @@ const LANDING_DEFAULTS = {
 const Landing = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [aggregateRating, setAggregateRating] = useState<{
-    ratingValue: number;
-    ratingCount: number;
-  } | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    supabase.rpc("get_aggregate_rating" as any).then(({ data }: any) => {
-      if (data && data.rating_count >= 5) {
-        setAggregateRating({
-          ratingValue: Number(data.rating_value),
-          ratingCount: Number(data.rating_count),
-        });
-      }
-    });
-  }, []);
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker("landing");
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
@@ -238,138 +220,6 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
-      <Helmet>
-        <title>IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit</title>
-        <meta
-          name="description"
-          content="Calculez vos indemnités kilométriques 2025-2026 selon le barème URSSAF. Gratuit pour indépendants et salariés. Mode Tournée GPS et export comptable."
-        />
-        <link rel="canonical" href="https://iktracker.fr/" />
-        <meta
-          property="og:title"
-          content="IKtracker — Calcul indemnités kilométriques 2025-2026 gratuit"
-        />
-        <meta
-          property="og:description"
-          content="Calculez vos indemnités kilométriques 2025-2026 selon le barème URSSAF. Gratuit pour indépendants et salariés. Mode Tournée GPS et export comptable."
-        />
-        <meta property="og:url" content="https://iktracker.fr/" />
-        <meta property="og:type" content="website" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "WebApplication",
-                name: "IKtracker",
-                description:
-                  "Outil communautaire 100% gratuit de calcul et suivi des indemnités kilométriques. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, lexique fiscal, export PDF/CSV.",
-                url: "https://iktracker.fr/",
-                applicationCategory: "BusinessApplication",
-                operatingSystem: "Web, iOS, Android",
-                offers: {
-                  "@type": "Offer",
-                  price: "0",
-                  priceCurrency: "EUR",
-                },
-                featureList: [
-                  "Mode Tournée GPS avec détection automatique des arrêts",
-                  "Synchronisation Google Calendar et Outlook",
-                  "Trajets récurrents pour les déplacements réguliers",
-                  "Comparateur Frais Réels vs Abattement 10%",
-                  "Lexique fiscal interactif",
-                  "Export PDF/CSV pour experts-comptables",
-                  "Barème kilométrique officiel 2026",
-                  "Majoration véhicule électrique (+20%)",
-                  "PWA installable sur iPhone et Android",
-                  "Sélection du profil métier à l'inscription",
-                ],
-                audience: {
-                  "@type": "BusinessAudience",
-                  audienceType:
-                    "Indépendants, professions libérales, artisans, commerciaux, infirmiers",
-                },
-                ...(aggregateRating
-                  ? {
-                      aggregateRating: {
-                        "@type": "AggregateRating",
-                        ratingValue: aggregateRating.ratingValue,
-                        ratingCount: aggregateRating.ratingCount,
-                        bestRating: 5,
-                        worstRating: 1,
-                      },
-                    }
-                  : {}),
-              },
-              {
-                "@type": "FAQPage",
-                mainEntity: [
-                  {
-                    "@type": "Question",
-                    name: "IKtracker est-il vraiment gratuit ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "Oui, IKtracker est un outil communautaire 100% gratuit. Aucune carte bancaire n'est requise et toutes les fonctionnalités sont accessibles sans frais : mode tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF et CSV.",
-                    },
-                  },
-                  {
-                    "@type": "Question",
-                    name: "Comment fonctionne le calcul des indemnités kilométriques ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "IKtracker applique automatiquement le barème fiscal officiel 2026 en fonction de la puissance fiscale de votre véhicule et du nombre de kilomètres parcourus. Le calcul prend en compte les 3 tranches (jusqu'à 5000 km, de 5001 à 20000 km, au-delà) et la majoration de 20% pour les véhicules électriques.",
-                    },
-                  },
-                  {
-                    "@type": "Question",
-                    name: "Puis-je utiliser IKtracker sur mon téléphone ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "Oui, IKtracker est une Progressive Web App (PWA) installable sur iPhone et Android. Elle fonctionne hors-ligne et permet d'enregistrer vos trajets en déplacement grâce au Mode Tournée GPS.",
-                    },
-                  },
-                  {
-                    "@type": "Question",
-                    name: "Comment synchroniser mon calendrier avec IKtracker ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "IKtracker se connecte à Google Calendar et Outlook pour importer automatiquement vos rendez-vous professionnels. L'application crée les trajets correspondants avec calcul automatique des distances et des indemnités.",
-                    },
-                  },
-                  {
-                    "@type": "Question",
-                    name: "Qu'est-ce que le Mode Tournée GPS ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "Le Mode Tournée utilise la géolocalisation GPS de votre smartphone pour détecter automatiquement chaque arrêt client. Chaque étape génère un trajet avec distance calculée via Google Maps et indemnités kilométriques calculées instantanément.",
-                    },
-                  },
-                  {
-                    "@type": "Question",
-                    name: "Comment comparer frais réels et abattement de 10% ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "IKtracker propose un comparateur interactif qui calcule votre économie potentielle entre l'abattement forfaitaire de 10% et la déduction des frais réels kilométriques, basé sur le barème 2026 officiel.",
-                    },
-                  },
-                  {
-                    "@type": "Question",
-                    name: "Mes données sont-elles sécurisées ?",
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: "Oui, vos données sont chiffrées et stockées de manière sécurisée en Europe. IKtracker est conforme au RGPD et vos informations ne sont jamais partagées avec des tiers. Vous pouvez exporter ou supprimer vos données à tout moment.",
-                    },
-                  },
-                ],
-              },
-            ],
-          })}
-        </script>
-        {/* Canonical SoftwareApplication + Organization + Founder (GEO / LLM E-E-A-T) */}
-        <script type="application/ld+json">
-          {JSON.stringify(buildSoftwareApplicationSchema({ pageUrl: "https://iktracker.fr/" }))}
-        </script>
-      </Helmet>
 
       <MarketingNav user={user} loading={loading} />
 
