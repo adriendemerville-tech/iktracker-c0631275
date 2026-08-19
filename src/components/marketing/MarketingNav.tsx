@@ -28,7 +28,7 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
     { label: "Tarifs", href: "/tarifs" },
   ];
 
-  const secondaryLinks = [
+  const secondaryLinks: { label: string; href: string; isNew?: boolean }[] = [
     { label: "Pourquoi IKtracker ?", href: "/meilleure-application-indemnites-kilometriques" },
     { label: "Mode Tournée", href: "/mode-tournee" },
     { label: "Calendrier", href: "/calendrier" },
