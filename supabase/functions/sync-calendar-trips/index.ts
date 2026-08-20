@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createJob,
+  jobAcceptedResponse,
+  runDetached,
+  type JobHandle,
+} from "../_shared/jobs.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -1293,33 +1299,38 @@ serve(async (req) => {
     });
   }
 
+  // Parse request body to get monthsBack + optional targetUserId
+  let monthsBack = 0;
+  let trigger = "cron";
+  let targetUserId: string | null = null;
   try {
-    // Parse request body to get monthsBack + optional targetUserId
-    let monthsBack = 0;
-    let trigger = "cron";
-    let targetUserId: string | null = null;
-    try {
-      const body = await req.json();
-      monthsBack = body.monthsBack || 0;
-      trigger = body.trigger || "cron";
-      targetUserId = body.userId || null;
-    } catch {
-      // No body or invalid JSON - use default
-    }
+    const body = await req.json();
+    monthsBack = body.monthsBack || 0;
+    trigger = body.trigger || "cron";
+    targetUserId = body.userId || null;
+  } catch {
+    // No body or invalid JSON - use default
+  }
 
-    // If caller is a regular user (not service/cron), FORCE scope to their own user_id.
-    // This prevents any user from triggering a global sync of all calendars.
-    if (callerUserId) {
-      targetUserId = callerUserId;
-      trigger = trigger || "manual";
-    }
+  // If caller is a regular user (not service/cron), FORCE scope to their own user_id.
+  // This prevents any user from triggering a global sync of all calendars.
+  if (callerUserId) {
+    targetUserId = callerUserId;
+    trigger = trigger || "manual";
+  }
 
-    console.log("Starting calendar sync...");
-    console.log("Time:", new Date().toISOString());
-    console.log("Trigger:", trigger);
-    console.log("Months back:", monthsBack);
-    console.log("Caller:", isServiceCaller ? "service/cron" : `user:${callerUserId}`);
-    if (targetUserId) console.log("Target user:", targetUserId);
+  try {
+    // The sync itself (token refresh, Google/Outlook/ICS fetches, Distance Matrix
+    // calls, trip writes) is long and costly: for a user-triggered run it becomes
+    // a backend job, and the tab only polls `background_jobs`.
+    const runSync = async (job: JobHandle | null) => {
+      console.log("Starting calendar sync...");
+      console.log("Time:", new Date().toISOString());
+      console.log("Trigger:", trigger);
+      console.log("Months back:", monthsBack);
+      console.log("Caller:", isServiceCaller ? "service/cron" : `user:${callerUserId}`);
+      if (targetUserId) console.log("Target user:", targetUserId);
+      if (job) await job.setPhase("Lecture des agendas connectés", 10);
 
     // Get all active Google Calendar connections (or one user)
     let googleQuery = supabase
@@ -1521,19 +1532,40 @@ serve(async (req) => {
       }
     }
 
-    const result = {
-      success: true,
-      usersProcessed,
-      totalTripsCreated,
-      dateRange: syncDateRange,
-      timestamp: new Date().toISOString(),
+      const result = {
+        success: true,
+        usersProcessed,
+        totalTripsCreated,
+        dateRange: syncDateRange,
+        timestamp: new Date().toISOString(),
+      };
+
+      console.log("Calendar sync completed:", result);
+      if (job) await job.succeed(result);
+      return result;
     };
 
-    console.log("Calendar sync completed:", result);
+    // Cron/service keeps the synchronous contract.
+    if (!callerUserId) {
+      const result = await runSync(null);
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const job = await createJob(supabase, "sync-calendar-trips", callerUserId, {
+      monthsBack,
+      trigger,
     });
+    runDetached(async () => {
+      try {
+        await runSync(job);
+      } catch (e) {
+        console.error("Calendar sync job failed:", e);
+        if (job) await job.fail(e);
+      }
+    });
+    return jobAcceptedResponse(job, corsHeaders);
   } catch (error) {
     console.error("Error in sync-calendar-trips:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
