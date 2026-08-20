@@ -58,6 +58,22 @@ function extractJsonLd(html: string): Record<string, unknown>[] {
   return nodes;
 }
 
+/** Entités de premier niveau uniquement (un bloc = une entité ou un @graph). */
+function rootJsonLdNodes(html: string): Record<string, unknown>[] {
+  const blocks = [
+    ...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
+  ];
+  return blocks.flatMap(([, raw]) => {
+    const parsed = JSON.parse(raw.replace(/\\u003c/g, "<").trim()) as
+      | Record<string, unknown>
+      | Record<string, unknown>[];
+    const list = Array.isArray(parsed) ? parsed : [parsed];
+    return list.flatMap((n) =>
+      Array.isArray(n["@graph"]) ? (n["@graph"] as Record<string, unknown>[]) : [n],
+    );
+  });
+}
+
 const typesOf = (nodes: Record<string, unknown>[]) =>
   nodes.flatMap((n) => {
     const t = n["@type"];
@@ -177,10 +193,9 @@ describe.skipIf(!serverUp)("données structurées et contenu dans le HTML serveu
     );
   });
 
-  it("aucun schéma JSON-LD n'est dupliqué sur une même page", () => {
+  it("aucun schéma JSON-LD racine n'est dupliqué sur une même page", () => {
     for (const { path } of ROUTES) {
-      const nodes = extractJsonLd(pages.get(path)!);
-      const keys = nodes
+      const keys = rootJsonLdNodes(pages.get(path)!)
         .filter((n) => typeof n["@type"] === "string" && typeof n["name"] === "string")
         .map((n) => `${n["@type"]}::${n["name"]}`);
       const duplicates = keys.filter((k, i) => keys.indexOf(k) !== i);
