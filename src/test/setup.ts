@@ -22,7 +22,7 @@ if (typeof window !== "undefined" && !window.matchMedia) {
 }
 
 // Radix UI et les composants de graphes en dépendent.
-if (!window.ResizeObserver) {
+if (typeof window !== "undefined" && !window.ResizeObserver) {
   window.ResizeObserver = class {
     observe() {}
     unobserve() {}
@@ -30,7 +30,7 @@ if (!window.ResizeObserver) {
   } as unknown as typeof ResizeObserver;
 }
 
-if (!Element.prototype.scrollIntoView) {
+if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = vi.fn();
 }
 
