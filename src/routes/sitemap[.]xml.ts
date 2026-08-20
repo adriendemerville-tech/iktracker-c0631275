@@ -56,6 +56,7 @@ async function fetchAllPublishedPosts() {
     const { data, error } = await supabase
       .from("blog_posts")
       .select("slug, updated_at, published_at")
+      .eq("seo_indexable", true)
       .eq("status", "published")
       .order("published_at", { ascending: false })
       .range(from, from + PAGE_SIZE - 1);

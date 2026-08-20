@@ -360,6 +360,7 @@ export type Database = {
           is_listed: boolean
           meta_description: string | null
           published_at: string | null
+          seo_indexable: boolean
           slug: string
           status: Database["public"]["Enums"]["blog_post_status"]
           subtitle: string | null
@@ -377,6 +378,7 @@ export type Database = {
           is_listed?: boolean
           meta_description?: string | null
           published_at?: string | null
+          seo_indexable?: boolean
           slug: string
           status?: Database["public"]["Enums"]["blog_post_status"]
           subtitle?: string | null
@@ -394,6 +396,7 @@ export type Database = {
           is_listed?: boolean
           meta_description?: string | null
           published_at?: string | null
+          seo_indexable?: boolean
           slug?: string
           status?: Database["public"]["Enums"]["blog_post_status"]
           subtitle?: string | null
