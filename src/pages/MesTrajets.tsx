@@ -54,6 +54,7 @@ import { usePreferences } from "@/hooks/usePreferences";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useBackgroundJob } from "@/hooks/useBackgroundJob";
 import { cn } from "@/lib/utils";
 // PDF/Print utils are loaded dynamically to avoid bundling in routes that don't need them
 
