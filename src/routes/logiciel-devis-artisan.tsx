@@ -46,6 +46,16 @@ export const Route = createFileRoute("/logiciel-devis-artisan")({
       { name: "language", content: "fr" },
     ],
     links: [{ rel: "canonical", href: "https://iktracker.fr/logiciel-devis-artisan" }],
-  }),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(DEVIS_ARTISAN_ARTICLE_SCHEMA),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(DEVIS_ARTISAN_FAQ_SCHEMA),
+      },
+    ],
+
   component: LogicielDevisArtisan,
 });
