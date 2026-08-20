@@ -121,6 +121,7 @@ export default function Report() {
   const [showRecurringModal, setShowRecurringModal] = useState(false);
   const [newTripRecurringOnly, setNewTripRecurringOnly] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const recalcJob = useBackgroundJob("recalculate-distances");
   const [reportSinceDate, setReportSinceDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
