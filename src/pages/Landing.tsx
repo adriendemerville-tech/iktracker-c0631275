@@ -1101,7 +1101,7 @@ const Landing = () => {
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-foreground mb-4 md:mb-6 font-display">
                 Pourquoi IKtracker est-il gratuit ?
               </h3>
-              <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start">
+              <figure className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start">
                 <img
                   src={founderImage}
                   srcSet={`${founderImage} 1x, ${founderImage} 2x`}
@@ -1121,9 +1121,9 @@ const Landing = () => {
                     partage gratuitement avec ceux qui ont les mêmes besoins de gestion. Pas de
                     carte bancaire, pas de frais cachés."
                   </blockquote>
-                  <p className="mt-4 md:mt-6 text-xs md:text-sm text-muted-foreground font-display">
+                  <figcaption className="mt-4 md:mt-6 text-xs md:text-sm text-muted-foreground font-display">
                     — Adrien de Volontat, fondateur
-                  </p>
+                  </figcaption>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-3">
                     <a
                       href="https://www.avenir-renovations.fr/agence/avenir-renovations-13-saint-remy-de-provence/"
@@ -1149,7 +1149,7 @@ const Landing = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </figure>
             </div>
           </div>
         </section>

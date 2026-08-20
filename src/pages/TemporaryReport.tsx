@@ -252,7 +252,7 @@ https://iktracker.fr`;
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             aria-label="Aller à la page d'accueil IKtracker"
           >
-            <img src="/logo-iktracker-250.webp" alt="IKtracker" className="h-8 w-auto" />
+            <img src="/logo-iktracker-250.webp" alt="" aria-hidden="true" className="h-8 w-auto" />
           </Link>
 
           {/* Boutons d'action à droite - style gris premium */}

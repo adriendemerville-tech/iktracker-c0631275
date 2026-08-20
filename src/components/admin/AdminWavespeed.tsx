@@ -343,7 +343,7 @@ export function AdminWavespeed() {
                       ) : (
                         <img
                           src={url}
-                          alt={`output ${i + 1}`}
+                          alt={`Visuel généré n°${i + 1}`}
                           className="w-full h-auto"
                           loading="lazy"
                         />

@@ -137,7 +137,7 @@ export const LogoutOverlay = ({ isVisible, userName }: LogoutOverlayProps) => {
         {/* Logo */}
         <img
           src="/logo-iktracker-250.webp"
-          alt="IKTracker"
+          alt="IKtracker"
           width={64}
           height={64}
           className="w-16 h-16 object-contain"

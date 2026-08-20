@@ -240,17 +240,22 @@ export default function BlogPost() {
             <ArticleSummary content={post.content} />
 
             {post.featured_image_url && (
-              <div className="mb-8 rounded-lg overflow-hidden">
-                <OptimizedImage
-                  src={post.featured_image_url}
-                  alt={post.title}
-                  className="w-full"
-                  aspectRatio="16/9"
-                  eager={true}
-                  width={800}
-                  height={450}
-                />
-              </div>
+              <figure className="mb-8">
+                <div className="rounded-lg overflow-hidden">
+                  <OptimizedImage
+                    src={post.featured_image_url}
+                    alt={`Image de couverture de l'article : ${post.title}`}
+                    className="w-full"
+                    aspectRatio="16/9"
+                    eager={true}
+                    width={800}
+                    height={450}
+                  />
+                </div>
+                <figcaption className="mt-2 text-sm text-muted-foreground text-center">
+                  Illustration — {post.title}
+                </figcaption>
+              </figure>
             )}
 
             <BlogContentWithRelated content={post.content} postId={post.id} />

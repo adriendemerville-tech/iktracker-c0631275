@@ -900,7 +900,7 @@ const Admin = () => {
                                     >
                                       <img
                                         src={msg.image_url}
-                                        alt="Capture"
+                                        alt="Capture d'écran jointe au message de feedback"
                                         className="max-h-32 rounded border hover:opacity-90 transition-opacity"
                                       />
                                     </a>
