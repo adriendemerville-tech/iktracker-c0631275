@@ -19,7 +19,6 @@ import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketin
 import { ArticleSummary } from "@/components/blog/ArticleSummary";
 import { BlogContentWithRelated } from "@/components/blog/BlogContentWithRelated";
 import { ArticleCTABlock } from "@/components/blog/ArticleCTABlock";
-import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from "@/lib/blog-schema-extractors";
 
 interface BlogPost {
   id: string;
@@ -160,55 +159,6 @@ export default function BlogPost() {
       </div>
     );
   }
-
-  const publishDate = post.published_at || post.created_at;
-  const canonicalUrl = `https://iktracker.fr/blog/${post.slug}`;
-  const dateISO = new Date(publishDate).toISOString();
-  const modifiedDateISO = new Date(post.updated_at || publishDate).toISOString();
-
-  // JSON-LD structured data for Article (SEO + GEO optimization)
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: metaDescription,
-    image: post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
-    author: buildAuthorPerson(post.author_name),
-    publisher: {
-      "@type": "Organization",
-      name: "IKtracker",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://iktracker.fr/logo-iktracker-250.webp",
-      },
-    },
-    datePublished: dateISO,
-    dateModified: modifiedDateISO,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": canonicalUrl,
-    },
-    wordCount: post.content.trim().split(/\s+/).length,
-    timeRequired: `PT${readingTime}M`,
-    inLanguage: "fr-FR",
-    speakable: {
-      "@type": "SpeakableSpecification",
-      cssSelector: ["article header h1", "article header + .article-summary"],
-    },
-  };
-
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://iktracker.fr/" },
-      { "@type": "ListItem", position: 2, name: "Blog", item: "https://iktracker.fr/blog" },
-      { "@type": "ListItem", position: 3, name: post.title, item: canonicalUrl },
-    ],
-  };
-
-  const faqSchema = buildFAQSchema(post.content);
-  const howToSchema = buildHowToSchema(post.content, post.title);
 
   // Breadcrumb structured data is now handled by Breadcrumb component
 
