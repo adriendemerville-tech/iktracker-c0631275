@@ -82,7 +82,9 @@ async function getGoogleAccessToken(): Promise<{ token?: string; error?: string 
   return { token: JSON.parse(text).access_token as string };
 }
 
-async function pushIndexNow(urls: string[]) {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function pushIndexNowOnce(urls: string[]) {
   const res = await fetch("https://api.indexnow.org/indexnow", {
     method: "POST",
     headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -96,6 +98,33 @@ async function pushIndexNow(urls: string[]) {
   const body = await res.text();
   return { ok: res.ok, status: res.status, body: body.slice(0, 300) };
 }
+
+/** Envoi par lots de 100 URLs, avec backoff exponentiel sur 429 / 5xx. */
+async function pushIndexNowBatched(urls: string[]) {
+  const CHUNK = 100;
+  const batches: {
+    urls: string[];
+    ok: boolean;
+    status: number;
+    body: string;
+    attempts: number;
+  }[] = [];
+
+  for (let i = 0; i < urls.length; i += CHUNK) {
+    const chunk = urls.slice(i, i + CHUNK);
+    let attempt = 0;
+    let r = await pushIndexNowOnce(chunk);
+    while (!r.ok && (r.status === 429 || r.status >= 500) && attempt < 3) {
+      attempt++;
+      await sleep(2000 * Math.pow(2, attempt - 1)); // 2s, 4s, 8s
+      r = await pushIndexNowOnce(chunk);
+    }
+    batches.push({ urls: chunk, ...r, attempts: attempt + 1 });
+    if (i + CHUNK < urls.length) await sleep(1500); // espacement entre lots
+  }
+  return batches;
+}
+
 
 async function pushGoogle(token: string, url: string) {
   const res = await fetch(GOOGLE_INDEXING_ENDPOINT, {
