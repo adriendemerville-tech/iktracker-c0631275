@@ -160,7 +160,12 @@ export default function BlogPost() {
     );
   }
 
-  // Breadcrumb structured data is now handled by Breadcrumb component
+  const publishDate = post.published_at || post.created_at;
+  const dateISO = new Date(publishDate).toISOString();
+  const modifiedDateISO = new Date(post.updated_at || publishDate).toISOString();
+
+  // JSON-LD (Article, Breadcrumb, FAQ, HowTo) is emitted server-side in the route head().
+
 
   return (
     <>
