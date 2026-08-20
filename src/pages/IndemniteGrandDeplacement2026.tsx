@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { lazy, Suspense, memo } from "react";
