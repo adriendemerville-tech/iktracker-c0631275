@@ -1149,7 +1149,7 @@ const Landing = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </figure>
             </div>
           </div>
         </section>
