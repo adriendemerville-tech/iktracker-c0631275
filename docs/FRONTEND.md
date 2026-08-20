@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.7 — 20 août 2026 (RSS/Atom, dates E-E-A-T, accessibilité images, landing DictaDevi)
+> Version 2.8 — 20 août 2026 (données de référence mutualisées, RSS/Atom, dates E-E-A-T, accessibilité images, landing DictaDevi)
+
+**Notes v2.8 (performance requêtes)**
+- Nouveau hook `src/hooks/useReferenceData.ts` : les **véhicules et lieux** sont désormais chargés via React Query mutualisé (`staleTime` 10 min, `gcTime` 30 min, clés `ref-vehicles`/`ref-locations` par utilisateur). Auparavant, `useTrips` — monté par 4 composants simultanés — refetchait ces deux tables hors cache à chaque montage (d'où ~62k lectures de `locations` et ~58k de `vehicles` constatées dans l'audit). Les lectures sont divisées par 5-10 sans changement visible.
+- `useTrips` ne fetch plus que les trajets ; les mutations véhicules/lieux écrivent en optimiste dans le cache partagé (`queryClient.setQueryData`), et la migration localStorage → BDD invalide les deux clés pour éviter tout cache vide transitoire. Le mode hors-ligne (localStorage) est inchangé.
 
 **Notes v2.7**
 - Nouveau flux **Atom** servi en SSR sur `/feed.xml` (`src/routes/feed[.]xml.ts`, 50 derniers articles, client admin) avec lien visible dans le footer marketing — accélère la découverte des nouveaux contenus par les crawlers.

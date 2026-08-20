@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.2 — 20 août 2026
+> Version 4.3 — 20 août 2026
+
+**Notes v4.3 (performance, suite audit de scalabilité)**
+- **Index `trips(user_id, created_at DESC)`** : la recherche du « dernier véhicule utilisé » (`pick_default_vehicle_for_user`, ~3 700 appels/jour) passe de ~35 ms à < 1 ms.
+- **Index `blog_posts(created_at DESC)`** et **index partiel `blog_posts(published_at DESC) WHERE status = 'published'`** : le tri des listes admin blog (~70 ms) et la liste publique/sitemap utilisent désormais des index dédiés.
+- **`get_marketing_stats` réécrite en une seule passe** : les 9 `COUNT(*)` séparés sur `marketing_analytics` sont remplacés par un scan unique + agrégation conditionnelle (`COUNT(*) FILTER (WHERE …)`). Plan vérifié : `Index Scan` sur `idx_marketing_analytics_created_at` + sous-plans hachés matérialisés une fois pour les exclusions (admins, IPs internes). Résultats JSON strictement identiques (comptes exacts conservés).
+- Rappel v4.2 : les 156 policies RLS utilisent `(select auth.uid())` (initplan mis en cache) et `sync-calendar-trips` pré-charge les trajets en mémoire (`UserSyncCache`) au lieu du N+1.
 
 ## Table des matières
 
