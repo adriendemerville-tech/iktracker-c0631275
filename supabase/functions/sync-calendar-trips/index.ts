@@ -724,117 +724,208 @@ async function calculateDrivingDistance(
   }
 }
 
-// Check if a trip already exists for this calendar event (including deleted ones)
-async function tripExistsForEvent(
-  userId: string,
-  eventId: string,
-  supabase: any,
-): Promise<{ exists: boolean; wasDeleted: boolean }> {
-  const { data } = await supabase
-    .from("trips")
-    .select("id, deleted_at")
-    .eq("user_id", userId)
-    .eq("calendar_event_id", eventId)
-    .limit(1);
+// ============================================================================
+// Per-user sync cache — a few SQL queries per user instead of 1 query PER EVENT.
+// Previously, tripExistsForEvent() and similarTripExists() each ran a SQL query
+// for every calendar event processed (top DB consumer: ~550k queries, 250s of
+// cumulative DB time). We now preload the user's trips once, match in memory,
+// and append locally-created trips so later events in the same run still
+// dedupe exactly like the old per-event queries did.
+// ============================================================================
 
-  if (!data || data.length === 0) {
+interface CachedTrip {
+  date: string;
+  end_location: string | null;
+  purpose: string | null;
+  deleted_at: string | null;
+  status: string;
+  calendar_event_id: string | null;
+}
+
+const SYNC_PRELOAD_PAGE_SIZE = 1000;
+
+// PostgREST caps a response at ~1000 rows: paginate so heavy calendar users
+// don't get a silently truncated preload (which would re-create duplicates).
+async function fetchAllTripRows(buildQuery: () => any): Promise<any[]> {
+  const all: any[] = [];
+  let from = 0;
+  for (;;) {
+    const { data, error } = await buildQuery().range(from, from + SYNC_PRELOAD_PAGE_SIZE - 1);
+    if (error) {
+      console.error("Trip preload query failed:", error);
+      break;
+    }
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < SYNC_PRELOAD_PAGE_SIZE) break;
+    from += SYNC_PRELOAD_PAGE_SIZE;
+  }
+  return all;
+}
+
+class UserSyncCache {
+  private byEventId = new Map<string, CachedTrip>();
+  private byDate = new Map<string, CachedTrip[]>();
+  private frequentDestinations: Array<{ keyword: string; address: string }> = [];
+
+  static async load(
+    userId: string,
+    dateRange: { startDate: string; endDate: string },
+    supabase: any,
+  ): Promise<UserSyncCache> {
+    const cache = new UserSyncCache();
+    const cols = "date, end_location, purpose, deleted_at, status, calendar_event_id";
+    const [eventTrips, windowTrips, destResult] = await Promise.all([
+      // Every trip tied to a calendar event, on ANY date: an event moved from
+      // the past into the sync window must still be seen as already imported.
+      fetchAllTripRows(() =>
+        supabase
+          .from("trips")
+          .select(cols)
+          .eq("user_id", userId)
+          .not("calendar_event_id", "is", null),
+      ),
+      // All trips inside the sync window (including manual ones) for same-day
+      // similarity matching.
+      fetchAllTripRows(() =>
+        supabase
+          .from("trips")
+          .select(cols)
+          .eq("user_id", userId)
+          .gte("date", dateRange.startDate)
+          .lte("date", dateRange.endDate),
+      ),
+      supabase.from("frequent_destinations").select("keyword, address").eq("user_id", userId),
+    ]);
+    for (const t of eventTrips) cache.addEventTrip(t as CachedTrip);
+    for (const t of windowTrips) cache.addWindowTrip(t as CachedTrip);
+    cache.frequentDestinations =
+      (destResult.data as Array<{ keyword: string; address: string }> | null) ?? [];
+    console.log(
+      `📦 Sync cache preloaded: ${eventTrips.length} event trips, ${windowTrips.length} window trips, ${cache.frequentDestinations.length} frequent destinations`,
+    );
+    return cache;
+  }
+
+  private addEventTrip(trip: CachedTrip): void {
+    if (trip.calendar_event_id) this.byEventId.set(trip.calendar_event_id, trip);
+  }
+
+  private addWindowTrip(trip: CachedTrip): void {
+    const arr = this.byDate.get(trip.date) || [];
+    arr.push(trip);
+    this.byDate.set(trip.date, arr);
+  }
+
+  // A trip inserted during this run goes in BOTH indexes — mirrors what the
+  // old per-event SQL queries would have seen right after the INSERT.
+  addTrip(trip: CachedTrip): void {
+    this.addEventTrip(trip);
+    this.addWindowTrip(trip);
+  }
+
+  // Was a trip already created for this calendar event? (incl. archived ones)
+  findByEventId(eventId: string): { exists: boolean; wasDeleted: boolean } {
+    const trip = this.byEventId.get(eventId);
+    if (!trip) return { exists: false, wasDeleted: false };
+    return { exists: true, wasDeleted: trip.deleted_at !== null };
+  }
+
+  // Same-day + similar-destination match (incl. archived trips) — in-memory
+  // port of the old similarTripExists() SQL-per-event logic.
+  findSimilar(
+    eventDate: string,
+    destination: string,
+    purpose: string | undefined,
+  ): { exists: boolean; wasDeleted: boolean } {
+    if (!destination) return { exists: false, wasDeleted: false };
+
+    const normalizedDest = destination.toLowerCase().trim();
+    const normalizedDestKey = normalizeDedupeText(destination);
+    const normalizedPurposeKey = normalizeDedupeText(purpose);
+    const existingTrips = this.byDate.get(eventDate);
+
+    if (!existingTrips || existingTrips.length === 0) {
+      return { exists: false, wasDeleted: false };
+    }
+
+    for (const trip of existingTrips) {
+      const tripDest = (trip.end_location || "").toLowerCase().trim();
+      const tripDestKey = normalizeDedupeText(trip.end_location);
+      const tripPurposeKey = normalizeDedupeText(trip.purpose);
+      const isSamePendingCalendarEvent =
+        trip.status === "pending_location" &&
+        normalizedDestKey.length > 0 &&
+        normalizedPurposeKey.length > 0 &&
+        tripDestKey === normalizedDestKey &&
+        tripPurposeKey === normalizedPurposeKey;
+
+      // Check if destinations are similar (contains match or significant overlap)
+      const isSimilar =
+        isSamePendingCalendarEvent ||
+        tripDest === normalizedDest ||
+        tripDest.includes(normalizedDest) ||
+        normalizedDest.includes(tripDest) ||
+        // Also check city-level match (first significant word)
+        (tripDest.split(",")[0]?.trim() === normalizedDest.split(",")[0]?.trim() &&
+          tripDest.split(",")[0]?.trim().length > 3);
+
+      if (isSimilar) {
+        console.log(
+          `🔍 Found similar trip: "${trip.end_location}" matches "${destination}" on ${eventDate}`,
+        );
+        return { exists: true, wasDeleted: trip.deleted_at !== null };
+      }
+    }
+
     return { exists: false, wasDeleted: false };
   }
 
-  // Trip exists - check if it was deleted (archived)
-  const wasDeleted = data[0].deleted_at !== null;
-  return { exists: true, wasDeleted };
+  // Keyword match against the user's frequent destinations (preloaded once).
+  findFrequentDestination(eventTitle: string): string | null {
+    if (!eventTitle) return null;
+
+    // Split title into words and check each against keywords (case-insensitive)
+    const titleWords = eventTitle.toLowerCase().split(/\s+/);
+
+    for (const dest of this.frequentDestinations) {
+      const keyword = dest.keyword.toLowerCase();
+      if (titleWords.some((word: string) => word.includes(keyword) || keyword.includes(word))) {
+        console.log(
+          `🔑 Found matching keyword "${dest.keyword}" for event "${eventTitle}" → ${dest.address}`,
+        );
+        return dest.address;
+      }
+    }
+
+    return null;
+  }
 }
 
-// Check if a similar trip already exists (same date + similar destination) - includes archived trips
-async function similarTripExists(
-  userId: string,
-  eventDate: string,
-  destination: string,
-  purpose: string | undefined,
-  supabase: any,
-): Promise<{ exists: boolean; wasDeleted: boolean }> {
-  if (!destination) return { exists: false, wasDeleted: false };
-
-  // Normalize destination for comparison (lowercase, trim)
-  const normalizedDest = destination.toLowerCase().trim();
-  const normalizedDestKey = normalizeDedupeText(destination);
-  const normalizedPurposeKey = normalizeDedupeText(purpose);
-
-  // Fetch all trips for this date (including archived ones)
-  const { data: existingTrips } = await supabase
-    .from("trips")
-    .select("id, end_location, purpose, deleted_at, status")
-    .eq("user_id", userId)
-    .eq("date", eventDate);
-
-  if (!existingTrips || existingTrips.length === 0) {
-    return { exists: false, wasDeleted: false };
-  }
-
-  // Check for similar destinations
-  for (const trip of existingTrips) {
-    const tripDest = (trip.end_location || "").toLowerCase().trim();
-    const tripDestKey = normalizeDedupeText(trip.end_location);
-    const tripPurposeKey = normalizeDedupeText(trip.purpose);
-    const isSamePendingCalendarEvent =
-      trip.status === "pending_location" &&
-      normalizedDestKey.length > 0 &&
-      normalizedPurposeKey.length > 0 &&
-      tripDestKey === normalizedDestKey &&
-      tripPurposeKey === normalizedPurposeKey;
-
-    // Check if destinations are similar (contains match or significant overlap)
-    const isSimilar =
-      isSamePendingCalendarEvent ||
-      tripDest === normalizedDest ||
-      tripDest.includes(normalizedDest) ||
-      normalizedDest.includes(tripDest) ||
-      // Also check city-level match (first significant word)
-      (tripDest.split(",")[0]?.trim() === normalizedDest.split(",")[0]?.trim() &&
-        tripDest.split(",")[0]?.trim().length > 3);
-
-    if (isSimilar) {
-      console.log(
-        `🔍 Found similar trip: "${trip.end_location}" matches "${destination}" on ${eventDate}`,
-      );
-      return { exists: true, wasDeleted: trip.deleted_at !== null };
-    }
-  }
-
-  return { exists: false, wasDeleted: false };
+// Annual-km tracker: loads the DB sum once, then accumulates trips created by
+// this run — same incremental-IK result as re-querying after every INSERT,
+// minus one query per created trip.
+interface AnnualKmTracker {
+  current(): Promise<number>;
+  add(km: number): void;
 }
 
-// Find matching keyword in frequent_destinations for event title
-async function findFrequentDestination(
+function createAnnualKmTracker(
   userId: string,
-  eventTitle: string,
+  vehicleId: string,
   supabase: any,
-): Promise<string | null> {
-  if (!eventTitle) return null;
-
-  // Get all user's frequent destinations
-  const { data: destinations } = await supabase
-    .from("frequent_destinations")
-    .select("keyword, address")
-    .eq("user_id", userId);
-
-  if (!destinations || destinations.length === 0) return null;
-
-  // Split title into words and check each against keywords (case-insensitive)
-  const titleWords = eventTitle.toLowerCase().split(/\s+/);
-
-  for (const dest of destinations) {
-    const keyword = dest.keyword.toLowerCase();
-    if (titleWords.some((word: string) => word.includes(keyword) || keyword.includes(word))) {
-      console.log(
-        `🔑 Found matching keyword "${dest.keyword}" for event "${eventTitle}" → ${dest.address}`,
-      );
-      return dest.address;
-    }
-  }
-
-  return null;
+): AnnualKmTracker {
+  let base: number | null = null;
+  let added = 0;
+  return {
+    async current(): Promise<number> {
+      if (base === null) base = await getVehicleAnnualKm(userId, vehicleId, supabase);
+      return base + added;
+    },
+    add(km: number): void {
+      added += km;
+    },
+  };
 }
 
 // Create a trip from a calendar event
@@ -846,6 +937,8 @@ async function createTripFromEvent(
   supabase: any,
   source: string = "google_calendar",
   ikRateOverride: IKRateOverride = "auto",
+  cache: UserSyncCache,
+  annualKmTracker: AnnualKmTracker | null,
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
   console.log(
@@ -860,8 +953,8 @@ async function createTripFromEvent(
     return { created: false, reason: skipReason };
   }
 
-  // Check if trip already exists (including deleted/archived trips)
-  const { exists, wasDeleted } = await tripExistsForEvent(userId, event.id, supabase);
+  // Check if trip already exists (including deleted/archived trips) — in-memory
+  const { exists, wasDeleted } = cache.findByEventId(event.id);
 
   if (exists) {
     if (wasDeleted) {
@@ -887,7 +980,7 @@ async function createTripFromEvent(
 
   // If no location in event, try to find from frequent_destinations using title keywords
   if (!event.location) {
-    const matchedAddress = await findFrequentDestination(userId, event.summary || "", supabase);
+    const matchedAddress = cache.findFrequentDestination(event.summary || "");
     if (matchedAddress) {
       destinationAddress = matchedAddress;
       console.log(`📍 Using frequent destination address: ${matchedAddress}`);
@@ -900,12 +993,10 @@ async function createTripFromEvent(
 
   // Check for similar trips (same date + similar destination) - prevents duplicates with archived trips
   if (destinationAddress) {
-    const { exists: similarExists, wasDeleted: similarWasDeleted } = await similarTripExists(
-      userId,
+    const { exists: similarExists, wasDeleted: similarWasDeleted } = cache.findSimilar(
       eventDate,
       destinationAddress,
       event.summary,
-      supabase,
     );
 
     if (similarExists) {
@@ -959,8 +1050,8 @@ async function createTripFromEvent(
 
   // Calculate IK amount if we have a vehicle and distance
   let ikAmount = 0;
-  if (vehicle && distance > 0) {
-    const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
+  if (vehicle && distance > 0 && annualKmTracker) {
+    const annualKm = await annualKmTracker.current();
     const newAnnualTotal = annualKm + distance;
 
     // Calculate incremental IK (what this trip adds to total)
@@ -1018,6 +1109,17 @@ async function createTripFromEvent(
     return { created: false, reason: "db_error" };
   }
 
+  // Make the new trip visible to the next events of this run (dedupe + IK)
+  cache.addTrip({
+    date: eventDate,
+    end_location: endLocationValue,
+    purpose: event.summary || "Rendez-vous calendrier",
+    deleted_at: null,
+    status: tripStatus,
+    calendar_event_id: event.id,
+  });
+  if (annualKmTracker && distance > 0) annualKmTracker.add(distance);
+
   if (tripStatus === "pending_location") {
     console.log(`🕐 Created PENDING trip for event "${event.summary}" (no address)`);
     return { created: true, pending: true };
@@ -1061,14 +1163,9 @@ interface ResolvedEvent {
   startTs: number; // for sorting
 }
 
-async function resolveEventDestination(
-  userId: string,
-  event: CalendarEvent,
-  supabase: any,
-): Promise<string | null> {
+function resolveEventDestination(event: CalendarEvent, cache: UserSyncCache): string | null {
   if (event.location && event.location.trim()) return event.location.trim();
-  const matched = await findFrequentDestination(userId, event.summary || "", supabase);
-  return matched || null;
+  return cache.findFrequentDestination(event.summary || "");
 }
 
 async function processEventsAsTour(
@@ -1079,6 +1176,8 @@ async function processEventsAsTour(
   supabase: any,
   source: string,
   ikRateOverride: IKRateOverride = "auto",
+  cache: UserSyncCache,
+  annualKmTracker: AnnualKmTracker | null,
 ): Promise<{ toursCreated: number; fallbackEvents: CalendarEvent[] }> {
   if (!userHomeLocation?.address) {
     console.log(`⚠️ [tour-mode] No home address for user ${userId} - falling back to individual`);
@@ -1095,7 +1194,7 @@ async function processEventsAsTour(
       unresolved.push(ev);
       continue;
     }
-    const destination = await resolveEventDestination(userId, ev, supabase);
+    const destination = resolveEventDestination(ev, cache);
     if (!destination) {
       unresolved.push(ev);
       continue;
@@ -1121,16 +1220,11 @@ async function processEventsAsTour(
     // Sort chronologically
     group.sort((a, b) => a.startTs - b.startTs);
 
-    // Idempotency: a tour for this day already exists?
+    // Idempotency: a tour for this day already exists? (in-memory)
     const tourEventId = `tour:${eventDate}:${source}`;
-    const { data: existingTour } = await supabase
-      .from("trips")
-      .select("id, deleted_at")
-      .eq("user_id", userId)
-      .eq("calendar_event_id", tourEventId)
-      .limit(1);
-    if (existingTour && existingTour.length > 0) {
-      if (existingTour[0].deleted_at) {
+    const existingTour = cache.findByEventId(tourEventId);
+    if (existingTour.exists) {
+      if (existingTour.wasDeleted) {
         console.log(`⏭️ [tour-mode] Tour for ${eventDate} previously archived — skipping`);
       } else {
         console.log(`⏭️ [tour-mode] Tour for ${eventDate} already exists`);
@@ -1141,8 +1235,7 @@ async function processEventsAsTour(
     // Also skip if any of the individual events was already imported as a trip
     let alreadyImportedIndividually = false;
     for (const g of group) {
-      const { exists } = await tripExistsForEvent(userId, g.event.id, supabase);
-      if (exists) {
+      if (cache.findByEventId(g.event.id).exists) {
         alreadyImportedIndividually = true;
         break;
       }
@@ -1178,8 +1271,8 @@ async function processEventsAsTour(
 
     // IK
     let ikAmount = 0;
-    if (vehicle) {
-      const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
+    if (vehicle && annualKmTracker) {
+      const annualKm = await annualKmTracker.current();
       const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power, ikRateOverride);
       const ikAfter = calculateTotalAnnualIK(
         annualKm + totalDistance,
@@ -1226,6 +1319,17 @@ async function processEventsAsTour(
       continue;
     }
 
+    // Make the tour visible to the rest of this run (dedupe + IK)
+    cache.addTrip({
+      date: eventDate,
+      end_location: userHomeLocation.address,
+      purpose: purposeLine,
+      deleted_at: null,
+      status: "validated",
+      calendar_event_id: tourEventId,
+    });
+    if (annualKmTracker) annualKmTracker.add(totalDistance);
+
     console.log(
       `✅ [tour-mode] Created tour on ${eventDate}: ${group.length} stops, ${totalDistance} km, ${ikAmount}€`,
     );
@@ -1235,27 +1339,22 @@ async function processEventsAsTour(
   return { toursCreated, fallbackEvents: fallback };
 }
 
-async function getUserCalendarImportMode(
+// Import mode + IK rate override in ONE query (was 2 queries per user per run)
+async function getUserSyncPrefs(
   userId: string,
   supabase: any,
-): Promise<"individual" | "tour"> {
+): Promise<{ importMode: "individual" | "tour"; ikRateOverride: IKRateOverride }> {
   const { data } = await supabase
     .from("user_preferences")
-    .select("calendar_import_mode")
+    .select("calendar_import_mode, ik_rate_override")
     .eq("user_id", userId)
     .maybeSingle();
   const mode = (data as any)?.calendar_import_mode;
-  return mode === "tour" ? "tour" : "individual";
-}
-
-async function getUserIkRateOverride(userId: string, supabase: any): Promise<IKRateOverride> {
-  const { data } = await supabase
-    .from("user_preferences")
-    .select("ik_rate_override")
-    .eq("user_id", userId)
-    .maybeSingle();
   const v = (data as any)?.ik_rate_override;
-  return v === "tier2" || v === "tier3" ? v : "auto";
+  return {
+    importMode: mode === "tour" ? "tour" : "individual",
+    ikRateOverride: v === "tier2" || v === "tier3" ? v : "auto",
+  };
 }
 
 serve(async (req) => {
@@ -1376,12 +1475,21 @@ serve(async (req) => {
             `User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : "not found"}`,
           );
 
-          // Determine import mode + IK rate override for this user
-          const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
-          const ikRateOverride = await getUserIkRateOverride(connection.user_id, supabase);
+          // Determine import mode + IK rate override for this user (1 query)
+          const { importMode, ikRateOverride } = await getUserSyncPrefs(
+            connection.user_id,
+            supabase,
+          );
           console.log(
             `User ${connection.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
           );
+
+          // Preload trips + frequent destinations ONCE for the whole run:
+          // kills the per-event N+1 (previously 1 SQL query per event).
+          const syncCache = await UserSyncCache.load(connection.user_id, dateRange, supabase);
+          const annualKmTracker = vehicle
+            ? createAnnualKmTracker(connection.user_id, vehicle.id, supabase)
+            : null;
 
           // Create trips from events
           let tripsCreated = 0;
@@ -1403,6 +1511,8 @@ serve(async (req) => {
               supabase,
               "google_calendar",
               ikRateOverride,
+              syncCache,
+              annualKmTracker,
             );
             toursCreated = nTours;
             tripsCreated += nTours;
@@ -1418,6 +1528,8 @@ serve(async (req) => {
               supabase,
               "google_calendar",
               ikRateOverride,
+              syncCache,
+              annualKmTracker,
             );
             if (result.created) {
               tripsCreated++;
@@ -1469,11 +1581,15 @@ serve(async (req) => {
 
             const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
             const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
-            const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
-            const ikRateOverride = await getUserIkRateOverride(conn.user_id, supabase);
+            const { importMode, ikRateOverride } = await getUserSyncPrefs(conn.user_id, supabase);
             console.log(
               `ICS user ${conn.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
             );
+            // Preload trips + frequent destinations ONCE (kills the per-event N+1)
+            const syncCache = await UserSyncCache.load(conn.user_id, dateRange, supabase);
+            const annualKmTracker = vehicle
+              ? createAnnualKmTracker(conn.user_id, vehicle.id, supabase)
+              : null;
 
             let tripsCreated = 0;
             let toursCreated = 0;
@@ -1491,6 +1607,8 @@ serve(async (req) => {
                 supabase,
                 "outlook_calendar",
                 ikRateOverride,
+                syncCache,
+                annualKmTracker,
               );
               toursCreated = nTours;
               tripsCreated += nTours;
@@ -1506,6 +1624,8 @@ serve(async (req) => {
                 supabase,
                 "outlook_calendar",
                 ikRateOverride,
+                syncCache,
+                annualKmTracker,
               );
               if (result.created) tripsCreated++;
               else if (result.reason === "no_location") skippedNoLocation++;
