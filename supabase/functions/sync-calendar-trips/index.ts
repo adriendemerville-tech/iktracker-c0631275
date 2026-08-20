@@ -937,6 +937,8 @@ async function createTripFromEvent(
   supabase: any,
   source: string = "google_calendar",
   ikRateOverride: IKRateOverride = "auto",
+  cache: UserSyncCache,
+  annualKmTracker: AnnualKmTracker | null,
 ): Promise<{ created: boolean; reason?: string; distanceCalculated?: boolean; pending?: boolean }> {
   // Log all events for debugging
   console.log(
@@ -951,8 +953,8 @@ async function createTripFromEvent(
     return { created: false, reason: skipReason };
   }
 
-  // Check if trip already exists (including deleted/archived trips)
-  const { exists, wasDeleted } = await tripExistsForEvent(userId, event.id, supabase);
+  // Check if trip already exists (including deleted/archived trips) — in-memory
+  const { exists, wasDeleted } = cache.findByEventId(event.id);
 
   if (exists) {
     if (wasDeleted) {
@@ -978,7 +980,7 @@ async function createTripFromEvent(
 
   // If no location in event, try to find from frequent_destinations using title keywords
   if (!event.location) {
-    const matchedAddress = await findFrequentDestination(userId, event.summary || "", supabase);
+    const matchedAddress = cache.findFrequentDestination(event.summary || "");
     if (matchedAddress) {
       destinationAddress = matchedAddress;
       console.log(`📍 Using frequent destination address: ${matchedAddress}`);
@@ -991,12 +993,10 @@ async function createTripFromEvent(
 
   // Check for similar trips (same date + similar destination) - prevents duplicates with archived trips
   if (destinationAddress) {
-    const { exists: similarExists, wasDeleted: similarWasDeleted } = await similarTripExists(
-      userId,
+    const { exists: similarExists, wasDeleted: similarWasDeleted } = cache.findSimilar(
       eventDate,
       destinationAddress,
       event.summary,
-      supabase,
     );
 
     if (similarExists) {
@@ -1050,8 +1050,8 @@ async function createTripFromEvent(
 
   // Calculate IK amount if we have a vehicle and distance
   let ikAmount = 0;
-  if (vehicle && distance > 0) {
-    const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
+  if (vehicle && distance > 0 && annualKmTracker) {
+    const annualKm = await annualKmTracker.current();
     const newAnnualTotal = annualKm + distance;
 
     // Calculate incremental IK (what this trip adds to total)
@@ -1109,6 +1109,17 @@ async function createTripFromEvent(
     return { created: false, reason: "db_error" };
   }
 
+  // Make the new trip visible to the next events of this run (dedupe + IK)
+  cache.addTrip({
+    date: eventDate,
+    end_location: endLocationValue,
+    purpose: event.summary || "Rendez-vous calendrier",
+    deleted_at: null,
+    status: tripStatus,
+    calendar_event_id: event.id,
+  });
+  if (annualKmTracker && distance > 0) annualKmTracker.add(distance);
+
   if (tripStatus === "pending_location") {
     console.log(`🕐 Created PENDING trip for event "${event.summary}" (no address)`);
     return { created: true, pending: true };
@@ -1152,14 +1163,9 @@ interface ResolvedEvent {
   startTs: number; // for sorting
 }
 
-async function resolveEventDestination(
-  userId: string,
-  event: CalendarEvent,
-  supabase: any,
-): Promise<string | null> {
+function resolveEventDestination(event: CalendarEvent, cache: UserSyncCache): string | null {
   if (event.location && event.location.trim()) return event.location.trim();
-  const matched = await findFrequentDestination(userId, event.summary || "", supabase);
-  return matched || null;
+  return cache.findFrequentDestination(event.summary || "");
 }
 
 async function processEventsAsTour(
@@ -1170,6 +1176,8 @@ async function processEventsAsTour(
   supabase: any,
   source: string,
   ikRateOverride: IKRateOverride = "auto",
+  cache: UserSyncCache,
+  annualKmTracker: AnnualKmTracker | null,
 ): Promise<{ toursCreated: number; fallbackEvents: CalendarEvent[] }> {
   if (!userHomeLocation?.address) {
     console.log(`⚠️ [tour-mode] No home address for user ${userId} - falling back to individual`);
@@ -1186,7 +1194,7 @@ async function processEventsAsTour(
       unresolved.push(ev);
       continue;
     }
-    const destination = await resolveEventDestination(userId, ev, supabase);
+    const destination = resolveEventDestination(ev, cache);
     if (!destination) {
       unresolved.push(ev);
       continue;
@@ -1212,16 +1220,11 @@ async function processEventsAsTour(
     // Sort chronologically
     group.sort((a, b) => a.startTs - b.startTs);
 
-    // Idempotency: a tour for this day already exists?
+    // Idempotency: a tour for this day already exists? (in-memory)
     const tourEventId = `tour:${eventDate}:${source}`;
-    const { data: existingTour } = await supabase
-      .from("trips")
-      .select("id, deleted_at")
-      .eq("user_id", userId)
-      .eq("calendar_event_id", tourEventId)
-      .limit(1);
-    if (existingTour && existingTour.length > 0) {
-      if (existingTour[0].deleted_at) {
+    const existingTour = cache.findByEventId(tourEventId);
+    if (existingTour.exists) {
+      if (existingTour.wasDeleted) {
         console.log(`⏭️ [tour-mode] Tour for ${eventDate} previously archived — skipping`);
       } else {
         console.log(`⏭️ [tour-mode] Tour for ${eventDate} already exists`);
@@ -1232,8 +1235,7 @@ async function processEventsAsTour(
     // Also skip if any of the individual events was already imported as a trip
     let alreadyImportedIndividually = false;
     for (const g of group) {
-      const { exists } = await tripExistsForEvent(userId, g.event.id, supabase);
-      if (exists) {
+      if (cache.findByEventId(g.event.id).exists) {
         alreadyImportedIndividually = true;
         break;
       }
@@ -1269,8 +1271,8 @@ async function processEventsAsTour(
 
     // IK
     let ikAmount = 0;
-    if (vehicle) {
-      const annualKm = await getVehicleAnnualKm(userId, vehicle.id, supabase);
+    if (vehicle && annualKmTracker) {
+      const annualKm = await annualKmTracker.current();
       const ikBefore = calculateTotalAnnualIK(annualKm, vehicle.fiscal_power, ikRateOverride);
       const ikAfter = calculateTotalAnnualIK(
         annualKm + totalDistance,
@@ -1317,6 +1319,17 @@ async function processEventsAsTour(
       continue;
     }
 
+    // Make the tour visible to the rest of this run (dedupe + IK)
+    cache.addTrip({
+      date: eventDate,
+      end_location: userHomeLocation.address,
+      purpose: purposeLine,
+      deleted_at: null,
+      status: "validated",
+      calendar_event_id: tourEventId,
+    });
+    if (annualKmTracker) annualKmTracker.add(totalDistance);
+
     console.log(
       `✅ [tour-mode] Created tour on ${eventDate}: ${group.length} stops, ${totalDistance} km, ${ikAmount}€`,
     );
@@ -1326,27 +1339,22 @@ async function processEventsAsTour(
   return { toursCreated, fallbackEvents: fallback };
 }
 
-async function getUserCalendarImportMode(
+// Import mode + IK rate override in ONE query (was 2 queries per user per run)
+async function getUserSyncPrefs(
   userId: string,
   supabase: any,
-): Promise<"individual" | "tour"> {
+): Promise<{ importMode: "individual" | "tour"; ikRateOverride: IKRateOverride }> {
   const { data } = await supabase
     .from("user_preferences")
-    .select("calendar_import_mode")
+    .select("calendar_import_mode, ik_rate_override")
     .eq("user_id", userId)
     .maybeSingle();
   const mode = (data as any)?.calendar_import_mode;
-  return mode === "tour" ? "tour" : "individual";
-}
-
-async function getUserIkRateOverride(userId: string, supabase: any): Promise<IKRateOverride> {
-  const { data } = await supabase
-    .from("user_preferences")
-    .select("ik_rate_override")
-    .eq("user_id", userId)
-    .maybeSingle();
   const v = (data as any)?.ik_rate_override;
-  return v === "tier2" || v === "tier3" ? v : "auto";
+  return {
+    importMode: mode === "tour" ? "tour" : "individual",
+    ikRateOverride: v === "tier2" || v === "tier3" ? v : "auto",
+  };
 }
 
 serve(async (req) => {
@@ -1467,12 +1475,21 @@ serve(async (req) => {
             `User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : "not found"}`,
           );
 
-          // Determine import mode + IK rate override for this user
-          const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
-          const ikRateOverride = await getUserIkRateOverride(connection.user_id, supabase);
+          // Determine import mode + IK rate override for this user (1 query)
+          const { importMode, ikRateOverride } = await getUserSyncPrefs(
+            connection.user_id,
+            supabase,
+          );
           console.log(
             `User ${connection.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
           );
+
+          // Preload trips + frequent destinations ONCE for the whole run:
+          // kills the per-event N+1 (previously 1 SQL query per event).
+          const syncCache = await UserSyncCache.load(connection.user_id, dateRange, supabase);
+          const annualKmTracker = vehicle
+            ? createAnnualKmTracker(connection.user_id, vehicle.id, supabase)
+            : null;
 
           // Create trips from events
           let tripsCreated = 0;
@@ -1494,6 +1511,8 @@ serve(async (req) => {
               supabase,
               "google_calendar",
               ikRateOverride,
+              syncCache,
+              annualKmTracker,
             );
             toursCreated = nTours;
             tripsCreated += nTours;
@@ -1509,6 +1528,8 @@ serve(async (req) => {
               supabase,
               "google_calendar",
               ikRateOverride,
+              syncCache,
+              annualKmTracker,
             );
             if (result.created) {
               tripsCreated++;
@@ -1560,11 +1581,15 @@ serve(async (req) => {
 
             const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
             const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
-            const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
-            const ikRateOverride = await getUserIkRateOverride(conn.user_id, supabase);
+            const { importMode, ikRateOverride } = await getUserSyncPrefs(conn.user_id, supabase);
             console.log(
               `ICS user ${conn.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
             );
+            // Preload trips + frequent destinations ONCE (kills the per-event N+1)
+            const syncCache = await UserSyncCache.load(conn.user_id, dateRange, supabase);
+            const annualKmTracker = vehicle
+              ? createAnnualKmTracker(conn.user_id, vehicle.id, supabase)
+              : null;
 
             let tripsCreated = 0;
             let toursCreated = 0;
@@ -1582,6 +1607,8 @@ serve(async (req) => {
                 supabase,
                 "outlook_calendar",
                 ikRateOverride,
+                syncCache,
+                annualKmTracker,
               );
               toursCreated = nTours;
               tripsCreated += nTours;
@@ -1597,6 +1624,8 @@ serve(async (req) => {
                 supabase,
                 "outlook_calendar",
                 ikRateOverride,
+                syncCache,
+                annualKmTracker,
               );
               if (result.created) tripsCreated++;
               else if (result.reason === "no_location") skippedNoLocation++;
