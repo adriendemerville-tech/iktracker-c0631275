@@ -6,6 +6,14 @@ import { useAuth } from "./useAuth";
 import { usePreferences, getFiscalYearStart } from "./usePreferences";
 import { useEmailGate, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "./useEmailGate";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  EMPTY_LOCATIONS,
+  EMPTY_VEHICLES,
+  referenceKeys,
+  useLocationsQuery,
+  useVehiclesQuery,
+} from "./useReferenceData";
 
 // Archived trips are kept for 30 days
 const ARCHIVE_RETENTION_DAYS = 30;
@@ -39,7 +47,6 @@ function dbLocation(name: string, address: unknown, lat: unknown, lng: unknown):
 // a partial update never wipes previously stored coordinates.
 type TripRow = Tables<"trips">;
 type TripInsert = TablesInsert<"trips">;
-type VehicleRow = Tables<"vehicles">;
 
 // Forme historique d'un trajet stocké en localStorage (utilisateurs non connectés).
 // Les dates y sont sérialisées en chaînes, d'où la réhydratation ci-dessous.
@@ -96,64 +103,51 @@ function mapTripRow(t: TripRow): Trip {
   };
 }
 
-function mapVehicleRow(v: VehicleRow): Vehicle {
-  return {
-    id: v.id,
-    ownerFirstName: v.owner_first_name || "",
-    ownerLastName: v.owner_last_name || "",
-    licensePlate: v.license_plate || "",
-    make: v.make || "",
-    model: v.model || v.name,
-    fiscalPower: v.fiscal_power,
-    year: v.year || undefined,
-    isElectric: v.is_electric || false,
-  };
-}
+// Le mapping véhicule vit dans useReferenceData (requêtes mutualisées).
 
 export function useTrips() {
   const { user, loading: authLoading } = useAuth();
   const { preferences } = usePreferences();
   const { emailVerified, blockFeature } = useEmailGate();
+  const queryClient = useQueryClient();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [archivedTrips, setArchivedTrips] = useState<Trip[]>([]);
-  // Start with empty array - don't show defaults until we know if user is logged in
-  const [savedLocations, setSavedLocations] = useState<Location[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Mode hors-ligne (non connecté) : véhicules/lieux vivent en localStorage.
+  const [localLocations, setLocalLocations] = useState<Location[]>([]);
+  const [localVehicles, setLocalVehicles] = useState<Vehicle[]>([]);
+  const [tripsLoading, setTripsLoading] = useState(true);
+
+  // Données de référence mutualisées via React Query (staleTime 10 min) : un seul
+  // fetch réseau quel que soit le nombre de composants qui montent useTrips.
+  const vehiclesQuery = useVehiclesQuery(user?.id);
+  const locationsQuery = useLocationsQuery(user?.id);
+
+  const vehicles = user ? (vehiclesQuery.data ?? EMPTY_VEHICLES) : localVehicles;
+  const savedLocations = user ? (locationsQuery.data ?? EMPTY_LOCATIONS) : localLocations;
+  const loading =
+    tripsLoading || (!!user && (vehiclesQuery.isPending || locationsQuery.isPending));
+
+  // Écriture optimiste dans le cache partagé (utilisateur connecté uniquement).
+  const setVehiclesCache = (updater: (prev: Vehicle[]) => Vehicle[]) => {
+    if (!user) return;
+    queryClient.setQueryData<Vehicle[]>(referenceKeys.vehicles(user.id), (prev) =>
+      updater(prev ?? EMPTY_VEHICLES),
+    );
+  };
+  const setLocationsCache = (updater: (prev: Location[]) => Location[]) => {
+    if (!user) return;
+    queryClient.setQueryData<Location[]>(referenceKeys.locations(user.id), (prev) =>
+      updater(prev ?? EMPTY_LOCATIONS),
+    );
+  };
 
   // Load data from database for logged-in users
   const loadFromDatabase = useCallback(async () => {
     if (!user) return;
 
     try {
-      // Load vehicles
-      const { data: dbVehicles } = await supabase
-        .from("vehicles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (dbVehicles) {
-        setVehicles(dbVehicles.map(mapVehicleRow));
-      }
-
-      // Load locations
-      const { data: dbLocations } = await supabase
-        .from("locations")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (dbLocations && dbLocations.length > 0) {
-        setSavedLocations(
-          dbLocations.map((l) => ({
-            id: l.id,
-            name: l.name,
-            address: l.address || "",
-            type: l.type as Location["type"],
-            lat: l.latitude || undefined,
-            lng: l.longitude || undefined,
-          })),
-        );
-      }
+      // Véhicules et lieux : chargés via les requêtes React Query mutualisées
+      // (useReferenceData), pas ici — ce loader ne gère plus que les trajets.
 
       // Load active trips (not deleted) - only past or today's trips (no future calendar imports)
       const today = new Date().toISOString().split("T")[0];
@@ -185,7 +179,7 @@ export function useTrips() {
     } catch (error) {
       console.error("Error loading from database:", error);
     } finally {
-      setLoading(false);
+      setTripsLoading(false);
     }
   }, [user]);
 
@@ -208,17 +202,17 @@ export function useTrips() {
 
     const storedLocations = localStorage.getItem(LOCATIONS_KEY);
     if (storedLocations) {
-      setSavedLocations(JSON.parse(storedLocations));
+      setLocalLocations(JSON.parse(storedLocations));
     } else {
       // Only show defaults for non-logged users with no saved locations
-      setSavedLocations(defaultLocations);
+      setLocalLocations(defaultLocations);
     }
 
     const storedVehicles = localStorage.getItem(VEHICLES_KEY);
     if (storedVehicles) {
-      setVehicles(JSON.parse(storedVehicles));
+      setLocalVehicles(JSON.parse(storedVehicles));
     }
-    setLoading(false);
+    setTripsLoading(false);
   }, []);
 
   // Migrate localStorage data to database when user logs in
@@ -344,7 +338,12 @@ export function useTrips() {
         tripsMigrated,
       });
     }
-  }, [user]);
+
+    // Les requêtes de référence ont pu se résoudre (vides) avant la fin de la
+    // migration : on les invalide pour refléter les données fraîchement migrées.
+    queryClient.invalidateQueries({ queryKey: referenceKeys.vehicles(user.id) });
+    queryClient.invalidateQueries({ queryKey: referenceKeys.locations(user.id) });
+  }, [user, queryClient]);
 
   useEffect(() => {
     // Wait for auth to finish loading before deciding which data source to use
@@ -364,12 +363,12 @@ export function useTrips() {
   };
 
   const saveLocationsLocal = (newLocations: Location[]) => {
-    setSavedLocations(newLocations);
+    setLocalLocations(newLocations);
     localStorage.setItem(LOCATIONS_KEY, JSON.stringify(newLocations));
   };
 
   const saveVehiclesLocal = (newVehicles: Vehicle[]) => {
-    setVehicles(newVehicles);
+    setLocalVehicles(newVehicles);
     localStorage.setItem(VEHICLES_KEY, JSON.stringify(newVehicles));
   };
 
@@ -657,7 +656,7 @@ export function useTrips() {
           lat: data.latitude || undefined,
           lng: data.longitude || undefined,
         };
-        setSavedLocations((prev) => [...prev, newLocation]);
+        setLocationsCache((prev) => [newLocation, ...prev]);
         return newLocation;
       }
       return null;
@@ -694,7 +693,7 @@ export function useTrips() {
 
         if (data) {
           // Replace the default location with the new DB location
-          setSavedLocations((prev) =>
+          setLocationsCache((prev) =>
             prev.map((l) =>
               l.id === id
                 ? {
@@ -721,7 +720,7 @@ export function useTrips() {
             longitude: updates.lng || null,
           })
           .eq("id", id);
-        setSavedLocations((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
+        setLocationsCache((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
       }
     } else {
       saveLocationsLocal(savedLocations.map((l) => (l.id === id ? { ...l, ...updates } : l)));
@@ -731,7 +730,7 @@ export function useTrips() {
   const deleteLocation = async (id: string) => {
     if (user) {
       await supabase.from("locations").delete().eq("id", id);
-      setSavedLocations((prev) => prev.filter((l) => l.id !== id));
+      setLocationsCache((prev) => prev.filter((l) => l.id !== id));
     } else {
       saveLocationsLocal(savedLocations.filter((l) => l.id !== id));
     }
@@ -761,7 +760,7 @@ export function useTrips() {
           ...vehicle,
           id: data.id,
         };
-        setVehicles((prev) => [...prev, newVehicle]);
+        setVehiclesCache((prev) => [newVehicle, ...prev]);
 
         // Query database directly for trips without a vehicle (more reliable than local state)
         const { data: tripsWithoutVehicle } = await supabase
@@ -918,7 +917,7 @@ export function useTrips() {
         }
       }
 
-      setVehicles((prev) => prev.map((v) => (v.id === id ? { ...v, ...updates } : v)));
+      setVehiclesCache((prev) => prev.map((v) => (v.id === id ? { ...v, ...updates } : v)));
     } else {
       // For local storage users
       if (needsIKRecalculation) {
@@ -978,7 +977,7 @@ export function useTrips() {
       }
       // Update local state: set vehicleId to null for affected trips
       setTrips((prev) => prev.map((t) => (t.vehicleId === id ? { ...t, vehicleId: null } : t)));
-      setVehicles((prev) => prev.filter((v) => v.id !== id));
+      setVehiclesCache((prev) => prev.filter((v) => v.id !== id));
       return { success: true };
     } else {
       // For local storage, set vehicleId to null for affected trips
