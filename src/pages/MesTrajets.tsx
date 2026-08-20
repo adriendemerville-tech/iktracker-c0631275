@@ -289,9 +289,39 @@ export default function Report() {
 
     setIsRecalculating(true);
     try {
+      // The recalculation runs as a backend job; the tab only follows its state.
       const { data, error } = await supabase.functions.invoke("recalculate-distances");
-
       if (error) throw error;
+
+      if (data?.job_id) {
+        toast.info("Recalcul lancé", {
+          description: "Il continue même si vous fermez cette page.",
+        });
+        recalcJob.start((finished) => {
+          setIsRecalculating(false);
+          if (finished.status === "failed") {
+            toast.error("Erreur lors du recalcul", {
+              description: finished.error ?? "Réessayez dans quelques instants.",
+            });
+            return;
+          }
+          const updated = Number((finished.result as { updated?: number } | null)?.updated ?? 0);
+          if (updated > 0) {
+            toast.success(`${updated} trajet(s) recalculé(s)`, {
+              description: "La page va se rafraîchir",
+            });
+            setTimeout(() => window.location.reload(), 1500);
+          } else {
+            toast.warning("Recalcul impossible", {
+              description:
+                "Les adresses de ce trajet sont incomplètes ou introuvables. Complétez-les manuellement.",
+              action: { label: "Corriger", onClick: openBlockingZeroKmTrip },
+            });
+            openBlockingZeroKmTrip();
+          }
+        });
+        return;
+      }
 
       if (data?.updated > 0) {
         toast.success(`${data.updated} trajet(s) recalculé(s)`, {
@@ -310,6 +340,7 @@ export default function Report() {
         });
         openBlockingZeroKmTrip();
       }
+      setIsRecalculating(false);
     } catch (error) {
       console.error("Recalculation error:", error);
       toast.error("Erreur lors du recalcul", {
@@ -319,10 +350,10 @@ export default function Report() {
           onClick: openBlockingZeroKmTrip,
         },
       });
-    } finally {
       setIsRecalculating(false);
     }
   };
+
 
   // Separate pending trips from validated trips - pending always shown first
   const pendingTrips = trips.filter((t) => t.status === "pending_location");
