@@ -26,7 +26,8 @@ function b64url(input: string | Uint8Array) {
 }
 
 async function getGoogleAccessToken(): Promise<{ token?: string; error?: string }> {
-  const raw = process.env["GOOGLE_API_KEY"];
+  const raw =
+    process.env["GOOGLE_INDEXING_SERVICE_ACCOUNT"] ?? process.env["GOOGLE_API_KEY"];
   if (!raw) return { error: "GOOGLE_API_KEY manquant" };
 
   let sa: { client_email?: string; private_key?: string };
