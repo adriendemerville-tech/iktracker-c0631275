@@ -1,12 +1,20 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.5 — 19 août 2026 (qualité de code, SSR public, A/B testing hero)
+> Version 2.7 — 20 août 2026 (RSS/Atom, dates E-E-A-T, accessibilité images, landing DictaDevi)
+
+**Notes v2.7**
+- Nouveau flux **Atom** servi en SSR sur `/feed.xml` (`src/routes/feed[.]xml.ts`, 50 derniers articles, client admin) avec lien visible dans le footer marketing — accélère la découverte des nouveaux contenus par les crawlers.
+- `src/lib/page-dates.ts` : source unique des dates éditoriales (`datePublished`/`dateModified`) alimentant à la fois le JSON-LD et la mention visible « Mis à jour le … » (`<LastUpdated />`) — les deux ne peuvent plus diverger.
+- Audit accessibilité images : 47 balises `<img>` passées en revue, alts descriptifs standardisés, images décoratives en `alt="" aria-hidden="true"`, images de contenu enveloppées dans `<figure>`/`<figcaption>`.
+- Nouvelle landing partenaire `/logiciel-devis-artisan` (DictaDevi, liens dofollow) avec image hero réaliste optimisée LCP (`fetchpriority="high"`, `loading="eager"`).
+- Bio de l'auteur Adrien de Volontat enrichie de liens dofollow vers dictadevi.io et crawlers.fr (un paragraphe dédié chacun).
 
 **Notes v2.5**
 - Chantier qualité (lots 1 à 4) : tests Vitest (`vitest.config.ts`), Prettier, suppression des `any` sur les hooks métier, découpage des fichiers > 1000 lignes (`print-utils.ts`, `AdminStats.tsx`…), suppression des routes blog dupliquées.
 - SSR réparé sur `/`, `/auth` et `/signup` : imports statiques dans `SmartRoutes.tsx` + `useHydrated`, plus aucun accès direct aux globales navigateur au rendu serveur.
 - Navigation marketing simplifiée (`MarketingNav.tsx` : regroupement « Ressources ») et CTA « Créer mon compte » remonté above the fold sur mobile.
 - A/B testing du H1 du hero (`src/lib/ab-test.ts`) avec restitution dans /admin > Stats.
+
 
 
 **Notes v2.3 (consolidation blog & redirections)**
@@ -121,6 +129,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/fonctionnalites` | `Fonctionnalites` | Panorama complet des fonctionnalités (5 familles) + FAQ de désambiguïsation |
 | `/expert-comptable` | `ExpertComptable` | Landing expert-comptable (relevés mensuels, récap annuel, archive PDF) |
 | `/artisans` | `Artisans` | Landing BTP / chantiers, partenaire DictaDevi (dofollow) |
+| `/logiciel-devis-artisan` | `LogicielDevisArtisan` | Landing partenaire DictaDevi (dofollow), image hero réaliste, JSON-LD Article/FAQPage |
 | `/independants` | `Independants` | Landing visibilité & acquisition, partenaire Crawlers.fr (dofollow) |
 | `/mode-tournee` | `ModeTournee` | Landing mode tournée (inclut la section Smart Add vocal) |
 | `/calendrier` | `Calendrier` | Landing sync calendrier |
@@ -577,6 +586,25 @@ src/
 - `/blog/$slug` possède un `loader` qui récupère l'article (titre, meta_description, image, dates) et alimente `head()` : chaque article a désormais ses vraies métadonnées en SSR, avec un fallback `noindex` si l'article n'existe pas.
 - Règle pour toute nouvelle page : créer la route avec son `head()` (titre unique < 60 caractères, description < 160, canonical absolu sur `https://iktracker.fr`), `og:image` uniquement au niveau feuille, jamais sur `__root.tsx`.
 
+## Flux RSS/Atom (`/feed.xml`)
+
+- `src/routes/feed[.]xml.ts` : route serveur SSR générant un **flux Atom** (`application/atom+xml`) avec les 50 derniers articles `published` de `blog_posts` (tri `published_at` desc). Utilise le client admin (service role) pour être indépendant des policies RLS — même pattern que `/sitemap.xml`.
+- Chaque entrée : titre, lien canonique absolu, résumé (`subtitle`/`meta_description`), `published`/`updated` ISO, auteur, image de couverture.
+- Découvrabilité : lien visible « Flux RSS » dans `EnhancedMarketingFooter.tsx` + balise `<link rel="alternate" type="application/atom+xml">` si déclarée. Objectif : accélérer l'indexation des nouveaux articles (les agrégateurs et crawlers pollent le flux).
+
+## Dates de mise à jour (E-E-A-T)
+
+- `src/lib/page-dates.ts` : source unique de vérité des dates éditoriales des pages statiques (`PAGE_DATES`, format ISO court). Chaque entrée alimente à la fois le JSON-LD (`datePublished`/`dateModified`) et la mention visible « Mis à jour le … » — divergence impossible.
+- `src/components/LastUpdated.tsx` : composant d'affichage de la date de dernière révision, testé (`LastUpdated.test.tsx`).
+- Règle : toute modification éditoriale d'une page référencée DOIT bumper `modified` dans `PAGE_DATES` ; ajouter une entrée pour toute nouvelle page de contenu.
+
+## Accessibilité & SEO des images (audit 20/08/2026)
+
+- 47 balises `<img>` auditées sur l'ensemble des pages publiques et admin.
+- Images de contenu : `alt` descriptif standardisé (marque « IKtracker », contexte métier), enveloppées dans `<figure>` + `<figcaption>` sémantiques sur les landings et articles.
+- Images décoratives (icônes, ornements) : `alt="" aria-hidden="true"` pour ne pas polluer les lecteurs d'écran.
+- Hero de `/logiciel-devis-artisan` : `src/assets/hero-devis-artisan.jpg`, `fetchpriority="high"` + `loading="eager"` (LCP), `alt` descriptif et légende visible.
+
 ## Attribution de trafic & détection IA (GA4)
 
 - `src/lib/traffic-attribution.ts` calcule **une seule fois par session** la source réelle : referrer, UTM, et mode de lancement (`browser` / `standalone` / `twa`). Résultat mémorisé en `sessionStorage` (`ik_attribution_v1`), les navigations internes ne l'écrasent pas.
@@ -617,14 +645,14 @@ src/
 
 ## Changelog
 
+- **2.7** (20 août 2026) — Flux Atom `/feed.xml` (SSR, 50 articles, client admin) + lien RSS au footer ; `src/lib/page-dates.ts` comme source unique des dates éditoriales (JSON-LD + `<LastUpdated />`) ; audit accessibilité des 47 `<img>` (alts descriptifs, décoratives en `alt=""`, `<figure>`/`<figcaption>`) ; nouvelle landing `/logiciel-devis-artisan` avec hero LCP optimisé ; liens dofollow DictaDevi/Crawlers dans la bio auteur.
+- **2.6** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées (`src/test/ssr-structured-data.test.ts`).
 - **2.5** (19 août 2026) — Qualité de code (lots 1 à 4 : Vitest, Prettier, typage, découpage), SSR restauré sur `/`, `/auth`, `/signup`, navigation marketing simplifiée + CTA mobile above the fold, A/B testing du H1 du hero avec suivi dans /admin > Stats, trajet en direct PWA.
 
 
 - **2.4** (11 août 2026) — Attribution de trafic fiabilisée : `traffic-attribution.ts` (détection IA élargie, mode de lancement PWA), dimensions personnalisées et override de campagne dans `AnalyticsTracker`, `start_url` du manifeste taggué UTM.
 
 - **2.3** (4 août 2026) — Consolidation du blog côté front : `src/lib/blog-redirects.ts` (22 slugs) branché sur `beforeLoad` de `/blog/$slug`, synchronisé avec l'Edge Function partagée et le Worker via `scripts/validate-blog-redirects-sync.cjs` ; alias `/admin` en 301 ; `public/robots.txt` remis à jour ; sitemap SSR ramené à 99 URLs après archivage de 19 articles.
-
-- **2.2** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées.
 - **2.1** (3 août 2026) — Métadonnées SEO migrées de `<Helmet>` vers le `head()` des routes TanStack (SSR) sur l'ensemble des pages publiques ; `head()` dynamique piloté par loader pour les articles de blog.
 
 - **1.5** (3 août 2026) — Gate de vérification email (3 trajets / 1 tournée, export bloqué), Smart Add texte + vocal, page `/app/archive`, recalcul IK opt-in sur les véhicules, nouvelles landings `/fonctionnalites`, `/artisans`, `/independants` et bloc de désambiguïsation IA.
