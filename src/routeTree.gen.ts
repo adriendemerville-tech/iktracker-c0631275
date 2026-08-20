@@ -22,6 +22,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DevisChantierRouteImport } from './routes/devis-chantier'
 import { Route as ExpertComptableRouteImport } from './routes/expert-comptable'
 import { Route as ExpertsComptablesRouteImport } from './routes/experts-comptables'
+import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as FonctionnalitesRouteImport } from './routes/fonctionnalites'
 import { Route as FraisReelsRouteImport } from './routes/frais-reels'
 import { Route as IndemniteGrandDeplacement2026RouteImport } from './routes/indemnite-grand-deplacement-2026'
@@ -139,6 +140,11 @@ const ExpertComptableRoute = ExpertComptableRouteImport.update({
 const ExpertsComptablesRoute = ExpertsComptablesRouteImport.update({
   id: '/experts-comptables',
   path: '/experts-comptables',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
+  id: '/feed.xml',
+  path: '/feed.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FonctionnalitesRoute = FonctionnalitesRouteImport.update({
@@ -424,6 +430,7 @@ export interface FileRoutesByFullPath {
   '/devis-chantier': typeof DevisChantierRoute
   '/expert-comptable': typeof ExpertComptableRoute
   '/experts-comptables': typeof ExpertsComptablesRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/fonctionnalites': typeof FonctionnalitesRoute
   '/frais-reels': typeof FraisReelsRoute
   '/indemnite-grand-deplacement-2026': typeof IndemniteGrandDeplacement2026Route
@@ -492,6 +499,7 @@ export interface FileRoutesByTo {
   '/devis-chantier': typeof DevisChantierRoute
   '/expert-comptable': typeof ExpertComptableRoute
   '/experts-comptables': typeof ExpertsComptablesRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/fonctionnalites': typeof FonctionnalitesRoute
   '/frais-reels': typeof FraisReelsRoute
   '/indemnite-grand-deplacement-2026': typeof IndemniteGrandDeplacement2026Route
@@ -561,6 +569,7 @@ export interface FileRoutesById {
   '/devis-chantier': typeof DevisChantierRoute
   '/expert-comptable': typeof ExpertComptableRoute
   '/experts-comptables': typeof ExpertsComptablesRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/fonctionnalites': typeof FonctionnalitesRoute
   '/frais-reels': typeof FraisReelsRoute
   '/indemnite-grand-deplacement-2026': typeof IndemniteGrandDeplacement2026Route
@@ -631,6 +640,7 @@ export interface FileRouteTypes {
     | '/devis-chantier'
     | '/expert-comptable'
     | '/experts-comptables'
+    | '/feed.xml'
     | '/fonctionnalites'
     | '/frais-reels'
     | '/indemnite-grand-deplacement-2026'
@@ -699,6 +709,7 @@ export interface FileRouteTypes {
     | '/devis-chantier'
     | '/expert-comptable'
     | '/experts-comptables'
+    | '/feed.xml'
     | '/fonctionnalites'
     | '/frais-reels'
     | '/indemnite-grand-deplacement-2026'
@@ -767,6 +778,7 @@ export interface FileRouteTypes {
     | '/devis-chantier'
     | '/expert-comptable'
     | '/experts-comptables'
+    | '/feed.xml'
     | '/fonctionnalites'
     | '/frais-reels'
     | '/indemnite-grand-deplacement-2026'
@@ -836,6 +848,7 @@ export interface RootRouteChildren {
   DevisChantierRoute: typeof DevisChantierRoute
   ExpertComptableRoute: typeof ExpertComptableRoute
   ExpertsComptablesRoute: typeof ExpertsComptablesRoute
+  FeedDotxmlRoute: typeof FeedDotxmlRoute
   FonctionnalitesRoute: typeof FonctionnalitesRoute
   FraisReelsRoute: typeof FraisReelsRoute
   IndemniteGrandDeplacement2026Route: typeof IndemniteGrandDeplacement2026Route
@@ -982,6 +995,13 @@ declare module '@tanstack/react-router' {
       path: '/experts-comptables'
       fullPath: '/experts-comptables'
       preLoaderRoute: typeof ExpertsComptablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed.xml': {
+      id: '/feed.xml'
+      path: '/feed.xml'
+      fullPath: '/feed.xml'
+      preLoaderRoute: typeof FeedDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fonctionnalites': {
@@ -1372,6 +1392,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevisChantierRoute: DevisChantierRoute,
   ExpertComptableRoute: ExpertComptableRoute,
   ExpertsComptablesRoute: ExpertsComptablesRoute,
+  FeedDotxmlRoute: FeedDotxmlRoute,
   FonctionnalitesRoute: FonctionnalitesRoute,
   FraisReelsRoute: FraisReelsRoute,
   IndemniteGrandDeplacement2026Route: IndemniteGrandDeplacement2026Route,
