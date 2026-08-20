@@ -317,6 +317,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Language / discovery
       { rel: "alternate", hrefLang: "fr-FR", href: "https://iktracker.fr/" },
       { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
+      {
+        rel: "alternate",
+        type: "application/atom+xml",
+        href: "https://iktracker.fr/feed.xml",
+        title: "Blog IKtracker (Atom)",
+      },
       { rel: "llms", href: "/llms.txt", type: "text/plain", title: "LLM Information" },
       {
         rel: "alternate",
