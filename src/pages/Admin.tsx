@@ -1289,6 +1289,11 @@ const Admin = () => {
               <AdminAutopilot />
             </TabsContent>
 
+            {/* Content Freshness Tab */}
+            <TabsContent value="freshness">
+              <AdminContentFreshness />
+            </TabsContent>
+
             {/* Tour Recovery Tab */}
             <TabsContent value="tour-recovery">
               <Tabs defaultValue="usage" className="w-full">
