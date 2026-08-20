@@ -60,7 +60,7 @@ async function fetchBlogPosts() {
   const PAGE_SIZE = 1000;
 
   while (true) {
-    const url = `${SUPABASE_URL}/rest/v1/blog_posts?select=slug,updated_at,published_at&status=eq.published&order=published_at.desc&offset=${from}&limit=${PAGE_SIZE}`;
+    const url = `${SUPABASE_URL}/rest/v1/blog_posts?select=slug,updated_at,published_at&status=eq.published&seo_indexable=is.true&order=published_at.desc&offset=${from}&limit=${PAGE_SIZE}`;
     const res = await fetch(url, {
       headers: {
         apikey: SUPABASE_KEY,
