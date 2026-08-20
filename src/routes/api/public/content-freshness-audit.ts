@@ -57,13 +57,16 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
       POST: async ({ request }) => {
         const supabaseUrl = process.env["SUPABASE_URL"]!;
         const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"]!;
-        const cronSecret = process.env["CRON_SECRET"];
+        const cronSecrets = [
+          process.env["CRON_SECRET"],
+          process.env["SYNC_CRON_TOKEN"],
+        ].filter(Boolean) as string[];
 
         const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
         const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
         const token = request.headers.get("x-cron-secret") ?? request.headers.get("x-cron-token");
-        const isCron = !!cronSecret && token === cronSecret;
+        const isCron = !!token && cronSecrets.includes(token);
 
         if (!isCron) {
           const jwt = (request.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
