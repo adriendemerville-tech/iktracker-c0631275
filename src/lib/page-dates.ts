@@ -18,6 +18,7 @@ export const PAGE_DATES = {
     modified: "2026-07-24",
   },
   "/artisans": { published: "2026-07-20", modified: "2026-08-03" },
+  "/logiciel-devis-artisan": { published: "2026-08-20", modified: "2026-08-20" },
   "/comparatif-izika": { published: "2026-02-03", modified: "2026-02-03" },
   "/comparatif-driversnote": { published: "2026-02-03", modified: "2026-02-03" },
 } as const satisfies Record<string, PageDates>;
