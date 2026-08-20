@@ -32,6 +32,7 @@ import { Route as IndChar233pendantsRouteImport } from './routes/indépendants'
 import { Route as InstallRouteImport } from './routes/install'
 import { Route as InstallerRouteImport } from './routes/installer'
 import { Route as LexiqueRouteImport } from './routes/lexique'
+import { Route as LogicielDevisArtisanRouteImport } from './routes/logiciel-devis-artisan'
 import { Route as MarinaRouteImport } from './routes/marina'
 import { Route as MeilleureApplicationIndemnitesKilometriquesRouteImport } from './routes/meilleure-application-indemnites-kilometriques'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
@@ -193,6 +194,11 @@ const InstallerRoute = InstallerRouteImport.update({
 const LexiqueRoute = LexiqueRouteImport.update({
   id: '/lexique',
   path: '/lexique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogicielDevisArtisanRoute = LogicielDevisArtisanRouteImport.update({
+  id: '/logiciel-devis-artisan',
+  path: '/logiciel-devis-artisan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarinaRoute = MarinaRouteImport.update({
@@ -447,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/install': typeof InstallRoute
   '/installer': typeof InstallerRoute
   '/lexique': typeof LexiqueRoute
+  '/logiciel-devis-artisan': typeof LogicielDevisArtisanRoute
   '/marina': typeof MarinaRoute
   '/meilleure-application-indemnites-kilometriques': typeof MeilleureApplicationIndemnitesKilometriquesRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/install': typeof InstallRoute
   '/installer': typeof InstallerRoute
   '/lexique': typeof LexiqueRoute
+  '/logiciel-devis-artisan': typeof LogicielDevisArtisanRoute
   '/marina': typeof MarinaRoute
   '/meilleure-application-indemnites-kilometriques': typeof MeilleureApplicationIndemnitesKilometriquesRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -588,6 +596,7 @@ export interface FileRoutesById {
   '/install': typeof InstallRoute
   '/installer': typeof InstallerRoute
   '/lexique': typeof LexiqueRoute
+  '/logiciel-devis-artisan': typeof LogicielDevisArtisanRoute
   '/marina': typeof MarinaRoute
   '/meilleure-application-indemnites-kilometriques': typeof MeilleureApplicationIndemnitesKilometriquesRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -660,6 +669,7 @@ export interface FileRouteTypes {
     | '/install'
     | '/installer'
     | '/lexique'
+    | '/logiciel-devis-artisan'
     | '/marina'
     | '/meilleure-application-indemnites-kilometriques'
     | '/mentions-legales'
@@ -730,6 +740,7 @@ export interface FileRouteTypes {
     | '/install'
     | '/installer'
     | '/lexique'
+    | '/logiciel-devis-artisan'
     | '/marina'
     | '/meilleure-application-indemnites-kilometriques'
     | '/mentions-legales'
@@ -800,6 +811,7 @@ export interface FileRouteTypes {
     | '/install'
     | '/installer'
     | '/lexique'
+    | '/logiciel-devis-artisan'
     | '/marina'
     | '/meilleure-application-indemnites-kilometriques'
     | '/mentions-legales'
@@ -871,6 +883,7 @@ export interface RootRouteChildren {
   InstallRoute: typeof InstallRoute
   InstallerRoute: typeof InstallerRoute
   LexiqueRoute: typeof LexiqueRoute
+  LogicielDevisArtisanRoute: typeof LogicielDevisArtisanRoute
   MarinaRoute: typeof MarinaRoute
   MeilleureApplicationIndemnitesKilometriquesRoute: typeof MeilleureApplicationIndemnitesKilometriquesRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
@@ -1079,6 +1092,13 @@ declare module '@tanstack/react-router' {
       path: '/lexique'
       fullPath: '/lexique'
       preLoaderRoute: typeof LexiqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logiciel-devis-artisan': {
+      id: '/logiciel-devis-artisan'
+      path: '/logiciel-devis-artisan'
+      fullPath: '/logiciel-devis-artisan'
+      preLoaderRoute: typeof LogicielDevisArtisanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marina': {
@@ -1423,6 +1443,7 @@ const rootRouteChildren: RootRouteChildren = {
   InstallRoute: InstallRoute,
   InstallerRoute: InstallerRoute,
   LexiqueRoute: LexiqueRoute,
+  LogicielDevisArtisanRoute: LogicielDevisArtisanRoute,
   MarinaRoute: MarinaRoute,
   MeilleureApplicationIndemnitesKilometriquesRoute:
     MeilleureApplicationIndemnitesKilometriquesRoute,

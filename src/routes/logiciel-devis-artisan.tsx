@@ -1,0 +1,46 @@
+import { createFileRoute } from "@tanstack/react-router";
+import LogicielDevisArtisan from "@/pages/LogicielDevisArtisan";
+
+export const Route = createFileRoute("/logiciel-devis-artisan")({
+  head: () => ({
+    meta: [
+      { title: "Logiciel de devis artisan : devis vocal, IK et visibilité" },
+      {
+        name: "description",
+        content:
+          "Artisan du bâtiment : dictez vos devis sur le chantier, déduisez vos kilomètres au barème officiel et rendez votre site visible. La stack outils complète, expliquée.",
+      },
+      {
+        name: "keywords",
+        content:
+          "logiciel devis artisan, devis vocal bâtiment, application devis chantier, indemnités kilométriques artisan, CRM artisan, dictadevi, crawlers.fr",
+      },
+      {
+        property: "og:title",
+        content: "Logiciel de devis artisan : la stack outils du bâtiment",
+      },
+      {
+        property: "og:description",
+        content:
+          "Devis dicté depuis le chantier, indemnités kilométriques automatiques et visibilité en ligne : trois outils pour récupérer ses soirées.",
+      },
+      { property: "og:type", content: "article" },
+      { property: "og:locale", content: "fr_FR" },
+      { property: "og:url", content: "https://iktracker.fr/logiciel-devis-artisan" },
+      { property: "og:site_name", content: "IKtracker" },
+      { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Logiciel de devis artisan : la stack outils du bâtiment" },
+      {
+        name: "twitter:description",
+        content:
+          "Devis vocal sur le chantier, kilomètres déduits au barème officiel et site enfin trouvé sur Google.",
+      },
+      { name: "twitter:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
+      { name: "geo.region", content: "FR" },
+      { name: "language", content: "fr" },
+    ],
+    links: [{ rel: "canonical", href: "https://iktracker.fr/logiciel-devis-artisan" }],
+  }),
+  component: LogicielDevisArtisan,
+});
