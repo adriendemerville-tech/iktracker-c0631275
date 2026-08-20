@@ -31,11 +31,19 @@ function toIso(value: string | null | undefined) {
   return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
 }
 
+function stripHtml(value: string) {
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 300);
+}
+
 function renderEntry(post: FeedPost) {
   const url = `${BASE_URL}/blog/${post.slug}`;
   const updated = toIso(post.updated_at || post.published_at);
   const published = toIso(post.published_at || post.updated_at);
-  const summary = post.meta_description || post.subtitle || post.title;
+  const summary = stripHtml(post.meta_description || post.subtitle || post.title);
 
   return [
     `  <entry>`,
