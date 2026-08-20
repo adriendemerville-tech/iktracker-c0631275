@@ -39,9 +39,18 @@ function stripHtml(value: string) {
     .slice(0, 300);
 }
 
+/** Date de dernière modification réelle : max(updated_at, published_at). */
+function effectiveUpdated(post: FeedPost) {
+  const candidates = [post.updated_at, post.published_at]
+    .filter((v): v is string => Boolean(v))
+    .map((v) => new Date(v).getTime())
+    .filter((t) => !Number.isNaN(t));
+  return candidates.length ? new Date(Math.max(...candidates)).toISOString() : toIso(null);
+}
+
 function renderEntry(post: FeedPost) {
   const url = `${BASE_URL}/blog/${post.slug}`;
-  const updated = toIso(post.updated_at || post.published_at);
+  const updated = effectiveUpdated(post);
   const published = toIso(post.published_at || post.updated_at);
   const summary = stripHtml(post.meta_description || post.subtitle || post.title);
 
@@ -67,6 +76,7 @@ export const Route = createFileRoute("/feed.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Tri sur la date de dernière modification pour refléter les mises à jour récentes
         const { data } = await supabase
           .from("blog_posts")
           .select(
@@ -74,16 +84,17 @@ export const Route = createFileRoute("/feed.xml")({
           )
           .eq("status", "published")
           .eq("seo_indexable", true)
-          .order("published_at", { ascending: false })
+          .order("updated_at", { ascending: false, nullsFirst: false })
+          .order("published_at", { ascending: false, nullsFirst: false })
           .limit(MAX_ENTRIES);
 
-        const posts = (data || []) as FeedPost[];
-        const lastUpdated = posts.length
-          ? posts
-              .map((p) => toIso(p.updated_at || p.published_at))
-              .sort()
-              .reverse()[0]
-          : new Date().toISOString();
+        const posts = ((data || []) as FeedPost[]).sort(
+          (a, b) =>
+            new Date(effectiveUpdated(b)).getTime() - new Date(effectiveUpdated(a)).getTime(),
+        );
+
+        const lastUpdated = posts.length ? effectiveUpdated(posts[0]) : new Date().toISOString();
+
 
         const xml = [
           `<?xml version="1.0" encoding="utf-8"?>`,
