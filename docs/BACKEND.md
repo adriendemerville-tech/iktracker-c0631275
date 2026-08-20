@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.1 — 4 août 2026
+> Version 4.2 — 20 août 2026
 
 ## Table des matières
 
@@ -348,6 +348,7 @@ Content-Type: application/json
   - `individual` (défaut) : 1 événement calendrier = 1 trajet aller-retour depuis le domicile.
   - `tour` : tous les rendez-vous d'une même journée (≥ 2 avec adresse résolue) sont regroupés en une seule tournée `domicile → RDV₁ → … → RDV_N → domicile` — 1 seul `trip` avec `tour_stops` JSON, distance = somme des segments Distance Matrix, IK calculé une fois via le barème tiered (bonus EV 20% inchangé), `calendar_event_id = tour:YYYY-MM-DD:<source>` pour l'idempotence. Les jours avec 1 seul rendez-vous, sans adresse home configurée ou sans adresse d'événement retombent silencieusement sur le flux individuel.
   - Le calcul IK respecte `user_preferences.ik_rate_override` : `auto` (barème tiered), `tier2` (taux 5001–20000 forcé sur chaque km) ou `tier3` (taux >20000 forcé). Utile pour les utilisateurs qui se remboursent mensuellement et veulent un taux stable toute l'année.
+- **Performance (20/08/2026)** : suppression du N+1 SQL par événement. Avant, `tripExistsForEvent` et `similarTripExists` exécutaient chacune 1 requête **par événement** (≈ 550 000 requêtes et 250 s de temps DB cumulé — 1er consommateur de la base). Désormais, un cache `UserSyncCache` pré-charge en 3 requêtes paginées (limite PostgREST ~1000 lignes) : (a) tous les trajets liés à un `calendar_event_id` quelle que soit la date — un événement déplacé du passé vers la fenêtre reste détecté comme déjà importé, (b) tous les trajets de la fenêtre de sync (y compris manuels) pour le matching de similarité en mémoire, (c) les `frequent_destinations`. Chaque INSERT est rejoué dans le cache (`addTrip`) pour que la déduplication et le calcul IK incrémental des événements suivants voient exactement ce que les anciennes requêtes voyaient. Les km annuels du véhicule sont lus 1 fois puis accumulés localement (`AnnualKmTracker`). `calendar_import_mode` + `ik_rate_override` sont lus en 1 seule requête (`getUserSyncPrefs`). Bilan : ~3-7 requêtes par utilisateur et par run, contre ~3 × N événements avant.
 - **Observabilité** : Chaque synchronisation ICS est journalisée dans `calendar_connection_attempts` avec le statut `success`/`failure`, le nombre d'événements récupérés, le nombre de trajets créés et le déclencheur (`cron` ou `manual`).
 - **Secrets** : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `SYNC_CRON_TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
@@ -531,13 +532,15 @@ Toutes les tables utilisateur suivent ce pattern :
 -- Lecture : l'utilisateur voit ses propres données
 CREATE POLICY "Users can view own data" ON public.table_name
   FOR SELECT TO authenticated
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- Écriture : l'utilisateur modifie ses propres données
 CREATE POLICY "Users can manage own data" ON public.table_name
   FOR ALL TO authenticated
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 ```
+
+> **Performance (20/08/2026)** : les 136 policies du schéma `public` qui référençaient `auth.uid()` ont été réécrites en `(select auth.uid())` (migration mécanique DROP/CREATE, permissions strictement inchangées, 156 policies au total avant/après). Sans le `(select …)`, Postgres réévalue `auth.uid()` pour **chaque ligne** ; wrappé, il devient un initplan calculé **une fois par requête**. Mesuré avant correctif : lecture admin de `marketing_analytics` à 446 ms en moyenne (pic 1,3 s) pour 13k lignes. Toute nouvelle policy DOIT utiliser la forme wrappée.
 
 ---
 
@@ -1299,6 +1302,10 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **4.2** (20 août 2026) — Optimisations critiques de scalabilité (audit perf) :
+  1. **N+1 `sync-calendar-trips`** : cache mémoire par utilisateur (`UserSyncCache`) — les vérifications d'existence/similarité de trajets passent de ~3 requêtes SQL par événement calendrier (≈ 550 000 requêtes, 250 s de temps DB cumulé) à 3 requêtes paginées pré-chargées par utilisateur et par run. Les INSERT sont rejoués dans le cache pour préserver la sémantique de déduplication intra-run. Cf. section `sync-calendar-trips` > Performance.
+  2. **RLS initplan** : réécriture mécanique des **136 policies** référençant `auth.uid()` brut en `(select auth.uid())` (migration dynamique parcourant `pg_policies`, DROP/CREATE à l'identique sinon). Permissions strictement inchangées (156 policies avant/après), `auth.uid()` passé d'une évaluation par ligne à un initplan par requête. Cf. section RLS Pattern.
 
 - **4.1** (4 août 2026) — Audit post-consolidation, 4 correctifs :
   1. **Soft 404 bots supprimés** — `meta-renderer` importe désormais

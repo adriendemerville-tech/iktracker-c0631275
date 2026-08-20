@@ -687,7 +687,7 @@ async function calculateDrivingDistance(
       destinations: destination,
       mode: "driving",
       language: "fr",
-      key: GOOGLE_MAPS_API_KEY,
+      key: GOOGLE_MAPS_API_KEY!,
     });
 
     const response = await fetch(
