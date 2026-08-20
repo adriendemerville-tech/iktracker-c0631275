@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 
 const BASE_URL = "https://iktracker.fr";
 
@@ -49,18 +48,25 @@ const staticPages: SitemapEntry[] = [
 const PAGE_SIZE = 1000;
 
 async function fetchAllPublishedPosts() {
+  // Client serveur (service role) : indépendant des policies RLS `anon`,
+  // un durcissement futur de RLS ne peut plus vider silencieusement le sitemap.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const all: Array<{ slug: string; updated_at: string | null; published_at: string | null }> = [];
   let from = 0;
   // paginate to bypass the default row limit
   for (;;) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("blog_posts")
       .select("slug, updated_at, published_at")
       .eq("seo_indexable", true)
       .eq("status", "published")
       .order("published_at", { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
-    if (error || !data || data.length === 0) break;
+    if (error) {
+      console.error("[sitemap] blog_posts fetch failed:", error.message);
+      throw new Error(`sitemap blog_posts fetch failed: ${error.message}`);
+    }
+    if (!data || data.length === 0) break;
     all.push(...(data as typeof all));
     if (data.length < PAGE_SIZE) break;
     from += PAGE_SIZE;
