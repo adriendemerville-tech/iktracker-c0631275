@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 
 const BASE_URL = "https://iktracker.fr";
 const FEED_URL = `${BASE_URL}/feed.xml`;
