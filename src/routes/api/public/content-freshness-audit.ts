@@ -252,11 +252,16 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
           if (upsertError) return Response.json({ error: upsertError.message }, { status: 500 });
         }
 
+        const countBy = (code: string) =>
+          rows.filter((r) => (r.reasons as Reason[]).some((x) => x.code === code)).length;
+
         return Response.json({
           ok: true,
           scanned: posts?.length ?? 0,
           flagged: rows.length,
           checked_links: checkLinks,
+          broken_internal_pages: countBy("broken_internal_link"),
+          broken_external_pages: countBy("broken_link"),
         });
       },
     },
