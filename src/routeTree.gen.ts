@@ -65,6 +65,7 @@ import { Route as DebugTourModalRouteImport } from './routes/debug/tour-modal'
 import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable/oauth/consent'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
+import { Route as ApiPublicContentFreshnessAuditRouteImport } from './routes/api/public/content-freshness-audit'
 import { Route as ApiPublicSubmitIndexingRouteImport } from './routes/api/public/submit-indexing'
 import { Route as AppAdminIndexRouteImport } from './routes/app/admin/index'
 import { Route as AppAdminPartnersRouteImport } from './routes/app/admin/partners'
@@ -360,6 +361,12 @@ const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   path: '/admin/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicContentFreshnessAuditRoute =
+  ApiPublicContentFreshnessAuditRouteImport.update({
+    id: '/api/public/content-freshness-audit',
+    path: '/api/public/content-freshness-audit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicSubmitIndexingRoute = ApiPublicSubmitIndexingRouteImport.update({
   id: '/api/public/submit-indexing',
   path: '/api/public/submit-indexing',
@@ -472,6 +479,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
@@ -541,6 +549,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/blog': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
@@ -611,6 +620,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
@@ -682,6 +692,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/blog/'
     | '/.lovable/oauth/consent'
+    | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
@@ -751,6 +762,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/blog'
     | '/.lovable/oauth/consent'
+    | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
@@ -820,6 +832,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/blog/'
     | '/.lovable/oauth/consent'
+    | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
@@ -890,6 +903,7 @@ export interface RootRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicContentFreshnessAuditRoute: typeof ApiPublicContentFreshnessAuditRoute
   ApiPublicSubmitIndexingRoute: typeof ApiPublicSubmitIndexingRoute
   AppAdminPartnersRoute: typeof AppAdminPartnersRoute
   BlogAuteurSlugRoute: typeof BlogAuteurSlugRoute
@@ -1298,6 +1312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/content-freshness-audit': {
+      id: '/api/public/content-freshness-audit'
+      path: '/api/public/content-freshness-audit'
+      fullPath: '/api/public/content-freshness-audit'
+      preLoaderRoute: typeof ApiPublicContentFreshnessAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/submit-indexing': {
       id: '/api/public/submit-indexing'
       path: '/api/public/submit-indexing'
@@ -1435,6 +1456,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicContentFreshnessAuditRoute: ApiPublicContentFreshnessAuditRoute,
   ApiPublicSubmitIndexingRoute: ApiPublicSubmitIndexingRoute,
   AppAdminPartnersRoute: AppAdminPartnersRoute,
   BlogAuteurSlugRoute: BlogAuteurSlugRoute,
