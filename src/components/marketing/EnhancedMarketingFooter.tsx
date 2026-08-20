@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@/lib/router-compat";
-import { LayoutDashboard, MapPin } from "lucide-react";
+import { LayoutDashboard, MapPin, Rss } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Accordion,
