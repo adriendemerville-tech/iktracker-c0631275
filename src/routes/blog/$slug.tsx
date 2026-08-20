@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import BlogPost from "@/pages/BlogPost";
 import { supabase } from "@/integrations/supabase/client";
 import { BLOG_SLUG_REDIRECTS } from "@/lib/blog-redirects";
+import { buildBlogPostSchemas } from "@/lib/blog-post-schemas";
 
 export const Route = createFileRoute("/blog/$slug")({
   beforeLoad: ({ params }) => {
@@ -98,6 +99,10 @@ export const Route = createFileRoute("/blog/$slug")({
         { rel: "canonical", href: url },
         { rel: "preconnect", href: "https://yarjaudctshlxkatqgeb.supabase.co" },
       ],
+      scripts: schemas.map((schema) => ({
+        type: "application/ld+json",
+        children: JSON.stringify(schema),
+      })),
     };
   },
   component: BlogPost,
