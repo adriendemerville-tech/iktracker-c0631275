@@ -215,17 +215,12 @@ export default function BlogPost() {
   return (
     <>
       <Helmet>
-        {/* Title, description, canonical, OG and Twitter tags are served
-            server-side from the route head() in src/routes/blog/$slug.tsx */}
+        {/* Title, description, canonical, OG/Twitter tags and all JSON-LD graphs
+            are served server-side from the route head() in src/routes/blog/$slug.tsx */}
         {post.author_name ? <meta property="article:author" content={post.author_name} /> : null}
         <meta name="author" content={post.author_name || "IKtracker"} />
-
-        {/* Structured Data */}
-        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-        {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
-        {howToSchema && <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>}
       </Helmet>
+
 
       <div className="min-h-screen bg-background">
         <main id="main-content" tabIndex={-1} className="outline-hidden">
