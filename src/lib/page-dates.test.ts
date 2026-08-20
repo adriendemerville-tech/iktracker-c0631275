@@ -13,6 +13,7 @@ const PAGE_SOURCES: Record<PageDatesKey, string> = {
   "/indemnite-grand-deplacement-2026": "src/pages/IndemniteGrandDeplacement2026.tsx",
   "/meilleure-application-indemnites-kilometriques": "src/pages/MeilleureApplicationIK.tsx",
   "/artisans": "src/pages/Artisans.tsx",
+  "/logiciel-devis-artisan": "src/pages/LogicielDevisArtisan.tsx",
   "/comparatif-izika": "src/pages/ComparatifIzika.tsx",
   "/comparatif-driversnote": "src/pages/ComparatifDriversNote.tsx",
 };
