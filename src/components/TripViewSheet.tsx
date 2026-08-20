@@ -19,7 +19,7 @@ import {
 import { extractCityFromAddress, geocodeAddress } from "@/lib/geocoding";
 import { AddressAutocompleteInput } from "./AddressAutocompleteInput";
 import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
-import { useTrips } from "@/hooks/useTrips";
+
 import { useGoogleMaps } from "@/hooks/useGoogleMaps";
 import { calculateDrivingMatrix, optimizeStopOrder } from "@/lib/distance";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +31,9 @@ interface TripViewSheetProps {
   onOpenChange: (open: boolean) => void;
   trip: Trip | null;
   vehicle?: Vehicle;
+  // Fourni par la page parente (qui monte déjà useTrips) : évite un useTrips()
+  // par TripCard, soit 2 requêtes trips par carte affichée.
+  updateTrip: (id: string, updates: Partial<Omit<Trip, "id">>) => Promise<Trip | null>;
 }
 
 const getDisplayName = (location: { name: string; address?: string }): string => {
@@ -60,8 +63,7 @@ interface ViaStop {
 
 type EditTarget = null | "start" | "end" | { kind: "stop"; id: string };
 
-export function TripViewSheet({ open, onOpenChange, trip, vehicle }: TripViewSheetProps) {
-  const { updateTrip } = useTrips();
+export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }: TripViewSheetProps) {
   useGoogleMaps();
   const { toast } = useToast();
   const [viaStops, setViaStops] = useState<ViaStop[]>([]);

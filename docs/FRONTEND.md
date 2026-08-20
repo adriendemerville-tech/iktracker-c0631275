@@ -4,6 +4,7 @@
 
 **Notes v2.8 (performance requêtes)**
 - Nouveau hook `src/hooks/useReferenceData.ts` : les **véhicules et lieux** sont désormais chargés via React Query mutualisé (`staleTime` 10 min, `gcTime` 30 min, clés `ref-vehicles`/`ref-locations` par utilisateur). Auparavant, `useTrips` — monté par 4 composants simultanés — refetchait ces deux tables hors cache à chaque montage (d'où ~62k lectures de `locations` et ~58k de `vehicles` constatées dans l'audit). Les lectures sont divisées par 5-10 sans changement visible.
+- **Correction N+1 `TripCard`/`TripViewSheet`** : `TripViewSheet` ne monte plus son propre `useTrips()` (qui déclenchait 2 requêtes `trips` par carte affichée — 164 requêtes pour 81 trajets sur « Mes trajets »). Il reçoit désormais `updateTrip` en prop, fourni par la page parente via `TripCard` (`onUpdateTrip`). Résultat mesuré : 2 requêtes `trips` au total par page, 0 requête à l'ouverture de la fiche.
 - `useTrips` ne fetch plus que les trajets ; les mutations véhicules/lieux écrivent en optimiste dans le cache partagé (`queryClient.setQueryData`), et la migration localStorage → BDD invalide les deux clés pour éviter tout cache vide transitoire. Le mode hors-ligne (localStorage) est inchangé.
 
 **Notes v2.7**
