@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * Garde-fou SSR : vérifie que les données structurées (Article, FAQPage,
  * BreadcrumbList, HowTo…) ET le contenu principal sont bien présents dans le
