@@ -19,7 +19,7 @@ export const PAGE_DATES = {
   },
   "/artisans": { published: "2026-07-20", modified: "2026-08-03" },
   "/comparatif-izika": { published: "2026-02-03", modified: "2026-02-03" },
-  "/comparatif-drivers-note": { published: "2026-02-03", modified: "2026-02-03" },
+  "/comparatif-driversnote": { published: "2026-02-03", modified: "2026-02-03" },
 } as const satisfies Record<string, PageDates>;
 
 export type PageDatesKey = keyof typeof PAGE_DATES;

@@ -24,7 +24,7 @@ import {
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 
-const PAGE_DATE = getPageDates("/comparatif-drivers-note");
+const PAGE_DATE = getPageDates("/comparatif-driversnote");
 
 import {
   ArrowRight,
@@ -134,7 +134,7 @@ const ComparatifDriversNote = () => {
             },
             datePublished: toIsoDateTime(PAGE_DATE.published),
             dateModified: toIsoDateTime(PAGE_DATE.modified),
-            mainEntityOfPage: "https://iktracker.fr/comparatif-drivers-note",
+            mainEntityOfPage: "https://iktracker.fr/comparatif-driversnote",
             inLanguage: "fr-FR",
           })}
         </script>
