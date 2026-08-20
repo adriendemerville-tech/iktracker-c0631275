@@ -255,6 +255,60 @@ export type Database = {
           },
         ]
       }
+      background_jobs: {
+        Row: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          kind: string
+          params: Json
+          phase: string | null
+          processed: number
+          progress: number
+          result: Json | null
+          started_at: string | null
+          status: string
+          total: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          kind: string
+          params?: Json
+          phase?: string | null
+          processed?: number
+          progress?: number
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+          total?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          kind?: string
+          params?: Json
+          phase?: string | null
+          processed?: number
+          progress?: number
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+          total?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       blog_api_keys: {
         Row: {
           api_key: string
@@ -2298,6 +2352,7 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_background_jobs: { Args: never; Returns: Json }
       cleanup_expired_shares: { Args: never; Returns: undefined }
       cleanup_old_phone_numbers: { Args: never; Returns: undefined }
       delete_email: {
