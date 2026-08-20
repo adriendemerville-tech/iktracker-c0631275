@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import LogicielDevisArtisan from "@/pages/LogicielDevisArtisan";
+import {
+  DEVIS_ARTISAN_ARTICLE_SCHEMA,
+  DEVIS_ARTISAN_FAQ_SCHEMA,
+} from "@/lib/logiciel-devis-artisan-schema";
+
 
 export const Route = createFileRoute("/logiciel-devis-artisan")({
   head: () => ({
