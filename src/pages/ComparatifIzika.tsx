@@ -166,7 +166,8 @@ const ComparatifIzika = () => {
                             <div className="flex items-center gap-2">
                               <img
                                 src="/logo-iktracker-250.webp"
-                                alt="IKtracker"
+                                alt=""
+                                aria-hidden="true"
                                 className="h-5 w-5"
                               />
                               <span>IKtracker</span>

@@ -678,7 +678,8 @@ export default function Lexique() {
               <Link to="/" className="flex items-center gap-2">
                 <img
                   src="/logo-iktracker-250.webp"
-                  alt="IKtracker"
+                  alt=""
+                  aria-hidden="true"
                   className="h-8 w-8"
                   width={32}
                   height={32}

@@ -7,7 +7,7 @@ export const AuthLoadingScreen = () => {
       {/* Logo with CSS fade-in */}
       <img
         src="/logo-iktracker-250.webp"
-        alt="IK Tracker"
+        alt="IKtracker"
         className="w-16 h-16 mb-8 animate-fade-in"
         style={{ animationDuration: "0.4s", animationFillMode: "both" }}
       />

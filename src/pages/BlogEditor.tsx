@@ -443,7 +443,7 @@ export default function BlogEditor() {
                   <div className="relative">
                     <img
                       src={form.featured_image_url}
-                      alt="Preview"
+                      alt="Aperçu de l'image de couverture de l'article"
                       className="w-full h-48 object-cover rounded-lg border"
                     />
                     <Button

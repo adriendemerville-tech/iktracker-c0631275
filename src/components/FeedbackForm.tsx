@@ -410,7 +410,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
               {image ? (
                 <div className="relative inline-block">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Aperçu" className="max-h-24 rounded-lg border" />
+                    <img src={imagePreview} alt="Aperçu de la capture d'écran jointe au message" className="max-h-24 rounded-lg border" />
                   ) : (
                     <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 pr-8 max-w-xs">
                       <FileIcon className="w-4 h-4 text-primary shrink-0" />
