@@ -76,7 +76,9 @@ export const Route = createFileRoute("/blog/$slug")({
         { name: "content-language", content: "fr" },
         {
           name: "robots",
-          content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+          content: indexable
+            ? "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+            : "noindex, follow",
         },
       ],
       links: [
