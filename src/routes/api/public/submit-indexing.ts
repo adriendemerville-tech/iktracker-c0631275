@@ -99,9 +99,9 @@ async function pushIndexNowOnce(urls: string[]) {
   return { ok: res.ok, status: res.status, body: body.slice(0, 300) };
 }
 
-/** Envoi par lots de 100 URLs, avec backoff exponentiel sur 429 / 5xx. */
+/** Envoi par lots de 20 URLs espacés, avec backoff exponentiel sur 429 / 5xx. */
 async function pushIndexNowBatched(urls: string[]) {
-  const CHUNK = 100;
+  const CHUNK = 20;
   const batches: {
     urls: string[];
     ok: boolean;
@@ -120,7 +120,7 @@ async function pushIndexNowBatched(urls: string[]) {
       r = await pushIndexNowOnce(chunk);
     }
     batches.push({ urls: chunk, ...r, attempts: attempt + 1 });
-    if (i + CHUNK < urls.length) await sleep(1500); // espacement entre lots
+    if (i + CHUNK < urls.length) await sleep(3000); // espacement entre lots
   }
   return batches;
 }
@@ -246,11 +246,13 @@ export const Route = createFileRoute("/api/public/submit-indexing")({
             } else {
               failed += b.urls.length;
               lastError = `${b.status} ${b.body}`;
+              // 429 / 5xx = transitoire → statut `retry`, rejoué au run suivant.
+              const retryable = b.status === 429 || b.status >= 500;
               // échec : une seule ligne agrégée par lot (évite de gonfler la table)
               rows.push({
                 url: b.urls[0],
                 provider: "indexnow",
-                status: "error",
+                status: retryable ? "retry" : "error",
                 http_status: b.status,
                 response: `lot de ${b.urls.length} URLs, ${b.attempts} tentative(s) — ${b.body}`,
                 content_updated_at: byUrl.get(b.urls[0]!),
@@ -273,6 +275,15 @@ export const Route = createFileRoute("/api/public/submit-indexing")({
         const auth = await getGoogleAccessToken();
         if (!auth.token) {
           result.google = { submitted: 0, error: auth.error };
+          // Panne de configuration : tracée en base pour être remontée en admin.
+          rows.push({
+            url: SITE,
+            provider: "google",
+            status: "error",
+            http_status: null,
+            response: `config: ${auth.error}`,
+            content_updated_at: null,
+          });
         } else if (forGoogle.length) {
           let ok = 0;
           let failed = 0;

@@ -446,7 +446,7 @@ Content-Type: application/json
 Seconde fonction de la boucle d'automatisation : elle relit le post **réellement publié** environ 5 minutes après sa mise en ligne et le corrige s'il ne respecte pas les règles de rédaction.
 
 - **Auth** : `x-cron-secret` (CRON_SECRET / SYNC_CRON_TOKEN) ou JWT admin.
-- **Cron** : job `linkedin-post-audit-5min`, planification `*/5 * * * *`. Chaque exécution traite au plus un post : le dernier run `success` publié il y a plus de 5 min, moins de 24 h, avec `audit_status IS NULL`.
+- **Cron** : job `linkedin-post-audit-5min`, planification `0 * * * *` (horaire ; auparavant `*/5 * * * *`, soit 288 exécutions/jour pour un post mensuel). Chaque exécution traite au plus un post : le dernier run `success` publié il y a plus de 5 min, moins de 24 h, avec `audit_status IS NULL`.
 - **Lecture du post** : `GET /rest/posts/{urn}` (repli `GET /v2/ugcPosts/{urn}`), repli final sur `post_text` journalisé. Engagement précoce lu via `/v2/socialActions/{urn}` (réactions + commentaires — les impressions brutes ne sont exposées que pour les pages entreprise, l'engagement sert de proxy).
 - **Contrôles déterministes** (`runDeterministicChecks`) : longueur 1000–1500 signes, caractères interdits, tirets d'incise, aération (≥ 6 paragraphes, aucun > 300 signes), hook isolé ≤ 220 signes, **GEO (exactement 1 bloc question/réponse dans le corps)**.
 - **Ancrage documentaire** : la fonction embarque une copie de `docs-context.ts` (générée par `scripts/generate-linkedin-docs-context.cjs`, écrite à la fois dans `linkedin-weekly-post/` et `linkedin-post-audit/`). `docContextForAudit()` sélectionne jusqu'à 5 sections (score mots-clés du slug, du titre et des mots longs du texte publié, plafond 4500 signes) et les injecte comme **source de vérité unique**.
@@ -1417,7 +1417,7 @@ Route serveur TanStack `POST /api/public/submit-indexing` (`src/routes/api/publi
 **Collecte automatique** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, et `updated_at` ou `published_at` dans la fenêtre. Limite 200 URLs par exécution, 190 max envoyées à Google (quota 200/jour).
 
 **Fournisseurs**
-- **IndexNow** (Bing, Yandex, Naver) : opérationnel. Clé `2441b032331572cd67fa3ff3e40d9c17`, fichier de vérification `public/2441b032331572cd67fa3ff3e40d9c17.txt`. Envoi **par lots de 100 URLs**, espacés de 1,5 s, avec **backoff exponentiel** (2 s / 4 s / 8 s, 3 tentatives) sur `429` et `5xx`.
+- **IndexNow** (Bing, Yandex, Naver) : opérationnel. Clé `2441b032331572cd67fa3ff3e40d9c17`, fichier de vérification `public/2441b032331572cd67fa3ff3e40d9c17.txt`. Envoi **par lots de 20 URLs**, espacés de 3 s, avec **backoff exponentiel** (2 s / 4 s / 8 s, 3 tentatives) sur `429` et `5xx`. Un lot en échec transitoire (`429`/`5xx`) est journalisé avec le statut **`retry`** (une seule ligne agrégée) : la déduplication ne portant que sur les `success`, ces URLs sont automatiquement rejouées au run suivant. Une panne de configuration Google (service account absent/invalide) insère désormais une ligne `google` en `error`, remontée en admin par le bandeau `IndexingHealthBanner` (onglet Fraîcheur).
 - **Google Indexing API** : nécessite un **compte de service JSON** (scope `https://www.googleapis.com/auth/indexing`), lu depuis `GOOGLE_INDEXING_SERVICE_ACCOUNT` (ou `GOOGLE_API_KEY` s'il contient le JSON). Signature JWT RS256 via WebCrypto puis échange OAuth2. Une clé API simple ne fonctionne pas.
 
 **Table `public.indexing_submissions`** : `url`, `provider` (`google` | `indexnow`), `status`, `http_status`, `response`, `content_updated_at`, `submitted_at`. Lecture réservée aux rôles `admin`/`viewer`, écriture par `service_role`. Déduplication : **seules les soumissions en `success`** bloquent un renvoi (fenêtre glissante de 30 jours) — un échec (429, 5xx) est donc automatiquement **rejoué au run suivant**. Journalisation : une ligne par URL en cas de succès, **une seule ligne agrégée par lot en échec** (évite de gonfler la table).
@@ -1455,7 +1455,7 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 
 **Préservation de l'état éditorial** : l'audit quotidien ne réécrit jamais le `status`. Les signalements en `in_progress` ou `dismissed` sont *verrouillés* — seules les colonnes de détection (`slug`, `title`, `reasons`, `score`, `last_content_update`, `detected_at`) sont rafraîchies. Seuls les signalements nouveaux, `pending` ou `resolved` sont (ré)ouverts en `pending`. Les articles redevenus sains voient leurs signalements `pending` passés en `resolved`, par lots de 100 `post_id` (évite le dépassement de longueur d'URL PostgREST) et avec contrôle d'erreur.
 
-**Cron** : `content-freshness-audit-daily`, tous les jours à `0 6 * * *` (UTC), corps `{"checkLinks": true}` (remplace l'ancien `content-freshness-audit-weekly`). Durée observée ~50 s pour 100 articles.
+**Cron** : `content-freshness-audit-daily`, tous les jours à `0 6 * * *` (UTC), corps `{"checkLinks": true}` (remplace l'ancien `content-freshness-audit-weekly`). Durée observée ~50 s pour 100 articles. Les articles sont analysés **par lots parallèles de 5**, et les statuts de liens sont mis en cache dans la table `public.link_status_cache` (`url` PK, `status`, `checked_at`), validité **7 jours**, partagée entre deux runs.
 
 **Réponse** : `{ ok, scanned, flagged, checked_links, broken_internal_pages, broken_external_pages }`.
 

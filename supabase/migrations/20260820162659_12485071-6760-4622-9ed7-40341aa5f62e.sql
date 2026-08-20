@@ -1,0 +1,1 @@
+UPDATE public.indexing_submissions SET status = 'retry' WHERE status = 'error' AND provider = 'indexnow' AND http_status IN (429, 500, 502, 503, 504);

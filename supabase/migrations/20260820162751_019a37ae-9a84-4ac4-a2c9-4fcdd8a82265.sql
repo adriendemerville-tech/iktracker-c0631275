@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET content = replace(content, 'https://iktracker.fr/simulateur"', 'https://iktracker.fr/bareme-ik-2026"') WHERE content LIKE '%https://iktracker.fr/simulateur"%';
