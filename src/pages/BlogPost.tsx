@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
+import { getRouteApi } from "@tanstack/react-router";
+
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import ReactMarkdown from "react-markdown";
