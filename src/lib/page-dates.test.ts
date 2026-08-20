@@ -60,7 +60,9 @@ describe("cohérence JSON-LD / balise de date par page statique", () => {
     // Aucune date littérale : la valeur doit dériver de PAGE_DATE.
     expect(published![1]).not.toMatch(/["']\d{4}-\d{2}-\d{2}/);
     expect(modified![1]).not.toMatch(/["']\d{4}-\d{2}-\d{2}/);
-    expect(`${published![1]}${modified![1]}`).toContain("PAGE_DATE");
+    // …et doit dériver du registre, directement ou via une constante locale.
+    expect(published![1]).toMatch(/PAGE_DATE\.published|PAGE_PUBLISHED/);
+    expect(modified![1]).toMatch(/PAGE_DATE\.modified|PAGE_MODIFIED/);
   });
 
   it.each(keys)("%s : la mention « Mis à jour le » utilise dateModified", (key) => {
