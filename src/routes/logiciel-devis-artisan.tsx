@@ -56,6 +56,8 @@ export const Route = createFileRoute("/logiciel-devis-artisan")({
         children: JSON.stringify(DEVIS_ARTISAN_FAQ_SCHEMA),
       },
     ],
+  }),
+
 
   component: LogicielDevisArtisan,
 });
