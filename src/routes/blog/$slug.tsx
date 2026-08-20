@@ -13,13 +13,12 @@ export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const { data } = await supabase
       .from("blog_posts")
-      .select(
-        "title, meta_description, content, featured_image_url, slug, published_at, created_at, updated_at, seo_indexable",
-      )
+      .select("*")
       .eq("slug", params.slug)
       .eq("status", "published")
       .maybeSingle();
     if (!data) return null;
+
     const description =
       data.meta_description ||
       (data.content || "")
