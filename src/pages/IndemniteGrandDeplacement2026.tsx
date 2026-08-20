@@ -17,6 +17,10 @@ import {
 import { ArrowRight, BedDouble, UtensilsCrossed, Plane, ShieldCheck, Euro } from "lucide-react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/indemnite-grand-deplacement-2026");
+
 const EnhancedMarketingFooter = lazy(() =>
   import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
     default: m.EnhancedMarketingFooter,
@@ -99,8 +103,8 @@ export default function IndemniteGrandDeplacement2026() {
               url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
             },
             publisher: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
-            datePublished: "2026-01-15",
-            dateModified: "2026-07-25",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: PAGE_URL,
           })}
         </script>
@@ -145,7 +149,7 @@ export default function IndemniteGrandDeplacement2026() {
             <span className="text-primary">Barème URSSAF 2026</span>
           </h1>
           <div className="mt-4">
-            <LastUpdated date="2026-07-25" />
+            <LastUpdated date={PAGE_DATE.modified} />
           </div>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
             Montants officiels des <strong className="text-foreground">frais de repas</strong> et de{" "}

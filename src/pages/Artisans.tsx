@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -14,6 +15,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { IK_BAREME_2024 } from "@/types/trip";
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
 import {
   ArrowRight,
   CheckCircle2,
@@ -36,8 +39,9 @@ const EnhancedMarketingFooter = lazy(() =>
 const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 FooterPlaceholder.displayName = "FooterPlaceholder";
 
-const PAGE_PUBLISHED = "2026-07-20";
-const PAGE_MODIFIED = "2026-08-03";
+const PAGE_DATE = getPageDates("/artisans");
+const PAGE_PUBLISHED = toIsoDateTime(PAGE_DATE.published);
+const PAGE_MODIFIED = toIsoDateTime(PAGE_DATE.modified);
 
 const PAIN_POINTS = [
   {
@@ -220,6 +224,7 @@ const Artisans = () => {
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
             Frais kilométriques artisan : vos trajets de chantier comptés
           </h1>
+          <LastUpdated date={PAGE_DATE.modified} className="mt-2" />
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
             Un artisan roule toute la journée et travaille sa paperasse le soir. IKtracker
             enregistre les kilomètres entre chantiers, applique le barème kilométrique officiel et

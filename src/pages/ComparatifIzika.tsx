@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -22,6 +23,10 @@ import {
 } from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { ArrowRight, CheckCircle2, XCircle, Zap, HelpCircle, Minus } from "lucide-react";
+
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/comparatif-izika");
 
 const EnhancedMarketingFooter = lazy(() =>
   import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
@@ -70,8 +75,8 @@ const ComparatifIzika = () => {
                 url: "https://iktracker.fr/logo-iktracker-250.webp",
               },
             },
-            datePublished: "2026-02-03",
-            dateModified: "2026-02-03",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: "https://iktracker.fr/comparatif-izika",
             inLanguage: "fr-FR",
           })}
@@ -124,6 +129,7 @@ const ComparatifIzika = () => {
                   <br />
                   <span className="text-gradient">Indemnités Kilométriques</span>
                 </h1>
+                <LastUpdated date={PAGE_DATE.modified} className="mt-2" />
                 <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Le comparatif honnête :{" "}
                   <strong className="text-foreground">Izika est excellent</strong>, mais IKtracker

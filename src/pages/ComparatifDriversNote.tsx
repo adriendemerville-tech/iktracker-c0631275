@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -21,6 +22,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/comparatif-driversnote");
+
 import {
   ArrowRight,
   CheckCircle2,
@@ -127,9 +132,9 @@ const ComparatifDriversNote = () => {
                 url: "https://iktracker.fr/logo-iktracker-250.webp",
               },
             },
-            datePublished: "2026-02-03",
-            dateModified: "2026-02-03",
-            mainEntityOfPage: "https://iktracker.fr/comparatif-drivers-note",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
+            mainEntityOfPage: "https://iktracker.fr/comparatif-driversnote",
             inLanguage: "fr-FR",
           })}
         </script>
@@ -198,6 +203,7 @@ const ComparatifDriversNote = () => {
                     Avez-vous vraiment besoin d'un mouchard GPS ?
                   </span>
                 </h1>
+                <LastUpdated date={PAGE_DATE.modified} className="mt-2" />
                 <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   <strong className="text-foreground">Comparatif 2026</strong> : Le tracking
                   automatique par iBeacon (Payant) vs La synchronisation d'agenda intelligente (

@@ -20,6 +20,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { IK_BAREME_2024 } from "@/types/trip";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/bareme-ik-2026");
+
 import {
   Calculator,
   ArrowRight,
@@ -123,8 +127,8 @@ const BaremeIK2026 = () => {
                 url: "https://iktracker.fr/logo-iktracker-250.webp",
               },
             },
-            datePublished: "2024-12-01",
-            dateModified: "2026-01-22",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: "https://iktracker.fr/bareme-ik-2026",
             inLanguage: "fr-FR",
             about: {
@@ -191,7 +195,7 @@ const BaremeIK2026 = () => {
                   <span className="text-gradient">calcul et tableau fiscal officiel</span>
                 </h1>
                 <div className="mb-4">
-                  <LastUpdated date="2026-01-22" />
+                  <LastUpdated date={PAGE_DATE.modified} />
                 </div>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto min-h-[4.5rem] sm:min-h-[3.5rem]">
                   Le <strong>barème des indemnités kilométriques 2026</strong> est le barème
