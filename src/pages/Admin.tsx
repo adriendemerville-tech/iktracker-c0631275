@@ -677,6 +677,10 @@ const Admin = () => {
                 <Zap className="w-4 h-4" />
                 <span className="hidden sm:inline">Autopilot</span>
               </TabsTrigger>
+              <TabsTrigger value="freshness" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Sparkles className="w-4 h-4" />
+                <span className="hidden sm:inline">Fraîcheur</span>
+              </TabsTrigger>
               <TabsTrigger
                 value="tour-recovery"
                 className="flex items-center gap-1 text-xs sm:text-sm"
