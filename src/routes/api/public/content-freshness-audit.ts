@@ -1,6 +1,6 @@
 // Content freshness audit — file de travail éditoriale (aucun article n'est modifié).
 //
-// Appelé chaque lundi 06:00 UTC par pg_cron (x-cron-secret), ou manuellement
+// Appelé chaque jour 06:00 UTC par pg_cron (x-cron-secret), ou manuellement
 // depuis l'admin avec un bearer admin.
 //
 // Signaux détectés par article publié + indexable :
@@ -9,14 +9,18 @@
 //   missing_meta          → meta description absente ou trop courte
 //   thin_content          → moins de 1200 caractères de texte
 //   no_internal_link      → aucun maillage interne
-//   broken_link           → lien sortant en 404/410 (8 vérifications max par article)
+//   broken_link           → lien sortant en 404/410
+//   broken_internal_link  → lien interne (page IKtracker) en 404/410
 
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 const SIX_MONTHS = 1000 * 60 * 60 * 24 * 182;
 const TWELVE_MONTHS = 1000 * 60 * 60 * 24 * 365;
-const MAX_LINK_CHECKS = 8;
+const MAX_EXTERNAL_CHECKS = 10;
+const MAX_INTERNAL_CHECKS = 15;
+const BASE_URL = "https://iktracker.fr";
+const INTERNAL_HOSTS = ["iktracker.fr", "www.iktracker.fr", "iktracker.lovable.app"];
 
 type Reason = { code: string; label: string; weight: number; detail?: string };
 
@@ -32,24 +36,53 @@ function stripHtml(html: string): string {
 function extractLinks(content: string): string[] {
   const urls = new Set<string>();
   for (const m of content.matchAll(/href=["']([^"']+)["']/gi)) urls.add(m[1]!);
-  for (const m of content.matchAll(/\]\((https?:\/\/[^)\s]+)\)/gi)) urls.add(m[1]!);
-  return [...urls];
+  for (const m of content.matchAll(/\]\((\/[^)\s]+|https?:\/\/[^)\s]+)\)/gi)) urls.add(m[1]!);
+  return [...urls].filter((u) => !/^(#|mailto:|tel:|javascript:|data:)/i.test(u));
 }
 
-async function linkStatus(url: string): Promise<number | null> {
+/** Retourne l'URL absolue si le lien pointe vers IKtracker, sinon null. */
+function toInternalUrl(link: string): string | null {
+  if (link.startsWith("//")) return null;
+  if (link.startsWith("/")) return `${BASE_URL}${link}`;
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 6000);
-    let res = await fetch(url, { method: "HEAD", redirect: "follow", signal: ctrl.signal });
-    if (res.status === 405 || res.status === 501) {
-      res = await fetch(url, { method: "GET", redirect: "follow", signal: ctrl.signal });
-    }
-    clearTimeout(timer);
-    return res.status;
+    const u = new URL(link);
+    if (INTERNAL_HOSTS.includes(u.hostname)) return `${BASE_URL}${u.pathname}${u.search}`;
   } catch {
     return null;
   }
+  return null;
 }
+
+async function linkStatus(url: string): Promise<number | null> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    let res = await fetch(url, { method: "HEAD", redirect: "follow", signal: ctrl.signal });
+    if (res.status === 405 || res.status === 501 || res.status === 403) {
+      res = await fetch(url, { method: "GET", redirect: "follow", signal: ctrl.signal });
+    }
+    return res.status;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Mémoïse les statuts sur la durée d'un audit : un même lien n'est testé qu'une fois. */
+function createLinkChecker() {
+  const cache = new Map<string, Promise<number | null>>();
+  return (url: string) => {
+    const hit = cache.get(url);
+    if (hit) return hit;
+    const p = linkStatus(url);
+    cache.set(url, p);
+    return p;
+  };
+}
+
+const isDead = (status: number | null) => status === 404 || status === 410;
+
 
 export const Route = createFileRoute("/api/public/content-freshness-audit")({
   server: {
