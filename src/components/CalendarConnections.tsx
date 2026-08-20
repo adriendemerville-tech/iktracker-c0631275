@@ -23,6 +23,7 @@ import { Calendar, Link2, Trash2, ExternalLink, Loader2, Bug, RefreshCw } from "
 import { useCalendarConnections } from "@/hooks/useCalendarConnections";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useBackgroundJob } from "@/hooks/useBackgroundJob";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CalendarSyncNotification } from "./CalendarSyncNotification";
