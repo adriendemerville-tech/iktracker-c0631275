@@ -144,6 +144,7 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
   } | null>(null);
   const [showSyncNotification, setShowSyncNotification] = useState(false);
   const [monthsBack, setMonthsBack] = useState<string>("0"); // Default: today only (no past import)
+  const syncJob = useBackgroundJob("sync-calendar-trips");
 
   const runManualSync = useCallback(
     async (provider: "google" | "outlook" | "ics") => {
