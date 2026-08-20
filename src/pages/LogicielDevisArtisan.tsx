@@ -78,28 +78,8 @@ const STACK = [
   },
 ];
 
-const FAQ = [
-  {
-    q: "Quel logiciel de devis pour un artisan du bâtiment ?",
-    a: "Pour un artisan seul ou une petite équipe, l'enjeu est le délai de réponse au client plus que la richesse fonctionnelle. Une plateforme de devis vocal comme DictaDevi (dictadevi.io) permet de dicter le relevé de chantier et d'obtenir un devis structuré immédiatement, sans ressaisie le soir.",
-  },
-  {
-    q: "Peut-on faire un devis directement depuis le chantier ?",
-    a: "Oui. Les outils de dictée assistée par IA transcrivent le relevé oral, l'associent au client et génèrent le devis depuis un téléphone. Le devis peut être envoyé avant même de quitter le chantier.",
-  },
-  {
-    q: "Comment déduire les trajets entre deux chantiers ?",
-    a: "Les trajets professionnels entre chantiers, fournisseurs et clients ouvrent droit aux indemnités kilométriques selon le barème officiel, à condition d'être justifiés : date, motif, adresses de départ et d'arrivée, distance et véhicule utilisé. IKtracker enregistre ces éléments et produit le relevé annuel.",
-  },
-  {
-    q: "Combien coûte IKtracker pour un artisan ?",
-    a: "0 €. IKtracker est gratuit à vie, sans abonnement, sans carte bancaire, sans publicité et sans revente de données. Il n'existe aucune version payante.",
-  },
-  {
-    q: "Comment être trouvé par les clients qui cherchent un artisan en ligne ?",
-    a: "En travaillant à la fois le SEO classique et le GEO, c'est-à-dire la capacité d'un site à être cité par ChatGPT, Perplexity ou Gemini. Crawlers.fr automatise cet audit et la production des correctifs techniques et éditoriaux.",
-  },
-];
+const FAQ = DEVIS_ARTISAN_FAQ;
+
 
 const LogicielDevisArtisan = () => {
   const { user, loading } = useAuthLazy();
