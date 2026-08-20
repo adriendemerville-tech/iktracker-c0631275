@@ -28,9 +28,7 @@ const serverUp = await isServerUp();
 /** Extrait tous les blocs JSON-LD du HTML serveur et aplatit les @graph. */
 function extractJsonLd(html: string): Record<string, unknown>[] {
   const blocks = [
-    ...html.matchAll(
-      /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
-    ),
+    ...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
   ];
   const nodes: Record<string, unknown>[] = [];
 
@@ -51,7 +49,10 @@ function extractJsonLd(html: string): Record<string, unknown>[] {
 
   for (const [, raw] of blocks) {
     const json = raw.replace(/\\u003c/g, "<").trim();
-    expect(() => JSON.parse(json), `JSON-LD invalide sur la page : ${json.slice(0, 120)}`).not.toThrow();
+    expect(
+      () => JSON.parse(json),
+      `JSON-LD invalide sur la page : ${json.slice(0, 120)}`,
+    ).not.toThrow();
     push(JSON.parse(json));
   }
 
@@ -65,8 +66,7 @@ function rootJsonLdNodes(html: string): Record<string, unknown>[] {
   ];
   return blocks.flatMap(([, raw]) => {
     const parsed = JSON.parse(raw.replace(/\\u003c/g, "<").trim()) as
-      | Record<string, unknown>
-      | Record<string, unknown>[];
+      Record<string, unknown> | Record<string, unknown>[];
     const list = Array.isArray(parsed) ? parsed : [parsed];
     return list.flatMap((n) =>
       Array.isArray(n["@graph"]) ? (n["@graph"] as Record<string, unknown>[]) : [n],
