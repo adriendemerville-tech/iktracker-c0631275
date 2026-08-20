@@ -1526,19 +1526,40 @@ serve(async (req) => {
       }
     }
 
-    const result = {
-      success: true,
-      usersProcessed,
-      totalTripsCreated,
-      dateRange: syncDateRange,
-      timestamp: new Date().toISOString(),
+      const result = {
+        success: true,
+        usersProcessed,
+        totalTripsCreated,
+        dateRange: syncDateRange,
+        timestamp: new Date().toISOString(),
+      };
+
+      console.log("Calendar sync completed:", result);
+      if (job) await job.succeed(result);
+      return result;
     };
 
-    console.log("Calendar sync completed:", result);
+    // Cron/service keeps the synchronous contract.
+    if (!callerUserId) {
+      const result = await runSync(null);
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const job = await createJob(supabase, "sync-calendar-trips", callerUserId, {
+      monthsBack,
+      trigger,
     });
+    runDetached(async () => {
+      try {
+        await runSync(job);
+      } catch (e) {
+        console.error("Calendar sync job failed:", e);
+        if (job) await job.fail(e);
+      }
+    });
+    return jobAcceptedResponse(job, corsHeaders);
   } catch (error) {
     console.error("Error in sync-calendar-trips:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
