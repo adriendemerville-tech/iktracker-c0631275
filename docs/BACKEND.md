@@ -1026,6 +1026,24 @@ curl -X POST "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/partner-api/
 
 ---
 
+## Contrôle d'indexation SEO du blog (`seo_indexable`)
+
+**Schéma**
+- Colonne `public.blog_posts.seo_indexable` (boolean, NOT NULL, défaut `true`).
+- Extensions `pg_trgm` et `unaccent` activées dans le schéma `extensions` (comparaison de titres).
+
+**Déduplication initiale**
+- Migration one-shot : parcours des articles publiés triés par longueur de contenu décroissante puis date de publication décroissante ; un article dont le titre (minuscule, sans accents) a une `similarity()` > 0,55 avec un titre déjà retenu passe en `seo_indexable = false`.
+- Résultat : 99 articles indexables, 33 quasi-doublons neutralisés (familles « sécuriser ses IK… », « calcul des indemnités kilométriques… »).
+
+**Effets**
+- `src/routes/sitemap[.]xml.ts` filtre `.eq("seo_indexable", true)` → sitemap passé de 161 à 128 URLs.
+- `src/routes/blog/$slug.tsx` rend `robots: noindex, follow` quand `seo_indexable = false` (le lien juice interne continue de circuler, la page reste accessible aux visiteurs).
+- Basculer un article : `UPDATE public.blog_posts SET seo_indexable = true WHERE slug = '…';`
+
+**Redirections www → apex**
+- Vérifié le 20/08/2026 : `https://www.iktracker.fr/*` et `http://iktracker.fr/*` renvoient bien `301` vers `https://iktracker.fr/*` (règle Cloudflare). Les impressions résiduelles sur `www` en GSC sont historiques et se résorbent au recrawl.
+
 ## Corbeille blog (soft-delete des articles)
 
 **Schéma**
