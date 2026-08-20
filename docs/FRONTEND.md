@@ -327,7 +327,8 @@ Custom UI : `optimized-image.tsx` (chargement lazy avec blurhash).
 
 | Hook | Rôle |
 |---|---|
-| `useTrips.ts` | CRUD trajets (Supabase + React Query) |
+| `useTrips.ts` | CRUD trajets (Supabase) — véhicules/lieux délégués à `useReferenceData` |
+| `useReferenceData.ts` | Véhicules & lieux via React Query mutualisé (staleTime 10 min) |
 | `usePreferences.ts` | Préférences utilisateur |
 | `useFeedback.ts` | Envoi/lecture feedback |
 | `useCalendarConnections.ts` | Connexions calendrier |
