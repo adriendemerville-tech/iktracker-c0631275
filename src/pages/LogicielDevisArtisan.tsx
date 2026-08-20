@@ -1,6 +1,7 @@
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { DEVIS_ARTISAN_FAQ } from "@/lib/logiciel-devis-artisan-schema";
+import heroDevisArtisan from "@/assets/hero-devis-artisan.jpg";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { LastUpdated } from "@/components/LastUpdated";
@@ -130,6 +131,22 @@ const LogicielDevisArtisan = () => {
               </Button>
             </div>
           </header>
+
+          {/* Hero image */}
+          <figure className="container mx-auto px-4 max-w-5xl">
+            <img
+              src={heroDevisArtisan}
+              alt="Artisan du bâtiment préparant un devis sur son ordinateur portable dans son atelier, entouré de ses outils et de ses plans"
+              width={1920}
+              height={1024}
+              fetchPriority="high"
+              className="w-full rounded-xl border border-border shadow-md object-cover aspect-[15/8]"
+            />
+            <figcaption className="mt-3 text-sm text-muted-foreground text-center">
+              Le devis se prépare au bureau, entre deux chantiers — les outils ne sont jamais loin.
+            </figcaption>
+          </figure>
+
 
           {/* Pertes de temps */}
           <section className="container mx-auto px-4 py-12 max-w-5xl">
