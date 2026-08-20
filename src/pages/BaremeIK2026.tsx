@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { Link } from "@/lib/router-compat";
@@ -189,6 +190,9 @@ const BaremeIK2026 = () => {
                   Barème des indemnités kilométriques 2026 :<br />
                   <span className="text-gradient">calcul et tableau fiscal officiel</span>
                 </h1>
+                <div className="mb-4">
+                  <LastUpdated date="2026-01-22" />
+                </div>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto min-h-[4.5rem] sm:min-h-[3.5rem]">
                   Le <strong>barème des indemnités kilométriques 2026</strong> est le barème
                   officiel applicable. Utilisez gratuitement notre simulateur et calculez vos{" "}

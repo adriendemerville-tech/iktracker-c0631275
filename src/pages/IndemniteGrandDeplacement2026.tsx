@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { lazy, Suspense, memo } from "react";
@@ -143,6 +144,9 @@ export default function IndemniteGrandDeplacement2026() {
             <br />
             <span className="text-primary">Barème URSSAF 2026</span>
           </h1>
+          <div className="mt-4">
+            <LastUpdated date="2026-07-25" />
+          </div>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
             Montants officiels des <strong className="text-foreground">frais de repas</strong> et de{" "}
             <strong className="text-foreground">nuitée</strong> quand un salarié ou un freelance ne

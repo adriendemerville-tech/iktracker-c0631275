@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { LastUpdated } from "@/components/LastUpdated";
 import { ArrowLeft, Pencil, Clock, User, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -254,8 +255,12 @@ export default function BlogPost() {
                 )}
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {format(new Date(publishDate), "dd MMMM yyyy", { locale: fr })}
+                  <time dateTime={dateISO}>
+                    {format(new Date(publishDate), "dd MMMM yyyy", { locale: fr })}
+                  </time>
                 </span>
+                {new Date(modifiedDateISO).getTime() - new Date(dateISO).getTime() >
+                  24 * 60 * 60 * 1000 && <LastUpdated date={modifiedDateISO} />}
                 <span className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   {readingTime} min de lecture

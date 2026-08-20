@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
@@ -98,6 +99,9 @@ export default function IndemniteKilometriqueVelo() {
             <br />
             <span className="text-primary">2025 - 2026</span>
           </h1>
+          <div className="mt-4">
+            <LastUpdated date="2026-06-29" />
+          </div>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed min-h-[7rem] sm:min-h-[5.5rem] md:min-h-[5rem]">
             Le guide pratique de l'<strong className="text-foreground">IK vélo</strong> et du
             <strong className="text-foreground"> Forfait Mobilités Durables</strong> : jusqu'à

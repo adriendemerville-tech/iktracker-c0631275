@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -249,6 +250,9 @@ const MeilleureApplicationIK = () => {
                 Meilleure application d'
                 <span className="text-gradient">indemnités kilométriques</span> en France en 2026
               </h1>
+              <div className="mb-4">
+                <LastUpdated date="2026-07-24" />
+              </div>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
                 <strong className="text-foreground">Réponse courte :</strong> pour les indépendants,
                 TPE et auto-entrepreneurs français, la meilleure application d'indemnités
