@@ -64,6 +64,7 @@ import { Route as DebugTourModalRouteImport } from './routes/debug/tour-modal'
 import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable/oauth/consent'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
+import { Route as ApiPublicSubmitIndexingRouteImport } from './routes/api/public/submit-indexing'
 import { Route as AppAdminIndexRouteImport } from './routes/app/admin/index'
 import { Route as AppAdminPartnersRouteImport } from './routes/app/admin/partners'
 import { Route as BlogAuteurSlugRouteImport } from './routes/blog/auteur/$slug'
@@ -353,6 +354,11 @@ const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   path: '/admin/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSubmitIndexingRoute = ApiPublicSubmitIndexingRouteImport.update({
+  id: '/api/public/submit-indexing',
+  path: '/api/public/submit-indexing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/app/admin/',
   path: '/app/admin/',
@@ -459,6 +465,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
@@ -526,6 +533,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/blog': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
@@ -594,6 +602,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
@@ -663,6 +672,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/blog/'
     | '/.lovable/oauth/consent'
+    | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
@@ -730,6 +740,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/blog'
     | '/.lovable/oauth/consent'
+    | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
@@ -797,6 +808,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/blog/'
     | '/.lovable/oauth/consent'
+    | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
@@ -865,6 +877,7 @@ export interface RootRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicSubmitIndexingRoute: typeof ApiPublicSubmitIndexingRoute
   AppAdminPartnersRoute: typeof AppAdminPartnersRoute
   BlogAuteurSlugRoute: typeof BlogAuteurSlugRoute
   BlogEditIdRoute: typeof BlogEditIdRoute
@@ -1265,6 +1278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/submit-indexing': {
+      id: '/api/public/submit-indexing'
+      path: '/api/public/submit-indexing'
+      fullPath: '/api/public/submit-indexing'
+      preLoaderRoute: typeof ApiPublicSubmitIndexingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/admin/': {
       id: '/app/admin/'
       path: '/app/admin'
@@ -1394,6 +1414,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicSubmitIndexingRoute: ApiPublicSubmitIndexingRoute,
   AppAdminPartnersRoute: AppAdminPartnersRoute,
   BlogAuteurSlugRoute: BlogAuteurSlugRoute,
   BlogEditIdRoute: BlogEditIdRoute,

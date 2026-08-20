@@ -1402,3 +1402,24 @@ Norme : tout traitement long, coûteux ou asynchrone appartient au backend ; l'o
 ### Front
 
 - `src/hooks/useBackgroundJob.ts` : polling (2,5 s) du dernier job d'un `kind`, ré-attachement automatique au montage si un job est encore `running`/`queued`. Utilisé par `MesTrajets.tsx` (recalcul) et `CalendarConnections.tsx` (synchronisation). Fermer l'onglet ou recharger n'interrompt plus le traitement.
+
+## Indexation automatique (Indexing API + IndexNow — 20/08/2026)
+
+Route serveur TanStack `POST /api/public/submit-indexing` (`src/routes/api/public/submit-indexing.ts`).
+
+**Authentification** : en-tête `x-cron-secret` (valeur `CRON_SECRET`) pour le cron, ou `Authorization: Bearer <jwt>` d'un utilisateur avec le rôle `admin`.
+
+**Corps accepté**
+- `dryRun: true` — liste les URLs sans rien envoyer.
+- `urls: string[]` — soumission ciblée (chemins relatifs acceptés).
+- `sinceHours: number` (défaut 26, max 720) — fenêtre de collecte automatique.
+
+**Collecte automatique** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, et `updated_at` ou `published_at` dans la fenêtre. Limite 200 URLs par exécution, 190 max envoyées à Google (quota 200/jour).
+
+**Fournisseurs**
+- **IndexNow** (Bing, Yandex, Naver) : opérationnel. Clé `2441b032331572cd67fa3ff3e40d9c17`, fichier de vérification `public/2441b032331572cd67fa3ff3e40d9c17.txt`.
+- **Google Indexing API** : nécessite un **compte de service JSON** (scope `https://www.googleapis.com/auth/indexing`), lu depuis `GOOGLE_INDEXING_SERVICE_ACCOUNT` (ou `GOOGLE_API_KEY` s'il contient le JSON). Signature JWT RS256 via WebCrypto puis échange OAuth2. Une clé API simple ne fonctionne pas.
+
+**Table `public.indexing_submissions`** : `url`, `provider` (`google` | `indexnow`), `status`, `http_status`, `response`, `content_updated_at`, `submitted_at`. Lecture réservée aux rôles `admin`/`viewer`, écriture par `service_role`. Sert aussi de déduplication : une URL n'est resoumise que si son `content_updated_at` a changé (fenêtre glissante de 30 jours).
+
+**Cron** : `submit-indexing-daily`, tous les jours à `5 6 * * *` (UTC), appelle la route avec `{"sinceHours":26}`.
