@@ -97,7 +97,7 @@ export default function BlogPost() {
     };
 
     fetchPost();
-  }, [slug]);
+  }, [slug, initialPost]);
 
   // Memoized calculations
   const readingTime = useMemo(
