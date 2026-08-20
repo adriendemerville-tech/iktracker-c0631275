@@ -35,6 +35,7 @@ import { AdminTourMode } from "@/components/admin/AdminTourMode";
 import { AdminApiPartners } from "@/components/admin/AdminApiPartners";
 import { AdminWavespeed } from "@/components/admin/AdminWavespeed";
 import { AdminLinkedIn } from "@/components/admin/AdminLinkedIn";
+import { AdminContentFreshness } from "@/components/admin/AdminContentFreshness";
 import { AdminGitHubActions } from "@/components/admin/AdminGitHubActions";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import {
