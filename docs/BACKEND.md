@@ -1451,7 +1451,9 @@ Route serveur TanStack `POST /api/public/content-freshness-audit` (`src/routes/a
 
 Le score de priorité est la somme des poids, plafonnée à 100.
 
-**Table `public.content_freshness_findings`** : `post_id` (unique), `slug`, `title`, `reasons` (jsonb), `score`, `status` (`pending` | `in_progress` | `dismissed` | `resolved`), `last_content_update`, `detected_at`, `resolved_at`, `dismissed_reason`. Lecture réservée aux rôles `admin`/`viewer`, écriture réservée à `admin` (+ `service_role`). À chaque exécution, les articles redevenus sains voient leurs signalements `pending` passés en `resolved`.
+**Table `public.content_freshness_findings`** : `post_id` (unique), `slug`, `title`, `reasons` (jsonb), `score`, `status` (`pending` | `in_progress` | `dismissed` | `resolved`), `last_content_update`, `detected_at`, `resolved_at`, `dismissed_reason`. Lecture réservée aux rôles `admin`/`viewer`, écriture réservée à `admin` (+ `service_role`).
+
+**Préservation de l'état éditorial** : l'audit quotidien ne réécrit jamais le `status`. Les signalements en `in_progress` ou `dismissed` sont *verrouillés* — seules les colonnes de détection (`slug`, `title`, `reasons`, `score`, `last_content_update`, `detected_at`) sont rafraîchies. Seuls les signalements nouveaux, `pending` ou `resolved` sont (ré)ouverts en `pending`. Les articles redevenus sains voient leurs signalements `pending` passés en `resolved`, par lots de 100 `post_id` (évite le dépassement de longueur d'URL PostgREST) et avec contrôle d'erreur.
 
 **Cron** : `content-freshness-audit-daily`, tous les jours à `0 6 * * *` (UTC), corps `{"checkLinks": true}` (remplace l'ancien `content-freshness-audit-weekly`). Durée observée ~50 s pour 100 articles.
 
