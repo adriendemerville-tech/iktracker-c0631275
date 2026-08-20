@@ -3,8 +3,9 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
 // jsdom ne fournit pas matchMedia : plusieurs composants (useIsMobile, thème)
-// s'appuient dessus au premier rendu.
-if (!window.matchMedia) {
+// s'appuient dessus au premier rendu. Les suites en environnement `node`
+// (tests SSR) n'ont pas de `window` : on les laisse passer.
+if (typeof window !== "undefined" && !window.matchMedia) {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: (query: string) => ({
