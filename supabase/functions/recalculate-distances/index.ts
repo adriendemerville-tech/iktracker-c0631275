@@ -348,37 +348,50 @@ serve(async (req) => {
       );
     }
 
-    // Batch mode: recalculate all trips with distance = 0
-    console.log(
-      `Starting batch distance recalculation${authedUserId ? ` for user ${authedUserId}` : " (cron)"}...`,
-    );
+    // Batch mode: recalculate all trips with distance = 0.
+    // The heavy loop (paid Distance Matrix calls + writes) runs server-side as a
+    // tracked job; the browser only polls `background_jobs`.
+    const runBatch = async (job: JobHandle | null) => {
+      console.log(
+        `Starting batch distance recalculation${authedUserId ? ` for user ${authedUserId}` : " (cron)"}...`,
+      );
 
-    // Get all trips with distance = 0 (scoped to the caller when user-authenticated)
-    let batchQuery = supabase
-      .from("trips")
-      .select("id, user_id, vehicle_id, start_location, end_location, round_trip, date")
-      .eq("distance", 0)
-      .is("deleted_at", null);
-    if (authedUserId) batchQuery = batchQuery.eq("user_id", authedUserId);
-    const { data: tripsToUpdate, error: tripsError } = await batchQuery.order("date", {
-      ascending: true,
-    });
+      // Get all trips with distance = 0 (scoped to the caller when user-authenticated)
+      let batchQuery = supabase
+        .from("trips")
+        .select("id, user_id, vehicle_id, start_location, end_location, round_trip, date")
+        .eq("distance", 0)
+        .is("deleted_at", null);
+      if (authedUserId) batchQuery = batchQuery.eq("user_id", authedUserId);
+      const { data: tripsToUpdate, error: tripsError } = await batchQuery.order("date", {
+        ascending: true,
+      });
 
-    if (tripsError) {
-      console.error("Error fetching trips:", tripsError);
-      throw tripsError;
-    }
+      if (tripsError) {
+        console.error("Error fetching trips:", tripsError);
+        throw tripsError;
+      }
 
-    console.log(`Found ${tripsToUpdate?.length || 0} trips with distance=0`);
+      console.log(`Found ${tripsToUpdate?.length || 0} trips with distance=0`);
 
-    let updated = 0;
-    let skipped = 0;
-    let failed = 0;
+      let updated = 0;
+      let skipped = 0;
+      let failed = 0;
+      let processed = 0;
+      const total = tripsToUpdate?.length || 0;
+      if (job) {
+        await job.setPhase(total ? `Recalcul de ${total} trajet(s)` : "Aucun trajet à recalculer");
+        await job.setProgress(0, total);
+      }
 
-    // Group trips by user to fetch home location once per user
-    const userHomeCache: Record<string, string | null> = {};
+      // Group trips by user to fetch home location once per user
+      const userHomeCache: Record<string, string | null> = {};
 
-    for (const trip of tripsToUpdate || []) {
+      for (const trip of tripsToUpdate || []) {
+        processed++;
+        if (job && (processed % 5 === 0 || processed === total)) {
+          await job.setProgress(processed, total);
+        }
       try {
         // Get user's home location (cached)
         if (!(trip.user_id in userHomeCache)) {
@@ -462,20 +475,39 @@ serve(async (req) => {
       }
     }
 
-    const result = {
-      success: true,
-      totalTrips: tripsToUpdate?.length || 0,
-      updated,
-      skipped,
-      failed,
-      timestamp: new Date().toISOString(),
+      const result = {
+        success: true,
+        totalTrips: tripsToUpdate?.length || 0,
+        updated,
+        skipped,
+        failed,
+        timestamp: new Date().toISOString(),
+      };
+
+      console.log("Distance recalculation completed:", result);
+      if (job) await job.succeed(result);
+      return result;
     };
 
-    console.log("Distance recalculation completed:", result);
+    // Cron keeps the synchronous contract; a user-triggered batch becomes a
+    // backend job the tab merely observes.
+    if (isCron) {
+      const result = await runBatch(null);
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const job = await createJob(supabase, "recalculate-distances", authedUserId, {});
+    runDetached(async () => {
+      try {
+        await runBatch(job);
+      } catch (e) {
+        console.error("Batch recalculation failed:", e);
+        if (job) await job.fail(e);
+      }
     });
+    return jobAcceptedResponse(job, corsHeaders);
   } catch (error) {
     console.error("Error in recalculate-distances:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
