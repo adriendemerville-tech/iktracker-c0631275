@@ -226,31 +226,66 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
               100,
               reasons.reduce((s, r) => s + r.weight, 0),
             ),
-            status: "pending",
             last_content_update: post.updated_at,
             detected_at: new Date().toISOString(),
-            resolved_at: null,
           });
         }
 
-        // Articles redevenus sains : on clôture leurs signalements ouverts.
         const flagged = rows.map((r) => r.post_id as string);
-        const closeQuery = admin
+
+        // État éditorial existant : on ne réinitialise jamais un signalement
+        // déjà pris en charge ("in_progress") ou écarté ("dismissed").
+        const { data: existing } = await admin
           .from("content_freshness_findings")
-          .update({ status: "resolved", resolved_at: new Date().toISOString() })
-          .eq("status", "pending");
-        if (flagged.length > 0) {
-          await closeQuery.not("post_id", "in", `(${flagged.join(",")})`);
-        } else {
-          await closeQuery;
+          .select("post_id, status");
+        const statusByPost = new Map(
+          (existing ?? []).map((r) => [r.post_id as string, r.status as string]),
+        );
+        const LOCKED = new Set(["in_progress", "dismissed"]);
+
+        // Articles redevenus sains : on clôture leurs signalements ouverts.
+        const stillFlagged = new Set(flagged);
+        const toClose = (existing ?? [])
+          .filter((r) => r.status === "pending" && !stillFlagged.has(r.post_id as string))
+          .map((r) => r.post_id as string);
+        // Par lots de 100 pour éviter une URL PostgREST trop longue.
+        for (let i = 0; i < toClose.length; i += 100) {
+          const { error: closeError } = await admin
+            .from("content_freshness_findings")
+            .update({ status: "resolved", resolved_at: new Date().toISOString() })
+            .eq("status", "pending")
+            .in("post_id", toClose.slice(i, i + 100));
+          if (closeError) return Response.json({ error: closeError.message }, { status: 500 });
         }
 
-        if (rows.length > 0) {
+        // Signalements verrouillés : on rafraîchit seulement les colonnes de détection.
+        const lockedRows = rows.filter((r) => LOCKED.has(statusByPost.get(r.post_id as string) ?? ""));
+        for (const r of lockedRows) {
+          const { error: updError } = await admin
+            .from("content_freshness_findings")
+            .update({
+              slug: r.slug,
+              title: r.title,
+              reasons: r.reasons,
+              score: r.score,
+              last_content_update: r.last_content_update,
+              detected_at: r.detected_at,
+            })
+            .eq("post_id", r.post_id as string);
+          if (updError) return Response.json({ error: updError.message }, { status: 500 });
+        }
+
+        // Nouveaux signalements ou signalements en attente / clôturés : (ré)ouverture.
+        const openRows = rows
+          .filter((r) => !LOCKED.has(statusByPost.get(r.post_id as string) ?? ""))
+          .map((r) => ({ ...r, status: "pending", resolved_at: null }));
+        if (openRows.length > 0) {
           const { error: upsertError } = await admin
             .from("content_freshness_findings")
-            .upsert(rows, { onConflict: "post_id" });
+            .upsert(openRows, { onConflict: "post_id" });
           if (upsertError) return Response.json({ error: upsertError.message }, { status: 500 });
         }
+
 
         const countBy = (code: string) =>
           rows.filter((r) => (r.reasons as Reason[]).some((x) => x.code === code)).length;
