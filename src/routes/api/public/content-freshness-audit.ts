@@ -128,6 +128,7 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
         const currentYear = new Date().getFullYear();
         const staleYears = [currentYear - 1, currentYear - 2, currentYear - 3];
         const rows: Record<string, unknown>[] = [];
+        const check = createLinkChecker();
 
         for (const post of posts ?? []) {
           const reasons: Reason[] = [];
