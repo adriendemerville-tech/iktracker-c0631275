@@ -40,6 +40,7 @@ export const Route = createFileRoute("/blog/$slug")({
       modifiedAt: new Date(
         (data.updated_at || data.published_at || data.created_at) as string,
       ).toISOString(),
+      indexable: data.seo_indexable !== false,
     };
   },
   head: ({ loaderData }) => {
