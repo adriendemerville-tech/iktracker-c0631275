@@ -1423,3 +1423,34 @@ Route serveur TanStack `POST /api/public/submit-indexing` (`src/routes/api/publi
 **Table `public.indexing_submissions`** : `url`, `provider` (`google` | `indexnow`), `status`, `http_status`, `response`, `content_updated_at`, `submitted_at`. Lecture réservée aux rôles `admin`/`viewer`, écriture par `service_role`. Sert aussi de déduplication : une URL n'est resoumise que si son `content_updated_at` a changé (fenêtre glissante de 30 jours).
 
 **Cron** : `submit-indexing-daily`, tous les jours à `5 6 * * *` (UTC), appelle la route avec `{"sinceHours":26}`.
+
+## Audit de fraîcheur du contenu (20/08/2026)
+
+Route serveur TanStack `POST /api/public/content-freshness-audit` (`src/routes/api/public/content-freshness-audit.ts`).
+
+**Principe** : l'audit ne modifie **jamais** un article. Il produit une file de travail éditoriale pour éviter les « faux refresh » (bump de `updated_at` sans révision réelle), qui pollueraient `lastmod`, `/feed.xml` et les soumissions IndexNow/Indexing API.
+
+**Authentification** : en-tête `x-cron-secret` (valeurs acceptées : `CRON_SECRET` ou `SYNC_CRON_TOKEN`) pour le cron, ou `Authorization: Bearer <jwt>` d'un utilisateur `admin`.
+
+**Corps accepté** : `checkLinks: boolean` (défaut `true`) — active la vérification HTTP des liens sortants (8 max par article, HEAD puis GET en repli, timeout 6 s).
+
+**Périmètre** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, `deleted_at IS NULL`.
+
+**Signaux et pondérations**
+| Code | Détection | Poids |
+|---|---|---|
+| `stale_12m` | `updated_at` > 12 mois | 40 |
+| `stale_6m` | `updated_at` > 6 mois | 20 |
+| `outdated_year` | cite N-1/N-2/N-3 sans citer l'année courante | 35 |
+| `broken_link` | lien sortant en 404/410 | 30 |
+| `thin_content` | texte < 1200 caractères | 20 |
+| `missing_meta` | `meta_description` absente ou < 70 caractères | 15 |
+| `no_internal_link` | aucun lien relatif ni vers `iktracker.fr` | 15 |
+
+Le score de priorité est la somme des poids, plafonnée à 100.
+
+**Table `public.content_freshness_findings`** : `post_id` (unique), `slug`, `title`, `reasons` (jsonb), `score`, `status` (`pending` | `in_progress` | `dismissed` | `resolved`), `last_content_update`, `detected_at`, `resolved_at`, `dismissed_reason`. Lecture réservée aux rôles `admin`/`viewer`, écriture réservée à `admin` (+ `service_role`). À chaque exécution, les articles redevenus sains voient leurs signalements `pending` passés en `resolved`.
+
+**Cron** : `content-freshness-audit-weekly`, chaque lundi à `0 6 * * 1` (UTC), corps `{"checkLinks": true}`.
+
+**Front** : onglet « Fraîcheur » de `/admin` (`src/components/admin/AdminContentFreshness.tsx`) — filtrage par statut, bouton « Lancer un audit », actions En cours / Révisé / Ignorer.
