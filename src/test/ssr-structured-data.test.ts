@@ -42,7 +42,11 @@ function extractJsonLd(html: string): Record<string, unknown>[] {
     if (!value || typeof value !== "object") return;
     const node = value as Record<string, unknown>;
     nodes.push(node);
-    if (node["@graph"]) push(node["@graph"]);
+    // Les entités imbriquées (mentions, mainEntity, itemListElement…) comptent
+    // aussi : elles font partie du graphe servi aux crawlers.
+    for (const nested of Object.values(node)) {
+      if (nested && typeof nested === "object") push(nested);
+    }
   };
 
   for (const [, raw] of blocks) {
