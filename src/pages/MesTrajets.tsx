@@ -356,7 +356,6 @@ export default function Report() {
     }
   };
 
-
   // Separate pending trips from validated trips - pending always shown first
   const pendingTrips = trips.filter((t) => t.status === "pending_location");
 

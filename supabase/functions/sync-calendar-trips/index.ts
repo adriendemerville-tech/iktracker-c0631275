@@ -1,11 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  createJob,
-  jobAcceptedResponse,
-  runDetached,
-  type JobHandle,
-} from "../_shared/jobs.ts";
+import { createJob, jobAcceptedResponse, runDetached, type JobHandle } from "../_shared/jobs.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -1332,169 +1327,81 @@ serve(async (req) => {
       if (targetUserId) console.log("Target user:", targetUserId);
       if (job) await job.setPhase("Lecture des agendas connectés", 10);
 
-    // Get all active Google Calendar connections (or one user)
-    let googleQuery = supabase
-      .from("calendar_connections")
-      .select("id, user_id, access_token, refresh_token, token_expires_at")
-      .eq("provider", "google")
-      .eq("is_active", true);
-    if (targetUserId) googleQuery = googleQuery.eq("user_id", targetUserId);
-    const { data: connections, error: connectionsError } = await googleQuery;
+      // Get all active Google Calendar connections (or one user)
+      let googleQuery = supabase
+        .from("calendar_connections")
+        .select("id, user_id, access_token, refresh_token, token_expires_at")
+        .eq("provider", "google")
+        .eq("is_active", true);
+      if (targetUserId) googleQuery = googleQuery.eq("user_id", targetUserId);
+      const { data: connections, error: connectionsError } = await googleQuery;
 
-    if (connectionsError) {
-      console.error("Failed to fetch calendar connections:", connectionsError);
-      throw connectionsError;
-    }
-
-    console.log(`Found ${connections?.length || 0} active Google Calendar connections`);
-
-    let totalTripsCreated = 0;
-    let usersProcessed = 0;
-    let syncDateRange: { startDate: string; endDate: string } | null = null;
-
-    for (const connection of connections || []) {
-      try {
-        console.log(`Processing user ${connection.user_id}...`);
-
-        // Refresh token if needed
-        const accessToken = await refreshGoogleToken(connection, supabase);
-        if (!accessToken) {
-          console.log(`Skipping user ${connection.user_id} - no valid token`);
-          continue;
-        }
-
-        // Fetch calendar events (with monthsBack parameter)
-        const { events, dateRange } = await fetchGoogleCalendarEvents(accessToken, monthsBack);
-        console.log(`Found ${events.length} events for user ${connection.user_id}`);
-
-        // Store date range for response
-        if (!syncDateRange) {
-          syncDateRange = dateRange;
-        }
-
-        // Get user's last used vehicle
-        const vehicle = await getUserLastUsedVehicle(connection.user_id, supabase);
-
-        // Get user's home location for distance calculation and trip start name
-        const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
-        console.log(
-          `User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : "not found"}`,
-        );
-
-        // Determine import mode + IK rate override for this user
-        const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
-        const ikRateOverride = await getUserIkRateOverride(connection.user_id, supabase);
-        console.log(
-          `User ${connection.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
-        );
-
-        // Create trips from events
-        let tripsCreated = 0;
-        let toursCreated = 0;
-        let tripsWithDistance = 0;
-        let skippedNoLocation = 0;
-        let skippedAlreadyExists = 0;
-        let skippedOther = 0;
-
-        // In tour mode, first try to group same-day events into tours.
-        // Events that can't be grouped (single-event days, no address, no home) fall back to individual.
-        let eventsToProcess = events;
-        if (importMode === "tour") {
-          const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
-            connection.user_id,
-            events,
-            vehicle,
-            userHomeLocation,
-            supabase,
-            "google_calendar",
-            ikRateOverride,
-          );
-          toursCreated = nTours;
-          tripsCreated += nTours;
-          eventsToProcess = fallbackEvents;
-        }
-
-        for (const event of eventsToProcess) {
-          const result = await createTripFromEvent(
-            connection.user_id,
-            event,
-            vehicle,
-            userHomeLocation,
-            supabase,
-            "google_calendar",
-            ikRateOverride,
-          );
-          if (result.created) {
-            tripsCreated++;
-            if (result.distanceCalculated) {
-              tripsWithDistance++;
-            }
-          } else if (result.reason === "no_location") {
-            skippedNoLocation++;
-          } else if (result.reason === "already_exists") {
-            skippedAlreadyExists++;
-          } else {
-            skippedOther++;
-          }
-        }
-
-        totalTripsCreated += tripsCreated;
-        usersProcessed++;
-        console.log(
-          `User ${connection.user_id}: created=${tripsCreated} (tours=${toursCreated}, with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`,
-        );
-      } catch (error) {
-        console.error(`Error processing user ${connection.user_id}:`, error);
+      if (connectionsError) {
+        console.error("Failed to fetch calendar connections:", connectionsError);
+        throw connectionsError;
       }
-    }
 
-    // ============ ICS connections (any calendar: Outlook, iCloud, generic .ics) ============
-    let icsQuery = supabase
-      .from("calendar_connections")
-      .select("id, user_id, ics_url")
-      .eq("provider", "ics")
-      .eq("is_active", true);
-    if (targetUserId) icsQuery = icsQuery.eq("user_id", targetUserId);
-    const { data: icsConnections, error: icsError } = await icsQuery;
+      console.log(`Found ${connections?.length || 0} active Google Calendar connections`);
 
-    if (icsError) {
-      console.error("Failed to fetch ICS connections:", icsError);
-    } else {
-      console.log(`Found ${icsConnections?.length || 0} active ICS connections`);
-      for (const conn of icsConnections || []) {
+      let totalTripsCreated = 0;
+      let usersProcessed = 0;
+      let syncDateRange: { startDate: string; endDate: string } | null = null;
+
+      for (const connection of connections || []) {
         try {
-          if (!conn.ics_url) {
-            console.log(`Skipping ICS user ${conn.user_id} - no url`);
+          console.log(`Processing user ${connection.user_id}...`);
+
+          // Refresh token if needed
+          const accessToken = await refreshGoogleToken(connection, supabase);
+          if (!accessToken) {
+            console.log(`Skipping user ${connection.user_id} - no valid token`);
             continue;
           }
-          console.log(`Processing ICS user ${conn.user_id}...`);
-          const { events, dateRange } = await fetchICSEvents(conn.ics_url, monthsBack);
-          if (!syncDateRange) syncDateRange = dateRange;
-          console.log(`Found ${events.length} ICS events for user ${conn.user_id}`);
 
-          const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
-          const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
-          const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
-          const ikRateOverride = await getUserIkRateOverride(conn.user_id, supabase);
+          // Fetch calendar events (with monthsBack parameter)
+          const { events, dateRange } = await fetchGoogleCalendarEvents(accessToken, monthsBack);
+          console.log(`Found ${events.length} events for user ${connection.user_id}`);
+
+          // Store date range for response
+          if (!syncDateRange) {
+            syncDateRange = dateRange;
+          }
+
+          // Get user's last used vehicle
+          const vehicle = await getUserLastUsedVehicle(connection.user_id, supabase);
+
+          // Get user's home location for distance calculation and trip start name
+          const userHomeLocation = await getUserHomeLocation(connection.user_id, supabase);
           console.log(
-            `ICS user ${conn.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
+            `User home location: ${userHomeLocation ? `${userHomeLocation.name} (${userHomeLocation.address})` : "not found"}`,
           );
 
+          // Determine import mode + IK rate override for this user
+          const importMode = await getUserCalendarImportMode(connection.user_id, supabase);
+          const ikRateOverride = await getUserIkRateOverride(connection.user_id, supabase);
+          console.log(
+            `User ${connection.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
+          );
+
+          // Create trips from events
           let tripsCreated = 0;
           let toursCreated = 0;
+          let tripsWithDistance = 0;
           let skippedNoLocation = 0;
           let skippedAlreadyExists = 0;
           let skippedOther = 0;
 
+          // In tour mode, first try to group same-day events into tours.
+          // Events that can't be grouped (single-event days, no address, no home) fall back to individual.
           let eventsToProcess = events;
           if (importMode === "tour") {
             const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
-              conn.user_id,
+              connection.user_id,
               events,
               vehicle,
               userHomeLocation,
               supabase,
-              "outlook_calendar",
+              "google_calendar",
               ikRateOverride,
             );
             toursCreated = nTours;
@@ -1504,33 +1411,121 @@ serve(async (req) => {
 
           for (const event of eventsToProcess) {
             const result = await createTripFromEvent(
-              conn.user_id,
+              connection.user_id,
               event,
               vehicle,
               userHomeLocation,
               supabase,
-              "outlook_calendar",
+              "google_calendar",
               ikRateOverride,
             );
-            if (result.created) tripsCreated++;
-            else if (result.reason === "no_location") skippedNoLocation++;
-            else if (result.reason === "already_exists") skippedAlreadyExists++;
-            else skippedOther++;
+            if (result.created) {
+              tripsCreated++;
+              if (result.distanceCalculated) {
+                tripsWithDistance++;
+              }
+            } else if (result.reason === "no_location") {
+              skippedNoLocation++;
+            } else if (result.reason === "already_exists") {
+              skippedAlreadyExists++;
+            } else {
+              skippedOther++;
+            }
           }
+
           totalTripsCreated += tripsCreated;
           usersProcessed++;
-          // Note: sync runs are NOT logged in calendar_connection_attempts.
-          // That table now tracks only user-initiated connection attempts.
           console.log(
-            `ICS user ${conn.user_id}: created=${tripsCreated} (tours=${toursCreated}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`,
+            `User ${connection.user_id}: created=${tripsCreated} (tours=${toursCreated}, with_distance=${tripsWithDistance}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`,
           );
         } catch (error) {
-          const message = error instanceof Error ? error.message : "Unknown ICS error";
-          console.error(`Error processing ICS user ${conn.user_id}:`, error);
-          // Sync failures not logged as user connection attempts.
+          console.error(`Error processing user ${connection.user_id}:`, error);
         }
       }
-    }
+
+      // ============ ICS connections (any calendar: Outlook, iCloud, generic .ics) ============
+      let icsQuery = supabase
+        .from("calendar_connections")
+        .select("id, user_id, ics_url")
+        .eq("provider", "ics")
+        .eq("is_active", true);
+      if (targetUserId) icsQuery = icsQuery.eq("user_id", targetUserId);
+      const { data: icsConnections, error: icsError } = await icsQuery;
+
+      if (icsError) {
+        console.error("Failed to fetch ICS connections:", icsError);
+      } else {
+        console.log(`Found ${icsConnections?.length || 0} active ICS connections`);
+        for (const conn of icsConnections || []) {
+          try {
+            if (!conn.ics_url) {
+              console.log(`Skipping ICS user ${conn.user_id} - no url`);
+              continue;
+            }
+            console.log(`Processing ICS user ${conn.user_id}...`);
+            const { events, dateRange } = await fetchICSEvents(conn.ics_url, monthsBack);
+            if (!syncDateRange) syncDateRange = dateRange;
+            console.log(`Found ${events.length} ICS events for user ${conn.user_id}`);
+
+            const vehicle = await getUserLastUsedVehicle(conn.user_id, supabase);
+            const userHomeLocation = await getUserHomeLocation(conn.user_id, supabase);
+            const importMode = await getUserCalendarImportMode(conn.user_id, supabase);
+            const ikRateOverride = await getUserIkRateOverride(conn.user_id, supabase);
+            console.log(
+              `ICS user ${conn.user_id}: calendar_import_mode=${importMode}, ik_rate_override=${ikRateOverride}`,
+            );
+
+            let tripsCreated = 0;
+            let toursCreated = 0;
+            let skippedNoLocation = 0;
+            let skippedAlreadyExists = 0;
+            let skippedOther = 0;
+
+            let eventsToProcess = events;
+            if (importMode === "tour") {
+              const { toursCreated: nTours, fallbackEvents } = await processEventsAsTour(
+                conn.user_id,
+                events,
+                vehicle,
+                userHomeLocation,
+                supabase,
+                "outlook_calendar",
+                ikRateOverride,
+              );
+              toursCreated = nTours;
+              tripsCreated += nTours;
+              eventsToProcess = fallbackEvents;
+            }
+
+            for (const event of eventsToProcess) {
+              const result = await createTripFromEvent(
+                conn.user_id,
+                event,
+                vehicle,
+                userHomeLocation,
+                supabase,
+                "outlook_calendar",
+                ikRateOverride,
+              );
+              if (result.created) tripsCreated++;
+              else if (result.reason === "no_location") skippedNoLocation++;
+              else if (result.reason === "already_exists") skippedAlreadyExists++;
+              else skippedOther++;
+            }
+            totalTripsCreated += tripsCreated;
+            usersProcessed++;
+            // Note: sync runs are NOT logged in calendar_connection_attempts.
+            // That table now tracks only user-initiated connection attempts.
+            console.log(
+              `ICS user ${conn.user_id}: created=${tripsCreated} (tours=${toursCreated}), skipped_no_location=${skippedNoLocation}, skipped_exists=${skippedAlreadyExists}, skipped_other=${skippedOther}`,
+            );
+          } catch (error) {
+            const message = error instanceof Error ? error.message : "Unknown ICS error";
+            console.error(`Error processing ICS user ${conn.user_id}:`, error);
+            // Sync failures not logged as user connection attempts.
+          }
+        }
+      }
 
       const result = {
         success: true,

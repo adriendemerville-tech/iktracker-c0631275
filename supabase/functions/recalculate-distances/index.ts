@@ -1,11 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  createJob,
-  jobAcceptedResponse,
-  runDetached,
-  type JobHandle,
-} from "../_shared/jobs.ts";
+import { createJob, jobAcceptedResponse, runDetached, type JobHandle } from "../_shared/jobs.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -398,88 +393,88 @@ serve(async (req) => {
         if (job && (processed % 5 === 0 || processed === total)) {
           await job.setProgress(processed, total);
         }
-      try {
-        // Get user's home location (cached)
-        if (!(trip.user_id in userHomeCache)) {
-          userHomeCache[trip.user_id] = await getUserHomeLocation(trip.user_id, supabase);
-        }
-        const userHome = userHomeCache[trip.user_id];
-
-        if (!userHome) {
-          console.log(`⏭️ Skipping trip ${trip.id} - no home address for user`);
-          skipped++;
-          continue;
-        }
-
-        // Determine origin: use home address if start_location is just a name like "Maison"
-        const origin =
-          trip.start_location.toLowerCase().includes("maison") ||
-          trip.start_location.toLowerCase().includes("domicile") ||
-          trip.start_location.length < 20
-            ? userHome
-            : trip.start_location;
-
-        // Calculate distance
-        const oneWayDistance = await calculateDrivingDistance(origin, trip.end_location);
-
-        if (oneWayDistance === null || oneWayDistance === 0) {
-          console.log(`⏭️ Skipping trip ${trip.id} - could not calculate distance`);
-          skipped++;
-          continue;
-        }
-
-        // Apply round trip multiplier
-        const totalDistance = trip.round_trip ? oneWayDistance * 2 : oneWayDistance;
-
-        // Calculate IK if vehicle exists
-        let ikAmount = 0;
-        if (trip.vehicle_id) {
-          const vehicle = await getVehicle(trip.vehicle_id, supabase);
-          if (vehicle) {
-            const annualKmBefore = await getVehicleAnnualKm(
-              trip.user_id,
-              trip.vehicle_id,
-              trip.date,
-              supabase,
-            );
-            const annualKmAfter = annualKmBefore + totalDistance;
-
-            const ikBefore = calculateTotalAnnualIK(annualKmBefore, vehicle.fiscal_power);
-            const ikAfter = calculateTotalAnnualIK(annualKmAfter, vehicle.fiscal_power);
-            ikAmount = ikAfter - ikBefore;
-
-            if (vehicle.is_electric) {
-              ikAmount *= 1.2;
-            }
-
-            ikAmount = Math.round(ikAmount * 100) / 100;
+        try {
+          // Get user's home location (cached)
+          if (!(trip.user_id in userHomeCache)) {
+            userHomeCache[trip.user_id] = await getUserHomeLocation(trip.user_id, supabase);
           }
-        }
+          const userHome = userHomeCache[trip.user_id];
 
-        // Update trip
-        const { error: updateError } = await supabase
-          .from("trips")
-          .update({
-            distance: totalDistance,
-            start_location: origin,
-            ik_amount: ikAmount,
-            status: "validated",
-          })
-          .eq("id", trip.id);
+          if (!userHome) {
+            console.log(`⏭️ Skipping trip ${trip.id} - no home address for user`);
+            skipped++;
+            continue;
+          }
 
-        if (updateError) {
-          console.error(`❌ Failed to update trip ${trip.id}:`, updateError);
+          // Determine origin: use home address if start_location is just a name like "Maison"
+          const origin =
+            trip.start_location.toLowerCase().includes("maison") ||
+            trip.start_location.toLowerCase().includes("domicile") ||
+            trip.start_location.length < 20
+              ? userHome
+              : trip.start_location;
+
+          // Calculate distance
+          const oneWayDistance = await calculateDrivingDistance(origin, trip.end_location);
+
+          if (oneWayDistance === null || oneWayDistance === 0) {
+            console.log(`⏭️ Skipping trip ${trip.id} - could not calculate distance`);
+            skipped++;
+            continue;
+          }
+
+          // Apply round trip multiplier
+          const totalDistance = trip.round_trip ? oneWayDistance * 2 : oneWayDistance;
+
+          // Calculate IK if vehicle exists
+          let ikAmount = 0;
+          if (trip.vehicle_id) {
+            const vehicle = await getVehicle(trip.vehicle_id, supabase);
+            if (vehicle) {
+              const annualKmBefore = await getVehicleAnnualKm(
+                trip.user_id,
+                trip.vehicle_id,
+                trip.date,
+                supabase,
+              );
+              const annualKmAfter = annualKmBefore + totalDistance;
+
+              const ikBefore = calculateTotalAnnualIK(annualKmBefore, vehicle.fiscal_power);
+              const ikAfter = calculateTotalAnnualIK(annualKmAfter, vehicle.fiscal_power);
+              ikAmount = ikAfter - ikBefore;
+
+              if (vehicle.is_electric) {
+                ikAmount *= 1.2;
+              }
+
+              ikAmount = Math.round(ikAmount * 100) / 100;
+            }
+          }
+
+          // Update trip
+          const { error: updateError } = await supabase
+            .from("trips")
+            .update({
+              distance: totalDistance,
+              start_location: origin,
+              ik_amount: ikAmount,
+              status: "validated",
+            })
+            .eq("id", trip.id);
+
+          if (updateError) {
+            console.error(`❌ Failed to update trip ${trip.id}:`, updateError);
+            failed++;
+            continue;
+          }
+
+          console.log(`✅ Updated trip ${trip.id}: ${totalDistance}km, ${ikAmount}€`);
+          updated++;
+        } catch (error) {
+          console.error(`Error processing trip ${trip.id}:`, error);
           failed++;
-          continue;
         }
-
-        console.log(`✅ Updated trip ${trip.id}: ${totalDistance}km, ${ikAmount}€`);
-        updated++;
-      } catch (error) {
-        console.error(`Error processing trip ${trip.id}:`, error);
-        failed++;
       }
-    }
 
       const result = {
         success: true,
