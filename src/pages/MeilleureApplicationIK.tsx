@@ -23,6 +23,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/meilleure-application-indemnites-kilometriques");
+
 import {
   ArrowRight,
   CheckCircle2,
@@ -200,8 +204,8 @@ const MeilleureApplicationIK = () => {
         url: "https://iktracker.fr/logo-iktracker-250.webp",
       },
     },
-    datePublished: "2026-07-24",
-    dateModified: "2026-07-24",
+    datePublished: toIsoDateTime(PAGE_DATE.published),
+    dateModified: toIsoDateTime(PAGE_DATE.modified),
     mainEntityOfPage: PAGE_URL,
     inLanguage: "fr-FR",
   };
@@ -251,7 +255,7 @@ const MeilleureApplicationIK = () => {
                 <span className="text-gradient">indemnités kilométriques</span> en France en 2026
               </h1>
               <div className="mb-4">
-                <LastUpdated date="2026-07-24" />
+                <LastUpdated date={PAGE_DATE.modified} />
               </div>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
                 <strong className="text-foreground">Réponse courte :</strong> pour les indépendants,

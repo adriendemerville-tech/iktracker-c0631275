@@ -14,6 +14,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { IK_BAREME_2024 } from "@/types/trip";
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
 import {
   ArrowRight,
   CheckCircle2,
@@ -36,8 +38,9 @@ const EnhancedMarketingFooter = lazy(() =>
 const FooterPlaceholder = memo(() => <div className="min-h-[600px] bg-muted/30 animate-pulse" />);
 FooterPlaceholder.displayName = "FooterPlaceholder";
 
-const PAGE_PUBLISHED = "2026-07-20";
-const PAGE_MODIFIED = "2026-08-03";
+const PAGE_DATE = getPageDates("/artisans");
+const PAGE_PUBLISHED = toIsoDateTime(PAGE_DATE.published);
+const PAGE_MODIFIED = toIsoDateTime(PAGE_DATE.modified);
 
 const PAIN_POINTS = [
   {

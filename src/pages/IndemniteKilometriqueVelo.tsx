@@ -9,6 +9,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Bike, Leaf, Euro, ShieldCheck } from "lucide-react";
 
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/indemnite-kilometrique-velo");
+
 const faqs = [
   {
     q: "Qu'est-ce que l'indemnité kilométrique vélo (IK vélo) ?",
@@ -53,8 +57,8 @@ export default function IndemniteKilometriqueVelo() {
               url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
             },
             publisher: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
-            datePublished: "2026-06-29",
-            dateModified: "2026-06-29",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: "https://iktracker.fr/indemnite-kilometrique-velo",
           })}
         </script>
@@ -100,7 +104,7 @@ export default function IndemniteKilometriqueVelo() {
             <span className="text-primary">2025 - 2026</span>
           </h1>
           <div className="mt-4">
-            <LastUpdated date="2026-06-29" />
+            <LastUpdated date={PAGE_DATE.modified} />
           </div>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed min-h-[7rem] sm:min-h-[5.5rem] md:min-h-[5rem]">
             Le guide pratique de l'<strong className="text-foreground">IK vélo</strong> et du

@@ -23,6 +23,10 @@ import {
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { ArrowRight, CheckCircle2, XCircle, Zap, HelpCircle, Minus } from "lucide-react";
 
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/comparatif-izika");
+
 const EnhancedMarketingFooter = lazy(() =>
   import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
     default: m.EnhancedMarketingFooter,
@@ -70,8 +74,8 @@ const ComparatifIzika = () => {
                 url: "https://iktracker.fr/logo-iktracker-250.webp",
               },
             },
-            datePublished: "2026-02-03",
-            dateModified: "2026-02-03",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: "https://iktracker.fr/comparatif-izika",
             inLanguage: "fr-FR",
           })}

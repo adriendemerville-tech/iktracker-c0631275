@@ -21,6 +21,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
+import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+
+const PAGE_DATE = getPageDates("/comparatif-drivers-note");
+
 import {
   ArrowRight,
   CheckCircle2,
@@ -127,8 +131,8 @@ const ComparatifDriversNote = () => {
                 url: "https://iktracker.fr/logo-iktracker-250.webp",
               },
             },
-            datePublished: "2026-02-03",
-            dateModified: "2026-02-03",
+            datePublished: toIsoDateTime(PAGE_DATE.published),
+            dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: "https://iktracker.fr/comparatif-drivers-note",
             inLanguage: "fr-FR",
           })}
