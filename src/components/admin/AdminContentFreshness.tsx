@@ -182,14 +182,26 @@ export function AdminContentFreshness() {
                 </div>
 
                 <ul className="space-y-1">
-                  {(f.reasons ?? []).map((r) => (
-                    <li key={r.code} className="text-xs text-muted-foreground">
-                      • {r.label}
-                      {r.detail && r.code === "broken_link" && (
-                        <span className="block ml-3 truncate opacity-70">{r.detail}</span>
-                      )}
-                    </li>
-                  ))}
+                  {(f.reasons ?? []).map((r) => {
+                    const isLink = r.code === "broken_link" || r.code === "broken_internal_link";
+                    return (
+                      <li
+                        key={r.code}
+                        className={`text-xs ${isLink ? "text-destructive" : "text-muted-foreground"}`}
+                      >
+                        • {r.label}
+                        {r.detail && isLink && (
+                          <span className="block ml-3 break-all opacity-80">
+                            {r.detail.split(" | ").map((url) => (
+                              <span key={url} className="block truncate">
+                                {url}
+                              </span>
+                            ))}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 <div className="flex gap-2 flex-wrap">
