@@ -82,7 +82,9 @@ async function getGoogleAccessToken(): Promise<{ token?: string; error?: string 
   return { token: JSON.parse(text).access_token as string };
 }
 
-async function pushIndexNow(urls: string[]) {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function pushIndexNowOnce(urls: string[]) {
   const res = await fetch("https://api.indexnow.org/indexnow", {
     method: "POST",
     headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -96,6 +98,33 @@ async function pushIndexNow(urls: string[]) {
   const body = await res.text();
   return { ok: res.ok, status: res.status, body: body.slice(0, 300) };
 }
+
+/** Envoi par lots de 100 URLs, avec backoff exponentiel sur 429 / 5xx. */
+async function pushIndexNowBatched(urls: string[]) {
+  const CHUNK = 100;
+  const batches: {
+    urls: string[];
+    ok: boolean;
+    status: number;
+    body: string;
+    attempts: number;
+  }[] = [];
+
+  for (let i = 0; i < urls.length; i += CHUNK) {
+    const chunk = urls.slice(i, i + CHUNK);
+    let attempt = 0;
+    let r = await pushIndexNowOnce(chunk);
+    while (!r.ok && (r.status === 429 || r.status >= 500) && attempt < 3) {
+      attempt++;
+      await sleep(2000 * Math.pow(2, attempt - 1)); // 2s, 4s, 8s
+      r = await pushIndexNowOnce(chunk);
+    }
+    batches.push({ urls: chunk, ...r, attempts: attempt + 1 });
+    if (i + CHUNK < urls.length) await sleep(1500); // espacement entre lots
+  }
+  return batches;
+}
+
 
 async function pushGoogle(token: string, url: string) {
   const res = await fetch(GOOGLE_INDEXING_ENDPOINT, {
@@ -164,10 +193,12 @@ export const Route = createFileRoute("/api/public/submit-indexing")({
           }));
         }
 
-        // --- Deduplicate against previous submissions of the same content version ---
+        // --- Deduplicate against previous SUCCESSFUL submissions of the same content version ---
+        // (les échecs restent rejouables : un 429 doit repasser au run suivant)
         const { data: already } = await admin
           .from("indexing_submissions")
-          .select("url, provider, content_updated_at")
+          .select("url, provider, content_updated_at, status")
+          .eq("status", "success")
           .gte("submitted_at", new Date(Date.now() - 30 * 24 * 3600_000).toISOString());
         const seen = new Set(
           (already ?? []).map((r) => `${r.provider}|${r.url}|${r.content_updated_at}`),
@@ -191,21 +222,52 @@ export const Route = createFileRoute("/api/public/submit-indexing")({
 
         // --- IndexNow (Bing, Yandex, Naver...) ---
         if (forIndexNow.length) {
-          const r = await pushIndexNow(forIndexNow.map((c) => c.url).slice(0, 10000));
-          result.indexnow = { submitted: forIndexNow.length, status: r.status, ok: r.ok };
-          for (const c of forIndexNow) {
-            rows.push({
-              url: c.url,
-              provider: "indexnow",
-              status: r.ok ? "success" : "error",
-              http_status: r.status,
-              response: r.ok ? null : r.body,
-              content_updated_at: c.updatedAt,
-            });
+          const byUrl = new Map(forIndexNow.map((c) => [c.url, c.updatedAt]));
+          const batches = await pushIndexNowBatched([...byUrl.keys()]);
+
+          let ok = 0;
+          let failed = 0;
+          let lastError: string | null = null;
+
+          for (const b of batches) {
+            if (b.ok) {
+              ok += b.urls.length;
+              // succès : une ligne par URL (sert à la déduplication)
+              for (const u of b.urls) {
+                rows.push({
+                  url: u,
+                  provider: "indexnow",
+                  status: "success",
+                  http_status: b.status,
+                  response: null,
+                  content_updated_at: byUrl.get(u),
+                });
+              }
+            } else {
+              failed += b.urls.length;
+              lastError = `${b.status} ${b.body}`;
+              // échec : une seule ligne agrégée par lot (évite de gonfler la table)
+              rows.push({
+                url: b.urls[0],
+                provider: "indexnow",
+                status: "error",
+                http_status: b.status,
+                response: `lot de ${b.urls.length} URLs, ${b.attempts} tentative(s) — ${b.body}`,
+                content_updated_at: byUrl.get(b.urls[0]!),
+              });
+            }
           }
+
+          result.indexnow = {
+            submitted: ok,
+            failed,
+            batches: batches.length,
+            lastError,
+          };
         } else {
           result.indexnow = { submitted: 0, note: "rien de nouveau" };
         }
+
 
         // --- Google Indexing API ---
         const auth = await getGoogleAccessToken();

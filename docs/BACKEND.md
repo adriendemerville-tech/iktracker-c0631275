@@ -1417,10 +1417,11 @@ Route serveur TanStack `POST /api/public/submit-indexing` (`src/routes/api/publi
 **Collecte automatique** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, et `updated_at` ou `published_at` dans la fenêtre. Limite 200 URLs par exécution, 190 max envoyées à Google (quota 200/jour).
 
 **Fournisseurs**
-- **IndexNow** (Bing, Yandex, Naver) : opérationnel. Clé `2441b032331572cd67fa3ff3e40d9c17`, fichier de vérification `public/2441b032331572cd67fa3ff3e40d9c17.txt`.
+- **IndexNow** (Bing, Yandex, Naver) : opérationnel. Clé `2441b032331572cd67fa3ff3e40d9c17`, fichier de vérification `public/2441b032331572cd67fa3ff3e40d9c17.txt`. Envoi **par lots de 100 URLs**, espacés de 1,5 s, avec **backoff exponentiel** (2 s / 4 s / 8 s, 3 tentatives) sur `429` et `5xx`.
 - **Google Indexing API** : nécessite un **compte de service JSON** (scope `https://www.googleapis.com/auth/indexing`), lu depuis `GOOGLE_INDEXING_SERVICE_ACCOUNT` (ou `GOOGLE_API_KEY` s'il contient le JSON). Signature JWT RS256 via WebCrypto puis échange OAuth2. Une clé API simple ne fonctionne pas.
 
-**Table `public.indexing_submissions`** : `url`, `provider` (`google` | `indexnow`), `status`, `http_status`, `response`, `content_updated_at`, `submitted_at`. Lecture réservée aux rôles `admin`/`viewer`, écriture par `service_role`. Sert aussi de déduplication : une URL n'est resoumise que si son `content_updated_at` a changé (fenêtre glissante de 30 jours).
+**Table `public.indexing_submissions`** : `url`, `provider` (`google` | `indexnow`), `status`, `http_status`, `response`, `content_updated_at`, `submitted_at`. Lecture réservée aux rôles `admin`/`viewer`, écriture par `service_role`. Déduplication : **seules les soumissions en `success`** bloquent un renvoi (fenêtre glissante de 30 jours) — un échec (429, 5xx) est donc automatiquement **rejoué au run suivant**. Journalisation : une ligne par URL en cas de succès, **une seule ligne agrégée par lot en échec** (évite de gonfler la table).
+
 
 **Cron** : `submit-indexing-daily`, tous les jours à `5 6 * * *` (UTC), appelle la route avec `{"sinceHours":26}`.
 
