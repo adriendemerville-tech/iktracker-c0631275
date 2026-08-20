@@ -47,13 +47,20 @@ function extractFirstParagraph(content: string): string {
   return firstPara.slice(0, 160);
 }
 
+const blogRoute = getRouteApi("/blog/$slug");
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { isAdmin } = useAdminLazy();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seeded from the route loader so the article body is present in the SSR HTML
+  // (crawlers and LLM agents without JS must see the content).
+  const loaderData = blogRoute.useLoaderData() as { post?: BlogPost } | null;
+  const initialPost = (loaderData?.post as BlogPost | undefined) ?? null;
+  const [post, setPost] = useState<BlogPost | null>(initialPost);
+  const [loading, setLoading] = useState(!initialPost);
   const [notFound, setNotFound] = useState(false);
+
 
   useEffect(() => {
     const fetchPost = async () => {
