@@ -1432,7 +1432,7 @@ Route serveur TanStack `POST /api/public/content-freshness-audit` (`src/routes/a
 
 **Authentification** : en-tête `x-cron-secret` (valeurs acceptées : `CRON_SECRET` ou `SYNC_CRON_TOKEN`) pour le cron, ou `Authorization: Bearer <jwt>` d'un utilisateur `admin`.
 
-**Corps accepté** : `checkLinks: boolean` (défaut `true`) — active la vérification HTTP des liens sortants (8 max par article, HEAD puis GET en repli, timeout 6 s).
+**Corps accepté** : `checkLinks: boolean` (défaut `true`) — active le contrôle HTTP des liens. Les liens **internes** (relatifs, `iktracker.fr`, `www.iktracker.fr`, `iktracker.lovable.app`) sont normalisés sur l'apex et testés (15 max/article) ; les liens **sortants** sont testés séparément (10 max/article). HEAD puis repli GET sur 403/405/501, timeout 6 s, statuts mémoïsés sur la durée de l'audit pour ne tester chaque URL qu'une fois. Seuls les 404/410 sont retenus (pas de faux positif sur timeout ou anti-bot).
 
 **Périmètre** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, `deleted_at IS NULL`.
 
@@ -1442,6 +1442,7 @@ Route serveur TanStack `POST /api/public/content-freshness-audit` (`src/routes/a
 | `stale_12m` | `updated_at` > 12 mois | 40 |
 | `stale_6m` | `updated_at` > 6 mois | 20 |
 | `outdated_year` | cite N-1/N-2/N-3 sans citer l'année courante | 35 |
+| `broken_internal_link` | lien interne (page IKtracker) en 404/410 | 40 |
 | `broken_link` | lien sortant en 404/410 | 30 |
 | `thin_content` | texte < 1200 caractères | 20 |
 | `missing_meta` | `meta_description` absente ou < 70 caractères | 15 |
@@ -1451,6 +1452,8 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 
 **Table `public.content_freshness_findings`** : `post_id` (unique), `slug`, `title`, `reasons` (jsonb), `score`, `status` (`pending` | `in_progress` | `dismissed` | `resolved`), `last_content_update`, `detected_at`, `resolved_at`, `dismissed_reason`. Lecture réservée aux rôles `admin`/`viewer`, écriture réservée à `admin` (+ `service_role`). À chaque exécution, les articles redevenus sains voient leurs signalements `pending` passés en `resolved`.
 
-**Cron** : `content-freshness-audit-weekly`, chaque lundi à `0 6 * * 1` (UTC), corps `{"checkLinks": true}`.
+**Cron** : `content-freshness-audit-daily`, tous les jours à `0 6 * * *` (UTC), corps `{"checkLinks": true}` (remplace l'ancien `content-freshness-audit-weekly`). Durée observée ~50 s pour 100 articles.
+
+**Réponse** : `{ ok, scanned, flagged, checked_links, broken_internal_pages, broken_external_pages }`.
 
 **Front** : onglet « Fraîcheur » de `/admin` (`src/components/admin/AdminContentFreshness.tsx`) — filtrage par statut, bouton « Lancer un audit », actions En cours / Révisé / Ignorer.
