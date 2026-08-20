@@ -819,6 +819,39 @@ export type Database = {
         }
         Relationships: []
       }
+      indexing_submissions: {
+        Row: {
+          content_updated_at: string | null
+          http_status: number | null
+          id: string
+          provider: string
+          response: string | null
+          status: string
+          submitted_at: string
+          url: string
+        }
+        Insert: {
+          content_updated_at?: string | null
+          http_status?: number | null
+          id?: string
+          provider: string
+          response?: string | null
+          status?: string
+          submitted_at?: string
+          url: string
+        }
+        Update: {
+          content_updated_at?: string | null
+          http_status?: number | null
+          id?: string
+          provider?: string
+          response?: string | null
+          status?: string
+          submitted_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       linkedin_post_log: {
         Row: {
           audit_attempts: number
