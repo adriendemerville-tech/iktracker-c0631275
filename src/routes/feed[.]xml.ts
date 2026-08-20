@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 
 const BASE_URL = "https://iktracker.fr";
 const FEED_URL = `${BASE_URL}/feed.xml`;
@@ -76,8 +75,11 @@ export const Route = createFileRoute("/feed.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Client serveur (service role) : indépendant des policies RLS `anon`,
+        // un durcissement futur de RLS ne peut plus vider silencieusement le flux.
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         // Tri sur la date de dernière modification pour refléter les mises à jour récentes
-        const { data } = await supabase
+        const { data, error } = await supabaseAdmin
           .from("blog_posts")
           .select(
             "slug, title, subtitle, meta_description, featured_image_url, author_name, published_at, updated_at",
@@ -87,6 +89,14 @@ export const Route = createFileRoute("/feed.xml")({
           .order("updated_at", { ascending: false, nullsFirst: false })
           .order("published_at", { ascending: false, nullsFirst: false })
           .limit(MAX_ENTRIES);
+
+        if (error) {
+          console.error("[feed] blog_posts fetch failed:", error.message);
+          return new Response("Feed temporarily unavailable", {
+            status: 503,
+            headers: { "Content-Type": "text/plain", "Retry-After": "300" },
+          });
+        }
 
         const posts = ((data || []) as FeedPost[]).sort(
           (a, b) =>
