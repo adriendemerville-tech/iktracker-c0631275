@@ -724,117 +724,208 @@ async function calculateDrivingDistance(
   }
 }
 
-// Check if a trip already exists for this calendar event (including deleted ones)
-async function tripExistsForEvent(
-  userId: string,
-  eventId: string,
-  supabase: any,
-): Promise<{ exists: boolean; wasDeleted: boolean }> {
-  const { data } = await supabase
-    .from("trips")
-    .select("id, deleted_at")
-    .eq("user_id", userId)
-    .eq("calendar_event_id", eventId)
-    .limit(1);
+// ============================================================================
+// Per-user sync cache — a few SQL queries per user instead of 1 query PER EVENT.
+// Previously, tripExistsForEvent() and similarTripExists() each ran a SQL query
+// for every calendar event processed (top DB consumer: ~550k queries, 250s of
+// cumulative DB time). We now preload the user's trips once, match in memory,
+// and append locally-created trips so later events in the same run still
+// dedupe exactly like the old per-event queries did.
+// ============================================================================
 
-  if (!data || data.length === 0) {
+interface CachedTrip {
+  date: string;
+  end_location: string | null;
+  purpose: string | null;
+  deleted_at: string | null;
+  status: string;
+  calendar_event_id: string | null;
+}
+
+const SYNC_PRELOAD_PAGE_SIZE = 1000;
+
+// PostgREST caps a response at ~1000 rows: paginate so heavy calendar users
+// don't get a silently truncated preload (which would re-create duplicates).
+async function fetchAllTripRows(buildQuery: () => any): Promise<any[]> {
+  const all: any[] = [];
+  let from = 0;
+  for (;;) {
+    const { data, error } = await buildQuery().range(from, from + SYNC_PRELOAD_PAGE_SIZE - 1);
+    if (error) {
+      console.error("Trip preload query failed:", error);
+      break;
+    }
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < SYNC_PRELOAD_PAGE_SIZE) break;
+    from += SYNC_PRELOAD_PAGE_SIZE;
+  }
+  return all;
+}
+
+class UserSyncCache {
+  private byEventId = new Map<string, CachedTrip>();
+  private byDate = new Map<string, CachedTrip[]>();
+  private frequentDestinations: Array<{ keyword: string; address: string }> = [];
+
+  static async load(
+    userId: string,
+    dateRange: { startDate: string; endDate: string },
+    supabase: any,
+  ): Promise<UserSyncCache> {
+    const cache = new UserSyncCache();
+    const cols = "date, end_location, purpose, deleted_at, status, calendar_event_id";
+    const [eventTrips, windowTrips, destResult] = await Promise.all([
+      // Every trip tied to a calendar event, on ANY date: an event moved from
+      // the past into the sync window must still be seen as already imported.
+      fetchAllTripRows(() =>
+        supabase
+          .from("trips")
+          .select(cols)
+          .eq("user_id", userId)
+          .not("calendar_event_id", "is", null),
+      ),
+      // All trips inside the sync window (including manual ones) for same-day
+      // similarity matching.
+      fetchAllTripRows(() =>
+        supabase
+          .from("trips")
+          .select(cols)
+          .eq("user_id", userId)
+          .gte("date", dateRange.startDate)
+          .lte("date", dateRange.endDate),
+      ),
+      supabase.from("frequent_destinations").select("keyword, address").eq("user_id", userId),
+    ]);
+    for (const t of eventTrips) cache.addEventTrip(t as CachedTrip);
+    for (const t of windowTrips) cache.addWindowTrip(t as CachedTrip);
+    cache.frequentDestinations =
+      (destResult.data as Array<{ keyword: string; address: string }> | null) ?? [];
+    console.log(
+      `📦 Sync cache preloaded: ${eventTrips.length} event trips, ${windowTrips.length} window trips, ${cache.frequentDestinations.length} frequent destinations`,
+    );
+    return cache;
+  }
+
+  private addEventTrip(trip: CachedTrip): void {
+    if (trip.calendar_event_id) this.byEventId.set(trip.calendar_event_id, trip);
+  }
+
+  private addWindowTrip(trip: CachedTrip): void {
+    const arr = this.byDate.get(trip.date) || [];
+    arr.push(trip);
+    this.byDate.set(trip.date, arr);
+  }
+
+  // A trip inserted during this run goes in BOTH indexes — mirrors what the
+  // old per-event SQL queries would have seen right after the INSERT.
+  addTrip(trip: CachedTrip): void {
+    this.addEventTrip(trip);
+    this.addWindowTrip(trip);
+  }
+
+  // Was a trip already created for this calendar event? (incl. archived ones)
+  findByEventId(eventId: string): { exists: boolean; wasDeleted: boolean } {
+    const trip = this.byEventId.get(eventId);
+    if (!trip) return { exists: false, wasDeleted: false };
+    return { exists: true, wasDeleted: trip.deleted_at !== null };
+  }
+
+  // Same-day + similar-destination match (incl. archived trips) — in-memory
+  // port of the old similarTripExists() SQL-per-event logic.
+  findSimilar(
+    eventDate: string,
+    destination: string,
+    purpose: string | undefined,
+  ): { exists: boolean; wasDeleted: boolean } {
+    if (!destination) return { exists: false, wasDeleted: false };
+
+    const normalizedDest = destination.toLowerCase().trim();
+    const normalizedDestKey = normalizeDedupeText(destination);
+    const normalizedPurposeKey = normalizeDedupeText(purpose);
+    const existingTrips = this.byDate.get(eventDate);
+
+    if (!existingTrips || existingTrips.length === 0) {
+      return { exists: false, wasDeleted: false };
+    }
+
+    for (const trip of existingTrips) {
+      const tripDest = (trip.end_location || "").toLowerCase().trim();
+      const tripDestKey = normalizeDedupeText(trip.end_location);
+      const tripPurposeKey = normalizeDedupeText(trip.purpose);
+      const isSamePendingCalendarEvent =
+        trip.status === "pending_location" &&
+        normalizedDestKey.length > 0 &&
+        normalizedPurposeKey.length > 0 &&
+        tripDestKey === normalizedDestKey &&
+        tripPurposeKey === normalizedPurposeKey;
+
+      // Check if destinations are similar (contains match or significant overlap)
+      const isSimilar =
+        isSamePendingCalendarEvent ||
+        tripDest === normalizedDest ||
+        tripDest.includes(normalizedDest) ||
+        normalizedDest.includes(tripDest) ||
+        // Also check city-level match (first significant word)
+        (tripDest.split(",")[0]?.trim() === normalizedDest.split(",")[0]?.trim() &&
+          tripDest.split(",")[0]?.trim().length > 3);
+
+      if (isSimilar) {
+        console.log(
+          `🔍 Found similar trip: "${trip.end_location}" matches "${destination}" on ${eventDate}`,
+        );
+        return { exists: true, wasDeleted: trip.deleted_at !== null };
+      }
+    }
+
     return { exists: false, wasDeleted: false };
   }
 
-  // Trip exists - check if it was deleted (archived)
-  const wasDeleted = data[0].deleted_at !== null;
-  return { exists: true, wasDeleted };
+  // Keyword match against the user's frequent destinations (preloaded once).
+  findFrequentDestination(eventTitle: string): string | null {
+    if (!eventTitle) return null;
+
+    // Split title into words and check each against keywords (case-insensitive)
+    const titleWords = eventTitle.toLowerCase().split(/\s+/);
+
+    for (const dest of this.frequentDestinations) {
+      const keyword = dest.keyword.toLowerCase();
+      if (titleWords.some((word: string) => word.includes(keyword) || keyword.includes(word))) {
+        console.log(
+          `🔑 Found matching keyword "${dest.keyword}" for event "${eventTitle}" → ${dest.address}`,
+        );
+        return dest.address;
+      }
+    }
+
+    return null;
+  }
 }
 
-// Check if a similar trip already exists (same date + similar destination) - includes archived trips
-async function similarTripExists(
-  userId: string,
-  eventDate: string,
-  destination: string,
-  purpose: string | undefined,
-  supabase: any,
-): Promise<{ exists: boolean; wasDeleted: boolean }> {
-  if (!destination) return { exists: false, wasDeleted: false };
-
-  // Normalize destination for comparison (lowercase, trim)
-  const normalizedDest = destination.toLowerCase().trim();
-  const normalizedDestKey = normalizeDedupeText(destination);
-  const normalizedPurposeKey = normalizeDedupeText(purpose);
-
-  // Fetch all trips for this date (including archived ones)
-  const { data: existingTrips } = await supabase
-    .from("trips")
-    .select("id, end_location, purpose, deleted_at, status")
-    .eq("user_id", userId)
-    .eq("date", eventDate);
-
-  if (!existingTrips || existingTrips.length === 0) {
-    return { exists: false, wasDeleted: false };
-  }
-
-  // Check for similar destinations
-  for (const trip of existingTrips) {
-    const tripDest = (trip.end_location || "").toLowerCase().trim();
-    const tripDestKey = normalizeDedupeText(trip.end_location);
-    const tripPurposeKey = normalizeDedupeText(trip.purpose);
-    const isSamePendingCalendarEvent =
-      trip.status === "pending_location" &&
-      normalizedDestKey.length > 0 &&
-      normalizedPurposeKey.length > 0 &&
-      tripDestKey === normalizedDestKey &&
-      tripPurposeKey === normalizedPurposeKey;
-
-    // Check if destinations are similar (contains match or significant overlap)
-    const isSimilar =
-      isSamePendingCalendarEvent ||
-      tripDest === normalizedDest ||
-      tripDest.includes(normalizedDest) ||
-      normalizedDest.includes(tripDest) ||
-      // Also check city-level match (first significant word)
-      (tripDest.split(",")[0]?.trim() === normalizedDest.split(",")[0]?.trim() &&
-        tripDest.split(",")[0]?.trim().length > 3);
-
-    if (isSimilar) {
-      console.log(
-        `🔍 Found similar trip: "${trip.end_location}" matches "${destination}" on ${eventDate}`,
-      );
-      return { exists: true, wasDeleted: trip.deleted_at !== null };
-    }
-  }
-
-  return { exists: false, wasDeleted: false };
+// Annual-km tracker: loads the DB sum once, then accumulates trips created by
+// this run — same incremental-IK result as re-querying after every INSERT,
+// minus one query per created trip.
+interface AnnualKmTracker {
+  current(): Promise<number>;
+  add(km: number): void;
 }
 
-// Find matching keyword in frequent_destinations for event title
-async function findFrequentDestination(
+function createAnnualKmTracker(
   userId: string,
-  eventTitle: string,
+  vehicleId: string,
   supabase: any,
-): Promise<string | null> {
-  if (!eventTitle) return null;
-
-  // Get all user's frequent destinations
-  const { data: destinations } = await supabase
-    .from("frequent_destinations")
-    .select("keyword, address")
-    .eq("user_id", userId);
-
-  if (!destinations || destinations.length === 0) return null;
-
-  // Split title into words and check each against keywords (case-insensitive)
-  const titleWords = eventTitle.toLowerCase().split(/\s+/);
-
-  for (const dest of destinations) {
-    const keyword = dest.keyword.toLowerCase();
-    if (titleWords.some((word: string) => word.includes(keyword) || keyword.includes(word))) {
-      console.log(
-        `🔑 Found matching keyword "${dest.keyword}" for event "${eventTitle}" → ${dest.address}`,
-      );
-      return dest.address;
-    }
-  }
-
-  return null;
+): AnnualKmTracker {
+  let base: number | null = null;
+  let added = 0;
+  return {
+    async current(): Promise<number> {
+      if (base === null) base = await getVehicleAnnualKm(userId, vehicleId, supabase);
+      return base + added;
+    },
+    add(km: number): void {
+      added += km;
+    },
+  };
 }
 
 // Create a trip from a calendar event
