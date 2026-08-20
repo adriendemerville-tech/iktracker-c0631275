@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -128,6 +129,7 @@ const ComparatifIzika = () => {
                   <br />
                   <span className="text-gradient">Indemnités Kilométriques</span>
                 </h1>
+                <LastUpdated date={PAGE_DATE.modified} className="mt-2" />
                 <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Le comparatif honnête :{" "}
                   <strong className="text-foreground">Izika est excellent</strong>, mais IKtracker

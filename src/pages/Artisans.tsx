@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -223,6 +224,7 @@ const Artisans = () => {
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
             Frais kilométriques artisan : vos trajets de chantier comptés
           </h1>
+          <LastUpdated date={PAGE_DATE.modified} className="mt-2" />
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
             Un artisan roule toute la journée et travaille sa paperasse le soir. IKtracker
             enregistre les kilomètres entre chantiers, applique le barème kilométrique officiel et

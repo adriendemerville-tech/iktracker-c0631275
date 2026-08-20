@@ -1,3 +1,4 @@
+import { LastUpdated } from "@/components/LastUpdated";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -202,6 +203,7 @@ const ComparatifDriversNote = () => {
                     Avez-vous vraiment besoin d'un mouchard GPS ?
                   </span>
                 </h1>
+                <LastUpdated date={PAGE_DATE.modified} className="mt-2" />
                 <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   <strong className="text-foreground">Comparatif 2026</strong> : Le tracking
                   automatique par iBeacon (Payant) vs La synchronisation d'agenda intelligente (
