@@ -69,16 +69,36 @@ async function linkStatus(url: string): Promise<number | null> {
   }
 }
 
-/** Mémoïse les statuts sur la durée d'un audit : un même lien n'est testé qu'une fois. */
-function createLinkChecker() {
-  const cache = new Map<string, Promise<number | null>>();
-  return (url: string) => {
-    const hit = cache.get(url);
+/**
+ * Mémoïse les statuts sur la durée d'un audit ET entre deux runs :
+ * `seed` provient de la table `link_status_cache` (statuts < 7 jours).
+ * Les statuts fraîchement testés sont exposés via `freshResults()` pour persistance.
+ */
+function createLinkChecker(seed: Map<string, number | null>) {
+  const inflight = new Map<string, Promise<number | null>>();
+  const fresh = new Map<string, number | null>();
+  const check = (url: string): Promise<number | null> => {
+    if (seed.has(url)) return Promise.resolve(seed.get(url) ?? null);
+    const hit = inflight.get(url);
     if (hit) return hit;
-    const p = linkStatus(url);
-    cache.set(url, p);
+    const p = linkStatus(url).then((status) => {
+      fresh.set(url, status);
+      return status;
+    });
+    inflight.set(url, p);
     return p;
   };
+  check.freshResults = () => fresh;
+  return check;
+}
+
+/** Exécute `fn` sur `items` par lots parallèles de `size`. */
+async function inBatches<T, R>(items: T[], size: number, fn: (item: T) => Promise<R>) {
+  const out: R[] = [];
+  for (let i = 0; i < items.length; i += size) {
+    out.push(...(await Promise.all(items.slice(i, i + size).map(fn))));
+  }
+  return out;
 }
 
 const isDead = (status: number | null) => status === 404 || status === 410;
@@ -127,10 +147,18 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
         const now = Date.now();
         const currentYear = new Date().getFullYear();
         const staleYears = [currentYear - 1, currentYear - 2, currentYear - 3];
-        const rows: Record<string, unknown>[] = [];
-        const check = createLinkChecker();
+        // Cache de statuts persistant entre deux runs (7 jours de validité).
+        const cacheTtl = new Date(now - 7 * 24 * 3600_000).toISOString();
+        const { data: cachedLinks } = await admin
+          .from("link_status_cache")
+          .select("url, status")
+          .gte("checked_at", cacheTtl);
+        const seed = new Map<string, number | null>(
+          (cachedLinks ?? []).map((r) => [r.url as string, (r.status as number | null) ?? null]),
+        );
+        const check = createLinkChecker(seed);
 
-        for (const post of posts ?? []) {
+        const analyze = async (post: (NonNullable<typeof posts>)[number]) => {
           const reasons: Reason[] = [];
           const content = post.content ?? "";
           const text = stripHtml(content);
@@ -215,9 +243,9 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
             }
           }
 
-          if (reasons.length === 0) continue;
+          if (reasons.length === 0) return null;
 
-          rows.push({
+          return {
             post_id: post.id,
             slug: post.slug,
             title: post.title,
@@ -228,7 +256,23 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
             ),
             last_content_update: post.updated_at,
             detected_at: new Date().toISOString(),
-          });
+          } as Record<string, unknown>;
+        };
+
+        // Analyse par lots parallèles de 5 articles (les liens sont mutualisés par le cache).
+        const analyzed = await inBatches(posts ?? [], 5, analyze);
+        const rows = analyzed.filter((r): r is Record<string, unknown> => r !== null);
+
+        // Persistance du cache de statuts de liens pour les prochains runs.
+        const freshLinks = [...check.freshResults().entries()].map(([url, status]) => ({
+          url,
+          status,
+          checked_at: new Date().toISOString(),
+        }));
+        for (let i = 0; i < freshLinks.length; i += 100) {
+          await admin
+            .from("link_status_cache")
+            .upsert(freshLinks.slice(i, i + 100), { onConflict: "url" });
         }
 
         const flagged = rows.map((r) => r.post_id as string);

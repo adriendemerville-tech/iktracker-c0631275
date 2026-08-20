@@ -900,6 +900,24 @@ export type Database = {
         }
         Relationships: []
       }
+      link_status_cache: {
+        Row: {
+          checked_at: string
+          status: number | null
+          url: string
+        }
+        Insert: {
+          checked_at?: string
+          status?: number | null
+          url: string
+        }
+        Update: {
+          checked_at?: string
+          status?: number | null
+          url?: string
+        }
+        Relationships: []
+      }
       linkedin_post_log: {
         Row: {
           audit_attempts: number

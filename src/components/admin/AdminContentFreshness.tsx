@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { RefreshCw, ExternalLink, CheckCircle2, EyeOff, PlayCircle, Sparkles } from "lucide-react";
+import { IndexingHealthBanner } from "./IndexingHealthBanner";
 
 type Reason = { code: string; label: string; weight: number; detail?: string };
 
@@ -104,6 +105,7 @@ export function AdminContentFreshness() {
 
   return (
     <div className="space-y-4">
+      <IndexingHealthBanner />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-3 flex-wrap">
