@@ -53,8 +53,20 @@ export const Route = createFileRoute("/blog/$slug")({
         ],
       };
     }
-    const { title, description, image, url, publishedAt, modifiedAt, indexable } = loaderData;
+    const { title, description, image, url, publishedAt, modifiedAt, indexable, post } = loaderData;
+    const schemas = buildBlogPostSchemas({
+      slug: post.slug as string,
+      title: post.title as string,
+      content: (post.content as string) || "",
+      description,
+      featured_image_url: post.featured_image_url as string | null,
+      author_name: post.author_name as string | null,
+      published_at: post.published_at as string | null,
+      created_at: post.created_at as string | null,
+      updated_at: post.updated_at as string | null,
+    });
     return {
+
       meta: [
         { title: `${title} | Blog IKtracker` },
         { name: "description", content: description },
