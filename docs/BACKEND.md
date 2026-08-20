@@ -1082,6 +1082,21 @@ Cron `purge-duplicate-trips-daily` (`pg_cron`), tous les jours à **03:15 UTC**,
 - Cron `demote-invalid-tours-daily` (`pg_cron`) : exécution quotidienne à **03:20 UTC**.
 - Premier passage du 30 juillet 2026 : 26 trajets requalifiés.
 
+**Mode Tournée : état serveur autoritatif (20/08/2026)**
+
+L'onglet n'est plus qu'un capteur GPS + une fenêtre de suivi. L'orchestration (distance, arrêts, clôture) appartient au backend.
+
+- Colonnes ajoutées à `tour_sessions` : `finalized_at`, `finalize_reason`, `trip_id` (FK `trips`, `ON DELETE SET NULL`). Index partiel `idx_tour_sessions_active_activity (last_activity) WHERE is_active`.
+- `public.tour_haversine_km(lat1,lng1,lat2,lng2)` — IMMUTABLE, distance orthodromique en km.
+- `public.tour_points_distance_km(jsonb)` — distance serveur à partir du tableau de points `{lat,lng,timestamp}`, mêmes filtres que le client (segment < 50 m ignoré = bruit GPS, vitesse > 50 m/s ignorée = saut aberrant).
+- `public.tour_points_detect_stops(jsonb)` — détection d'arrêts serveur : immobile dans un rayon de 100 m pendant ≥ 7 min.
+- `public.tour_session_ingest(_session_id, _points, _stops, _pending_stop, _client_distance_km)` (SECURITY DEFINER, EXECUTE `authenticated`) — le client pousse ses derniers points bruts ; le serveur fusionne et dédoublonne par `timestamp`, plafonne à 5 000 points (le tout premier point est toujours conservé), recalcule la distance et applique `greatest(existante, client, serveur)` — la distance ne régresse jamais sur un payload périmé —, met à jour `last_activity` et retourne l'état autoritatif. Le front réaligne son compteur sur cette valeur.
+- `public.tour_session_finalize(_session_id, _reason)` (SECURITY DEFINER, EXECUTE `authenticated`) — clôture idempotente : si la session est déjà inactive, retourne le `trip_id` existant sans rien recréer. Sinon calcule les arrêts (ceux du client, à défaut détection serveur sur les points GPS), crée un trajet `status = 'pending_location'`, `source = 'tour'` (véhicule = premier véhicule de l'utilisateur, `NULL` accepté), puis marque la session `is_active = false` avec `finalized_at`, `finalize_reason` et `trip_id`. Vérifie la propriété via `auth.uid()` (contournée uniquement pour l'appel serveur du watchdog).
+- `public.finalize_stale_tour_sessions(_max_idle interval default '3 hours')` (SECURITY DEFINER, EXECUTE réservé au `service_role`) — watchdog : clôture toute session active sans signe de vie depuis 3 h avec `finalize_reason = 'watchdog_timeout'`. Retourne le nombre de sessions traitées.
+- Cron `finalize-stale-tour-sessions` (`pg_cron`) : toutes les **15 minutes**. C'est ce job qui garantit qu'une tournée survit à la fermeture de l'onglet, à la mise en veille ou au crash du navigateur — auparavant ces tournées restaient des sessions zombies jamais transformées en trajet.
+- Anti-doublon côté client : `GlobalTourRecovery.autoFinalize` **réclame** d'abord la session (`UPDATE ... WHERE is_active = true RETURNING`) ; si aucune ligne n'est retournée, le watchdog l'a déjà finalisée et le client n'insère rien.
+
+
 **Garde-fou de cohérence des trajets (`trips-guard`)**
 - Edge Function `trips-guard` (`verify_jwt = false`), authentifiée par `x-cron-secret` (`CRON_SECRET` ou `SYNC_CRON_TOKEN`), par le `service_role` en Bearer, ou par un utilisateur connecté (un admin scanne tout le parc, un utilisateur non-admin uniquement ses propres trajets).
 - Body : `{ "dry_run"?: bool, "since_days"?: int (def 400) }`. Lecture paginée par blocs de 1000 lignes.

@@ -67,7 +67,12 @@ export function useTourSessionDB() {
   }, []);
 
   /**
-   * Update the active session in DB (debounced)
+   * Push sensor data to the backend (debounced).
+   *
+   * The tab is only a sensor: it sends raw GPS points and its local view of the
+   * state. The server (`tour_session_ingest`) merges/dedupes points, recomputes
+   * the distance itself and owns `last_activity`. It returns the authoritative
+   * state so the UI can align on it.
    */
   const updateSession = useCallback(
     async (
@@ -75,57 +80,71 @@ export function useTourSessionDB() {
         stops?: TourStop[];
         totalDistanceKm?: number;
         gpsPoints?: Array<{ lat: number; lng: number; timestamp: number; accuracy: number }>;
-        pendingStop?: any;
+        pendingStop?: unknown;
       },
       force = false,
-    ) => {
+    ): Promise<{ totalDistanceKm: number } | null> => {
       const now = Date.now();
-      if (!force && now - lastSyncRef.current < DB_SYNC_INTERVAL) return;
+      if (!force && now - lastSyncRef.current < DB_SYNC_INTERVAL) return null;
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      const serializedStops = data.stops
+        ? data.stops.map((s) => ({
+            ...s,
+            timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
+          }))
+        : null;
 
-      const updatePayload: Record<string, any> = {
-        last_activity: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      // Only send the most recent points; the server dedupes by timestamp.
+      const points = data.gpsPoints ? data.gpsPoints.slice(-200) : [];
 
-      if (data.stops) {
-        updatePayload.stops = data.stops.map((s) => ({
-          ...s,
-          timestamp: s.timestamp instanceof Date ? s.timestamp.toISOString() : s.timestamp,
-        }));
-      }
-      if (data.totalDistanceKm !== undefined) {
-        updatePayload.total_distance_km = data.totalDistanceKm;
-      }
-      if (data.gpsPoints) {
-        // Keep last 500 GPS points BUT always preserve the very first point
-        // (origin/start of tour) so it's never lost to truncation.
-        const pts = data.gpsPoints;
-        if (pts.length <= 500) {
-          updatePayload.gps_points = pts;
-        } else {
-          updatePayload.gps_points = [pts[0], ...pts.slice(-499)];
-        }
-      }
-      if (data.pendingStop !== undefined) {
-        updatePayload.pending_stop = data.pendingStop;
-      }
-
-      const { error } = await supabase
-        .from("tour_sessions")
-        .update(updatePayload as any)
-        .eq("user_id", user.id)
-        .eq("is_active", true);
+      const { data: result, error } = await supabase.rpc(
+        "tour_session_ingest" as never,
+        {
+          _session_id: sessionIdRef.current,
+          _points: points,
+          _stops: serializedStops,
+          _pending_stop: data.pendingStop ?? null,
+          _client_distance_km: data.totalDistanceKm ?? null,
+        } as never,
+      );
 
       if (error) {
-        console.warn("[TourSessionDB] Failed to update session:", error.message);
-      } else {
-        lastSyncRef.current = now;
+        console.warn("[TourSessionDB] Ingest failed:", error.message);
+        return null;
       }
+
+      lastSyncRef.current = now;
+      const payload = result as {
+        found?: boolean;
+        session_id?: string;
+        total_distance_km?: number;
+      } | null;
+
+      if (!payload?.found) return null;
+      if (payload.session_id) sessionIdRef.current = payload.session_id;
+      return { totalDistanceKm: payload.total_distance_km ?? 0 };
+    },
+    [],
+  );
+
+  /**
+   * Server-side finalization: closes the session and creates the matching
+   * "à compléter" trip exactly once (idempotent). Same code path as the
+   * backend watchdog, so a tab that never comes back loses nothing.
+   */
+  const finalizeSessionServerSide = useCallback(
+    async (sessionId: string, reason = "client"): Promise<{ tripId: string | null } | null> => {
+      const { data, error } = await supabase.rpc(
+        "tour_session_finalize" as never,
+        { _session_id: sessionId, _reason: reason } as never,
+      );
+      if (error) {
+        console.warn("[TourSessionDB] Finalize failed:", error.message);
+        return null;
+      }
+      const payload = data as { trip_id?: string | null } | null;
+      sessionIdRef.current = null;
+      return { tripId: payload?.trip_id ?? null };
     },
     [],
   );
@@ -197,6 +216,7 @@ export function useTourSessionDB() {
     createSession,
     updateSession,
     endSession,
+    finalizeSessionServerSide,
     fetchActiveSession,
     getCurrentSessionId,
   };

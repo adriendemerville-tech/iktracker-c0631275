@@ -268,7 +268,37 @@ export function GlobalTourRecovery() {
     });
 
     try {
-      // Determine which case applies
+      // Atomically claim the session before creating anything: the backend
+      // watchdog may finalize the very same session at any moment. Only the
+      // caller that flips is_active to false gets to create the trip.
+      const { data: claimed } = await supabase
+        .from("tour_sessions")
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString(),
+          finalized_at: new Date().toISOString(),
+          finalize_reason: fromDesktop ? "client_auto_finalize_desktop" : "client_auto_finalize",
+        } as never)
+        .eq("id", session.id)
+        .eq("is_active", true)
+        .select("id, trip_id")
+        .maybeSingle();
+
+      if (!claimed) {
+        console.log("[GlobalTourRecovery] Session already finalized server-side, skipping");
+        logTourRecovery({
+          eventType: "auto_finalize_success",
+          sessionId: session.id,
+          tripId: null,
+          isMobile: !fromDesktop,
+          stopsCount,
+          distanceKm,
+          context: "already_finalized_by_backend",
+        });
+        clearTourLocalStorage();
+        return;
+      }
+
       // A: ≥2 stops → full tour
       // B: 1 stop + GPS → trip with reverse-geocoded end
       // C: 1 stop + no GPS → trip "À compléter"

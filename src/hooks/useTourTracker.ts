@@ -223,7 +223,17 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
           pendingStop: pendingStopRef.current,
         },
         true,
-      ).catch((e) => console.warn("[TourTracker] DB sync failed:", e));
+      )
+        .then((authoritative) => {
+          // The backend owns the session state: realign the UI on the server
+          // distance (monotonic, so this only ever fills in what the tab missed).
+          if (authoritative && authoritative.totalDistanceKm > maxDistanceReachedRef.current) {
+            maxDistanceReachedRef.current = authoritative.totalDistanceKm;
+            setTotalDistanceKm(authoritative.totalDistanceKm);
+            saveTourData(STORAGE_KEYS.TOUR_TOTAL_DISTANCE, authoritative.totalDistanceKm);
+          }
+        })
+        .catch((e) => console.warn("[TourTracker] DB sync failed:", e));
     };
 
     // Periodic sync every 15 seconds

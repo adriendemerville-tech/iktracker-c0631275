@@ -1899,6 +1899,8 @@ export type Database = {
       tour_sessions: {
         Row: {
           created_at: string
+          finalize_reason: string | null
+          finalized_at: string | null
           gps_points: Json
           id: string
           is_active: boolean
@@ -1912,11 +1914,14 @@ export type Database = {
           started_at: string
           stops: Json
           total_distance_km: number
+          trip_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          finalize_reason?: string | null
+          finalized_at?: string | null
           gps_points?: Json
           id?: string
           is_active?: boolean
@@ -1930,11 +1935,14 @@ export type Database = {
           started_at?: string
           stops?: Json
           total_distance_km?: number
+          trip_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          finalize_reason?: string | null
+          finalized_at?: string | null
           gps_points?: Json
           id?: string
           is_active?: boolean
@@ -1948,10 +1956,19 @@ export type Database = {
           started_at?: string
           stops?: Json
           total_distance_km?: number
+          trip_id?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tour_sessions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trip_guard_runs: {
         Row: {
@@ -2293,6 +2310,10 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      finalize_stale_tour_sessions: {
+        Args: { _max_idle?: string }
+        Returns: number
+      }
       get_ab_test_results: { Args: { days_back?: number }; Returns: Json }
       get_admin_stats: {
         Args: { end_date?: string; start_date?: string }
@@ -2611,6 +2632,26 @@ export type Database = {
               user_id: string
             }[]
           }
+      tour_haversine_km: {
+        Args: { lat1: number; lat2: number; lng1: number; lng2: number }
+        Returns: number
+      }
+      tour_points_detect_stops: { Args: { _points: Json }; Returns: Json }
+      tour_points_distance_km: { Args: { _points: Json }; Returns: number }
+      tour_session_finalize: {
+        Args: { _reason?: string; _session_id: string }
+        Returns: Json
+      }
+      tour_session_ingest: {
+        Args: {
+          _client_distance_km?: number
+          _pending_stop?: Json
+          _points?: Json
+          _session_id: string
+          _stops?: Json
+        }
+        Returns: Json
+      }
       validate_partner_key: {
         Args: { _key_hash: string }
         Returns: {
