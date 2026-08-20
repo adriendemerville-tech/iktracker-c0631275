@@ -91,7 +91,7 @@ const ROUTES: RouteExpectation[] = [
   },
   {
     path: "/mode-tournee",
-    schemas: ["Article", "BreadcrumbList"],
+    schemas: ["WebPage", "HowTo", "BreadcrumbList", "SoftwareApplication"],
     content: ["tournée"],
   },
   {
