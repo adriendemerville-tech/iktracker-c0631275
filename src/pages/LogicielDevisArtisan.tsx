@@ -87,56 +87,7 @@ const LogicielDevisArtisan = () => {
 
   return (
     <>
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: FAQ.map((item) => ({
-              "@type": "Question",
-              name: item.q,
-              acceptedAnswer: { "@type": "Answer", text: item.a },
-            })),
-          })}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: "Logiciel de devis pour artisan : la stack outils d'une entreprise du bâtiment",
-            description:
-              "Devis vocal, indemnités kilométriques et visibilité en ligne : les trois outils qui font gagner du temps à un artisan du bâtiment.",
-            datePublished: toIsoDateTime(PAGE_DATE.published),
-            dateModified: toIsoDateTime(PAGE_DATE.modified),
-            author: {
-              "@type": "Person",
-              name: "Adrien de Volontat",
-              url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
-            },
-            publisher: {
-              "@type": "Organization",
-              name: "IKtracker",
-              logo: { "@type": "ImageObject", url: "https://iktracker.fr/logo-iktracker-250.webp" },
-            },
-            mainEntityOfPage: "https://iktracker.fr/logiciel-devis-artisan",
-            inLanguage: "fr-FR",
-            mentions: [
-              {
-                "@type": "SoftwareApplication",
-                name: "DictaDevi",
-                applicationCategory: "BusinessApplication",
-                url: "https://dictadevi.io",
-              },
-              {
-                "@type": "SoftwareApplication",
-                name: "Crawlers",
-                applicationCategory: "BusinessApplication",
-                url: "https://crawlers.fr",
-              },
-            ],
-          })}
-        </script>
-      </Helmet>
+
 
       <div className="min-h-screen bg-background">
         <MarketingNav user={user} loading={loading} />
