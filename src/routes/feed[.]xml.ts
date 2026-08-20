@@ -75,8 +75,11 @@ export const Route = createFileRoute("/feed.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Client serveur (service role) : indépendant des policies RLS `anon`,
+        // un durcissement futur de RLS ne peut plus vider silencieusement le flux.
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         // Tri sur la date de dernière modification pour refléter les mises à jour récentes
-        const { data } = await supabase
+        const { data, error } = await supabaseAdmin
           .from("blog_posts")
           .select(
             "slug, title, subtitle, meta_description, featured_image_url, author_name, published_at, updated_at",
