@@ -314,7 +314,7 @@ export function EnhancedMarketingFooter() {
               kilométriques – Barème fiscal {currentYear}.
             </p>
             <nav aria-label="Liens légaux rapides">
-              <ul className="flex items-center gap-4 md:gap-6 text-sm" role="list">
+              <ul className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6 text-sm" role="list">
                 <li>
                   <Link
                     to="/privacy"
@@ -350,6 +350,16 @@ export function EnhancedMarketingFooter() {
                   >
                     Contact
                   </Link>
+                </li>
+                <li>
+                  <a
+                    href="/feed.xml"
+                    className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+                    aria-label="Flux RSS / Atom IKtracker"
+                  >
+                    <Rss className="h-4 w-4" aria-hidden="true" />
+                    RSS
+                  </a>
                 </li>
               </ul>
             </nav>
