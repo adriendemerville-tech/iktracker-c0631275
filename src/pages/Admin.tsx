@@ -35,6 +35,7 @@ import { AdminTourMode } from "@/components/admin/AdminTourMode";
 import { AdminApiPartners } from "@/components/admin/AdminApiPartners";
 import { AdminWavespeed } from "@/components/admin/AdminWavespeed";
 import { AdminLinkedIn } from "@/components/admin/AdminLinkedIn";
+import { AdminContentFreshness } from "@/components/admin/AdminContentFreshness";
 import { AdminGitHubActions } from "@/components/admin/AdminGitHubActions";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import {
@@ -676,6 +677,10 @@ const Admin = () => {
                 <Zap className="w-4 h-4" />
                 <span className="hidden sm:inline">Autopilot</span>
               </TabsTrigger>
+              <TabsTrigger value="freshness" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Sparkles className="w-4 h-4" />
+                <span className="hidden sm:inline">Fraîcheur</span>
+              </TabsTrigger>
               <TabsTrigger
                 value="tour-recovery"
                 className="flex items-center gap-1 text-xs sm:text-sm"
@@ -1282,6 +1287,11 @@ const Admin = () => {
             {/* Autopilot Tab */}
             <TabsContent value="autopilot">
               <AdminAutopilot />
+            </TabsContent>
+
+            {/* Content Freshness Tab */}
+            <TabsContent value="freshness">
+              <AdminContentFreshness />
             </TabsContent>
 
             {/* Tour Recovery Tab */}

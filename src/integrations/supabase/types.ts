@@ -558,6 +558,54 @@ export type Database = {
         }
         Relationships: []
       }
+      content_freshness_findings: {
+        Row: {
+          created_at: string
+          detected_at: string
+          dismissed_reason: string | null
+          id: string
+          last_content_update: string | null
+          post_id: string
+          reasons: Json
+          resolved_at: string | null
+          score: number
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detected_at?: string
+          dismissed_reason?: string | null
+          id?: string
+          last_content_update?: string | null
+          post_id: string
+          reasons?: Json
+          resolved_at?: string | null
+          score?: number
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detected_at?: string
+          dismissed_reason?: string | null
+          id?: string
+          last_content_update?: string | null
+          post_id?: string
+          reasons?: Json
+          resolved_at?: string | null
+          score?: number
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       distance_cache: {
         Row: {
           created_at: string
