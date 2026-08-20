@@ -1359,3 +1359,28 @@ Côté front, mêmes corrections ciblées sur `BaremeIK2026.tsx`, `NoteDeFraisKi
 
 - Suppression du `ORDER BY variant` dans le sous-select agrégé en `jsonb` (sans effet sur `jsonb_agg`, le tri est fait côté UI).
 - Depuis le 19/08/2026 : contrôle d'accès `has_admin_or_viewer_role(auth.uid())` en tête de fonction (sinon `Access denied`), `EXECUTE` révoqué de `PUBLIC`/`anon`. Les sessions admin/viewer et les IP de `excluded_ips` sont exclues **au niveau session** (toute la session est écartée dès qu'un évènement interne est détecté), pour ne pas polluer le dénominateur visiteurs.
+
+## Jobs backend (P2 — scalabilité, 20/08/2026)
+
+Norme : tout traitement long, coûteux ou asynchrone appartient au backend ; l'onglet n'est qu'une fenêtre de suivi.
+
+### Table `public.background_jobs`
+
+- Colonnes : `id`, `kind`, `user_id`, `status` (`queued|running|succeeded|failed`), `phase`, `progress`, `processed`, `total`, `params`, `result`, `error`, `created_at`, `started_at`, `finished_at`.
+- RLS : lecture par le propriétaire (`auth.uid() = user_id`) et les admins ; écriture réservée à `service_role`.
+- Watchdog `cleanup-background-jobs` (pg_cron) : passe en `failed` les jobs bloqués > 30 min, purge les jobs > 30 jours.
+
+### Helper `supabase/functions/_shared/jobs.ts`
+
+- `createJob(supabase, kind, userId, params)` → `JobHandle` (`setPhase`, `setProgress`, `succeed`, `fail`).
+- `runDetached(fn)` → `EdgeRuntime.waitUntil`, le traitement survit à la réponse HTTP.
+- `jobAcceptedResponse(job, corsHeaders)` → `202 { job_id }`.
+
+### Fonctions migrées
+
+- `recalculate-distances` (mode batch) : appel utilisateur → `202 { job_id }` + boucle Distance Matrix en tâche de fond, progression tous les 5 trajets. L'appel cron/service garde le contrat synchrone.
+- `sync-calendar-trips` : appel utilisateur → `202 { job_id }`, la synchronisation (refresh tokens, Google/Outlook/ICS, Distance Matrix, écriture des trajets) tourne en tâche de fond. Cron/service inchangé.
+
+### Front
+
+- `src/hooks/useBackgroundJob.ts` : polling (2,5 s) du dernier job d'un `kind`, ré-attachement automatique au montage si un job est encore `running`/`queued`. Utilisé par `MesTrajets.tsx` (recalcul) et `CalendarConnections.tsx` (synchronisation). Fermer l'onglet ou recharger n'interrompt plus le traitement.
