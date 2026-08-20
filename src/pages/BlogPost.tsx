@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { LastUpdated } from "@/components/LastUpdated";
 import { ArrowLeft, Pencil, Clock, User, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
