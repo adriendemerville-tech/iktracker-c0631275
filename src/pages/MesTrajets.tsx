@@ -1387,6 +1387,7 @@ ${IKTRACKER_URL}`;
                       onDelete={deleteTrip}
                       showDelete
                       savedLocations={savedLocations}
+                      onUpdateTrip={updateTrip}
                       onTripUpdated={() => window.location.reload()}
                     />
                   );
@@ -1451,6 +1452,7 @@ ${IKTRACKER_URL}`;
                             onDelete={deleteTrip}
                             showDelete
                             savedLocations={savedLocations}
+                            onUpdateTrip={updateTrip}
                             onTripUpdated={() => window.location.reload()}
                             selectionMode={selectionMode && !isTourTrip}
                             selected={selectedIds.has(trip.id)}

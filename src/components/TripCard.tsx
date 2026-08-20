@@ -32,6 +32,8 @@ interface TripCardProps {
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
+  // updateTrip de la page parente, relayé à TripViewSheet (évite un useTrips() par carte)
+  onUpdateTrip: (id: string, updates: Partial<Omit<Trip, "id">>) => Promise<Trip | null>;
 }
 
 const getDisplayName = (location: { name: string; address?: string }): string => {
@@ -56,6 +58,7 @@ export const TripCard = memo(function TripCard({
   selectionMode = false,
   selected = false,
   onToggleSelect,
+  onUpdateTrip,
 }: TripCardProps) {
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
@@ -344,6 +347,7 @@ export const TripCard = memo(function TripCard({
         onOpenChange={setShowTripView}
         trip={trip}
         vehicle={vehicle}
+        updateTrip={onUpdateTrip}
       />
     </>
   );

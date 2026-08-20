@@ -143,6 +143,7 @@ const Index = () => {
     totalIK,
     getTotalAnnualKm,
     addTrip,
+    updateTrip,
     deleteTrip,
     restoreTrip,
     permanentlyDeleteTrip,
@@ -1334,6 +1335,7 @@ ${IKTRACKER_MENTION}
                         vehicle={getVehicle(trip.vehicleId)}
                         savedLocations={savedLocations}
                         showTripTime={preferences.showTripTime}
+                        onUpdateTrip={updateTrip}
                         onTripUpdated={() => {
                           // Reload page to refresh trips after completion
                           window.location.reload();
@@ -1428,9 +1430,10 @@ ${IKTRACKER_MENTION}
                     <TripCard
                       key={trip.id}
                       trip={trip}
-                      vehicle={getVehicle(trip.vehicleId)}
-                      showTripTime={preferences.showTripTime}
-                    />
+                        vehicle={getVehicle(trip.vehicleId)}
+                        showTripTime={preferences.showTripTime}
+                        onUpdateTrip={updateTrip}
+                      />
                   ))}
               </div>
             )}
