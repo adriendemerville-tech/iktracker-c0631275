@@ -167,27 +167,57 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
         return;
       }
 
-      const created = data?.totalTripsCreated || 0;
-
-      if (created === 0) {
-        // Nothing new to import → discret toast vert, pas de modale
-        toast.success("Import à jour");
+      const applyResult = (payload: {
+        totalTripsCreated?: number;
+        dateRange?: { startDate: string; endDate: string } | null;
+      }) => {
+        const created = payload.totalTripsCreated || 0;
         setSyncingProvider(null);
+
+        if (created === 0) {
+          // Nothing new to import → discret toast vert, pas de modale
+          toast.success("Import à jour");
+          return;
+        }
+
+        setSyncResult({
+          totalTripsCreated: created,
+          dateRange: payload.dateRange || null,
+        });
+        setShowSyncNotification(true);
+
+        // Trigger refresh of trips data
+        queryClient.invalidateQueries({ queryKey: ["trips"] });
+        onTripsUpdated?.();
+      };
+
+      // The sync now runs as a backend job: follow its state instead of holding
+      // the request open in the tab.
+      if (data?.job_id) {
+        toast.info("Synchronisation lancée", {
+          description: "Elle continue même si vous fermez cette page.",
+        });
+        syncJob.start((finished) => {
+          if (finished.status === "failed") {
+            setSyncingProvider(null);
+            toast.error("Erreur lors de la synchronisation", {
+              description: finished.error ?? "Réessayez dans quelques instants.",
+            });
+            return;
+          }
+          applyResult(
+            (finished.result ?? {}) as {
+              totalTripsCreated?: number;
+              dateRange?: { startDate: string; endDate: string } | null;
+            },
+          );
+        });
         return;
       }
 
-      setSyncResult({
-        totalTripsCreated: created,
-        dateRange: data?.dateRange || null,
-      });
-      setSyncingProvider(null);
-      setShowSyncNotification(true);
-
-      // Trigger refresh of trips data
-      queryClient.invalidateQueries({ queryKey: ["trips"] });
-      onTripsUpdated?.();
+      applyResult(data ?? {});
     },
-    [user, queryClient, onTripsUpdated, monthsBack],
+    [user, queryClient, onTripsUpdated, monthsBack, syncJob],
   );
 
   const googleConnection = getConnection("google");
