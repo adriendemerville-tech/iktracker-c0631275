@@ -78,6 +78,9 @@ Disallow: /.lovable/oauth/consent
 # === SITEMAP & GUIDE IA ===
 Sitemap: https://iktracker.fr/sitemap.xml
 
+# Atom feed (derniers articles publiés)
+# https://iktracker.fr/feed.xml
+
 # Guide à destination des LLM / crawlers IA :
 # https://iktracker.fr/llms.txt
 
