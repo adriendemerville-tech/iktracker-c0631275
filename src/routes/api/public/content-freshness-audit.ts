@@ -171,26 +171,45 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
           }
 
           const links = extractLinks(content);
-          const internal = links.filter(
-            (l) =>
-              l.startsWith("/") ||
-              l.includes("iktracker.fr") ||
-              l.includes("iktracker.lovable.app"),
-          );
-          if (internal.length === 0) {
+          const internalMap = new Map<string, string>(); // url absolue -> lien d'origine
+          const external: string[] = [];
+          for (const link of links) {
+            const internalUrl = toInternalUrl(link);
+            if (internalUrl) {
+              if (!internalMap.has(internalUrl)) internalMap.set(internalUrl, link);
+            } else if (/^https?:\/\//i.test(link)) {
+              external.push(link);
+            }
+          }
+
+          if (internalMap.size === 0) {
             reasons.push({ code: "no_internal_link", label: "Aucun lien interne", weight: 15 });
           }
 
           if (checkLinks) {
-            const external = links.filter((l) => /^https?:\/\//i.test(l)).slice(0, MAX_LINK_CHECKS);
-            const statuses = await Promise.all(external.map((l) => linkStatus(l)));
-            const broken = external.filter((_, i) => statuses[i] === 404 || statuses[i] === 410);
-            if (broken.length > 0) {
+            const internalUrls = [...internalMap.keys()].slice(0, MAX_INTERNAL_CHECKS);
+            const internalStatuses = await Promise.all(internalUrls.map((u) => check(u)));
+            const brokenInternal = internalUrls
+              .filter((_, i) => isDead(internalStatuses[i] ?? null))
+              .map((u) => internalMap.get(u) ?? u);
+            if (brokenInternal.length > 0) {
+              reasons.push({
+                code: "broken_internal_link",
+                label: `${brokenInternal.length} lien(s) interne(s) cassé(s)`,
+                weight: 40,
+                detail: brokenInternal.join(" | "),
+              });
+            }
+
+            const externalUrls = [...new Set(external)].slice(0, MAX_EXTERNAL_CHECKS);
+            const externalStatuses = await Promise.all(externalUrls.map((u) => check(u)));
+            const brokenExternal = externalUrls.filter((_, i) => isDead(externalStatuses[i] ?? null));
+            if (brokenExternal.length > 0) {
               reasons.push({
                 code: "broken_link",
-                label: `${broken.length} lien(s) mort(s)`,
+                label: `${brokenExternal.length} lien(s) sortant(s) mort(s)`,
                 weight: 30,
-                detail: broken.join(" | "),
+                detail: brokenExternal.join(" | "),
               });
             }
           }
