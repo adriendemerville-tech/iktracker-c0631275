@@ -72,6 +72,15 @@ export default function BlogPost() {
         return;
       }
 
+      // Already hydrated from the loader: no client refetch needed.
+      if (initialPost && initialPost.slug === slug) {
+        setPost(initialPost);
+        setLoading(false);
+        return;
+      }
+
+
+
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
