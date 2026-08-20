@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import BlogPost from "@/pages/BlogPost";
 import { supabase } from "@/integrations/supabase/client";
 import { BLOG_SLUG_REDIRECTS } from "@/lib/blog-redirects";
+import { buildBlogPostSchemas } from "@/lib/blog-post-schemas";
 
 export const Route = createFileRoute("/blog/$slug")({
   beforeLoad: ({ params }) => {
@@ -13,13 +14,12 @@ export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const { data } = await supabase
       .from("blog_posts")
-      .select(
-        "title, meta_description, content, featured_image_url, slug, published_at, created_at, updated_at, seo_indexable",
-      )
+      .select("*")
       .eq("slug", params.slug)
       .eq("status", "published")
       .maybeSingle();
     if (!data) return null;
+
     const description =
       data.meta_description ||
       (data.content || "")
@@ -41,6 +41,8 @@ export const Route = createFileRoute("/blog/$slug")({
         (data.updated_at || data.published_at || data.created_at) as string,
       ).toISOString(),
       indexable: data.seo_indexable !== false,
+      post: data,
+
     };
   },
   head: ({ loaderData }) => {
@@ -52,8 +54,20 @@ export const Route = createFileRoute("/blog/$slug")({
         ],
       };
     }
-    const { title, description, image, url, publishedAt, modifiedAt, indexable } = loaderData;
+    const { title, description, image, url, publishedAt, modifiedAt, indexable, post } = loaderData;
+    const schemas = buildBlogPostSchemas({
+      slug: post.slug as string,
+      title: post.title as string,
+      content: (post.content as string) || "",
+      description,
+      featured_image_url: post.featured_image_url as string | null,
+      author_name: post.author_name as string | null,
+      published_at: post.published_at as string | null,
+      created_at: post.created_at as string | null,
+      updated_at: post.updated_at as string | null,
+    });
     return {
+
       meta: [
         { title: `${title} | Blog IKtracker` },
         { name: "description", content: description },
@@ -85,6 +99,10 @@ export const Route = createFileRoute("/blog/$slug")({
         { rel: "canonical", href: url },
         { rel: "preconnect", href: "https://yarjaudctshlxkatqgeb.supabase.co" },
       ],
+      scripts: schemas.map((schema) => ({
+        type: "application/ld+json",
+        children: JSON.stringify(schema),
+      })),
     };
   },
   component: BlogPost,

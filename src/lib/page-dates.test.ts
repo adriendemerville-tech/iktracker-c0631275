@@ -18,8 +18,15 @@ const PAGE_SOURCES: Record<PageDatesKey, string> = {
   "/comparatif-driversnote": "src/pages/ComparatifDriversNote.tsx",
 };
 
+/** Modules de schémas JSON-LD extraits hors du composant (rendu SSR via head()). */
+const SCHEMA_SOURCES: Partial<Record<PageDatesKey, string>> = {
+  "/logiciel-devis-artisan": "src/lib/logiciel-devis-artisan-schema.ts",
+};
+
 const keys = Object.keys(PAGE_DATES) as PageDatesKey[];
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), "utf8");
+/** Source du JSON-LD : le composant, ou son module de schémas dédié. */
+const readSchema = (key: PageDatesKey) => read(SCHEMA_SOURCES[key] ?? PAGE_SOURCES[key]);
 
 describe("page-dates registry", () => {
   it("couvre exactement les pages statiques déclarées", () => {
@@ -51,7 +58,7 @@ describe("page-dates registry", () => {
 
 describe("cohérence JSON-LD / balise de date par page statique", () => {
   it.each(keys)("%s : le JSON-LD lit le registre, pas une date en dur", (key) => {
-    const src = read(PAGE_SOURCES[key]);
+    const src = readSchema(key);
     expect(src).toContain(`getPageDates("${key}")`);
 
     const published = src.match(/datePublished:\s*([^,\n]+)/);
@@ -75,7 +82,7 @@ describe("cohérence JSON-LD / balise de date par page statique", () => {
   });
 
   it.each(keys)("%s : mainEntityOfPage pointe vers l'URL canonique de la page", (key) => {
-    const src = read(PAGE_SOURCES[key]);
+    const src = readSchema(key);
     const expected = `https://iktracker.fr${key}`;
     const inline = src.includes(`mainEntityOfPage: "${expected}"`);
     const viaConst = /mainEntityOfPage:\s*PAGE_URL/.test(src) && src.includes(`"${expected}"`);
@@ -85,10 +92,10 @@ describe("cohérence JSON-LD / balise de date par page statique", () => {
 
 describe("articles de blog", () => {
   it("dérive les deux dates de la base et non de constantes", () => {
-    const src = read("src/pages/BlogPost.tsx");
-    expect(src).toMatch(/datePublished:\s*dateISO/);
-    expect(src).toMatch(/dateModified:\s*modifiedDateISO/);
-    expect(src).toContain("post.updated_at");
-    expect(src).toContain("<LastUpdated");
+    const schema = read("src/lib/blog-post-schemas.ts");
+    expect(schema).toMatch(/datePublished:\s*dateISO/);
+    expect(schema).toMatch(/dateModified:\s*modifiedDateISO/);
+    expect(schema).toContain("post.updated_at");
+    expect(read("src/pages/BlogPost.tsx")).toContain("<LastUpdated");
   });
 });

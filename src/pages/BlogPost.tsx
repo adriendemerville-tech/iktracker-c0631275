@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
+import { getRouteApi } from "@tanstack/react-router";
+
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import ReactMarkdown from "react-markdown";
@@ -17,7 +19,6 @@ import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketin
 import { ArticleSummary } from "@/components/blog/ArticleSummary";
 import { BlogContentWithRelated } from "@/components/blog/BlogContentWithRelated";
 import { ArticleCTABlock } from "@/components/blog/ArticleCTABlock";
-import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from "@/lib/blog-schema-extractors";
 
 interface BlogPost {
   id: string;
@@ -47,13 +48,20 @@ function extractFirstParagraph(content: string): string {
   return firstPara.slice(0, 160);
 }
 
+const blogRoute = getRouteApi("/blog/$slug");
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { isAdmin } = useAdminLazy();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seeded from the route loader so the article body is present in the SSR HTML
+  // (crawlers and LLM agents without JS must see the content).
+  const loaderData = blogRoute.useLoaderData() as { post?: BlogPost } | null;
+  const initialPost = (loaderData?.post as BlogPost | undefined) ?? null;
+  const [post, setPost] = useState<BlogPost | null>(initialPost);
+  const [loading, setLoading] = useState(!initialPost);
   const [notFound, setNotFound] = useState(false);
+
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -62,6 +70,15 @@ export default function BlogPost() {
         setLoading(false);
         return;
       }
+
+      // Already hydrated from the loader: no client refetch needed.
+      if (initialPost && initialPost.slug === slug) {
+        setPost(initialPost);
+        setLoading(false);
+        return;
+      }
+
+
 
       const { data, error } = await supabase
         .from("blog_posts")
@@ -79,7 +96,7 @@ export default function BlogPost() {
     };
 
     fetchPost();
-  }, [slug]);
+  }, [slug, initialPost]);
 
   // Memoized calculations
   const readingTime = useMemo(
@@ -144,70 +161,21 @@ export default function BlogPost() {
   }
 
   const publishDate = post.published_at || post.created_at;
-  const canonicalUrl = `https://iktracker.fr/blog/${post.slug}`;
   const dateISO = new Date(publishDate).toISOString();
   const modifiedDateISO = new Date(post.updated_at || publishDate).toISOString();
 
-  // JSON-LD structured data for Article (SEO + GEO optimization)
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: metaDescription,
-    image: post.featured_image_url || "https://iktracker.fr/logo-iktracker-250.webp",
-    author: buildAuthorPerson(post.author_name),
-    publisher: {
-      "@type": "Organization",
-      name: "IKtracker",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://iktracker.fr/logo-iktracker-250.webp",
-      },
-    },
-    datePublished: dateISO,
-    dateModified: modifiedDateISO,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": canonicalUrl,
-    },
-    wordCount: post.content.trim().split(/\s+/).length,
-    timeRequired: `PT${readingTime}M`,
-    inLanguage: "fr-FR",
-    speakable: {
-      "@type": "SpeakableSpecification",
-      cssSelector: ["article header h1", "article header + .article-summary"],
-    },
-  };
+  // JSON-LD (Article, Breadcrumb, FAQ, HowTo) is emitted server-side in the route head().
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://iktracker.fr/" },
-      { "@type": "ListItem", position: 2, name: "Blog", item: "https://iktracker.fr/blog" },
-      { "@type": "ListItem", position: 3, name: post.title, item: canonicalUrl },
-    ],
-  };
-
-  const faqSchema = buildFAQSchema(post.content);
-  const howToSchema = buildHowToSchema(post.content, post.title);
-
-  // Breadcrumb structured data is now handled by Breadcrumb component
 
   return (
     <>
       <Helmet>
-        {/* Title, description, canonical, OG and Twitter tags are served
-            server-side from the route head() in src/routes/blog/$slug.tsx */}
+        {/* Title, description, canonical, OG/Twitter tags and all JSON-LD graphs
+            are served server-side from the route head() in src/routes/blog/$slug.tsx */}
         {post.author_name ? <meta property="article:author" content={post.author_name} /> : null}
         <meta name="author" content={post.author_name || "IKtracker"} />
-
-        {/* Structured Data */}
-        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-        {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
-        {howToSchema && <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>}
       </Helmet>
+
 
       <div className="min-h-screen bg-background">
         <main id="main-content" tabIndex={-1} className="outline-hidden">

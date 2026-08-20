@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import LogicielDevisArtisan from "@/pages/LogicielDevisArtisan";
+import {
+  DEVIS_ARTISAN_ARTICLE_SCHEMA,
+  DEVIS_ARTISAN_FAQ_SCHEMA,
+} from "@/lib/logiciel-devis-artisan-schema";
+
 
 export const Route = createFileRoute("/logiciel-devis-artisan")({
   head: () => ({
@@ -41,6 +46,18 @@ export const Route = createFileRoute("/logiciel-devis-artisan")({
       { name: "language", content: "fr" },
     ],
     links: [{ rel: "canonical", href: "https://iktracker.fr/logiciel-devis-artisan" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(DEVIS_ARTISAN_ARTICLE_SCHEMA),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(DEVIS_ARTISAN_FAQ_SCHEMA),
+      },
+    ],
   }),
+
+
   component: LogicielDevisArtisan,
 });
