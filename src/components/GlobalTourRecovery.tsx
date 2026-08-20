@@ -299,7 +299,6 @@ export function GlobalTourRecovery() {
         return;
       }
 
-
       // A: ≥2 stops → full tour
       // B: 1 stop + GPS → trip with reverse-geocoded end
       // C: 1 stop + no GPS → trip "À compléter"

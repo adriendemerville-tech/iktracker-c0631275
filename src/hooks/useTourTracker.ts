@@ -236,7 +236,6 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
         .catch((e) => console.warn("[TourTracker] DB sync failed:", e));
     };
 
-
     // Periodic sync every 15 seconds
     const intervalId = setInterval(flush, 15000);
 

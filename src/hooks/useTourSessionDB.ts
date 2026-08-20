@@ -149,7 +149,6 @@ export function useTourSessionDB() {
     [],
   );
 
-
   /**
    * End the active session in DB
    */
@@ -221,5 +220,4 @@ export function useTourSessionDB() {
     fetchActiveSession,
     getCurrentSessionId,
   };
-
 }
