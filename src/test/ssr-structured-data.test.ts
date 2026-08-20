@@ -28,9 +28,7 @@ const serverUp = await isServerUp();
 /** Extrait tous les blocs JSON-LD du HTML serveur et aplatit les @graph. */
 function extractJsonLd(html: string): Record<string, unknown>[] {
   const blocks = [
-    ...html.matchAll(
-      /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
-    ),
+    ...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
   ];
   const nodes: Record<string, unknown>[] = [];
 
@@ -42,16 +40,38 @@ function extractJsonLd(html: string): Record<string, unknown>[] {
     if (!value || typeof value !== "object") return;
     const node = value as Record<string, unknown>;
     nodes.push(node);
-    if (node["@graph"]) push(node["@graph"]);
+    // Les entités imbriquées (mentions, mainEntity, itemListElement…) comptent
+    // aussi : elles font partie du graphe servi aux crawlers.
+    for (const nested of Object.values(node)) {
+      if (nested && typeof nested === "object") push(nested);
+    }
   };
 
   for (const [, raw] of blocks) {
     const json = raw.replace(/\\u003c/g, "<").trim();
-    expect(() => JSON.parse(json), `JSON-LD invalide sur la page : ${json.slice(0, 120)}`).not.toThrow();
+    expect(
+      () => JSON.parse(json),
+      `JSON-LD invalide sur la page : ${json.slice(0, 120)}`,
+    ).not.toThrow();
     push(JSON.parse(json));
   }
 
   return nodes;
+}
+
+/** Entités de premier niveau uniquement (un bloc = une entité ou un @graph). */
+function rootJsonLdNodes(html: string): Record<string, unknown>[] {
+  const blocks = [
+    ...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
+  ];
+  return blocks.flatMap(([, raw]) => {
+    const parsed = JSON.parse(raw.replace(/\\u003c/g, "<").trim()) as
+      Record<string, unknown> | Record<string, unknown>[];
+    const list = Array.isArray(parsed) ? parsed : [parsed];
+    return list.flatMap((n) =>
+      Array.isArray(n["@graph"]) ? (n["@graph"] as Record<string, unknown>[]) : [n],
+    );
+  });
 }
 
 const typesOf = (nodes: Record<string, unknown>[]) =>
@@ -91,7 +111,7 @@ const ROUTES: RouteExpectation[] = [
   },
   {
     path: "/mode-tournee",
-    schemas: ["Article", "BreadcrumbList"],
+    schemas: ["WebPage", "HowTo", "BreadcrumbList", "SoftwareApplication"],
     content: ["tournée"],
   },
   {
@@ -173,10 +193,9 @@ describe.skipIf(!serverUp)("données structurées et contenu dans le HTML serveu
     );
   });
 
-  it("aucun schéma JSON-LD n'est dupliqué sur une même page", () => {
+  it("aucun schéma JSON-LD racine n'est dupliqué sur une même page", () => {
     for (const { path } of ROUTES) {
-      const nodes = extractJsonLd(pages.get(path)!);
-      const keys = nodes
+      const keys = rootJsonLdNodes(pages.get(path)!)
         .filter((n) => typeof n["@type"] === "string" && typeof n["name"] === "string")
         .map((n) => `${n["@type"]}::${n["name"]}`);
       const duplicates = keys.filter((k, i) => keys.indexOf(k) !== i);

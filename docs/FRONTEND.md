@@ -80,7 +80,7 @@ src/
 ### Compat & invariants SSR
 
 - **`@/lib/router-compat`** : tous les anciens imports `react-router-dom` (Link, useNavigate, useParams, useSearchParams…) passent par ce shim — ne pas importer `react-router-dom` ni `@tanstack/react-router` directement dans les pages existantes.
-- **`@/lib/helmet-compat`** : tous les imports `Helmet`/`HelmetProvider` passent par ce shim (import namespace + résolution `.default`) — un import nommé direct de `react-helmet-async` casse le SSR, un import default casse le build client.
+- **`@/lib/helmet-compat`** : tous les imports `Helmet`/`HelmetProvider` passent par ce shim (import namespace + résolution `.default`) — un import nommé direct de `react-helmet-async` casse le SSR, un import default casse le build client. Le shim exporte désormais un **wrapper `Helmet`** qui sépare les enfants : les balises `meta`/`link`/`title` partent vers react-helmet-async, tandis que les `<script type="application/ld+json">` sont rendus **inline dans le corps du document**, donc présents dans le HTML SSR (Helmet ne mute le `<head>` qu'après hydratation, ce qui rendait les JSON-LD invisibles pour Googlebot et les agents LLM).
 - **Pas d'accès `window`/`localStorage`/`sessionStorage` au niveau module ou dans les initialiseurs `useState`** sans garde `typeof … !== 'undefined'` (le SSR évalue les modules côté serveur).
 - `src/routeTree.gen.ts` est généré — ne jamais l'éditer.
 
@@ -572,6 +572,7 @@ src/
 ## Métadonnées SEO en SSR (TanStack `head()`)
 
 - Depuis la migration TanStack Start, les balises `<title>`, `description`, `canonical`, Open Graph et Twitter sont déclarées **dans le `head()` de chaque route** (`src/routes/**`), donc rendues côté serveur et visibles par Googlebot, GPTBot et les autres crawlers sans exécution JS.
+- Garde-fou automatisé : `src/test/ssr-structured-data.test.ts` (environnement `node`) interroge le serveur de dev et vérifie, pour 11 routes critiques, la présence dans le HTML serveur des schémas attendus (Article, FAQPage, BreadcrumbList, HowTo, SoftwareApplication, WebPage), du contenu principal (`<h1>`, `<main>`, extraits clés), du `<title>`/`description` et d'une canonique auto-référente. Base configurable via `SSR_TEST_BASE_URL` ; la suite est ignorée si aucun serveur ne répond.
 - `<Helmet>` reste utilisé dans les pages **uniquement** pour les JSON-LD et quelques balises dérivées d'un contenu chargé côté client. Ne jamais y remettre un `<title>` ou une `description` : cela créerait un doublon avec le `head()` de la route.
 - `/blog/$slug` possède un `loader` qui récupère l'article (titre, meta_description, image, dates) et alimente `head()` : chaque article a désormais ses vraies métadonnées en SSR, avec un fallback `noindex` si l'article n'existe pas.
 - Règle pour toute nouvelle page : créer la route avec son `head()` (titre unique < 60 caractères, description < 160, canonical absolu sur `https://iktracker.fr`), `og:image` uniquement au niveau feuille, jamais sur `__root.tsx`.
@@ -623,6 +624,7 @@ src/
 
 - **2.3** (4 août 2026) — Consolidation du blog côté front : `src/lib/blog-redirects.ts` (22 slugs) branché sur `beforeLoad` de `/blog/$slug`, synchronisé avec l'Edge Function partagée et le Worker via `scripts/validate-blog-redirects-sync.cjs` ; alias `/admin` en 301 ; `public/robots.txt` remis à jour ; sitemap SSR ramené à 99 URLs après archivage de 19 articles.
 
+- **2.2** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées.
 - **2.1** (3 août 2026) — Métadonnées SEO migrées de `<Helmet>` vers le `head()` des routes TanStack (SSR) sur l'ensemble des pages publiques ; `head()` dynamique piloté par loader pour les articles de blog.
 
 - **1.5** (3 août 2026) — Gate de vérification email (3 trajets / 1 tournée, export bloqué), Smart Add texte + vocal, page `/app/archive`, recalcul IK opt-in sur les véhicules, nouvelles landings `/fonctionnalites`, `/artisans`, `/independants` et bloc de désambiguïsation IA.
