@@ -52,7 +52,7 @@ export const Route = createFileRoute("/blog/$slug")({
         ],
       };
     }
-    const { title, description, image, url, publishedAt, modifiedAt } = loaderData;
+    const { title, description, image, url, publishedAt, modifiedAt, indexable } = loaderData;
     return {
       meta: [
         { title: `${title} | Blog IKtracker` },
