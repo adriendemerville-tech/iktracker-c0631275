@@ -91,7 +91,16 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const posts = await fetchAllPublishedPosts();
+        let posts: Awaited<ReturnType<typeof fetchAllPublishedPosts>>;
+        try {
+          posts = await fetchAllPublishedPosts();
+        } catch (e) {
+          // Échec visible plutôt qu'un sitemap tronqué servi en 200
+          return new Response("Sitemap temporarily unavailable", {
+            status: 503,
+            headers: { "Content-Type": "text/plain", "Retry-After": "300" },
+          });
+        }
         const blogEntries: SitemapEntry[] = posts.map((p) => {
           const stamp = p.updated_at || p.published_at;
           return {
