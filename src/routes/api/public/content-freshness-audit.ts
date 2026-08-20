@@ -1,6 +1,6 @@
 // Content freshness audit — file de travail éditoriale (aucun article n'est modifié).
 //
-// Appelé chaque lundi 06:00 UTC par pg_cron (x-cron-secret), ou manuellement
+// Appelé chaque jour 06:00 UTC par pg_cron (x-cron-secret), ou manuellement
 // depuis l'admin avec un bearer admin.
 //
 // Signaux détectés par article publié + indexable :
@@ -9,14 +9,18 @@
 //   missing_meta          → meta description absente ou trop courte
 //   thin_content          → moins de 1200 caractères de texte
 //   no_internal_link      → aucun maillage interne
-//   broken_link           → lien sortant en 404/410 (8 vérifications max par article)
+//   broken_link           → lien sortant en 404/410
+//   broken_internal_link  → lien interne (page IKtracker) en 404/410
 
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 const SIX_MONTHS = 1000 * 60 * 60 * 24 * 182;
 const TWELVE_MONTHS = 1000 * 60 * 60 * 24 * 365;
-const MAX_LINK_CHECKS = 8;
+const MAX_EXTERNAL_CHECKS = 10;
+const MAX_INTERNAL_CHECKS = 15;
+const BASE_URL = "https://iktracker.fr";
+const INTERNAL_HOSTS = ["iktracker.fr", "www.iktracker.fr", "iktracker.lovable.app"];
 
 type Reason = { code: string; label: string; weight: number; detail?: string };
 
@@ -32,24 +36,53 @@ function stripHtml(html: string): string {
 function extractLinks(content: string): string[] {
   const urls = new Set<string>();
   for (const m of content.matchAll(/href=["']([^"']+)["']/gi)) urls.add(m[1]!);
-  for (const m of content.matchAll(/\]\((https?:\/\/[^)\s]+)\)/gi)) urls.add(m[1]!);
-  return [...urls];
+  for (const m of content.matchAll(/\]\((\/[^)\s]+|https?:\/\/[^)\s]+)\)/gi)) urls.add(m[1]!);
+  return [...urls].filter((u) => !/^(#|mailto:|tel:|javascript:|data:)/i.test(u));
 }
 
-async function linkStatus(url: string): Promise<number | null> {
+/** Retourne l'URL absolue si le lien pointe vers IKtracker, sinon null. */
+function toInternalUrl(link: string): string | null {
+  if (link.startsWith("//")) return null;
+  if (link.startsWith("/")) return `${BASE_URL}${link}`;
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 6000);
-    let res = await fetch(url, { method: "HEAD", redirect: "follow", signal: ctrl.signal });
-    if (res.status === 405 || res.status === 501) {
-      res = await fetch(url, { method: "GET", redirect: "follow", signal: ctrl.signal });
-    }
-    clearTimeout(timer);
-    return res.status;
+    const u = new URL(link);
+    if (INTERNAL_HOSTS.includes(u.hostname)) return `${BASE_URL}${u.pathname}${u.search}`;
   } catch {
     return null;
   }
+  return null;
 }
+
+async function linkStatus(url: string): Promise<number | null> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    let res = await fetch(url, { method: "HEAD", redirect: "follow", signal: ctrl.signal });
+    if (res.status === 405 || res.status === 501 || res.status === 403) {
+      res = await fetch(url, { method: "GET", redirect: "follow", signal: ctrl.signal });
+    }
+    return res.status;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Mémoïse les statuts sur la durée d'un audit : un même lien n'est testé qu'une fois. */
+function createLinkChecker() {
+  const cache = new Map<string, Promise<number | null>>();
+  return (url: string) => {
+    const hit = cache.get(url);
+    if (hit) return hit;
+    const p = linkStatus(url);
+    cache.set(url, p);
+    return p;
+  };
+}
+
+const isDead = (status: number | null) => status === 404 || status === 410;
+
 
 export const Route = createFileRoute("/api/public/content-freshness-audit")({
   server: {
@@ -95,6 +128,7 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
         const currentYear = new Date().getFullYear();
         const staleYears = [currentYear - 1, currentYear - 2, currentYear - 3];
         const rows: Record<string, unknown>[] = [];
+        const check = createLinkChecker();
 
         for (const post of posts ?? []) {
           const reasons: Reason[] = [];
@@ -138,26 +172,45 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
           }
 
           const links = extractLinks(content);
-          const internal = links.filter(
-            (l) =>
-              l.startsWith("/") ||
-              l.includes("iktracker.fr") ||
-              l.includes("iktracker.lovable.app"),
-          );
-          if (internal.length === 0) {
+          const internalMap = new Map<string, string>(); // url absolue -> lien d'origine
+          const external: string[] = [];
+          for (const link of links) {
+            const internalUrl = toInternalUrl(link);
+            if (internalUrl) {
+              if (!internalMap.has(internalUrl)) internalMap.set(internalUrl, link);
+            } else if (/^https?:\/\//i.test(link)) {
+              external.push(link);
+            }
+          }
+
+          if (internalMap.size === 0) {
             reasons.push({ code: "no_internal_link", label: "Aucun lien interne", weight: 15 });
           }
 
           if (checkLinks) {
-            const external = links.filter((l) => /^https?:\/\//i.test(l)).slice(0, MAX_LINK_CHECKS);
-            const statuses = await Promise.all(external.map((l) => linkStatus(l)));
-            const broken = external.filter((_, i) => statuses[i] === 404 || statuses[i] === 410);
-            if (broken.length > 0) {
+            const internalUrls = [...internalMap.keys()].slice(0, MAX_INTERNAL_CHECKS);
+            const internalStatuses = await Promise.all(internalUrls.map((u) => check(u)));
+            const brokenInternal = internalUrls
+              .filter((_, i) => isDead(internalStatuses[i] ?? null))
+              .map((u) => internalMap.get(u) ?? u);
+            if (brokenInternal.length > 0) {
+              reasons.push({
+                code: "broken_internal_link",
+                label: `${brokenInternal.length} lien(s) interne(s) cassé(s)`,
+                weight: 40,
+                detail: brokenInternal.join(" | "),
+              });
+            }
+
+            const externalUrls = [...new Set(external)].slice(0, MAX_EXTERNAL_CHECKS);
+            const externalStatuses = await Promise.all(externalUrls.map((u) => check(u)));
+            const brokenExternal = externalUrls.filter((_, i) => isDead(externalStatuses[i] ?? null));
+            if (brokenExternal.length > 0) {
               reasons.push({
                 code: "broken_link",
-                label: `${broken.length} lien(s) mort(s)`,
+                label: `${brokenExternal.length} lien(s) sortant(s) mort(s)`,
                 weight: 30,
-                detail: broken.join(" | "),
+                detail: brokenExternal.join(" | "),
               });
             }
           }
@@ -199,11 +252,16 @@ export const Route = createFileRoute("/api/public/content-freshness-audit")({
           if (upsertError) return Response.json({ error: upsertError.message }, { status: 500 });
         }
 
+        const countBy = (code: string) =>
+          rows.filter((r) => (r.reasons as Reason[]).some((x) => x.code === code)).length;
+
         return Response.json({
           ok: true,
           scanned: posts?.length ?? 0,
           flagged: rows.length,
           checked_links: checkLinks,
+          broken_internal_pages: countBy("broken_internal_link"),
+          broken_external_pages: countBy("broken_link"),
         });
       },
     },
