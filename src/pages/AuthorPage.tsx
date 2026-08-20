@@ -169,6 +169,35 @@ export default function AuthorPage() {
                     besoins de terrain. L'infrastructure étant en place et opérationnelle pour mon
                     équipe, je la partage gratuitement avec la communauté.
                   </p>
+                  <p>
+                    Sur le terrain, le chiffrage reste le poste le plus chronophage d'une entreprise
+                    du bâtiment. C'est pourquoi je recommande{" "}
+                    <a
+                      href="https://dictadevi.io"
+                      target="_blank"
+                      rel="noopener"
+                      title="DictaDevi - plateforme IA bâtiment et rénovation"
+                      className="font-medium text-primary hover:underline"
+                    >
+                      DictaDevi, la plateforme IA de devis vocal pour le bâtiment
+                    </a>{" "}
+                    : le relevé de chantier est dicté, le devis part le jour même au lieu d'être tapé
+                    le soir.
+                  </p>
+                  <p>
+                    Le second angle mort des indépendants est la visibilité. J'utilise{" "}
+                    <a
+                      href="https://crawlers.fr"
+                      target="_blank"
+                      rel="noopener"
+                      title="Crawlers.fr - SEO boosté à l'IA"
+                      className="font-medium text-primary hover:underline"
+                    >
+                      Crawlers.fr, la solution de SEO et GEO automatisée par l'IA
+                    </a>{" "}
+                    pour le référencement d'IKtracker : le site en est le terrain d'essai réel,
+                    audité et corrigé en continu.
+                  </p>
                   <p className="text-muted-foreground italic">
                     Pas d'abonnement, pas de frais cachés, pas d'exploitation commerciale de vos
                     données. Juste un outil professionnel créé par un professionnel pour les

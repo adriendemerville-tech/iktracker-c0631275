@@ -35,6 +35,7 @@ const staticPages: SitemapEntry[] = [
   { path: "/api-docs", priority: "0.5", changefreq: "monthly" },
   { path: "/fonctionnalites", priority: "0.9", changefreq: "monthly" },
   { path: "/artisans", priority: "0.8", changefreq: "monthly" },
+  { path: "/logiciel-devis-artisan", priority: "0.8", changefreq: "monthly" },
   { path: "/independants", priority: "0.8", changefreq: "monthly" },
   { path: "/blog", priority: "0.8", changefreq: "weekly" },
   { path: "/blog/auteur/adrien-de-volontat", priority: "0.6", changefreq: "monthly" },
