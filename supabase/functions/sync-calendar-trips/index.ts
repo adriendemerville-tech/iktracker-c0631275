@@ -1293,33 +1293,38 @@ serve(async (req) => {
     });
   }
 
+  // Parse request body to get monthsBack + optional targetUserId
+  let monthsBack = 0;
+  let trigger = "cron";
+  let targetUserId: string | null = null;
   try {
-    // Parse request body to get monthsBack + optional targetUserId
-    let monthsBack = 0;
-    let trigger = "cron";
-    let targetUserId: string | null = null;
-    try {
-      const body = await req.json();
-      monthsBack = body.monthsBack || 0;
-      trigger = body.trigger || "cron";
-      targetUserId = body.userId || null;
-    } catch {
-      // No body or invalid JSON - use default
-    }
+    const body = await req.json();
+    monthsBack = body.monthsBack || 0;
+    trigger = body.trigger || "cron";
+    targetUserId = body.userId || null;
+  } catch {
+    // No body or invalid JSON - use default
+  }
 
-    // If caller is a regular user (not service/cron), FORCE scope to their own user_id.
-    // This prevents any user from triggering a global sync of all calendars.
-    if (callerUserId) {
-      targetUserId = callerUserId;
-      trigger = trigger || "manual";
-    }
+  // If caller is a regular user (not service/cron), FORCE scope to their own user_id.
+  // This prevents any user from triggering a global sync of all calendars.
+  if (callerUserId) {
+    targetUserId = callerUserId;
+    trigger = trigger || "manual";
+  }
 
-    console.log("Starting calendar sync...");
-    console.log("Time:", new Date().toISOString());
-    console.log("Trigger:", trigger);
-    console.log("Months back:", monthsBack);
-    console.log("Caller:", isServiceCaller ? "service/cron" : `user:${callerUserId}`);
-    if (targetUserId) console.log("Target user:", targetUserId);
+  try {
+    // The sync itself (token refresh, Google/Outlook/ICS fetches, Distance Matrix
+    // calls, trip writes) is long and costly: for a user-triggered run it becomes
+    // a backend job, and the tab only polls `background_jobs`.
+    const runSync = async (job: JobHandle | null) => {
+      console.log("Starting calendar sync...");
+      console.log("Time:", new Date().toISOString());
+      console.log("Trigger:", trigger);
+      console.log("Months back:", monthsBack);
+      console.log("Caller:", isServiceCaller ? "service/cron" : `user:${callerUserId}`);
+      if (targetUserId) console.log("Target user:", targetUserId);
+      if (job) await job.setPhase("Lecture des agendas connectés", 10);
 
     // Get all active Google Calendar connections (or one user)
     let googleQuery = supabase
