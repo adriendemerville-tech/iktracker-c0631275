@@ -90,6 +90,14 @@ export const Route = createFileRoute("/feed.xml")({
           .order("published_at", { ascending: false, nullsFirst: false })
           .limit(MAX_ENTRIES);
 
+        if (error) {
+          console.error("[feed] blog_posts fetch failed:", error.message);
+          return new Response("Feed temporarily unavailable", {
+            status: 503,
+            headers: { "Content-Type": "text/plain", "Retry-After": "300" },
+          });
+        }
+
         const posts = ((data || []) as FeedPost[]).sort(
           (a, b) =>
             new Date(effectiveUpdated(b)).getTime() - new Date(effectiveUpdated(a)).getTime(),
