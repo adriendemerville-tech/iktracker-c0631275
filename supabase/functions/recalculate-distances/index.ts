@@ -462,20 +462,39 @@ serve(async (req) => {
       }
     }
 
-    const result = {
-      success: true,
-      totalTrips: tripsToUpdate?.length || 0,
-      updated,
-      skipped,
-      failed,
-      timestamp: new Date().toISOString(),
+      const result = {
+        success: true,
+        totalTrips: tripsToUpdate?.length || 0,
+        updated,
+        skipped,
+        failed,
+        timestamp: new Date().toISOString(),
+      };
+
+      console.log("Distance recalculation completed:", result);
+      if (job) await job.succeed(result);
+      return result;
     };
 
-    console.log("Distance recalculation completed:", result);
+    // Cron keeps the synchronous contract; a user-triggered batch becomes a
+    // backend job the tab merely observes.
+    if (isCron) {
+      const result = await runBatch(null);
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const job = await createJob(supabase, "recalculate-distances", authedUserId, {});
+    runDetached(async () => {
+      try {
+        await runBatch(job);
+      } catch (e) {
+        console.error("Batch recalculation failed:", e);
+        if (job) await job.fail(e);
+      }
     });
+    return jobAcceptedResponse(job, corsHeaders);
   } catch (error) {
     console.error("Error in recalculate-distances:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
