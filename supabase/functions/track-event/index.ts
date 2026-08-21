@@ -82,49 +82,54 @@ Deno.serve(async (req) => {
     const userAgent = req.headers.get("user-agent") ?? body.user_agent ?? "unknown";
     if (BOT_UA.test(userAgent)) return json({ ok: true, skipped: "bot" }, 200, cors);
 
-    // Resolve user (optional)
-    let userId: string | null = null;
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const { data } = await anon.auth.getUser();
-      userId = data.user?.id ?? null;
-
-      // Skip admin tracking
-      if (userId) {
-        const { data: isAdmin } = await anon.rpc("has_role", {
-          _user_id: userId,
-          _role: "admin",
-        });
-        if (isAdmin === true) return json({ ok: true, skipped: "admin" }, 200, cors);
-      }
-    }
-
     // Variante A/B (ex. "hero_h1_v1:B") — optionnelle et bornée
     const rawVariant = typeof body.variant === "string" ? body.variant.trim() : "";
     const variant = /^[a-z0-9_]{1,40}:[A-Z]$/.test(rawVariant) ? rawVariant : null;
 
     const ip = getClientIp(req);
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const authHeader = req.headers.get("Authorization");
+    const deviceType = body.device_type ?? null;
+    const sessionId = body.session_id ?? null;
+    const referrer = body.referrer ?? null;
 
-    const { error } = await admin.from("marketing_analytics").insert({
-      event_type: eventType,
-      page,
-      device_type: body.device_type ?? null,
-      session_id: body.session_id ?? null,
-      referrer: body.referrer ?? null,
-      user_agent: userAgent,
-      user_id: userId,
-      ip_address: ip,
-      variant,
+    // Deferred write: the response returns immediately, the insert (and the
+    // admin-filter resolution) runs in the isolate background. At 35k+ hits a
+    // month this removes one synchronous DB round-trip from the critical path
+    // of every public page. Losing a stray event if the isolate dies is
+    // acceptable for analytics.
+    defer(async () => {
+      // Resolve user (optional) + skip admin tracking
+      let userId: string | null = null;
+      if (authHeader?.startsWith("Bearer ")) {
+        const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          global: { headers: { Authorization: authHeader } },
+        });
+        const { data } = await anon.auth.getUser();
+        userId = data.user?.id ?? null;
+        if (userId) {
+          const { data: isAdmin } = await anon.rpc("has_role", {
+            _user_id: userId,
+            _role: "admin",
+          });
+          if (isAdmin === true) return; // admin events are dropped
+        }
+      }
+
+      const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { error } = await admin.from("marketing_analytics").insert({
+        event_type: eventType,
+        page,
+        device_type: deviceType,
+        session_id: sessionId,
+        referrer,
+        user_agent: userAgent,
+        user_id: userId,
+        ip_address: ip,
+        variant,
+      });
+      if (error) console.error("track-event insert error:", error);
     });
 
-    if (error) {
-      console.error("track-event insert error:", error);
-      return json({ error: "Insert failed" }, 500, cors);
-    }
     return json({ ok: true }, 200, cors);
   } catch (e) {
     console.error("track-event error:", e);
