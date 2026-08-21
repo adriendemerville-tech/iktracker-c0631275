@@ -1458,6 +1458,7 @@ Route serveur TanStack `POST /api/public/content-freshness-audit` (`src/routes/a
 **Périmètre** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, `deleted_at IS NULL`.
 
 **Signaux et pondérations**
+
 | Code | Détection | Poids |
 |---|---|---|
 | `stale_12m` | `updated_at` > 12 mois | 40 |
