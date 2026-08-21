@@ -1,4 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +34,23 @@ serve(async (req) => {
       });
     }
 
+    // Centralized AI budget guard (monthly cap in site_config.api_budget)
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    try {
+      await assertAIBudget(adminClient, "transcribe-audio");
+    } catch (e) {
+      if (e instanceof BudgetExceededError) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw e;
+    }
+
     const upstream = new FormData();
     upstream.append("model", "openai/gpt-4o-mini-transcribe");
     upstream.append("file", file, file.name || "recording.wav");
@@ -51,6 +75,16 @@ serve(async (req) => {
     }
 
     const data = await res.json();
+    // Whisper ≈ 0,006 €/min — estimation par taille (~1 Mo/min en opus/webm)
+    trackAICost(adminClient, {
+      functionName: "transcribe-audio",
+      model: "openai/gpt-4o-mini-transcribe",
+      costEuros: Math.max(
+        COST_ESTIMATES.whisper_minute,
+        (file.size / 1_000_000) * COST_ESTIMATES.whisper_minute,
+      ),
+      metadata: { bytes: file.size },
+    });
     return new Response(JSON.stringify({ text: data.text || "" }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

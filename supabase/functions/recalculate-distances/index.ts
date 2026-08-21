@@ -1,6 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createJob, jobAcceptedResponse, runDetached, type JobHandle } from "../_shared/jobs.ts";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
+
+// Lazy service-role client for cost tracking (reused across calls in a run)
+// deno-lint-ignore no-explicit-any
+let _adminClient: any = null;
+function adminClient() {
+  if (!_adminClient) _adminClient = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+  return _adminClient;
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -123,6 +137,14 @@ async function calculateDrivingDistance(
 
     const data = await response.json();
 
+    // Trace coût (1 requête = 1 élément facturé par Google)
+    trackAICost(adminClient(), {
+      functionName: "recalculate-distances",
+      model: "google-distance-matrix",
+      costEuros: COST_ESTIMATES.distance_matrix_element,
+      metadata: { origin, destination, status: data.status },
+    });
+
     if (data.status !== "OK") {
       console.error("Distance Matrix API status:", data.status, data.error_message);
       return null;
@@ -185,6 +207,20 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+
+    // Plafond budgétaire centralisé (site_config.api_budget) — bloque avant tout
+    // appel payant à la Distance Matrix API.
+    try {
+      await assertAIBudget(supabase, "recalculate-distances");
+    } catch (e) {
+      if (e instanceof BudgetExceededError) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw e;
+    }
 
     const body = await req.json().catch(() => ({}));
     const { tripId, newStartLocation, newEndLocation } = body;

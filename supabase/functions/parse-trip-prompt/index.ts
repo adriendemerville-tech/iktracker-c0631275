@@ -1,4 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -171,6 +178,23 @@ serve(async (req) => {
       });
     }
 
+    // Centralized AI budget guard (monthly cap in site_config.api_budget)
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    try {
+      await assertAIBudget(adminClient, "parse-trip-prompt");
+    } catch (e) {
+      if (e instanceof BudgetExceededError) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw e;
+    }
+
     const userMsg = `Domicile connu : ${homeAddress || "inconnu"}\n\nTexte du conducteur :\n"""${prompt}"""`;
 
     let rawText: string;
@@ -184,6 +208,13 @@ serve(async (req) => {
       rawText = await callGeminiFallback(userMsg);
       source = "gemini";
     }
+
+    trackAICost(adminClient, {
+      functionName: "parse-trip-prompt",
+      model: source === "mistral" ? WS_MISTRAL_MODEL : GEMINI_FALLBACK_MODEL,
+      costEuros: COST_ESTIMATES.wavespeed_llm_call,
+      metadata: { source },
+    });
 
     const parsed = coerceParsed(extractJson(rawText));
 

@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { defer } from "../_shared/deferred.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -59,7 +60,8 @@ async function logAudit(
   }
 }
 
-async function logAccess(
+function logAccess(
+  // deno-lint-ignore no-explicit-any
   supabase: any,
   method: string,
   path: string,
@@ -67,17 +69,22 @@ async function logAccess(
   statusCode: number,
   startTime: number,
 ) {
-  try {
-    await supabase.from("api_access_logs").insert({
-      method,
-      path,
-      api_key_name: apiKeyName,
-      status_code: statusCode,
-      response_time_ms: Date.now() - startTime,
-    });
-  } catch (e) {
-    console.error("Access log error:", e);
-  }
+  // Deferred: access logs are metrics, they must not add a synchronous DB
+  // round-trip to every API call (12k+/month). Fire-and-forget via waitUntil.
+  const responseTimeMs = Date.now() - startTime;
+  defer(async () => {
+    try {
+      await supabase.from("api_access_logs").insert({
+        method,
+        path,
+        api_key_name: apiKeyName,
+        status_code: statusCode,
+        response_time_ms: responseTimeMs,
+      });
+    } catch (e) {
+      console.error("Access log error:", e);
+    }
+  });
 }
 
 // ==================== RATE LIMITING ====================
@@ -1401,13 +1408,20 @@ Deno.serve(async (req) => {
             429,
           );
         }
-        // Increment usage atomically
-        await supabase.rpc("increment_blog_api_usage", { _api_key_name: apiKeyName });
+        // Increment usage atomically — deferred (metrics write, non-blocking).
+        // The quota check above already read the counter, so the response
+        // does not depend on this write landing first.
+        defer(async () => {
+          await supabase.rpc("increment_blog_api_usage", { _api_key_name: apiKeyName });
+        });
       } else {
-        await supabase
-          .from("blog_api_keys")
-          .update({ last_used_at: new Date().toISOString() })
-          .eq("id", keyData.id);
+        const keyId = keyData.id;
+        defer(async () => {
+          await supabase
+            .from("blog_api_keys")
+            .update({ last_used_at: new Date().toISOString() })
+            .eq("id", keyId);
+        });
       }
     }
 

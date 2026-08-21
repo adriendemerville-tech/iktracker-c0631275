@@ -20,6 +20,12 @@
 // Every run is logged in public.linkedin_post_log.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 import { DOC_SECTIONS } from "./docs-context.ts";
 
@@ -2593,6 +2599,19 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // Plafond budgétaire centralisé (site_config.api_budget) — bloque LLM + média
+  try {
+    await assertAIBudget(admin, "linkedin-weekly-post");
+  } catch (e) {
+    if (e instanceof BudgetExceededError) {
+      return new Response(JSON.stringify({ ok: false, error: e.message }), {
+        status: 402,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    throw e;
+  }
+
   // ─── Mode "supprimer + republier" ─────────────────────────────────────────
   // L'API LinkedIn ne permet pas d'éditer le texte d'un post via le gateway
   // (POST /rest/posts en PARTIAL_UPDATE renvoie 426 NONEXISTENT_VERSION).
@@ -3133,6 +3152,17 @@ Deno.serve(async (req) => {
       status: "success",
       duration_ms: Date.now() - startedAt,
       triggered_by: triggeredBy,
+    });
+
+    // Trace coût estimé du run : texte (LLM) + média (Browserless ou Wavespeed)
+    trackAICost(admin, {
+      functionName: "linkedin-weekly-post",
+      model: topic.mediaSource === "browserless" ? "browserless-screencast" : "wavespeed-media",
+      costEuros:
+        (topic.mediaSource === "browserless"
+          ? COST_ESTIMATES.browserless_screencast
+          : COST_ESTIMATES.wavespeed_prediction) + COST_ESTIMATES.wavespeed_llm_call,
+      metadata: { topic_slug: topic.slug, format, media_bytes: mediaBytes },
     });
 
     return new Response(

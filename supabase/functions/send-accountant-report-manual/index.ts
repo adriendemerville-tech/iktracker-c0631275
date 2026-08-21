@@ -7,6 +7,12 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 
 const FRONTEND_URL = "https://iktracker.fr";
 const RESEND_GATEWAY = "https://connector-gateway.lovable.dev/resend";
@@ -160,6 +166,23 @@ Deno.serve(async (req) => {
     }
     const userId = userRes.user.id;
 
+    // Plafond budgétaire centralisé — le rendu PDF Browserless est payant.
+    const adminClient = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    try {
+      await assertAIBudget(adminClient, "send-accountant-report-manual");
+    } catch (e) {
+      if (e instanceof BudgetExceededError) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw e;
+    }
+
     const payload = (await req.json()) as Payload;
     if (!payload?.shareId) {
       return new Response(JSON.stringify({ error: "shareId required" }), {
@@ -215,6 +238,13 @@ Deno.serve(async (req) => {
 
     // Render PDF
     const pdf = await renderPdf(wrapForPdf(`Relevé IK - ${periodLabel}`, share.html_content));
+    trackAICost(adminClient, {
+      functionName: "send-accountant-report-manual",
+      model: "browserless-pdf",
+      costEuros: COST_ESTIMATES.browserless_pdf,
+      userId,
+      metadata: { share_id: payload.shareId },
+    });
     const filename = `releve-ik-${periodLabel.toLowerCase().replace(/\s+/g, "-")}.pdf`;
 
     await sendResendEmail({
