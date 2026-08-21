@@ -12,6 +12,12 @@
 //   ?min_age_min=N   âge minimum du post (défaut 5)
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 import { DOC_SECTIONS } from "./docs-context.ts";
 
 const corsHeaders = {
@@ -444,6 +450,19 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // Plafond budgétaire centralisé (site_config.api_budget)
+  try {
+    await assertAIBudget(admin, "linkedin-post-audit");
+  } catch (e) {
+    if (e instanceof BudgetExceededError) {
+      return new Response(JSON.stringify({ ok: false, error: e.message }), {
+        status: 402,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    throw e;
+  }
+
   try {
     // 1) Sélection du post à auditer
     let query = admin
@@ -517,6 +536,12 @@ Deno.serve(async (req) => {
     ].join("\n");
 
     const { text: rawAudit, source: auditSource } = await callLLM(AUDIT_SYSTEM, userMsg);
+    trackAICost(admin, {
+      functionName: "linkedin-post-audit",
+      model: auditSource === "mistral" ? "wavespeed-mistral" : "gemini-flash-lite",
+      costEuros: COST_ESTIMATES.wavespeed_llm_call,
+      metadata: { post_id: postId, source: auditSource },
+    });
     const audit = parseJson(rawAudit);
 
     const hookScore = Math.max(0, Math.min(10, Number(audit.hook_score ?? 0)));

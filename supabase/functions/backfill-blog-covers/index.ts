@@ -4,6 +4,11 @@
 // POST /backfill-blog-covers  { "limit": 5, "dryRun": false }
 // Auth: service-role key (Authorization: Bearer <service_role>) or admin JWT.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -141,6 +146,14 @@ Deno.serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
+  // Centralized AI budget guard (monthly cap in site_config.api_budget)
+  try {
+    await assertAIBudget(admin, "backfill-blog-covers");
+  } catch (e) {
+    if (e instanceof BudgetExceededError) return json({ error: e.message }, 402);
+    throw e;
+  }
+
   const { data: posts, error } = await admin
     .from("blog_posts")
     .select("id, slug, title, featured_image_url")
@@ -167,6 +180,12 @@ Deno.serve(async (req) => {
     for (const post of batch) {
       try {
         const imageUrl = await generateImage(buildPrompt(post.title));
+        trackAICost(admin, {
+          functionName: "backfill-blog-covers",
+          model: MODEL,
+          costEuros: 0.04, // estimation génération image Wavespeed
+          metadata: { post_id: post.id, slug: post.slug },
+        });
         const img = await fetch(imageUrl);
         if (!img.ok) throw new Error(`download ${img.status}`);
         const bytes = new Uint8Array(await img.arrayBuffer());

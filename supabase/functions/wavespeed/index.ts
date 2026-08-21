@@ -12,6 +12,12 @@
 // Docs: https://wavespeed.ai/docs
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 
 const WAVESPEED_API_KEY = Deno.env.get("WAVESPEED_API_KEY");
 const WAVESPEED_BASE = "https://api.wavespeed.ai/api/v3";
@@ -81,6 +87,15 @@ Deno.serve(async (req) => {
   const auth = await requireAdmin(req);
   if (auth instanceof Response) return auth;
 
+  // Centralized AI budget guard (monthly cap in site_config.api_budget)
+  const adminClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  try {
+    await assertAIBudget(adminClient, "wavespeed");
+  } catch (e) {
+    if (e instanceof BudgetExceededError) return json({ error: e.message }, 402);
+    throw e;
+  }
+
   try {
     const url = new URL(req.url);
     // Strip the "/wavespeed" function prefix if present
@@ -120,6 +135,16 @@ Deno.serve(async (req) => {
     const r = await upstream(forwardPath, init);
     if (!r.ok) {
       return json({ error: "Wavespeed error", status: r.status, details: r.body }, r.status);
+    }
+    // Only POST submits create a billable prediction; result polls are free.
+    if (method === "POST") {
+      trackAICost(adminClient, {
+        functionName: "wavespeed",
+        model: path,
+        costEuros: COST_ESTIMATES.wavespeed_prediction,
+        userId: auth.userId,
+        metadata: { path },
+      });
     }
 
     // Convenience: if this was a submit + ?wait=1, poll for the result

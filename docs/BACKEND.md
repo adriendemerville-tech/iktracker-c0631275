@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.3 — 20 août 2026
+> Version 4.4 — 5 septembre 2026
+
+**Notes v4.4 (coûts API centralisés & télémétrie asynchrone, suite audit de scalabilité)**
+- **`_shared/cost-guard.ts`** : plafond budgétaire centralisé pour les API payantes. Configuration dans `site_config.api_budget` (`monthly_euros`, défaut 100 €). `assertAIBudget()` lit la consommation du mois dans `api_usage_logs` (cache 60 s en mémoire d'isolate) et lève `BudgetExceededError` → réponse HTTP **402** avant tout appel payant. `trackAICost()` journalise chaque consommation (estimations : Browserless PDF/screencast, prédiction Wavespeed, minute Whisper, appel LLM, élément Distance Matrix).
+- **10 edge functions instrumentées** : wavespeed (proxy + garde), transcribe-audio, parse-trip-prompt, backfill-blog-covers, linkedin-weekly-post, linkedin-post-audit, send-accountant-report-manual, trips-guard, recalculate-distances.
+- **`_shared/deferred.ts`** : écritures non critiques déportées via `EdgeRuntime.waitUntil` — suppression du round-trip DB synchrone dans le chemin critique de track-event (~35k inserts analytics/mois), blog-api (logs d'accès + incréments de quota, ~12k/mois) et vehicle-lookup (logs d'usage).
+- **Index `api_usage_logs(created_at)`** : le calcul du budget mensuel reste une lecture indexée.
+- **Sécurité** : protection contre les mots de passe compromis (HIBP) activée dans Auth ; `is_slug_blacklisted` restreinte au service_role (révoquée d'anon) ; `get_aggregate_rating` confirmée publique (preuve sociale) ; `vehicle_cache` confirmée en accès service-role uniquement (table verrouillée volontairement).
 
 **Notes v4.3 (performance, suite audit de scalabilité)**
 - **Index `trips(user_id, created_at DESC)`** : la recherche du « dernier véhicule utilisé » (`pick_default_vehicle_for_user`, ~3 700 appels/jour) passe de ~35 ms à < 1 ms.
@@ -1451,6 +1458,7 @@ Route serveur TanStack `POST /api/public/content-freshness-audit` (`src/routes/a
 **Périmètre** : `blog_posts` avec `status = 'published'`, `seo_indexable = true`, `deleted_at IS NULL`.
 
 **Signaux et pondérations**
+
 | Code | Détection | Poids |
 |---|---|---|
 | `stale_12m` | `updated_at` > 12 mois | 40 |

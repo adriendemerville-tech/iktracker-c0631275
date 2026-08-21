@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  assertAIBudget,
+  BudgetExceededError,
+  COST_ESTIMATES,
+  trackAICost,
+} from "../_shared/cost-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,6 +125,20 @@ serve(async (req) => {
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // Plafond budgétaire centralisé (site_config.api_budget) — bloque avant tout
+  // appel payant à la Distance Matrix API.
+  try {
+    await assertAIBudget(supabase, "trips-guard");
+  } catch (e) {
+    if (e instanceof BudgetExceededError) {
+      return new Response(JSON.stringify({ error: e.message }), {
+        status: 402,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    throw e;
+  }
 
   // --- Authentification : cron (service role / CRON_SECRET) ou admin connecté ---
   const cronSecret = Deno.env.get("CRON_SECRET");
@@ -418,6 +438,16 @@ serve(async (req) => {
       failed,
       triggered_by: triggeredBy,
       details: details.slice(0, 200),
+    });
+  }
+
+  // Trace coût Distance Matrix (une requête = 1 élément facturé)
+  if (geoCalls > 0) {
+    trackAICost(supabase, {
+      functionName: "trips-guard",
+      model: "google-distance-matrix",
+      costEuros: geoCalls * COST_ESTIMATES.distance_matrix_element,
+      metadata: { geo_calls: geoCalls, scanned: rows.length, fixed, triggered_by: triggeredBy },
     });
   }
 

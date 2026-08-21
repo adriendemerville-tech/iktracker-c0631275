@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { defer } from "../_shared/deferred.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,41 +10,49 @@ const corsHeaders = {
 const DRIVEPIECES_API = "https://api.drivepiecesauto.com";
 const EARLWEB_API = "https://moove-france.ewp.earlweb.net";
 
-async function logApiCall(
+function logApiCall(
+  // deno-lint-ignore no-explicit-any
   supabaseAdmin: any,
   userId: string | null,
   success: boolean,
   source: string,
   licensePlate: string,
 ) {
-  try {
-    await supabaseAdmin.from("api_usage_logs").insert({
-      function_name: "vehicle-lookup",
-      user_id: userId,
-      tokens_input: 0,
-      tokens_output: 0,
-      cost_euros: 0,
-      model: source,
-      metadata: { license_plate: licensePlate, success, source },
-    });
-  } catch (e) {
-    console.error("Failed to log API call:", e);
-  }
+  // Deferred: usage metrics must not block the lookup response.
+  defer(async () => {
+    try {
+      await supabaseAdmin.from("api_usage_logs").insert({
+        function_name: "vehicle-lookup",
+        user_id: userId,
+        tokens_input: 0,
+        tokens_output: 0,
+        cost_euros: 0,
+        model: source,
+        metadata: { license_plate: licensePlate, success, source },
+      });
+    } catch (e) {
+      console.error("Failed to log API call:", e);
+    }
+  });
 }
 
-async function logError(supabaseAdmin: any, userId: string | null, message: string, metadata: any) {
-  try {
-    await supabaseAdmin.from("error_logs").insert({
-      source: "Backend",
-      error_type: "api_failure",
-      message,
-      description: "L'API de recherche de véhicule par plaque d'immatriculation a échoué.",
-      user_id: userId,
-      metadata,
-    });
-  } catch (e) {
-    console.error("Failed to log error:", e);
-  }
+// deno-lint-ignore no-explicit-any
+function logError(supabaseAdmin: any, userId: string | null, message: string, metadata: any) {
+  // Deferred: error telemetry must not block the lookup response.
+  defer(async () => {
+    try {
+      await supabaseAdmin.from("error_logs").insert({
+        source: "Backend",
+        error_type: "api_failure",
+        message,
+        description: "L'API de recherche de véhicule par plaque d'immatriculation a échoué.",
+        user_id: userId,
+        metadata,
+      });
+    } catch (e) {
+      console.error("Failed to log error:", e);
+    }
+  });
 }
 
 function formatPlate(licensePlate: string): { clean: string; formatted: string } {
