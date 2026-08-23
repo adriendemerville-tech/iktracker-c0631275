@@ -92,9 +92,33 @@ const Terms = () => {
             </p>
           </div>
 
+          <section aria-labelledby="section-editor">
+            <h2 id="section-editor" className="text-lg font-semibold text-foreground">
+              1. Éditeur du service
+            </h2>
+            <p className="text-muted-foreground">
+              L'application IKtracker est éditée par la société <strong>Voluntas Novare</strong>,
+              représentée par Adrien de Volontat en qualité de directeur de la publication.
+            </p>
+            <ul className="list-none pl-0 text-muted-foreground space-y-1 mt-2">
+              <li>
+                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
+              </li>
+              <li>
+                <strong>Email :</strong>{" "}
+                <a href="mailto:contact@iktracker.fr" className="text-primary hover:underline">
+                  contact@iktracker.fr
+                </a>
+              </li>
+            </ul>
+            <p className="text-muted-foreground mt-3">
+              Iktracker.fr, son nom, son domaine et ses technologies sont la propriété exclusive de la société éditrice Voluntas Novare.
+            </p>
+          </section>
+
           <section aria-labelledby="section-object">
             <h2 id="section-object" className="text-lg font-semibold text-foreground">
-              1. Objet
+              2. Objet
             </h2>
             <p className="text-muted-foreground">
               Les présentes Conditions Générales de Vente et d'Utilisation (CGVU) ont pour objet de

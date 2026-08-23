@@ -99,20 +99,19 @@ const Rgpd = () => {
               </h2>
             </div>
             <p className="text-muted-foreground">
-              Le responsable du traitement des données collectées sur IKtracker est :
+              Le responsable du traitement des données collectées sur IKtracker est la société
+              éditrice Voluntas Novare, représentée par Adrien de Volontat en qualité de directeur
+              de la publication.
             </p>
             <ul className="list-none pl-0 text-muted-foreground space-y-1">
               <li>
-                <strong>Nom :</strong> Adrien de Volontat
+                <strong>Société éditrice :</strong> Voluntas Novare
               </li>
               <li>
-                <strong>Statut :</strong> Entrepreneur individuel
+                <strong>Directeur de la publication :</strong> Adrien de Volontat
               </li>
               <li>
-                <strong>Activité :</strong> Avenir Rénovations
-              </li>
-              <li>
-                <strong>Adresse :</strong> Saint-Rémy-de-Provence (13210), France
+                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
               </li>
               <li>
                 <strong>Email :</strong>{" "}
@@ -121,6 +120,9 @@ const Rgpd = () => {
                 </a>
               </li>
             </ul>
+            <p className="text-muted-foreground mt-2">
+              Iktracker.fr, son nom, son domaine et ses technologies sont la propriété exclusive de la société éditrice Voluntas Novare.
+            </p>
             <p className="text-muted-foreground text-sm">
               Conformément à l'article 37 du RGPD, un Délégué à la Protection des Données (DPO)
               n'est pas désigné, l'activité n'entrant pas dans le champ des obligations légales de

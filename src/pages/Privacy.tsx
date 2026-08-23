@@ -94,6 +94,32 @@ const Privacy = () => {
               confidentialité explique comment nous collectons, utilisons et protégeons vos
               informations personnelles.
             </p>
+            <p className="text-muted-foreground mt-3">
+              Iktracker.fr, son nom, son domaine et ses technologies sont la propriété exclusive de la société éditrice Voluntas Novare.
+            </p>
+          </section>
+
+          <section aria-labelledby="section-publisher">
+            <h2 id="section-publisher" className="text-lg font-semibold text-foreground">
+              2. Responsable de la publication et contact
+            </h2>
+            <ul className="list-none pl-0 text-muted-foreground space-y-1">
+              <li>
+                <strong>Société éditrice :</strong> Voluntas Novare
+              </li>
+              <li>
+                <strong>Directeur de la publication :</strong> Adrien de Volontat
+              </li>
+              <li>
+                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
+              </li>
+              <li>
+                <strong>Email :</strong>{" "}
+                <a href="mailto:contact@iktracker.fr" className="text-primary hover:underline">
+                  contact@iktracker.fr
+                </a>
+              </li>
+            </ul>
           </section>
 
           <section aria-labelledby="section-data">
