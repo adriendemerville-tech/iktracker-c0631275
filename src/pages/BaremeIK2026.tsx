@@ -3,7 +3,7 @@ import { lazy, Suspense, memo } from "react";
 import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
-import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
+import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -117,10 +117,12 @@ const BaremeIK2026 = () => {
               "Découvrez le barème kilométrique 2026 officiel. Tableau des taux IK, simulateur gratuit et conseils fiscaux.",
             author: {
               "@type": "Organization",
+              "@id": ORGANIZATION_ID,
               name: "IKtracker",
             },
             publisher: {
               "@type": "Organization",
+              "@id": ORGANIZATION_ID,
               name: "IKtracker",
               logo: {
                 "@type": "ImageObject",

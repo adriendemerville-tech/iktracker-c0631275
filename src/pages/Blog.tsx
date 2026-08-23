@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { getRouteApi } from "@tanstack/react-router";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -113,6 +114,7 @@ export default function Blog() {
             },
             publisher: {
               "@type": "Organization",
+              "@id": ORGANIZATION_ID,
               name: "IKtracker",
               logo: {
                 "@type": "ImageObject",

@@ -1,4 +1,5 @@
 import type { JSX } from "react";
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { ArrowLeft, BookOpen, Search, Share2, Download, FileText, Link2, Star } from "lucide-react";
@@ -629,6 +630,7 @@ export default function Lexique() {
     license: "https://creativecommons.org/licenses/by/4.0/",
     publisher: {
       "@type": "Organization",
+      "@id": ORGANIZATION_ID,
       name: "IKtracker",
       url: "https://iktracker.fr",
     },

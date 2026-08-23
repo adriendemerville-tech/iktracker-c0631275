@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowRight, BedDouble, UtensilsCrossed, Plane, ShieldCheck, Euro } from "lucide-react";
-import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
+import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 
@@ -102,7 +102,7 @@ export default function IndemniteGrandDeplacement2026() {
               name: "Adrien de Volontat",
               url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
             },
-            publisher: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
+            publisher: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker", url: "https://iktracker.fr" },
             datePublished: toIsoDateTime(PAGE_DATE.published),
             dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: PAGE_URL,

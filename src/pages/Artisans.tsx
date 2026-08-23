@@ -1,4 +1,5 @@
 import { LastUpdated } from "@/components/LastUpdated";
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -199,6 +200,7 @@ const Artisans = () => {
             },
             publisher: {
               "@type": "Organization",
+              "@id": ORGANIZATION_ID,
               name: "IKtracker",
               logo: { "@type": "ImageObject", url: "https://iktracker.fr/logo-iktracker-250.webp" },
             },
