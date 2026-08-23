@@ -60,7 +60,47 @@ function splitMarkdownContent(content: string) {
   };
 }
 
+/**
+ * SSR-safe HTML splitter. DOMParser does not exist in the server runtime, so
+ * without this fallback every HTML-format article crashed SSR and bots received
+ * an empty shell. Works on raw strings: strips head-only tags, then splits
+ * after the 2nd closing </p> (fallback: 1/3 of the way, on a tag boundary).
+ */
+function splitHtmlContentServer(content: string) {
+  // Drop tags that must never reach the visible body (injected by external CMS)
+  const cleaned = content
+    .replace(/<(script|style|title|meta|link)\b[\s\S]*?(?:<\/\1\s*>|\/?>)/gi, "");
+
+  const closingP = /<\/p\s*>/gi;
+  let match: RegExpExecArray | null;
+  let count = 0;
+  let splitIndex = -1;
+  while ((match = closingP.exec(cleaned)) !== null) {
+    count++;
+    if (count === 2) {
+      splitIndex = match.index + match[0].length;
+      break;
+    }
+  }
+
+  if (splitIndex === -1) {
+    // Fallback: ~1/3 of the content, moved to the next tag boundary
+    let idx = Math.max(1, Math.floor(cleaned.length / 3));
+    const nextTag = cleaned.indexOf("<", idx);
+    if (nextTag > 0) idx = nextTag;
+    splitIndex = idx;
+  }
+
+  return {
+    beforeParagraphs: cleaned.slice(0, splitIndex),
+    afterParagraphs: cleaned.slice(splitIndex),
+  };
+}
+
 function splitHtmlContent(content: string) {
+  if (typeof DOMParser === "undefined") {
+    return splitHtmlContentServer(content);
+  }
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<div>${content}</div>`, "text/html");
   const root = doc.body.firstElementChild;
