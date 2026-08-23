@@ -77,6 +77,7 @@ interface PageMeta {
   canonical: string;
   content?: string; // Rich HTML content for the body
   jsonLd?: object | object[];
+  noindex?: boolean; // true sur les 404 : empêche l'indexation de la page d'erreur
 }
 
 // Navigation links for internal crawl depth
@@ -1613,7 +1614,7 @@ function buildFullHtml(meta: PageMeta): string {
   <meta name="twitter:title" content="${escapeHtml(meta.title)}">
   <meta name="twitter:description" content="${escapeHtml(meta.description)}">
   <meta name="twitter:image" content="${ogImage}">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="${meta.noindex ? "noindex, nofollow" : "index, follow"}">
   ${jsonLdBlock}
 </head>
 <body>
@@ -1999,18 +2000,23 @@ serve(async (req) => {
       }
     }
 
-    // Fallback
-    const fallback: PageMeta = {
-      title: "IKtracker — Outil Gratuit de Calcul des Indemnités Kilométriques",
-      description: "Automatisez gratuitement vos indemnités kilométriques avec IKtracker.",
+    // Fallback : chemin inconnu → VRAI 404 + noindex, jamais de page générique
+    // servie en 200. Un soft 404 gaspille le budget de crawl des moteurs et fait
+    // croire aux LLMs que l'URL existe (risque de citation d'une page morte).
+    const notFoundPage: PageMeta = {
+      title: "Page introuvable | IKtracker",
+      description: "Cette page n'existe pas ou a été déplacée sur iktracker.fr.",
       canonical: `${BASE_URL}${path}`,
+      noindex: true,
+      content: `<section><h1>Page introuvable (404)</h1><p>Cette page n'existe pas ou a été déplacée. <a href="${BASE_URL}/">Retour à l'accueil IKtracker</a>.</p></section>`,
     };
 
-    return new Response(buildFullHtml(fallback), {
+    return new Response(buildFullHtml(notFoundPage), {
+      status: 404,
       headers: {
         ...corsHeaders,
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=3600, s-maxage=86400",
+        "Cache-Control": "public, max-age=300",
       },
     });
   } catch (error) {

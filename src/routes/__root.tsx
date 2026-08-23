@@ -17,6 +17,7 @@ import { AppChrome } from "@/components/AppChrome";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
+import { buildOrganizationSchema } from "@/lib/seo-schemas";
 
 // Lazy load UI components that aren't needed for initial render (ported from App.tsx)
 const Toaster = lazy(() => import("@/components/ui/toaster").then((m) => ({ default: m.Toaster })));
@@ -33,65 +34,9 @@ const themeBootstrapScript = `(function(){try{var stored=localStorage.getItem('t
 const logoutAndFontsScript = `(function(){try{var data=sessionStorage.getItem('iktracker_logout_transition');if(data){var parsed=JSON.parse(data);if(Date.now()-parsed.timestamp<10000){document.write('<div id="logout-shell-overlay" class="logout-overlay"><div class="logout-content"><img src="/logo-iktracker-250.webp" alt="IKtracker" width="64" height="64"><h2>'+parsed.message+'</h2></div></div>');}sessionStorage.removeItem('iktracker_logout_transition');}}catch(e){}})();(function(){function a(){var l=document.querySelectorAll('link[data-async-font]');for(var i=0;i<l.length;i++){l[i].media='all';}}a();document.addEventListener('DOMContentLoaded',a);window.addEventListener('load',a);})();if('fonts' in document){document.fonts.ready.then(function(){document.documentElement.classList.add('fonts-loaded');});}else{setTimeout(function(){document.documentElement.classList.add('fonts-loaded');},100);}`;
 
 // ported from index.html — sitewide Organization + WebSite + HowTo JSON-LD
-const organizationJsonLd = JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "@id": "https://iktracker.fr/#organization",
-  name: "IKtracker",
-  url: "https://iktracker.fr",
-  logo: {
-    "@type": "ImageObject",
-    url: "https://iktracker.fr/logo-iktracker-250.webp",
-    width: 250,
-    height: 250,
-  },
-  description:
-    "Outil communautaire 100% gratuit d'automatisation des indemnités kilométriques. Conçu par un entrepreneur indépendant, financé par l'agence Avenir Rénovations, sans investisseur ni monétisation des données.",
-  slogan: "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
-  foundingDate: "2025-03-01",
-  founder: {
-    "@type": "Person",
-    "@id": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
-    name: "Adrien de Volontat",
-    url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
-    jobTitle: "Fondateur d'IKtracker, dirigeant d'agence indépendante",
-    worksFor: { "@type": "Organization", name: "Avenir Rénovations" },
-    sameAs: ["https://www.linkedin.com/in/adrien-de-volontat"],
-  },
-  foundingLocation: {
-    "@type": "Place",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Saint-Rémy-de-Provence",
-      addressCountry: "FR",
-    },
-  },
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "FR",
-    addressLocality: "Saint-Rémy-de-Provence",
-  },
-  areaServed: { "@type": "Country", name: "France" },
-  knowsAbout: [
-    "Indemnités kilométriques",
-    "Barème fiscal URSSAF 2025-2026",
-    "Frais réels professionnels",
-    "Carnet de bord automobile opposable",
-    "Comptabilité indépendants",
-    "Déclaration BNC BIC",
-    "Fiscalité véhicules électriques",
-  ],
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "Support utilisateurs",
-    url: "https://iktracker.fr/contact",
-    availableLanguage: ["fr"],
-  },
-  sameAs: [
-    "https://www.linkedin.com/in/adrien-de-volontat",
-    "https://iktracker.fr/blog/auteur/adrien-de-volontat",
-  ],
-});
+// Nœud d'identité (legalName Voluntas Novare, postalAddress, contactPoint, sameAs)
+// centralisé dans src/lib/seo-schemas.ts — ne pas dupliquer ici.
+const organizationJsonLd = JSON.stringify(buildOrganizationSchema());
 
 const websiteJsonLd = JSON.stringify({
   "@context": "https://schema.org",

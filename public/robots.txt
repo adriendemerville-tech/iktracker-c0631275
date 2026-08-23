@@ -8,62 +8,80 @@
 # ou de flotte de véhicules, mais un outil gratuit d'automatisation 
 # des indemnités kilométriques pour les indépendants et les freelances.
 
+# NOTE SPÉCIFIQUE ROBOTS.TXT (RFC 9309) : un agent qui matche un bloc
+# User-agent nominatif IGNORE le bloc « User-agent: * ». Chaque bloc
+# explicite répète donc les Disallow des routes privées.
+
+# === CRAWLERS IA (GEO - Generative Engine Optimization) ===
+# Politique explicite : tous les crawlers IA majeurs sont AUTORISÉS
+# sur le contenu public. Un 429 ou un blocage WAF équivaut à un
+# Disallow pour ces agents — le rate-limiting ne doit pas les brider.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: Anthropic-AI
+User-agent: Google-Extended
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Applebot-Extended
+User-agent: Meta-ExternalAgent
+User-agent: Meta-ExternalFetcher
+User-agent: MistralAI-User
+User-agent: Cohere-AI
+User-agent: YouBot
+Allow: /
+Disallow: /app/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /auth
+Disallow: /unsubscribe
+Disallow: /temporaryreport/
+Disallow: /sso
+Disallow: /offline
+Disallow: /debug/
+Disallow: /.lovable/oauth/consent
+
 # === MOTEURS DE RECHERCHE CLASSIQUES ===
 User-agent: Googlebot
-Allow: /
-
 User-agent: Bingbot
-Allow: /
-
 User-agent: Yandex
-Allow: /
-
 User-agent: DuckDuckBot
+User-agent: Applebot
 Allow: /
+Disallow: /app/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /auth
+Disallow: /unsubscribe
+Disallow: /temporaryreport/
+Disallow: /sso
+Disallow: /offline
+Disallow: /debug/
+Disallow: /.lovable/oauth/consent
 
 # === RÉSEAUX SOCIAUX ===
 User-agent: Twitterbot
-Allow: /
-
 User-agent: facebookexternalhit
-Allow: /
-
 User-agent: LinkedInBot
-Allow: /
-
 User-agent: Pinterest
 Allow: /
-
-# === CRAWLERS IA (GEO - Generative Engine Optimization) ===
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: Anthropic-AI
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Cohere-AI
-Allow: /
-
-User-agent: YouBot
-Allow: /
+Disallow: /app/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /auth
+Disallow: /unsubscribe
+Disallow: /temporaryreport/
+Disallow: /sso
+Disallow: /offline
+Disallow: /debug/
+Disallow: /.lovable/oauth/consent
 
 # === RÈGLE PAR DÉFAUT ===
 User-agent: *
 Allow: /
-
-# === ROUTES NON INDEXABLES (app, auth, utilitaires, partages temporaires) ===
 Disallow: /app/
 Disallow: /admin
 Disallow: /admin/

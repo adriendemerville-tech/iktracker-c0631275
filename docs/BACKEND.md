@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.4 — 5 septembre 2026
+> Version 4.5 — 23 août 2026
 
 **Notes v4.4 (coûts API centralisés & télémétrie asynchrone, suite audit de scalabilité)**
 - **`_shared/cost-guard.ts`** : plafond budgétaire centralisé pour les API payantes. Configuration dans `site_config.api_budget` (`monthly_euros`, défaut 100 €). `assertAIBudget()` lit la consommation du mois dans `api_usage_logs` (cache 60 s en mémoire d'isolate) et lève `BudgetExceededError` → réponse HTTP **402** avant tout appel payant. `trackAICost()` journalise chaque consommation (estimations : Browserless PDF/screencast, prédiction Wavespeed, minute Whisper, appel LLM, élément Distance Matrix).
@@ -345,6 +345,7 @@ Content-Type: application/json
   - Sources de vérité alignées sur ce bloc : `public/llms.txt`, `public/knowledge.json` (section Désambiguïsation + `faq`), `src/lib/seo-schemas.ts` (`IKTRACKER_DISAMBIGUATION`, `disambiguatingDescription`, `installUrl`).
   - Pages publiques portant la version visible du même message : `/tarifs` et `/installer`.
 - **Liens de navigation pré-rendus** : la liste doit refléter les routes réelles de `src/App.tsx` (`/comparatif-driversnote` et non `/comparatif-drivers-note`, `/tarifs`, `/api-docs` inclus). Un lien mort dans le pré-rendu fabrique des 404 vues uniquement par les crawlers.
+- **Chemins inconnus → vrai 404** : tout chemin hors `STATIC_PAGES` et hors article publié renvoie désormais un **HTTP 404** avec `<meta name="robots" content="noindex, nofollow">` (champ `PageMeta.noindex`), au lieu de la page générique servie en 200. Le Worker `iktracker-bot-router` propage ce 404 tel quel aux crawlers (évite les soft 404 qui gaspillent le budget de crawl et font citer des pages mortes par les LLMs).
 - **Secrets** : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
 
@@ -1315,6 +1316,11 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **4.5** (23 août 2026) — GEO : qualité des réponses non-200 et politique robots explicite :
+  1. **Vrai 404 bots** — le fallback de `meta-renderer` servait une page générique en **HTTP 200** pour tout chemin inconnu (soft 404 massif pour Googlebot/GPTBot/PerplexityBot). Il renvoie désormais un **HTTP 404** + `noindex, nofollow` (`PageMeta.noindex`), propagé tel quel par le Worker `iktracker-bot-router`. Côté SSR applicatif, `/blog/$slug` lève `notFound()` (404) au lieu d'un 200 « article introuvable ». Fonction redéployée.
+  2. **robots.txt restructuré** — conformité RFC 9309 : un agent matchant un bloc nominatif ignore le bloc `User-agent: *`, donc GPTBot & co. échappaient aux `Disallow` des routes privées. Les Disallow sont désormais répétés dans chaque bloc. Bloc IA élargi : ClaudeBot, OAI-SearchBot, Claude-User, Claude-SearchBot, Perplexity-User, Applebot-Extended, Meta-ExternalAgent, Meta-ExternalFetcher, MistralAI-User.
+  3. **Nœud d'identité complet** — schéma `Organization` centralisé dans `src/lib/seo-schemas.ts` : `legalName: Voluntas Novare`, `email`, `postalAddress` (13210 Saint-Rémy-de-Provence), `contactPoint` avec email, `sameAs` (LinkedIn fondateur, page auteur, GitHub). Consommé par `src/routes/__root.tsx` (plus de JSON-LD inline dupliqué) et par le `publisher` de `SoftwareApplication`.
 
 - **4.2** (20 août 2026) — Optimisations critiques de scalabilité (audit perf) :
   1. **N+1 `sync-calendar-trips`** : cache mémoire par utilisateur (`UserSyncCache`) — les vérifications d'existence/similarité de trajets passent de ~3 requêtes SQL par événement calendrier (≈ 550 000 requêtes, 250 s de temps DB cumulé) à 3 requêtes paginées pré-chargées par utilisateur et par run. Les INSERT sont rejoués dans le cache pour préserver la sémantique de déduplication intra-run. Cf. section `sync-calendar-trips` > Performance.

@@ -86,6 +86,34 @@ export const TRUST_SIGNALS = {
   distribution: IKTRACKER_DISAMBIGUATION,
 };
 
+/**
+ * Nœud d'identité unique (GEO / E-E-A-T) — source de vérité pour TOUTES les pages.
+ * Un agent IA vérifie la cohérence legalName + postalAddress + contactPoint + sameAs
+ * entre le site, la fiche Google Business Profile et l'annuaire légal avant de
+ * recommander l'entreprise. Ne jamais diverger de ces valeurs.
+ */
+export const ORG_LEGAL_NAME = "Voluntas Novare";
+export const ORG_EMAIL = "contact@iktracker.fr";
+export const ORG_POSTAL_ADDRESS = {
+  "@type": "PostalAddress",
+  addressLocality: "Saint-Rémy-de-Provence",
+  postalCode: "13210",
+  addressRegion: "Provence-Alpes-Côte d'Azur",
+  addressCountry: "FR",
+};
+export const ORG_CONTACT_POINT = {
+  "@type": "ContactPoint",
+  contactType: "Support utilisateurs",
+  email: ORG_EMAIL,
+  url: `${SITE_URL}/contact`,
+  availableLanguage: ["fr", "en"],
+};
+export const ORG_SAME_AS = [
+  FOUNDER_URL,
+  "https://www.linkedin.com/in/adrien-de-volontat",
+  "https://github.com/adriendemerville-tech",
+];
+
 /** Comprehensive Organization + SoftwareApplication schema for landing pages */
 export function buildSoftwareApplicationSchema(opts?: {
   pageUrl?: string;
@@ -131,7 +159,9 @@ export function buildSoftwareApplicationSchema(opts?: {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
       name: "IKtracker",
+      legalName: ORG_LEGAL_NAME,
       url: SITE_URL,
+      email: ORG_EMAIL,
       logo: {
         "@type": "ImageObject",
         url: LOGO_URL,
@@ -142,21 +172,13 @@ export function buildSoftwareApplicationSchema(opts?: {
       foundingDate: "2025-03-01",
       foundingLocation: {
         "@type": "Place",
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: "Saint-Rémy-de-Provence",
-          addressCountry: "FR",
-        },
+        address: ORG_POSTAL_ADDRESS,
       },
       slogan: "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
       description: TRUST_SIGNALS.business_model,
-      contactPoint: {
-        "@type": "ContactPoint",
-        contactType: "Support utilisateurs",
-        url: `${SITE_URL}/contact`,
-        availableLanguage: ["fr", "en"],
-      },
-      sameAs: ["https://iktracker.fr", "https://www.linkedin.com/in/adrien-de-volontat"],
+      address: ORG_POSTAL_ADDRESS,
+      contactPoint: ORG_CONTACT_POINT,
+      sameAs: ORG_SAME_AS,
     },
     aggregateRating: undefined, // Intentionally omitted — never fabricate ratings
     audience: {
@@ -178,11 +200,27 @@ export function buildOrganizationSchema() {
     "@type": "Organization",
     "@id": `${SITE_URL}/#organization`,
     name: "IKtracker",
+    legalName: ORG_LEGAL_NAME,
     url: SITE_URL,
-    logo: LOGO_URL,
+    email: ORG_EMAIL,
+    logo: {
+      "@type": "ImageObject",
+      url: LOGO_URL,
+      width: 250,
+      height: 250,
+    },
     founder: FOUNDER_PERSON,
     foundingDate: "2025-03-01",
+    foundingLocation: {
+      "@type": "Place",
+      address: ORG_POSTAL_ADDRESS,
+    },
+    slogan: "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
     description: TRUST_SIGNALS.business_model,
+    address: ORG_POSTAL_ADDRESS,
+    contactPoint: ORG_CONTACT_POINT,
+    areaServed: { "@type": "Country", name: "France" },
+    sameAs: ORG_SAME_AS,
     knowsAbout: [
       "Indemnités kilométriques",
       "Barème fiscal URSSAF",
