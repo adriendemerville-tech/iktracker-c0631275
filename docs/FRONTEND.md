@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.9 — 23 août 2026 (SSR blog : articles HTML et index /blog servis dans le HTML initial)
+> Version 3.0 — 23 août 2026 (test de régression SSR à découverte automatique des pages)
+
+**Notes v3.0 (régression SSR — toute nouvelle page est testée automatiquement)**
+- Nouveau test `src/test/ssr-new-page-regression.test.ts` : **découverte automatique** des pages publiques en scannant `src/routes/*.tsx` — toute nouvelle page est soumise aux invariants sans enregistrement manuel : HTTP 200, `<h1>` dans le HTML initial, ≥ 300 caractères de texte visible (scripts/styles/balises retirés), ≥ 3 liens internes distincts, `<title>` propre. Les alias (`throw redirect` sans composant) sont détectés et vérifiés comme 301.
+- Les pages fonctionnelles sans vocation éditoriale (auth, signup, sso, offline, unsubscribe, marina) sont listées dans `EXCLUSIONS` **avec raison obligatoire** ; un garde-fou échoue si une exclusion devient orpheline ou si la découverte ne trouve plus les pages (`/`, `/blog`, ≥ 20 pages).
+- Couverture initiale : 27 pages de contenu + 10 alias 301, 94 assertions. Le test a immédiatement détecté un maillage interne insuffisant sur `/privacy` (1 lien distinct) et `/mentions-legales` (2) — corrigé par un bloc `<nav aria-label="Documents juridiques associés">` (liens croisés privacy/terms/rgpd/contact) en pied des deux pages.
+- Seuil texte fixé à 300 car. : une coquille vide rendue côté client fait < 200 car. ; `/contact` (page formulaire légitimement courte) sert ~350 car.
 
 **Notes v2.9 (SSR blog — contenu visible par les bots IA)**
 - **Correctif critique `BlogContentWithRelated.tsx`** : le découpage des articles au format HTML utilisait `DOMParser`, inexistant dans le runtime SSR — chaque article HTML (injectés par Crawlers) plantait le rendu serveur et renvoyait un shell vide (0 car. de texte, pas de H1) aux crawlers. Ajout de `splitHtmlContentServer()` : fallback 100% string (regex) qui nettoie `script/style/title/meta/link` et coupe après le 2e `</p>`. Le chemin `DOMParser` reste utilisé côté client.
