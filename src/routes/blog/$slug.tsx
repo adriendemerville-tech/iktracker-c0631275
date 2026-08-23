@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, notFound } from "@tanstack/react-router";
 import BlogPost from "@/pages/BlogPost";
 import { supabase } from "@/integrations/supabase/client";
 import { BLOG_SLUG_REDIRECTS } from "@/lib/blog-redirects";
@@ -18,7 +18,8 @@ export const Route = createFileRoute("/blog/$slug")({
       .eq("slug", params.slug)
       .eq("status", "published")
       .maybeSingle();
-    if (!data) return null;
+    // Vrai 404 (jamais de soft 404) : laisse les crawlers et LLMs purger l'URL.
+    if (!data) throw notFound();
 
     const description =
       data.meta_description ||

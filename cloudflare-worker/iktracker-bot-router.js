@@ -407,6 +407,24 @@ export default {
           ctx.waitUntil(sendLog(request, response, botDetected));
           return response;
         }
+
+        // Chemin inconnu → propager le VRAI 404 du meta-renderer (jamais de
+        // soft 404 pour les crawlers : un 200 sur une URL morte gaspille leur
+        // budget de crawl et fait citer des pages inexistantes par les LLMs).
+        if (metaRes.status === 404) {
+          const html = await metaRes.text();
+          const response = new Response(html, {
+            status: 404,
+            headers: {
+              "Content-Type": "text/html; charset=utf-8",
+              "Cache-Control": "public, max-age=300",
+              "X-Robots-Tag": "noindex",
+              "X-Rendered-By": "cloudflare-worker",
+            },
+          });
+          ctx.waitUntil(sendLog(request, response, botDetected));
+          return response;
+        }
       } catch (e) {
         // Fallback vers l'origine
       }
