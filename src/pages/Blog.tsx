@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getRouteApi } from "@tanstack/react-router";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
