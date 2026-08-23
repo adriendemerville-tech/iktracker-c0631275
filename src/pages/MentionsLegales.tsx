@@ -77,16 +77,13 @@ const MentionsLegales = () => {
             </p>
             <ul className="list-none pl-0 text-muted-foreground space-y-1">
               <li>
-                <strong>Nom :</strong> Adrien de Volontat
+                <strong>Société éditrice :</strong> Voluntas Novare
               </li>
               <li>
-                <strong>Statut :</strong> Entrepreneur individuel
+                <strong>Directeur de la publication :</strong> Adrien de Volontat
               </li>
               <li>
-                <strong>Activité principale :</strong> Avenir Rénovations — agence de rénovation
-              </li>
-              <li>
-                <strong>Adresse :</strong> Saint-Rémy-de-Provence (13210), France
+                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
               </li>
               <li>
                 <strong>Email :</strong>{" "}
@@ -95,6 +92,9 @@ const MentionsLegales = () => {
                 </a>
               </li>
             </ul>
+            <p className="text-muted-foreground mt-3">
+              Iktracker.fr, son nom, son domaine et ses technologies sont la propriété exclusive de la société éditrice Voluntas Novare.
+            </p>
           </section>
 
           <section aria-labelledby="ml-directeur">
@@ -102,7 +102,7 @@ const MentionsLegales = () => {
               2. Directeur de la publication
             </h2>
             <p className="text-muted-foreground">
-              Adrien de Volontat, en qualité d'éditeur du site.
+              Adrien de Volontat, en qualité de directeur de la publication pour le compte de Voluntas Novare.
             </p>
           </section>
 

@@ -92,9 +92,33 @@ const Terms = () => {
             </p>
           </div>
 
+          <section aria-labelledby="section-editor">
+            <h2 id="section-editor" className="text-lg font-semibold text-foreground">
+              2. Éditeur du service
+            </h2>
+            <p className="text-muted-foreground">
+              L'application IKtracker est éditée par la société <strong>Voluntas Novare</strong>,
+              représentée par Adrien de Volontat en qualité de directeur de la publication.
+            </p>
+            <ul className="list-none pl-0 text-muted-foreground space-y-1 mt-2">
+              <li>
+                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
+              </li>
+              <li>
+                <strong>Email :</strong>{" "}
+                <a href="mailto:contact@iktracker.fr" className="text-primary hover:underline">
+                  contact@iktracker.fr
+                </a>
+              </li>
+            </ul>
+            <p className="text-muted-foreground mt-3">
+              Iktracker.fr, son nom, son domaine et ses technologies sont la propriété exclusive de la société éditrice Voluntas Novare.
+            </p>
+          </section>
+
           <section aria-labelledby="section-object">
             <h2 id="section-object" className="text-lg font-semibold text-foreground">
-              1. Objet
+              3. Objet
             </h2>
             <p className="text-muted-foreground">
               Les présentes Conditions Générales de Vente et d'Utilisation (CGVU) ont pour objet de
@@ -106,7 +130,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-accept">
             <h2 id="section-accept" className="text-lg font-semibold text-foreground">
-              2. Acceptation des CGVU
+              3. Acceptation des CGVU
             </h2>
             <p className="text-muted-foreground">
               L'utilisation de l'application implique l'acceptation pleine et entière des présentes
@@ -116,7 +140,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-access">
             <h2 id="section-access" className="text-lg font-semibold text-foreground">
-              3. Accès au service
+              4. Accès au service
             </h2>
             <p className="text-muted-foreground">
               L'accès à IKtracker nécessite la création d'un compte utilisateur. L'utilisateur
@@ -127,7 +151,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-description">
             <h2 id="section-description" className="text-lg font-semibold text-foreground">
-              4. Description du service
+              5. Description du service
             </h2>
             <p className="text-muted-foreground">IKtracker permet de :</p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-1" role="list">
@@ -145,7 +169,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-obligations">
             <h2 id="section-obligations" className="text-lg font-semibold text-foreground">
-              5. Obligations de l'utilisateur
+              6. Obligations de l'utilisateur
             </h2>
             <p className="text-muted-foreground">L'utilisateur s'engage à :</p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-1" role="list">
@@ -161,7 +185,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-responsibility">
             <h2 id="section-responsibility" className="text-lg font-semibold text-foreground">
-              6. Responsabilité
+              7. Responsabilité
             </h2>
             <p className="text-muted-foreground">
               IKtracker fournit un outil d'aide au calcul des indemnités kilométriques.
@@ -173,7 +197,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-availability">
             <h2 id="section-availability" className="text-lg font-semibold text-foreground">
-              7. Disponibilité du service
+              8. Disponibilité du service
             </h2>
             <p className="text-muted-foreground">
               Nous nous efforçons d'assurer la disponibilité de l'application 24h/24 et 7j/7.
@@ -184,7 +208,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-ip">
             <h2 id="section-ip" className="text-lg font-semibold text-foreground">
-              8. Propriété intellectuelle
+              9. Propriété intellectuelle
             </h2>
             <p className="text-muted-foreground">
               L'ensemble des éléments constituant l'application (textes, graphiques, logiciels,
@@ -195,7 +219,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-data">
             <h2 id="section-data" className="text-lg font-semibold text-foreground">
-              9. Protection des données personnelles
+              10. Protection des données personnelles
             </h2>
             <p className="text-muted-foreground">
               Le traitement des données personnelles est détaillé dans notre{" "}
@@ -210,7 +234,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-termination">
             <h2 id="section-termination" className="text-lg font-semibold text-foreground">
-              10. Résiliation
+              11. Résiliation
             </h2>
             <p className="text-muted-foreground">
               L'utilisateur peut à tout moment supprimer son compte depuis les paramètres de
@@ -228,7 +252,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-pricing">
             <h2 id="section-pricing" className="text-lg font-semibold text-foreground">
-              11. Tarification
+              12. Tarification
             </h2>
             <p className="text-muted-foreground">
               IKtracker est proposé gratuitement dans sa version actuelle. L'ensemble des
@@ -244,7 +268,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-payment">
             <h2 id="section-payment" className="text-lg font-semibold text-foreground">
-              12. Modalités de paiement
+              13. Modalités de paiement
             </h2>
             <p className="text-muted-foreground">
               Aucun paiement n'est requis pour utiliser IKtracker. Si des services payants venaient
@@ -256,7 +280,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-retractation">
             <h2 id="section-retractation" className="text-lg font-semibold text-foreground">
-              13. Droit de rétractation
+              14. Droit de rétractation
             </h2>
             <p className="text-muted-foreground">
               Conformément aux articles L221-18 et suivants du Code de la consommation, le
@@ -272,7 +296,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-warranty">
             <h2 id="section-warranty" className="text-lg font-semibold text-foreground">
-              14. Garanties et limitations
+              15. Garanties et limitations
             </h2>
             <p className="text-muted-foreground">
               Le service est fourni « en l'état ». IKtracker s'engage à mettre en œuvre les moyens
@@ -289,7 +313,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-mediation">
             <h2 id="section-mediation" className="text-lg font-semibold text-foreground">
-              15. Médiation
+              16. Médiation
             </h2>
             <p className="text-muted-foreground">
               En cas de litige relatif aux présentes CGVU, l'utilisateur peut recourir gratuitement
@@ -312,7 +336,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-modifications">
             <h2 id="section-modifications" className="text-lg font-semibold text-foreground">
-              16. Modification des CGVU
+              17. Modification des CGVU
             </h2>
             <p className="text-muted-foreground">
               Nous nous réservons le droit de modifier les présentes CGVU à tout moment. Les
@@ -324,7 +348,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-law">
             <h2 id="section-law" className="text-lg font-semibold text-foreground">
-              17. Droit applicable
+              18. Droit applicable
             </h2>
             <p className="text-muted-foreground">
               Les présentes CGVU sont soumises au droit français. Tout litige relatif à leur
