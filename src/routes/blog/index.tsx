@@ -14,7 +14,14 @@ export const Route = createFileRoute("/blog/")({
       .eq("status", "published")
       .eq("is_listed", true)
       .order("published_at", { ascending: false });
-    return { posts: data ?? [] };
+    // Même tri que le composant : display_order si présent, sinon published_at
+    const posts = [...(data ?? [])].sort((a, b) => {
+      if (a.display_order != null && b.display_order != null) {
+        return a.display_order - b.display_order;
+      }
+      return 0;
+    });
+    return { posts };
   },
   head: () => ({
     meta: [
