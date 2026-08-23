@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 2.8 — 20 août 2026 (données de référence mutualisées, RSS/Atom, dates E-E-A-T, accessibilité images, landing DictaDevi)
+> Version 2.9 — 23 août 2026 (SSR blog : articles HTML et index /blog servis dans le HTML initial)
+
+**Notes v2.9 (SSR blog — contenu visible par les bots IA)**
+- **Correctif critique `BlogContentWithRelated.tsx`** : le découpage des articles au format HTML utilisait `DOMParser`, inexistant dans le runtime SSR — chaque article HTML (injectés par Crawlers) plantait le rendu serveur et renvoyait un shell vide (0 car. de texte, pas de H1) aux crawlers. Ajout de `splitHtmlContentServer()` : fallback 100% string (regex) qui nettoie `script/style/title/meta/link` et coupe après le 2e `</p>`. Le chemin `DOMParser` reste utilisé côté client.
+- **Index `/blog` désormais SSR** : la route `src/routes/blog/index.tsx` a un `loader` qui charge les articles publiés (`status=published`, `is_listed=true`, tri `display_order` harmonisé) ; `Blog.tsx` se hydrate depuis `useLoaderData` sans refetch client. Avant : 0 lien d'article dans le HTML initial ; après : liste complète + liens servant au crawl.
+- Mesures avant/après (UA GPTBot, local) : `/blog` 2 127 → 17 588 car. de texte ; article HTML-type 0 → 9 408 car. Les 34 tests `ssr-structured-data.test.ts` passent.
+- Règle durable : **aucune API navigateur (`DOMParser`, `document`, `window`) au rendu** dans les composants atteints par le SSR — uniquement dans des handlers ou derrière `useEffect`. Les usages restants (`TemporaryReport.tsx`, `pdf-utils.ts`) sont confinés à des actions d'impression.
 
 **Notes v2.8 (performance requêtes)**
 - Nouveau hook `src/hooks/useReferenceData.ts` : les **véhicules et lieux** sont désormais chargés via React Query mutualisé (`staleTime` 10 min, `gcTime` 30 min, clés `ref-vehicles`/`ref-locations` par utilisateur). Auparavant, `useTrips` — monté par 4 composants simultanés — refetchait ces deux tables hors cache à chaque montage (d'où ~62k lectures de `locations` et ~58k de `vehicles` constatées dans l'audit). Les lectures sont divisées par 5-10 sans changement visible.
