@@ -28,18 +28,27 @@ interface BlogPost {
   display_order?: number;
 }
 
+const blogIndexRoute = getRouteApi("/blog/");
+
 export default function Blog() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Seeded from the route loader so article links are present in the SSR HTML
+  // (crawlers and LLM agents without JS must see the list).
+  const loaderData = blogIndexRoute.useLoaderData() as { posts?: BlogPost[] } | null;
+  const initialPosts = loaderData?.posts ?? [];
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
+  const [loading, setLoading] = useState(initialPosts.length === 0);
   const { user, loading: authLoading } = useAuthLazy();
   const { isAdmin } = useAdminLazy();
 
   useEffect(() => {
+    // Already hydrated from the loader: no client refetch needed.
+    if (initialPosts.length > 0) return;
+
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("blog_posts")
         .select(
-          "id, slug, title, subtitle, meta_description, featured_image_url, author_name, published_at",
+          "id, slug, title, subtitle, meta_description, featured_image_url, author_name, published_at, display_order",
         )
         .eq("status", "published")
         .eq("is_listed", true)
@@ -59,7 +68,7 @@ export default function Blog() {
     };
 
     fetchPosts();
-  }, []);
+  }, [initialPosts.length]);
 
   const featuredPost = posts[0];
   const secondaryPosts = posts.slice(1, 3);
