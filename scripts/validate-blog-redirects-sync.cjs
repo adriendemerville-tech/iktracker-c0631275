@@ -28,7 +28,7 @@ function parseWorkerMap(filePath) {
   const start = src.indexOf("const LEGACY_REDIRECTS");
   const body = src.slice(start, src.indexOf("};", start));
   const map = {};
-  for (const m of body.matchAll(/'\/blog\/([^']+)':\s*'([^']+)'/g)) {
+  for (const m of body.matchAll(/["']\/blog\/([^"']+)["']:\s*["']([^"']+)["']/g)) {
     map[m[1]] = m[2];
   }
   return map;
