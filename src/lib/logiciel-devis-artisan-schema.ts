@@ -1,4 +1,5 @@
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 
 const PAGE_DATE = getPageDates("/logiciel-devis-artisan");
 
@@ -50,6 +51,7 @@ export const DEVIS_ARTISAN_ARTICLE_SCHEMA = {
   },
   publisher: {
     "@type": "Organization",
+    "@id": ORGANIZATION_ID,
     name: "IKtracker",
     logo: { "@type": "ImageObject", url: "https://iktracker.fr/logo-iktracker-250.webp" },
   },
