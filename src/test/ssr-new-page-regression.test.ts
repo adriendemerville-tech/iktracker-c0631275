@@ -78,7 +78,7 @@ function discoverPublicRoutes(): DiscoveredRoute[] {
 
     const source = readFileSync(path.join(ROUTES_DIR, entry), "utf8");
     const isRedirect = source.includes("throw redirect(") && !source.includes("component:");
-    routes.push({ path: `/${file}`, file, isRedirect });
+    routes.push({ path: file === "index" ? "/" : `/${file}`, file, isRedirect });
   }
 
   // Index du blog : page publique éditoriale de premier niveau.
