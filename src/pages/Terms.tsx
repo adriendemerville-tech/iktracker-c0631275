@@ -94,7 +94,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-editor">
             <h2 id="section-editor" className="text-lg font-semibold text-foreground">
-              2. Éditeur du service
+              1. Éditeur du service
             </h2>
             <p className="text-muted-foreground">
               L'application IKtracker est éditée par la société <strong>Voluntas Novare</strong>,
