@@ -29,8 +29,12 @@ import path from "node:path";
 const BASE_URL = process.env["SSR_TEST_BASE_URL"] ?? "http://localhost:8080";
 const ROUTES_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../routes");
 
-/** Seuils génériques — volontairement bas pour ne tester que la régression. */
-const MIN_TEXT_CHARS = 400;
+/**
+ * Seuils génériques — volontairement bas pour ne détecter que les vraies
+ * régressions (coquille vide rendue côté client ≈ < 200 caractères).
+ * /contact, page fonctionnelle légitimement courte, sert ~350 caractères.
+ */
+const MIN_TEXT_CHARS = 300;
 const MIN_INTERNAL_LINKS = 3;
 
 /**
