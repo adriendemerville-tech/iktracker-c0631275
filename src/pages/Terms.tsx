@@ -118,7 +118,7 @@ const Terms = () => {
 
           <section aria-labelledby="section-object">
             <h2 id="section-object" className="text-lg font-semibold text-foreground">
-              3. Objet
+              2. Objet
             </h2>
             <p className="text-muted-foreground">
               Les présentes Conditions Générales de Vente et d'Utilisation (CGVU) ont pour objet de
