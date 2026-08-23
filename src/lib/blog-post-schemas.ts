@@ -1,4 +1,5 @@
 import { buildAuthorPerson, buildFAQSchema, buildHowToSchema } from "@/lib/blog-schema-extractors";
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 
 export interface BlogSchemaInput {
   slug: string;
@@ -34,6 +35,7 @@ export function buildBlogPostSchemas(post: BlogSchemaInput): Record<string, unkn
       author: buildAuthorPerson(post.author_name ?? null),
       publisher: {
         "@type": "Organization",
+        "@id": ORGANIZATION_ID,
         name: "IKtracker",
         logo: {
           "@type": "ImageObject",

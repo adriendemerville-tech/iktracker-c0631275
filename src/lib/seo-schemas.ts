@@ -8,6 +8,14 @@ const SITE_URL = "https://iktracker.fr";
 const FOUNDER_URL = `${SITE_URL}/blog/auteur/adrien-de-volontat`;
 const LOGO_URL = `${SITE_URL}/logo-iktracker-250.webp`;
 
+/**
+ * @id canonique du nœud Organization. TOUT nœud Organization « IKtracker » —
+ * définition racine ou référence (publisher, author, worksFor, mainEntity) —
+ * doit porter exactement cet @id pour que moteurs et agents IA fusionnent les
+ * entités. Garanti par src/test/organization-identity.test.ts.
+ */
+export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+
 // Single source of truth for the founder Person schema
 export const FOUNDER_PERSON = {
   "@type": "Person",
@@ -157,7 +165,7 @@ export function buildSoftwareApplicationSchema(opts?: {
     author: FOUNDER_PERSON,
     publisher: {
       "@type": "Organization",
-      "@id": `${SITE_URL}/#organization`,
+      "@id": ORGANIZATION_ID,
       name: "IKtracker",
       legalName: ORG_LEGAL_NAME,
       url: SITE_URL,
@@ -198,7 +206,7 @@ export function buildOrganizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": `${SITE_URL}/#organization`,
+    "@id": ORGANIZATION_ID,
     name: "IKtracker",
     legalName: ORG_LEGAL_NAME,
     url: SITE_URL,

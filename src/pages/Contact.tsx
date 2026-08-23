@@ -1,4 +1,5 @@
 import { Helmet } from "@/lib/helmet-compat";
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { ArrowLeft, Mail, MessageSquare, Send } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { useState } from "react";
@@ -78,6 +79,7 @@ const Contact = () => {
             inLanguage: "fr-FR",
             mainEntity: {
               "@type": "Organization",
+              "@id": ORGANIZATION_ID,
               name: "IKtracker",
               url: "https://iktracker.fr",
               email: "contact@iktracker.fr",

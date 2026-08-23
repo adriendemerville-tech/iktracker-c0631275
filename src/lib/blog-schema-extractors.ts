@@ -1,3 +1,5 @@
+import { ORGANIZATION_ID } from "@/lib/seo-schemas";
+
 /**
  * Extracteurs de schémas JSON-LD depuis le contenu markdown/HTML d'un article.
  * Utilisés à la fois côté client (BlogPost.tsx) et SSR (meta-renderer edge function).
@@ -153,14 +155,14 @@ export function buildAuthorPerson(authorName: string | null | undefined) {
         "https://iktracker.fr/blog/auteur/adrien-de-volontat",
         "https://www.linkedin.com/in/adriendevolontat/",
       ],
-      worksFor: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
+      worksFor: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker", url: "https://iktracker.fr" },
     };
   }
 
   return {
     "@type": "Person",
     name: name,
-    worksFor: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
+    worksFor: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker", url: "https://iktracker.fr" },
   };
 }
 

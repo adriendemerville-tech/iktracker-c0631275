@@ -1,6 +1,6 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
-import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
+import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
@@ -56,7 +56,7 @@ export default function IndemniteKilometriqueVelo() {
               name: "Adrien de Volontat",
               url: "https://iktracker.fr/blog/auteur/adrien-de-volontat",
             },
-            publisher: { "@type": "Organization", name: "IKtracker", url: "https://iktracker.fr" },
+            publisher: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker", url: "https://iktracker.fr" },
             datePublished: toIsoDateTime(PAGE_DATE.published),
             dateModified: toIsoDateTime(PAGE_DATE.modified),
             mainEntityOfPage: "https://iktracker.fr/indemnite-kilometrique-velo",
