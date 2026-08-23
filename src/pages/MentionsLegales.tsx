@@ -252,6 +252,32 @@ const MentionsLegales = () => {
             </div>
           </section>
         </article>
+
+        <nav aria-label="Documents juridiques associés" className="mt-10 border-t pt-6">
+          <h2 className="text-sm font-semibold text-foreground">Documents associés</h2>
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <li>
+              <Link to="/privacy" className="text-primary hover:underline">
+                Politique de confidentialité
+              </Link>
+            </li>
+            <li>
+              <Link to="/terms" className="text-primary hover:underline">
+                Conditions générales d'utilisation
+              </Link>
+            </li>
+            <li>
+              <Link to="/rgpd" className="text-primary hover:underline">
+                Conformité RGPD
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="text-primary hover:underline">
+                Contact
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </main>
     </div>
   );
