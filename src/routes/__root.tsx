@@ -288,14 +288,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       // Theme detection before first paint (pairs with suppressHydrationWarning on <html>)
       { children: themeBootstrapScript },
-      // Taap.it analytics
-      {
-        src: "https://taap.it/scripts/tracker.js",
-        async: true,
-        "data-project": "pk_42374e58f4a64fdeadbb3bdffd7191cd",
-        "data-track-outbound": "true",
-        "data-track-forms": "true",
-      } as never,
+      // Taap.it analytics : chargé à la première interaction par AnalyticsTracker
+      // (hors chemin critique mobile).
       // Logout farewell overlay + fonts-loaded marker
       { children: logoutAndFontsScript },
       // Structured data
