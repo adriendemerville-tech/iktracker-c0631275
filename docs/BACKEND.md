@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.5 — 23 août 2026
+> Version 4.6 — 24 août 2026
+
+**Notes v4.6 (cache edge HTML & consolidation blog lot 4)**
+- **Cache edge du HTML public dans `iktracker-bot-router`** : les requêtes `GET` anonymes (aucun header `Cookie`/`Authorization`) sur les routes publiques non statiques sont servies depuis `caches.default` (TTL edge 5 min via `s-maxage=300`, `stale-while-revalidate=3600`). Clé normalisée sur l'origine Lovable, paramètres de tracking (`utm_*`, `fbclid`, `gclid`, `mc_*`) retirés pour maximiser le hit ratio. Jamais mises en cache : réponses non-200, non-HTML ou posant un `Set-Cookie`. Diagnostic : header `X-Cache: HIT|MISS`. Objectif : supprimer le TTFB SSR (~1,1 s mesuré en production) sur les hits cache — levier principal du LCP mobile. **Actif seulement après `wrangler deploy`.**
+- **Consolidation blog — lot 4 (protection du pilier barème)** : l'article `bareme-ik-2026-changements` (3 136 signes, cannibalisait `/bareme-ik-2026`, page en position ~13 avec 2 945 impressions/28 j) est passé en `status='archived'` et redirigé en 301 vers `/bareme-ik-2026` dans les 3 miroirs (`supabase/functions/_shared/blog-redirects.ts` = source de vérité, `src/lib/blog-redirects.ts`, Worker `LEGACY_REDIRECTS`). Validation CI : `scripts/validate-blog-redirects-sync.cjs` — 23 slugs synchronisés.
 
 **Notes v4.4 (coûts API centralisés & télémétrie asynchrone, suite audit de scalabilité)**
 - **`_shared/cost-guard.ts`** : plafond budgétaire centralisé pour les API payantes. Configuration dans `site_config.api_budget` (`monthly_euros`, défaut 100 €). `assertAIBudget()` lit la consommation du mois dans `api_usage_logs` (cache 60 s en mémoire d'isolate) et lève `BudgetExceededError` → réponse HTTP **402** avant tout appel payant. `trackAICost()` journalise chaque consommation (estimations : Browserless PDF/screencast, prédiction Wavespeed, minute Whisper, appel LLM, élément Distance Matrix).
@@ -52,7 +56,8 @@ Utilisateur → Cloudflare DNS (proxied)
     ├─ Slug legacy (LEGACY_REDIRECTS) → 301 vers slug moderne
     ├─ Asset statique → Origin + cache headers
     ├─ Route privée (/app/*) → Origin passthrough
-    └─ Utilisateur normal → Origin (SPA React)
+    ├─ Utilisateur identifié (Cookie/Authorization) → Origin passthrough
+    └─ Utilisateur anonyme (GET) → Cache edge HTML (caches.default, 5 min + SWR 1 h) → Origin si MISS
 ```
 
 ### Domaines & Redirections
@@ -61,7 +66,7 @@ Utilisateur → Cloudflare DNS (proxied)
 - `www.iktracker.fr` → 301 → `https://iktracker.fr` (Cloudflare Redirect Rule + fallback Worker).
 - `iktracker.com` / `www.iktracker.com` → 301 → `https://iktracker.fr` via Worker.
 - Exception : `/robots.txt` et `/llms.txt` sur .com sont servis par proxy depuis iktracker.fr.
-- **Redirections legacy 301** (map `LEGACY_REDIRECTS` dans le Worker) : `/install → /installer`, `/mestrajets → /mes-trajets`, `/experts-comptables → /expert-comptable`, `/nos-offres → /tarifs`, `/simulateur → /bareme-ik-2026`, `/guide-complet-indemnites-kilometriques-frais-reels → /blog/indemnites-kilometriques-2026-guide-complet`, `/fonctionnalites/suivi-kilometrique-automatique → /mode-tournee`, etc. Ajouter une entrée = éditer la map puis `wrangler deploy`.
+- **Redirections legacy 301** (map `LEGACY_REDIRECTS` dans le Worker) : `/install → /installer`, `/mestrajets → /mes-trajets`, `/experts-comptables → /expert-comptable`, `/nos-offres → /tarifs`, `/simulateur → /bareme-ik-2026`, `/guide-complet-indemnites-kilometriques-frais-reels → /blog/indemnites-kilometriques-2026-guide-complet`, `/fonctionnalites/suivi-kilometrique-automatique → /mode-tournee`, etc. plus **23 slugs de blog consolidés** (source de vérité `supabase/functions/_shared/blog-redirects.ts`, miroirs SSR + Worker vérifiés par `scripts/validate-blog-redirects-sync.cjs`). Ajouter une entrée = éditer la source + les 2 miroirs, valider, puis `wrangler deploy`.
 
 ---
 
@@ -577,10 +582,12 @@ CREATE POLICY "Users can manage own data" ON public.table_name
 4. Assets statiques → Passthrough + cache headers
 5. Routes privées (`/app/*`, `/auth`, `/sso`, etc.) → Passthrough
 6. Bot détecté → Edge Function `meta-renderer`
-7. Utilisateur normal → Origin SPA
+7. Utilisateur anonyme (`GET` sans `Cookie`/`Authorization`) → **cache edge du HTML public** (`caches.default`, `s-maxage=300` + `stale-while-revalidate=3600`, clé normalisée sans paramètres de tracking `utm_*`/`fbclid`/`gclid`/`mc_*`) → Origin si MISS ; jamais de cache pour les réponses non-200, non-HTML ou avec `Set-Cookie`
+8. Utilisateur identifié → Origin passthrough
 
 **Headers de diagnostic** :
 - `X-Rendered-By: cloudflare-worker`
+- `X-Cache: HIT | MISS` (cache edge HTML, étape 7)
 - `X-Sitemap-Source: edge-function | static-fallback | error`
 
 **Déploiement** : le Worker n'est **pas** déployé automatiquement depuis le repo. Utiliser Wrangler :

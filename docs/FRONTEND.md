@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.0 — 23 août 2026 (test de régression SSR à découverte automatique des pages)
+> Version 3.1 — 24 août 2026 (enrichissement SEO/GEO : tarifs, contact, page auteur)
+
+**Notes v3.1 (contenu visible SSR — pages pauvres enrichies)**
+- **`/tarifs`** : la FAQ est désormais **visible en HTML** (`<details>`, 7 questions) et alimentée depuis la même source `FAQ_ITEMS` que le JSON-LD `FAQPage` — fin de l'écart contenu/données structurées. Nouvelles sections « Tout est inclus, pour 0 € » (8 fonctionnalités) et « Combien coûtent les alternatives ? » avec maillage vers `/comparatif-izika`, `/comparatif-driversnote`, `/meilleure-application-indemnites-kilometriques`, `/fonctionnalites` et `/bareme-ik-2026`.
+- **`/contact`** : intro éditoriale (réponse en général sous 48 h ouvrées, lecture personnelle par le fondateur) + bloc d'auto-assistance avant le formulaire (liens barème 2026, tarifs, lexique, blog).
+- **`/blog/auteur/:slug`** : la route a un `loader` SSR qui charge les articles publiés de l'auteur (`author_name` ∈ {Adrien de Volontat, Adrien}, `status=published`, `is_listed=true`, 30 max) — liste réelle avec dates de publication dans le HTML initial (E-E-A-T). Ajout d'une section « Domaines d'expertise ». Le canonical est déclaré côté route.
+- Vérifié dans le HTML servi (curl SSR) : sections et liens d'articles présents sans JavaScript ; 282 tests automatisés OK, dont la régression SSR à découverte automatique (v3.0).
 
 **Notes v3.0 (régression SSR — toute nouvelle page est testée automatiquement)**
 - Nouveau test `src/test/ssr-new-page-regression.test.ts` : **découverte automatique** des pages publiques en scannant `src/routes/*.tsx` — toute nouvelle page est soumise aux invariants sans enregistrement manuel : HTTP 200, `<h1>` dans le HTML initial, ≥ 300 caractères de texte visible (scripts/styles/balises retirés), ≥ 3 liens internes distincts, `<title>` propre. Les alias (`throw redirect` sans composant) sont détectés et vérifiés comme 301.
@@ -136,12 +142,12 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/signup` | `Signup` | Inscription (smart redirect si auth) |
 | `/blog` | `Blog` | Liste des articles |
 | `/blog/:slug` | `BlogPost` | Article de blog |
-| `/blog/auteur/:slug` | `AuthorPage` | Page auteur |
+| `/blog/auteur/:slug` | `AuthorPage` | Page auteur (loader SSR : liste des articles publiés + expertise E-E-A-T) |
 | `/privacy` | `Privacy` | Politique de confidentialité |
 | `/terms` | `Terms` | CGVU (Conditions Générales de Vente et d'Utilisation) |
 | `/mentions-legales` | `MentionsLegales` | Mentions légales |
 | `/rgpd` | `Rgpd` | Conformité RGPD (droits, sécurité, hébergement) |
-| `/contact` | `Contact` | Page contact |
+| `/contact` | `Contact` | Page contact (auto-assistance : barème, tarifs, lexique + formulaire, délai 48 h) |
 | `/installer` | `Install` | Guide d'installation PWA (bloc « distribution web uniquement, aucun store ») |
 | `/fonctionnalites` | `Fonctionnalites` | Panorama complet des fonctionnalités (5 familles) + FAQ de désambiguïsation |
 | `/expert-comptable` | `ExpertComptable` | Landing expert-comptable (relevés mensuels, récap annuel, archive PDF) |
@@ -156,7 +162,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/indemnite-kilometrique-velo` | `IndemniteKilometriqueVelo` | Guide IK vélo |
 | `/indemnite-grand-deplacement-2026` | `IndemniteGrandDeplacement2026` | Guide grand déplacement |
 | `/mes-trajets` | `MesTrajetsLanding` | Landing SEO historique de trajets |
-| `/tarifs` | `Tarifs` | Tarifs (gratuit à vie) + FAQ anti-hallucination prix |
+| `/tarifs` | `Tarifs` | Tarifs (gratuit à vie) : FAQ visible partagée avec le JSON-LD, fonctionnalités incluses, comparatifs |
 | `/api-docs` | `ApiDocs` | Documentation API partenaire |
 | `/lexique` | `Lexique` | Lexique IK |
 | `/comparatif-izika` | `ComparatifIzika` | Comparatif vs Izika |
