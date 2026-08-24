@@ -191,14 +191,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
       {
         rel: "preload",
-        href: "https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0n9QB_VIKg.woff2",
+        // Fichier variable latin actuel (v12) — vérifié 200. Un preload périmé
+        // gaspille de la bande passante et retarde le LCP mobile.
+        href: "https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb.woff2",
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
       },
       {
         rel: "preload",
-        href: "https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriCZOIHQ.woff2",
+        href: "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K6z9mXg.woff2",
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
@@ -206,7 +208,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Fonts stylesheet
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap",
+        // wght 800 inclus pour Plus Jakarta Sans (H1 en font-extrabold) : même
+        // fichier variable, aucun téléchargement supplémentaire.
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap",
         // Chargée sans bloquer le premier rendu (LCP) : `media=print` est basculé
         // sur `all` par le script inline dès que la feuille est disponible.
         media: "print",
