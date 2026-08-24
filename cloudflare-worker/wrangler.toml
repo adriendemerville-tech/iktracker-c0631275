@@ -2,13 +2,11 @@ name = "iktracker-bot-router"
 main = "iktracker-bot-router.js"
 compatibility_date = "2025-01-01"
 
-# Routes multi-zones (apex + www + .com)
-# Ces routes doivent déjà exister côté Cloudflare pour les zones concernées.
+# Routes actives (apex + www .fr)
+# Les zones .com/.app restent en awaiting_dns ; on les réactivera quand elles seront proxifiées.
 routes = [
   { pattern = "iktracker.fr/*", zone_name = "iktracker.fr" },
   { pattern = "www.iktracker.fr/*", zone_name = "iktracker.fr" },
-  { pattern = "iktracker.com/*", zone_name = "iktracker.com" },
-  { pattern = "www.iktracker.com/*", zone_name = "iktracker.com" },
 ]
 
 # Observabilité (logs Cloudflare)
