@@ -2,7 +2,7 @@
 
 > Version 4.6 — 24 août 2026
 
-**Notes v4.6 (cache edge HTML & consolidation blog lot 4)**
+**Notes v4.6.1 (déploiement Worker & diagnostic Custom Domain, 23 août 2026)**
 - **Cache edge du HTML public dans `iktracker-bot-router`** : les requêtes `GET` anonymes (aucun header `Cookie`/`Authorization`) sur les routes publiques non statiques sont servies depuis `caches.default` (TTL edge 5 min via `s-maxage=300`, `stale-while-revalidate=3600`). Clé normalisée sur l'origine Lovable, paramètres de tracking (`utm_*`, `fbclid`, `gclid`, `mc_*`) retirés pour maximiser le hit ratio. Jamais mises en cache : réponses non-200, non-HTML ou posant un `Set-Cookie`. Diagnostic : header `X-Cache: HIT|MISS`. Objectif : supprimer le TTFB SSR (~1,1 s mesuré en production) sur les hits cache — levier principal du LCP mobile. **Actif seulement après `wrangler deploy`.**
 - **Consolidation blog — lot 4 (protection du pilier barème)** : l'article `bareme-ik-2026-changements` (3 136 signes, cannibalisait `/bareme-ik-2026`, page en position ~13 avec 2 945 impressions/28 j) est passé en `status='archived'` et redirigé en 301 vers `/bareme-ik-2026` dans les 3 miroirs (`supabase/functions/_shared/blog-redirects.ts` = source de vérité, `src/lib/blog-redirects.ts`, Worker `LEGACY_REDIRECTS`). Validation CI : `scripts/validate-blog-redirects-sync.cjs` — 23 slugs synchronisés.
 
