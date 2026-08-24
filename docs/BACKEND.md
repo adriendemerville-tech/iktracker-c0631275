@@ -1,9 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6 — 24 août 2026
+> Version 4.6.1 — 24 août 2026
 
-**Notes v4.6 (cache edge HTML & consolidation blog lot 4)**
-- **Cache edge du HTML public dans `iktracker-bot-router`** : les requêtes `GET` anonymes (aucun header `Cookie`/`Authorization`) sur les routes publiques non statiques sont servies depuis `caches.default` (TTL edge 5 min via `s-maxage=300`, `stale-while-revalidate=3600`). Clé normalisée sur l'origine Lovable, paramètres de tracking (`utm_*`, `fbclid`, `gclid`, `mc_*`) retirés pour maximiser le hit ratio. Jamais mises en cache : réponses non-200, non-HTML ou posant un `Set-Cookie`. Diagnostic : header `X-Cache: HIT|MISS`. Objectif : supprimer le TTFB SSR (~1,1 s mesuré en production) sur les hits cache — levier principal du LCP mobile. **Actif seulement après `wrangler deploy`.**
+**Notes v4.6.1 (déploiement Worker & diagnostic Custom Domain, 23 août 2026)**
+- **Déploiement `iktracker-bot-router` via `wrangler deploy`** : routes `iktracker.fr/*` et `www.iktracker.fr/*` poussées avec succès. Le Worker reste **inactif en production** à cause du conflit **Orange-to-Orange** (l'origine Lovable est elle-même derrière Cloudflare). Un test en Custom Domain sur `worker-cd-test.iktracker.fr` a prouvé que la bascule fonctionne, mais qu'elle exige le retrait préalable de `iktracker.fr` des domaines personnalisés Lovable (sinon `iktracker.lovable.app` renvoie `302 → iktracker.fr`). La procédure de bascule est documentée ci-dessous.
+- **Cache edge du HTML public dans `iktracker-bot-router`** : les requêtes `GET` anonymes (aucun header `Cookie`/`Authorization`) sur les routes publiques non statiques sont servies depuis `caches.default` (TTL edge 5 min via `s-maxage=300`, `stale-while-revalidate=3600`). Clé normalisée sur l'origine Lovable, paramètres de tracking (`utm_*`, `fbclid`, `gclid`, `mc_*`) retirés pour maximiser le hit ratio. Jamais mises en cache : réponses non-200, non-HTML ou posant un `Set-Cookie`. Diagnostic : header `X-Cache: HIT|MISS`. Objectif : supprimer le TTFB SSR (~1,1 s mesuré en production) sur les hits cache — levier principal du LCP mobile. **Actif seulement après bascule Custom Domain.**
 - **Consolidation blog — lot 4 (protection du pilier barème)** : l'article `bareme-ik-2026-changements` (3 136 signes, cannibalisait `/bareme-ik-2026`, page en position ~13 avec 2 945 impressions/28 j) est passé en `status='archived'` et redirigé en 301 vers `/bareme-ik-2026` dans les 3 miroirs (`supabase/functions/_shared/blog-redirects.ts` = source de vérité, `src/lib/blog-redirects.ts`, Worker `LEGACY_REDIRECTS`). Validation CI : `scripts/validate-blog-redirects-sync.cjs` — 23 slugs synchronisés.
 
 **Notes v4.4 (coûts API centralisés & télémétrie asynchrone, suite audit de scalabilité)**
@@ -599,20 +600,34 @@ wrangler deploy   # push cloudflare-worker/iktracker-bot-router.js sur les 4 rou
 
 Config : `cloudflare-worker/wrangler.toml` (routes multi-zones apex + www, .fr + .com). Voir `cloudflare-worker/README.md` pour l'authentification (`wrangler login`) et le rollback. Ne jamais éditer le Worker dans le dashboard **et** en local en parallèle — le prochain `wrangler deploy` écrase.
 
-#### Orange-to-Orange (O2O) — Worker court-circuité (diagnostic 3 août 2026)
+#### Orange-to-Orange (O2O) — Worker court-circuité (diagnostic 3 & 23 août 2026)
 
 L'origine de `iktracker.fr` (`185.158.133.1`, hébergement Lovable) est elle-même derrière Cloudflare. En configuration **Orange-to-Orange**, Cloudflare remet la requête à la zone du fournisseur SaaS et **ignore les Workers de la zone cliente** : `iktracker-bot-router` n'est jamais invoqué en production (0 invocation en analytics, aucun header `X-Rendered-By`), alors que l'appel direct sur `…workers.dev` pré-rend correctement. Les Redirect Rules de zone continuent, elles, de s'appliquer (d'où le www → apex encore fonctionnel).
 
-**Résolution retenue : Worker Custom Domain.** Le Worker devient l'origine publique de `iktracker.fr` et va chercher le contenu sur l'origine Lovable.
+**Déploiement du 23 août 2026** : `wrangler deploy` a bien poussé le Worker et les routes `iktracker.fr/*` + `www.iktracker.fr/*`. Un test en **Custom Domain** sur `worker-cd-test.iktracker.fr` a confirmé que le Worker est bien invoqué, mais qu'il récupère immédiatement une redirection `302 → https://iktracker.fr/` depuis `iktracker.lovable.app` tant que `iktracker.fr` reste déclaré comme domaine personnalisé côté Lovable. Le garde-fou anti-boucle du Worker fonctionne (pas de loop infinie), mais le contenu n'est pas servi.
+
+**Résolution retenue : Worker Custom Domain + retrait du domaine Lovable.** Le Worker devient l'origine publique de `iktracker.fr` et va chercher le contenu sur l'origine Lovable.
 
 - `ORIGIN_HOST = 'iktracker.lovable.app'` et helper `fetchOrigin(request)` : tout passthrough réécrit l'hôte vers l'origine (sinon `fetch(request)` boucle sur le Worker lui-même).
 - Garde-fou anti-boucle : si l'origine renvoie une 3xx vers `iktracker.fr`, le Worker répond `503` explicite au lieu de boucler.
 
 **Séquence de bascule (ordre impératif)** :
-1. Retirer `iktracker.fr` des domaines personnalisés côté hébergeur Lovable (sinon `iktracker.lovable.app` répond `302 → iktracker.fr`).
-2. Supprimer l'enregistrement `A iktracker.fr → 185.158.133.1` et la route Worker `iktracker.fr/*`.
-3. Attacher `iktracker.fr` en **Custom Domain** du Worker (CNAME interne créé automatiquement par Cloudflare, SSL universel).
-4. Vérifier `X-Rendered-By: cloudflare-worker` et le pré-rendu bots sur `/artisans`.
+1. **Retirer `iktracker.fr` des domaines personnalisés côté hébergeur Lovable** (sinon `iktracker.lovable.app` répond `302 → iktracker.fr`).
+   - Dans le projet Lovable : Settings → Domains → supprimer `iktracker.fr` (et `www.iktracker.fr`).
+2. **Nettoyer les DNS Cloudflare** :
+   - Supprimer l'enregistrement `A iktracker.fr → 185.158.133.1` (id `21d24bc5f46f03f9a0d974feb6d3151f`).
+   - Supprimer l'enregistrement `A www.iktracker.fr → 192.0.2.1` (id `9b4d5380fad5278b0c0b2f3968857bcf`).
+3. **Passer `wrangler.toml` en Custom Domain** (remplacer les routes `zone_name` par `custom_domain = true`) :
+   ```toml
+   routes = [
+     { pattern = "iktracker.fr", custom_domain = true },
+     { pattern = "www.iktracker.fr", custom_domain = true },
+   ]
+   ```
+4. `wrangler deploy` — Cloudflare crée automatiquement les enregistrements DNS et le SSL.
+5. Vérifier `X-Rendered-By: cloudflare-worker` et le pré-rendu bots sur `/artisans`.
+
+> **Attention** : tant que le domaine reste dans Lovable, le cache edge, le pré-rendu bots et les redirections legacy du Worker ne sont **pas** actifs sur `iktracker.fr`.
 
 
 
