@@ -1,8 +1,14 @@
 import { createContext, useContext, lazy, Suspense, type ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { LogoutOverlay } from "@/components/LogoutOverlay";
-import { GlobalTourRecovery } from "@/components/GlobalTourRecovery";
 
+// Chrome non critique pour le premier rendu : chargé en chunks asynchrones pour
+// alléger le bundle initial (LCP mobile).
+const LogoutOverlay = lazy(() =>
+  import("@/components/LogoutOverlay").then((m) => ({ default: m.LogoutOverlay })),
+);
+const GlobalTourRecovery = lazy(() =>
+  import("@/components/GlobalTourRecovery").then((m) => ({ default: m.GlobalTourRecovery })),
+);
 const SurveyWidget = lazy(() =>
   import("@/components/SurveyWidget").then((m) => ({ default: m.SurveyWidget })),
 );
@@ -48,14 +54,18 @@ export const AppChrome = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ handleLogout }}>
-      <LogoutOverlay
-        isVisible={isLoggingOut}
-        userName={getUserFirstName()}
-        onComplete={handleLogoutComplete}
-      />
-      {user && <GlobalTourRecovery />}
+      {isLoggingOut && (
+        <Suspense fallback={null}>
+          <LogoutOverlay
+            isVisible={isLoggingOut}
+            userName={getUserFirstName()}
+            onComplete={handleLogoutComplete}
+          />
+        </Suspense>
+      )}
       {user && (
         <Suspense fallback={null}>
+          <GlobalTourRecovery />
           <SurveyWidget />
         </Suspense>
       )}

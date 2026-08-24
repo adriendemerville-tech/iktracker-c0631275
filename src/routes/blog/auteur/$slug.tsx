@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import AuthorPage from "@/pages/AuthorPage";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 
 export type AuthorArticle = {
   slug: string;
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/blog/auteur/$slug")({
   // initial (E-E-A-T : les crawlers et LLMs doivent voir la production réelle).
   loader: async ({ params }) => {
     if (params.slug !== "adrien-de-volontat") return { articles: [] as AuthorArticle[] };
+    const supabase = await getSupabase();
     const { data } = await supabase
       .from("blog_posts")
       .select("slug, title, published_at")

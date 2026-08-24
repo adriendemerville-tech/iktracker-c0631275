@@ -1,14 +1,15 @@
 import { memo, useCallback } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 import { isBrowser, isBot } from "@/lib/ssr-utils";
 import crawlersLogo from "@/assets/crawlers-logo.webp";
 
 function CrawlersBannerComponent() {
   const trackClick = useCallback(() => {
     if (!isBrowser() || isBot()) return;
-    supabase
+    void getSupabase().then((supabase) =>
+      supabase
       .from("marketing_analytics")
       .insert({
         event_type: "crawlers_click",
@@ -19,7 +20,8 @@ function CrawlersBannerComponent() {
         referrer: document?.referrer || null,
         user_agent: navigator?.userAgent || "unknown",
       })
-      .then(() => {});
+      .then(() => {}),
+    );
   }, []);
 
   return (

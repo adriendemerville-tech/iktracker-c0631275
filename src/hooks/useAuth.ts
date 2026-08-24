@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
+import { getSupabase } from "@/integrations/supabase/lazy";
 
 const SESSION_COUNT_KEY = "ik_session_count";
 
@@ -19,6 +19,7 @@ export const useAuth = () => {
 
     setIsRefreshing(true);
     try {
+      const supabase = await getSupabase();
       const { data, error } = await supabase.auth.refreshSession();
 
       if (error) {
@@ -36,7 +37,7 @@ export const useAuth = () => {
       }
 
       return null;
-    } catch (err) {
+    } catch {
       // Silent fail for expected errors
       return null;
     } finally {
@@ -59,27 +60,39 @@ export const useAuth = () => {
       setSessionCount(currentCount);
     }
 
-    // Set up auth state listener FIRST
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
 
-      // Force requiresAuth when user signs out
-      if (event === "SIGNED_OUT") {
-        setRequiresAuth(true);
+    const init = async () => {
+      // Le client Supabase est chargé en chunk asynchrone (hors bundle initial).
+      const supabase = await getSupabase();
+      if (cancelled) return;
+
+      // Set up auth state listener FIRST
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, nextSession) => {
+        setSession(nextSession);
+        setUser(nextSession?.user ?? null);
+        setLoading(false);
+
+        // Force requiresAuth when user signs out
+        if (event === "SIGNED_OUT") {
+          setRequiresAuth(true);
+        }
+
+        // Handle token refresh events
+        if (event === "TOKEN_REFRESHED") {
+          console.log("[Auth] Token refreshed via auth state change");
+        }
+      });
+      unsubscribe = () => subscription.unsubscribe();
+      if (cancelled) {
+        unsubscribe();
+        return;
       }
 
-      // Handle token refresh events
-      if (event === "TOKEN_REFRESHED") {
-        console.log("[Auth] Token refreshed via auth state change");
-      }
-    });
-
-    // THEN check for existing session
-    const initializeSession = async () => {
+      // THEN check for existing session
       try {
         const {
           data: { session: existingSession },
@@ -122,9 +135,12 @@ export const useAuth = () => {
       }
     };
 
-    initializeSession();
+    void init();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -148,6 +164,7 @@ export const useAuth = () => {
 
     // Best-effort server sign-out (token revoke). Don't block UI indefinitely.
     try {
+      const supabase = await getSupabase();
       const { error } = await Promise.race([
         supabase.auth.signOut({ scope: "local" }), // Use 'local' scope to avoid server errors
         new Promise<{ error: Error }>((_, reject) =>

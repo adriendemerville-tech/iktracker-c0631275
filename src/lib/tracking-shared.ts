@@ -1,7 +1,7 @@
 // Shared helpers between useMarketingTracker and signup-tracking.
 // Keep this module tiny and side-effect free — imported from hot paths.
 
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 import { isBrowser, safeSessionStorage, safeRandomUUID, getWindowWidth } from "@/lib/ssr-utils";
 
 /** Stable per-session UUID persisted in sessionStorage. */
@@ -38,6 +38,7 @@ export async function checkIsAdmin(): Promise<boolean> {
   if (cached !== null) return cached === "true";
 
   try {
+    const supabase = await getSupabase();
     const {
       data: { session },
     } = await supabase.auth.getSession();

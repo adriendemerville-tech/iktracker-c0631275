@@ -3,7 +3,7 @@ import BodyEndInjections from "@/components/BodyEndInjections";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Link, useNavigate } from "@/lib/router-compat";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 import { usePageContent } from "@/hooks/usePageContent";
 import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
@@ -197,21 +197,33 @@ const Landing = () => {
   const heroSubtitle = hero?.subtitle ?? c.hero_subtitle;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+    let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
+
+    void getSupabase().then((supabase) => {
+      if (cancelled) return;
+
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, session) => {
+        setUser(session?.user ?? null);
+        if (event === "SIGNED_IN" && session) {
+          navigate("/app");
+        }
+      });
+      unsubscribe = () => subscription.unsubscribe();
+      if (cancelled) unsubscribe();
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      if (event === "SIGNED_IN" && session) {
-        navigate("/app");
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [navigate]);
 
   // Remove logout transition overlay once React has fully mounted

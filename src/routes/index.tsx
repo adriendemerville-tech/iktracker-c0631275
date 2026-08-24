@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SmartLanding } from "@/components/auth/SmartRoutes";
+import { SmartLanding } from "@/components/auth/SmartLanding";
 import { HOME_JSON_LD_SCRIPTS } from "@/lib/home-schemas";
 
 const TITLE = "Indemnités kilométriques 2026 : l'application gratuite";

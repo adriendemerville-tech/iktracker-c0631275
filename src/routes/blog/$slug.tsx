@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, notFound } from "@tanstack/react-router";
 import BlogPost from "@/pages/BlogPost";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 import { BLOG_SLUG_REDIRECTS } from "@/lib/blog-redirects";
 import { buildBlogPostSchemas } from "@/lib/blog-post-schemas";
 
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/blog/$slug")({
     }
   },
   loader: async ({ params }) => {
+    const supabase = await getSupabase();
     const { data } = await supabase
       .from("blog_posts")
       .select("*")
