@@ -42,7 +42,7 @@
   --font-mono: "Space Mono", monospace;
   --font-urbanist: "Urbanist", system-ui, sans-serif;
   --font-serif: "Playfair Display", Georgia, serif;
-  --font-blog: "DM Sans", system-ui, sans-serif;
+  --font-blog: "DM Sans", "DM Sans Fallback", system-ui, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
