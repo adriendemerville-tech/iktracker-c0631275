@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SmartSignup } from "@/components/auth/SmartRoutes";
+import { SmartSignup } from "@/components/auth/SmartSignup";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({

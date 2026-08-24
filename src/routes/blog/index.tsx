@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Blog from "@/pages/Blog";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 
 export const Route = createFileRoute("/blog/")({
   // Loader SSR : la liste des articles doit être dans le HTML initial
   // (crawlers et agents IA sans JS doivent voir les liens des articles).
   loader: async () => {
+    const supabase = await getSupabase();
     const { data } = await supabase
       .from("blog_posts")
       .select(

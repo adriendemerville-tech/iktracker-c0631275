@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 import type { Json } from "@/integrations/supabase/types";
 
 /**
@@ -20,6 +20,7 @@ export function usePageContent<T extends ContentMap>(
   const { data, isSuccess } = useQuery({
     queryKey: ["page-content", pageKey],
     queryFn: async () => {
+      const supabase = await getSupabase();
       const { data, error } = await supabase
         .from("page_contents")
         .select("content")

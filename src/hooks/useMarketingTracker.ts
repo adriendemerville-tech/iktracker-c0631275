@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/integrations/supabase/lazy";
 import { isBrowser, isBot } from "@/lib/ssr-utils";
 import { getSessionId, getDeviceType, checkIsAdmin } from "@/lib/tracking-shared";
 import { getVariantTag } from "@/lib/ab-test";
@@ -56,6 +56,7 @@ export function useMarketingTracker(page: string) {
 
       // Delegate to edge function so IP is captured from CF headers server-side
       // (ipify was blocked by uBlock/Brave/Pi-hole for a large share of users).
+      const supabase = await getSupabase();
       await supabase.functions.invoke("track-event", {
         body: {
           event_type: options.eventType,

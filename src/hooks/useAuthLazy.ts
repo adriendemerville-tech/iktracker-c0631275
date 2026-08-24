@@ -1,8 +1,8 @@
 // Lazy auth hook for marketing pages - doesn't block initial render
 // Returns null initially and updates asynchronously
 import { useState, useEffect } from "react";
-import { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
+import { getSupabase } from "@/integrations/supabase/lazy";
 
 export const useAuthLazy = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -14,6 +14,7 @@ export const useAuthLazy = () => {
     // Check session asynchronously without blocking
     const checkSession = async () => {
       try {
+        const supabase = await getSupabase();
         const {
           data: { session },
         } = await supabase.auth.getSession();
