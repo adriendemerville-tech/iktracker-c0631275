@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.2 — 24 août 2026 (Core Web Vitals : CLS corrigé, préloads de polices réparés)
+> Version 3.3 — 24 août 2026 (Découpage du bundle : client Supabase et chrome applicatif en chunks asynchrones)
 
 **Notes v3.2 (performance — lot CLS + prérequis LCP)**
 - **CLS home : 0,139 → 0,003 (mesuré Playwright @1280px, variantes A et B).** Trois causes racines corrigées :
@@ -692,3 +692,25 @@ src/
 
 - **1.4** (24 juillet 2026) — Modale « Compléter le trajet » centrée + pré-remplissage adresses réelles. Ajout page OAuthConsent et intégration MCP.
 - **1.3** (4 mai 2026) — Tournées, étapes horodatées et audit PDF.
+
+
+## Découpage du bundle JavaScript (v3.3)
+
+Objectif : réduire le JS initial mobile sur les pages publiques.
+
+- `src/integrations/supabase/lazy.ts` — accesseur `getSupabase()` qui charge le
+  client Supabase (~50 Ko gzip) en chunk asynchrone, mémoïsé. Utilisé par
+  `useAuth`, `useAuthLazy`, `usePageContent`, `useMarketingTracker`,
+  `tracking-shared`, `CrawlersBanner`, `Landing` et les loaders des routes blog.
+- `src/integrations/supabase/lazy-auth-attacher.ts` — remplace l'attacher généré
+  dans `src/start.ts` (celui-ci importait le client statiquement dans l'entrée).
+  Ne pas réintroduire `attachSupabaseAuth`.
+- `SmartRoutes.tsx` éclaté en `SmartLanding.tsx`, `SmartAuth.tsx`,
+  `SmartSignup.tsx` : `/auth` et `/signup` ne sont plus embarqués dans le chunk
+  de la home.
+- `AppChrome` charge `LogoutOverlay` et `GlobalTourRecovery` en `lazy()`
+  (rendus uniquement en session connectée / déconnexion).
+
+Résultat mesuré sur `bun run build` : entrée client 154 Ko gzip (contre
+~147 Ko + 30 Ko SmartRoutes + 53 Ko client Supabase chargés d'emblée avant),
+soit environ -33 % de JS initial sur `/`.
