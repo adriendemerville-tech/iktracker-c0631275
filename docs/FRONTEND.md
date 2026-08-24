@@ -1,6 +1,15 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.1 — 24 août 2026 (enrichissement SEO/GEO : tarifs, contact, page auteur)
+> Version 3.2 — 24 août 2026 (Core Web Vitals : CLS corrigé, préloads de polices réparés)
+
+**Notes v3.2 (performance — lot CLS + prérequis LCP)**
+- **CLS home : 0,139 → 0,003 (mesuré Playwright @1280px, variantes A et B).** Trois causes racines corrigées :
+  1. *Swap CMS du hero* : les fallbacks `LANDING_DEFAULTS` (`src/pages/Landing.tsx`) divergeaient de la ligne `page_contents` BDD (`page_key='home'`) — tout visiteur subissait un remplacement du H1 après hydratation. Fallbacks synchronisés sur les valeurs BDD + commentaire de garde-fou dans le code.
+  2. *Réservations `min-h` sous-dimensionnées* : hauteurs naturelles mesurées par breakpoint via Playwright (H1 : 150px mobile, 180px md, 450px lg@1024 variante B, 300px xl ; sous-titre : 120px / 112px) → `min-h` ajustés au pire cas des deux variantes A/B par breakpoint (`lg:min-h-[29rem] xl:min-h-[20rem]` sur le H1, etc.). Ne pas réduire sans re-mesurer les deux variantes.
+  3. *Squelette du formulaire d'auth* : `min-h-[420px]` → `min-h-[486px] md:min-h-[502px]` (hauteur réelle mesurée d'`AuthForm`).
+- **Préloads de polices réparés** (`src/routes/__root.tsx`) : les URLs `fonts.gstatic.com` v8/v15 pointaient vers des fichiers obsolètes (~1 Ko inutilisable, bande passante gaspillée, délai LCP mobile) → remplacées par les fichiers variables latins actuels (Plus Jakarta Sans v12, DM Sans v17, vérifiés HTTP 200). La feuille Google Fonts inclut désormais `wght 800` pour le H1 `font-extrabold` (fichier variable identique, aucun téléchargement en plus).
+- **Polices de repli ajustées aux métriques** (`src/styles.css`, méthode Capsize) : `@font-face` « Fallback » avec `size-adjust` calculé sur la cap-height (PJS 104,01 %, DM Sans 97,72 %) + `ascent/descent/line-gap-override` sur Arial locale, insérées dans `--font-sans` / `--font-display` / `--font-blog`. Supprime le décalage résiduel au swap `font-display`. L'ancien bloc `@font-face` sans `src` (ignoré par les navigateurs) est supprimé.
+- Vérifications : 169 tests SSR/JSON-LD verts ; reste au chantier pour le LCP mobile 4G : activation du cache edge du Worker (BLOQUÉ O2O, cf. BACKEND v4.6.1) et réduction du JS tiers (GTM ~162 Ko, lot suivant).
 
 **Notes v3.1 (contenu visible SSR — pages pauvres enrichies)**
 - **`/tarifs`** : la FAQ est désormais **visible en HTML** (`<details>`, 7 questions) et alimentée depuis la même source `FAQ_ITEMS` que le JSON-LD `FAQPage` — fin de l'écart contenu/données structurées. Nouvelles sections « Tout est inclus, pour 0 € » (8 fonctionnalités) et « Combien coûtent les alternatives ? » avec maillage vers `/comparatif-izika`, `/comparatif-driversnote`, `/meilleure-application-indemnites-kilometriques`, `/fonctionnalites` et `/bareme-ik-2026`.

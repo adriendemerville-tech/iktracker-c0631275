@@ -37,12 +37,12 @@
   --color-wizard-border: hsl(var(--wizard-border));
   --color-wizard-muted: hsl(var(--wizard-muted));
 
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-sans: "DM Sans", "DM Sans Fallback", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback", system-ui, sans-serif;
   --font-mono: "Space Mono", monospace;
   --font-urbanist: "Urbanist", system-ui, sans-serif;
   --font-serif: "Playfair Display", Georgia, serif;
-  --font-blog: "DM Sans", system-ui, sans-serif;
+  --font-blog: "DM Sans", "DM Sans Fallback", system-ui, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -279,7 +279,7 @@
     --shadow-glow: 0 0 20px hsl(245 58% 52% / 0.25);
 
     /* Typography */
-    --font-sans: "DM Sans", system-ui, sans-serif;
+    --font-sans: "DM Sans", "DM Sans Fallback", system-ui, sans-serif;
     --font-mono: "Space Mono", monospace;
 
     /* Pending trips section gradient */
@@ -819,13 +819,25 @@ img {
   content-visibility: auto;
 }
 
-/* Prevent font FOUT/FOIT causing CLS */
+/* Polices de repli ajustées aux métriques des webfonts (méthode Capsize) :
+   réduit le décalage de layout (CLS) lors du swap font-display: swap.
+   size-adjust calculé sur la cap-height, overrides appliqués à Arial locale.
+   NB : l'ancien bloc @font-face sans `src` était ignoré par les navigateurs. */
 @font-face {
-  font-family: "Plus Jakarta Sans";
-  font-display: swap;
-  size-adjust: 100%;
-  ascent-override: 95%;
-  descent-override: 22%;
+  font-family: "Plus Jakarta Sans Fallback";
+  src: local("Arial");
+  size-adjust: 104.01%;
+  ascent-override: 99.8%;
+  descent-override: 21.35%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "DM Sans Fallback";
+  src: local("Arial");
+  size-adjust: 97.72%;
+  ascent-override: 101.51%;
+  descent-override: 31.72%;
   line-gap-override: 0%;
 }
 

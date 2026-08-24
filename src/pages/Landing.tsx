@@ -34,7 +34,7 @@ const AuthForm = lazy(() => import("@/components/AuthForm").then((m) => ({ defau
 
 // Auth form loading placeholder
 const AuthFormSkeleton = memo(() => (
-  <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 min-h-[420px]">
+  <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 min-h-[486px] md:min-h-[502px]">
     <Skeleton className="h-8 w-32 mx-auto mb-2" />
     <Skeleton className="h-4 w-48 mx-auto mb-6" />
     <Skeleton className="h-12 w-full mb-4 rounded-lg" />
@@ -133,10 +133,13 @@ const CalendarPlaceholder = memo(() => (
 ));
 
 const LANDING_DEFAULTS = {
-  hero_title: "Indemnités kilométriques & barème kilométrique 2026",
-  hero_highlight: "100% gratuit",
+  // IMPORTANT : ces valeurs doivent rester identiques à la ligne page_key='home'
+  // de la table page_contents. Sinon le contenu SSR (rendu avec ces fallbacks)
+  // est remplacé après hydratation par les valeurs BDD → CLS + HTML bot ≠ utilisateur.
+  hero_title: "Calcul automatisé des indemnités kilométriques",
+  hero_highlight: "Barème 2026",
   hero_subtitle:
-    "Calculez, enregistrez et exportez vos frais kilométriques selon le barème URSSAF officiel 2026. Mode Tournée GPS, sync calendrier, export expert-comptable. Outil communautaire gratuit à vie.",
+    "Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics. Outil communautaire.",
   pain_badge: "Fini les tableaux Excel",
   pain_title_prefix: "Vous perdez encore du temps avec des",
   pain_title_strike: "fichiers Excel",
@@ -247,19 +250,22 @@ const Landing = () => {
                   <span>100% Gratuit</span>
                 </div>
                 {/* LCP Element - rendu instantané, sans animation.
-                    min-height = hauteur du pire cas (titre sur 3 lignes mobile /
-                    2 lignes desktop) → le swap de variante A/B ne décale rien. */}
+                    min-height = pire cas mesuré sur les 2 variantes A/B à chaque
+                    breakpoint (Playwright, 24/08/2026 : 150px mobile, 180px md,
+                    450px lg @1024, 300px xl) → le swap de variante ne décale rien.
+                    Ne pas réduire sans re-mesurer les deux variantes. */}
                 <h1
                   id="hero-heading"
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[15rem]"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[29rem] xl:min-h-[20rem]"
                 >
 
                   {heroTitle}
                   <br />
                   <span className="text-gradient">{heroHighlight}</span>
                 </h1>
-                {/* min-height reserves space → prevents CLS when React subtitle replaces static shell */}
-                <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 min-h-[6rem] sm:min-h-[5.5rem] md:min-h-[6rem]">
+                {/* min-height = pire cas mesuré (120px mobile variante B, 112px lg)
+                    → empêche le CLS quand le sous-titre swappe après hydratation */}
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 min-h-[8rem] sm:min-h-[6rem] lg:min-h-[8rem] xl:min-h-[6rem]">
                   {heroSubtitle}
                 </p>
 
@@ -341,7 +347,7 @@ const Landing = () => {
               {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
               <div
                 id="auth-section"
-                className="animate-scale-in min-h-[420px] min-w-[320px] lg:min-w-[400px]"
+                className="animate-scale-in min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px]"
               >
                 {user ? (
                   <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 text-center">
