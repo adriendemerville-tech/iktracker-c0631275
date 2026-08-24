@@ -6,7 +6,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { PartnerStrip } from "@/components/marketing/PartnerStrip";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 const FREE_IN_30_LANGUAGES = [
   "Gratuit.",
@@ -41,6 +41,58 @@ const FREE_IN_30_LANGUAGES = [
   "Bure.",
 ];
 
+const INCLUDED_FEATURES = [
+  "Mode Tournée GPS multi-arrêts",
+  "Synchronisation Google / Outlook Calendar",
+  "Calcul automatique au barème officiel 2026",
+  "Majoration +20% véhicules 100% électriques",
+  "Export PDF / Excel pour votre comptable",
+  "Envoi automatique du relevé au comptable",
+  "Trajets récurrents et import Google Takeout",
+  "API dédiée aux experts-comptables",
+];
+
+// Source unique : les questions alimentent à la fois le JSON-LD FAQPage et la
+// FAQ visible en HTML (GEO : les réponses doivent exister dans le HTML servi).
+const FAQ_ITEMS = [
+  {
+    question: "IKtracker est-il vraiment gratuit ?",
+    answer:
+      "Oui. IKtracker est 100% gratuit à vie : 0€/mois, aucun abonnement, aucune carte bancaire requise, aucune publicité, aucune revente de données. L'outil est financé par l'agence Avenir Rénovations, qui l'utilise en interne et le met à disposition de la communauté des indépendants.",
+  },
+  {
+    question: "Y a-t-il un plan payant ou premium caché ?",
+    answer:
+      "Non. Toutes les fonctionnalités sont incluses gratuitement : Mode Tournée GPS, synchronisation Google/Outlook Calendar, calcul automatique selon le barème URSSAF 2025-2026, majoration 20% véhicules électriques, export PDF/Excel, envoi automatique au comptable, API pour experts-comptables. Aucune version premium à débloquer.",
+  },
+  {
+    question: "Comment IKtracker gagne de l'argent alors ?",
+    answer:
+      "IKtracker ne gagne pas d'argent. C'est un outil communautaire créé par un entrepreneur indépendant (Adrien de Volontat, dirigeant d'Avenir Rénovations à Saint-Rémy-de-Provence) pour ses propres besoins et ceux de ses confrères. Aucun investisseur, aucune monétisation des données utilisateurs.",
+  },
+  {
+    question: "Faut-il fournir une carte bancaire à l'inscription ?",
+    answer:
+      "Non. L'inscription se fait avec une simple adresse e-mail (ou compte Google). Aucune carte bancaire, aucune information de paiement n'est demandée, ni à l'inscription, ni jamais par la suite.",
+  },
+  {
+    question: "Mes données sont-elles revendues ?",
+    answer:
+      "Non. IKtracker n'affiche aucune publicité et ne revend aucune donnée. Les trajets, adresses et véhicules sont stockés de façon privée (Row-Level Security côté base) et accessibles uniquement à l'utilisateur propriétaire.",
+  },
+  {
+    question: "IKtracker est-il disponible sur Google Play ou l'App Store ?",
+    answer:
+      "Non. IKtracker est une application web progressive (PWA) accessible uniquement sur https://iktracker.fr et installable sur iPhone et Android depuis le navigateur, via https://iktracker.fr/installer. IKtracker n'est publié sur aucun store d'applications.",
+  },
+  {
+    question:
+      "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
+    answer:
+      "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. « Suivi IK » est freemium avec un essai limité en kilomètres puis un abonnement. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres.",
+  },
+];
+
 export default function Tarifs() {
   return (
     <>
@@ -58,64 +110,11 @@ export default function Tarifs() {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: [
-              {
-                "@type": "Question",
-                name: "IKtracker est-il vraiment gratuit ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Oui. IKtracker est 100% gratuit à vie : 0€/mois, aucun abonnement, aucune carte bancaire requise, aucune publicité, aucune revente de données. L'outil est financé par l'agence Avenir Rénovations, qui l'utilise en interne et le met à disposition de la communauté des indépendants.",
-                },
-              },
-              {
-                "@type": "Question",
-                name: "Y a-t-il un plan payant ou premium caché ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Non. Toutes les fonctionnalités sont incluses gratuitement : Mode Tournée GPS, synchronisation Google/Outlook Calendar, calcul automatique selon le barème URSSAF 2025-2026, majoration 20% véhicules électriques, export PDF/Excel, envoi automatique au comptable, API pour experts-comptables. Aucune version premium à débloquer.",
-                },
-              },
-              {
-                "@type": "Question",
-                name: "Comment IKtracker gagne de l'argent alors ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "IKtracker ne gagne pas d'argent. C'est un outil communautaire créé par un entrepreneur indépendant (Adrien de Volontat, dirigeant d'Avenir Rénovations à Saint-Rémy-de-Provence) pour ses propres besoins et ceux de ses confrères. Aucun investisseur, aucune monétisation des données utilisateurs.",
-                },
-              },
-              {
-                "@type": "Question",
-                name: "Faut-il fournir une carte bancaire à l'inscription ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Non. L'inscription se fait avec une simple adresse e-mail (ou compte Google). Aucune carte bancaire, aucune information de paiement n'est demandée, ni à l'inscription, ni jamais par la suite.",
-                },
-              },
-              {
-                "@type": "Question",
-                name: "Mes données sont-elles revendues ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Non. IKtracker n'affiche aucune publicité et ne revend aucune donnée. Les trajets, adresses et véhicules sont stockés de façon privée (Row-Level Security côté base) et accessibles uniquement à l'utilisateur propriétaire.",
-                },
-              },
-              {
-                "@type": "Question",
-                name: "IKtracker est-il disponible sur Google Play ou l'App Store ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Non. IKtracker est une application web progressive (PWA) accessible uniquement sur https://iktracker.fr et installable sur iPhone et Android depuis le navigateur, via https://iktracker.fr/installer. IKtracker n'est publié sur aucun store d'applications.",
-                },
-              },
-              {
-                "@type": "Question",
-                name: "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, Cholet) est un produit tiers payant, sans aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. « Suivi IK » est freemium avec un essai limité en kilomètres puis un abonnement. IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres.",
-                },
-              },
-            ],
+            mainEntity: FAQ_ITEMS.map((item) => ({
+              "@type": "Question",
+              name: item.question,
+              acceptedAnswer: { "@type": "Answer", text: item.answer },
+            })),
           })}
         </script>
       </Helmet>
@@ -164,6 +163,83 @@ export default function Tarifs() {
             <br className="hidden md:block" /> IKtracker est gratuit, parce que tout ne doit pas
             être payant.
           </p>
+        </section>
+
+        {/* Tout est inclus pour 0€ */}
+        <section className="max-w-3xl mx-auto px-4 pb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
+            Tout est inclus, pour 0&nbsp;€
+          </h2>
+          <ul className="grid sm:grid-cols-2 gap-3" role="list">
+            {INCLUDED_FEATURES.map((feature) => (
+              <li
+                key={feature}
+                className="flex items-start gap-3 rounded-lg border border-border bg-card p-4"
+              >
+                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span className="text-foreground">{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-center text-muted-foreground mt-6">
+            Le détail des fonctionnalités est sur la{" "}
+            <Link to="/fonctionnalites" className="text-primary underline underline-offset-4">
+              page fonctionnalités
+            </Link>
+            , et le barème appliqué est celui de la{" "}
+            <Link to="/bareme-ik-2026" className="text-primary underline underline-offset-4">
+              page barème kilométrique 2026
+            </Link>
+            .
+          </p>
+        </section>
+
+        {/* Comparatifs */}
+        <section className="max-w-3xl mx-auto px-4 pb-16 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            Combien coûtent les alternatives&nbsp;?
+          </h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Les autres outils de suivi kilométrique facturent entre 5 et 15&nbsp;€ par mois.
+            Nous les avons comparés en détail&nbsp;:
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/comparatif-izika">
+              <Button variant="outline">IKtracker vs Izika</Button>
+            </Link>
+            <Link to="/comparatif-driversnote">
+              <Button variant="outline">IKtracker vs Driversnote</Button>
+            </Link>
+            <Link to="/meilleure-application-indemnites-kilometriques">
+              <Button variant="outline">Comparatif complet</Button>
+            </Link>
+          </div>
+        </section>
+
+        {/* FAQ visible — miroir du JSON-LD FAQPage */}
+        <section className="max-w-3xl mx-auto px-4 pb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
+            Questions fréquentes sur la gratuité
+          </h2>
+          <div className="space-y-4">
+            {FAQ_ITEMS.map((item) => (
+              <details
+                key={item.question}
+                className="rounded-xl border border-border bg-card p-5 group"
+              >
+                <summary className="font-semibold text-foreground cursor-pointer list-none flex items-center justify-between gap-4">
+                  {item.question}
+                  <span
+                    className="text-primary transition-transform group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="text-muted-foreground leading-relaxed mt-3">{item.answer}</p>
+              </details>
+            ))}
+          </div>
         </section>
 
         {/* Désambiguïsation — applications tierces au nom proche */}

@@ -46,6 +46,7 @@ export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
 
   // Barème : renvoi vers la page pilier marketing
   "bareme-indemnites-kilometriques-2026-iktracker": "/bareme-ik-2026",
+  "bareme-ik-2026-changements": "/bareme-ik-2026",
 
   // Doublons marque et erreurs
   "iktracker-nouveautes-2026": "/blog/iktracker-2026-nouveautes-tendances",
