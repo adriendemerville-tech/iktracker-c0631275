@@ -228,18 +228,60 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
             </CardContent>
           </Card>
 
-          {/* Articles section */}
+          {/* Expertise */}
+          <section className="mt-12">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Domaines d'expertise</h2>
+            <ul className="flex flex-wrap gap-2" role="list">
+              {[
+                "Indemnités kilométriques",
+                "Fiscalité automobile professionnelle",
+                "Suivi des déplacements professionnels",
+                "Gestion d'entreprise du bâtiment",
+              ].map((domain) => (
+                <li key={domain}>
+                  <Badge variant="secondary">{domain}</Badge>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Articles section — liste réelle rendue côté serveur (E-E-A-T) */}
           <section className="mt-12">
             <h2 className="text-xl font-semibold text-foreground mb-4">
               Articles de Adrien de Volontat
             </h2>
-            <p className="text-muted-foreground">
-              Retrouvez tous les articles rédigés par Adrien sur{" "}
-              <Link to="/blog" className="text-primary hover:underline">
-                le blog IKtracker
-              </Link>
-              .
-            </p>
+            {articles.length > 0 ? (
+              <ul className="space-y-3" role="list">
+                {articles.map((article) => (
+                  <li key={article.slug} className="border-b border-border pb-3">
+                    <Link
+                      to={`/blog/${article.slug}`}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {article.title}
+                    </Link>
+                    {article.published_at && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Publié le{" "}
+                        {new Date(article.published_at).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">
+                Retrouvez tous les articles rédigés par Adrien sur{" "}
+                <Link to="/blog" className="text-primary hover:underline">
+                  le blog IKtracker
+                </Link>
+                .
+              </p>
+            )}
           </section>
         </main>
 
