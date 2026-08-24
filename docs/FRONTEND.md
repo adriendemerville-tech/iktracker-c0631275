@@ -142,12 +142,12 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/signup` | `Signup` | Inscription (smart redirect si auth) |
 | `/blog` | `Blog` | Liste des articles |
 | `/blog/:slug` | `BlogPost` | Article de blog |
-| `/blog/auteur/:slug` | `AuthorPage` | Page auteur |
+| `/blog/auteur/:slug` | `AuthorPage` | Page auteur (loader SSR : liste des articles publiés + expertise E-E-A-T) |
 | `/privacy` | `Privacy` | Politique de confidentialité |
 | `/terms` | `Terms` | CGVU (Conditions Générales de Vente et d'Utilisation) |
 | `/mentions-legales` | `MentionsLegales` | Mentions légales |
 | `/rgpd` | `Rgpd` | Conformité RGPD (droits, sécurité, hébergement) |
-| `/contact` | `Contact` | Page contact |
+| `/contact` | `Contact` | Page contact (auto-assistance : barème, tarifs, lexique + formulaire, délai 48 h) |
 | `/installer` | `Install` | Guide d'installation PWA (bloc « distribution web uniquement, aucun store ») |
 | `/fonctionnalites` | `Fonctionnalites` | Panorama complet des fonctionnalités (5 familles) + FAQ de désambiguïsation |
 | `/expert-comptable` | `ExpertComptable` | Landing expert-comptable (relevés mensuels, récap annuel, archive PDF) |
@@ -162,7 +162,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `/indemnite-kilometrique-velo` | `IndemniteKilometriqueVelo` | Guide IK vélo |
 | `/indemnite-grand-deplacement-2026` | `IndemniteGrandDeplacement2026` | Guide grand déplacement |
 | `/mes-trajets` | `MesTrajetsLanding` | Landing SEO historique de trajets |
-| `/tarifs` | `Tarifs` | Tarifs (gratuit à vie) + FAQ anti-hallucination prix |
+| `/tarifs` | `Tarifs` | Tarifs (gratuit à vie) : FAQ visible partagée avec le JSON-LD, fonctionnalités incluses, comparatifs |
 | `/api-docs` | `ApiDocs` | Documentation API partenaire |
 | `/lexique` | `Lexique` | Lexique IK |
 | `/comparatif-izika` | `ComparatifIzika` | Comparatif vs Izika |
