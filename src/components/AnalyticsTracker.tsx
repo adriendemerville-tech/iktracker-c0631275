@@ -17,12 +17,55 @@ declare global {
 
 const MEASUREMENT_ID = "G-W33RV35QPJ";
 
+const TAAP_SRC = "https://taap.it/scripts/tracker.js";
+
+// Charge le tracker Taap.it à la demande (jamais pendant le chargement initial).
+const loadTaapIt = () => {
+  if (typeof document === "undefined") return;
+  if (document.querySelector(`script[src="${TAAP_SRC}"]`)) return;
+  const s = document.createElement("script");
+  s.src = TAAP_SRC;
+  s.async = true;
+  s.dataset["project"] = "pk_42374e58f4a64fdeadbb3bdffd7191cd";
+  s.dataset["trackOutbound"] = "true";
+  s.dataset["trackForms"] = "true";
+  document.body.appendChild(s);
+};
+
+// Déclenche `cb` à la première interaction utilisateur, ou après `fallbackMs`
+// si l'utilisateur reste passif. Objectif : sortir GA/Taap du chemin critique
+// mobile (≈162 Kio de JS GTM hors du chargement initial).
+const onFirstInteraction = (cb: () => void, fallbackMs = 6000) => {
+  let done = false;
+  const events: (keyof WindowEventMap)[] = [
+    "pointerdown",
+    "keydown",
+    "scroll",
+    "touchstart",
+    "mousemove",
+  ];
+  const run = () => {
+    if (done) return;
+    done = true;
+    cleanup();
+    cb();
+  };
+  const cleanup = () => {
+    events.forEach((e) => window.removeEventListener(e, run));
+    clearTimeout(timer);
+  };
+  const timer = setTimeout(run, fallbackMs);
+  events.forEach((e) => window.addEventListener(e, run, { once: true, passive: true }));
+  return cleanup;
+};
+
 export const AnalyticsTracker = () => {
   const location = useLocation();
 
-  // Initialize GA4 with 3s delay to not impact initial load
+  // Initialisation différée : première interaction ou 6 s d'inactivité.
   useEffect(() => {
-    const timer = setTimeout(() => {
+    return onFirstInteraction(() => {
+      loadTaapIt();
       if (!window.GA_INITIALIZED) {
         const attribution = getGaAttributionParams();
         ReactGA.initialize(MEASUREMENT_ID, {
@@ -45,9 +88,7 @@ export const AnalyticsTracker = () => {
           });
         }
       }
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    });
   }, []);
 
   // Track page views
