@@ -1,6 +1,6 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6 — 24 août 2026
+> Version 4.6.1 — 24 août 2026
 
 **Notes v4.6.1 (déploiement Worker & diagnostic Custom Domain, 23 août 2026)**
 - **Déploiement `iktracker-bot-router` via `wrangler deploy`** : routes `iktracker.fr/*` et `www.iktracker.fr/*` poussées avec succès. Le Worker reste **inactif en production** à cause du conflit **Orange-to-Orange** (l'origine Lovable est elle-même derrière Cloudflare). Un test en Custom Domain sur `worker-cd-test.iktracker.fr` a prouvé que la bascule fonctionne, mais qu'elle exige le retrait préalable de `iktracker.fr` des domaines personnalisés Lovable (sinon `iktracker.lovable.app` renvoie `302 → iktracker.fr`). La procédure de bascule est documentée ci-dessous.
