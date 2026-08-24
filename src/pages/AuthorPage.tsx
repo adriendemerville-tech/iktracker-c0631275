@@ -18,7 +18,9 @@ type LinkedInProfile = {
   verified?: boolean;
 };
 
-export default function AuthorPage() {
+type AuthorArticle = { slug: string; title: string; published_at: string | null };
+
+export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle[] }) {
   const canonicalUrl = "https://iktracker.fr/blog/auteur/adrien-de-volontat";
   const [linkedInProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
 
