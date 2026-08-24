@@ -88,9 +88,7 @@ export const AnalyticsTracker = () => {
           });
         }
       }
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    });
   }, []);
 
   // Track page views
