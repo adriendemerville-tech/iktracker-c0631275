@@ -7,6 +7,8 @@ compatibility_date = "2025-01-01"
 routes = [
   { pattern = "iktracker.fr/*", zone_name = "iktracker.fr" },
   { pattern = "www.iktracker.fr/*", zone_name = "iktracker.fr" },
+  # Test Custom Domain pour contourner le conflit Orange-to-Orange
+  { pattern = "worker-cd-test.iktracker.fr", custom_domain = true },
 ]
 
 # Observabilité (logs Cloudflare)
